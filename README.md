@@ -5,7 +5,7 @@ The API assumes the relay supports NIP-11, it uses the relay information for pub
 2. Unsupported tags will be discarded from the event before being published.
 
 ## Usage
-Have a look at [NostrExamples.java](https://github.com/tcheeric/nostr-java/blob/main/nostr-examples/src/main/java/com/tcheeric/nostr/examples/NostrExamples.java) in the [nostr-examples](https://github.com/tcheeric/nostr-java/tree/main/nostr-examples) folder for more details.
+Have a look at [NostrExamples.java](https://github.com/tcheeric/nostr-java/blob/main/nostr-examples/src/main/java/nostr/examples/NostrExamples.java) in the [nostr-examples](https://github.com/tcheeric/nostr-java/tree/main/nostr-examples) folder for more details.
 
 ## Currently Supported NIPS:
  1. NIP-01
