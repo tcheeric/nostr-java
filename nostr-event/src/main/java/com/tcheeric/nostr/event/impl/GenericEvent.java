@@ -31,7 +31,6 @@ import com.tcheeric.nostr.event.marshaller.impl.EventMarshaller;
 import com.tcheeric.nostr.event.marshaller.impl.TagListMarshaller;
 import java.beans.Transient;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.NonNull;
 
 /**

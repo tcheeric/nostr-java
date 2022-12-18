@@ -56,7 +56,7 @@ public class NostrExamples {
     public static void main(String[] args) throws IOException, Exception {
         try {
 
-            log.log(Level.INFO, "================= The Begining");
+            log.log(Level.INFO, "================= The Beginning");
 
             Wallet wallet = new Wallet();
             Client client = new Client("nostr-java", wallet);

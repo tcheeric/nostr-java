@@ -171,7 +171,7 @@ public class Wallet {
         }
 
         Profile getProfile() throws NostrException, IOException {
-            log.log(Level.FINE, "Getting profile details from configuration file");
+            log.log(Level.FINE, "Getting the profile details from the configuration file...");
             return Profile.builder().about(getAbout()).email(getEmail()).name(getName()).picture(getPicture()).publicKey(getPublicKey()).build();
         }
 
