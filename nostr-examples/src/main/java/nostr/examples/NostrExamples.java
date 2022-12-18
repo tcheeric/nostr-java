@@ -23,7 +23,6 @@ import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.KindList;
 import nostr.event.list.PubKeyTagList;
 import nostr.event.list.TagList;
-import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
@@ -56,7 +55,7 @@ public class NostrExamples {
     public static void main(String[] args) throws IOException, Exception {
         try {
 
-            log.log(Level.INFO, "================= The Beginning");
+            log.log(Level.FINE, "================= The Beginning");
 
             Wallet wallet = new Wallet();
             Client client = new Client("nostr-java", wallet);
@@ -135,7 +134,7 @@ public class NostrExamples {
                 log.log(Level.WARNING, ex.getMessage());
             }
 
-            log.log(Level.INFO, "================== The End");
+            log.log(Level.FINE, "================== The End");
 
         } catch (IllegalArgumentException ex) {
             log.log(Level.SEVERE, null, ex);
@@ -157,7 +156,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
@@ -211,7 +210,7 @@ public class NostrExamples {
             GenericEvent event = new MentionsEvent(publicKeySender, tagList, "Hello 01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5", mentionees);
             wallet.sign(event);
 
-            log.log(Level.INFO, ">>>>>>>>>>>> Event: {0}", event);
+            log.log(Level.FINER, ">>>>>>>>>>>> Event: {0}", event);
 
             BaseMessage message = EventMessage.builder().event(event).build();
 
@@ -239,7 +238,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
 
             tagList = new TagList();
@@ -275,7 +274,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
@@ -300,7 +299,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
         } catch (UnsupportedNIPException ex) {
             throw ex;
@@ -323,7 +322,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
 
             tagList = new TagList();
@@ -357,7 +356,7 @@ public class NostrExamples {
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
 
-            log.log(Level.FINE, "Sending message {0}", event);
+            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
 
             tagList = new TagList();

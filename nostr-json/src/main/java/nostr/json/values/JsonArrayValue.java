@@ -26,7 +26,7 @@ public class JsonArrayValue extends BaseJsonValue<JsonArrayType> {
     }
 
     public int length() {
-        return ((List<JsonValue>) this.getValue()).size();
+        return this.getValue().size();
     }
     
     @Override

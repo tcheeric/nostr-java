@@ -64,13 +64,13 @@ public class JsonTest {
         JsonValue<JsonArrayType> jsonArr = new JsonArrayUnmarshaller("[2,\"a\"]").unmarshall();
         Assertions.assertEquals(2, ((JsonArrayValue) jsonArr).length());
         Assertions.assertEquals(2, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(0)).intValue());
-        Assertions.assertEquals("\"a\"", ((JsonStringValue) ((JsonArrayValue) jsonArr).get(1)).toString());
+        Assertions.assertEquals("\"a\"", ((JsonArrayValue) jsonArr).get(1).toString());
 
         jsonArr = new JsonArrayUnmarshaller("[1,2,\"bx\"]").unmarshall();
         Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
         Assertions.assertEquals(1, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(0)).intValue());
         Assertions.assertEquals(2, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(1)).intValue());
-        Assertions.assertEquals("\"bx\"", ((JsonStringValue) ((JsonArrayValue) jsonArr).get(2)).toString());
+        Assertions.assertEquals("\"bx\"", ((JsonArrayValue) jsonArr).get(2).toString());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"]]").unmarshall();
         Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
@@ -86,7 +86,7 @@ public class JsonTest {
         Assertions.assertEquals(2, ((JsonArrayValue) jsonArr).length());
 
         JsonValue<JsonObjectType> jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
-        Assertions.assertTrue(((JsonObjectValue) jsonObj).getType() instanceof JsonObjectType);
+        Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
         JsonValue v = ((JsonObjectValue) jsonObj).get("a");
         Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonNumberType);
         Assertions.assertEquals(2, ((JsonNumberValue) v).intValue());
@@ -95,8 +95,8 @@ public class JsonTest {
         Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
         v = ((JsonArrayValue) jsonArr).get(2);
         Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonArrayType);
-        jsonObj = (JsonObjectValue) ((JsonArrayValue) v).get(3);
-        Assertions.assertTrue(((JsonObjectValue) jsonObj).getType() instanceof JsonObjectType);
+        jsonObj = ((JsonArrayValue) v).get(3);
+        Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
 
         jsonObj = new JsonObjectUnmarshaller("{\"a\":2,\"b\":\"a\", \"nil\":{}}").unmarshall();
         v = ((JsonObjectValue) jsonObj).get("nil");
@@ -172,7 +172,7 @@ public class JsonTest {
             PublicKey publicKey = new PublicKey(new byte[]{});
 
             IEvent event = EntityFactory.Events.createTextNoteEvent(publicKey, "Free Willy!");
-            ((TextNoteEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
+            ((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
 
             final String jsonEvent = new EventMarshaller(event, relay).marshall();
 

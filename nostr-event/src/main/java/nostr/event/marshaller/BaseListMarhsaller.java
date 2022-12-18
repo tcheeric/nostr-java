@@ -57,7 +57,7 @@ public abstract class BaseListMarhsaller implements IMarshaller {
                     } else {
                         result.append("\\\"");
                     }
-                    result.append(((IKey) elt).toString());
+                    result.append(elt.toString());
                     if (!escape) {
                         result.append("\"");
                     } else {
