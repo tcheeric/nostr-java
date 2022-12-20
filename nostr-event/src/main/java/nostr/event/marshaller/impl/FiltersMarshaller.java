@@ -1,25 +1,40 @@
-
 package nostr.event.marshaller.impl;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import nostr.base.NostrException;
 import nostr.base.Relay;
-import nostr.event.BaseMessage;
-import nostr.event.marshaller.BaseMarshaller;
+import nostr.event.impl.Filters;
+import nostr.event.list.GenericTagQueryList;
 
 /**
  *
  * @author squirrel
  */
-public class FiltersMarshaller extends BaseMarshaller {
+public class FiltersMarshaller extends EventMarshaller {
 
-    public FiltersMarshaller(BaseMessage message, Relay relay) {
-        super(message, relay);
+    public FiltersMarshaller(Filters filters, Relay relay) {
+        this(filters, relay, false);
     }
 
-    
+    public FiltersMarshaller(Filters filters, Relay relay, boolean escape) {
+        super(filters, relay, escape);
+    }
+
     @Override
-    public String marshall() throws NostrException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    protected void toJson(Field field, StringBuilder result, Map<Field, Object> keysMap, Relay relay, int i) throws NostrException {
+        if (field.getType().equals(GenericTagQueryList.class)) {
+
+            final GenericTagQueryList gtql = (GenericTagQueryList) keysMap.get(field);
+
+            result.append(new GenericTagQueryListMarshaller(gtql, relay, isEscape()).marshall());
+            
+            if (i < keysMap.size()) {
+                result.append(",");
+            }
+
+        } else {
+            super.toJson(field, result, keysMap, relay, i);
+        }
     }
-    
 }

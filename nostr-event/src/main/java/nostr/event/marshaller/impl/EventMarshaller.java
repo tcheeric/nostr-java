@@ -1,4 +1,3 @@
-
 package nostr.event.marshaller.impl;
 
 import nostr.base.IElement;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.extern.java.Log;
 
 /**
@@ -70,6 +70,62 @@ public class EventMarshaller extends BaseMarshaller {
         }
     }
 
+    private StringBuilder toJson(Map<Field, Object> keysMap) throws NostrException {
+        int i = 0;
+        var result = new StringBuilder();
+        Relay relay = getRelay();
+
+        for (var field : keysMap.keySet()) {
+            toJson(field, result, keysMap, relay, ++i);
+        }
+
+        return result;
+    }
+
+    protected void toJson(Field field, StringBuilder result, Map<Field, Object> keysMap, Relay relay, int i) throws NostrException {
+        final String fieldName = getFieldName(field);
+
+        if (!escape) {
+            result.append("\"");
+        } else {
+            result.append("\\\"");
+        }
+        result.append(fieldName);
+        if (!escape) {
+            result.append("\":");
+        } else {
+            result.append("\\\":");
+        }
+
+        final boolean quoteFlag = isStringType(field);
+
+        if (quoteFlag) {
+            if (!escape) {
+                result.append("\"");
+            } else {
+                result.append("\\\"");
+            }
+        }
+
+        final Object value = keysMap.get(field);
+        if (value != null) {
+            final String strValue = value instanceof IElement ? new BaseMarshaller.Factory((IElement) value).create(relay, escape).marshall() : value.toString();
+            result.append(strValue);
+        }
+
+        if (quoteFlag) {
+            if (!escape) {
+                result.append("\"");
+            } else {
+                result.append("\\\"");
+            }
+        }
+
+        if (i < keysMap.size()) {
+            result.append(",");
+        }
+    }
+
     private Map<Field, Object> getKeysMap() throws IllegalArgumentException, NoSuchAlgorithmException, IllegalAccessException, IntrospectionException, InvocationTargetException {
 
         IEvent event = (IEvent) getElement();
@@ -82,7 +138,7 @@ public class EventMarshaller extends BaseMarshaller {
         for (Field field : fieldArr) {
 
             if (!nipFieldSupport(field)) {
-                log.log(Level.FINE, "Relay {0} to ignoring field {1}", new Object[]{relay, field});
+                log.log(Level.INFO, "Relay {0} to ignoring field {1}", new Object[]{relay, field});
                 continue;
             }
 
@@ -90,17 +146,18 @@ public class EventMarshaller extends BaseMarshaller {
 
             if (field.isAnnotationPresent(Key.class)) {
 
-                final String annotationName = getAnnotationName(field);
-
-                if ("id".equals(annotationName)) {
-                    keysMap.put(field, getValue(field));
-                } else if ("pubkey".equals(annotationName)) {
-                    keysMap.put(field, getValue(field));
-                } else if ("sig".equals(annotationName)) {
-                    keysMap.put(field, getValue(field));
-                } else {
-                    if (field.get(event) != null) {
-                        keysMap.put(field, field.get(event));
+                final String fieldName = getFieldName(field);
+                switch (fieldName) {
+                    case "id" ->
+                        keysMap.put(field, getValue(field));
+                    case "pubkey" ->
+                        keysMap.put(field, getValue(field));
+                    case "sig" ->
+                        keysMap.put(field, getValue(field));
+                    default -> {
+                        if (field.get(event) != null) {
+                            keysMap.put(field, field.get(event));
+                        }
                     }
                 }
             }
@@ -109,56 +166,10 @@ public class EventMarshaller extends BaseMarshaller {
         return keysMap;
     }
 
-    private StringBuilder toJson(Map<Field, Object> keysMap) throws NostrException {
-        int i = 0;
-        var result = new StringBuilder();
-        Relay relay = getRelay();
-
-        for (var field : keysMap.keySet()) {
-            final String fieldName = getAnnotationName(field);
-
-            if (!escape) {
-                result.append("\"");
-            } else {
-                result.append("\\\"");
-            }
-            result.append(fieldName);
-            if (!escape) {
-                result.append("\":");
-            } else {
-                result.append("\\\":");
-            }
-
-            final boolean quoteFlag = isStringType(field);
-
-            if (quoteFlag) {
-                if (!escape) {
-                    result.append("\"");
-                } else {
-                    result.append("\\\"");
-                }
-            }
-
-            final Object value = keysMap.get(field);
-            if (value != null) {
-                final String strValue = value instanceof IElement ? new BaseMarshaller.Factory((IElement) value).create(relay, escape).marshall() : value.toString();
-                result.append(strValue);
-            }
-
-            if (quoteFlag) {
-                if (!escape) {
-                    result.append("\"");
-                } else {
-                    result.append("\\\"");
-                }
-            }
-
-            if (++i < keysMap.size()) {
-                result.append(",");
-            }
-        }
-
-        return result;
+    @NonNull
+    protected String getFieldName(Field field) {
+        String name = field.getAnnotation(Key.class).name();
+        return name.isEmpty() ? field.getName() : name;
     }
 
     @SuppressWarnings("unchecked")
@@ -176,11 +187,6 @@ public class EventMarshaller extends BaseMarshaller {
             log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
         }
-    }
-
-    private String getAnnotationName(Field field) {
-        String name = field.getAnnotation(Key.class).name();
-        return name.isEmpty() ? field.getName() : name;
     }
 
     private Object getValue(Field field) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -225,13 +231,5 @@ public class EventMarshaller extends BaseMarshaller {
         IEvent event = (IEvent) getElement();
         var n = event.getClass().getAnnotation(NIPSupport.class);
         return n;
-    }
-
-    private boolean isCompositeType(Object value) {
-        if (!(value instanceof String)) {
-            return false;
-        }
-        String strVal = (String) value;
-        return (strVal.startsWith("{") && strVal.endsWith("}")) || (strVal.startsWith("[") && strVal.endsWith("]"));
     }
 }

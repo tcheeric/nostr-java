@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.event.list.GenericTagQueryList;
 
 /**
  *
@@ -52,4 +53,8 @@ public class Filters extends BaseEvent {
 
     @Key
     private Integer limit;
+    
+    @Key
+    @NIPSupport(12)
+    private GenericTagQueryList genericTagQueryList;
 }

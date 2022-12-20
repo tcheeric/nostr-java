@@ -20,14 +20,13 @@ import lombok.extern.java.Log;
 @Builder
 @Log
 @JsonList
-public class FilterList extends BaseList<Filters> {
+public class FiltersList extends BaseList<Filters> {
 
-    public FilterList() {
+    public FiltersList() {
         this(new ArrayList<>());
     }
 
-    private FilterList(@NonNull List<Filters> list) {
+    private FiltersList(@NonNull List<Filters> list) {
         super(list);
     }
-
 }

@@ -37,7 +37,7 @@ import lombok.extern.java.Log;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Log
-@NIPSupport(value=5, description="Mapping Nostr keys to DNS-based internet identifiers")
+@NIPSupport(value = 5, description = "Mapping Nostr keys to DNS-based internet identifiers")
 public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     private final String name;
@@ -124,8 +124,8 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     private String getPublicKey(StringBuilder content, String localPart) {
         JsonValue<JsonObjectType> jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
-        JsonValue namesObj = ((JsonObjectValue) jsonObjValue).get("names");
-        JsonValue pubKey = ((JsonObjectValue) namesObj).get(localPart);
+        JsonValue namesObj = ((JsonObjectValue) jsonObjValue).get("\"" + "names" + "\"");
+        JsonValue pubKey = ((JsonObjectValue) namesObj).get("\"" + localPart + "\"");
         return pubKey.getValue().toString();
     }
 

@@ -1,4 +1,3 @@
-
 package nostr.event.marshaller;
 
 import nostr.base.IElement;
@@ -22,6 +21,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.event.impl.Filters;
+import nostr.event.marshaller.impl.FiltersMarshaller;
 
 /**
  *
@@ -41,7 +42,7 @@ public abstract class BaseMarshaller implements IMarshaller {
         this.relay = relay;
         this.escape = false;
     }
-    
+
     protected boolean nipFieldSupport(Field field) {
 
         if (field.getAnnotation(Key.class) == null) {
@@ -76,9 +77,11 @@ public abstract class BaseMarshaller implements IMarshaller {
                 return new MessageMarshaller((BaseMessage) element, relay, escape);
             } else if (element instanceof TagList) {
                 return new TagListMarshaller((TagList) element, relay, escape);
-            } else if (element instanceof BaseList) {
+            } else if (element instanceof INostrList) {
                 return new BaseListMarhsaller((INostrList) element, relay, escape) {
                 };
+            } else if (element instanceof Filters) {
+                return new FiltersMarshaller((Filters) element, relay, escape);
             } else {
                 throw new NostrException("Invalid Element type");
             }
