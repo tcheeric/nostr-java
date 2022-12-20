@@ -23,7 +23,6 @@ import nostr.json.values.BaseJsonValue;
 import nostr.json.values.JsonArrayValue;
 import nostr.json.values.JsonNumberValue;
 import nostr.json.values.JsonObjectValue;
-import nostr.json.values.JsonStringValue;
 import nostr.json.types.JsonArrayType;
 import nostr.json.types.JsonNumberType;
 import nostr.json.types.JsonObjectType;
@@ -41,6 +40,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.event.impl.Filters;
+import nostr.event.impl.GenericTagQuery;
+import nostr.event.marshaller.impl.FiltersMarshaller;
+import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
+import nostr.json.unmarshaller.impl.JsonExpressionUnmarshaller;
+import nostr.json.values.JsonExpression;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -87,7 +92,7 @@ public class JsonTest {
 
         JsonValue<JsonObjectType> jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
         Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
-        JsonValue v = ((JsonObjectValue) jsonObj).get("a");
+        JsonValue v = ((JsonObjectValue) jsonObj).get("\"a\"");
         Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonNumberType);
         Assertions.assertEquals(2, ((JsonNumberValue) v).intValue());
 
@@ -99,7 +104,7 @@ public class JsonTest {
         Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
 
         jsonObj = new JsonObjectUnmarshaller("{\"a\":2,\"b\":\"a\", \"nil\":{}}").unmarshall();
-        v = ((JsonObjectValue) jsonObj).get("nil");
+        v = ((JsonObjectValue) jsonObj).get("\"nil\"");
         Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonObjectType);
 
         Assertions.assertDoesNotThrow(
@@ -182,7 +187,7 @@ public class JsonTest {
 
             var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
 
-            Assertions.assertNull(((JsonObjectValue) jsonValue).get("ots"));
+            Assertions.assertNull(((JsonObjectValue) jsonValue).get("\"ots\""));
 
         } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
@@ -247,7 +252,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(jsonEvent);
 
-            var jsonValue = ((JsonObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("tags");
+            var jsonValue = ((JsonObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("\"tags\"");
 
             var tagsArr = (JsonArrayValue) jsonValue;
 
@@ -357,6 +362,96 @@ public class JsonTest {
         } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException | IOException ex) {
             Assertions.fail(ex);
         } catch (Exception ex) {
+            Assertions.fail(ex);
+        }
+    }
+
+    @Test
+    public void testGenericTagQueryMarshaller() {
+        try {
+            System.out.println("testGenericTagQuery");
+
+            List<Integer> supportedNips = new ArrayList<>();
+            supportedNips.add(1);
+            supportedNips.add(5);
+            supportedNips.add(14);
+            supportedNips.add(12);
+
+            Relay relay = Relay.builder().name("Free Domain").supportedNips(supportedNips).uri("ws://localhost:9999").build();
+
+            GenericTagQuery gtq = EntityFactory.Events.createGenericTagQuery();
+
+            GenericTagQueryMarshaller gtqm = new GenericTagQueryMarshaller(gtq, relay);
+
+            String strExpr = gtqm.marshall();
+
+            JsonValue vexpr = new JsonExpressionUnmarshaller(strExpr).unmarshall();
+
+            Assertions.assertTrue(vexpr instanceof JsonExpression);
+
+            JsonExpression expr = (JsonExpression) vexpr;
+
+            String variable = "\"#" + gtq.getTagName().toString() + "\"";
+            Assertions.assertEquals(variable, expr.getVariable());
+
+            var jsonValue = expr.getJsonValue();
+            Assertions.assertTrue(jsonValue instanceof JsonArrayValue);
+
+            var jsonArrValue = (JsonArrayValue) jsonValue;
+            for (int i = 0; i < jsonArrValue.length(); i++) {
+                var v = jsonArrValue.get(i).getValue().toString();
+                Assertions.assertTrue(gtq.getValue().contains(v));
+            }
+
+        } catch (NostrException ex) {
+            Assertions.fail(ex);
+        }
+    }
+
+    @Test
+    public void testFilters() {
+        try {
+            System.out.println("testFilters");
+
+            List<Integer> supportedNips = new ArrayList<>();
+            supportedNips.add(1);
+            supportedNips.add(5);
+            supportedNips.add(14);
+            supportedNips.add(12);
+
+            Relay relay = Relay.builder().name("Free Domain").supportedNips(supportedNips).uri("ws://localhost:9999").build();
+
+            PublicKey publicKey = new PublicKey(new byte[]{});
+
+            Filters filters = EntityFactory.Events.createFilters(publicKey);
+
+            var fm = new FiltersMarshaller(filters, relay);
+            var strJson = fm.marshall();
+            
+            System.out.println("@@@ " + strJson);
+
+            JsonValue<JsonObjectType> fObj = new JsonObjectUnmarshaller(strJson).unmarshall();
+
+            JsonObjectValue obj = (JsonObjectValue) fObj;
+
+            JsonValue ids = obj.get("\"ids\"");
+            Assertions.assertNotNull(ids);
+            Assertions.assertTrue(ids instanceof JsonArrayValue);
+            Assertions.assertEquals(2, ((JsonArrayValue) ids).length());
+
+            JsonValue e = obj.get("\"#e\"");
+            Assertions.assertNotNull(e);
+            Assertions.assertTrue(e instanceof JsonArrayValue);
+            Assertions.assertEquals(1, ((JsonArrayValue) e).length());
+
+            var gtql = filters.getGenericTagQueryList();
+            Assertions.assertEquals(1, gtql.size());
+
+            var c = gtql.getList().get(0).getTagName();
+            var variable = "\"#" + c.toString() + "\"";
+            Assertions.assertNotNull(obj.get(variable));
+
+        } catch (UnsupportedNIPException ex) {
             Assertions.fail(ex);
         }
     }

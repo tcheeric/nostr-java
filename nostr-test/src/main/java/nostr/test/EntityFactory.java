@@ -1,4 +1,3 @@
-
 package nostr.test;
 
 import nostr.base.NostrException;
@@ -25,8 +24,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import lombok.extern.java.Log;
+import nostr.event.impl.GenericTagQuery;
+import nostr.event.list.EventList;
+import nostr.event.list.GenericTagQueryList;
 
 /**
  *
@@ -40,7 +44,7 @@ public class EntityFactory {
 
         public static DeletionEvent createDeletionEvent(PublicKey pubKey, TagList tags) {
             try {
-                GenericEvent event =  new DeletionEvent(pubKey, tags);
+                GenericEvent event = new DeletionEvent(pubKey, tags);
                 event.update();
                 return (DeletionEvent) event;
             } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
@@ -53,7 +57,7 @@ public class EntityFactory {
             try {
                 TagList tagList = new TagList();
                 tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("eric").build());
-                GenericEvent event =  new EphemeralEvent(publicKey, tagList);
+                GenericEvent event = new EphemeralEvent(publicKey, tagList);
                 event.update();
                 return (EphemeralEvent) event;
             } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
@@ -71,7 +75,7 @@ public class EntityFactory {
                 final PublicKey publicKey = profile.getPublicKey();
                 TagList tagList = new TagList();
                 tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("daniel").build());
-                GenericEvent event =  new InternetIdentifierMetadataEvent(publicKey, tagList, profile);
+                GenericEvent event = new InternetIdentifierMetadataEvent(publicKey, tagList, profile);
                 event.update();
                 return (InternetIdentifierMetadataEvent) event;
             } catch (NostrException | NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
@@ -156,6 +160,31 @@ public class EntityFactory {
             } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
                 throw new RuntimeException(ex);
             }
+        }
+
+        public static Filters createFilters(PublicKey publicKey) {
+            EventList eventList = new EventList();
+            eventList.add(createTextNoteEvent(publicKey));
+            eventList.add(createEphemeralEvent(publicKey));
+            
+            EventList refEvents = new EventList();
+            refEvents.add(createTextNoteEvent(publicKey));
+            
+            GenericTagQueryList gtqList = new GenericTagQueryList();
+            gtqList.add(createGenericTagQuery());
+            
+            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQueryList(gtqList).build();
+        }
+        
+        public static GenericTagQuery createGenericTagQuery() {
+            Character c = generateRamdomAlpha(1).charAt(0);
+            String v1 = generateRamdomAlpha(5);
+            String v2 = generateRamdomAlpha(6);
+            String v3 = generateRamdomAlpha(7);            
+            
+            List<String> list = new ArrayList<>();
+            list.add(v3); list.add(v2); list.add(v1);
+            return GenericTagQuery.builder().tagName(c).value(list).build();
         }
     }
 

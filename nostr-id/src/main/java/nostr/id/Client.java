@@ -86,35 +86,35 @@ public class Client {
             log.log(Level.FINE, "Relay information: {0}", strInfo);
             JsonValue<JsonObjectType> info = new JsonObjectUnmarshaller(strInfo).unmarshall();
 
-            final JsonValue contact = ((JsonObjectValue) info).get("contact");
+            final JsonValue contact = ((JsonObjectValue) info).get("\"contact\"");
             var strContact = contact == null ? "" : contact.toString();
             relay.setContact(strContact);
 
-            final JsonValue desc = ((JsonObjectValue) info).get("description");
+            final JsonValue desc = ((JsonObjectValue) info).get("\"description\"");
             var strDesc = desc == null ? "" : desc.toString();
             relay.setDescription(strDesc);
 
-            final JsonValue relayName = ((JsonObjectValue) info).get("name");
+            final JsonValue relayName = ((JsonObjectValue) info).get("\"name\"");
             var strRelayName = relayName == null ? "" : relayName.toString();
             relay.setName(strRelayName);
 
-            final JsonValue software = ((JsonObjectValue) info).get("software");
+            final JsonValue software = ((JsonObjectValue) info).get("\"software\"");
             var strSoftware = software == null ? "" : software.toString();
             relay.setSoftware(strSoftware);
 
-            final JsonValue version = ((JsonObjectValue) info).get("version");
+            final JsonValue version = ((JsonObjectValue) info).get("\"version\"");
             var strVersion = version == null ? "" : version.toString();
             relay.setVersion(strVersion);
 
             List<Integer> snipList = new ArrayList<>();
-            JsonArrayValue snips = (JsonArrayValue) ((JsonObjectValue) info).get("supported_nips");
+            JsonArrayValue snips = (JsonArrayValue) ((JsonObjectValue) info).get("\"supported_nips\"");
             int len = snips.length();
             for (int i = 0; i < len; i++) {
                 snipList.add(((JsonNumberValue) snips.get(i)).intValue());
             }
             relay.setSupportedNips(snipList);
 
-            final JsonValue pubKey = ((JsonObjectValue) info).get("pubkey");
+            final JsonValue pubKey = ((JsonObjectValue) info).get("\"pubkey\"");
             var strPubKey = pubKey == null ? "" : pubKey.toString();
             relay.setPubKey(NostrUtil.hexToBytes(strPubKey));
         } catch (Exception ex) {
