@@ -49,8 +49,8 @@ or simply use the constructor:
 
 Alternatively, given a json string, you can use the corresponding unmarshall class as illustrated here below. 
 
-    JsonArrayValue jsonArr = new JsonObjectUnmarshaller("[2,\"a\",[1,2,\"bx\"],\"3\",9]").unmarshall();
+    JsonArrayValue jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"],\"3\",9]").unmarshall();
 
-Similarly, the classes **JsonArrayUnmarshaller**, **JsonBooleanUnmarshaller**, **JsonExpressionUnmarshaller**, **JsonNumberUnmarshaller**, **JsonStringUnmarshaller** will be used for unmarshalling any json string representations of arrays, booleans, expressions, numbers, and strings.
+Similarly, the classes **JsonObjectUnmarshaller**, **JsonBooleanUnmarshaller**, **JsonExpressionUnmarshaller**, **JsonNumberUnmarshaller**, **JsonStringUnmarshaller** will be used for unmarshalling any json string representations of arrays, booleans, expressions, numbers, and strings.
 
 You reverse the above operation by invoking the `toString()` method on any jsonValue class, e.g. `JsonNumberValue.toString()`, to unmarshall the jsonValue object. The method invokes the `JsonNumberMarshaller(JsonNumberValue arg).marshall()` on the current **JsonNumberValue** object (`this`).
