@@ -32,7 +32,7 @@ public class JsonObjectValue extends BaseJsonValue<JsonObjectType> {
     public JsonValue get(String variable) {
         for (JsonValue e : this.getValue().getList()) {
             JsonExpression<JsonType> expr = (JsonExpression<JsonType>) e;
-            if (expr.getVariable().equals("\"" + variable + "\"")) {
+            if (expr.getVariable().equals(variable)) {
                 return expr.getJsonValue();
             }
         }
