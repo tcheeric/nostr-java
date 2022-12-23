@@ -3,10 +3,10 @@ package nostr.event.marshaller.impl;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.impl.GenericTagQuery;
 import nostr.event.marshaller.IMarshaller;
+import nostr.util.NostrException;
 
 /**
  *

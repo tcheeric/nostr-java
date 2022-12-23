@@ -1,8 +1,8 @@
 
 package nostr.controller;
 
-import nostr.base.NostrException;
 import java.io.IOException;
+import nostr.util.NostrException;
 
 /**
  *

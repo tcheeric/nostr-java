@@ -8,7 +8,7 @@ package nostr.base;
 public class PrivateKey extends BaseKey {
 
     public PrivateKey(byte[] rawData) {
-        super(KeyType.PRIVATE, rawData);
+        super(KeyType.PRIVATE, rawData, Bech32Prefix.NSEC);
     }
 
 }

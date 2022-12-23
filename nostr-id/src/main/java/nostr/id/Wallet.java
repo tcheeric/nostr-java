@@ -4,8 +4,7 @@ package nostr.id;
 import nostr.base.BaseConfiguration;
 import nostr.base.ISignable;
 import nostr.base.ITag;
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
+import nostr.util.NostrUtil;
 import nostr.base.PrivateKey;
 import nostr.base.Profile;
 import nostr.base.PublicKey;
@@ -14,8 +13,8 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import schnorr.Point;
-import schnorr.Schnorr;
+import crypto.util.Point;
+import crypto.schnorr.Schnorr;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -42,6 +41,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *

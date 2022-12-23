@@ -6,7 +6,7 @@
 package nostr.id;
 
 import nostr.base.BaseConfiguration;
-import nostr.base.NostrUtil;
+import nostr.util.NostrUtil;
 import nostr.base.Relay;
 import nostr.controller.Connection;
 import nostr.controller.handler.request.RequestHandler;

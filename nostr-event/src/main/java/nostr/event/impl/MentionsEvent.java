@@ -2,7 +2,6 @@
 package nostr.event.impl;
 
 import nostr.event.tag.PubKeyTag;
-import nostr.base.NostrException;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.list.PubKeyTagList;
@@ -14,6 +13,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.util.NostrException;
 
 /**
  *

@@ -2,11 +2,11 @@
 package nostr.event.marshaller.impl;
 
 import nostr.base.ITag;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.event.list.TagList;
 import java.util.List;
+import nostr.util.NostrException;
 
 /**
  *

@@ -1,6 +1,5 @@
 package nostr.test;
 
-import nostr.base.NostrException;
 import nostr.base.Profile;
 import nostr.base.PublicKey;
 import nostr.event.Reaction;
@@ -31,6 +30,7 @@ import lombok.extern.java.Log;
 import nostr.event.impl.GenericTagQuery;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
+import nostr.util.NostrException;
 
 /**
  *

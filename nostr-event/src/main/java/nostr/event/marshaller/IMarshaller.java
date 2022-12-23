@@ -1,7 +1,7 @@
 
 package nostr.event.marshaller;
 
-import nostr.base.NostrException;
+import nostr.util.NostrException;
 
 /**
  *

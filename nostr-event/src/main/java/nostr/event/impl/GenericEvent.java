@@ -7,13 +7,12 @@ package nostr.event.impl;
 
 import nostr.base.ISignable;
 import nostr.base.ITag;
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
+import nostr.util.NostrUtil;
 import com.tcheeric.nostr.base.annotation.JsonString;
 import com.tcheeric.nostr.base.annotation.Key;
 import nostr.base.Signature;
 import nostr.base.PublicKey;
-import nostr.base.UnsupportedNIPException;
+import nostr.util.UnsupportedNIPException;
 import nostr.event.BaseEvent;
 import nostr.event.list.TagList;
 import nostr.event.Kind;
@@ -27,11 +26,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import lombok.Data;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
+import crypto.bech32.Bech32;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
 import java.beans.Transient;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import lombok.NonNull;
+import nostr.base.Bech32Prefix;
+import nostr.util.NostrException;
 
 /**
  *
@@ -102,6 +105,24 @@ public class GenericEvent extends BaseEvent implements ISignable {
         try {
             return new EventMarshaller(this, null).marshall();
         } catch (UnsupportedNIPException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public String toBech32() {
+        if (!isSigned()) {
+            try {
+                this.update();
+            } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
+        }
+        try {
+            return Bech32.toBech32(Bech32Prefix.NOTE.getCode(), this.getId());
+        } catch (NostrException | NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }

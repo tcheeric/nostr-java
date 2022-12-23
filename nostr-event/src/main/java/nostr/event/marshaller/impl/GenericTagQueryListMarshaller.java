@@ -1,10 +1,10 @@
 package nostr.event.marshaller.impl;
 
 import nostr.base.INostrList;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.marshaller.BaseListMarhsaller;
+import nostr.util.NostrException;
 
 /**
  *

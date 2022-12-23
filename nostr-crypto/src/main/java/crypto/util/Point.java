@@ -1,11 +1,11 @@
-package schnorr;
+package crypto.util;
 
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import lombok.NonNull;
+import nostr.util.NostrException;
+import nostr.util.NostrUtil;
 
 public class Point {
 

@@ -1,7 +1,6 @@
 
 package nostr.event.marshaller.impl;
 
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.marshaller.BaseMarshaller;
@@ -11,6 +10,7 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *

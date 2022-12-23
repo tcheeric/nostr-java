@@ -57,4 +57,9 @@ public class Filters extends BaseEvent {
     @Key
     @NIPSupport(12)
     private GenericTagQueryList genericTagQueryList;
+
+    @Override
+    public String toBech32() {
+        throw new UnsupportedOperationException("This operation is not supported.");
+    }
 }

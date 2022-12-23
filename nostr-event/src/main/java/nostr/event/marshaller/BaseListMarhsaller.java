@@ -3,13 +3,13 @@ package nostr.event.marshaller;
 
 import nostr.base.IKey;
 import nostr.base.INostrList;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *

@@ -1,7 +1,6 @@
 
 package nostr.controller;
 
-import nostr.base.NostrException;
 import nostr.controller.handler.CloseHandler;
 import nostr.controller.handler.ConnectHandler;
 import nostr.controller.handler.ErrorHandler;
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;

@@ -12,9 +12,9 @@
         <module>nostr-base</module>
         <module>nostr-id</module>
         <module>nostr-test</module>
-        <module>nostr-schnorr</module>
-        <module>nostr-gist</module>
         <module>nostr-examples</module>
+        <module>nostr-util</module>
+        <module>nostr-crypto</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

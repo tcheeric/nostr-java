@@ -1,4 +1,4 @@
-package schnorr;
+package crypto.util;
 
 // clone of org.apache.commons.lang3.tuple.Pair;
 

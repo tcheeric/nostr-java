@@ -16,9 +16,10 @@ Have a look at [NostrExamples.java](https://github.com/tcheeric/nostr-java/blob/
  7. NIP-09
  8. NIP-10
  9. NIP-14
- 11. NIP-16
- 13. NIP-25
- 14. NIP-26
+ 10. NIP-16
+ 11. NIP-19 (Partial: Bare keys and ids)
+ 12. NIP-25
+ 13. NIP-26
 
 ## Known Issues:
  1. NIP-04

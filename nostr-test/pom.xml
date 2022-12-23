@@ -18,10 +18,6 @@
                     <groupId>com.tcheeric</groupId>
                     <artifactId>Schnorr</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.tcheeric</groupId>
-                    <artifactId>nostr-util</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -47,17 +43,28 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-schnorr</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-controller</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-util</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.tcheeric</groupId>
+                    <artifactId>Schnorr</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-schnorr</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

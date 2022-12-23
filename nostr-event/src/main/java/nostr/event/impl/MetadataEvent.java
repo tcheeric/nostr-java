@@ -5,7 +5,6 @@
  */
 package nostr.event.impl;
 
-import nostr.base.NostrException;
 import nostr.base.Profile;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
@@ -22,6 +21,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
 import nostr.json.values.JsonValueList;
+import nostr.util.NostrException;
 
 /**
  *

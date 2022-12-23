@@ -2,10 +2,8 @@ package nostr.event.marshaller.impl;
 
 import nostr.base.IElement;
 import nostr.base.IEvent;
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
 import nostr.base.Relay;
-import nostr.base.UnsupportedNIPException;
+import nostr.util.UnsupportedNIPException;
 import com.tcheeric.nostr.base.annotation.JsonList;
 import com.tcheeric.nostr.base.annotation.JsonString;
 import com.tcheeric.nostr.base.annotation.Key;
@@ -26,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *
@@ -55,7 +54,7 @@ public class EventMarshaller extends BaseMarshaller {
 
         if (!nipEventSupport()) {
             final int value = getNip() != null ? getNip().value() : 1;
-            throw new UnsupportedNIPException("NIP " + value + " is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + NostrUtil.supportedNips(relay));
+            throw new UnsupportedNIPException("NIP " + value + " is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
         }
 
         try {

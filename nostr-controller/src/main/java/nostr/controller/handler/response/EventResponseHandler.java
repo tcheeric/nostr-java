@@ -2,15 +2,14 @@
 package nostr.controller.handler.response;
 
 import nostr.base.Command;
-import nostr.base.NostrException;
 import java.io.IOException;
 import java.util.logging.Level;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *

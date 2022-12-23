@@ -1,6 +1,5 @@
 package nostr.test.id;
 
-import nostr.base.NostrException;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
@@ -8,6 +7,7 @@ import nostr.id.Client;
 import nostr.id.Wallet;
 import nostr.test.EntityFactory;
 import java.io.IOException;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

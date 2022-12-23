@@ -2,9 +2,8 @@
 package nostr.event.marshaller.impl;
 
 import nostr.base.ITag;
-import nostr.base.NostrException;
 import nostr.base.Relay;
-import nostr.base.UnsupportedNIPException;
+import nostr.util.UnsupportedNIPException;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
 import nostr.event.BaseTag;
 import nostr.event.marshaller.BaseMarshaller;
@@ -18,6 +17,7 @@ import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *

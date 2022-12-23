@@ -6,11 +6,16 @@
         <artifactId>nostr-java</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>nostr-gist</artifactId>
+    <artifactId>nostr-util</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <exec.mainClass>com.tcheeric.nostr.gist.NostrGist</exec.mainClass>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <exec.mainClass>nostr.util.NostrUtil</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+        </dependency>
+    </dependencies>    
 </project>

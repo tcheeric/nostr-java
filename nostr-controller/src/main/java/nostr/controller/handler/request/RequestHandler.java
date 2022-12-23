@@ -1,7 +1,6 @@
 
 package nostr.controller.handler.request;
 
-import nostr.base.NostrException;
 import nostr.controller.Connection;
 import nostr.controller.IHandler;
 import nostr.event.BaseMessage;
@@ -12,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 

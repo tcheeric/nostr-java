@@ -1,6 +1,5 @@
 package nostr.test.id;
 
-import nostr.base.NostrException;
 import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
@@ -9,6 +8,7 @@ import nostr.test.EntityFactory;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

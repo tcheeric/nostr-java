@@ -1,14 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
+
 package nostr.base;
 
 /**
  *
  * @author squirrel
  */
-public interface IKey {
+public interface IKey extends Bech32Encodable {
 
     public abstract byte[] getRawData();
 }

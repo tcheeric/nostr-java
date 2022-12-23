@@ -1,6 +1,6 @@
-package schnorr;
+package crypto.schnorr;
 
-import nostr.base.NostrUtil;
+import crypto.util.Point;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -8,6 +8,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.util.NostrUtil;
 
 @Log
 public class Schnorr {

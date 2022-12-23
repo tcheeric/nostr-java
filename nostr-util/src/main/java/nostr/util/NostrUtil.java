@@ -1,6 +1,4 @@
-
-package nostr.base;
-
+package nostr.util;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -8,9 +6,7 @@ import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
-import lombok.NonNull;
 
 import lombok.extern.java.Log;
 
@@ -91,24 +87,4 @@ public class NostrUtil {
         new Random().nextBytes(b);
         return b;
     }
-
-    public static String supportedNips(@NonNull Relay relay) {
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        final List<Integer> supportedNipList = relay.getSupportedNips();
-
-        sb.append("[");
-        for (int n : supportedNipList) {
-
-            sb.append(n);
-
-            if (i++ < supportedNipList.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append("]");
-
-        return sb.toString();
-    }
-
 }

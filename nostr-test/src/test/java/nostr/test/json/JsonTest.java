@@ -2,11 +2,9 @@ package nostr.test.json;
 
 import nostr.base.IEvent;
 import nostr.base.ITag;
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.base.UnsupportedNIPException;
+import nostr.util.UnsupportedNIPException;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.marshaller.impl.EventMarshaller;
@@ -46,6 +44,7 @@ import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
 import nostr.json.unmarshaller.impl.JsonExpressionUnmarshaller;
 import nostr.json.values.JsonExpression;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -213,7 +212,7 @@ public class JsonTest {
                     () -> {
                         new EventMarshaller(event, relay).marshall();
                     },
-                    "This event is not supported. List of relay supported NIP(s): " + NostrUtil.supportedNips(relay)
+                    "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
             );
 
             Assertions.assertNotNull(thrown);

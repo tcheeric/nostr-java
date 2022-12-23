@@ -4,12 +4,10 @@ import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.INostrList;
 import nostr.base.ITag;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import com.tcheeric.nostr.base.annotation.Key;
 import com.tcheeric.nostr.base.annotation.NIPSupport;
 import nostr.event.BaseMessage;
-import nostr.event.list.BaseList;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.MessageMarshaller;
@@ -23,6 +21,7 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.event.impl.Filters;
 import nostr.event.marshaller.impl.FiltersMarshaller;
+import nostr.util.NostrException;
 
 /**
  *

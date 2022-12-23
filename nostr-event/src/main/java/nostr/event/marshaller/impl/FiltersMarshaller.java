@@ -2,10 +2,10 @@ package nostr.event.marshaller.impl;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import nostr.base.NostrException;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.event.list.GenericTagQueryList;
+import nostr.util.NostrException;
 
 /**
  *

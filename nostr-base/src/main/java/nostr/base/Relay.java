@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nostr.base;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.ToString;
 
 /**
@@ -42,4 +38,24 @@ public class Relay {
 
     @ToString.Exclude
     private String version;
+
+    public String printSupportedNips() {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        final List<Integer> supportedNipList = this.getSupportedNips();
+
+        sb.append("[");
+        for (int n : supportedNipList) {
+
+            sb.append(n);
+
+            if (i++ < supportedNipList.size() - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }

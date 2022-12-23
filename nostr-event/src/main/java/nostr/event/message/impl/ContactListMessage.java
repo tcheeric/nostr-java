@@ -1,6 +1,5 @@
 package nostr.event.message.impl;
 
-import nostr.base.NostrException;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
@@ -9,6 +8,7 @@ import nostr.event.message.EventMessage;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
+import nostr.util.NostrException;
 
 /**
  *

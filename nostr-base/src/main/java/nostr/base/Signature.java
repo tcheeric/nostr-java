@@ -1,5 +1,6 @@
 package nostr.base;
 
+import nostr.util.NostrUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

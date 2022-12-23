@@ -1,11 +1,10 @@
 package nostr.examples;
 
 import nostr.base.ITag;
-import nostr.base.NostrException;
-import nostr.base.NostrUtil;
+import nostr.util.NostrUtil;
 import nostr.base.Profile;
 import nostr.base.PublicKey;
-import nostr.base.UnsupportedNIPException;
+import nostr.util.UnsupportedNIPException;
 import nostr.event.BaseMessage;
 import nostr.event.Kind;
 import nostr.event.Reaction;
@@ -35,6 +34,7 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
+import nostr.util.NostrException;
 
 /**
  *
