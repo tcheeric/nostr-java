@@ -280,6 +280,7 @@ public class Bech32 {
         return ret;
     }
 
+    // Added by squirrel
     private static byte[] convertBits(byte[] data, int fromWidth, int toWidth, boolean pad) {
         int acc = 0;
         int bits = 0;
