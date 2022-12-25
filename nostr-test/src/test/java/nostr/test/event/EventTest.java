@@ -35,7 +35,7 @@ public class EventTest {
             Assertions.assertNull(instance.getSignature());
             final String bech32 = instance.toBech32();
             Assertions.assertNotNull(bech32);
-            Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32));
+            Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
