@@ -29,6 +29,6 @@ public class NoticeResponseHandler extends BaseResponseHandler {
 
     @Override
     public void process() {
-        log.log(Level.FINE, ">>>>>>>>>>>>>> {0}", this);
+        log.log(Level.WARNING, "{0}", this);
     }    
 }

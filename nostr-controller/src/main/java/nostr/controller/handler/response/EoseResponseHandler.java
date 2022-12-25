@@ -29,7 +29,7 @@ public class EoseResponseHandler extends BaseResponseHandler {
 
     @Override
     public void process() {
-        log.log(Level.FINE, ">>>>>>>>>> {0}", this);
+        log.log(Level.INFO, "{0}", this);
     }
     
 }

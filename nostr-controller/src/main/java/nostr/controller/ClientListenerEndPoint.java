@@ -1,4 +1,3 @@
-
 package nostr.controller;
 
 import nostr.controller.handler.CloseHandler;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
+import nostr.controller.handler.response.OkResponseHandler.Reason;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -78,31 +78,31 @@ public class ClientListenerEndPoint {
         JsonValue<JsonArrayType> jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
         final String command = ((JsonArrayValue) jsonArr).get(0).toString();
         String msg = ((JsonArrayValue) jsonArr).get(1).toString();
-
-        log.log(Level.FINE, ">>>>> [{0},{1}]", new String[]{command, msg});
-
         BaseResponseHandler responseHandler = null;
         switch (command) {
-            case "\"EOSE\"":
-                msg = ((JsonArrayValue)jsonArr).get(1).toString();
+            case "\"EOSE\"" -> {
+                msg = ((JsonArrayValue) jsonArr).get(1).toString();
                 responseHandler = new EoseResponseHandler(msg);
-                break;
-            case "\"OK\"":
-                String eventId = ((JsonArrayValue)jsonArr).get(1).toString();
-                boolean blocked = Boolean.parseBoolean(((JsonArrayValue)jsonArr).get(2).toString());
-                msg = ((JsonArrayValue)jsonArr).get(3).toString();
-                responseHandler = new OkResponseHandler(eventId, blocked, msg);
-                break;
-            case "\"NOTICE\"":
-                msg = ((JsonArrayValue)jsonArr).get(1).toString();
+            }
+            case "\"OK\"" -> {
+                String eventId = ((JsonArrayValue) jsonArr).get(1).toString();
+                boolean result = Boolean.parseBoolean(((JsonArrayValue) jsonArr).get(2).toString());
+                msg = ((JsonArrayValue) jsonArr).get(3).toString();
+                final int colonIndex = msg.indexOf(":") - 1;
+                Reason reason = Reason.valueOf(msg.substring(0, colonIndex));
+                responseHandler = new OkResponseHandler(eventId, result, reason, msg.substring(colonIndex + 1));
+            }
+            case "\"NOTICE\"" -> {
+                msg = ((JsonArrayValue) jsonArr).get(1).toString();
                 responseHandler = new NoticeResponseHandler(msg);
-                break;
-            case "\"EVENT\"":
-                String subId = ((JsonArrayValue)jsonArr).get(1).toString();
-                String jsonEvent = ((JsonArrayValue)jsonArr).get(2).toString();
+            }
+            case "\"EVENT\"" -> {
+                String subId = ((JsonArrayValue) jsonArr).get(1).toString();
+                String jsonEvent = ((JsonArrayValue) jsonArr).get(2).toString();
                 responseHandler = new EventResponseHandler(subId, jsonEvent);
-                break;
-            default:
+            }
+            default -> {
+            }
         }
 
         if (responseHandler != null) {

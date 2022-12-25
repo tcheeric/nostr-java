@@ -33,6 +33,6 @@ public class EventResponseHandler extends BaseResponseHandler {
 
     @Override
     public void process() throws IOException, NostrException {
-        log.log(Level.FINE, ">>>>>>>>>>>>>> {0}", this);
+        log.log(Level.INFO, "{0}", this);
     }
 }

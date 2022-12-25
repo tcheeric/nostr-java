@@ -137,7 +137,7 @@ public class EventMarshaller extends BaseMarshaller {
         for (Field field : fieldArr) {
 
             if (!nipFieldSupport(field)) {
-                log.log(Level.INFO, "Relay {0} to ignoring field {1}", new Object[]{relay, field});
+                log.log(Level.FINE, "Relay {0} to ignore field {1}", new Object[]{relay, field});
                 continue;
             }
 

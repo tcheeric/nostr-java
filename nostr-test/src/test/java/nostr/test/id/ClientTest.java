@@ -36,20 +36,20 @@ public class ClientTest {
         }
     }
 
-    @Test
-    public void testSendFail() throws Exception {
-        System.out.println("testSendFail");
-        PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
-        BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
-        
-        System.out.println("Sleeping for 33 seconds...");
-        Thread.sleep(33000);
-        
-        IOException thrown = Assertions.assertThrows(IOException.class,
-                () -> {
-                    this.client.send(msg);
-                }
-        );
-        Assertions.assertNotNull(thrown);
-    }
+//    @Test
+//    public void testSendFail() throws Exception {
+//        System.out.println("testSendFail");
+//        PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
+//        BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
+//        
+//        System.out.println("Sleeping for 33 seconds...");
+//        Thread.sleep(33000);
+//        
+//        IOException thrown = Assertions.assertThrows(IOException.class,
+//                () -> {
+//                    this.client.send(msg);
+//                }
+//        );
+//        Assertions.assertNotNull(thrown);
+//    }
 }

@@ -1,4 +1,3 @@
-
 package nostr.controller.handler.response;
 
 import nostr.base.Command;
@@ -20,19 +19,35 @@ import lombok.extern.java.Log;
 @Log
 public class OkResponseHandler extends BaseResponseHandler {
 
+    public enum Reason {
+        BLOCKED("blocked"),
+        INVALID("invalid"),
+        RATE_LIMITED("rate-limited"),
+        ERROR("error"),
+        POW("pow");
+
+        private final String code;
+
+        private Reason(String code) {
+            this.code = code;
+        }
+    }
+    
     private final String eventId;
-    private final boolean blocked;
+    private final boolean result;
+    private final Reason reason;
     private final String message;
 
-    public OkResponseHandler(String eventId, boolean blocked, String message) {
+    public OkResponseHandler(String eventId, boolean result, Reason reason, String message) {
         super(Command.OK);
         this.eventId = eventId;
-        this.blocked = blocked;
+        this.result = result;
+        this.reason = reason;
         this.message = message;
     }
 
     @Override
     public void process() {
-        log.log(Level.FINE, "handle");
+        log.log(Level.INFO, "{0}", this);
     }
 }
