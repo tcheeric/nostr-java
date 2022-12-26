@@ -1,5 +1,5 @@
 
-package com.tcheeric.nostr.base.annotation;
+package nostr.base.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

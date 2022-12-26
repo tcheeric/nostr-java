@@ -8,8 +8,6 @@ package nostr.event.impl;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.util.NostrUtil;
-import com.tcheeric.nostr.base.annotation.JsonString;
-import com.tcheeric.nostr.base.annotation.Key;
 import nostr.base.Signature;
 import nostr.base.PublicKey;
 import nostr.util.UnsupportedNIPException;
@@ -25,7 +23,6 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import lombok.Data;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
 import crypto.bech32.Bech32;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
@@ -34,6 +31,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import lombok.NonNull;
 import nostr.base.Bech32Prefix;
+import nostr.base.annotation.JsonString;
+import nostr.base.annotation.Key;
+import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**

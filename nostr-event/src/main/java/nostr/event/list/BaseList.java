@@ -6,12 +6,12 @@
 package nostr.event.list;
 
 import nostr.base.INostrList;
-import com.tcheeric.nostr.base.annotation.JsonList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.annotation.JsonList;
 
 /**
  *

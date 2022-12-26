@@ -1,11 +1,11 @@
 
 package nostr.base;
 
-import com.tcheeric.nostr.base.annotation.JsonString;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.annotation.JsonString;
 
 /**
  *

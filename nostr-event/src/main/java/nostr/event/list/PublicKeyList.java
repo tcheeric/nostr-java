@@ -5,13 +5,13 @@
  */
 package nostr.event.list;
 
-import com.tcheeric.nostr.base.annotation.JsonList;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
+import nostr.base.annotation.JsonList;
 
 /**
  *

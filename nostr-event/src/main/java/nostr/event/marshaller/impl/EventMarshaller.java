@@ -1,15 +1,5 @@
 package nostr.event.marshaller.impl;
 
-import nostr.base.IElement;
-import nostr.base.IEvent;
-import nostr.base.Relay;
-import nostr.util.UnsupportedNIPException;
-import com.tcheeric.nostr.base.annotation.JsonList;
-import com.tcheeric.nostr.base.annotation.JsonString;
-import com.tcheeric.nostr.base.annotation.Key;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
-import nostr.event.marshaller.BaseMarshaller;
-
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -24,7 +14,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.IElement;
+import nostr.base.IEvent;
+import nostr.base.Relay;
+import nostr.base.annotation.JsonList;
+import nostr.base.annotation.JsonString;
+import nostr.base.annotation.Key;
+import nostr.base.annotation.NIPSupport;
+import nostr.event.marshaller.BaseMarshaller;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *

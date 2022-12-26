@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.NIPSupport;
 import nostr.json.values.JsonValueList;
 import nostr.util.NostrException;
 

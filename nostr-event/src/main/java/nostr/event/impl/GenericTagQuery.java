@@ -1,10 +1,10 @@
 
 package nostr.event.impl;
 
-import com.tcheeric.nostr.base.annotation.NIPSupport;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import nostr.base.annotation.NIPSupport;
 
 /**
  *

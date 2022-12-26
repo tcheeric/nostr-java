@@ -5,7 +5,6 @@
  */
 package nostr.event.impl;
 
-import com.tcheeric.nostr.base.annotation.Key;
 import nostr.event.BaseEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.KindList;
@@ -15,7 +14,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.Key;
+import nostr.base.annotation.NIPSupport;
 import nostr.event.list.GenericTagQueryList;
 
 /**

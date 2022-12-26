@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**

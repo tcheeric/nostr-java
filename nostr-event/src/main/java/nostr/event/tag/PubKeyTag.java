@@ -5,17 +5,17 @@
  */
 package nostr.event.tag;
 
-import com.tcheeric.nostr.base.annotation.Key;
-import com.tcheeric.nostr.base.annotation.Tag;
-import nostr.base.PublicKey;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
-import nostr.event.BaseTag;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.PublicKey;
+import nostr.base.annotation.Key;
+import nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.Tag;
+import nostr.event.BaseTag;
 
 /**
  *

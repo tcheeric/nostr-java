@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import com.tcheeric.nostr.base.annotation.Tag;
+import nostr.base.annotation.Tag;
 
 /**
  *

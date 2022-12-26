@@ -1,7 +1,6 @@
 package nostr.base;
 
 import nostr.util.NostrUtil;
-import com.tcheeric.nostr.base.annotation.JsonString;
 import crypto.bech32.Bech32;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.annotation.JsonString;
 import nostr.util.NostrException;
 
 /**

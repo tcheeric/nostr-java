@@ -1,7 +1,6 @@
 package nostr.event.impl;
 
 import nostr.base.Profile;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.list.TagList;
@@ -28,6 +27,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**

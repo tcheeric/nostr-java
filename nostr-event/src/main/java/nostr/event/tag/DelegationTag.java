@@ -1,17 +1,17 @@
 package nostr.event.tag;
 
 import nostr.base.ISignable;
-import com.tcheeric.nostr.base.annotation.Key;
-import com.tcheeric.nostr.base.annotation.Tag;
+import nostr.base.annotation.Key;
 import nostr.event.BaseTag;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.NIPSupport;
 import java.beans.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.annotation.Tag;
 
 /**
  *

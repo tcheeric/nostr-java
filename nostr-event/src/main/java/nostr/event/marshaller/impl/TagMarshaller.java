@@ -4,7 +4,7 @@ package nostr.event.marshaller.impl;
 import nostr.base.ITag;
 import nostr.base.Relay;
 import nostr.util.UnsupportedNIPException;
-import com.tcheeric.nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.NIPSupport;
 import nostr.event.BaseTag;
 import nostr.event.marshaller.BaseMarshaller;
 import java.beans.IntrospectionException;

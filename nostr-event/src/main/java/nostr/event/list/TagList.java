@@ -6,11 +6,11 @@
 package nostr.event.list;
 
 import nostr.base.ITag;
-import com.tcheeric.nostr.base.annotation.JsonList;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.annotation.JsonList;
 
 /**
  *
