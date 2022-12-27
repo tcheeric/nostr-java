@@ -1,15 +1,6 @@
 
 package nostr.event.impl;
 
-import nostr.base.ISignable;
-import nostr.base.ITag;
-import nostr.util.NostrUtil;
-import nostr.base.Signature;
-import nostr.base.PublicKey;
-import nostr.util.UnsupportedNIPException;
-import nostr.event.BaseEvent;
-import nostr.event.list.TagList;
-import nostr.event.Kind;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -19,9 +10,6 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import lombok.Data;
-import nostr.crypto.bech32.Bech32;
-import nostr.event.marshaller.impl.EventMarshaller;
-import nostr.event.marshaller.impl.TagListMarshaller;
 import java.beans.Transient;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
@@ -29,12 +17,24 @@ import java.util.Set;
 import java.util.logging.Level;
 import lombok.NonNull;
 import nostr.base.Bech32Prefix;
+import nostr.base.ElementAttribute;
+import nostr.base.IGenericElement;
+import nostr.base.ISignable;
+import nostr.base.ITag;
+import nostr.base.PublicKey;
+import nostr.base.Signature;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.NIPSupport;
-import nostr.base.ElementAttribute;
-import nostr.base.IGenericElement;
+import nostr.crypto.bech32.Bech32;
+import nostr.event.BaseEvent;
+import nostr.event.Kind;
+import nostr.event.list.TagList;
+import nostr.event.marshaller.impl.EventMarshaller;
+import nostr.event.marshaller.impl.TagListMarshaller;
 import nostr.util.NostrException;
+import nostr.util.NostrUtil;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -76,11 +76,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @JsonString
     private Signature signature;
 
-//    @Key
-//    @EqualsAndHashCode.Exclude
-//    @NIPSupport(3)
-//    private String ots;
-
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
     
@@ -88,19 +83,14 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     private final Set<ElementAttribute> attributes;
     
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-        this(pubKey, kind, tags, null/*, null*/);
+        this(pubKey, kind, tags, null);
     }
 
-//    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-//        this(pubKey, kind, tags, content/*, null*/);
-//    }
-
-    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content/*, String ots*/) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
         this.content = content;
-//        this.ots = ots;
         this.attributes = new HashSet<>();
     }
 
