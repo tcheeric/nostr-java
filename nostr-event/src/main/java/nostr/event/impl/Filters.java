@@ -53,7 +53,7 @@ public class Filters extends BaseEvent {
 
     @Key
     private Integer limit;
-    
+
     @Key
     @NIPSupport(12)
     private GenericTagQueryList genericTagQueryList;

@@ -7,8 +7,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +24,8 @@ import nostr.base.annotation.JsonList;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.NIPSupport;
+import nostr.base.ElementAttribute;
+import nostr.event.impl.GenericEvent;
 import nostr.event.marshaller.BaseMarshaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
@@ -68,18 +73,6 @@ public class EventMarshaller extends BaseMarshaller {
         }
     }
 
-    private StringBuilder toJson(Map<Field, Object> keysMap) throws NostrException {
-        int i = 0;
-        var result = new StringBuilder();
-        Relay relay = getRelay();
-
-        for (var field : keysMap.keySet()) {
-            toJson(field, result, keysMap, relay, ++i);
-        }
-
-        return result;
-    }
-
     protected void toJson(Field field, StringBuilder result, Map<Field, Object> keysMap, Relay relay, int i) throws NostrException {
         final String fieldName = getFieldName(field);
 
@@ -95,9 +88,9 @@ public class EventMarshaller extends BaseMarshaller {
             result.append("\\\":");
         }
 
-        final boolean quoteFlag = isStringType(field);
+        final boolean isString = isStringType(field);
 
-        if (quoteFlag) {
+        if (isString) {
             if (!escape) {
                 result.append("\"");
             } else {
@@ -111,7 +104,7 @@ public class EventMarshaller extends BaseMarshaller {
             result.append(strValue);
         }
 
-        if (quoteFlag) {
+        if (isString) {
             if (!escape) {
                 result.append("\"");
             } else {
@@ -120,6 +113,78 @@ public class EventMarshaller extends BaseMarshaller {
         }
 
         if (i < keysMap.size()) {
+            result.append(",");
+        }
+    }
+
+    private StringBuilder toJson(Map<Field, Object> keysMap) throws NostrException {
+        int i = 0;
+        var result = new StringBuilder();
+        Relay relay = getRelay();
+
+        // Process the base attributes
+        for (var field : keysMap.keySet()) {
+            toJson(field, result, keysMap, relay, ++i);
+        }
+
+        // Process custom attributes
+        Set<ElementAttribute> attrs = getSupportedAttributes(relay);
+        if (!attrs.isEmpty()) {
+            i = 0;
+            result.append(",");
+
+            for (var a : attrs) {
+                toJson(a, result, relay, attrs, ++i);
+            }
+        }
+
+        return result;
+    }
+
+    private void toJson(ElementAttribute attribute, StringBuilder result, Relay relay, Set<ElementAttribute> attrs, int i) throws NostrException {
+        if (!escape) {
+            result.append("\"");
+        } else {
+            result.append("\\\"");
+        }
+        result.append(attribute.getName());
+        if (!escape) {
+            result.append("\":");
+        } else {
+            result.append("\\\":");
+        }
+
+        final boolean isString = attribute.isString();
+
+        if (isString) {
+            if (!escape) {
+                result.append("\"");
+            } else {
+                result.append("\\\"");
+            }
+        }
+
+        final List valueList = attribute.getValueList();
+        if (valueList != null && !valueList.isEmpty()) {
+            for (Iterator it = valueList.iterator(); it.hasNext();) {
+                Object o = it.next();
+                if (o == null) {
+                    continue;
+                }
+                final String strValue = o instanceof IElement ? new BaseMarshaller.Factory((IElement) o).create(relay, escape).marshall() : o.toString();
+                result.append(strValue);
+            }
+        }
+
+        if (isString) {
+            if (!escape) {
+                result.append("\"");
+            } else {
+                result.append("\\\"");
+            }
+        }
+
+        if (i < attrs.size()) {
             result.append(",");
         }
     }
@@ -199,19 +264,26 @@ public class EventMarshaller extends BaseMarshaller {
     private Field[] getFields() {
 
         IEvent event = (IEvent) getElement();
-        final Class<? extends IEvent> clazz = event.getClass();
 
-        Field[] superFields = clazz.getSuperclass().getDeclaredFields();
+        Class clazz = event.getClass();
         Field[] thisFields = clazz.getDeclaredFields();
-        Field[] fieldArr = Arrays.copyOf(superFields, superFields.length + thisFields.length);
-        System.arraycopy(thisFields, 0, fieldArr, superFields.length, thisFields.length);
+        Field[] fieldArr = Arrays.copyOf(thisFields, thisFields.length);
 
+        clazz = clazz.getSuperclass();
+        while (!clazz.equals(Object.class)) {
+            thisFields = clazz.getDeclaredFields();
+
+            var tmp = Arrays.copyOf(thisFields, thisFields.length + fieldArr.length);
+            System.arraycopy(fieldArr, 0, tmp, thisFields.length, fieldArr.length);
+            fieldArr = tmp;
+
+            clazz = clazz.getSuperclass();
+        }
         return fieldArr;
     }
 
     private boolean nipEventSupport() {
 
-        IEvent event = (IEvent) getElement();
         Relay relay = getRelay();
 
         if (relay == null) {
@@ -229,5 +301,21 @@ public class EventMarshaller extends BaseMarshaller {
         IEvent event = (IEvent) getElement();
         var n = event.getClass().getAnnotation(NIPSupport.class);
         return n;
+    }
+
+    private Set<ElementAttribute> getSupportedAttributes(Relay relay) {
+        IEvent event = (IEvent) getElement();
+        Set<ElementAttribute> result = new HashSet<>();
+
+        if (event instanceof GenericEvent) {
+            Set<ElementAttribute> attrs = ((GenericEvent) event).getAttributes();
+            for (var a : attrs) {
+                if (relay.getSupportedNips().contains(a.getNip())) {
+                    result.add(a);
+                }
+            }
+        }
+
+        return result;
     }
 }

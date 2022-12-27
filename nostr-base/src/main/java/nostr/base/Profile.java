@@ -1,6 +1,6 @@
 package nostr.base;
 
-import crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;

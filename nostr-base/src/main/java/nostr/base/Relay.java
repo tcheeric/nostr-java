@@ -57,4 +57,10 @@ public class Relay {
         return sb.toString();
     }
 
+    public void addNipSupport(Integer nip) {
+        if (!this.supportedNips.contains(nip)) {
+            this.supportedNips.add(nip);
+        }
+    }
+
 }

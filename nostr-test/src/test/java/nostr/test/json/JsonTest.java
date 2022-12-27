@@ -162,9 +162,9 @@ public class JsonTest {
     }
 
     @Test
-    public void testMarshalEventWithOts() {
+    public void testMarshalEventWithOtsUnsupported() {
         try {
-            System.out.println("testMarshalEventWithOts");
+            System.out.println("testMarshalEventWithOtsUnsupported");
 
             List<Integer> supportedNips = new ArrayList<>();
             supportedNips.add(1);
@@ -175,18 +175,49 @@ public class JsonTest {
 
             PublicKey publicKey = new PublicKey(new byte[]{});
 
-            IEvent event = EntityFactory.Events.createTextNoteEvent(publicKey, "Free Willy!");
-            ((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
+            IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
+            //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
 
             final String jsonEvent = new EventMarshaller(event, relay).marshall();
 
-            log.log(Level.INFO, "++++++++ jsonEvent: {0}", jsonEvent);
+            log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
             Assertions.assertNotNull(jsonEvent);
 
             var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
 
             Assertions.assertNull(((JsonObjectValue) jsonValue).get("\"ots\""));
+
+        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
+            Assertions.fail(ex);
+        }
+    }
+
+    @Test
+    public void testMarshalEventWithOtsSupported() {
+        try {
+            System.out.println("testMarshalEventWithOtsSupported");
+
+            List<Integer> supportedNips = new ArrayList<>();
+            supportedNips.add(1);
+            supportedNips.add(3);
+
+            Relay relay = Relay.builder().name("Free Domain").supportedNips(supportedNips).uri("ws://localhost:9999").build();
+
+            PublicKey publicKey = new PublicKey(new byte[]{});
+
+            IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
+            //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
+
+            final String jsonEvent = new EventMarshaller(event, relay).marshall();
+
+            log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
+
+            Assertions.assertNotNull(jsonEvent);
+
+            var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
+
+            Assertions.assertNotNull(((JsonObjectValue) jsonValue).get("\"ots\""));
 
         } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
@@ -320,7 +351,7 @@ public class JsonTest {
             Assertions.assertNotNull(jsonEventTag);
 
             var jsonCodeValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
-            var jsonEventIdValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(1);
+            //var jsonEventIdValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(1);
 
             Assertions.assertEquals("\"e\"", jsonCodeValue.toString());
         } catch (NostrException ex) {

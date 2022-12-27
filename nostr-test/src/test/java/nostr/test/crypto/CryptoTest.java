@@ -1,6 +1,6 @@
 package nostr.test.crypto;
 
-import crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import nostr.base.Bech32Prefix;

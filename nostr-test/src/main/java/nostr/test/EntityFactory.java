@@ -27,7 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import lombok.extern.java.Log;
+import nostr.base.ElementAttribute;
+import nostr.base.IEvent;
+import nostr.event.BaseEvent;
+import nostr.event.impl.GenericTag;
 import nostr.event.impl.GenericTagQuery;
+import nostr.event.impl.OtsEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.util.NostrException;
@@ -162,28 +167,65 @@ public class EntityFactory {
             }
         }
 
+        public static OtsEvent createOtsEvent(PublicKey publicKey) {
+            try {
+                TagList tagList = new TagList();
+                tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("bob").build());
+                OtsEvent event = new OtsEvent(publicKey, tagList, generateRamdomAlpha(32), generateRamdomAlpha(32));
+                event.update();
+                return event;
+            } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        public static GenericTag createGenericTag(PublicKey publicKey) {
+            IEvent event = createTextNoteEvent(publicKey);
+            return createGenericTag(publicKey, event);
+        }
+
+        public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
+            GenericTag tag = new GenericTag("devil");
+            List<String> valueList = new ArrayList<>();
+            valueList.add("Lucifer");
+            tag.addAttribute(ElementAttribute.builder().name("name").valueList(valueList).nip(666).build());
+            ((GenericEvent) event).addTag(tag);
+            return tag;
+        }
+
+        public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
+            GenericTag tag = new GenericTag(tagNip, "devil");
+            List<String> valueList = new ArrayList<>();
+            valueList.add("Lucifer");
+            tag.addAttribute(ElementAttribute.builder().name("name").valueList(valueList).nip(666).build());
+            ((GenericEvent) event).addTag(tag);
+            return tag;
+        }
+
         public static Filters createFilters(PublicKey publicKey) {
             EventList eventList = new EventList();
             eventList.add(createTextNoteEvent(publicKey));
             eventList.add(createEphemeralEvent(publicKey));
-            
+
             EventList refEvents = new EventList();
             refEvents.add(createTextNoteEvent(publicKey));
-            
+
             GenericTagQueryList gtqList = new GenericTagQueryList();
             gtqList.add(createGenericTagQuery());
-            
+
             return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQueryList(gtqList).build();
         }
-        
+
         public static GenericTagQuery createGenericTagQuery() {
             Character c = generateRamdomAlpha(1).charAt(0);
             String v1 = generateRamdomAlpha(5);
             String v2 = generateRamdomAlpha(6);
-            String v3 = generateRamdomAlpha(7);            
-            
+            String v3 = generateRamdomAlpha(7);
+
             List<String> list = new ArrayList<>();
-            list.add(v3); list.add(v2); list.add(v1);
+            list.add(v3);
+            list.add(v2);
+            list.add(v1);
             return GenericTagQuery.builder().tagName(c).value(list).build();
         }
     }

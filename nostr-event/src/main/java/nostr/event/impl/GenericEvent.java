@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package nostr.event.impl;
 
 import nostr.base.ISignable;
@@ -23,17 +19,21 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import lombok.Data;
-import crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
 import java.beans.Transient;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import lombok.NonNull;
 import nostr.base.Bech32Prefix;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.NIPSupport;
+import nostr.base.ElementAttribute;
+import nostr.base.IGenericElement;
 import nostr.util.NostrException;
 
 /**
@@ -44,7 +44,7 @@ import nostr.util.NostrException;
 @Log
 @EqualsAndHashCode(callSuper = false)
 @NIPSupport
-public class GenericEvent extends BaseEvent implements ISignable {
+public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
 
     @Key
     @EqualsAndHashCode.Include
@@ -76,28 +76,32 @@ public class GenericEvent extends BaseEvent implements ISignable {
     @JsonString
     private Signature signature;
 
-    @Key
-    @EqualsAndHashCode.Exclude
-    @NIPSupport(3)
-    private String ots;
+//    @Key
+//    @EqualsAndHashCode.Exclude
+//    @NIPSupport(3)
+//    private String ots;
 
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
-
+    
+    @EqualsAndHashCode.Exclude
+    private final Set<ElementAttribute> attributes;
+    
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-        this(pubKey, kind, tags, null, null);
+        this(pubKey, kind, tags, null/*, null*/);
     }
 
-    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-        this(pubKey, kind, tags, content, null);
-    }
+//    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+//        this(pubKey, kind, tags, content/*, null*/);
+//    }
 
-    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content, String ots) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content/*, String ots*/) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
         this.content = content;
-        this.ots = ots;
+//        this.ots = ots;
+        this.attributes = new HashSet<>();
     }
 
     @Override
@@ -137,6 +141,15 @@ public class GenericEvent extends BaseEvent implements ISignable {
             ((ITag) o).setParent(this);
         }
     }
+    
+    public void addTag(ITag tag) {
+        List list = tags.getList();
+        
+        if(!list.contains(tag)) {
+            tag.setParent(this);
+            list.add(tag);
+        }
+    }
 
     public void update() throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         this.createdAt = Instant.now().getEpochSecond();
@@ -150,6 +163,11 @@ public class GenericEvent extends BaseEvent implements ISignable {
     public boolean isSigned() {
         return this.signature != null;
     }
+    
+    @Override
+    public void addAttribute(ElementAttribute attribute) {
+        this.attributes.add(attribute);
+    }    
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
@@ -166,5 +184,5 @@ public class GenericEvent extends BaseEvent implements ISignable {
         sb.append("\"]");
 
         return sb.toString();
-    }
+    }    
 }

@@ -1,7 +1,7 @@
 package nostr.base;
 
 import nostr.util.NostrUtil;
-import crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
