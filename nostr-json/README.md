@@ -53,4 +53,4 @@ Alternatively, given a json string, you can use the corresponding unmarshall cla
 
 Similarly, the classes **JsonObjectUnmarshaller**, **JsonBooleanUnmarshaller**, **JsonExpressionUnmarshaller**, **JsonNumberUnmarshaller**, **JsonStringUnmarshaller** will be used for unmarshalling any json string representations of arrays, booleans, expressions, numbers, and strings.
 
-You reverse the above operation by invoking the `toString()` method on any jsonValue class, e.g. `JsonNumberValue.toString()`, to unmarshall the jsonValue object. The method invokes the `JsonNumberMarshaller(JsonNumberValue arg).marshall()` on the current **JsonNumberValue** object (`this`).
+You reverse the above operation by invoking the `toString()` method on any jsonValue class, e.g. `JsonNumberValue.toString()`. The method will in turn invoke the `JsonNumberMarshaller(JsonNumberValue arg).marshall()` on the current **JsonNumberValue** object (`this`).
