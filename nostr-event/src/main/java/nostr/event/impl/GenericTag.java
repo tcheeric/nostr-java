@@ -13,7 +13,7 @@ import nostr.base.IGenericElement;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Data
 @ToString
