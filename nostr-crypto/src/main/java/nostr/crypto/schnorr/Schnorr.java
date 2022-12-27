@@ -1,6 +1,6 @@
-package crypto.schnorr;
+package nostr.crypto.schnorr;
 
-import crypto.util.Point;
+import nostr.crypto.util.Point;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;

@@ -1,4 +1,4 @@
-package crypto.util;
+package nostr.crypto.util;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

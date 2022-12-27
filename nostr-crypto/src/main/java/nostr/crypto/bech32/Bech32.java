@@ -1,4 +1,4 @@
-package crypto.bech32;
+package nostr.crypto.bech32;
 
 /*
  * Copyright 2018 Coinomi Ltd
