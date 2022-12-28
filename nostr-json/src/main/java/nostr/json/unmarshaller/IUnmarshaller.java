@@ -1,13 +1,12 @@
 
 package nostr.json.unmarshaller;
 
-import nostr.json.JsonType;
-import nostr.json.JsonValue;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonBooleanUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonNumberUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonStringUnmarshaller;
+import nostr.types.values.IValue;
 
 /**
  *
@@ -15,7 +14,7 @@ import nostr.json.unmarshaller.impl.JsonStringUnmarshaller;
  */
 public interface IUnmarshaller {
 
-    public abstract JsonValue<? extends JsonType> unmarshall();
+    public abstract IValue unmarshall();
 
     public static class UnmarshallerFactory {
 

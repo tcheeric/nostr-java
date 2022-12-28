@@ -1,11 +1,10 @@
 
 package nostr.json.unmarshaller.impl;
 
-import nostr.json.JsonType;
-import nostr.json.JsonValue;
 import nostr.json.parser.impl.JsonBooleanParser;
 import nostr.json.unmarshaller.BaseUnmarshaller;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.BooleanValue;
 
 /**
  *
@@ -19,7 +18,7 @@ public class JsonBooleanUnmarshaller extends BaseUnmarshaller {
     }
 
     @Override
-    public JsonValue<? extends JsonType> unmarshall() {
+    public BooleanValue unmarshall() {
         String jsonStr = getJson();
         return new JsonBooleanParser(jsonStr).parse();
     }

@@ -1,21 +1,21 @@
 package nostr.json.parser.impl;
 
 import nostr.json.parser.JsonParseException;
-import nostr.json.JsonValue;
 import nostr.json.parser.BaseParser;
-import nostr.json.values.JsonArrayValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ArrayValue;
 
 /**
  *
  * @author eric
  */
 @Log
-public class JsonArrayParser extends BaseParser<JsonArrayValue> {
+public class JsonArrayParser extends BaseParser<ArrayValue> {
 
     private int cursor;
 
@@ -26,7 +26,7 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
     }
 
     @Override
-    public JsonArrayValue parse() throws JsonParseException {
+    public ArrayValue parse() throws JsonParseException {
         if (!json.startsWith("[")) {
             throw new JsonParseException("Parse error at index 0");
         }
@@ -36,12 +36,13 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
         }
 
         var subJsonStr = this.json.substring(1, this.json.length() - 1);
-        return new JsonArrayValue(splitList(subJsonStr));
+        
+        return new ArrayValue(splitList(subJsonStr));
     }
 
-    private List<JsonValue> splitList(String subJsonStr) throws JsonParseException {
+    private IValue[] splitList(String subJsonStr) throws JsonParseException {
 
-        final List<JsonValue> result = new ArrayList<>();
+        final List<IValue> list = new ArrayList<>();
         while (true) {
             if (cursor > subJsonStr.length() - 1) {
                 break;
@@ -51,21 +52,23 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
             if (skip(c)) {
                 cursor++;
             } else if (c == '\"') {
-                parseString(c, subJsonStr, result);
+                parseString(c, subJsonStr, list);
             } else if (c == '[') {
-                parseArray(c, subJsonStr, result);
+                parseArray(c, subJsonStr, list);
             } else if (c == '{') {
-                parseObject(c, subJsonStr, result);
+                parseObject(c, subJsonStr, list);
             } else {
-                parseNumber(subJsonStr, result);
+                parseNumber(subJsonStr, list);
             }
         }
 
+        IValue[] result = new IValue[list.size()];
+        list.toArray(result);
+        
         return result;
-
     }
 
-    private void parseNumber(String subJsonStr, final List<JsonValue> result) throws JsonParseException {
+    private void parseNumber(String subJsonStr, final List<IValue> result) throws JsonParseException {
         String currentElt;
         int nextComma = subJsonStr.indexOf(',', cursor);
         if (nextComma == -1) {
@@ -82,7 +85,7 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
         }
     }
 
-    private void parseString(char c, String subJsonStr, final List<JsonValue> result) throws JsonParseException {
+    private void parseString(char c, String subJsonStr, final List<IValue> result) throws JsonParseException {
         int closeIdx;
         String currentElt;
         closeIdx = getClosedParenIndex(c, cursor + 1, subJsonStr);
@@ -95,7 +98,7 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
         cursor = closeIdx + 1;
     }
 
-    private void parseArray(char c, String subJsonStr, final List<JsonValue> result) throws JsonParseException {
+    private void parseArray(char c, String subJsonStr, final List<IValue> result) throws JsonParseException {
         int closeIdx;
         String currentElt;
         closeIdx = getClosedParenIndex(c, cursor + 1, subJsonStr);
@@ -108,7 +111,7 @@ public class JsonArrayParser extends BaseParser<JsonArrayValue> {
         cursor = closeIdx + 1;
     }
 
-    private void parseObject(char c, String subJsonStr, final List<JsonValue> result) throws JsonParseException {
+    private void parseObject(char c, String subJsonStr, final List<IValue> result) throws JsonParseException {
         int closeIdx;
         String currentElt;
         closeIdx = getClosedParenIndex(c, cursor + 1, subJsonStr);

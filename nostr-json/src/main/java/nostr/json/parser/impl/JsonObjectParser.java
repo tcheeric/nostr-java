@@ -1,19 +1,21 @@
 package nostr.json.parser.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import nostr.json.parser.JsonParseException;
 import nostr.json.parser.BaseParser;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.values.JsonValueList;
 import java.util.logging.Level;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.ExpressionValue;
+import nostr.types.values.impl.ObjectValue;
 
 /**
  *
  * @author squirrel
  */
 @Log
-public class JsonObjectParser extends BaseParser<JsonObjectValue> {
+public class JsonObjectParser extends BaseParser<ObjectValue> {
 
     private int cursor;
 
@@ -24,7 +26,7 @@ public class JsonObjectParser extends BaseParser<JsonObjectValue> {
     }
 
     @Override
-    public JsonObjectValue parse() throws JsonParseException {
+    public ObjectValue parse() throws JsonParseException {
         if (!json.startsWith("{")) {
             throw new JsonParseException("Parse error at index 0");
         }
@@ -34,12 +36,12 @@ public class JsonObjectParser extends BaseParser<JsonObjectValue> {
         }
 
         var subJsonStr = this.json.substring(1, this.json.length() - 1);
-        return new JsonObjectValue(splitExpressions(subJsonStr));
+        return new ObjectValue(splitExpressions(subJsonStr));
     }
 
-    private JsonValueList splitExpressions(String subJsonStr) {
+    private List<ExpressionValue> splitExpressions(String subJsonStr) {
 
-        JsonValueList result = new JsonValueList();
+        List<ExpressionValue> result = new ArrayList<>();
 
         if ("".equals(subJsonStr)) {
             return result;

@@ -1,18 +1,18 @@
 package nostr.json.parser.impl;
 
 import nostr.json.parser.JsonParseException;
-import nostr.json.JsonValue;
 import nostr.json.parser.BaseParser;
-import nostr.json.values.JsonExpression;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ExpressionValue;
 
 /**
  *
  * @author squirrel
  */
 @Log
-public class JsonExpressionParser extends BaseParser<JsonExpression> {
+public class JsonExpressionParser extends BaseParser<ExpressionValue> {
 
     private int cursor;
 
@@ -23,11 +23,11 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
     }
 
     @Override
-    public JsonExpression parse() throws JsonParseException {
+    public ExpressionValue parse() throws JsonParseException {
         final String variable = getVariable();
-        final JsonValue value = getValue();
+        final IValue value = getValue();
 
-        return JsonExpression.builder().jsonValue(value).variable(variable).build();
+        return new ExpressionValue(variable, value);
     }
 
     private String getVariable() {
@@ -54,7 +54,7 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
         throw new JsonParseException(String.format("Invalid expression: %s (index %d)", json, cursor));
     }
 
-    private JsonValue getValue() {
+    private IValue getValue() {
 
         char c = json.charAt(cursor);
         if (c == ':') {            
@@ -78,7 +78,7 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
         }
     }
 
-    private JsonValue getNumberValue() throws JsonParseException {
+    private IValue getNumberValue() throws JsonParseException {
         String currentValue;
 
         var nextComma = json.indexOf(',', cursor);
@@ -95,7 +95,7 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
         }
     }
 
-    private JsonValue getObjectValue(char c) throws JsonParseException {
+    private IValue getObjectValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
         
@@ -109,7 +109,7 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
         return new JsonObjectParser(currentValue).parse();
     }
 
-    private JsonValue getArrayValue(char c) throws JsonParseException {
+    private IValue getArrayValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
         
@@ -123,7 +123,7 @@ public class JsonExpressionParser extends BaseParser<JsonExpression> {
         return new JsonArrayParser(currentValue).parse();
     }
 
-    private JsonValue getStringValue(char c) throws JsonParseException {
+    private IValue getStringValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
         

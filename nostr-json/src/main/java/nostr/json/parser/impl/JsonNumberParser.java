@@ -2,16 +2,16 @@ package nostr.json.parser.impl;
 
 import nostr.json.parser.JsonParseException;
 import nostr.json.parser.BaseParser;
-import nostr.json.values.JsonNumberValue;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.NumberValue;
 
 /**
  *
  * @author squirrel
  */
 @Log
-public class JsonNumberParser extends BaseParser<JsonNumberValue> {
+public class JsonNumberParser extends BaseParser<NumberValue> {
 
     public JsonNumberParser(String json) {
         super(json.trim());
@@ -19,9 +19,9 @@ public class JsonNumberParser extends BaseParser<JsonNumberValue> {
     }
 
     @Override
-    public JsonNumberValue parse() throws JsonParseException {
+    public NumberValue parse() throws JsonParseException {
         try {
-            return new JsonNumberValue(Double.valueOf(json));
+            return new NumberValue(Double.valueOf(json));
         } catch (NumberFormatException ex) {
             throw new JsonParseException(ex);
         }

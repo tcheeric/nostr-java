@@ -2,10 +2,9 @@
 package nostr.json.unmarshaller.impl;
 
 import nostr.json.parser.JsonParseException;
-import nostr.json.JsonValue;
 import nostr.json.parser.impl.JsonStringParser;
-import nostr.json.types.JsonStringType;
 import nostr.json.unmarshaller.BaseUnmarshaller;
+import nostr.types.values.impl.StringValue;
 
 /**
  *
@@ -19,7 +18,7 @@ public class JsonStringUnmarshaller extends BaseUnmarshaller {
 
     
     @Override
-    public JsonValue<JsonStringType> unmarshall() {
+    public StringValue unmarshall() {
         String jsonStr = getJson();
         if (!jsonStr.startsWith("\"")) {
             throw new JsonParseException("Parse error at index 0");

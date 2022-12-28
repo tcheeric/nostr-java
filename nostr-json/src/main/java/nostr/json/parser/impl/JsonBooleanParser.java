@@ -2,16 +2,16 @@ package nostr.json.parser.impl;
 
 import nostr.json.parser.JsonParseException;
 import nostr.json.parser.BaseParser;
-import nostr.json.values.JsonBooleanValue;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.BooleanValue;
 
 /**
  *
  * @author eric
  */
 @Log
-public class JsonBooleanParser extends BaseParser<JsonBooleanValue> {
+public class JsonBooleanParser extends BaseParser<BooleanValue> {
 
     public JsonBooleanParser(String json) {
         super(json.trim());
@@ -19,9 +19,9 @@ public class JsonBooleanParser extends BaseParser<JsonBooleanValue> {
     }
 
     @Override
-    public JsonBooleanValue parse() throws JsonParseException {
+    public BooleanValue parse() throws JsonParseException {
         if (json.equalsIgnoreCase("true") || json.equalsIgnoreCase("false")) {
-            return new JsonBooleanValue(Boolean.valueOf(json));
+            return new BooleanValue(Boolean.valueOf(json));
         }
         throw new JsonParseException();
     }

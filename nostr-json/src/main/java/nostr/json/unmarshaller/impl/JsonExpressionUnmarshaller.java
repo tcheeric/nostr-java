@@ -1,13 +1,12 @@
 
 package nostr.json.unmarshaller.impl;
 
-import nostr.json.JsonType;
-import nostr.json.JsonValue;
 import nostr.json.parser.impl.JsonExpressionParser;
 import nostr.json.unmarshaller.IUnmarshaller;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.ExpressionValue;
 
 /**
  *
@@ -21,7 +20,7 @@ public class JsonExpressionUnmarshaller implements IUnmarshaller {
     private final String json;
 
     @Override
-    public JsonValue<? extends JsonType> unmarshall() {
+    public ExpressionValue unmarshall() {
         return new JsonExpressionParser(json).parse();
     }
 }

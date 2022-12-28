@@ -1,10 +1,9 @@
 
 package nostr.json.unmarshaller.impl;
 
-import nostr.json.JsonValue;
 import nostr.json.parser.impl.JsonObjectParser;
-import nostr.json.types.JsonObjectType;
 import nostr.json.unmarshaller.BaseUnmarshaller;
+import nostr.types.values.impl.ObjectValue;
 
 /**
  *
@@ -17,7 +16,7 @@ public class JsonObjectUnmarshaller extends BaseUnmarshaller {
     }
 
     @Override
-    public JsonValue<JsonObjectType> unmarshall() {
+    public ObjectValue unmarshall() {
         String jsonStr = getJson();
         
         return new JsonObjectParser(jsonStr).parse();

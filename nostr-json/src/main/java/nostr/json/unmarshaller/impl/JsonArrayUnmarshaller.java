@@ -1,11 +1,10 @@
 
 package nostr.json.unmarshaller.impl;
 
-import nostr.json.JsonValue;
 import nostr.json.parser.impl.JsonArrayParser;
-import nostr.json.types.JsonArrayType;
 import nostr.json.unmarshaller.BaseUnmarshaller;
 import lombok.extern.java.Log;
+import nostr.types.values.impl.ArrayValue;
 
 /**
  *
@@ -19,7 +18,7 @@ public class JsonArrayUnmarshaller extends BaseUnmarshaller {
     }
 
     @Override
-    public JsonValue<JsonArrayType> unmarshall() {
+    public ArrayValue unmarshall() {
         String jsonStr = getJson();
 
         return new JsonArrayParser(jsonStr).parse();        
