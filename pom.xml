@@ -15,6 +15,7 @@
         <module>nostr-examples</module>
         <module>nostr-util</module>
         <module>nostr-crypto</module>
+        <module>nostr-types</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

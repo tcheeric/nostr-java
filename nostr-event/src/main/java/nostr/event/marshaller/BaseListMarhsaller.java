@@ -1,6 +1,7 @@
 
 package nostr.event.marshaller;
 
+import nostr.base.IMarshaller;
 import nostr.base.IKey;
 import nostr.base.INostrList;
 import nostr.base.Relay;

@@ -31,9 +31,15 @@ import nostr.id.Wallet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
+import nostr.base.ElementAttribute;
+import nostr.event.impl.GenericTag;
 import nostr.util.NostrException;
 
 /**
@@ -125,7 +131,6 @@ public class NostrExamples {
 //            } catch (UnsupportedNIPException ex) {
 //                log.log(Level.WARNING, ex.getMessage());
 //            }
-
             Thread.sleep(500);
 
             try {
@@ -417,6 +422,27 @@ public class NostrExamples {
             throw new NostrException(ex);
         }
     }
+
+//    public static void sensitiveContentNote(Wallet wallet, Client client) throws NostrException {
+//        logHeader("sensitiveContentNote");
+//        try {
+//            // Create the attribute value list            
+//            List<String> values = new ArrayList<>();            
+//            values.add("sensitive content");
+//            
+//            // Create the attributes
+//            final ElementAttribute attr = ElementAttribute.builder().nip(36).isString(true).name("reason").valueList(values).build();                        
+//            Set<ElementAttribute> attributes = new HashSet<>();
+//            attributes.add(attr);
+//            
+//            GenericTag sensitiveContentTag = new GenericTag(1, "", attributes);
+//        } catch (UnsupportedNIPException ex) {
+//            throw ex;
+//        } catch (Exception ex) {
+//            throw new NostrException(ex);
+//        }
+//
+//    }
 
     private static void logHeader(String header) {
         for (int i = 0; i < 30; i++) {

@@ -11,12 +11,11 @@ import nostr.base.IEvent;
 import nostr.base.Relay;
 import nostr.event.impl.GenericTag;
 import nostr.event.marshaller.impl.EventMarshaller;
-import nostr.json.JsonValue;
-import nostr.json.types.JsonArrayType;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
-import nostr.json.values.JsonArrayValue;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.values.JsonStringValue;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ArrayValue;
+import nostr.types.values.impl.ObjectValue;
+import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -70,17 +69,17 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            JsonValue<JsonArrayType> tags = ((JsonObjectValue) jsonValue).get("\"tags\"");
+            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
 
-            Assertions.assertEquals(2, ((JsonArrayValue) tags).length());
+            Assertions.assertEquals(2, ((ArrayValue) tags).length());
 
-            JsonValue tag = ((JsonArrayValue) tags).get(1);
+            IValue tag = ((ArrayValue) tags).get(1);
 
-            Assertions.assertTrue(tag instanceof JsonArrayValue);
+            Assertions.assertTrue(tag instanceof ArrayValue);
             
-            JsonValue code = ((JsonArrayValue)tag).get(0);
+            IValue code = ((ArrayValue)tag).get(0);
             
-            Assertions.assertTrue(code instanceof JsonStringValue);
+            Assertions.assertTrue(code instanceof StringValue);
             
             Assertions.assertEquals("devil", code.getValue());
 
@@ -105,20 +104,20 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            JsonValue<JsonArrayType> tags = ((JsonObjectValue) jsonValue).get("\"tags\"");
+            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
 
-            Assertions.assertEquals(2, ((JsonArrayValue) tags).length());
+            Assertions.assertEquals(2, ((ArrayValue) tags).length());
 
-            JsonValue tag = ((JsonArrayValue) tags).get(1);
+            IValue tag = ((ArrayValue) tags).get(1);
 
-            Assertions.assertTrue(tag instanceof JsonArrayValue);
+            Assertions.assertTrue(tag instanceof ArrayValue);
             
-            JsonValue code = ((JsonArrayValue)tag).get(0);
+            IValue code = ((ArrayValue)tag).get(0);
             
-            Assertions.assertTrue(code instanceof JsonStringValue);
+            Assertions.assertTrue(code instanceof StringValue);
             
             Assertions.assertEquals("devil", code.getValue());
-            Assertions.assertEquals(1, ((JsonArrayValue)tag).length());
+            Assertions.assertEquals(1, ((ArrayValue)tag).length());
 
         } catch (NostrException ex) {
             Assertions.fail(ex);
@@ -141,17 +140,17 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            JsonValue<JsonArrayType> tags = ((JsonObjectValue) jsonValue).get("\"tags\"");
+            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
 
-            Assertions.assertEquals(1, ((JsonArrayValue) tags).length());
+            Assertions.assertEquals(1, ((ArrayValue) tags).length());
 
-            JsonValue tag = ((JsonArrayValue) tags).get(0);
+            IValue tag = ((ArrayValue) tags).get(0);
 
-            Assertions.assertTrue(tag instanceof JsonArrayValue);
+            Assertions.assertTrue(tag instanceof ArrayValue);
             
-            JsonValue code = ((JsonArrayValue)tag).get(0);
+            IValue code = ((ArrayValue)tag).get(0);
             
-            Assertions.assertTrue(code instanceof JsonStringValue);
+            Assertions.assertTrue(code instanceof StringValue);
             
             Assertions.assertNotEquals("devil", code.getValue());
 

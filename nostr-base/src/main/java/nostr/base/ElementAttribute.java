@@ -1,10 +1,10 @@
 package nostr.base;
 
-import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nostr.types.values.IValue;
 
 /**
  *
@@ -17,12 +17,12 @@ import lombok.ToString;
 public class ElementAttribute {
 
     private final String name;
-    
-    private final List valueList;
-    
-    @Builder.Default
-    private final boolean isString = Boolean.TRUE;
-    
-    private final Integer nip;
 
+    private final IValue value;
+//    private final List valueList;
+//        
+//    @Builder.Default
+//    private final boolean isString = Boolean.TRUE;
+    private final Integer nip;
+    
 }

@@ -11,11 +11,6 @@ import nostr.base.Relay;
 import nostr.controller.Connection;
 import nostr.controller.handler.request.RequestHandler;
 import nostr.event.BaseMessage;
-import nostr.json.JsonValue;
-import nostr.json.values.JsonArrayValue;
-import nostr.json.values.JsonNumberValue;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.types.JsonObjectType;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +22,10 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ArrayValue;
+import nostr.types.values.impl.NumberValue;
+import nostr.types.values.impl.ObjectValue;
 
 /**
  *
@@ -84,37 +83,37 @@ public class Client {
             var connection = new Connection(relay);
             String strInfo = connection.getRelayInformation();
             log.log(Level.FINE, "Relay information: {0}", strInfo);
-            JsonValue<JsonObjectType> info = new JsonObjectUnmarshaller(strInfo).unmarshall();
+            ObjectValue info = new JsonObjectUnmarshaller(strInfo).unmarshall();
 
-            final JsonValue contact = ((JsonObjectValue) info).get("\"contact\"");
+            final IValue contact = ((ObjectValue) info).get("\"contact\"");
             var strContact = contact == null ? "" : contact.toString();
             relay.setContact(strContact);
 
-            final JsonValue desc = ((JsonObjectValue) info).get("\"description\"");
+            final IValue desc = ((ObjectValue) info).get("\"description\"");
             var strDesc = desc == null ? "" : desc.toString();
             relay.setDescription(strDesc);
 
-            final JsonValue relayName = ((JsonObjectValue) info).get("\"name\"");
+            final IValue relayName = ((ObjectValue) info).get("\"name\"");
             var strRelayName = relayName == null ? "" : relayName.toString();
             relay.setName(strRelayName);
 
-            final JsonValue software = ((JsonObjectValue) info).get("\"software\"");
+            final IValue software = ((ObjectValue) info).get("\"software\"");
             var strSoftware = software == null ? "" : software.toString();
             relay.setSoftware(strSoftware);
 
-            final JsonValue version = ((JsonObjectValue) info).get("\"version\"");
+            final IValue version = ((ObjectValue) info).get("\"version\"");
             var strVersion = version == null ? "" : version.toString();
             relay.setVersion(strVersion);
 
             List<Integer> snipList = new ArrayList<>();
-            JsonArrayValue snips = (JsonArrayValue) ((JsonObjectValue) info).get("\"supported_nips\"");
+            ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("\"supported_nips\"");
             int len = snips.length();
             for (int i = 0; i < len; i++) {
-                snipList.add(((JsonNumberValue) snips.get(i)).intValue());
+                snipList.add(((NumberValue) snips.get(i)).intValue());
             }
             relay.setSupportedNips(snipList);
 
-            final JsonValue pubKey = ((JsonObjectValue) info).get("\"pubkey\"");
+            final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"");
             var strPubKey = pubKey == null ? "" : pubKey.toString();
             relay.setPubKey(NostrUtil.hexToBytes(strPubKey));
         } catch (Exception ex) {

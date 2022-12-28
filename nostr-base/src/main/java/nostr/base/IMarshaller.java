@@ -1,5 +1,5 @@
 
-package nostr.event.marshaller;
+package nostr.base;
 
 import nostr.util.NostrException;
 
@@ -9,5 +9,5 @@ import nostr.util.NostrException;
  */
 public interface IMarshaller {
     
-    public abstract String marshall() throws NostrException;
+    public abstract String marshall() throws NostrException;    
 }

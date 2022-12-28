@@ -16,15 +16,6 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Wallet;
 import nostr.json.parser.JsonParseException;
-import nostr.json.JsonValue;
-import nostr.json.values.BaseJsonValue;
-import nostr.json.values.JsonArrayValue;
-import nostr.json.values.JsonNumberValue;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.types.JsonArrayType;
-import nostr.json.types.JsonNumberType;
-import nostr.json.types.JsonObjectType;
-import nostr.json.types.JsonStringType;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonNumberUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
@@ -43,7 +34,14 @@ import nostr.event.impl.GenericTagQuery;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
 import nostr.json.unmarshaller.impl.JsonExpressionUnmarshaller;
-import nostr.json.values.JsonExpression;
+import nostr.types.Type;
+import nostr.types.values.BaseValue;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ArrayValue;
+import nostr.types.values.impl.ExpressionValue;
+import nostr.types.values.impl.NumberValue;
+import nostr.types.values.impl.ObjectValue;
+import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -59,52 +57,52 @@ public class JsonTest {
     public void testParser() {
         System.out.println("testParser");
 
-        JsonValue<JsonStringType> jsonStr = new JsonStringUnmarshaller("\"34f\"").unmarshall();
+        StringValue jsonStr = new JsonStringUnmarshaller("\"34f\"").unmarshall();
         Assertions.assertEquals("34f", jsonStr.getValue().toString());
 
-        JsonValue<JsonNumberType> jsonNum = new JsonNumberUnmarshaller("46").unmarshall();
-        Assertions.assertEquals(Integer.parseInt("46"), ((JsonNumberValue) jsonNum).intValue());
+        NumberValue jsonNum = new JsonNumberUnmarshaller("46").unmarshall();
+        Assertions.assertEquals(Integer.parseInt("46"), ((NumberValue) jsonNum).intValue());
 
-        JsonValue<JsonArrayType> jsonArr = new JsonArrayUnmarshaller("[2,\"a\"]").unmarshall();
-        Assertions.assertEquals(2, ((JsonArrayValue) jsonArr).length());
-        Assertions.assertEquals(2, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(0)).intValue());
-        Assertions.assertEquals("\"a\"", ((JsonArrayValue) jsonArr).get(1).toString());
+        ArrayValue jsonArr = new JsonArrayUnmarshaller("[2,\"a\"]").unmarshall();
+        Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
+        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(0)).intValue());
+        Assertions.assertEquals("\"a\"", ((ArrayValue) jsonArr).get(1).toString());
 
         jsonArr = new JsonArrayUnmarshaller("[1,2,\"bx\"]").unmarshall();
-        Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
-        Assertions.assertEquals(1, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(0)).intValue());
-        Assertions.assertEquals(2, ((JsonNumberValue) ((JsonArrayValue) jsonArr).get(1)).intValue());
-        Assertions.assertEquals("\"bx\"", ((JsonArrayValue) jsonArr).get(2).toString());
+        Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
+        Assertions.assertEquals(1, ((NumberValue) ((ArrayValue) jsonArr).get(0)).intValue());
+        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(1)).intValue());
+        Assertions.assertEquals("\"bx\"", ((ArrayValue) jsonArr).get(2).toString());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"]]").unmarshall();
-        Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
-        Assertions.assertTrue(((BaseJsonValue) ((JsonArrayValue) jsonArr).get(2)).getType() instanceof JsonArrayType);
+        Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
+        Assertions.assertTrue(((BaseValue) ((ArrayValue) jsonArr).get(2)).getType().equals(Type.ARRAY));
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"],\"3\"   ,9]").unmarshall();
-        Assertions.assertEquals(5, ((JsonArrayValue) jsonArr).length());
+        Assertions.assertEquals(5, ((ArrayValue) jsonArr).length());
 
         jsonArr = new JsonArrayUnmarshaller("[[\"p\",\"\",\"null\",\"willy\"]]").unmarshall();
-        Assertions.assertEquals(1, ((JsonArrayValue) jsonArr).length());
+        Assertions.assertEquals(1, ((ArrayValue) jsonArr).length());
 
         jsonArr = new JsonArrayUnmarshaller("[[\"p\",\"\",\"null\",\"willy\"],[\"delegation\",\"\",\"whatever\",\"0d321c696337ffa923ea2d8fa40c04a326881063950eec26ce4eb7d06b7e84f78a9dd2a5ea267dfb1fba262568016b3bab533b7269c5b689922b3e157fcccdb9\"]]").unmarshall();
-        Assertions.assertEquals(2, ((JsonArrayValue) jsonArr).length());
+        Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
 
-        JsonValue<JsonObjectType> jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
-        Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
-        JsonValue v = ((JsonObjectValue) jsonObj).get("\"a\"");
-        Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonNumberType);
-        Assertions.assertEquals(2, ((JsonNumberValue) v).intValue());
+        IValue jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
+        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
+        IValue v = ((ObjectValue) jsonObj).get("\"a\"");
+        Assertions.assertTrue(((BaseValue) v).getType().equals(Type.NUMBER));
+        Assertions.assertEquals(2, ((NumberValue) v).intValue());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\", {\"a\":2,\"b\":\"a\"}]]").unmarshall();
-        Assertions.assertEquals(3, ((JsonArrayValue) jsonArr).length());
-        v = ((JsonArrayValue) jsonArr).get(2);
-        Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonArrayType);
-        jsonObj = ((JsonArrayValue) v).get(3);
-        Assertions.assertTrue(((BaseJsonValue<JsonObjectType>) jsonObj).getType() instanceof JsonObjectType);
+        Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
+        v = ((ArrayValue) jsonArr).get(2);
+        Assertions.assertTrue(((BaseValue) v).getType().equals(Type.ARRAY));
+        jsonObj = ((ArrayValue) v).get(3);
+        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
 
         jsonObj = new JsonObjectUnmarshaller("{\"a\":2,\"b\":\"a\", \"nil\":{}}").unmarshall();
-        v = ((JsonObjectValue) jsonObj).get("\"nil\"");
-        Assertions.assertTrue(((BaseJsonValue) v).getType() instanceof JsonObjectType);
+        v = ((ObjectValue) jsonObj).get("\"nil\"");
+        Assertions.assertTrue(((BaseValue) v).getType().equals(Type.OBJECT));
 
         Assertions.assertDoesNotThrow(
                 () -> {
@@ -186,7 +184,7 @@ public class JsonTest {
 
             var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
 
-            Assertions.assertNull(((JsonObjectValue) jsonValue).get("\"ots\""));
+            Assertions.assertNull(((ObjectValue) jsonValue).get("\"ots\""));
 
         } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
@@ -217,7 +215,7 @@ public class JsonTest {
 
             var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
 
-            Assertions.assertNotNull(((JsonObjectValue) jsonValue).get("\"ots\""));
+            Assertions.assertNotNull(((ObjectValue) jsonValue).get("\"ots\""));
 
         } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
@@ -282,13 +280,13 @@ public class JsonTest {
 
             Assertions.assertNotNull(jsonEvent);
 
-            var jsonValue = ((JsonObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("\"tags\"");
+            var jsonValue = ((ObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("\"tags\"");
 
-            var tagsArr = (JsonArrayValue) jsonValue;
+            var tagsArr = (ArrayValue) jsonValue;
 
             for (int i = 0; i < tagsArr.length(); i++) {
                 var t = tagsArr.get(i);
-                if (((JsonArrayValue) t).get(0).toString().equals("\"delegation\"")) {
+                if (((ArrayValue) t).get(0).toString().equals("\"delegation\"")) {
                     Assertions.assertTrue(true);
                 }
             }
@@ -321,7 +319,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(jsonSubjectTag);
 
-            var jsonValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonSubjectTag).unmarshall()).get(0);
+            var jsonValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonSubjectTag).unmarshall()).get(0);
 
             Assertions.assertEquals("\"subject\"", jsonValue.toString());
         } catch (NostrException ex) {
@@ -350,7 +348,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(jsonEventTag);
 
-            var jsonCodeValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
+            var jsonCodeValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
             //var jsonEventIdValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(1);
 
             Assertions.assertEquals("\"e\"", jsonCodeValue.toString());
@@ -415,19 +413,19 @@ public class JsonTest {
 
             String strExpr = gtqm.marshall();
 
-            JsonValue vexpr = new JsonExpressionUnmarshaller(strExpr).unmarshall();
+            IValue vexpr = new JsonExpressionUnmarshaller(strExpr).unmarshall();
 
-            Assertions.assertTrue(vexpr instanceof JsonExpression);
+            Assertions.assertTrue(vexpr instanceof ExpressionValue);
 
-            JsonExpression expr = (JsonExpression) vexpr;
+            ExpressionValue expr = (ExpressionValue) vexpr;
 
             String variable = "\"#" + gtq.getTagName().toString() + "\"";
-            Assertions.assertEquals(variable, expr.getVariable());
+            Assertions.assertEquals(variable, expr.getName());
 
-            var jsonValue = expr.getJsonValue();
-            Assertions.assertTrue(jsonValue instanceof JsonArrayValue);
+            var jsonValue = expr.getValue();
+            Assertions.assertTrue(jsonValue instanceof ArrayValue);
 
-            var jsonArrValue = (JsonArrayValue) jsonValue;
+            var jsonArrValue = (ArrayValue) jsonValue;
             for (int i = 0; i < jsonArrValue.length(); i++) {
                 var v = jsonArrValue.get(i).getValue().toString();
                 Assertions.assertTrue(gtq.getValue().contains(v));
@@ -460,19 +458,19 @@ public class JsonTest {
             
             System.out.println("@@@ " + strJson);
 
-            JsonValue<JsonObjectType> fObj = new JsonObjectUnmarshaller(strJson).unmarshall();
+            ObjectValue fObj = new JsonObjectUnmarshaller(strJson).unmarshall();
 
-            JsonObjectValue obj = (JsonObjectValue) fObj;
+            ObjectValue obj = (ObjectValue) fObj;
 
-            JsonValue ids = obj.get("\"ids\"");
+            IValue ids = obj.get("\"ids\"");
             Assertions.assertNotNull(ids);
-            Assertions.assertTrue(ids instanceof JsonArrayValue);
-            Assertions.assertEquals(2, ((JsonArrayValue) ids).length());
+            Assertions.assertTrue(ids instanceof ArrayValue);
+            Assertions.assertEquals(2, ((ArrayValue) ids).length());
 
-            JsonValue e = obj.get("\"#e\"");
+            IValue e = obj.get("\"#e\"");
             Assertions.assertNotNull(e);
-            Assertions.assertTrue(e instanceof JsonArrayValue);
-            Assertions.assertEquals(1, ((JsonArrayValue) e).length());
+            Assertions.assertTrue(e instanceof ArrayValue);
+            Assertions.assertEquals(1, ((ArrayValue) e).length());
 
             var gtql = filters.getGenericTagQueryList();
             Assertions.assertEquals(1, gtql.size());

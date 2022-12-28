@@ -9,18 +9,18 @@ import nostr.base.Profile;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.list.TagList;
-import nostr.json.JsonType;
-import nostr.json.JsonValue;
-import nostr.json.values.JsonExpression;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.values.JsonStringValue;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.NIPSupport;
-import nostr.json.values.JsonValueList;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ExpressionValue;
+import nostr.types.values.impl.ObjectValue;
+import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -58,22 +58,22 @@ public final class MetadataEvent extends GenericEvent {
     }
 
     private void setContent() {        
-        JsonValue nameValue = new JsonStringValue(this.getProfile().getName());
-        JsonExpression<JsonType> nameExpr = JsonExpression.builder().variable("name").jsonValue(nameValue).build();
+        IValue nameValue = new StringValue(this.getProfile().getName());
+        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
 
-        JsonValue aboutValue = new JsonStringValue(this.getProfile().getAbout());
-        JsonExpression<JsonType> aboutExpr = JsonExpression.builder().variable("about").jsonValue(aboutValue).build();
+        IValue aboutValue = new StringValue(this.getProfile().getAbout());
+        ExpressionValue aboutExpr = new ExpressionValue("about", aboutValue);
 
-        JsonValue picValue = new JsonStringValue(this.getProfile().getPicture().toString());
-        JsonExpression<JsonType> picExpr = JsonExpression.builder().variable("picture").jsonValue(picValue).build();
+        IValue picValue = new StringValue(this.getProfile().getPicture().toString());
+        ExpressionValue picExpr = new ExpressionValue("picture", picValue);
 
-        JsonValueList value = new JsonValueList();
+        List<ExpressionValue> value = new ArrayList<>();
         value.add(nameExpr);
         value.add(aboutExpr);
         value.add(picExpr);
 
-        JsonObjectValue content = new JsonObjectValue(value);
-        setContent(content.toString(true));
+        ObjectValue content = new ObjectValue(value);
+        setContent(content.toString());
     }
 
 }

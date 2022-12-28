@@ -26,15 +26,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.management.StringValueExp;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IEvent;
-import nostr.event.BaseEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.GenericTagQuery;
 import nostr.event.impl.OtsEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
+import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -186,18 +187,18 @@ public class EntityFactory {
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
             GenericTag tag = new GenericTag("devil");
-            List<String> valueList = new ArrayList<>();
-            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().name("name").valueList(valueList).nip(666).build());
+//            List<String> valueList = new ArrayList<>();
+//            valueList.add("Lucifer");
+            tag.addAttribute(ElementAttribute.builder().name("name").value(new StringValue("Lucifer")).nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
             GenericTag tag = new GenericTag(tagNip, "devil");
-            List<String> valueList = new ArrayList<>();
-            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().name("name").valueList(valueList).nip(666).build());
+//            List<String> valueList = new ArrayList<>();
+//            valueList.add("Lucifer");
+            tag.addAttribute(ElementAttribute.builder().name("name").value(new StringValue("Lucifer")).nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }

@@ -67,6 +67,11 @@
             <artifactId>nostr-schnorr</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-types</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <exec.mainClass>com.tcheeric.nostr.test.NostrTest</exec.mainClass>

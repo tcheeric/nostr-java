@@ -5,7 +5,7 @@ import nostr.base.Relay;
 import nostr.util.UnsupportedNIPException;
 import nostr.base.annotation.NIPSupport;
 import nostr.event.BaseTag;
-import nostr.event.marshaller.BaseMarshaller;
+import nostr.event.marshaller.BaseElementMarshaller;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +22,7 @@ import nostr.util.NostrException;
 @Data
 @Log
 @EqualsAndHashCode(callSuper = false)
-public class TagMarshaller extends BaseMarshaller {
+public class TagMarshaller extends BaseElementMarshaller {
 
     public TagMarshaller(ITag tag, Relay relay) {
         this(tag, relay, false);

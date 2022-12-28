@@ -30,5 +30,10 @@
             <artifactId>nostr-schnorr</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-types</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

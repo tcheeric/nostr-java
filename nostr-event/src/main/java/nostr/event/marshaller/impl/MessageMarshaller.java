@@ -3,7 +3,7 @@ package nostr.event.marshaller.impl;
 
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
-import nostr.event.marshaller.BaseMarshaller;
+import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
@@ -17,7 +17,7 @@ import nostr.util.NostrException;
  * @author squirrel
  */
 @Log
-public class MessageMarshaller extends BaseMarshaller {
+public class MessageMarshaller extends BaseElementMarshaller {
 
     public MessageMarshaller(BaseMessage message, Relay relay) {
         this(message, relay, false);

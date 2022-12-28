@@ -4,14 +4,7 @@ import nostr.base.Profile;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.list.TagList;
-import nostr.json.JsonType;
-import nostr.json.JsonValue;
-import nostr.json.types.JsonObjectType;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
-import nostr.json.values.JsonExpression;
-import nostr.json.values.JsonObjectValue;
-import nostr.json.values.JsonStringValue;
-import nostr.json.values.JsonValueList;
 import java.beans.IntrospectionException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,12 +15,18 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.annotation.NIPSupport;
+import nostr.types.values.IValue;
+import nostr.types.values.impl.ExpressionValue;
+import nostr.types.values.impl.ObjectValue;
+import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -60,17 +59,17 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
     }
 
     private void setContent() {
-        JsonValue nameValue = new JsonStringValue(this.name);
-        JsonExpression<JsonType> nameExpr = JsonExpression.builder().variable("name").jsonValue(nameValue).build();
+        IValue nameValue = new StringValue(this.name);
+        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
 
-        JsonValue nip05Value = new JsonStringValue(this.nip05);
-        JsonExpression<JsonType> nip05Expr = JsonExpression.builder().variable("nip05").jsonValue(nip05Value).build();
+        IValue nip05Value = new StringValue(this.nip05);
+        ExpressionValue nip05Expr = new ExpressionValue("nip05", nip05Value);
 
-        JsonValueList value = new JsonValueList();
-        value.add(nameExpr);
-        value.add(nip05Expr);
-
-        JsonObjectValue content = new JsonObjectValue(value);
+        List<ExpressionValue> expressions = new ArrayList<>();
+        expressions.add(nameExpr);
+        expressions.add(nip05Expr);
+        
+        ObjectValue content = new ObjectValue(expressions);
 
         setContent(content.toString());
     }
@@ -123,9 +122,9 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
     }
 
     private String getPublicKey(StringBuilder content, String localPart) {
-        JsonValue<JsonObjectType> jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
-        JsonValue namesObj = ((JsonObjectValue) jsonObjValue).get("\"" + "names" + "\"");
-        JsonValue pubKey = ((JsonObjectValue) namesObj).get("\"" + localPart + "\"");
+        ObjectValue jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
+        IValue namesObj = ((ObjectValue) jsonObjValue).get("\"" + "names" + "\"");
+        IValue pubKey = ((ObjectValue) namesObj).get("\"" + localPart + "\"");
         return pubKey.getValue().toString();
     }
 

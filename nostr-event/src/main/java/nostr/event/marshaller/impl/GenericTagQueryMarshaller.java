@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import nostr.base.Relay;
 import nostr.event.impl.GenericTagQuery;
-import nostr.event.marshaller.IMarshaller;
+import nostr.base.IMarshaller;
 import nostr.util.NostrException;
 
 /**

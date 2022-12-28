@@ -8,15 +8,13 @@ import nostr.controller.handler.response.EoseResponseHandler;
 import nostr.controller.handler.response.EventResponseHandler;
 import nostr.controller.handler.response.NoticeResponseHandler;
 import nostr.controller.handler.response.OkResponseHandler;
-import nostr.json.JsonValue;
-import nostr.json.values.JsonArrayValue;
-import nostr.json.types.JsonArrayType;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.controller.handler.response.OkResponseHandler.Reason;
+import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -75,30 +73,30 @@ public class ClientListenerEndPoint {
 
         log.log(Level.FINE, "onTextMessage: Message: {0}", message);
 
-        JsonValue<JsonArrayType> jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = ((JsonArrayValue) jsonArr).get(0).toString();
-        String msg = ((JsonArrayValue) jsonArr).get(1).toString();
+        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
+        final String command = ((ArrayValue) jsonArr).get(0).toString();
+        String msg; //= ((ArrayValue) jsonArr).get(1).toString();
         BaseResponseHandler responseHandler = null;
         switch (command) {
             case "\"EOSE\"" -> {
-                msg = ((JsonArrayValue) jsonArr).get(1).toString();
+                msg = ((ArrayValue) jsonArr).get(1).toString();
                 responseHandler = new EoseResponseHandler(msg);
             }
             case "\"OK\"" -> {
-                String eventId = ((JsonArrayValue) jsonArr).get(1).toString();
-                boolean result = Boolean.parseBoolean(((JsonArrayValue) jsonArr).get(2).toString());
-                msg = ((JsonArrayValue) jsonArr).get(3).toString();
+                String eventId = ((ArrayValue) jsonArr).get(1).toString();
+                boolean result = Boolean.parseBoolean(((ArrayValue) jsonArr).get(2).toString());
+                msg = ((ArrayValue) jsonArr).get(3).toString();
                 final int colonIndex = msg.indexOf(":") - 1;
                 Reason reason = Reason.valueOf(msg.substring(0, colonIndex));
                 responseHandler = new OkResponseHandler(eventId, result, reason, msg.substring(colonIndex + 1));
             }
             case "\"NOTICE\"" -> {
-                msg = ((JsonArrayValue) jsonArr).get(1).toString();
+                msg = ((ArrayValue) jsonArr).get(1).toString();
                 responseHandler = new NoticeResponseHandler(msg);
             }
             case "\"EVENT\"" -> {
-                String subId = ((JsonArrayValue) jsonArr).get(1).toString();
-                String jsonEvent = ((JsonArrayValue) jsonArr).get(2).toString();
+                String subId = ((ArrayValue) jsonArr).get(1).toString();
+                String jsonEvent = ((ArrayValue) jsonArr).get(2).toString();
                 responseHandler = new EventResponseHandler(subId, jsonEvent);
             }
             default -> {

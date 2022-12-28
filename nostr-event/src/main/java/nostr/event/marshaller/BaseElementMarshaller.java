@@ -1,5 +1,6 @@
 package nostr.event.marshaller;
 
+import nostr.base.IMarshaller;
 import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.INostrList;
@@ -30,16 +31,14 @@ import nostr.util.NostrException;
 @AllArgsConstructor
 @Data
 @Log
-public abstract class BaseMarshaller implements IMarshaller {
+public abstract class BaseElementMarshaller implements IMarshaller {
 
     private final IElement element;
     private final Relay relay;
     private boolean escape;
 
-    public BaseMarshaller(IElement element, Relay relay) {
-        this.element = element;
-        this.relay = relay;
-        this.escape = false;
+    public BaseElementMarshaller(IElement element, Relay relay) {
+        this(element, relay, false);
     }
 
     protected boolean nipFieldSupport(Field field) {

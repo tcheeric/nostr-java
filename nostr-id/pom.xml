@@ -50,6 +50,11 @@
             <artifactId>nostr-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-types</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <exec.mainClass>com.tcheeric.nostr.id.NostrId</exec.mainClass>

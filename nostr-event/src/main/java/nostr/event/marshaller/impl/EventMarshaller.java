@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -26,7 +27,9 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.NIPSupport;
 import nostr.base.ElementAttribute;
 import nostr.event.impl.GenericEvent;
-import nostr.event.marshaller.BaseMarshaller;
+import nostr.event.marshaller.BaseElementMarshaller;
+import nostr.types.MarshallException;
+import nostr.types.values.marshaller.BaseTypesMarshaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
 
@@ -38,7 +41,7 @@ import nostr.util.UnsupportedNIPException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Log
-public class EventMarshaller extends BaseMarshaller {
+public class EventMarshaller extends BaseElementMarshaller {
 
     private boolean escape;
 
@@ -100,7 +103,7 @@ public class EventMarshaller extends BaseMarshaller {
 
         final Object value = keysMap.get(field);
         if (value != null) {
-            final String strValue = value instanceof IElement ? new BaseMarshaller.Factory((IElement) value).create(relay, escape).marshall() : value.toString();
+            final String strValue = value instanceof IElement ? new BaseElementMarshaller.Factory((IElement) value).create(relay, escape).marshall() : value.toString();
             result.append(strValue);
         }
 
@@ -134,56 +137,63 @@ public class EventMarshaller extends BaseMarshaller {
             result.append(",");
 
             for (var a : attrs) {
-                toJson(a, result, relay, attrs, ++i);
+                toJson(a, result, attrs, ++i);
             }
         }
 
         return result;
     }
 
-    private void toJson(ElementAttribute attribute, StringBuilder result, Relay relay, Set<ElementAttribute> attrs, int i) throws NostrException {
-        if (!escape) {
-            result.append("\"");
-        } else {
-            result.append("\\\"");
-        }
-        result.append(attribute.getName());
-        if (!escape) {
-            result.append("\":");
-        } else {
-            result.append("\\\":");
-        }
+    private void toJson(ElementAttribute attribute, StringBuilder result, Set<ElementAttribute> attrs, int i) throws NostrException {
 
-        final boolean isString = attribute.isString();
-
-        if (isString) {
-            if (!escape) {
-                result.append("\"");
-            } else {
-                result.append("\\\"");
-            }
+        try {
+            result.append(BaseTypesMarshaller.Factory.create(attribute.getValue(), escape).marshall());
+        } catch (MarshallException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
         }
-
-        final List valueList = attribute.getValueList();
-        if (valueList != null && !valueList.isEmpty()) {
-            for (Iterator it = valueList.iterator(); it.hasNext();) {
-                Object o = it.next();
-                if (o == null) {
-                    continue;
-                }
-                final String strValue = o instanceof IElement ? new BaseMarshaller.Factory((IElement) o).create(relay, escape).marshall() : o.toString();
-                result.append(strValue);
-            }
-        }
-
-        if (isString) {
-            if (!escape) {
-                result.append("\"");
-            } else {
-                result.append("\\\"");
-            }
-        }
-
+//        if (!escape) {
+//            result.append("\"");
+//        } else {
+//            result.append("\\\"");
+//        }
+//        result.append(attribute.getName());
+//        if (!escape) {
+//            result.append("\":");
+//        } else {
+//            result.append("\\\":");
+//        }
+//
+//        final boolean isString = attribute.isString();
+//
+//        if (isString) {
+//            if (!escape) {
+//                result.append("\"");
+//            } else {
+//                result.append("\\\"");
+//            }
+//        }
+//
+//        final List valueList = attribute.getValueList();
+//        if (valueList != null && !valueList.isEmpty()) {
+//            for (Iterator it = valueList.iterator(); it.hasNext();) {
+//                Object o = it.next();
+//                if (o == null) {
+//                    continue;
+//                }
+//                final String strValue = o instanceof IElement ? new BaseElementMarshaller.Factory((IElement) o).create(relay, escape).marshall() : o.toString();
+//                result.append(strValue);
+//            }
+//        }
+//
+//        if (isString) {
+//            if (!escape) {
+//                result.append("\"");
+//            } else {
+//                result.append("\\\"");
+//            }
+//        }
+//
         if (i < attrs.size()) {
             result.append(",");
         }
@@ -223,6 +233,8 @@ public class EventMarshaller extends BaseMarshaller {
                         }
                     }
                 }
+            } else {
+                log.log(Level.INFO, "Ignoring field {0}", field.getName());
             }
         }
 
