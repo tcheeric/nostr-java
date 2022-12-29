@@ -50,40 +50,12 @@ public class GenericTag extends BaseTag implements IGenericElement {
     @Override
     public String printAttributes(Relay relay, boolean escape) {
         var result = new StringBuilder();
-//        var index = 0;
 
         var supportedAttributes = getSupportedAttributes(relay);
         for (var a : supportedAttributes) {
             try {
-                //final List valueList = a.getValueList();
                 return BaseTypesMarshaller.Factory.create(a.getValue()).marshall();
                 
-//            int i = 0;
-//            result.append(",");
-//            
-//            for (var value : valueList) {
-//                if (!escape) {
-//                    result.append("\"");
-//                } else {
-//                    result.append("\\\"");
-//        }
-//
-//                result.append(value);
-//
-//                if (!escape) {
-//                    result.append("\"");
-//                } else {
-//                    result.append("\\\"");
-//                }
-//
-//                if (++i < valueList.size()) {
-//                    result.append(",");
-//                }
-//            }
-//
-//            if (++index < supportedAttributes.size()) {
-//                result.append(",");
-//            }
             } catch (MarshallException ex) {
                 log.log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
