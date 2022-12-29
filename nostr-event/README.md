@@ -59,4 +59,4 @@ Here is the corresponding java code:
 
 ## Creating a Custom Event
 
-TODO
+See my [implementation](https://github.com/tcheeric/nostr-java/blob/main/nostr-event/src/main/java/nostr/event/impl/OtsEvent.java) of the [OTS Event](https://github.com/nostr-protocol/nips/blob/master/03.md) as a cusom event
