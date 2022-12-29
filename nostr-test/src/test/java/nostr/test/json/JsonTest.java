@@ -88,7 +88,7 @@ public class JsonTest {
         Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
 
         IValue jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
-        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));Updates due to changes in nostr-json
+        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
         IValue v = ((ObjectValue) jsonObj).get("\"a\"");
         Assertions.assertTrue(((BaseValue) v).getType().equals(Type.NUMBER));
         Assertions.assertEquals(2, ((NumberValue) v).intValue());
