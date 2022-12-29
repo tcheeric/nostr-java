@@ -50,6 +50,6 @@ Alternatively, given a json string, you can use the corresponding unmarshall cla
     //IValue jsonArr = new ArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"],\"3\",9]").unmarshall();
     
 
-Similarly, the classes `ObjectUnmarshaller`, `BooleanUnmarshaller`, `ExpressionUnmarshaller`, `NumberUnmarshaller`, `StringUnmarshaller` will be used for unmarshalling any json string representations of arrays, booleans, expressions, numbers, and strings.
+Similarly, the classes `ObjectUnmarshaller`, `BooleanUnmarshaller`, `ExpressionUnmarshaller`, `NumberUnmarshaller`, `StringUnmarshaller` will be used for unmarshalling any json string representations of objects, booleans, expressions, numbers, and strings.
 
 You reverse the above operation by invoking the `toString()` method on any subclass of `IValue`, e.g. `NumberValue.toString()`. The method will in turn invoke the `NumberMarshaller(NumberValue arg).marshall()` on the current `NumberValue` object (`this`).
