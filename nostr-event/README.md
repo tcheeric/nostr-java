@@ -47,9 +47,11 @@ Here is the corresponding java code:
     attributes.add(attr1);
     attributes.add(attr2);
 
+    // Create the tag
     GenericTag tag = new GenericTag(777, "code", attributes);
     System.out.println(tag.toString(); //["code", "value 0", "value 1", "value 2"]
     
+    // Create the parent event
     TagList tags = new TagList();
     tags.add(tag);
     TextNoteEvent event = new TextNoteEvent(publicKey, tags, "Hello Nostr!");
