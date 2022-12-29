@@ -7,14 +7,14 @@ import nostr.event.list.TagList;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
-import nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.Event;
 import nostr.util.NostrException;
 
 /**
  *
  * @author squirrel
  */
-@NIPSupport(value = 1, description = "Basic Event Kinds: text_note")
+@Event(name = "Text Note")
 public class TextNoteEvent extends GenericEvent {
 
     public TextNoteEvent(PublicKey pubKey, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {

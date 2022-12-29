@@ -4,7 +4,7 @@ package nostr.base;
  *
  * @author eric
  */
-public interface Bech32Encodable {
+public interface IBech32Encodable {
 
     public abstract String toBech32();
 

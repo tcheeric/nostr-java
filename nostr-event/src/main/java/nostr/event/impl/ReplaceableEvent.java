@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
+import nostr.base.annotation.Event;
 import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
@@ -20,6 +21,7 @@ import nostr.util.NostrException;
 @Log
 @EqualsAndHashCode(callSuper = false)
 @NIPSupport(value = 16, description = "Replaceable Events")
+@Event(name = "Replaceable Events", nip = 16)
 public class ReplaceableEvent extends GenericEvent {
 
     private final GenericEvent original;

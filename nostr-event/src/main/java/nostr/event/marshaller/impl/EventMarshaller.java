@@ -8,12 +8,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -26,6 +24,7 @@ import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.NIPSupport;
 import nostr.base.ElementAttribute;
+import nostr.base.NipUtil;
 import nostr.event.impl.GenericEvent;
 import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.types.MarshallException;
@@ -60,8 +59,7 @@ public class EventMarshaller extends BaseElementMarshaller {
         Relay relay = getRelay();
 
         if (!nipEventSupport()) {
-            final int value = getNip() != null ? getNip().value() : 1;
-            throw new UnsupportedNIPException("NIP " + value + " is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
+            throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
         }
 
         try {
@@ -152,48 +150,7 @@ public class EventMarshaller extends BaseElementMarshaller {
             log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
         }
-//        if (!escape) {
-//            result.append("\"");
-//        } else {
-//            result.append("\\\"");
-//        }
-//        result.append(attribute.getName());
-//        if (!escape) {
-//            result.append("\":");
-//        } else {
-//            result.append("\\\":");
-//        }
-//
-//        final boolean isString = attribute.isString();
-//
-//        if (isString) {
-//            if (!escape) {
-//                result.append("\"");
-//            } else {
-//                result.append("\\\"");
-//            }
-//        }
-//
-//        final List valueList = attribute.getValueList();
-//        if (valueList != null && !valueList.isEmpty()) {
-//            for (Iterator it = valueList.iterator(); it.hasNext();) {
-//                Object o = it.next();
-//                if (o == null) {
-//                    continue;
-//                }
-//                final String strValue = o instanceof IElement ? new BaseElementMarshaller.Factory((IElement) o).create(relay, escape).marshall() : o.toString();
-//                result.append(strValue);
-//            }
-//        }
-//
-//        if (isString) {
-//            if (!escape) {
-//                result.append("\"");
-//            } else {
-//                result.append("\\\"");
-//            }
-//        }
-//
+
         if (i < attrs.size()) {
             result.append(",");
         }
@@ -302,17 +259,8 @@ public class EventMarshaller extends BaseElementMarshaller {
             return true;
         }
 
-        List<Integer> snips = relay.getSupportedNips();
-
-        NIPSupport n = getNip();
-        var nip = n != null ? n.value() : 1;
-        return snips.contains(nip);
-    }
-
-    private NIPSupport getNip() {
         IEvent event = (IEvent) getElement();
-        var n = event.getClass().getAnnotation(NIPSupport.class);
-        return n;
+        return NipUtil.checkSupport(relay, event);
     }
 
     private Set<ElementAttribute> getSupportedAttributes(Relay relay) {

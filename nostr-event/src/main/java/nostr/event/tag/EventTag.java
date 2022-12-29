@@ -11,8 +11,6 @@ import nostr.event.Marker;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
-import nostr.base.annotation.NIPSupport;
 import nostr.event.impl.GenericEvent;
 import lombok.ToString;
 import nostr.base.annotation.Tag;
@@ -23,7 +21,6 @@ import nostr.base.annotation.Tag;
  */
 @Builder
 @Data
-@Log
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "e", name = "event")
 @ToString
@@ -35,8 +32,7 @@ public class EventTag extends BaseTag {
     @Key
     private String recommendedRelayUrl;
 
-    @NIPSupport(10)
-    @Key
+    @Key(nip = 10)
     private Marker marker;
 
     public EventTag(GenericEvent relatedEvent) {

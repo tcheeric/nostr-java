@@ -10,10 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
@@ -24,7 +22,6 @@ import nostr.event.BaseTag;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Log
 @Tag(code = "p")
 @ToString
 public class PubKeyTag extends BaseTag {
@@ -35,8 +32,7 @@ public class PubKeyTag extends BaseTag {
     @Key
     private String mainRelayUrl;
 
-    @Key
-    @NIPSupport(2)
+    @Key(nip = 2)
     private String petName;
 
     private PubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl, String petName) {

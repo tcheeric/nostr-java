@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.base.annotation.Tag;
 
 /**
@@ -18,9 +17,8 @@ import nostr.base.annotation.Tag;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Tag(code = "subject")
+@Tag(code = "subject", nip = 14)
 @ToString
-@NIPSupport(14)
 public final class SubjectTag extends BaseTag {
 
     @Key

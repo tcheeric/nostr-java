@@ -3,14 +3,10 @@ package nostr.event.marshaller.impl;
 import nostr.base.ITag;
 import nostr.base.Relay;
 import nostr.util.UnsupportedNIPException;
-import nostr.base.annotation.NIPSupport;
 import nostr.event.BaseTag;
 import nostr.event.marshaller.BaseElementMarshaller;
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
-import nostr.base.IEvent;
+import static nostr.base.NipUtil.checkSupport;
 import nostr.event.impl.GenericTag;
 import nostr.util.NostrException;
 
@@ -18,10 +14,6 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-@SuppressWarnings("Lombok")
-@Data
-@Log
-@EqualsAndHashCode(callSuper = false)
 public class TagMarshaller extends BaseElementMarshaller {
 
     public TagMarshaller(ITag tag, Relay relay) {
@@ -42,7 +34,7 @@ public class TagMarshaller extends BaseElementMarshaller {
         ITag tag = (ITag) getElement();
         Relay relay = getRelay();
 
-        if (relay != null && !nipSupportForTag()) {
+        if (!nipSupportForTag()) {
             throw new UnsupportedNIPException(relay + " does not support tag " + tag.getCode());
         }
 
@@ -62,61 +54,20 @@ public class TagMarshaller extends BaseElementMarshaller {
             result.append("\\\"");
         }
 
-        //result.append(printAttributes());
         result.append(tag.printAttributes(relay, isEscape()));
         result.append("]");
 
         return result.toString();
     }
 
-//    private String printAttributes() throws NostrException {
-//
-//        var tag = (ITag) getElement();
-//        var fields = tag.getClass().getDeclaredFields();
-//        var index = 0;
-//        var result = new StringBuilder();
-//        var fieldList = getSupportedFields(fields);
-//
-//        for (Field f : fieldList) {
-//            final String fieldValue = getFieldValue(f);
-//
-//            if (!isEscape()) {
-//                result.append("\"");
-//            } else {
-//                result.append("\\\"");
-//            }
-//
-//            result.append(fieldValue);
-//
-//            if (!isEscape()) {
-//                result.append("\"");
-//            } else {
-//                result.append("\\\"");
-//            }
-//
-//            if (++index < fieldList.size()) {
-//                result.append(",");
-//            }
-//        }
-//
-//        return result.toString();
-//    }
-
-//    private List<Field> getSupportedFields(Field[] fields) throws NostrException {
-//        List<Field> fieldList = new ArrayList<>();
-//        for (Field f : fields) {
-//            if (nipFieldSupport(f) && null != getFieldValue(f)) {
-//                fieldList.add(f);
-//            }
-//        }
-//
-//        return fieldList;
-//    }
-
     // TODO test me
     private boolean nipSupportForTag() {
 
         Relay relay = getRelay();
+        if (relay == null) {
+            return true;
+        }
+        
         List<Integer> snips = relay.getSupportedNips();
         Integer nip;
 
@@ -127,34 +78,10 @@ public class TagMarshaller extends BaseElementMarshaller {
 
         if (tag instanceof GenericTag) {
             nip = ((GenericTag) tag).getNip();
-        } else {
-            var n = tag.getClass().getAnnotation(NIPSupport.class);
-            nip = n != null ? n.value() : 1;
-        }
-
-        if (!snips.contains(nip)) {
-            return false;
-        }
-
-        final IEvent parentEvent = ((BaseTag) tag).getParent();
-        if (parentEvent != null) {
-            var n = parentEvent.getClass().getAnnotation(NIPSupport.class);
-            nip = n != null ? n.value() : 1;
             return snips.contains(nip);
+        } else {
+            return checkSupport(relay, tag) && checkSupport(relay, ((BaseTag) tag).getParent());
         }
 
-        return true;
     }
-
-//    private String getFieldValue(Field field) throws NostrException {
-//        try {
-//            var tag = (ITag) getElement();
-//            Object f = new PropertyDescriptor(field.getName(), tag.getClass()).getReadMethod().invoke(tag);
-//            return f != null ? f.toString() : null;
-//        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-//            log.log(Level.WARNING, null, ex);
-//            throw new NostrException(ex);
-//        }
-//    }
-
 }

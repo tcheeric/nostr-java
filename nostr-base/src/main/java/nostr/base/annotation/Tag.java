@@ -17,4 +17,6 @@ public @interface Tag {
     String code();
 
     String name() default "";
+    
+    int nip() default 1;
 }

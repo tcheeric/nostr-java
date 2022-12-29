@@ -17,6 +17,7 @@ import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.ObjectValue;
 import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +60,7 @@ public class EventTest {
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
             relay.addNipSupport(1);
             relay.addNipSupport(genericTag.getNip());
-            var attrs = genericTag.getAttributes();            
+            var attrs = genericTag.getAttributes();
             for (var a : attrs) {
                 relay.addNipSupport(a.getNip());
             }
@@ -76,11 +77,11 @@ public class EventTest {
             IValue tag = ((ArrayValue) tags).get(1);
 
             Assertions.assertTrue(tag instanceof ArrayValue);
-            
-            IValue code = ((ArrayValue)tag).get(0);
-            
+
+            IValue code = ((ArrayValue) tag).get(0);
+
             Assertions.assertTrue(code instanceof StringValue);
-            
+
             Assertions.assertEquals("devil", code.getValue());
 
         } catch (NostrException ex) {
@@ -111,13 +112,13 @@ public class EventTest {
             IValue tag = ((ArrayValue) tags).get(1);
 
             Assertions.assertTrue(tag instanceof ArrayValue);
-            
-            IValue code = ((ArrayValue)tag).get(0);
-            
+
+            IValue code = ((ArrayValue) tag).get(0);
+
             Assertions.assertTrue(code instanceof StringValue);
-            
+
             Assertions.assertEquals("devil", code.getValue());
-            Assertions.assertEquals(1, ((ArrayValue)tag).length());
+            Assertions.assertEquals(1, ((ArrayValue) tag).length());
 
         } catch (NostrException ex) {
             Assertions.fail(ex);
@@ -126,36 +127,23 @@ public class EventTest {
 
     @Test
     public void testCreateUnsupportedGenericTag() {
-        try {
-            System.out.println("testCreateUnsupportedGenericTag");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
-            IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
-            GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
+        System.out.println("testCreateUnsupportedGenericTag");
+        PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+        IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
+        GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
-            Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
-            relay.addNipSupport(1);
+        Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
+        relay.addNipSupport(1);
 
-            EventMarshaller marshaller = new EventMarshaller(genericTag.getParent(), relay);
-            var strJsonEvent = marshaller.marshall();
+        EventMarshaller marshaller = new EventMarshaller(genericTag.getParent(), relay);
 
-            var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
+        UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
+                () -> {
+                    marshaller.marshall();
+                },
+                "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
+        );
 
-            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
-
-            Assertions.assertEquals(1, ((ArrayValue) tags).length());
-
-            IValue tag = ((ArrayValue) tags).get(0);
-
-            Assertions.assertTrue(tag instanceof ArrayValue);
-            
-            IValue code = ((ArrayValue)tag).get(0);
-            
-            Assertions.assertTrue(code instanceof StringValue);
-            
-            Assertions.assertNotEquals("devil", code.getValue());
-
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
-        }
+        Assertions.assertNotNull(thrown);
     }
 }

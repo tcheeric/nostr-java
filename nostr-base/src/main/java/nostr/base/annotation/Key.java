@@ -14,4 +14,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Key {
     String name() default "";
+    int nip() default 1;
 }

@@ -26,10 +26,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import javax.management.StringValueExp;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IEvent;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.GenericTagQuery;
 import nostr.event.impl.OtsEvent;
@@ -171,7 +171,8 @@ public class EntityFactory {
         public static OtsEvent createOtsEvent(PublicKey publicKey) {
             try {
                 TagList tagList = new TagList();
-                tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("bob").build());
+                final PubKeyTag pkTag = PubKeyTag.builder().publicKey(publicKey).petName("bob").build();                
+                tagList.add(pkTag);
                 OtsEvent event = new OtsEvent(publicKey, tagList, generateRamdomAlpha(32), generateRamdomAlpha(32));
                 event.update();
                 return event;

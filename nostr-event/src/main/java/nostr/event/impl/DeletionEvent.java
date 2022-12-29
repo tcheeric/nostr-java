@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.annotation.NIPSupport;
+import nostr.base.annotation.Event;
 import nostr.util.NostrException;
 
 /**
@@ -18,7 +18,7 @@ import nostr.util.NostrException;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(value=9, description="Event Deletion")
+@Event(name = "Event Deletion", nip = 9)
 public class DeletionEvent extends GenericEvent {
 
     public DeletionEvent(PublicKey pubKey, TagList tagList, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {

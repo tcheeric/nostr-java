@@ -10,11 +10,9 @@ import java.lang.annotation.Target;
  *
  * @author squirrel
  */
-@Deprecated(forRemoval = true)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD})
-public @interface NIPSupport {
-
-    int value() default 1;
-    String description() default "";
+@Target(ElementType.TYPE)
+public @interface Event {
+    String name();
+    int nip() default 1;
 }

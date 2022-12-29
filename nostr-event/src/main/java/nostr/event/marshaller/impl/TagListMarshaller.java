@@ -5,10 +5,7 @@ import nostr.base.Relay;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.event.list.TagList;
 import java.util.List;
-import lombok.NonNull;
-import nostr.base.annotation.NIPSupport;
-import nostr.event.BaseTag;
-import nostr.event.impl.GenericTag;
+import static nostr.base.NipUtil.checkSupport;
 import nostr.util.NostrException;
 
 /**
@@ -62,22 +59,10 @@ public class TagListMarshaller extends BaseListMarhsaller {
             if (t == null) {
                 continue;
             }
-            if (relay == null || relay.getSupportedNips().contains(getNip((ITag) t))) {
+            if (relay == null || checkSupport(relay, (ITag) t)/*relay.getSupportedNips().contains(getNip((ITag) t))*/) {
                 result.add(t);
             }
         }
         return result;
     }
-
-    private Integer getNip(@NonNull Object iTag) {
-        if (iTag instanceof GenericTag) {
-            return ((GenericTag) iTag).getNip();
-        } else if (iTag instanceof BaseTag) {
-            final NIPSupport nipSupport = iTag.getClass().getDeclaredAnnotation(NIPSupport.class);
-            return nipSupport == null ? 1 : nipSupport.value();
-        } else {
-            throw new RuntimeException("Unexpected value passed " + iTag);
-        }
-    }
-
 }

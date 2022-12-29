@@ -20,7 +20,7 @@ import nostr.util.NostrException;
 @ToString
 @EqualsAndHashCode
 @Log
-public final class Profile implements Bech32Encodable {
+public final class Profile implements IBech32Encodable {
 
     private final String name;
 

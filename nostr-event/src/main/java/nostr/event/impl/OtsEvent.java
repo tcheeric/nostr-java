@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
+import nostr.base.annotation.Event;
 import nostr.event.list.TagList;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.StringValue;
@@ -15,6 +16,7 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
+@Event(name = "OpenTimestamps Attestations for Events", nip = 3)
 public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, TagList tags, String content, String ots) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {

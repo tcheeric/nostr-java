@@ -1,4 +1,3 @@
-
 package nostr.event.impl;
 
 import java.nio.charset.StandardCharsets;
@@ -25,7 +24,6 @@ import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
 import nostr.event.Kind;
@@ -43,7 +41,6 @@ import nostr.util.UnsupportedNIPException;
 @Data
 @Log
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
 
     @Key
@@ -78,10 +75,14 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
-    
+
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;
-    
+
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+        this(pubKey, kind, new TagList(), null);
+    }
+
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         this(pubKey, kind, tags, null);
     }
@@ -92,6 +93,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this.tags = tags;
         this.content = content;
         this.attributes = new HashSet<>();
+
+        // Update parents
+        updateTagsParents(tags);
     }
 
     @Override
@@ -131,11 +135,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             ((ITag) o).setParent(this);
         }
     }
-    
+
     public void addTag(ITag tag) {
         List list = tags.getList();
-        
-        if(!list.contains(tag)) {
+
+        if (!list.contains(tag)) {
             tag.setParent(this);
             list.add(tag);
         }
@@ -153,11 +157,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     public boolean isSigned() {
         return this.signature != null;
     }
-    
+
     @Override
     public void addAttribute(ElementAttribute attribute) {
         this.attributes.add(attribute);
-    }    
+    }
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
@@ -174,5 +178,16 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         sb.append("\"]");
 
         return sb.toString();
-    }    
+    }
+
+    private void updateTagsParents(TagList tagList) {
+
+        if (tagList != null && !tagList.getList().isEmpty()) {
+            for (Object t : tagList.getList()) {
+                ITag tag = (ITag) t;
+                tag.setParent(this);
+            }
+        }
+    }
+
 }

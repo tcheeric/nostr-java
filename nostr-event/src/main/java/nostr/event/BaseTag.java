@@ -18,9 +18,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.NipUtil;
 import nostr.base.Relay;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.base.annotation.Tag;
 import nostr.util.NostrException;
 
@@ -38,7 +38,7 @@ public abstract class BaseTag implements ITag {
 
     @Override
     public void setParent(IEvent event) {
-        this.parent = event;        
+        this.parent = event;
     }
 
     @Override
@@ -102,19 +102,14 @@ public abstract class BaseTag implements ITag {
             return true;
         }
 
-        var snips = relay.getSupportedNips();
-        var n = field.getAnnotation(NIPSupport.class);
-        var nip = n != null ? n.value() : 1;
-
-        return snips.contains(nip);
+        return NipUtil.checkSupport(relay, field);
     }
 
     private String getFieldValue(Field field) throws NostrException {
-        try {            
+        try {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
             return f != null ? f.toString() : null;
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-            log.log(Level.WARNING, null, ex);
             throw new NostrException(ex);
         }
     }

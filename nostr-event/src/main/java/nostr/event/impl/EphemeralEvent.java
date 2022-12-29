@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
+import nostr.base.annotation.Event;
 import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
@@ -19,11 +20,12 @@ import nostr.util.NostrException;
 @Data
 @Log
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(value=16, description="Ephemeral Events")
+@NIPSupport(value = 16, description = "Ephemeral Events")
+@Event(name = "Ephemeral Events", nip = 16)
 public class EphemeralEvent extends GenericEvent {
 
     public EphemeralEvent(PublicKey pubKey, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-        super(pubKey, Kind.EPHEMEREAL_EVENT, tags, content);        
+        super(pubKey, Kind.EPHEMEREAL_EVENT, tags, content);
     }
 
     public EphemeralEvent(PublicKey pubKey, TagList tags) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {

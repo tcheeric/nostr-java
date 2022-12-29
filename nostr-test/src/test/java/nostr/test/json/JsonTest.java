@@ -88,7 +88,7 @@ public class JsonTest {
         Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
 
         IValue jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
-        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
+        Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));Updates due to changes in nostr-json
         IValue v = ((ObjectValue) jsonObj).get("\"a\"");
         Assertions.assertTrue(((BaseValue) v).getType().equals(Type.NUMBER));
         Assertions.assertEquals(2, ((NumberValue) v).intValue());
@@ -174,19 +174,17 @@ public class JsonTest {
             PublicKey publicKey = new PublicKey(new byte[]{});
 
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
-            //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
 
-            final String jsonEvent = new EventMarshaller(event, relay).marshall();
+            UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
+                    () -> {
+                        new EventMarshaller(event, relay).marshall();
+                    },
+                    "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
+            );
+            
+            Assertions.assertNotNull(thrown);
 
-            log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
-
-            Assertions.assertNotNull(jsonEvent);
-
-            var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
-
-            Assertions.assertNull(((ObjectValue) jsonValue).get("\"ots\""));
-
-        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
+        } catch (IllegalArgumentException ex) {
             Assertions.fail(ex);
         }
     }
