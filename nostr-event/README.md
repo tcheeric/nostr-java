@@ -21,7 +21,7 @@ The Tags:
 - Pubkey Tag
 - Subject Tag
 
-Additionally, you may use `GenericTag` and `GenericEvent` classes to create your custom tags and events.
+Additionally, you may use the `GenericTag` and `GenericEvent` classes to create your custom tags and events.
 
 ## Creating a Custom Tag
 Consider the tag syntax:
@@ -57,6 +57,6 @@ Here is the corresponding java code:
     TextNoteEvent event = new TextNoteEvent(publicKey, tags, "Hello Nostr!");
 ```
 
-## Creating a custom Event
+## Creating a Custom Event
 
 TODO
