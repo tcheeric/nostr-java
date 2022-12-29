@@ -32,15 +32,15 @@ Consider the tag syntax:
 - An attribute may be specified by another NIP
 - The tag is related to a parent event
 
-For illustration purpose, we assume the tag is defined in **NIP 777** and has three attributes, the last one is specified in **NIP-888**
+For illustration purpose, we assume the tag is defined in **NIP-777** and has three attributes, the last one is specified in **NIP-888**
 
 Here is the corresponding java code:
 
 ```java
     // Create the attributes
     final ElementAttribute attr0 = ElementAttribute.builder().value(new StringValue("value 0")).build();
-    final ElementAttribute attr1 = ElementAttribute.builder().value(new StringValue("value 1")).build();
-    final ElementAttribute attr2 = ElementAttribute.builder().value(new StringValue("value 2")).nip(888).build();                        
+    final ElementAttribute attr1 = new ElementAttribute("value 1");
+    final ElementAttribute attr2 = new ElementAttribute("value 2", 888);;                        
     
     Set<ElementAttribute> attributes = new HashSet<>();
     attributes.add(attr0);
