@@ -12,7 +12,7 @@ We define:
 - A boolean value (`BooleanValue`) with possible values `true` or `false` (`Type.BOOLEAN`).
 - An array (`ArrayValue`) is a list of comma-separated `Value`s of arbitrary `Type`s, e.g. `[1,2.3,"hello",["a"], true]`
 - An expression (`ExpressionValue`), a pair composed of a variable name and their corresponding Value, e.g. `"name":"Nostr"`. 
-- An object (`ObjectValue`) is used for grouping expressions as a comma-separated list, e.g. {"a":4, "b":[true]} 
+- An object (`ObjectValue`) is used for grouping expressions as a comma-separated list, e.g. `{"a":4, "b":[true]}` 
 
 
 ## expressions
