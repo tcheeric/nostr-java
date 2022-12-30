@@ -1,5 +1,5 @@
 # nostr-java
-A nostr client API written in java, for generating, signing and publishing events to relays.
+A nostr client library written in java, for generating, signing and publishing events to relays.
 The API assumes the relay supports NIP-11, it uses the relay information for publishing the events to the relay (or not!):
 1. Unsupported events will not be published to the relay.
 2. Unsupported tags will be discarded from the event before being published.
