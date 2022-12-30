@@ -1,5 +1,5 @@
 
-package nostr.controller;
+package nostr.ws;
 
 import nostr.base.Relay;
 import java.io.IOException;

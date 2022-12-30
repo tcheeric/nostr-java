@@ -15,6 +15,6 @@ Any value defined here will override the pom.xml file value but is only applicab
 -->
         <netbeans.hint.jdkPlatform>JDK_15</netbeans.hint.jdkPlatform>
         <netbeans.hint.license>mit</netbeans.hint.license>
-        <netbeans.compile.on.save>none</netbeans.compile.on.save>
+        <netbeans.compile.on.save>all</netbeans.compile.on.save>
     </properties>
 </project-shared-configuration>

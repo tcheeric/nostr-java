@@ -1,5 +1,5 @@
 
-package nostr.controller;
+package nostr.ws;
 
 import java.io.IOException;
 import nostr.util.NostrException;

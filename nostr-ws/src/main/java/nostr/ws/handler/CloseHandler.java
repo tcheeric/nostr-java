@@ -1,5 +1,5 @@
 
-package nostr.controller.handler;
+package nostr.ws.handler;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +14,9 @@ import lombok.ToString;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ConnectHandler extends BaseHandler {
-    
+public class CloseHandler extends BaseHandler {
+
+    private final int statusCode;
+    private final String reason;
+
 }

@@ -1,5 +1,5 @@
 
-package nostr.controller.handler.response;
+package nostr.ws.handler.response;
 
 import nostr.base.Command;
 import java.util.logging.Level;

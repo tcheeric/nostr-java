@@ -7,7 +7,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>nostr-event</module>
-        <module>nostr-controller</module>
         <module>nostr-json</module>
         <module>nostr-base</module>
         <module>nostr-id</module>
@@ -16,6 +15,7 @@
         <module>nostr-util</module>
         <module>nostr-crypto</module>
         <module>nostr-types</module>
+        <module>nostr-ws</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

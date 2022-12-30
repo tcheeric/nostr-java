@@ -1,8 +1,8 @@
 
-package nostr.controller.handler.response;
+package nostr.ws.handler.response;
 
 import nostr.base.Command;
-import nostr.controller.IHandler;
+import nostr.ws.IHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

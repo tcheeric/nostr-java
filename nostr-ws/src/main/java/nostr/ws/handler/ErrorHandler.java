@@ -1,5 +1,5 @@
 
-package nostr.controller.handler;
+package nostr.ws.handler;
 
 import java.util.logging.Level;
 import lombok.Builder;

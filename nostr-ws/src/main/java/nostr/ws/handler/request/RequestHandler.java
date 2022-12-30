@@ -1,8 +1,8 @@
 
-package nostr.controller.handler.request;
+package nostr.ws.handler.request;
 
-import nostr.controller.Connection;
-import nostr.controller.IHandler;
+import nostr.ws.Connection;
+import nostr.ws.IHandler;
 import nostr.event.BaseMessage;
 import nostr.event.marshaller.impl.MessageMarshaller;
 import java.io.IOException;

@@ -1,7 +1,7 @@
 
-package nostr.controller.handler;
+package nostr.ws.handler;
 
-import nostr.controller.IHandler;
+import nostr.ws.IHandler;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
 
