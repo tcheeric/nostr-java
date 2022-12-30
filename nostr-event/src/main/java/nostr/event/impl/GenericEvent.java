@@ -87,7 +87,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this(pubKey, kind, tags, null);
     }
 
-    public GenericEvent(PublicKey pubKey, Kind kind, TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;

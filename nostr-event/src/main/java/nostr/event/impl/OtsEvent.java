@@ -16,7 +16,7 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-@Event(name = "OpenTimestamps Attestations for Events", nip = 3)
+@Event(name = "OpenTimestamps Attestations for Events", nip = 1)
 public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, TagList tags, String content, String ots) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {

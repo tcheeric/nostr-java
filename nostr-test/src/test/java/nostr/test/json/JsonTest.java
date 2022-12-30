@@ -175,16 +175,17 @@ public class JsonTest {
 
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
 
-            UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
-                    () -> {
-                        new EventMarshaller(event, relay).marshall();
-                    },
-                    "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
-            );
+            final String jsonEvent = new EventMarshaller(event, relay).marshall();
             
-            Assertions.assertNotNull(thrown);
+            log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
-        } catch (IllegalArgumentException ex) {
+            Assertions.assertNotNull(jsonEvent);
+
+            var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
+
+            Assertions.assertNull(((ObjectValue) jsonValue).get("\"ots\""));
+
+        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
         }
     }

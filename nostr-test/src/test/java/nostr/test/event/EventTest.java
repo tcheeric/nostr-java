@@ -133,7 +133,7 @@ public class EventTest {
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
         Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
-        relay.addNipSupport(1);
+        relay.addNipSupport(0);
 
         EventMarshaller marshaller = new EventMarshaller(genericTag.getParent(), relay);
 
