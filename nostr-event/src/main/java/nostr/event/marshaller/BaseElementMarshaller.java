@@ -13,12 +13,11 @@ import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
-import nostr.base.annotation.Key;
+import nostr.base.NipUtil;
 import nostr.event.impl.Filters;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.util.NostrException;
@@ -42,19 +41,11 @@ public abstract class BaseElementMarshaller implements IMarshaller {
 
     protected boolean nipFieldSupport(Field field) {
         
-        final Key k = field.getAnnotation(Key.class);
-        if (k == null) {
-            log.log(Level.FINE, "@Key annotation not found, skipping field {0}", field.getName());
-            return false;
-        }
-
         if (relay == null) {
             return true;
         }
 
-        var snips = relay.getSupportedNips();
-
-        return snips.contains(k.nip());
+        return NipUtil.checkSupport(relay, field);
     }
 
     @Builder
