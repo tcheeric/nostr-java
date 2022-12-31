@@ -15,6 +15,7 @@ import nostr.base.annotation.JsonString;
 @Log
 @ToString
 @Builder
+@Deprecated(forRemoval = true)
 public final class NostrKeyPair {
 
     @JsonString
