@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.PublicKey;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.NumberValue;
@@ -115,7 +116,7 @@ public class Client {
 
             final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"");
             var strPubKey = pubKey == null ? "" : pubKey.toString();
-            relay.setPubKey(NostrUtil.hexToBytes(strPubKey));
+            relay.setPubKey(new PublicKey(NostrUtil.hexToBytes(strPubKey)));
         } catch (Exception ex) {
             log.log(Level.SEVERE, null, ex);
         }

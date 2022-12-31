@@ -22,8 +22,7 @@ public class Relay {
     @ToString.Exclude
     private String description;
 
-    @ToString.Exclude
-    private byte[] pubKey;
+    private PublicKey pubKey;
 
     @ToString.Exclude
     private String contact;
