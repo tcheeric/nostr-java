@@ -58,7 +58,5 @@
     </dependencies>
     <properties>
         <exec.mainClass>com.tcheeric.nostr.id.NostrId</exec.mainClass>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
     </properties>
 </project>
