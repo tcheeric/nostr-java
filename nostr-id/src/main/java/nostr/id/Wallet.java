@@ -13,7 +13,7 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.crypto.util.Point;
+import nostr.crypto.Point;
 import nostr.crypto.schnorr.Schnorr;
 import java.beans.IntrospectionException;
 import java.io.IOException;

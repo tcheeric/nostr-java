@@ -1,4 +1,4 @@
-package nostr.crypto.util;
+package nostr.crypto;
 
 // clone of org.apache.commons.lang3.tuple.Pair;
 
