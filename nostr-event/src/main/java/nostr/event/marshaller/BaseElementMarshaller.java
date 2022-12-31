@@ -19,7 +19,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.event.impl.Filters;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.util.NostrException;
@@ -42,8 +41,9 @@ public abstract class BaseElementMarshaller implements IMarshaller {
     }
 
     protected boolean nipFieldSupport(Field field) {
-
-        if (field.getAnnotation(Key.class) == null) {
+        
+        final Key k = field.getAnnotation(Key.class);
+        if (k == null) {
             log.log(Level.FINE, "@Key annotation not found, skipping field {0}", field.getName());
             return false;
         }
@@ -53,10 +53,8 @@ public abstract class BaseElementMarshaller implements IMarshaller {
         }
 
         var snips = relay.getSupportedNips();
-        var n = field.getAnnotation(NIPSupport.class);
-        var nip = n != null ? n.value() : 1;
 
-        return snips.contains(nip);
+        return snips.contains(k.nip());
     }
 
     @Builder
