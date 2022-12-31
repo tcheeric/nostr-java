@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-controller</artifactId>
+            <artifactId>nostr-ws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
