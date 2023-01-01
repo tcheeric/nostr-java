@@ -55,28 +55,32 @@ public abstract class BaseTag implements ITag {
         var result = new StringBuilder();
         var fieldList = getSupportedFields(fields, relay);
 
-        for (Field f : fieldList) {
-            final String fieldValue = getFieldValue(f);
+        if (fieldList.size() >= 1) {
+            result.append(",");
 
-            if (!escape) {
-                result.append("\"");
-            } else {
-                result.append("\\\"");
-            }
+            for (Field f : fieldList) {
+                final String fieldValue = getFieldValue(f);
 
-            result.append(fieldValue);
+                if (!escape) {
+                    result.append("\"");
+                } else {
+                    result.append("\\\"");
+                }
 
-            if (!escape) {
-                result.append("\"");
-            } else {
-                result.append("\\\"");
-            }
+                result.append(fieldValue);
 
-            if (++index < fieldList.size()) {
-                result.append(",");
+                if (!escape) {
+                    result.append("\"");
+                } else {
+                    result.append("\\\"");
+                }
+
+                if (++index < fieldList.size()) {
+                    result.append(",");
+                }
             }
         }
-
+        
         return result.toString();
     }
 
