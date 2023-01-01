@@ -27,7 +27,6 @@ import nostr.event.list.GenericTagQueryList;
 @EqualsAndHashCode(callSuper = false)
 @Log
 @ToString
-@NIPSupport
 public class Filters extends BaseEvent {
 
     @Key(name = "ids")
@@ -54,8 +53,7 @@ public class Filters extends BaseEvent {
     @Key
     private Integer limit;
 
-    @Key
-    @NIPSupport(12)
+    @Key(nip = 12)
     private GenericTagQueryList genericTagQueryList;
 
     @Override
