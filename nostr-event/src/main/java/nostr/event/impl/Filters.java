@@ -15,7 +15,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.NIPSupport;
 import nostr.event.list.GenericTagQueryList;
 
 /**
