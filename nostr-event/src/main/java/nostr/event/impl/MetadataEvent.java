@@ -17,7 +17,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.ObjectValue;
@@ -30,7 +29,6 @@ import nostr.util.NostrException;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(description = "Basic Event Kinds: set_metadata")
 @Event(name = "Metadata")
 public final class MetadataEvent extends GenericEvent {
 

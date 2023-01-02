@@ -7,14 +7,12 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**
  *
  * @author squirrel
  */
-@NIPSupport(value = 4, description = "Encrypted Direct Message")
 @Event(name = "Encrypted Direct Message", nip = 4)
 public class DirectMessageEvent extends GenericEvent {
 

@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**
@@ -21,7 +20,6 @@ import nostr.util.NostrException;
 @Data
 @Log
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(value=25, description = "Reactions")
 @Event(name = "Reactions", nip = 25)
 public class ReactionEvent extends GenericEvent {
 

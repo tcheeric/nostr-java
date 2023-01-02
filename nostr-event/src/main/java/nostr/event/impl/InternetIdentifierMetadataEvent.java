@@ -23,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.ObjectValue;
@@ -37,7 +36,6 @@ import nostr.util.NostrException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Log
-@NIPSupport(value = 5, description = "Mapping Nostr keys to DNS-based internet identifiers")
 @Event(name = "Internet Identifier Metadata Event", nip = 5)
 public final class InternetIdentifierMetadataEvent extends GenericEvent {
 

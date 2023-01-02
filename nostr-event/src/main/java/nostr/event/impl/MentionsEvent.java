@@ -13,7 +13,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**
@@ -22,7 +21,6 @@ import nostr.util.NostrException;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(value=8, description = "Handling Mentions")
 @Event(name = "Handling Mentions", nip = 8)
 public final class MentionsEvent extends GenericEvent {
 

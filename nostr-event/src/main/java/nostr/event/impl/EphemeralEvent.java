@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.base.annotation.NIPSupport;
 import nostr.util.NostrException;
 
 /**
@@ -20,7 +19,6 @@ import nostr.util.NostrException;
 @Data
 @Log
 @EqualsAndHashCode(callSuper = false)
-@NIPSupport(value = 16, description = "Ephemeral Events")
 @Event(name = "Ephemeral Events", nip = 16)
 public class EphemeralEvent extends GenericEvent {
 
