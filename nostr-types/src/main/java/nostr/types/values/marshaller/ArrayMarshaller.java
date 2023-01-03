@@ -27,6 +27,9 @@ public class ArrayMarshaller extends BaseTypesMarshaller {
         int i = 0;
         StringBuilder result = new StringBuilder();
         final IValue[] attrArr = (IValue[]) attribute.getValue();
+
+        result.append("[");
+
         for (var v : attrArr) {
             result.append(BaseTypesMarshaller.Factory.create(v).marshall());
 
@@ -35,6 +38,8 @@ public class ArrayMarshaller extends BaseTypesMarshaller {
             }
         }
         
+        result.append("]");
+
         return result.toString();
     }
 
