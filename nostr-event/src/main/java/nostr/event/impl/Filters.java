@@ -5,6 +5,7 @@
  */
 package nostr.event.impl;
 
+import java.util.logging.Level;
 import nostr.event.BaseEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.KindList;
@@ -12,10 +13,11 @@ import nostr.event.list.PublicKeyList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Key;
 import nostr.event.list.GenericTagQueryList;
+import nostr.event.marshaller.impl.FiltersMarshaller;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -25,7 +27,6 @@ import nostr.event.list.GenericTagQueryList;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Log
-@ToString
 public class Filters extends BaseEvent {
 
     @Key(name = "ids")
@@ -54,6 +55,16 @@ public class Filters extends BaseEvent {
 
     @Key(nip = 12)
     private GenericTagQueryList genericTagQueryList;
+
+    @Override
+    public String toString() {
+        try {
+            return new FiltersMarshaller(this, null).marshall();
+        } catch (UnsupportedNIPException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex);
+        }
+    }
 
     @Override
     public String toBech32() {
