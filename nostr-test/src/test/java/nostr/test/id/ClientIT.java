@@ -8,31 +8,33 @@ import nostr.id.Wallet;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
  * @author squirrel
  */
-public class ClientTest {
+class ClientIT {
 
     private final Client client;
 
-    public ClientTest() throws IOException, NostrException {
+    public ClientIT() throws IOException, NostrException {
         this.client = new Client("TestClient", new Wallet());
     }
 
     @Test
-    public void testSend() {
+    void testSend() {
         try {
             System.out.println("testSend");
             PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
             BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
             this.client.send(msg);
-            Assertions.assertTrue(true);
+            assertTrue(true);
         } catch (Exception ex) {
-            Assertions.fail(ex);
+            fail(ex);
         }
     }
 
@@ -50,6 +52,6 @@ public class ClientTest {
 //                    this.client.send(msg);
 //                }
 //        );
-//        Assertions.assertNotNull(thrown);
+//        assertNotNull(thrown);
 //    }
 }
