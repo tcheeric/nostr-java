@@ -1,4 +1,3 @@
-
 package nostr.types.values.marshaller;
 
 import lombok.Data;
@@ -20,8 +19,24 @@ public class NumberMarshaller extends BaseTypesMarshaller {
 
     @Override
     public String marshall() throws MarshallException {
-        
-        return  attribute.getValue().toString();
+
+        if (attribute instanceof NumberValue numberValue) {
+            
+            switch (numberValue.getNumberType()) {
+                case DOUBLE -> {
+                    return numberValue.doubleValue().toString();
+                }
+                case INT -> {
+                    return numberValue.intValue().toString();
+                }
+                case LONG -> {
+                    return numberValue.longValue().toString();
+                }
+            }
+        }
+
+        // Should never be thrown!
+        throw new MarshallException("Invalid numeric type.");
     }
-    
+
 }
