@@ -34,7 +34,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 public class ClientListenerEndPoint {
 
     @OnWebSocketConnect
-    public void onConnect(Session session) throws IOException {
+    public void onConnect(Session session) {
         log.fine("onConnect");
 
         session.setMaxTextMessageSize(16 * 1024);
@@ -43,7 +43,7 @@ public class ClientListenerEndPoint {
     }
 
     @OnWebSocketClose
-    public void onClose(int statusCode, String reason) throws IOException {
+    public void onClose(int statusCode, String reason) {
         log.log(Level.FINE, "onClose {0}, {1}", new Object[]{statusCode, reason});
 
         CloseHandler.builder().reason(reason).statusCode(statusCode).build().process();
@@ -55,11 +55,10 @@ public class ClientListenerEndPoint {
     public void onError(Throwable cause) {
         log.fine("onError");
 
-        log.log(Level.SEVERE, "An error has occured", cause);
+        log.log(Level.SEVERE, "An error has occurred: {}", cause.getMessage());
 
         ErrorHandler.builder().cause(cause).build().process();
 
-        // You may dispose resources.
         disposeResources();
     }
 
@@ -74,12 +73,12 @@ public class ClientListenerEndPoint {
         log.log(Level.FINE, "onTextMessage: Message: {0}", message);
 
         ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = ((ArrayValue) jsonArr).get(0).toString();
-        String msg; //= ((ArrayValue) jsonArr).get(1).toString();
+        final String command = (jsonArr).get(0).toString();
+        String msg;
         BaseResponseHandler responseHandler = null;
         switch (command) {
             case "\"EOSE\"" -> {
-                msg = ((ArrayValue) jsonArr).get(1).toString();
+                msg = (jsonArr).get(1).toString();
                 responseHandler = new EoseResponseHandler(msg);
             }
             case "\"OK\"" -> {
@@ -99,12 +98,12 @@ public class ClientListenerEndPoint {
                 responseHandler = new OkResponseHandler(eventId, result, reason, reasonMessage);
             }
             case "\"NOTICE\"" -> {
-                msg = ((ArrayValue) jsonArr).get(1).toString();
+                msg = (jsonArr).get(1).toString();
                 responseHandler = new NoticeResponseHandler(msg);
             }
             case "\"EVENT\"" -> {
-                String subId = ((ArrayValue) jsonArr).get(1).toString();
-                String jsonEvent = ((ArrayValue) jsonArr).get(2).toString();
+                String subId = (jsonArr).get(1).toString();
+                String jsonEvent = (jsonArr).get(2).toString();
                 responseHandler = new EventResponseHandler(subId, jsonEvent);
             }
             default -> {
@@ -117,7 +116,7 @@ public class ClientListenerEndPoint {
     }
 
     @OnWebSocketMessage
-    public void onBinaryMessage(byte[] payload, int offset, int length) throws IOException {
+    public void onBinaryMessage(byte[] payload, int offset, int length) {
         log.fine("onBinaryMessage");
 
         // Save only PNG images.
