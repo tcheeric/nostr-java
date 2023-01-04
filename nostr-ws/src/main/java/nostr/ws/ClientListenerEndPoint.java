@@ -83,12 +83,20 @@ public class ClientListenerEndPoint {
                 responseHandler = new EoseResponseHandler(msg);
             }
             case "\"OK\"" -> {
-                String eventId = ((ArrayValue) jsonArr).get(1).toString();
-                boolean result = Boolean.parseBoolean(((ArrayValue) jsonArr).get(2).toString());
-                msg = ((ArrayValue) jsonArr).get(3).toString();
-                final int colonIndex = msg.indexOf(":") - 1;
-                Reason reason = Reason.valueOf(msg.substring(0, colonIndex));
-                responseHandler = new OkResponseHandler(eventId, result, reason, msg.substring(colonIndex + 1));
+                String eventId = (jsonArr).get(1).toString();
+                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
+                msg = (jsonArr).get(3).toString();
+                final int colonIndex = msg.indexOf(":");
+                Reason reason;
+                String reasonMessage = "";
+                if (colonIndex == -1) {
+                    reason = Reason.UNDEFINED;
+                    reasonMessage = msg;
+                } else {
+                    reason = Reason.fromCode(msg.substring(1, colonIndex)).orElseThrow(RuntimeException::new);
+                    reasonMessage = msg.substring(colonIndex + 1);
+                }
+                responseHandler = new OkResponseHandler(eventId, result, reason, reasonMessage);
             }
             case "\"NOTICE\"" -> {
                 msg = ((ArrayValue) jsonArr).get(1).toString();
