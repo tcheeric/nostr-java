@@ -28,7 +28,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
  *
  * @author squirrel
  */
-@WebSocket
+@WebSocket(idleTimeout = Integer.MAX_VALUE)
 @NoArgsConstructor
 @Log
 public class ClientListenerEndPoint {
