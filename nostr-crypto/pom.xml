@@ -19,18 +19,21 @@
     </description>
 
     <dependencies>
+        <!-- Annotation Dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-util</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.tcheeric</groupId>
-                    <artifactId>Schnorr</artifactId>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>nostr-schnorr</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
