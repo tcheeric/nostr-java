@@ -1,7 +1,9 @@
 package nostr.ws.handler.response;
 
 import nostr.base.Command;
+import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +22,8 @@ import lombok.extern.java.Log;
 public class OkResponseHandler extends BaseResponseHandler {
 
     public enum Reason {
+        UNDEFINED(""),
+        DUPLICATE("duplicate"),
         BLOCKED("blocked"),
         INVALID("invalid"),
         RATE_LIMITED("rate-limited"),
@@ -28,8 +32,14 @@ public class OkResponseHandler extends BaseResponseHandler {
 
         private final String code;
 
-        private Reason(String code) {
+        Reason(String code) {
             this.code = code;
+        }
+
+        public static Optional<Reason> fromCode(String code) {
+            return Arrays.stream(values())
+                    .filter(reason -> reason.code.equalsIgnoreCase(code))
+                    .findFirst();
         }
     }
     
