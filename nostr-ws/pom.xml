@@ -16,16 +16,8 @@
         <jetty-websocket.version>11.0.13</jetty-websocket.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
+        <!-- Jetty Dependencies -->
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-jetty-client</artifactId>
@@ -41,13 +33,15 @@
             <artifactId>http2-http-client-transport</artifactId>
             <version>${jetty-websocket.version}</version>
         </dependency>
+
+        <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.tcheeric</groupId>
+                    <groupId>${project.groupId}</groupId>
                     <artifactId>nostr-util</artifactId>
                 </exclusion>
             </exclusions>

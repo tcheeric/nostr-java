@@ -17,13 +17,14 @@
     </properties>
 
     <dependencies>
+        <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.tcheeric</groupId>
+                    <groupId>${project.groupId}</groupId>
                     <artifactId>nostr-util</artifactId>
                 </exclusion>
             </exclusions>
