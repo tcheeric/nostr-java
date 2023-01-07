@@ -32,17 +32,13 @@ public class MessageMarshaller extends BaseElementMarshaller {
         BaseMessage message = (BaseMessage) getElement();
         Relay relay = getRelay();
 
-        if (message instanceof EventMessage) {
-            EventMessage msg = (EventMessage) message;
+        if (message instanceof EventMessage msg) {
             return "[\"" + msg.getCommand().name() + "\"," + new EventMarshaller(msg.getEvent(), relay, isEscape()).marshall() + "]";
-        } else if (message instanceof ReqMessage) {
-            ReqMessage msg = (ReqMessage) message;
-            return "[\"" + msg.getCommand().name() + "\",\"" + msg.getSubscriptionId() + "\"," + new EventMarshaller(msg.getFilters(), relay, isEscape()).marshall() + "]";
-        } else if (message instanceof NoticeMessage) {
-            NoticeMessage msg = (NoticeMessage) message;
+        } else if (message instanceof ReqMessage msg) {
+            return "[\"" + msg.getCommand().name() + "\",\"" + msg.getSubscriptionId() + "\"," + new FiltersListMarshaller(msg.getFiltersList(), relay).marshall() + "]";
+        } else if (message instanceof NoticeMessage msg) {
             return "[\"" + msg.getCommand().name() + "\",\"" + msg.getMessage() + "\"]";
-        } else if (message instanceof CloseMessage) {
-            CloseMessage msg = (CloseMessage) message;
+        } else if (message instanceof CloseMessage msg) {
             return "[\"" + msg.getCommand().name() + "\",\"" + msg.getSubscriptionId() + "\"]";
         } else {
             log.log(Level.SEVERE, "Invalid message type {0}", message);

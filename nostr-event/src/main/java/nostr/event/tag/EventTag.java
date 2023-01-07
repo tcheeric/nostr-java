@@ -23,7 +23,6 @@ import nostr.base.annotation.Tag;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "e", name = "event")
-@ToString
 public class EventTag extends BaseTag {
 
     @Key

@@ -2,11 +2,11 @@
 package nostr.ws.handler.response;
 
 import nostr.base.Command;
-import nostr.ws.IHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nostr.base.IHandler;
 
 /**
  *

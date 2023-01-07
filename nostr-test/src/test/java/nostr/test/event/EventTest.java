@@ -6,11 +6,30 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Wallet;
 import nostr.test.EntityFactory;
 import java.io.IOException;
+import java.util.Arrays;
 import nostr.base.Bech32Prefix;
+import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.Relay;
+import nostr.event.Kind;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericTag;
+import nostr.event.impl.OtsEvent;
+import nostr.event.impl.TextNoteEvent;
+import nostr.event.list.EventList;
+import nostr.event.list.GenericTagQueryList;
+import nostr.event.list.KindList;
+import nostr.event.list.PublicKeyList;
+import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
+import nostr.event.marshaller.impl.TagListMarshaller;
+import nostr.event.marshaller.impl.TagMarshaller;
+import nostr.event.tag.NonceTag;
+import nostr.event.tag.PubKeyTag;
+import nostr.event.unmarshaller.impl.EventUnmarshaller;
+import nostr.event.unmarshaller.impl.FiltersUnmarshaller;
+import nostr.event.unmarshaller.impl.TagListUnmarshaller;
+import nostr.event.unmarshaller.impl.TagUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
@@ -145,5 +164,56 @@ public class EventTest {
         );
 
         Assertions.assertNotNull(thrown);
+    }
+
+    @Test
+    public void testUnmarshallEvent() throws NostrException {
+        System.out.println("testUnmarshallEvent");
+
+        // Tag
+        PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+        var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
+        var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
+        Assertions.assertEquals(tag.getCode(), unTag.getCode());
+        //Assertions.assertEquals(tag.getPetName(), ((GenericTag)unTag).getAttributes().);
+
+        // TagList
+        var tagList = new TagList();
+        tagList.add(tag);
+        tagList.add(new NonceTag(Integer.SIZE, Integer.MIN_VALUE));
+        var unTagList = new TagListUnmarshaller(new TagListMarshaller(tagList, null).marshall()).unmarshall();
+        Assertions.assertEquals(tagList.size(), unTagList.size());
+
+        // Event
+        var event = EntityFactory.Events.createOtsEvent(publicKey);
+        var unmarshalledEvent = new EventUnmarshaller(new EventMarshaller(event, null).marshall()).unmarshall();
+        Assertions.assertEquals(event.getKind(), ((GenericEvent) unmarshalledEvent).getKind());
+
+        // Filters
+        var authors = new PublicKeyList();
+        authors.add(publicKey);
+        var kindList = new KindList();
+        kindList.add(Kind.DELETION);
+        kindList.add(Kind.ENCRYPTED_DIRECT_MESSAGE);
+        var filters = EntityFactory.Events.createFilters(authors, kindList, Long.MIN_VALUE);
+        EventList eventList = new EventList();
+        final TextNoteEvent evt = EntityFactory.Events.createTextNoteEvent(publicKey);
+        eventList.add(evt);
+        filters.setEvents(eventList);
+        Filters unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();
+        Assertions.assertEquals(filters.getKinds().size(), unFilters.getKinds().size());
+        Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.DELETION));
+        Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.ENCRYPTED_DIRECT_MESSAGE));
+        Assertions.assertTrue(unFilters.getAuthors().getList().contains(publicKey));
+        Assertions.assertEquals(1, unFilters.getEvents().getList().size());
+        Assertions.assertTrue(unFilters.getEvents().getList().get(0).getId().equals(evt.getId()));
+
+        // Filters with GenericTagQueryList
+        var gtqList = new GenericTagQueryList();
+        final GenericTagQuery gtq = GenericTagQuery.builder().tagName('x').value(Arrays.asList("one", "two", "three")).build();
+        gtqList.add(gtq);
+        filters.setGenericTagQueryList(gtqList);
+        unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();         
+        Assertions.assertTrue(unFilters.getGenericTagQueryList().getList().contains(gtq));
     }
 }

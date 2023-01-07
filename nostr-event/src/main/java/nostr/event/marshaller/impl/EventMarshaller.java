@@ -268,7 +268,7 @@ public class EventMarshaller extends BaseElementMarshaller {
         if (event instanceof GenericEvent) {
             Set<ElementAttribute> attrs = ((GenericEvent) event).getAttributes();
             for (var a : attrs) {
-                if (relay.getSupportedNips().contains(a.getNip())) {
+                if (relay != null && relay.getSupportedNips().contains(a.getNip())) {
                     result.add(a);
                 }
             }

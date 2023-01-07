@@ -40,13 +40,13 @@ public abstract class BaseListMarhsaller implements IMarshaller {
                 if (elt == null) {
                     continue;
                 }
-                if (elt instanceof GenericEvent) {
+                if (elt instanceof GenericEvent genericEvent) {
                     if (!escape) {
                         result.append("\"");
                     } else {
                         result.append("\\\"");
                     }
-                    result.append(((GenericEvent) elt).getId());
+                    result.append(genericEvent.getId());
                     if (!escape) {
                         result.append("\"");
                     } else {
@@ -64,8 +64,8 @@ public abstract class BaseListMarhsaller implements IMarshaller {
                     } else {
                         result.append("\\\"");
                     }
-                } else if (elt instanceof Kind) {
-                    result.append(((Kind) elt).getValue());
+                } else if (elt instanceof Kind kind) {
+                    result.append(kind.getValue());
                 } else {
                     result.append(elt);
                 }

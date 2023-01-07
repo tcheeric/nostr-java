@@ -2,7 +2,7 @@
 package nostr.json.unmarshaller.impl;
 
 import nostr.json.parser.impl.JsonExpressionParser;
-import nostr.json.unmarshaller.IUnmarshaller;
+import nostr.base.IUnmarshaller;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
@@ -15,7 +15,7 @@ import nostr.types.values.impl.ExpressionValue;
 @Log
 @Data
 @AllArgsConstructor
-public class JsonExpressionUnmarshaller implements IUnmarshaller {
+public class JsonExpressionUnmarshaller implements IUnmarshaller<ExpressionValue> {
 
     private final String json;
 

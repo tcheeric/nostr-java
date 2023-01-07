@@ -59,7 +59,7 @@ public class TagListMarshaller extends BaseListMarhsaller {
             if (t == null) {
                 continue;
             }
-            if (relay == null || checkSupport(relay, (ITag) t)/*relay.getSupportedNips().contains(getNip((ITag) t))*/) {
+            if (relay == null || checkSupport(relay, (ITag) t)) {
                 result.add(t);
             }
         }

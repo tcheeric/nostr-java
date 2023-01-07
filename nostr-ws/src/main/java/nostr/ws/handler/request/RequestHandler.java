@@ -2,15 +2,16 @@
 package nostr.ws.handler.request;
 
 import nostr.ws.Connection;
-import nostr.ws.IHandler;
 import nostr.event.BaseMessage;
 import nostr.event.marshaller.impl.MessageMarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.base.IHandler;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -29,8 +30,13 @@ public class RequestHandler implements IHandler {
     private final Connection connection;
 
     @Override
-    public void process() throws IOException, NostrException {
-        sendMessage();
+    public void process() throws NostrException {
+        try {
+            sendMessage();
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
+        }
     }
 
     private void sendMessage() throws IOException, NostrException {

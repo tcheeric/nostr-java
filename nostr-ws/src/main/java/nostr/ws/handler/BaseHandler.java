@@ -1,9 +1,9 @@
 
 package nostr.ws.handler;
 
-import nostr.ws.IHandler;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
+import nostr.base.IHandler;
 
 /**
  *

@@ -7,11 +7,11 @@ package nostr.event.message;
 
 import nostr.event.BaseMessage;
 import nostr.base.Command;
-import nostr.event.impl.Filters;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nostr.event.list.FiltersList;
 
 /**
  *
@@ -24,11 +24,11 @@ import lombok.ToString;
 public class ReqMessage extends BaseMessage {
 
     private final String subscriptionId;
-    private final Filters filters;
+    private final FiltersList filtersList;
 
-    public ReqMessage(String subscriptionId, Filters filters) {
+    public ReqMessage(String subscriptionId, FiltersList filtersList) {
         super(Command.REQ);
         this.subscriptionId = subscriptionId;
-        this.filters = filters;
+        this.filtersList = filtersList;
     }
 }

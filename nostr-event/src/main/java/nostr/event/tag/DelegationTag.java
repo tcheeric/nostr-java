@@ -8,7 +8,6 @@ import nostr.base.Signature;
 import java.beans.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Tag;
 
@@ -20,7 +19,6 @@ import nostr.base.annotation.Tag;
 @Log
 @EqualsAndHashCode(callSuper = false)
 @Tag(code = "delegation", nip = 26)
-@ToString
 public class DelegationTag extends BaseTag implements ISignable {
 
     @Key

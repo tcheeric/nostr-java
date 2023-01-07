@@ -39,18 +39,18 @@ public abstract class BaseTypesMarshaller implements IMarshaller {
         }
 
         public static IMarshaller create(IValue attribute, boolean escape) {
-            if (attribute instanceof StringValue) {
-                return new StringMarshaller((StringValue) attribute);
-            } else if (attribute instanceof NumberValue) {
-                return new NumberMarshaller((NumberValue) attribute);
-            } else if (attribute instanceof BooleanValue) {
-                return new BooleanMarshaller((BooleanValue) attribute);
-            } else if (attribute instanceof ArrayValue) {
-                return new ArrayMarshaller((ArrayValue) attribute);
-            } else if (attribute instanceof ObjectValue) {
-                return new ObjectMarshaller((ObjectValue) attribute, escape);
-            } else if (attribute instanceof ExpressionValue){
-                return new ExpressionMarshaller((ExpressionValue) attribute, escape);
+            if (attribute instanceof StringValue stringValue) {
+                return new StringMarshaller(stringValue);
+            } else if (attribute instanceof NumberValue numberValue) {
+                return new NumberMarshaller(numberValue);
+            } else if (attribute instanceof BooleanValue booleanValue) {
+                return new BooleanMarshaller(booleanValue);
+            } else if (attribute instanceof ArrayValue arrayValue) {
+                return new ArrayMarshaller(arrayValue);
+            } else if (attribute instanceof ObjectValue objectValue) {
+                return new ObjectMarshaller(objectValue, escape);
+            } else if (attribute instanceof ExpressionValue expressionValue){
+                return new ExpressionMarshaller(expressionValue, escape);
             } else {
                 throw new RuntimeException();
             }

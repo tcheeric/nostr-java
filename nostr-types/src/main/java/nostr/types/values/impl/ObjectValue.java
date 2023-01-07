@@ -18,6 +18,7 @@ public class ObjectValue extends BaseValue {
         super(Type.OBJECT, value);
     }
 
+    // TODO: User stream() and Optional<IValue>?
     public IValue get(String variable) {
         for (IValue e : (List<ExpressionValue>) this.getValue()) {
             ExpressionValue expr = (ExpressionValue) e;

@@ -3,9 +3,10 @@ package nostr.event.marshaller.impl;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import nostr.base.GenericTagQuery;
 import nostr.base.Relay;
-import nostr.event.impl.GenericTagQuery;
 import nostr.base.IMarshaller;
+import nostr.base.NipUtil;
 import nostr.util.NostrException;
 
 /**
@@ -27,6 +28,13 @@ public class GenericTagQueryMarshaller implements IMarshaller {
 
     @Override
     public String marshall() throws NostrException {
+
+        if (this.relay != null) {
+            if (!NipUtil.checkSupport(relay, this.genericTagQuery)) {
+                return "";
+            }
+        }
+
         Character c = this.genericTagQuery.getTagName();
         var values = this.genericTagQuery.getValue();
         int i = 0;
@@ -51,7 +59,7 @@ public class GenericTagQueryMarshaller implements IMarshaller {
             }
         }
         result.append("]");
-        
+
         return result.toString();
     }
 

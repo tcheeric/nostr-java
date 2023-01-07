@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.event.impl.GenericTagQuery;
+import nostr.base.GenericTagQuery;
 
 /**
  *

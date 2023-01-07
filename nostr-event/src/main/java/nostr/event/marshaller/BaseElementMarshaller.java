@@ -56,19 +56,19 @@ public abstract class BaseElementMarshaller implements IMarshaller {
         private final IElement element;
 
         public IMarshaller create(Relay relay, boolean escape) throws NostrException {
-            if (element instanceof IEvent) {
-                return new EventMarshaller((IEvent) element, relay, escape);
-            } else if (element instanceof ITag) {
-                return new TagMarshaller((ITag) element, relay, escape);
-            } else if (element instanceof BaseMessage) {
-                return new MessageMarshaller((BaseMessage) element, relay, escape);
-            } else if (element instanceof TagList) {
-                return new TagListMarshaller((TagList) element, relay, escape);
-            } else if (element instanceof INostrList) {
-                return new BaseListMarhsaller((INostrList) element, relay, escape) {
+            if (element instanceof IEvent iEvent) {
+                return new EventMarshaller(iEvent, relay, escape);
+            } else if (element instanceof ITag iTag) {
+                return new TagMarshaller(iTag, relay, escape);
+            } else if (element instanceof BaseMessage baseMessage) {
+                return new MessageMarshaller(baseMessage, relay, escape);
+            } else if (element instanceof TagList tagList) {
+                return new TagListMarshaller(tagList, relay, escape);
+            } else if (element instanceof INostrList iNostrList) {
+                return new BaseListMarhsaller(iNostrList, relay, escape) {
                 };
-            } else if (element instanceof Filters) {
-                return new FiltersMarshaller((Filters) element, relay, escape);
+            } else if (element instanceof Filters filters) {
+                return new FiltersMarshaller(filters, relay, escape);
             } else {
                 throw new NostrException("Invalid Element type");
             }

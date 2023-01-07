@@ -5,8 +5,14 @@
  */
 package nostr.event;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
 import nostr.base.IEvent;
 import lombok.extern.java.Log;
+import nostr.base.PublicKey;
+import nostr.event.impl.GenericEvent;
+import nostr.util.NostrException;
 
 /**
  *
@@ -14,4 +20,13 @@ import lombok.extern.java.Log;
  */
 @Log
 public abstract class BaseEvent implements IEvent {
+
+    public static class ProxyEvent extends GenericEvent {
+
+        public ProxyEvent(String id) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+            super(new PublicKey(new byte[]{}), Kind.UNDEFINED);
+            setId(id);
+        }
+
+    }
 }

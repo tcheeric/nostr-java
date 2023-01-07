@@ -1,5 +1,6 @@
 package nostr.json.unmarshaller;
 
+import nostr.base.IUnmarshaller;
 import nostr.json.parser.JsonParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.types.values.IValue;
 
 /**
  *
@@ -20,7 +22,7 @@ import lombok.extern.java.Log;
 @Log
 @ToString
 @EqualsAndHashCode
-public abstract class BaseUnmarshaller implements IUnmarshaller {
+public abstract class BaseUnmarshaller implements IUnmarshaller<IValue> {
 
     private final String json;
 
@@ -279,5 +281,4 @@ public abstract class BaseUnmarshaller implements IUnmarshaller {
 
         return -1;
     }
-
 }

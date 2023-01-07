@@ -1,10 +1,9 @@
-package nostr.event.message.impl;
+package nostr.event.message;
 
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.event.list.PubKeyTagList;
-import nostr.event.message.EventMessage;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;

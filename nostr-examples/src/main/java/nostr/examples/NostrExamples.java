@@ -31,15 +31,10 @@ import nostr.id.Wallet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
-import nostr.base.ElementAttribute;
-import nostr.event.impl.GenericTag;
+import nostr.event.list.FiltersList;
 import nostr.util.NostrException;
 
 /**
@@ -403,6 +398,7 @@ public class NostrExamples {
         }
     }
 
+    // FIXME
     public static void filters(Wallet wallet, Client client) throws NostrException {
         logHeader("filters");
         try {
@@ -411,9 +407,11 @@ public class NostrExamples {
             kindList.add(Kind.TEXT_NOTE);
 
             Filters filters = Filters.builder().kinds(kindList).limit(10).build();
-
+            FiltersList filtersList = new FiltersList();
+            filtersList.add(filters);
+            
             String subId = "subId" + System.currentTimeMillis();
-            BaseMessage message = ReqMessage.builder().filters(filters).subscriptionId(subId).build();
+            BaseMessage message = ReqMessage.builder().filtersList(filtersList).subscriptionId(subId).build();
 
             client.send(message);
         } catch (UnsupportedNIPException ex) {

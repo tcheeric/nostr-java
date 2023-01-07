@@ -1,10 +1,9 @@
 
-package nostr.event.impl;
+package nostr.base;
 
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
-import nostr.base.annotation.Tag;
 
 /**
  *
@@ -12,7 +11,6 @@ import nostr.base.annotation.Tag;
  */
 @Data
 @Builder
-@Tag(code = "", nip = 12)
 public class GenericTagQuery {
     
     private final Character tagName;

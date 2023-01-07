@@ -1,5 +1,7 @@
 package nostr.base;
 
+import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,6 +17,7 @@ import nostr.types.values.impl.StringValue;
 @Data
 @ToString
 @EqualsAndHashCode
+@AllArgsConstructor
 public class ElementAttribute {
 
     private final String name;
@@ -22,12 +25,6 @@ public class ElementAttribute {
     private final IValue value;
 
     private final Integer nip;
-
-    public ElementAttribute(String name, IValue value, Integer nip) {
-        this.name = name;
-        this.value = value;
-        this.nip = nip;
-    }
 
     public ElementAttribute(String name, String value, Integer nip) {
         this(name, new StringValue(value), nip);

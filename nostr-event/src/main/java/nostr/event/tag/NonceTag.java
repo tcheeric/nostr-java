@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
 import nostr.base.annotation.Tag;
 
 /**
@@ -18,14 +17,13 @@ import nostr.base.annotation.Tag;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "nonce", nip = 13)
-@ToString
 public class NonceTag extends BaseTag {
 
     @Key
-    private final Integer nonce;
+    private Integer nonce;
 
     @Key
-    private final Integer difficulty;
+    private Integer difficulty;
 
     public NonceTag(@NonNull Integer nonce, @NonNull Integer difficulty) {
         this.nonce = nonce;

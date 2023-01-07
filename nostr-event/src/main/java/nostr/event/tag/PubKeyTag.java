@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
@@ -23,7 +22,6 @@ import nostr.event.BaseTag;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "p")
-@ToString
 public class PubKeyTag extends BaseTag {
 
     @Key
