@@ -1,5 +1,6 @@
 package nostr.types.values.impl;
 
+import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.types.Type;
@@ -24,16 +25,19 @@ public class NumberValue extends BaseValue {
         this.numberType = numberType;
     }
 
-    public Integer intValue() {
-        return ((Number) getValue()).intValue();
+    public Optional<Integer> intValue() {
+        final Number number = (Number) getValue();
+        return Optional.of(number.intValue());
     }
 
-    public Double doubleValue() {
-        return ((Number) getValue()).doubleValue();
+    public Optional<Double> doubleValue() {
+        final Number number = (Number) getValue();
+        return Optional.of(number.doubleValue());
     }
 
-    public Long longValue() {
-        return ((Number) getValue()).longValue();
+    public Optional<Long> longValue() {
+        final Number number = (Number) getValue();
+        return Optional.of(number.longValue());
     }
 
     public enum NumberType {

@@ -1,6 +1,7 @@
 package nostr.types.values.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
 import nostr.types.Type;
@@ -18,16 +19,15 @@ public class ObjectValue extends BaseValue {
         super(Type.OBJECT, value);
     }
 
-    // TODO: User stream() and Optional<IValue>?
-    public IValue get(String variable) {
+    public Optional<IValue> get(String variable) {        
         for (IValue e : (List<ExpressionValue>) this.getValue()) {
             ExpressionValue expr = (ExpressionValue) e;
             if (expr.getName().equals(variable)) {
-                return (IValue) expr.getValue();
+                return Optional.of((IValue) expr.getValue());
             }
         }
 
         log.log(Level.WARNING, "The variable {0} does not exist", variable);
-        return null;
+        return Optional.empty();
     }
 }

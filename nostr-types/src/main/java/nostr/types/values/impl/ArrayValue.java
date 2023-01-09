@@ -1,5 +1,6 @@
 package nostr.types.values.impl;
 
+import java.util.Optional;
 import nostr.types.Type;
 import nostr.types.values.BaseValue;
 import nostr.types.values.IValue;
@@ -18,8 +19,9 @@ public class ArrayValue extends BaseValue {
         return ((IValue[]) this.getValue()).length;
     }
 
-    public IValue get(int index) {
-        return ((IValue[]) this.getValue())[index];
+    public Optional<IValue> get(int index) {
+        final IValue[] arr = (IValue[]) this.getValue();
+        return Optional.of(arr[index]);
     }
 
 }
