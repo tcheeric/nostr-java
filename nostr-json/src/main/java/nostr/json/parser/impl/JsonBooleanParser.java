@@ -23,7 +23,7 @@ public class JsonBooleanParser extends BaseParser<BooleanValue> {
         if (json.equalsIgnoreCase("true") || json.equalsIgnoreCase("false")) {
             return new BooleanValue(Boolean.valueOf(json));
         }
-        throw new JsonParseException();
+        throw new JsonParseException("Invalid boolean value");
     }
 
 }

@@ -1,11 +1,14 @@
 package nostr.event.marshaller.impl;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.event.list.FiltersList;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *

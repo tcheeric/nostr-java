@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
-import lombok.ToString;
 import nostr.base.annotation.Tag;
 
 /**

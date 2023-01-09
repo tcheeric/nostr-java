@@ -38,36 +38,36 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
 
         var value = new JsonArrayUnmarshaller(this.getJson()).unmarshall();
 
-        Command command = Command.valueOf(value.get(0).getValue().toString());
+        Command command = Command.valueOf(value.get(0).get().getValue().toString());
 
         switch (command) {
             case CLOSE -> {
-                String subId = value.get(1).getValue().toString();
+                String subId = value.get(1).get().getValue().toString();
                 return CloseMessage.builder().subscriptionId(subId).build();
             }
             case EVENT -> {
-                IEvent event = new EventUnmarshaller(value.get(1).getValue().toString()).unmarshall();
+                IEvent event = new EventUnmarshaller(value.get(1).get().getValue().toString()).unmarshall();
                 return EventMessage.builder().event((GenericEvent) event).build();
             }
             case EOSE -> {
-                String subId = value.get(1).getValue().toString();
+                String subId = value.get(1).get().getValue().toString();
                 return EoseMessage.builder().subscriptionId(subId).build();
             }
             case NOTICE -> {
-                String message = value.get(1).getValue().toString();
+                String message = value.get(1).get().getValue().toString();
                 return NoticeMessage.builder().message(message).build();
             }
             case OK -> {
-                String eventId = value.get(1).getValue().toString();
-                Boolean flag = (Boolean) value.get(2).getValue();
-                String message = value.get(3).getValue().toString();
+                String eventId = value.get(1).get().getValue().toString();
+                Boolean flag = (Boolean) value.get(2).get().getValue();
+                String message = value.get(3).get().getValue().toString();
                 return new OkMessage(eventId, flag, message);
             }
             case REQ -> {
-                String subId = value.get(1).getValue().toString();
+                String subId = value.get(1).get().getValue().toString();
                 FiltersList filtersList = new FiltersList();
                 for (var i = 1; i < value.length(); i++) {
-                    var filters = value.get(i);
+                    var filters = value.get(i).get();
                     filtersList.add((Filters) new FiltersUnmarshaller(filters.toString(), isEscape()).unmarshall());
 
                 }

@@ -48,30 +48,33 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         var referencedEvents = new EventList();
         var kindList = new KindList();
         var genericTagQueryList = getGenericTagQueryList();
-
+        ArrayValue arr;
         // Authors
-        var arr = (ArrayValue) value.get("\"authors\"");
-        if (arr != null) {
+        var optArr = value.get("\"authors\"");
+        if (!optArr.isEmpty()) {
+            arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
-                String hex = arr.get(i).getValue().toString();
+                String hex = arr.get(i).get().getValue().toString();
                 publicKeyList.add(new PublicKey(NostrUtil.hexToBytes(hex)));
             }
         }
 
         // Ref. pub keys
-        arr = (ArrayValue) value.get("\"#p\"");
-        if (arr != null) {
+        optArr = value.get("\"#p\"");
+        if (!optArr.isEmpty()) {
+            arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
-                String hex = arr.get(i).getValue().toString();
+                String hex = arr.get(i).get().getValue().toString();
                 refPublicKeyList.add(new PublicKey(NostrUtil.hexToBytes(hex)));
             }
         }
 
         //  Events        
-        arr = (ArrayValue) value.get("\"ids\"");
-        if (arr != null) {
+        optArr = value.get("\"ids\"");
+        if (!optArr.isEmpty()) {
+            arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
-                String eventId = arr.get(i).getValue().toString();
+                String eventId = arr.get(i).get().getValue().toString();
                 try {
                     events.add(new ProxyEvent(eventId));
                 } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
@@ -81,11 +84,12 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         // Referenced Events        
-        arr = (ArrayValue) value.get("\"#e\"");
-        if (arr != null) {
+        optArr = value.get("\"#e\"");
+        if (!optArr.isEmpty()) {
+            arr = (ArrayValue) optArr.get();
             referencedEvents = new EventList();
             for (var i = 0; i < arr.length(); i++) {
-                String eventId = arr.get(i).getValue().toString();
+                String eventId = arr.get(i).get().getValue().toString();
                 try {
                     referencedEvents.add(new ProxyEvent(eventId));
                 } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
@@ -95,26 +99,27 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         // Kinds
-        arr = (ArrayValue) value.get("\"kinds\"");
-        if (arr != null) {
+        optArr = value.get("\"kinds\"");
+        if (!optArr.isEmpty()) {
+            arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
-                var ikind = ((NumberValue) arr.get(i)).intValue();
+                var ikind = ((NumberValue) arr.get(i).get()).intValue().get();
                 Kind kind = Kind.valueOf(ikind);
                 kindList.add(kind);
             }
         }
 
         //Limit
-        final NumberValue limitNumber = (NumberValue) value.get("\"limit\"");
-        var limit = limitNumber != null ? limitNumber.intValue() : null;
+        var optNumber = value.get("\"limit\"");
+        Integer limit = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).intValue().get();
 
         // Since
-        final NumberValue sinceNumber = (NumberValue) value.get("\"since\"");
-        var since = sinceNumber != null ? sinceNumber.longValue() : null;
+        optNumber = value.get("\"since\"");
+        var since = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue().get();
 
         // Since
-        final NumberValue untilNumber = (NumberValue) value.get("\"until\"");
-        var until = untilNumber != null ? untilNumber.longValue() : null;
+        optNumber = value.get("\"until\"");
+        var until = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue().get();
 
         // Generic TagList 
         Filters filters = Filters.builder()
@@ -143,7 +148,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
 
                 final ArrayValue attrArr = (ArrayValue) e.getValue();
                 for (var i = 0; i < attrArr.length(); i++) {
-                    var s = attrArr.get(i).getValue().toString();
+                    var s = attrArr.get(i).get().getValue().toString();
                     valueList.add(s);
                 }
                 var gtq = GenericTagQuery.builder().tagName(tagName).value(valueList).build();

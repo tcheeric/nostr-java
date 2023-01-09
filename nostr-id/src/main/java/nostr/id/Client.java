@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package nostr.id;
 
 import nostr.base.BaseConfiguration;
@@ -86,35 +82,35 @@ public class Client {
             log.log(Level.FINE, "Relay information: {0}", strInfo);
             ObjectValue info = new JsonObjectUnmarshaller(strInfo).unmarshall();
 
-            final IValue contact = ((ObjectValue) info).get("\"contact\"");
+            final IValue contact = ((ObjectValue) info).get("\"contact\"").get();
             var strContact = contact == null ? "" : contact.toString();
             relay.setContact(strContact);
 
-            final IValue desc = ((ObjectValue) info).get("\"description\"");
+            final IValue desc = ((ObjectValue) info).get("\"description\"").get();
             var strDesc = desc == null ? "" : desc.toString();
             relay.setDescription(strDesc);
 
-            final IValue relayName = ((ObjectValue) info).get("\"name\"");
+            final IValue relayName = ((ObjectValue) info).get("\"name\"").get();
             var strRelayName = relayName == null ? "" : relayName.toString();
             relay.setName(strRelayName);
 
-            final IValue software = ((ObjectValue) info).get("\"software\"");
+            final IValue software = ((ObjectValue) info).get("\"software\"").get();
             var strSoftware = software == null ? "" : software.toString();
             relay.setSoftware(strSoftware);
 
-            final IValue version = ((ObjectValue) info).get("\"version\"");
+            final IValue version = ((ObjectValue) info).get("\"version\"").get();
             var strVersion = version == null ? "" : version.toString();
             relay.setVersion(strVersion);
 
             List<Integer> snipList = new ArrayList<>();
-            ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("\"supported_nips\"");
+            ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("\"supported_nips\"").get();
             int len = snips.length();
             for (int i = 0; i < len; i++) {
-                snipList.add(((NumberValue) snips.get(i)).intValue());
+                snipList.add(((NumberValue) snips.get(i).get()).intValue().get());
             }
             relay.setSupportedNips(snipList);
 
-            final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"");
+            final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"").get();
             var strPubKey = pubKey == null ? "" : pubKey.toString();
             relay.setPubKey(new PublicKey(NostrUtil.hexToBytes(strPubKey)));
         } catch (Exception ex) {

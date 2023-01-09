@@ -14,7 +14,6 @@ import nostr.base.Relay;
 import nostr.event.Kind;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericTag;
-import nostr.event.impl.OtsEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
@@ -30,12 +29,14 @@ import nostr.event.unmarshaller.impl.EventUnmarshaller;
 import nostr.event.unmarshaller.impl.FiltersUnmarshaller;
 import nostr.event.unmarshaller.impl.TagListUnmarshaller;
 import nostr.event.unmarshaller.impl.TagUnmarshaller;
+import nostr.event.util.Nip05Validator;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.ObjectValue;
 import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
+import nostr.util.NostrUtil;
 import nostr.util.UnsupportedNIPException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -89,15 +90,15 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
+            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"").get();
 
             Assertions.assertEquals(2, ((ArrayValue) tags).length());
 
-            IValue tag = ((ArrayValue) tags).get(1);
+            IValue tag = ((ArrayValue) tags).get(1).get();
 
             Assertions.assertTrue(tag instanceof ArrayValue);
 
-            IValue code = ((ArrayValue) tag).get(0);
+            IValue code = ((ArrayValue) tag).get(0).get();
 
             Assertions.assertTrue(code instanceof StringValue);
 
@@ -124,15 +125,15 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"");
+            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"").get();
 
             Assertions.assertEquals(2, ((ArrayValue) tags).length());
 
-            IValue tag = ((ArrayValue) tags).get(1);
+            IValue tag = ((ArrayValue) tags).get(1).get();
 
             Assertions.assertTrue(tag instanceof ArrayValue);
 
-            IValue code = ((ArrayValue) tag).get(0);
+            IValue code = ((ArrayValue) tag).get(0).get();
 
             Assertions.assertTrue(code instanceof StringValue);
 
@@ -213,7 +214,23 @@ public class EventTest {
         final GenericTagQuery gtq = GenericTagQuery.builder().tagName('x').value(Arrays.asList("one", "two", "three")).build();
         gtqList.add(gtq);
         filters.setGenericTagQueryList(gtqList);
-        unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();         
+        unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();
         Assertions.assertTrue(unFilters.getGenericTagQueryList().getList().contains(gtq));
+    }
+
+    @Test
+    public void testNip05Validator() {
+        System.out.println("testNip05Validator");
+        try {
+            var nip05 = "erict875@getalby.com";
+            var publicKey = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub126klq89p42wk78p4j5ur8wlxmxdqepdh8tez9e4axpd4run5nahsmff27j")));
+
+            Nip05Validator nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
+
+            nip05Validator.validate();            
+        } catch (NostrException ex) {
+            Assertions.fail(ex);
+        }
+        Assertions.assertTrue(true);
     }
 }

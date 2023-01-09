@@ -27,11 +27,11 @@ public class TagUnmarshaller extends BaseElementUnmarshaller {
     public ITag unmarshall() {
         var value = new JsonArrayUnmarshaller(this.getJson()).unmarshall();
         
-        String code = value.get(0).getValue().toString();
+        String code = value.get(0).get().getValue().toString();
         Set<ElementAttribute> tagAttrs = new HashSet<>();
         
         for(int i = 1; i< value.length(); i++) {
-            ElementAttribute attr = ElementAttribute.builder().value(value.get(i)).build();
+            ElementAttribute attr = ElementAttribute.builder().value(value.get(i).get()).build();
             tagAttrs.add(attr);
         }
         

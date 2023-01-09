@@ -58,7 +58,7 @@ public class JsonArrayParser extends BaseParser<ArrayValue> {
             } else if (c == '{') {
                 parseObject(c, subJsonStr, list);
             } else {
-                parseNumber(subJsonStr, list);
+                parseNumberOrBoolean(subJsonStr, list);
             }
         }
 
@@ -68,7 +68,7 @@ public class JsonArrayParser extends BaseParser<ArrayValue> {
         return result;
     }
 
-    private void parseNumber(String subJsonStr, final List<IValue> result) throws JsonParseException {
+    private void parseNumberOrBoolean(String subJsonStr, final List<IValue> result) throws JsonParseException {
         String currentElt;
         int nextComma = subJsonStr.indexOf(',', cursor);
         if (nextComma == -1) {

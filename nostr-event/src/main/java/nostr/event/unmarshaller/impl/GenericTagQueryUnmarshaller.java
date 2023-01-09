@@ -1,4 +1,3 @@
-
 package nostr.event.unmarshaller.impl;
 
 import java.util.ArrayList;
@@ -18,20 +17,20 @@ import nostr.util.NostrException;
 @AllArgsConstructor
 public class GenericTagQueryUnmarshaller implements IUnmarshaller<GenericTagQuery> {
 
-    private final String json; 
-    
+    private final String json;
+
     @Override
     public GenericTagQuery unmarshall() throws NostrException {
-        
+
         var value = new JsonArrayUnmarshaller(json).unmarshall();
-        
-        Character tagName = value.get(0).getValue().toString().charAt(0);
+
+        Character tagName = value.get(0).get().getValue().toString().charAt(0);
         List<String> valueList = new ArrayList<>();
-        for(var i = 0; i<value.length(); i++) {
-            valueList.add(value.get(i).getValue().toString());
+        for (var i = 0; i < value.length(); i++) {
+            valueList.add(value.get(i).get().getValue().toString());
         }
-        
-        return GenericTagQuery.builder().tagName(tagName).value(valueList).build();        
+
+        return GenericTagQuery.builder().tagName(tagName).value(valueList).build();
     }
-    
+
 }

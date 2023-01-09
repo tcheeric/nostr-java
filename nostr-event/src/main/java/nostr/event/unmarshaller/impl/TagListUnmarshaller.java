@@ -27,7 +27,7 @@ public class TagListUnmarshaller implements IUnmarshaller<TagList> {
         TagList result = new TagList();
 
         for (int i = 0; i < value.length(); i++) {
-            var tag = value.get(i);
+            var tag = value.get(i).get();
             result.add(new TagUnmarshaller(tag.toString()).unmarshall());
         }
         
