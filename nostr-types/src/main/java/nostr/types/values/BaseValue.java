@@ -17,16 +17,20 @@ public abstract class BaseValue implements IValue {
 
     private final Type type;
     private final Object value;
-    
+
     public BaseValue(Type type, Object value) {
         this.type = type;
         this.value = value;
     }
-    
+
     @Override
     public String toString() {
+        return toString(false);
+    }
+
+    public String toString(boolean escape) {
         try {
-            return BaseTypesMarshaller.Factory.create(this).marshall();
+            return BaseTypesMarshaller.Factory.create(this, escape).marshall();
         } catch (MarshallException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);

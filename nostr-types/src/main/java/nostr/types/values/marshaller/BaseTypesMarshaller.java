@@ -1,6 +1,5 @@
 package nostr.types.values.marshaller;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.types.IMarshaller;
