@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package nostr.event.impl;
 
 import nostr.base.Profile;
@@ -73,7 +69,7 @@ public final class MetadataEvent extends GenericEvent {
         value.add(picExpr);
 
         ObjectValue content = new ObjectValue(value);
-        setContent(content.toString());
+        setContent(content.toString(true));
     }
 
 }
