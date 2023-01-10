@@ -32,7 +32,7 @@ public final class Profile implements IBech32Encodable {
     @ToString.Exclude
     private URL picture;
 
-    private String email;
+    private String nip05;
 
     @Override
     public String toBech32() {

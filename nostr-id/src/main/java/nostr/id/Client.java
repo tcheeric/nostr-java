@@ -1,4 +1,3 @@
-
 package nostr.id;
 
 import nostr.base.BaseConfiguration;
@@ -56,7 +55,7 @@ public class Client {
     public void send(@NonNull BaseMessage message) throws IOException, Exception {
         for (Relay r : relays) {
             var rh = RequestHandler.builder().connection(new Connection(r)).message(message).build();
-            
+
             log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
             rh.process();
         }
@@ -82,37 +81,51 @@ public class Client {
             log.log(Level.FINE, "Relay information: {0}", strInfo);
             ObjectValue info = new JsonObjectUnmarshaller(strInfo).unmarshall();
 
-            final IValue contact = ((ObjectValue) info).get("\"contact\"").get();
-            var strContact = contact == null ? "" : contact.toString();
-            relay.setContact(strContact);
-
-            final IValue desc = ((ObjectValue) info).get("\"description\"").get();
-            var strDesc = desc == null ? "" : desc.toString();
-            relay.setDescription(strDesc);
-
-            final IValue relayName = ((ObjectValue) info).get("\"name\"").get();
-            var strRelayName = relayName == null ? "" : relayName.toString();
-            relay.setName(strRelayName);
-
-            final IValue software = ((ObjectValue) info).get("\"software\"").get();
-            var strSoftware = software == null ? "" : software.toString();
-            relay.setSoftware(strSoftware);
-
-            final IValue version = ((ObjectValue) info).get("\"version\"").get();
-            var strVersion = version == null ? "" : version.toString();
-            relay.setVersion(strVersion);
-
-            List<Integer> snipList = new ArrayList<>();
-            ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("\"supported_nips\"").get();
-            int len = snips.length();
-            for (int i = 0; i < len; i++) {
-                snipList.add(((NumberValue) snips.get(i).get()).intValue().get());
+            if (((ObjectValue) info).get("\"contact\"").isPresent()) {
+                final IValue contact = ((ObjectValue) info).get("\"contact\"").get();
+                var strContact = contact == null ? "" : contact.toString();
+                relay.setContact(strContact);
             }
-            relay.setSupportedNips(snipList);
 
-            final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"").get();
-            var strPubKey = pubKey == null ? "" : pubKey.toString();
-            relay.setPubKey(new PublicKey(NostrUtil.hexToBytes(strPubKey)));
+            if (((ObjectValue) info).get("\"description\"").isPresent()) {
+                final IValue desc = ((ObjectValue) info).get("\"description\"").get();
+                var strDesc = desc == null ? "" : desc.toString();
+                relay.setDescription(strDesc);
+            }
+
+            if (((ObjectValue) info).get("\"name\"").isPresent()) {
+                final IValue relayName = ((ObjectValue) info).get("\"name\"").get();
+                var strRelayName = relayName == null ? "" : relayName.toString();
+                relay.setName(strRelayName);
+            }
+
+            if (((ObjectValue) info).get("\"software\"").isPresent()) {
+                final IValue software = ((ObjectValue) info).get("\"software\"").get();
+                var strSoftware = software == null ? "" : software.toString();
+                relay.setSoftware(strSoftware);
+            }
+
+            if (((ObjectValue) info).get("\"version\"").isPresent()) {
+                final IValue version = ((ObjectValue) info).get("\"version\"").get();
+                var strVersion = version == null ? "" : version.toString();
+                relay.setVersion(strVersion);
+            }
+
+            if (((ObjectValue) info).get("\"supported_nips\"").isPresent()) {
+                List<Integer> snipList = new ArrayList<>();
+                ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("\"supported_nips\"").get();
+                int len = snips.length();
+                for (int i = 0; i < len; i++) {
+                    snipList.add(((NumberValue) snips.get(i).get()).intValue().get());
+                }
+                relay.setSupportedNips(snipList);
+            }
+
+            if (((ObjectValue) info).get("\"pubkey\"").isPresent()) {
+                final IValue pubKey = ((ObjectValue) info).get("\"pubkey\"").get();
+                var strPubKey = pubKey == null ? "" : pubKey.toString();
+                relay.setPubKey(new PublicKey(NostrUtil.hexToBytes(strPubKey)));
+            }
         } catch (Exception ex) {
             log.log(Level.SEVERE, null, ex);
         }

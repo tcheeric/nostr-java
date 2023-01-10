@@ -37,7 +37,7 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
     public InternetIdentifierMetadataEvent(PublicKey pubKey, TagList tags, @NonNull Profile profile) throws NostrException, NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
         super(pubKey, Kind.SET_METADATA, tags);
         this.name = profile.getName();
-        this.nip05 = profile.getEmail();
+        this.nip05 = profile.getNip05();
     }
 
     @Override

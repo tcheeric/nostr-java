@@ -236,10 +236,10 @@ public class EntityFactory {
             String number = EntityFactory.generateRandomNumber(4);
             String about = "about_" + number;
             String name = "name_" + number;
-            String email = name + "@tcheeric.com";
+            String nip05 = name + "@tcheeric.com";
             String url = "http://assets.tcheeric.com/" + number + ".PNG";
 
-            return Profile.builder().about(about).name(name).email(email).picture(new URL(url)).publicKey(pubKey).build();
+            return Profile.builder().about(about).name(name).nip05(nip05).picture(new URL(url)).publicKey(pubKey).build();
 
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);

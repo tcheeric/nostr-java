@@ -74,9 +74,9 @@ public class Wallet {
 
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
         ITag pkTag = (ITag) dmEvent.getTags().getList().get(0);
-        if (pkTag instanceof PubKeyTag) {
+        if (pkTag instanceof PubKeyTag pubKeyTag) {
             try {
-                byte[] publicKey = ((PubKeyTag) pkTag).getPublicKey().getRawData();
+                var publicKey = pubKeyTag.getPublicKey().getRawData();
                 var encryptedContent = encryptMessage(privateKey.getRawData(), publicKey, dmEvent.getContent());
                 dmEvent.setContent(encryptedContent);
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
@@ -132,26 +132,29 @@ public class Wallet {
 
         final var Base64Encoder = Base64.getEncoder();
         final var msg = message.getBytes(StandardCharsets.UTF_8);
+        
+        final String secKeyHex = NostrUtil.bytesToHex(senderPrivateKey);
+        final String pubKeyHex = "02" + NostrUtil.bytesToHex(rcptPublicKey);
 
-        var sharedPoint = getSharedSecret(NostrUtil.bytesToHex(senderPrivateKey), "02" + NostrUtil.bytesToHex(rcptPublicKey));        
+        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);        
         var sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
-
-        SecretKeySpec sharedSecretKey = new SecretKeySpec(sharedX, "AES");
 
         var iv = NostrUtil.createRandomByteArray(16);
         var ivParamSpec = new IvParameterSpec(iv);
         
+        var sharedSecretKey = new SecretKeySpec(sharedX, "AES");
         var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, ivParamSpec);
+        
         var encryptedMessage1 = Base64Encoder.encode(cipher.update(msg));
         var encryptedMessage2 = Base64Encoder.encode(cipher.doFinal());
 
-        var result = Arrays.copyOf(encryptedMessage1, encryptedMessage1.length + encryptedMessage2.length);
-        System.arraycopy(encryptedMessage2, 0, result, encryptedMessage1.length, encryptedMessage2.length);
+        var encryptedMessage = Arrays.copyOf(encryptedMessage1, encryptedMessage1.length + encryptedMessage2.length);
+        System.arraycopy(encryptedMessage2, 0, encryptedMessage, encryptedMessage1.length, encryptedMessage2.length);
 
         var iv64 = Base64Encoder.encode(ivParamSpec.getIV());
 
-        return new String(result) + "?iv=" + new String(iv64);
+        return new String(encryptedMessage) + "?iv=" + new String(iv64);
     }
 
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {
@@ -172,7 +175,7 @@ public class Wallet {
 
         Profile getProfile() throws NostrException, IOException {
             log.log(Level.FINE, "Getting the profile details from the configuration file...");
-            return Profile.builder().about(getAbout()).email(getEmail()).name(getName()).picture(getPicture()).publicKey(getPublicKey()).build();
+            return Profile.builder().about(getAbout()).nip05(getNip05()).name(getName()).picture(getPicture()).publicKey(getPublicKey()).build();
         }
 
         String getName() {
@@ -197,8 +200,8 @@ public class Wallet {
             return null;
         }
 
-        String getEmail() {
-            return getProperty("email");
+        String getNip05() {
+            return getProperty("nip05");
         }
 
         PrivateKey getPrivateKey() throws IOException {

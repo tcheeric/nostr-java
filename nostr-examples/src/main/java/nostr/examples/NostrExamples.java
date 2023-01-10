@@ -89,11 +89,11 @@ public class NostrExamples {
 
             Thread.sleep(500);
 
-            try {
-                metaDataEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+//            try {
+//                metaDataEvent(wallet, client);
+//            } catch (UnsupportedNIPException ex) {
+//                log.log(Level.WARNING, ex.getMessage());
+//            }
 
             Thread.sleep(500);
 
@@ -119,13 +119,14 @@ public class NostrExamples {
                 log.log(Level.WARNING, ex.getMessage());
             }
 
-//            Thread.sleep(500);
-//
+            Thread.sleep(500);
+
 //            try {
 //                internetIdMetadata(wallet, client);
 //            } catch (UnsupportedNIPException ex) {
 //                log.log(Level.WARNING, ex.getMessage());
 //            }
+            
             Thread.sleep(500);
 
             try {
@@ -177,9 +178,9 @@ public class NostrExamples {
             TagList tagList = new TagList();
             tagList.add(pkeyRcptTag);
 
-            GenericEvent event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Willy!");
+            var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Willy!");
 
-            wallet.encryptDirectMessage((DirectMessageEvent) event2);
+            wallet.encryptDirectMessage(event2);
             wallet.sign(event2);
 
             BaseMessage message = EventMessage.builder().event(event2).build();
@@ -267,9 +268,9 @@ public class NostrExamples {
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             tagList.add(pkSenderTag);
 
-            Profile profile = Profile.builder().about("He, this is me!").email("ecureuil@nostr.java").name("ecureuil").picture(new URL("https://britishwildlifecentre.co.uk/wp-content/uploads/2018/12/New-Website-Grey-Squirrel-12-18-1024x682.jpg")).publicKey(publicKeySender).build();
+            var profile = Profile.builder().about("He, this is me!").nip05("ecureuil@nostr.java").name("ecureuil").picture(new URL("https://britishwildlifecentre.co.uk/wp-content/uploads/2018/12/New-Website-Grey-Squirrel-12-18-1024x682.jpg")).publicKey(publicKeySender).build();
 
-            GenericEvent event = new MetadataEvent(publicKeySender, tagList, profile);
+            var event = new MetadataEvent(publicKeySender, tagList, profile);
 
             wallet.sign(event);
             BaseMessage message = EventMessage.builder().event(event).build();
