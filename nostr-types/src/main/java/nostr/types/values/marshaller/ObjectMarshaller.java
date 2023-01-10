@@ -1,11 +1,9 @@
 package nostr.types.values.marshaller;
 
 import java.util.List;
-import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.types.MarshallException;
-import nostr.types.values.IValue;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.ObjectValue;
 
@@ -31,8 +29,7 @@ public class ObjectMarshaller extends BaseTypesMarshaller {
         StringBuilder result = new StringBuilder();
         int i = 0;
 
-        final ObjectValue attrObj = (ObjectValue) attribute.getValue();
-        final List<ExpressionValue> exprList = (List<ExpressionValue>) attrObj.getValue();
+        final List<ExpressionValue> exprList = (List<ExpressionValue>) attribute.getValue();
         
         result.append("{");
         for (var e : exprList) {
