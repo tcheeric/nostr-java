@@ -157,7 +157,7 @@ public class Wallet {
 
         Point pubKeyPt = Point.fromHex("02" + publicKeyHex);
 
-        BigInteger privKey = new BigInteger(NostrUtil.hexToBytes(privateKeyHex));
+        BigInteger privKey = NostrUtil.bigIntFromBytes(NostrUtil.hexToBytes(privateKeyHex));
 
         return Point.mul(pubKeyPt, privKey).toBytes();
     }

@@ -174,6 +174,7 @@ public class Point {
         return NostrUtil.bytesFromBigInteger(P.getX());
     }
 
+    // Inspired by https://github.com/paulmillr/noble-secp256k1/blob/a276a1c3639d1854420a1c78010280c902857ec1/index.ts#L470
     private static Point fromCompressedHex(byte[] pubKey) throws NostrException {
         final BigInteger x = new BigInteger(Arrays.copyOfRange(pubKey, 1, pubKey.length));
 
