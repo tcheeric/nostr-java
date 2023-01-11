@@ -1,4 +1,3 @@
-
 package nostr.id;
 
 import nostr.base.BaseConfiguration;
@@ -132,34 +131,31 @@ public class Wallet {
 
         final var Base64Encoder = Base64.getEncoder();
         final var msg = message.getBytes(StandardCharsets.UTF_8);
-        
-        final String secKeyHex = NostrUtil.bytesToHex(senderPrivateKey);
-        final String pubKeyHex = "02" + NostrUtil.bytesToHex(rcptPublicKey);
 
-        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);        
+        final String secKeyHex = NostrUtil.bytesToHex(senderPrivateKey);
+        final String pubKeyHex = NostrUtil.bytesToHex(rcptPublicKey);
+
+        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);
         var sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
 
         var iv = NostrUtil.createRandomByteArray(16);
         var ivParamSpec = new IvParameterSpec(iv);
-        
+
         var sharedSecretKey = new SecretKeySpec(sharedX, "AES");
         var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, ivParamSpec);
-        
-        var encryptedMessage1 = Base64Encoder.encode(cipher.update(msg));
-        var encryptedMessage2 = Base64Encoder.encode(cipher.doFinal());
 
-        var encryptedMessage = Arrays.copyOf(encryptedMessage1, encryptedMessage1.length + encryptedMessage2.length);
-        System.arraycopy(encryptedMessage2, 0, encryptedMessage, encryptedMessage1.length, encryptedMessage2.length);
+        var encryptedMessage = cipher.doFinal(msg);
+        var encryptedMessage64 = Base64Encoder.encode(encryptedMessage);
 
         var iv64 = Base64Encoder.encode(ivParamSpec.getIV());
 
-        return new String(encryptedMessage) + "?iv=" + new String(iv64);
+        return new String(encryptedMessage64) + "?iv=" + new String(iv64);
     }
 
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {
 
-        Point pubKeyPt = Point.fromHex(publicKeyHex);
+        Point pubKeyPt = Point.fromHex("02" + publicKeyHex);
 
         BigInteger privKey = new BigInteger(NostrUtil.hexToBytes(privateKeyHex));
 

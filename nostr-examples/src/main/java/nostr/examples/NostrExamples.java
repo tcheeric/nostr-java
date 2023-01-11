@@ -65,75 +65,37 @@ public class NostrExamples {
 
             Thread.sleep(500);
 
-            try {
-                sendEncryptedDirectMessage(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            sendEncryptedDirectMessage(wallet, client);
 
             Thread.sleep(500);
 
-            try {
-                mentionsEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            mentionsEvent(wallet, client);
 
             Thread.sleep(500);
 
-            try {
-                deletionEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            deletionEvent(wallet, client);
 
             Thread.sleep(500);
 
-//            try {
 //                metaDataEvent(wallet, client);
-//            } catch (UnsupportedNIPException ex) {
-//                log.log(Level.WARNING, ex.getMessage());
-//            }
+            Thread.sleep(500);
+
+            ephemerealEvent(wallet, client);
 
             Thread.sleep(500);
 
-            try {
-                ephemerealEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            reactionEvent(wallet, client);
 
             Thread.sleep(500);
 
-            try {
-                reactionEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            replaceableEvent(wallet, client);
 
             Thread.sleep(500);
 
-            try {
-                replaceableEvent(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
-
-            Thread.sleep(500);
-
-//            try {
 //                internetIdMetadata(wallet, client);
-//            } catch (UnsupportedNIPException ex) {
-//                log.log(Level.WARNING, ex.getMessage());
-//            }
-            
             Thread.sleep(500);
 
-            try {
-                filters(wallet, client);
-            } catch (UnsupportedNIPException ex) {
-                log.log(Level.WARNING, ex.getMessage());
-            }
+            filters(wallet, client);
 
             log.log(Level.FINE, "================== The End");
 
@@ -161,7 +123,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -188,7 +150,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -218,7 +180,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -252,7 +214,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -279,7 +241,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -303,7 +265,7 @@ public class NostrExamples {
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -337,7 +299,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -370,7 +332,7 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -410,13 +372,13 @@ public class NostrExamples {
             Filters filters = Filters.builder().kinds(kindList).limit(10).build();
             FiltersList filtersList = new FiltersList();
             filtersList.add(filters);
-            
+
             String subId = "subId" + System.currentTimeMillis();
             BaseMessage message = ReqMessage.builder().filtersList(filtersList).subscriptionId(subId).build();
 
             client.send(message);
         } catch (UnsupportedNIPException ex) {
-            throw ex;
+            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
@@ -436,13 +398,12 @@ public class NostrExamples {
 //            
 //            GenericTag sensitiveContentTag = new GenericTag(1, "", attributes);
 //        } catch (UnsupportedNIPException ex) {
-//            throw ex;
+//                        log.log(Level.WARNING, null, ex);
 //        } catch (Exception ex) {
 //            throw new NostrException(ex);
 //        }
 //
 //    }
-
     private static void logHeader(String header) {
         for (int i = 0; i < 30; i++) {
             System.out.print("#");
