@@ -12,7 +12,6 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.crypto.Point;
 import nostr.crypto.schnorr.Schnorr;
 import java.beans.IntrospectionException;
 import java.io.IOException;
@@ -41,6 +40,8 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.util.NostrException;
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 
 /**
  *
@@ -155,11 +156,10 @@ public class Wallet {
 
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {
 
-        Point pubKeyPt = Point.fromHex("02" + publicKeyHex);
-
-        BigInteger privKey = NostrUtil.bigIntFromBytes(NostrUtil.hexToBytes(privateKeyHex));
-
-        return Point.mul(pubKeyPt, privKey).toBytes();
+        SecP256K1Curve curve = new SecP256K1Curve();
+        ECPoint pubKeyPt = curve.decodePoint(NostrUtil.hexToBytes("02" + publicKeyHex));
+        BigInteger tweakVal = new BigInteger(1, NostrUtil.hexToBytes(privateKeyHex));
+        return pubKeyPt.multiply(tweakVal).getEncoded(true);
     }
 
     @Log

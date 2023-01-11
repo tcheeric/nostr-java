@@ -29,7 +29,7 @@
 
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.24</lombok.version>
-
+        <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
         <assertj.version>3.23.1</assertj.version>

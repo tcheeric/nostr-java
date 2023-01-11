@@ -2,9 +2,7 @@ package nostr.crypto;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import lombok.NonNull;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
 public class Point {
@@ -174,26 +172,6 @@ public class Point {
         return NostrUtil.bytesFromBigInteger(P.getX());
     }
 
-    // Inspired by https://github.com/paulmillr/noble-secp256k1/blob/a276a1c3639d1854420a1c78010280c902857ec1/index.ts#L470
-    private static Point fromCompressedHex(byte[] pubKey) throws NostrException {
-        final BigInteger x = new BigInteger(Arrays.copyOfRange(pubKey, 1, pubKey.length));
-
-        if (x.compareTo(BigInteger.ZERO) > 0 && x.compareTo(getp()) < 0) {
-            var y2 = weierstrass(x);
-            var y = sqrtMod(y2);
-            final var yand1 = y.and(BigInteger.ONE).toByteArray();
-            final var isYOdd = new BigInteger(yand1).equals(BigInteger.ONE);
-            final var isFirstByteOdd = new BigInteger(pubKey).testBit(0);
-            y = (isFirstByteOdd != isYOdd) ? mod(y.negate()) : y;
-            return new Point(x, y);
-        }
-        throw new NostrException("Point is not on curve");
-    }
-
-    public static Point fromHex(String pubKey) throws NostrException {
-        return fromCompressedHex(NostrUtil.hexToBytes(pubKey));
-    }
-
     // previously 'pointFromBytes()'
     public static Point liftX(byte[] b) {
 
@@ -217,15 +195,5 @@ public class Point {
 
     public boolean equals(Point P) {
         return getPair().equals(P.getPair());
-    }
-
-    private static BigInteger weierstrass(@NonNull final BigInteger x) {
-        final var y2 = x.modPow(BigInteger.valueOf(3L), p).add(BigInteger.valueOf(7L)).mod(p);
-        return y2;
-    }
-
-    private static BigInteger sqrtMod(@NonNull final BigInteger y2) {
-        var y = y2.modPow(p.add(BigInteger.ONE).divide(BigInteger.valueOf(4L)), p);
-        return y;
     }
 }
