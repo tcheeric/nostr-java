@@ -19,15 +19,17 @@ public class ObjectValue extends BaseValue {
         super(Type.OBJECT, value);
     }
 
-    public Optional<IValue> get(String variable) {        
-        for (IValue e : (List<ExpressionValue>) this.getValue()) {
-            ExpressionValue expr = (ExpressionValue) e;
-            if (expr.getName().equals(variable)) {
-                return Optional.of((IValue) expr.getValue());
-            }
-        }
+    public Optional<IValue> get(String variable) {
+        
+        final List<IValue> exprValueList = (List<IValue>) this.getValue();        
+        final Optional<IValue> findFirst = exprValueList.stream().filter(e -> ((ExpressionValue)e).getName().equals(variable)).findFirst();
 
-        log.log(Level.WARNING, "The variable {0} does not exist", variable);
-        return Optional.empty();
+        if(findFirst.isEmpty()) {
+            log.log(Level.WARNING, "The variable {0} does not exist", variable);
+            return Optional.empty();
+        }
+        
+        return Optional.of((IValue) findFirst.get().getValue());
+
     }
 }

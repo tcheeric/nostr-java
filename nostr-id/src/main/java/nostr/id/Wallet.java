@@ -87,10 +87,10 @@ public class Wallet {
     }
 
     public Signature sign(@NonNull ISignable signable) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
-        if (signable instanceof GenericEvent) {
-            return signEvent((GenericEvent) signable);
-        } else if (signable instanceof DelegationTag) {
-            return signDelegationTag((DelegationTag) signable);
+        if (signable instanceof GenericEvent genericEvent) {
+            return signEvent(genericEvent);
+        } else if (signable instanceof DelegationTag delegationTag) {
+            return signDelegationTag(delegationTag);
         }
         throw new NostrException();
     }

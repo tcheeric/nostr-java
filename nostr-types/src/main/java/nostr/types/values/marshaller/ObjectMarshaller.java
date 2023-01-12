@@ -1,6 +1,7 @@
 package nostr.types.values.marshaller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.types.MarshallException;
@@ -27,19 +28,19 @@ public class ObjectMarshaller extends BaseTypesMarshaller {
     public String marshall() throws MarshallException {
 
         StringBuilder result = new StringBuilder();
-        int i = 0;
 
         final List<ExpressionValue> exprList = (List<ExpressionValue>) attribute.getValue();
         
         result.append("{");
-        for (var e : exprList) {
-
-            result.append(new ExpressionMarshaller(e, escape).marshall());
-
-            if (++i < exprList.size()) {
-                result.append(",");
+        
+        result.append(exprList.stream().map((ExpressionValue e) -> {
+            try {
+                return new ExpressionMarshaller(e, escape).marshall();
+            } catch (MarshallException ex) {
+                throw new RuntimeException(ex);
             }
-        }
+        }).collect(Collectors.joining(",")));
+
         result.append("}");
 
         return result.toString();

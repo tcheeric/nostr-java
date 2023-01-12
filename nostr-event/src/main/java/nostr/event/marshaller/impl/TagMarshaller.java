@@ -76,8 +76,8 @@ public class TagMarshaller extends BaseElementMarshaller {
             return false;
         }
 
-        if (tag instanceof GenericTag) {
-            nip = ((GenericTag) tag).getNip();
+        if (tag instanceof GenericTag genericTag) {
+            nip = genericTag.getNip();
             return snips.contains(nip);
         } else {
             return checkSupport(relay, tag) && checkSupport(relay, ((BaseTag) tag).getParent());

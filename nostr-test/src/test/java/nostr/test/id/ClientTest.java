@@ -17,16 +17,16 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @author squirrel
  */
-class ClientIT {
+class ClientTest {
 
     private final Client client;
 
-    public ClientIT() throws IOException, NostrException {
+    public ClientTest() throws IOException, NostrException {
         this.client = new Client("TestClient", new Wallet());
     }
 
     @Test
-    void testSend() {
+    public void testSend() {
         try {
             System.out.println("testSend");
             PublicKey publicKey = client.getWallet().getProfile().getPublicKey();

@@ -1,5 +1,6 @@
 package nostr.event.marshaller.impl;
 
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,24 +41,23 @@ public class GenericTagQueryMarshaller implements IMarshaller {
         int i = 0;
 
         StringBuilder result = new StringBuilder("\"#").append(c.toString()).append("\":[");
-        for (String s : values) {
 
+        result.append(values.stream().map(s -> {
+            final StringBuilder sb = new StringBuilder();
             if (!escape) {
-                result.append("\"");
+                sb.append("\"");
             } else {
-                result.append("\\\"");
+                sb.append("\\\"");
             }
-            result.append(s);
+            sb.append(s);
             if (!escape) {
-                result.append("\"");
+                sb.append("\"");
             } else {
-                result.append("\\\"");
+                sb.append("\\\"");
             }
+            return sb.toString();
+        }).collect(Collectors.joining(",")));
 
-            if (++i < values.size()) {
-                result.append(",");
-            }
-        }
         result.append("]");
 
         return result.toString();

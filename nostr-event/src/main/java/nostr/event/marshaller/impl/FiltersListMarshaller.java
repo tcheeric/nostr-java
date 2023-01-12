@@ -1,8 +1,9 @@
 package nostr.event.marshaller.impl;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.event.list.FiltersList;
@@ -14,6 +15,7 @@ import nostr.util.UnsupportedNIPException;
  *
  * @author squirrel
  */
+@Log
 public class FiltersListMarshaller extends BaseListMarhsaller {
 
     public FiltersListMarshaller(FiltersList list, Relay relay) {
@@ -31,25 +33,22 @@ public class FiltersListMarshaller extends BaseListMarhsaller {
         FiltersList filtersList = (FiltersList) getList();
         Relay relay = getRelay();
 
-        @SuppressWarnings("rawtypes")
-        final List list = filtersList.getList();
+        final List<Filters> list = filtersList.getList();
         if (!list.isEmpty()) {
             result.append("[");
-            int size = filtersList.size(), i = 0;
 
-            for (Object t : list) {
-                if (t == null) {
-                    continue;
+            result.append(list.stream().filter(f -> f != null).map(f -> {
+                try {
+                    return new FiltersMarshaller(f, relay, isEscape()).marshall();
+                } catch (UnsupportedNIPException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                    throw new RuntimeException(ex);
                 }
-                Filters filters = (Filters) t;
-                result.append(new FiltersMarshaller(filters, relay, isEscape()).marshall());
-                if (++i < size) {
-                    result.append(",");
-                }
-            }
+            }).collect(Collectors.joining(",")));
+
             result.append("]");
         }
 
         return result.toString();
-    }
+    }    
 }

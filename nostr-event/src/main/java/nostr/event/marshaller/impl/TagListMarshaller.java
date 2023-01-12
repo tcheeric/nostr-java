@@ -5,6 +5,9 @@ import nostr.base.Relay;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.event.list.TagList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import lombok.extern.java.Log;
 import static nostr.base.NipUtil.checkSupport;
 import nostr.util.NostrException;
 
@@ -12,6 +15,7 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
+@Log
 public class TagListMarshaller extends BaseListMarhsaller {
 
     public TagListMarshaller(TagList list, Relay relay) {
@@ -29,22 +33,19 @@ public class TagListMarshaller extends BaseListMarhsaller {
         TagList tagList = (TagList) getList();
         Relay relay = getRelay();
 
-        @SuppressWarnings("rawtypes")
-        final List list = getSupportedTags(relay).getList();
+        final List<ITag> list = getSupportedTags(relay).getList();
         if (!list.isEmpty()) {
             result.append("[");
-            int size = tagList.size(), i = 0;
 
-            for (Object t : list) {
-                if (t == null) {
-                    continue;
+            result.append(list.stream().filter(t -> t != null).map(t -> {
+                try {
+                    return new TagMarshaller(t, relay, isEscape()).marshall();
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                    throw new RuntimeException(ex);
                 }
-                ITag tag = (ITag) t;
-                result.append(new TagMarshaller(tag, relay, isEscape()).marshall());
-                if (++i < size) {
-                    result.append(",");
-                }
-            }
+            }).collect(Collectors.joining(",")));
+            
             result.append("]");
         }
 

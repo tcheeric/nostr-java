@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
 import nostr.base.PublicKey;
@@ -47,8 +48,10 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         var events = new EventList();
         var referencedEvents = new EventList();
         var kindList = new KindList();
-        var genericTagQueryList = getGenericTagQueryList();
+        final Optional<GenericTagQueryList> optGtql = getGenericTagQueryList();
+        var genericTagQueryList = optGtql.isEmpty() ? new GenericTagQueryList() : optGtql.get();
         ArrayValue arr;
+        
         // Authors
         var optArr = value.get("\"authors\"");
         if (!optArr.isEmpty()) {
@@ -136,27 +139,29 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         return filters;
     }
 
-    private GenericTagQueryList getGenericTagQueryList() {
-        GenericTagQueryList result = new GenericTagQueryList();
+    private Optional<GenericTagQueryList> getGenericTagQueryList() {
+
         var obj = new JsonObjectUnmarshaller(getJson()).unmarshall();
         var exprList = (List<ExpressionValue>) obj.getValue();
-
-        for (var e : exprList) {
-            if (!Arrays.asList("\"authors\"", "\"ids\"", "\"since\"", "\"until\"", "\"limit\"", "\"kinds\"", "\"#e\"", "\"sids\"", "\"#p\"").contains(e.getName())) {
-                var tagName = e.getName().charAt(2);
-                var valueList = new ArrayList<String>();
-
-                final ArrayValue attrArr = (ArrayValue) e.getValue();
-                for (var i = 0; i < attrArr.length(); i++) {
-                    var s = attrArr.get(i).get().getValue().toString();
-                    valueList.add(s);
-                }
-                var gtq = GenericTagQuery.builder().tagName(tagName).value(valueList).build();
-                result.add(gtq);
-            }
-        }
-
-        return result.size() == 0 ? null : result;
+        final Optional<GenericTagQueryList> findAny = exprList.stream()
+                .filter(e -> !Arrays.asList("\"authors\"", "\"ids\"", "\"since\"", "\"until\"", "\"limit\"", "\"kinds\"", "\"#e\"", "\"sids\"", "\"#p\"").contains(e.getName()))
+                .map(FiltersUnmarshaller::gtql).findAny();
+        return findAny.isEmpty() ? Optional.empty() : findAny;
+    
     }
 
+    private static GenericTagQueryList gtql(ExpressionValue e) {
+        GenericTagQueryList result = new GenericTagQueryList();
+        var tagName = e.getName().charAt(2);
+        var valueList = new ArrayList<String>();
+
+        final ArrayValue attrArr = (ArrayValue) e.getValue();
+        for (var i = 0; i < attrArr.length(); i++) {
+            var s = attrArr.get(i).get().getValue().toString();
+            valueList.add(s);
+        }
+        var gtq = GenericTagQuery.builder().tagName(tagName).value(valueList).build();
+        result.add(gtq);
+        return result;
+    }
 }

@@ -1,7 +1,13 @@
 package nostr.types.values.marshaller;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.java.Log;
 import nostr.types.MarshallException;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
@@ -12,6 +18,7 @@ import nostr.types.values.impl.ArrayValue;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@Log
 public class ArrayMarshaller extends BaseTypesMarshaller {
 
     public ArrayMarshaller(ArrayValue value) {
@@ -24,23 +31,25 @@ public class ArrayMarshaller extends BaseTypesMarshaller {
 
     @Override
     public String marshall() throws MarshallException {
-        int i = 0;
         StringBuilder result = new StringBuilder();
         final IValue[] attrArr = (IValue[]) attribute.getValue();
 
         result.append("[");
 
-        for (var v : attrArr) {
-            result.append(BaseTypesMarshaller.Factory.create(v).marshall());
+        result.append(Arrays.asList(attrArr).stream().map(ArrayMarshaller::marshall).collect(Collectors.joining(",")));
 
-            if (++i < attrArr.length) {
-                result.append(",");
-            }
-        }
-        
         result.append("]");
 
         return result.toString();
     }
+    
+    private static String marshall(IValue v) {
+        try {
+            return BaseTypesMarshaller.Factory.create(v).marshall();
+        } catch (MarshallException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex);
+        }
+    } 
 
 }
