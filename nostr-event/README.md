@@ -28,12 +28,14 @@ Consider the tag syntax:
 `[<code>, <attribute value 0>, <attribute value 1>, ..., <attribute value n>]`
 
 Given:
+
 - The tag is specified in a NIP
 - The tag has a code and zero or more attributes
 - An attribute may be specified by another NIP
 - The tag is related to a parent event
 
 Practical example:
+
 For illustration purpose, we will implement a tag defined in **NIP-777** and with three attributes, the last attribute is specified in **NIP-888**
 
 Here is the corresponding java code:
