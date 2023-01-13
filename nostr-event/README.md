@@ -54,7 +54,7 @@ Here is the corresponding java code:
 
     // Create the tag
     GenericTag tag = new GenericTag(777, "code", attributes);
-    System.out.println(tag.toString(); //["code", "value 0", "value 1", "value 2"]
+    System.out.println(tag.toString()); //["code", "value 0", "value 1", "value 2"]
     
     // Create the parent event
     TagList tags = new TagList();
