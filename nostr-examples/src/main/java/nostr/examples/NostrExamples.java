@@ -31,6 +31,9 @@ import nostr.id.Wallet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
@@ -61,43 +64,93 @@ public class NostrExamples {
             Wallet wallet = new Wallet();
             Client client = new Client("nostr-java", wallet);
 
-            sendTextNoteEvent(wallet, client);
+            ExecutorService executor = Executors.newFixedThreadPool(10);
 
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    sendTextNoteEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            sendEncryptedDirectMessage(wallet, client);
+            executor.submit(() -> {
+                try {
+                    sendEncryptedDirectMessage(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    mentionsEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            mentionsEvent(wallet, client);
+            executor.submit(() -> {
+                try {
+                    deletionEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    metaDataEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            deletionEvent(wallet, client);
+            executor.submit(() -> {
+                try {
+                    ephemerealEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    reactionEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-//                metaDataEvent(wallet, client);
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    replaceableEvent(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            ephemerealEvent(wallet, client);
+            executor.submit(() -> {
+                try {
+                    internetIdMetadata(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            Thread.sleep(500);
+            executor.submit(() -> {
+                try {
+                    filters(wallet, client);
+                } catch (NostrException ex) {
+                    log.log(Level.SEVERE, null, ex);
+                }
+            });
 
-            reactionEvent(wallet, client);
-
-            Thread.sleep(500);
-
-            replaceableEvent(wallet, client);
-
-            Thread.sleep(500);
-
-//                internetIdMetadata(wallet, client);
-            Thread.sleep(500);
-
-            filters(wallet, client);
-
-            log.log(Level.FINE, "================== The End");
+            stop(executor);
+            
+            if (executor.isTerminated()) {
+                log.log(Level.FINE, "================== The End");
+            }
 
         } catch (IllegalArgumentException ex) {
             log.log(Level.SEVERE, null, ex);
@@ -414,5 +467,19 @@ public class NostrExamples {
             System.out.print("#");
         }
         System.out.println();
+    }
+
+    private static void stop(ExecutorService executor) {
+        try {
+            executor.shutdown();
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.log(Level.SEVERE, "termination interrupted");
+        } finally {
+            if (!executor.isTerminated()) {
+                log.log(Level.SEVERE, "killing non-finished tasks");
+            }
+            executor.shutdownNow();
+        }
     }
 }
