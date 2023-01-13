@@ -8,7 +8,7 @@ import nostr.types.values.impl.BooleanValue;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Log
 public class JsonBooleanParser extends BaseParser<BooleanValue> {

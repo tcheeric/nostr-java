@@ -12,7 +12,7 @@ import nostr.types.values.impl.ArrayValue;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Log
 public class JsonArrayParser extends BaseParser<ArrayValue> {

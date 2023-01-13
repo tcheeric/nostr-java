@@ -2,7 +2,7 @@ package nostr.base;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public interface IBech32Encodable {
 

@@ -1,8 +1,5 @@
 package nostr.event.unmarshaller.impl;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
 import nostr.base.Command;
 import nostr.base.IEvent;
 import nostr.event.BaseMessage;
@@ -21,7 +18,7 @@ import nostr.util.NostrException;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public class MessageUnmarshaller extends BaseElementUnmarshaller {
 
