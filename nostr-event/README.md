@@ -27,18 +27,23 @@ Additionally, you may use the `GenericTag` and `GenericEvent` classes to create 
 Consider the tag syntax:
 `[<code>, <attribute value 0>, <attribute value 1>, ..., <attribute value n>]`
 
+Given:
 - The tag is specified in a NIP
 - The tag has a code and zero or more attributes
 - An attribute may be specified by another NIP
 - The tag is related to a parent event
 
-For illustration purpose, we assume the tag is defined in **NIP-777** and has three attributes, the last one is specified in **NIP-888**
+Practical example:
+For illustration purpose, we will implement a tag defined in **NIP-777** and with three attributes, the last attribute is specified in **NIP-888**
 
 Here is the corresponding java code:
 
 ```java
-    // Create the attributes
+    // Create the attributes...
+    // ...using the static builder method
     final ElementAttribute attr0 = ElementAttribute.builder().value(new StringValue("value 0")).build();
+    
+    //...by invoking the constructors
     final ElementAttribute attr1 = new ElementAttribute("value 1");
     final ElementAttribute attr2 = new ElementAttribute("value 2", 888);;                        
     
@@ -59,4 +64,5 @@ Here is the corresponding java code:
 
 ## Creating a Custom Event
 
-See my [implementation](https://github.com/tcheeric/nostr-java/blob/main/nostr-event/src/main/java/nostr/event/impl/OtsEvent.java) of the [OTS Event](https://github.com/nostr-protocol/nips/blob/master/03.md) as a cusom event
+See my [implementation](https://github.com/tcheeric/nostr-java/blob/main/nostr-event/src/main/java/nostr/event/impl/OtsEvent.java) of the [OTS Event](https://github.com/nostr-protocol/nips/blob/master/03.md) as a cusom event.
+Also, review my simple [json implementation](https://github.com/tcheeric/nostr-java/tree/0bd9a8858705e5d39ab34706ea23a584f5dfc9b6/nostr-json).

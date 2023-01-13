@@ -21,7 +21,7 @@ public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, TagList tags, String content, String ots) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
         super(pubKey, tags, content);
-        var attribute = ElementAttribute.builder().name("ots").nip(3).value(new ExpressionValue("ots", new StringValue(ots))).build();
+        var attribute = ElementAttribute.builder().nip(3).value(new ExpressionValue("ots", new StringValue(ots))).build();
         this.addAttribute(attribute);
     }
         

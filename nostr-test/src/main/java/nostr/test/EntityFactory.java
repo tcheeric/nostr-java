@@ -189,7 +189,7 @@ public class EntityFactory {
             GenericTag tag = new GenericTag("devil");
 //            List<String> valueList = new ArrayList<>();
 //            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().name("name").value(new StringValue("Lucifer")).nip(666).build());
+            tag.addAttribute(ElementAttribute.builder().value(new StringValue("Lucifer")).nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
@@ -198,7 +198,7 @@ public class EntityFactory {
             GenericTag tag = new GenericTag(tagNip, "devil");
 //            List<String> valueList = new ArrayList<>();
 //            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().name("name").value(new StringValue("Lucifer")).nip(666).build());
+            tag.addAttribute(ElementAttribute.builder().value(new StringValue("Lucifer")).nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
