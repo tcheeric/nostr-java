@@ -1,15 +1,11 @@
 package nostr.event.unmarshaller.impl;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.event.unmarshaller.BaseElementUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
 /**
@@ -27,7 +23,7 @@ public class EventUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public IEvent unmarshall() throws NostrException {
+    public IEvent unmarshall() {
         var value = new JsonObjectUnmarshaller(this.getJson()).unmarshall();
 
         // Public Key
@@ -45,11 +41,7 @@ public class EventUnmarshaller extends BaseElementUnmarshaller {
         // Content 
         var content = value.get("\"content\"").get().getValue().toString();
 
-        try {
-            return new GenericEvent(pubKey, kind, tags, content);
-        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
-            throw new NostrException(ex);
-        }
+        return new GenericEvent(pubKey, kind, tags, content);
     }
 
 }

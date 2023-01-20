@@ -4,14 +4,10 @@ import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.Reaction;
 import nostr.event.list.TagList;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.util.NostrException;
 
 /**
  *
@@ -25,7 +21,7 @@ public class ReactionEvent extends GenericEvent {
 
     private final GenericEvent sourceEvent;
 
-    public ReactionEvent(PublicKey pubKey, TagList tags, Reaction content, GenericEvent sourceEvent) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public ReactionEvent(PublicKey pubKey, TagList tags, Reaction content, GenericEvent sourceEvent) {
         super(pubKey, Kind.REACTION, tags, content.getEmoji());
         this.sourceEvent = sourceEvent;
     }

@@ -4,10 +4,6 @@ import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.event.list.PubKeyTagList;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
-import nostr.util.NostrException;
 
 /**
  *
@@ -15,7 +11,7 @@ import nostr.util.NostrException;
  */
 public class ContactListMessage extends EventMessage {
         
-    public ContactListMessage(PubKeyTagList contactList, PublicKey publicKey) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {        
+    public ContactListMessage(PubKeyTagList contactList, PublicKey publicKey) {        
         super(new GenericEvent(publicKey, Kind.CONTACT_LIST, contactList));        
     }
     

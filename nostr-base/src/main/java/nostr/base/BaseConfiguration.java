@@ -16,11 +16,13 @@ public class BaseConfiguration {
     protected final Properties properties = new Properties();
 
     protected BaseConfiguration(String file) throws IOException {
-        String strFile = file.startsWith("/") ? file : "/" + file;
-        InputStream inputStream = this.getClass().getResourceAsStream(strFile);
+        
+        InputStream inputStream = file.startsWith("/") ? this.getClass().getResourceAsStream(file) : new FileInputStream(file);
+        
         if (inputStream == null) {
-            inputStream = new FileInputStream(file);
+            throw new IOException(String.format("Failed to load properties file %s", file));
         }
+        
         this.properties.load(inputStream);
     }
 

@@ -58,7 +58,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Key
     @EqualsAndHashCode.Exclude
-    private Kind kind;
+    private Integer kind;
 
     @Key
     @EqualsAndHashCode.Exclude
@@ -79,15 +79,19 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
         this(pubKey, kind, new TagList(), null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) {
         this(pubKey, kind, tags, null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags, String content) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags, String content) {
+        this(pubKey, kind.getValue(), tags, content);
+    }
+
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull TagList tags, String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
@@ -170,7 +174,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         sb.append("0").append(",\"");
         sb.append(this.pubKey).append("\",");
         sb.append(this.createdAt).append(",");
-        sb.append(this.kind.getValue()).append(",");
+        sb.append(this.kind).append(",");
 
         sb.append(new TagListMarshaller(tags, null).marshall());
         sb.append(",\"");

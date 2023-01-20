@@ -10,8 +10,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ExpressionValue;
@@ -26,13 +28,14 @@ import nostr.util.NostrException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Metadata")
+@Log
 public final class MetadataEvent extends GenericEvent {
 
     private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
 
     private Profile profile;
 
-    public MetadataEvent(PublicKey pubKey, TagList tagList, Profile profile) throws NostrException, NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
+    public MetadataEvent(PublicKey pubKey, TagList tagList, Profile profile) throws NostrException {
         super(pubKey, Kind.SET_METADATA, tagList);
         this.profile = profile;
 
@@ -47,10 +50,15 @@ public final class MetadataEvent extends GenericEvent {
     }
 
     @Override
-    public void update() throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public void update() throws NostrException {
         setContent();
         
-        super.update();
+        try {
+            super.update();
+        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
+        }
     }
 
     private void setContent() {        

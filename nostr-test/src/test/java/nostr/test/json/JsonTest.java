@@ -299,9 +299,7 @@ public class JsonTest {
 
             Assertions.assertFalse(false);
 
-        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException | IOException ex) {
-            Assertions.fail(ex);
-        } catch (Exception ex) {
+        } catch (IOException | NostrException ex) {
             Assertions.fail(ex);
         }
     }
@@ -393,9 +391,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(thrown);
 
-        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException | IOException ex) {
-            Assertions.fail(ex);
-        } catch (Exception ex) {
+        } catch (IOException | NostrException ex) {
             Assertions.fail(ex);
         }
     }

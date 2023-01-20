@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -86,12 +87,28 @@ public class Wallet {
         }
     }
 
-    public Signature sign(@NonNull ISignable signable) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
+    public Signature sign(@NonNull ISignable signable) throws NostrException {
         if (signable instanceof GenericEvent genericEvent) {
-            return signEvent(genericEvent);
+            try {
+                return signEvent(genericEvent);
+            } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex ) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            }
         } else if (signable instanceof DelegationTag delegationTag) {
-            return signDelegationTag(delegationTag);
-        }
+            try {
+                return signDelegationTag(delegationTag);
+            } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            }
+        }  
         throw new NostrException();
     }
 

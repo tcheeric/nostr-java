@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -34,21 +35,26 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
     private final String name;
     private final String nip05;
 
-    public InternetIdentifierMetadataEvent(PublicKey pubKey, TagList tags, @NonNull Profile profile) throws NostrException, NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
+    public InternetIdentifierMetadataEvent(PublicKey pubKey, TagList tags, @NonNull Profile profile) {
         super(pubKey, Kind.SET_METADATA, tags);
         this.name = profile.getName();
         this.nip05 = profile.getNip05();
     }
 
     @Override
-    public void update() throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public void update() throws NostrException {
         
-        // NIP-05 validator
-        Nip05Validator.builder().nip05(nip05).publicKey(getPubKey()).build().validate();
-
-        setContent();
-
-        super.update();
+        try {
+            // NIP-05 validator
+            Nip05Validator.builder().nip05(nip05).publicKey(getPubKey()).build().validate();
+            
+            setContent();
+            
+            super.update();
+        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
+        }
 
     }
 

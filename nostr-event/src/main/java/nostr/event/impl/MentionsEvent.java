@@ -1,17 +1,19 @@
 
 package nostr.event.impl;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.list.PubKeyTagList;
 import nostr.event.list.TagList;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
 import nostr.util.NostrException;
 
@@ -22,19 +24,25 @@ import nostr.util.NostrException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Handling Mentions", nip = 8)
+@Log
 public final class MentionsEvent extends GenericEvent {
 
     public final PubKeyTagList mentionees;
 
-    public MentionsEvent(PublicKey pubKey, TagList tags, String content, PubKeyTagList mentionees) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
+    public MentionsEvent(PublicKey pubKey, TagList tags, String content, PubKeyTagList mentionees) {
         super(pubKey, Kind.TEXT_NOTE, tags, content);
         this.mentionees = mentionees;       
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void update() throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, NostrException {
-        super.update();
+    public void update() throws NostrException {
+        try {
+            super.update();
+        } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
+        }
 
         this.getTags().addAll(mentionees);
 

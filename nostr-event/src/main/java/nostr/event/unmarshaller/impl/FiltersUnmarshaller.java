@@ -1,8 +1,5 @@
 package nostr.event.unmarshaller.impl;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +48,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         final Optional<GenericTagQueryList> optGtql = getGenericTagQueryList();
         var genericTagQueryList = optGtql.isEmpty() ? new GenericTagQueryList() : optGtql.get();
         ArrayValue arr;
-        
+
         // Authors
         var optArr = value.get("\"authors\"");
         if (!optArr.isEmpty()) {
@@ -78,11 +75,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
             arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
                 String eventId = arr.get(i).get().getValue().toString();
-                try {
-                    events.add(new ProxyEvent(eventId));
-                } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
-                    throw new NostrException(ex);
-                }
+                events.add(new ProxyEvent(eventId));
             }
         }
 
@@ -93,11 +86,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
             referencedEvents = new EventList();
             for (var i = 0; i < arr.length(); i++) {
                 String eventId = arr.get(i).get().getValue().toString();
-                try {
-                    referencedEvents.add(new ProxyEvent(eventId));
-                } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
-                    throw new NostrException(ex);
-                }
+                referencedEvents.add(new ProxyEvent(eventId));
             }
         }
 
@@ -147,7 +136,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
                 .filter(e -> !Arrays.asList("\"authors\"", "\"ids\"", "\"since\"", "\"until\"", "\"limit\"", "\"kinds\"", "\"#e\"", "\"sids\"", "\"#p\"").contains(e.getName()))
                 .map(FiltersUnmarshaller::gtql).findAny();
         return findAny.isEmpty() ? Optional.empty() : findAny;
-    
+
     }
 
     private static GenericTagQueryList gtql(ExpressionValue e) {

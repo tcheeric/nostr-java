@@ -5,9 +5,7 @@ import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Wallet;
 import nostr.test.EntityFactory;
-import java.beans.IntrospectionException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,11 +30,7 @@ public class WalletTest {
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             this.wallet.sign(instance);
             Assertions.assertNotNull(instance.getSignature());
-        } catch (IntrospectionException ex) {
-            Assertions.fail(ex);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
-            Assertions.fail(ex);
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }
@@ -49,11 +43,7 @@ public class WalletTest {
             DelegationTag delegationTag = new DelegationTag(publicKey, null);
             this.wallet.sign(delegationTag);
             Assertions.assertNotNull(delegationTag.getSignature());
-        } catch (IntrospectionException ex) {
-            Assertions.fail(ex);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
-            Assertions.fail(ex);
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }
