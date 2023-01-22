@@ -36,11 +36,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-schnorr</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-base</artifactId>
             <version>${project.version}</version>
         </dependency>

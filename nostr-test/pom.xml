@@ -28,12 +28,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>nostr-schnorr</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -50,12 +44,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-util</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>nostr-schnorr</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Test Dependencies -->

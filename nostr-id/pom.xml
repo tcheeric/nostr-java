@@ -26,12 +26,6 @@
         <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-schnorr</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-base</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -39,16 +33,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>nostr-schnorr</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>nostr-util</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
