@@ -1,8 +1,6 @@
 
 package nostr.base;
 
-import nostr.util.NostrException;
-
 /**
  *
  * @author squirrel
@@ -10,6 +8,6 @@ import nostr.util.NostrException;
  */
 public interface IUnmarshaller<T> {
 
-    public abstract T unmarshall() throws NostrException;
+    public abstract T unmarshall();
 
 }

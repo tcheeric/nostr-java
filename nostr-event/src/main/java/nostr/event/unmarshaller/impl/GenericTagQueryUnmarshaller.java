@@ -20,7 +20,7 @@ public class GenericTagQueryUnmarshaller implements IUnmarshaller<GenericTagQuer
     private final String json;
 
     @Override
-    public GenericTagQuery unmarshall() throws NostrException {
+    public GenericTagQuery unmarshall() {
 
         var value = new JsonArrayUnmarshaller(json).unmarshall();
 

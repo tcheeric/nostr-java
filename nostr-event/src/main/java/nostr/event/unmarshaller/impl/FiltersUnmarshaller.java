@@ -19,7 +19,6 @@ import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.NumberValue;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
 /**
@@ -37,7 +36,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public IElement unmarshall() throws NostrException {
+    public IElement unmarshall() {
 
         var value = new JsonObjectUnmarshaller(getJson()).unmarshall();
         var publicKeyList = new PublicKeyList();

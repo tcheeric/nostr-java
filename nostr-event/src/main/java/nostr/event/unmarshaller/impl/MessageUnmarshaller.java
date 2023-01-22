@@ -31,7 +31,7 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public BaseMessage unmarshall() throws NostrException {
+    public BaseMessage unmarshall() {
 
         var value = new JsonArrayUnmarshaller(this.getJson()).unmarshall();
 
@@ -71,7 +71,7 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
                 return new ReqMessage(subId, filtersList);
             }
             default ->
-                throw new NostrException("Invalid command " + command);
+                throw new RuntimeException("Invalid command " + command);
         }
     }
 
