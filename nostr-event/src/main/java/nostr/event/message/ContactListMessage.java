@@ -2,8 +2,8 @@ package nostr.event.message;
 
 import nostr.event.Kind;
 import nostr.base.PublicKey;
+import nostr.base.list.PubKeyTagList;
 import nostr.event.impl.GenericEvent;
-import nostr.event.list.PubKeyTagList;
 
 /**
  *

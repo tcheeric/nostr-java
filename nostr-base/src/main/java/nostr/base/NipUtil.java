@@ -40,5 +40,5 @@ public class NipUtil {
     public static boolean checkSupport(@NonNull Relay relay, @NonNull GenericTagQuery gtq) {
 
         return relay.getSupportedNips().contains(12);
-    }
+    }    
 }

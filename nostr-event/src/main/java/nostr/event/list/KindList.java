@@ -1,5 +1,5 @@
 
-package nostr.event.list;
+package nostr.base.list;
 
 import nostr.event.Kind;
 import java.util.ArrayList;

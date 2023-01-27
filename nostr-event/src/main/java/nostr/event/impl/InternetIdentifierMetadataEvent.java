@@ -3,7 +3,7 @@ package nostr.event.impl;
 import nostr.base.Profile;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;

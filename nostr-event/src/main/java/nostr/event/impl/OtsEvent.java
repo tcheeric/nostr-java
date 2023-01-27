@@ -4,7 +4,7 @@ package nostr.event.impl;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.StringValue;
 

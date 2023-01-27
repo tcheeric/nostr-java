@@ -3,7 +3,7 @@ package nostr.event.marshaller.impl;
 import nostr.base.ITag;
 import nostr.base.Relay;
 import nostr.event.marshaller.BaseListMarhsaller;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;

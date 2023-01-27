@@ -5,27 +5,25 @@
  */
 package nostr.event.message;
 
-import nostr.event.BaseMessage;
-import nostr.base.Command;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nostr.base.Command;
+import nostr.event.impl.GenericMessage;
 
 /**
  *
  * @author squirrel
  */
-@Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class CloseMessage extends BaseMessage {
+public class CloseMessage extends GenericMessage {
 
     private final String subscriptionId;
 
     public CloseMessage(String subscriptionId) {
-        super(Command.CLOSE);
+        super(Command.CLOSE.name());
         this.subscriptionId = subscriptionId;
     }
 }

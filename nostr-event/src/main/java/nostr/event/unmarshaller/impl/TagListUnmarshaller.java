@@ -3,7 +3,7 @@ package nostr.event.unmarshaller.impl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IUnmarshaller;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 
 /**

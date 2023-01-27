@@ -6,8 +6,7 @@ import nostr.base.IEvent;
 import nostr.base.INostrList;
 import nostr.base.ITag;
 import nostr.base.Relay;
-import nostr.event.BaseMessage;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
@@ -19,6 +18,7 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.NipUtil;
 import nostr.event.impl.Filters;
+import nostr.event.impl.GenericMessage;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.util.NostrException;
 
@@ -60,8 +60,8 @@ public abstract class BaseElementMarshaller implements IMarshaller {
                 return new EventMarshaller(iEvent, relay, escape);
             } else if (element instanceof ITag iTag) {
                 return new TagMarshaller(iTag, relay, escape);
-            } else if (element instanceof BaseMessage baseMessage) {
-                return new MessageMarshaller(baseMessage, relay, escape);
+            } else if (element instanceof GenericMessage genericMessage) {
+                return new MessageMarshaller(genericMessage, relay, escape);
             } else if (element instanceof TagList tagList) {
                 return new TagListMarshaller(tagList, relay, escape);
             } else if (element instanceof INostrList iNostrList) {

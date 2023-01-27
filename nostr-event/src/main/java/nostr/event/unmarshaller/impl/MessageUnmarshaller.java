@@ -1,11 +1,11 @@
 package nostr.event.unmarshaller.impl;
 
-import nostr.base.Command;
+import nostr.base.ElementAttribute;
 import nostr.base.IEvent;
-import nostr.event.BaseMessage;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
-import nostr.event.list.FiltersList;
+import nostr.event.impl.GenericMessage;
+import nostr.base.list.FiltersList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -14,7 +14,7 @@ import nostr.event.message.OkMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.unmarshaller.BaseElementUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
-import nostr.util.NostrException;
+import nostr.types.values.impl.StringValue;
 
 /**
  *
@@ -31,36 +31,36 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public BaseMessage unmarshall() {
+    public GenericMessage unmarshall() {
 
         var value = new JsonArrayUnmarshaller(this.getJson()).unmarshall();
+        final String cmd = value.get(0).get().getValue().toString();
+        GenericMessage msg;
 
-        Command command = Command.valueOf(value.get(0).get().getValue().toString());
-
-        switch (command) {
-            case CLOSE -> {
+        switch (cmd) {
+            case "CLOSE" -> {
                 String subId = value.get(1).get().getValue().toString();
-                return CloseMessage.builder().subscriptionId(subId).build();
+                msg = new CloseMessage(subId);
             }
-            case EVENT -> {
+            case "EVENT" -> {
                 IEvent event = new EventUnmarshaller(value.get(1).get().getValue().toString()).unmarshall();
-                return EventMessage.builder().event((GenericEvent) event).build();
+                msg = new EventMessage((GenericEvent) event);
             }
-            case EOSE -> {
+            case "EOSE" -> {
                 String subId = value.get(1).get().getValue().toString();
-                return EoseMessage.builder().subscriptionId(subId).build();
+                msg = new EoseMessage(subId);
             }
-            case NOTICE -> {
+            case "NOTICE" -> {
                 String message = value.get(1).get().getValue().toString();
-                return NoticeMessage.builder().message(message).build();
+                msg = new NoticeMessage(message);
             }
-            case OK -> {
+            case "OK" -> {
                 String eventId = value.get(1).get().getValue().toString();
                 Boolean flag = (Boolean) value.get(2).get().getValue();
                 String message = value.get(3).get().getValue().toString();
-                return new OkMessage(eventId, flag, message);
+                msg = new OkMessage(eventId, flag, message);
             }
-            case REQ -> {
+            case "REQ" -> {
                 String subId = value.get(1).get().getValue().toString();
                 FiltersList filtersList = new FiltersList();
                 for (var i = 1; i < value.length(); i++) {
@@ -68,11 +68,18 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
                     filtersList.add((Filters) new FiltersUnmarshaller(filters.toString(), isEscape()).unmarshall());
 
                 }
-                return new ReqMessage(subId, filtersList);
+                msg = new ReqMessage(subId, filtersList);
             }
-            default ->
-                throw new RuntimeException("Invalid command " + command);
+            default -> {
+                msg = new GenericMessage(cmd);
+                for (var i = 1; i < value.length(); i++) {
+                    StringValue v = (StringValue) value.get(i).get();
+                    msg.addAttribute(new ElementAttribute(v.getValue().toString()));
+                }
+            }
         }
+        
+        return msg;
     }
 
 }

@@ -1,27 +1,25 @@
 
 package nostr.event.message;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.event.BaseMessage;
+import nostr.event.impl.GenericMessage;
 
 /**
  *
  * @author squirrel
  */
-@Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class EoseMessage extends BaseMessage {
+public class EoseMessage extends GenericMessage {
 
     private final String subscriptionId;
 
     public EoseMessage(String subId) {
-        super(Command.EOSE);
+        super(Command.EOSE.name());
         this.subscriptionId = subId;
     }
     

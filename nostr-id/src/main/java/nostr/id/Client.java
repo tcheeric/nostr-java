@@ -5,7 +5,6 @@ import nostr.util.NostrUtil;
 import nostr.base.Relay;
 import nostr.ws.Connection;
 import nostr.ws.handler.request.RequestHandler;
-import nostr.event.BaseMessage;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,11 +12,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
+import nostr.event.impl.GenericMessage;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.NumberValue;
@@ -52,17 +53,19 @@ public class Client {
         this(name, "/relays.properties", wallet);
     }
 
-    public void send(@NonNull BaseMessage message) throws IOException, Exception {
+    public void send(@NonNull GenericMessage message) {
 
-        relays.parallelStream().forEach(r -> {
-            try {
-                var rh = RequestHandler.builder().connection(new Connection(r)).message(message).build();
-                log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
-                rh.process();
-            } catch (Exception ex) {
-                log.log(Level.SEVERE, null, ex);
-            }
-        });
+        relays.parallelStream()
+                .filter(r -> r.getSupportedNips().contains(message.getNip()))
+                .forEach(r -> {
+                    try {
+                        var rh = RequestHandler.builder().connection(new Connection(r)).message(message).build();
+                        log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
+                        rh.process();
+                    } catch (Exception ex) {
+                        log.log(Level.SEVERE, null, ex);
+                    }
+                });
     }
 
     private void addRelay(@NonNull Relay relay) {

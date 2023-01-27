@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
-import nostr.event.list.FiltersList;
+import nostr.base.list.FiltersList;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;

@@ -1,27 +1,25 @@
 
 package nostr.event.message;
 
-import nostr.event.BaseMessage;
-import nostr.base.Command;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import nostr.base.Command;
+import nostr.event.impl.GenericMessage;
 
 /**
  *
  * @author squirrel
  */
-@Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class NoticeMessage extends BaseMessage {
+public class NoticeMessage extends GenericMessage {
 
     private final String message;
 
     public NoticeMessage(String message) {
-        super(Command.NOTICE);
+        super(Command.NOTICE.name());
         this.message = message;
     }
 }

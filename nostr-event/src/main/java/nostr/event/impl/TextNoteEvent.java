@@ -3,7 +3,7 @@ package nostr.event.impl;
 
 import nostr.base.PublicKey;
 import nostr.event.Kind;
-import nostr.event.list.TagList;
+import nostr.base.list.TagList;
 import nostr.base.annotation.Event;
 
 /**

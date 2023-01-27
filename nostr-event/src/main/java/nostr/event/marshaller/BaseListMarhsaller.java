@@ -6,10 +6,10 @@ import nostr.base.IKey;
 import nostr.base.INostrList;
 import nostr.base.Relay;
 import nostr.event.Kind;
-import nostr.event.impl.GenericEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
+import nostr.event.impl.GenericEvent;
 import nostr.util.NostrException;
 
 /**

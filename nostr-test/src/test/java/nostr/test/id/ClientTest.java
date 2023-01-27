@@ -1,13 +1,16 @@
 package nostr.test.id;
 
 import nostr.base.PublicKey;
-import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
 import nostr.id.Client;
 import nostr.id.Wallet;
 import nostr.test.EntityFactory;
 import java.io.IOException;
+import nostr.base.ElementAttribute;
+import nostr.base.Relay;
+import nostr.event.impl.GenericMessage;
 import nostr.util.NostrException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,7 +33,7 @@ class ClientTest {
         try {
             System.out.println("testSend");
             PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
-            BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
+            GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
             this.client.send(msg);
             assertTrue(true);
         } catch (Exception ex) {

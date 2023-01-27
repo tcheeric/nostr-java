@@ -3,15 +3,15 @@ package nostr.event.impl;
 
 import java.util.logging.Level;
 import nostr.event.BaseEvent;
-import nostr.event.list.EventList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
+import nostr.base.list.KindList;
+import nostr.base.list.PublicKeyList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Key;
-import nostr.event.list.GenericTagQueryList;
+import nostr.base.list.GenericTagQueryList;
+import nostr.event.list.EventList;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.util.UnsupportedNIPException;
 

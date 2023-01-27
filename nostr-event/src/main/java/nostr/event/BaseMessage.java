@@ -1,7 +1,6 @@
 
 package nostr.event;
 
-import nostr.base.Command;
 import nostr.base.IElement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,8 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @ToString
+@Deprecated
 public abstract class BaseMessage implements IElement {
 
-    private final Command command;
+    private final String command;
 }

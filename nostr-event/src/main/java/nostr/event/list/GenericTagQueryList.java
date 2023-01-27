@@ -1,4 +1,4 @@
-package nostr.event.list;
+package nostr.base.list;
 
 import java.util.ArrayList;
 import java.util.List;

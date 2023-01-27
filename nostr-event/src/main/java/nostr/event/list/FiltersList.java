@@ -1,5 +1,5 @@
 
-package nostr.event.list;
+package nostr.base.list;
 
 import nostr.event.impl.Filters;
 import java.util.ArrayList;

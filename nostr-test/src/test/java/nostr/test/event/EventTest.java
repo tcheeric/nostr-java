@@ -8,18 +8,20 @@ import nostr.test.EntityFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import nostr.base.Bech32Prefix;
+import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.Relay;
 import nostr.event.Kind;
 import nostr.event.impl.Filters;
+import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.TextNoteEvent;
+import nostr.base.list.GenericTagQueryList;
+import nostr.base.list.KindList;
+import nostr.base.list.PublicKeyList;
+import nostr.base.list.TagList;
 import nostr.event.list.EventList;
-import nostr.event.list.GenericTagQueryList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
-import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
@@ -27,9 +29,12 @@ import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.unmarshaller.impl.EventUnmarshaller;
 import nostr.event.unmarshaller.impl.FiltersUnmarshaller;
+import nostr.event.unmarshaller.impl.MessageUnmarshaller;
 import nostr.event.unmarshaller.impl.TagListUnmarshaller;
 import nostr.event.unmarshaller.impl.TagUnmarshaller;
 import nostr.event.util.Nip05Validator;
+import nostr.id.Client;
+import nostr.json.parser.JsonParseException;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
@@ -227,10 +232,28 @@ public class EventTest {
 
             Nip05Validator nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
 
-            nip05Validator.validate();            
+            nip05Validator.validate();
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
         Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void testAuthMessage() {
+        System.out.println("testAuthMessage");
+
+        GenericMessage msg = new GenericMessage("AUTH", 42);
+        String attr = "challenge-string";
+        msg.addAttribute(new ElementAttribute(attr));
+
+        var mu = new MessageUnmarshaller("[\"AUTH\", \"challenge-string\"]");
+        var um = mu.unmarshall();
+
+        Assertions.assertEquals(msg.getCommand(), um.getCommand());
+        Assertions.assertEquals(1, um.getAttributes().size());
+
+        var muattr = ((StringValue) msg.getAttributes().iterator().next().getValue()).getValue().toString();
+        Assertions.assertEquals(attr, muattr);
     }
 }

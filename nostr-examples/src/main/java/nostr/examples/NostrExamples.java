@@ -5,7 +5,6 @@ import nostr.util.NostrUtil;
 import nostr.base.Profile;
 import nostr.base.PublicKey;
 import nostr.util.UnsupportedNIPException;
-import nostr.event.BaseMessage;
 import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.DeletionEvent;
@@ -19,9 +18,9 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.KindList;
-import nostr.event.list.PubKeyTagList;
-import nostr.event.list.TagList;
+import nostr.base.list.KindList;
+import nostr.base.list.PubKeyTagList;
+import nostr.base.list.TagList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
@@ -37,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
-import nostr.event.list.FiltersList;
+import nostr.event.impl.GenericMessage;
+import nostr.base.list.FiltersList;
 import nostr.util.NostrException;
 
 /**
@@ -170,7 +170,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, from the nostr-java API!");
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -198,7 +198,7 @@ public class NostrExamples {
             wallet.encryptDirectMessage(event2);
             wallet.sign(event2);
 
-            BaseMessage message = EventMessage.builder().event(event2).build();
+            GenericMessage message = new EventMessage(event2);
 
             client.send(message);
 
@@ -228,7 +228,7 @@ public class NostrExamples {
 
             log.log(Level.FINER, ">>>>>>>>>>>> Event: {0}", event);
 
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             client.send(message);
 
@@ -252,7 +252,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please delete me!");
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -262,7 +262,7 @@ public class NostrExamples {
             GenericEvent delEvent = new DeletionEvent(publicKeySender, tagList);
 
             wallet.sign(delEvent);
-            message = EventMessage.builder().event(delEvent).build();
+            message = new EventMessage(delEvent);
 
             client.send(message);
 
@@ -288,7 +288,7 @@ public class NostrExamples {
             var event = new MetadataEvent(publicKeySender, tagList, profile);
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -313,7 +313,7 @@ public class NostrExamples {
             GenericEvent event = new EphemeralEvent(publicKeySender, tagList);
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -336,7 +336,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please like me!");
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -347,7 +347,7 @@ public class NostrExamples {
             GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tagList, Reaction.LIKE, event);
 
             wallet.sign(reactionEvent);
-            message = EventMessage.builder().event(reactionEvent).build();
+            message = new EventMessage(reactionEvent);
 
             client.send(message);
 
@@ -370,7 +370,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please replace me!");
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
@@ -380,7 +380,7 @@ public class NostrExamples {
             GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, tagList, "New content", event);
 
             wallet.sign(replaceableEvent);
-            message = EventMessage.builder().event(replaceableEvent).build();
+            message = new EventMessage(replaceableEvent);
 
             client.send(message);
 
@@ -403,7 +403,7 @@ public class NostrExamples {
             GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, wallet.getProfile());
 
             wallet.sign(event);
-            BaseMessage message = EventMessage.builder().event(event).build();
+            GenericMessage message = new EventMessage(event);
 
             client.send(message);
 
@@ -427,7 +427,7 @@ public class NostrExamples {
             filtersList.add(filters);
 
             String subId = "subId" + System.currentTimeMillis();
-            BaseMessage message = ReqMessage.builder().filtersList(filtersList).subscriptionId(subId).build();
+            GenericMessage message = new ReqMessage(subId, filtersList);
 
             client.send(message);
         } catch (UnsupportedNIPException ex) {
