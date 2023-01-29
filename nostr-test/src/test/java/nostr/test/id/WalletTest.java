@@ -3,7 +3,7 @@ package nostr.test.id;
 import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
-import nostr.id.Wallet;
+import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import nostr.util.NostrException;
@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test;
  */
 public class WalletTest {
 
-    private final Wallet wallet;
+    private final Identity wallet;
 
     public WalletTest() throws IOException, NostrException {
-        this.wallet = new Wallet();
+        this.wallet = new Identity();
     }
 
     @Test

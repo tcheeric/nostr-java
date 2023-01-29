@@ -3,7 +3,7 @@ package nostr.test.event;
 import nostr.crypto.bech32.Bech32;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
-import nostr.id.Wallet;
+import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import java.util.Arrays;
@@ -52,10 +52,10 @@ import org.junit.jupiter.api.Test;
  */
 public class EventTest {
 
-    private final Wallet wallet;
+    private final Identity wallet;
 
     public EventTest() throws IOException, NostrException {
-        this.wallet = new Wallet();
+        this.wallet = new Identity();
     }
 
     @Test

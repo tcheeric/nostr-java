@@ -26,15 +26,17 @@ import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Client;
-import nostr.id.Wallet;
+import nostr.id.Identity;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import lombok.extern.java.Log;
 import nostr.event.impl.GenericMessage;
 import nostr.base.list.FiltersList;
@@ -61,7 +63,7 @@ public class NostrExamples {
 
             log.log(Level.FINE, "================= The Beginning");
 
-            Wallet wallet = new Wallet();
+            Identity wallet = new Identity();
             Client client = new Client("nostr-java", wallet);
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -158,7 +160,7 @@ public class NostrExamples {
         }
     }
 
-    private static void sendTextNoteEvent(Wallet wallet, Client client) throws NostrException {
+    private static void sendTextNoteEvent(Identity wallet, Client client) throws NostrException {
         logHeader("sendTextNoteEvent");
         try {
             final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
@@ -177,12 +179,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void sendEncryptedDirectMessage(Wallet wallet, Client client) throws NostrException {
+    private static void sendEncryptedDirectMessage(Identity wallet, Client client) throws NostrException {
         logHeader("sendEncryptedDirectMessage");
 
         try {
@@ -204,12 +204,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void mentionsEvent(Wallet wallet, Client client) throws NostrException {
+    private static void mentionsEvent(Identity wallet, Client client) throws NostrException {
         logHeader("mentionsEvent");
 
         try {
@@ -234,12 +232,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void deletionEvent(Wallet wallet, Client client) throws NostrException {
+    private static void deletionEvent(Identity wallet, Client client) throws NostrException {
         logHeader("deletionEvent");
 
         try {
@@ -268,12 +264,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void metaDataEvent(Wallet wallet, Client client) throws NostrException {
+    private static void metaDataEvent(Identity wallet, Client client) throws NostrException {
         logHeader("metaDataEvent");
 
         try {
@@ -295,12 +289,12 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
+        } catch (MalformedURLException ex) {
             throw new NostrException(ex);
         }
     }
 
-    private static void ephemerealEvent(Wallet wallet, Client client) throws NostrException {
+    private static void ephemerealEvent(Identity wallet, Client client) throws NostrException {
         logHeader("ephemerealEvent");
 
         try {
@@ -319,12 +313,10 @@ public class NostrExamples {
             client.send(message);
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void reactionEvent(Wallet wallet, Client client) throws NostrException {
+    private static void reactionEvent(Identity wallet, Client client) throws NostrException {
         logHeader("reactionEvent");
         try {
             final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
@@ -353,12 +345,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void replaceableEvent(Wallet wallet, Client client) throws NostrException {
+    private static void replaceableEvent(Identity wallet, Client client) throws NostrException {
         logHeader("replaceableEvent");
         try {
             final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
@@ -386,12 +376,10 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (Exception ex) {
-            throw new NostrException(ex);
         }
     }
 
-    private static void internetIdMetadata(Wallet wallet, Client client) throws NostrException {
+    private static void internetIdMetadata(Identity wallet, Client client) throws NostrException {
         logHeader("internetIdMetadata");
         try {
             final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
@@ -408,14 +396,12 @@ public class NostrExamples {
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new NostrException(ex);
+            log.log(Level.WARNING, null, ex);
         }
     }
 
     // FIXME
-    public static void filters(Wallet wallet, Client client) throws NostrException {
+    public static void filters(Identity wallet, Client client) throws NostrException {
         logHeader("filters");
         try {
             KindList kindList = new KindList();
@@ -430,14 +416,12 @@ public class NostrExamples {
             GenericMessage message = new ReqMessage(subId, filtersList);
 
             client.send(message);
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
         } catch (Exception ex) {
             throw new NostrException(ex);
         }
     }
 
-//    public static void sensitiveContentNote(Wallet wallet, Client client) throws NostrException {
+//    public static void sensitiveContentNote(Identity wallet, Client client) throws NostrException {
 //        logHeader("sensitiveContentNote");
 //        try {
 //            // Create the attribute value list            

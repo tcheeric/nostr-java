@@ -28,7 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -52,23 +51,23 @@ import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 @Log
 @EqualsAndHashCode
 @ToString
-public class Wallet {
+public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
 
     private final Profile profile;
 
-    public Wallet() throws IOException, NostrException {
+    public Identity() throws IOException, NostrException {
         this("/profile.properties");
     }
 
-    public Wallet(String profileFile) throws IOException, NostrException {
+    public Identity(String profileFile) throws IOException, NostrException {
         this.privateKey = new ProfileConfiguration(profileFile).getPrivateKey();
         this.profile = new ProfileConfiguration(profileFile).getProfile();
     }
 
-    public Wallet(PrivateKey privateKey, PublicKey publicKey) {
+    public Identity(PrivateKey privateKey, PublicKey publicKey) {
         this.privateKey = privateKey;
         this.profile = Profile.builder().publicKey(publicKey).build();
     }

@@ -39,9 +39,9 @@ public class Client {
     private final String name;
 
     @ToString.Include
-    private final Wallet wallet;
+    private final Identity wallet;
 
-    public Client(@NonNull String name, String relayConfFile, @NonNull Wallet wallet) throws IOException {
+    public Client(@NonNull String name, String relayConfFile, @NonNull Identity wallet) throws IOException {
         this.relays = new HashSet<>();
         this.name = name;
         this.wallet = wallet;
@@ -49,7 +49,7 @@ public class Client {
         this.init(relayConfFile);
     }
 
-    public Client(@NonNull String name, @NonNull Wallet wallet) throws IOException {
+    public Client(@NonNull String name, @NonNull Identity wallet) throws IOException {
         this(name, "/relays.properties", wallet);
     }
 

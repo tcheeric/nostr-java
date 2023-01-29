@@ -14,7 +14,7 @@ import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
-import nostr.id.Wallet;
+import nostr.id.Identity;
 import nostr.json.parser.JsonParseException;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonNumberUnmarshaller;
@@ -272,8 +272,8 @@ public class JsonTest {
             TagList tags = new TagList();
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
-            Wallet wallet;
-            wallet = new Wallet();
+            Identity wallet;
+            wallet = new Identity();
             wallet.sign(delegationTag);
             tags.add(delegationTag);
 
@@ -373,8 +373,8 @@ public class JsonTest {
             TagList tags = new TagList();
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
-            Wallet wallet;
-            wallet = new Wallet();
+            Identity wallet;
+            wallet = new Identity();
             wallet.sign(delegationTag);
             tags.add(delegationTag);
 

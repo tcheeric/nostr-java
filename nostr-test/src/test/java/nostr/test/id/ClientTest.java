@@ -3,7 +3,7 @@ package nostr.test.id;
 import nostr.base.PublicKey;
 import nostr.event.message.EventMessage;
 import nostr.id.Client;
-import nostr.id.Wallet;
+import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import nostr.base.ElementAttribute;
@@ -25,7 +25,7 @@ class ClientTest {
     private final Client client;
 
     public ClientTest() throws IOException, NostrException {
-        this.client = new Client("TestClient", new Wallet());
+        this.client = new Client("TestClient", new Identity());
     }
 
     @Test
