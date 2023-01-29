@@ -32,7 +32,7 @@ class ClientTest {
     public void testSend() {
         try {
             System.out.println("testSend");
-            PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
+            PublicKey publicKey = client.getIdentity().getProfile().getPublicKey();
             GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
             this.client.send(msg);
             assertTrue(true);
@@ -44,7 +44,7 @@ class ClientTest {
 //    @Test
 //    public void testSendFail() throws Exception {
 //        System.out.println("testSendFail");
-//        PublicKey publicKey = client.getWallet().getProfile().getPublicKey();
+//        PublicKey publicKey = client.getIdentity().getProfile().getPublicKey();
 //        BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
 //        
 //        System.out.println("Sleeping for 33 seconds...");

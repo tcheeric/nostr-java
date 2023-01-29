@@ -36,7 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import lombok.extern.java.Log;
 import nostr.event.impl.GenericMessage;
 import nostr.base.list.FiltersList;
@@ -63,14 +62,14 @@ public class NostrExamples {
 
             log.log(Level.FINE, "================= The Beginning");
 
-            Identity wallet = new Identity();
-            Client client = new Client("nostr-java", wallet);
+            Identity identity = new Identity();
+            Client client = new Client("nostr-java", identity);
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
             executor.submit(() -> {
                 try {
-                    sendTextNoteEvent(wallet, client);
+                    sendTextNoteEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -78,7 +77,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    sendEncryptedDirectMessage(wallet, client);
+                    sendEncryptedDirectMessage(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -86,7 +85,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    mentionsEvent(wallet, client);
+                    mentionsEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -94,7 +93,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    deletionEvent(wallet, client);
+                    deletionEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -102,7 +101,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    metaDataEvent(wallet, client);
+                    metaDataEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -110,7 +109,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    ephemerealEvent(wallet, client);
+                    ephemerealEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -118,7 +117,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    reactionEvent(wallet, client);
+                    reactionEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -126,7 +125,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    replaceableEvent(wallet, client);
+                    replaceableEvent(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -134,7 +133,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    internetIdMetadata(wallet, client);
+                    internetIdMetadata(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -142,7 +141,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    filters(wallet, client);
+                    filters(identity, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -160,10 +159,10 @@ public class NostrExamples {
         }
     }
 
-    private static void sendTextNoteEvent(Identity wallet, Client client) throws NostrException {
+    private static void sendTextNoteEvent(Identity identity, Client client) throws NostrException {
         logHeader("sendTextNoteEvent");
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -171,7 +170,7 @@ public class NostrExamples {
 
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, from the nostr-java API!");
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -182,11 +181,11 @@ public class NostrExamples {
         }
     }
 
-    private static void sendEncryptedDirectMessage(Identity wallet, Client client) throws NostrException {
+    private static void sendEncryptedDirectMessage(Identity identity, Client client) throws NostrException {
         logHeader("sendEncryptedDirectMessage");
 
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
             PublicKey publicKeyRcpt = new PublicKey(NostrUtil.hexToBytes("01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5"));
 
             ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("willy").build();
@@ -195,8 +194,8 @@ public class NostrExamples {
 
             var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Willy!");
 
-            wallet.encryptDirectMessage(event2);
-            wallet.sign(event2);
+            identity.encryptDirectMessage(event2);
+            identity.sign(event2);
 
             GenericMessage message = new EventMessage(event2);
 
@@ -207,11 +206,11 @@ public class NostrExamples {
         }
     }
 
-    private static void mentionsEvent(Identity wallet, Client client) throws NostrException {
+    private static void mentionsEvent(Identity identity, Client client) throws NostrException {
         logHeader("mentionsEvent");
 
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkeySenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -222,7 +221,7 @@ public class NostrExamples {
             mentionees.add(PubKeyTag.builder().publicKey(pk).build());
 
             GenericEvent event = new MentionsEvent(publicKeySender, tagList, "Hello 01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5", mentionees);
-            wallet.sign(event);
+            identity.sign(event);
 
             log.log(Level.FINER, ">>>>>>>>>>>> Event: {0}", event);
 
@@ -235,11 +234,11 @@ public class NostrExamples {
         }
     }
 
-    private static void deletionEvent(Identity wallet, Client client) throws NostrException {
+    private static void deletionEvent(Identity identity, Client client) throws NostrException {
         logHeader("deletionEvent");
 
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -247,7 +246,7 @@ public class NostrExamples {
 
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please delete me!");
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -257,7 +256,7 @@ public class NostrExamples {
             tagList.add(EventTag.builder().relatedEvent(event).build());
             GenericEvent delEvent = new DeletionEvent(publicKeySender, tagList);
 
-            wallet.sign(delEvent);
+            identity.sign(delEvent);
             message = new EventMessage(delEvent);
 
             client.send(message);
@@ -267,11 +266,11 @@ public class NostrExamples {
         }
     }
 
-    private static void metaDataEvent(Identity wallet, Client client) throws NostrException {
+    private static void metaDataEvent(Identity identity, Client client) throws NostrException {
         logHeader("metaDataEvent");
 
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             TagList tagList = new TagList();
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
@@ -281,7 +280,7 @@ public class NostrExamples {
 
             var event = new MetadataEvent(publicKeySender, tagList, profile);
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -294,11 +293,11 @@ public class NostrExamples {
         }
     }
 
-    private static void ephemerealEvent(Identity wallet, Client client) throws NostrException {
+    private static void ephemerealEvent(Identity identity, Client client) throws NostrException {
         logHeader("ephemerealEvent");
 
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -306,7 +305,7 @@ public class NostrExamples {
 
             GenericEvent event = new EphemeralEvent(publicKeySender, tagList);
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -316,10 +315,10 @@ public class NostrExamples {
         }
     }
 
-    private static void reactionEvent(Identity wallet, Client client) throws NostrException {
+    private static void reactionEvent(Identity identity, Client client) throws NostrException {
         logHeader("reactionEvent");
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -327,7 +326,7 @@ public class NostrExamples {
 
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please like me!");
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -338,7 +337,7 @@ public class NostrExamples {
             tagList.add(PubKeyTag.builder().publicKey(publicKeySender).build());
             GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tagList, Reaction.LIKE, event);
 
-            wallet.sign(reactionEvent);
+            identity.sign(reactionEvent);
             message = new EventMessage(reactionEvent);
 
             client.send(message);
@@ -348,10 +347,10 @@ public class NostrExamples {
         }
     }
 
-    private static void replaceableEvent(Identity wallet, Client client) throws NostrException {
+    private static void replaceableEvent(Identity identity, Client client) throws NostrException {
         logHeader("replaceableEvent");
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -359,7 +358,7 @@ public class NostrExamples {
 
             GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please replace me!");
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             log.log(Level.FINER, "Sending message {0}", event);
@@ -369,7 +368,7 @@ public class NostrExamples {
             tagList.add(EventTag.builder().relatedEvent(event).build());
             GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, tagList, "New content", event);
 
-            wallet.sign(replaceableEvent);
+            identity.sign(replaceableEvent);
             message = new EventMessage(replaceableEvent);
 
             client.send(message);
@@ -379,18 +378,18 @@ public class NostrExamples {
         }
     }
 
-    private static void internetIdMetadata(Identity wallet, Client client) throws NostrException {
+    private static void internetIdMetadata(Identity identity, Client client) throws NostrException {
         logHeader("internetIdMetadata");
         try {
-            final PublicKey publicKeySender = wallet.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
             tagList.add(pkSenderTag);
 
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, wallet.getProfile());
+            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, identity.getProfile());
 
-            wallet.sign(event);
+            identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
             client.send(message);
@@ -401,7 +400,7 @@ public class NostrExamples {
     }
 
     // FIXME
-    public static void filters(Identity wallet, Client client) throws NostrException {
+    public static void filters(Identity identity, Client client) throws NostrException {
         logHeader("filters");
         try {
             KindList kindList = new KindList();

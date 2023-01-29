@@ -14,21 +14,21 @@ import org.junit.jupiter.api.Test;
  *
  * @author squirrel
  */
-public class WalletTest {
+public class IdentityTest {
 
-    private final Identity wallet;
+    private final Identity identity;
 
-    public WalletTest() throws IOException, NostrException {
-        this.wallet = new Identity();
+    public IdentityTest() throws IOException, NostrException {
+        this.identity = new Identity();
     }
 
     @Test
     public void testSignEvent() {
         try {
             System.out.println("testSignEvent");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getProfile().getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
-            this.wallet.sign(instance);
+            this.identity.sign(instance);
             Assertions.assertNotNull(instance.getSignature());
         } catch (NostrException ex) {
             Assertions.fail(ex);
@@ -39,9 +39,9 @@ public class WalletTest {
     public void testSignDelegationTag() {
         try {
             System.out.println("testSignDelegationTag");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getProfile().getPublicKey();
             DelegationTag delegationTag = new DelegationTag(publicKey, null);
-            this.wallet.sign(delegationTag);
+            this.identity.sign(delegationTag);
             Assertions.assertNotNull(delegationTag.getSignature());
         } catch (NostrException ex) {
             Assertions.fail(ex);

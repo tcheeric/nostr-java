@@ -39,18 +39,18 @@ public class Client {
     private final String name;
 
     @ToString.Include
-    private final Identity wallet;
+    private final Identity identity;
 
-    public Client(@NonNull String name, String relayConfFile, @NonNull Identity wallet) throws IOException {
+    public Client(@NonNull String name, String relayConfFile, @NonNull Identity identity) throws IOException {
         this.relays = new HashSet<>();
         this.name = name;
-        this.wallet = wallet;
+        this.identity = identity;
 
         this.init(relayConfFile);
     }
 
-    public Client(@NonNull String name, @NonNull Identity wallet) throws IOException {
-        this(name, "/relays.properties", wallet);
+    public Client(@NonNull String name, @NonNull Identity identity) throws IOException {
+        this(name, "/relays.properties", identity);
     }
 
     public void send(@NonNull GenericMessage message) {

@@ -33,8 +33,6 @@ import nostr.event.unmarshaller.impl.MessageUnmarshaller;
 import nostr.event.unmarshaller.impl.TagListUnmarshaller;
 import nostr.event.unmarshaller.impl.TagUnmarshaller;
 import nostr.event.util.Nip05Validator;
-import nostr.id.Client;
-import nostr.json.parser.JsonParseException;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
@@ -52,17 +50,17 @@ import org.junit.jupiter.api.Test;
  */
 public class EventTest {
 
-    private final Identity wallet;
+    private final Identity identity;
 
     public EventTest() throws IOException, NostrException {
-        this.wallet = new Identity();
+        this.identity = new Identity();
     }
 
     @Test
     public void testCreateTextNoteEvent() {
         try {
             System.out.println("testCreateTextNoteEvent");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getProfile().getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             Assertions.assertNotNull(instance.getId());
             Assertions.assertNotNull(instance.getCreatedAt());
@@ -79,7 +77,7 @@ public class EventTest {
     public void testCreateGenericTag() {
         try {
             System.out.println("testCreateGenericTag");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getProfile().getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -118,7 +116,7 @@ public class EventTest {
     public void testCreateUnsupportedGenericTagAttribute() {
         try {
             System.out.println("testCreateUnsupportedGenericTagAttribute");
-            PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getProfile().getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -153,7 +151,7 @@ public class EventTest {
     @Test
     public void testCreateUnsupportedGenericTag() {
         System.out.println("testCreateUnsupportedGenericTag");
-        PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+        PublicKey publicKey = this.identity.getProfile().getPublicKey();
         IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
@@ -177,7 +175,7 @@ public class EventTest {
         System.out.println("testUnmarshallEvent");
 
         // Tag
-        PublicKey publicKey = this.wallet.getProfile().getPublicKey();
+        PublicKey publicKey = this.identity.getProfile().getPublicKey();
         var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
         var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
         Assertions.assertEquals(tag.getCode(), unTag.getCode());
