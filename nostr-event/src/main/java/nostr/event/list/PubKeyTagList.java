@@ -1,4 +1,4 @@
-package nostr.base.list;
+package nostr.event.list;
 
 import nostr.event.tag.PubKeyTag;
 import java.util.ArrayList;

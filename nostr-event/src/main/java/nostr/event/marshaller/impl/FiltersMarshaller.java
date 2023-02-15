@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
-import nostr.base.list.GenericTagQueryList;
+import nostr.event.list.GenericTagQueryList;
 import nostr.util.NostrException;
 
 /**

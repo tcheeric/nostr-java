@@ -90,7 +90,7 @@ public class Identity {
         if (signable instanceof GenericEvent genericEvent) {
             try {
                 return signEvent(genericEvent);
-            } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex ) {
+            } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
                 log.log(Level.SEVERE, null, ex);
                 throw new NostrException(ex);
             } catch (Exception ex) {
@@ -107,7 +107,7 @@ public class Identity {
                 log.log(Level.SEVERE, null, ex);
                 throw new NostrException(ex);
             }
-        }  
+        }
         throw new NostrException();
     }
 

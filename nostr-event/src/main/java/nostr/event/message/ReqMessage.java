@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.base.list.FiltersList;
 import nostr.event.impl.GenericMessage;
+import nostr.event.list.FiltersList;
 
 /**
  *

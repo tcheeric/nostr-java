@@ -2,7 +2,7 @@
 package nostr.event.marshaller.impl;
 
 import nostr.base.Relay;
-import nostr.base.list.PublicKeyList;
+import nostr.event.list.PublicKeyList;
 import nostr.event.marshaller.BaseListMarhsaller;
 
 /**

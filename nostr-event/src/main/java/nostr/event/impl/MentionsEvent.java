@@ -7,14 +7,14 @@ import java.security.NoSuchAlgorithmException;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
-import nostr.base.list.PubKeyTagList;
-import nostr.base.list.TagList;
 import java.util.List;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
+import nostr.event.list.PubKeyTagList;
+import nostr.event.list.TagList;
 import nostr.util.NostrException;
 
 /**

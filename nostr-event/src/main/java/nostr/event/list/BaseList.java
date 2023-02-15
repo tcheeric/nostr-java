@@ -1,5 +1,5 @@
 
-package nostr.base.list;
+package nostr.event.list;
 
 import nostr.base.INostrList;
 import java.util.List;

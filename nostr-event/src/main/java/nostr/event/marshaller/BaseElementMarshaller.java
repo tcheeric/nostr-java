@@ -6,7 +6,6 @@ import nostr.base.IEvent;
 import nostr.base.INostrList;
 import nostr.base.ITag;
 import nostr.base.Relay;
-import nostr.base.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
@@ -19,6 +18,7 @@ import lombok.extern.java.Log;
 import nostr.base.NipUtil;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericMessage;
+import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.FiltersMarshaller;
 import nostr.util.NostrException;
 

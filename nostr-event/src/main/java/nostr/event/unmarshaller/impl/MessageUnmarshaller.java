@@ -5,7 +5,7 @@ import nostr.base.IEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.base.list.FiltersList;
+import nostr.event.list.FiltersList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;

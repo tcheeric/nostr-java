@@ -7,7 +7,7 @@ import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.INostrList;
 import nostr.base.Relay;
-import nostr.base.list.GenericTagQueryList;
+import nostr.event.list.GenericTagQueryList;
 import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.util.NostrException;
 

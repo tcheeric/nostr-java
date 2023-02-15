@@ -18,9 +18,6 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.base.list.KindList;
-import nostr.base.list.PubKeyTagList;
-import nostr.base.list.TagList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
@@ -38,7 +35,10 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import lombok.extern.java.Log;
 import nostr.event.impl.GenericMessage;
-import nostr.base.list.FiltersList;
+import nostr.event.list.FiltersList;
+import nostr.event.list.KindList;
+import nostr.event.list.PubKeyTagList;
+import nostr.event.list.TagList;
 import nostr.util.NostrException;
 
 /**

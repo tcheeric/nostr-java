@@ -3,10 +3,10 @@ package nostr.event.impl;
 
 import nostr.event.Kind;
 import nostr.base.PublicKey;
-import nostr.base.list.TagList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.Event;
+import nostr.event.list.TagList;
 
 /**
  *
