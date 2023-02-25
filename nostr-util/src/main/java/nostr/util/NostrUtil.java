@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Random;
 
 import lombok.extern.java.Log;
 
@@ -84,7 +84,7 @@ public class NostrUtil {
 
     public static byte[] createRandomByteArray(int len) {
         byte[] b = new byte[len];
-        new Random().nextBytes(b);
+        new SecureRandom().nextBytes(b);
         return b;
     }
 }
