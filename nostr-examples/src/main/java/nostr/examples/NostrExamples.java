@@ -1,10 +1,21 @@
 package nostr.examples;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
+import lombok.extern.java.Log;
 import nostr.base.ITag;
-import nostr.util.NostrUtil;
+import nostr.base.PrivateKey;
 import nostr.base.Profile;
 import nostr.base.PublicKey;
-import nostr.util.UnsupportedNIPException;
 import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.DeletionEvent;
@@ -12,34 +23,25 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
+import nostr.event.impl.GenericMessage;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
+import nostr.event.list.FiltersList;
+import nostr.event.list.KindList;
+import nostr.event.list.PubKeyTagList;
+import nostr.event.list.TagList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Client;
 import nostr.id.Identity;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import lombok.extern.java.Log;
-import nostr.event.impl.GenericMessage;
-import nostr.event.list.FiltersList;
-import nostr.event.list.KindList;
-import nostr.event.list.PubKeyTagList;
-import nostr.event.list.TagList;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -47,6 +49,19 @@ import nostr.util.NostrException;
  */
 @Log
 public class NostrExamples {
+	
+	/**
+	 * Private key of the public key, in case you want to check the messages: 
+	 * 
+	 * nsec1yjs4nalp47mwhvjwg0ne7gltwcv8g8glzhsucnmyujdvr87hda8qkjl88s
+	 * 24a159f7e1afb6ebb24e43e79f23eb7618741d1f15e1cc4f64e49ac19fd76f4e
+	 */
+	private final static String PUBLIC_KEY = "98fd512949146f36fe4e84ee0c68e6f04780c7037c6e2cf8baf74033ccd1b687";
+	private final static Profile PROFILE = Profile.builder()
+    		.name("test")
+    		.about("Hey, it's me!")
+    		.publicKey(new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"))
+    		.build();
 
     static {
         final LogManager logManager = LogManager.getLogManager();
@@ -55,6 +70,12 @@ public class NostrExamples {
         } catch (IOException ex) {
             System.exit(-1000);
         }
+        
+        try {
+			PROFILE.setPicture(new URL("https://images.unsplash.com/photo-1462888210965-cdf193fb74de"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
     }
 
     public static void main(String[] args) throws IOException, Exception {
@@ -62,8 +83,8 @@ public class NostrExamples {
 
             log.log(Level.FINE, "================= The Beginning");
 
-            Identity identity = new Identity();
-            Client client = new Client("nostr-java", identity);
+            Identity identity = new Identity(PROFILE, new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"));
+            Client client = new Client("nostr-java", identity, Map.of("brb", "brb.io",  "wine", "nostr.wine",  "ZBD", "nostr.zebedee.cloud"));
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -186,7 +207,7 @@ public class NostrExamples {
 
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
-            PublicKey publicKeyRcpt = new PublicKey(NostrUtil.hexToBytes("01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5"));
+            PublicKey publicKeyRcpt = new PublicKey(PUBLIC_KEY);
 
             ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("willy").build();
             TagList tagList = new TagList();
@@ -217,10 +238,10 @@ public class NostrExamples {
             tagList.add(pkeySenderTag);
 
             PubKeyTagList mentionees = new PubKeyTagList();
-            PublicKey pk = new PublicKey(NostrUtil.hexToBytes("01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5"));
+            PublicKey pk = new PublicKey(PUBLIC_KEY);
             mentionees.add(PubKeyTag.builder().publicKey(pk).build());
 
-            GenericEvent event = new MentionsEvent(publicKeySender, tagList, "Hello 01739eae78ef308acb9e7a8a85f7d03484e0d338a7fae1ef2a8fa18e9b5915c5", mentionees);
+            GenericEvent event = new MentionsEvent(publicKeySender, tagList, "Hello " + PUBLIC_KEY, mentionees);
             identity.sign(event);
 
             log.log(Level.FINER, ">>>>>>>>>>>> Event: {0}", event);
@@ -276,9 +297,8 @@ public class NostrExamples {
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             tagList.add(pkSenderTag);
 
-            var profile = Profile.builder().about("He, this is me!").nip05("ecureuil@nostr.java").name("ecureuil").picture(new URL("https://britishwildlifecentre.co.uk/wp-content/uploads/2018/12/New-Website-Grey-Squirrel-12-18-1024x682.jpg")).publicKey(publicKeySender).build();
 
-            var event = new MetadataEvent(publicKeySender, tagList, profile);
+            var event = new MetadataEvent(publicKeySender, tagList, PROFILE);
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
@@ -288,8 +308,6 @@ public class NostrExamples {
 
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
-        } catch (MalformedURLException ex) {
-            throw new NostrException(ex);
         }
     }
 
