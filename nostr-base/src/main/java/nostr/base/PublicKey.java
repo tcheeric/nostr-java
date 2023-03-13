@@ -14,8 +14,8 @@ public class PublicKey extends BaseKey {
         super(KeyType.PUBLIC, rawData, Bech32Prefix.NPUB);
     }
 
-    public PublicKey(String pubKey) {
-    	super(KeyType.PUBLIC, NostrUtil.hexToBytes(pubKey), Bech32Prefix.NPUB);
+    public PublicKey(String hexPubKey) {
+    	super(KeyType.PUBLIC, NostrUtil.hexToBytes(hexPubKey), Bech32Prefix.NPUB);
     }    
     
 }

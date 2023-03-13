@@ -12,8 +12,8 @@ public class PrivateKey extends BaseKey {
         super(KeyType.PRIVATE, rawData, Bech32Prefix.NSEC);
     }
 
-    public PrivateKey(String privKey) {
-    	super(KeyType.PRIVATE, NostrUtil.hexToBytes(privKey), Bech32Prefix.NSEC);
+    public PrivateKey(String hexPrivKey) {
+    	super(KeyType.PRIVATE, NostrUtil.hexToBytes(hexPrivKey), Bech32Prefix.NSEC);
     }
 
 }
