@@ -1,28 +1,29 @@
 package nostr.id;
 
-import nostr.base.BaseConfiguration;
-import nostr.util.NostrUtil;
-import nostr.base.Relay;
-import nostr.ws.Connection;
-import nostr.ws.handler.request.RequestHandler;
-import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.BaseConfiguration;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.event.impl.GenericMessage;
+import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.NumberValue;
 import nostr.types.values.impl.ObjectValue;
+import nostr.util.NostrUtil;
+import nostr.ws.Connection;
+import nostr.ws.handler.request.RequestHandler;
 
 /**
  *
@@ -49,12 +50,15 @@ public class Client {
         this.init(relayConfFile);
     }
 
-    public Client(@NonNull String name, @NonNull Identity identity) throws IOException {
-        this(name, "/relays.properties", identity);
+    public Client(@NonNull String name, @NonNull Identity identity, Map<String, String> relays) throws IOException {
+        this.relays = new HashSet<>();
+        this.name = name;
+        this.identity = identity;
+
+        this.init(relays);
     }
 
-    public void send(@NonNull GenericMessage message) {
-
+	public void send(@NonNull GenericMessage message) {
         relays.parallelStream()
                 .filter(r -> r.getSupportedNips().contains(message.getNip()))
                 .forEach(r -> {
@@ -78,6 +82,12 @@ public class Client {
         List<Relay> relayList = new RelayConfiguration(file).getRelays();
         relayList.stream().forEach(r -> this.addRelay(r));
     }
+
+    private void init(Map<String, String> mapRelays) {
+    	for (Map.Entry<String,String> r : mapRelays.entrySet()) 
+    		this.addRelay(Relay.builder().name(r.getKey()).uri(r.getValue()).build());
+    		
+	}
 
     private void updateRelayInformation(@NonNull Relay relay) {
         try {

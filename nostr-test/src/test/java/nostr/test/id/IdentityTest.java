@@ -19,7 +19,7 @@ public class IdentityTest {
     private final Identity identity;
 
     public IdentityTest() throws IOException, NostrException {
-        this.identity = new Identity();
+        this.identity = new Identity("/profile.properties");
     }
 
     @Test
