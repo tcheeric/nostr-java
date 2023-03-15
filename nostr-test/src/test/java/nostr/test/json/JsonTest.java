@@ -1,13 +1,27 @@
 package nostr.test.json;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.logging.Level;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import lombok.extern.java.Log;
+import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.util.UnsupportedNIPException;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
+import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
+import nostr.event.marshaller.impl.FiltersMarshaller;
+import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
@@ -16,22 +30,11 @@ import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import nostr.json.parser.JsonParseException;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
+import nostr.json.unmarshaller.impl.JsonExpressionUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonNumberUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
 import nostr.json.unmarshaller.impl.JsonStringUnmarshaller;
 import nostr.test.EntityFactory;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import lombok.extern.java.Log;
-import nostr.base.GenericTagQuery;
-import nostr.event.impl.Filters;
-import nostr.event.list.TagList;
-import nostr.event.marshaller.impl.FiltersMarshaller;
-import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
-import nostr.json.unmarshaller.impl.JsonExpressionUnmarshaller;
 import nostr.types.Type;
 import nostr.types.values.BaseValue;
 import nostr.types.values.IValue;
@@ -41,8 +44,7 @@ import nostr.types.values.impl.NumberValue;
 import nostr.types.values.impl.ObjectValue;
 import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -273,7 +275,7 @@ public class JsonTest {
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
             Identity identity;
-            identity = new Identity();
+            identity = new Identity("/profile.properties");
             identity.sign(delegationTag);
             tags.add(delegationTag);
 
@@ -374,7 +376,7 @@ public class JsonTest {
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
             Identity identity;
-            identity = new Identity();
+            identity = new Identity("/profile.properties");
             identity.sign(delegationTag);
             tags.add(delegationTag);
 
