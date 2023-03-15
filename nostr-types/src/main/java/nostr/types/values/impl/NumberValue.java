@@ -25,19 +25,37 @@ public class NumberValue extends BaseValue {
         this.numberType = numberType;
     }
 
-    public Optional<Integer> intValue() {
+    public int intValue() {
         final Number number = (Number) getValue();
-        return Optional.of(number.intValue());
+        final Optional<Integer> optNum = Optional.of(number.intValue());
+        
+        if (optNum.isEmpty() || optNum.get() == null) {
+            throw new RuntimeException("Invalid number");
+        }
+        
+        return optNum.get();
     }
 
-    public Optional<Double> doubleValue() {
+    public double doubleValue() {
         final Number number = (Number) getValue();
-        return Optional.of(number.doubleValue());
+        final Optional<Double> optNum = Optional.of(number.doubleValue());
+        
+        if (optNum.isEmpty() || optNum.get() == null) {
+            throw new RuntimeException("Invalid number");
+        }
+        
+        return optNum.get();
     }
 
-    public Optional<Long> longValue() {
+    public long longValue() {
         final Number number = (Number) getValue();
-        return Optional.of(number.longValue());
+        final Optional<Long> optNum = Optional.of(number.longValue());
+        
+        if (optNum.isEmpty() || optNum.get() == null) {
+            throw new RuntimeException("Invalid number");
+        }
+        
+        return optNum.get();
     }
 
     public enum NumberType {

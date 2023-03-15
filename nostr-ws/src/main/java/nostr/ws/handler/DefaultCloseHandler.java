@@ -14,7 +14,7 @@ import lombok.ToString;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloseHandler extends BaseHandler {
+public class DefaultCloseHandler extends BaseHandler {
 
     private final int statusCode;
     private final String reason;

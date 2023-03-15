@@ -81,8 +81,8 @@ public class Nip05Validator {
 
     private String getPublicKey(StringBuilder content, String localPart) {
         ObjectValue jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
-        IValue namesObj = ((ObjectValue) jsonObjValue).get("\"" + "names" + "\"").get();
-        IValue pubKey = ((ObjectValue) namesObj).get("\"" + localPart + "\"").get();
+        IValue namesObj = ((ObjectValue) jsonObjValue).get( "names" ).get();
+        IValue pubKey = ((ObjectValue) namesObj).get( localPart ).get();
         return pubKey.getValue().toString();
     }
 

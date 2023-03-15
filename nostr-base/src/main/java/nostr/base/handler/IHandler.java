@@ -1,5 +1,4 @@
-
-package nostr.base;
+package nostr.base.handler;
 
 import nostr.util.NostrException;
 
@@ -9,6 +8,5 @@ import nostr.util.NostrException;
  */
 public interface IHandler {
 
-    public abstract void process() throws NostrException;
-    
+    public abstract void process() throws NostrException;    
 }

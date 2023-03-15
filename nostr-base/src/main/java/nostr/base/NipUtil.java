@@ -26,7 +26,7 @@ public class NipUtil {
         }
 
         var e = event.getClass().getDeclaredAnnotation(Event.class);
-        int nip = e == null ? 1 : e.nip();
+        var nip = e == null ? event.getNip() : e.nip();
         return relay.getSupportedNips().contains(nip);
     }
 
@@ -40,5 +40,9 @@ public class NipUtil {
     public static boolean checkSupport(@NonNull Relay relay, @NonNull GenericTagQuery gtq) {
 
         return relay.getSupportedNips().contains(12);
-    }    
+    }
+
+    public int getNip(IEvent event) {
+        return event.getNip() == null ? 1 : event.getNip();
+    }
 }

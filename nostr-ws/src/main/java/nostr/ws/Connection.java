@@ -1,17 +1,17 @@
-
 package nostr.ws;
 
-import nostr.base.Relay;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.java.Log;
+
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.client.HttpRequest;
@@ -33,6 +33,11 @@ import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.JettyUpgradeListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import lombok.Data;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.base.Relay;
+
 /**
  *
  * @author squirrel
@@ -45,11 +50,43 @@ public class Connection {
     private Session session;
 
     private final Relay relay;
+    private final URI uri;
     private HttpClient httpClient;
 
     public Connection(@NonNull Relay relay) throws Exception {
         this.relay = relay;
+        this.uri = serverURI(relay.getUri());
         this.connect();
+    }
+
+    private static URI serverURI(String uri) throws URISyntaxException {
+        try {
+            URL url = new URL("https://" + uri);
+
+            URLConnection openConnection = url.openConnection();
+
+            openConnection.connect();
+            return new URI("wss://" + uri);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTPS", uri);
+        }
+
+        try {
+            URL url = new URL("http://" + uri);
+
+            URLConnection openConnection = url.openConnection();
+            openConnection.connect();
+            return new URI("ws://" + uri);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTP", uri);
+        }
+
+//    	TODO
+        throw new RuntimeException();
     }
 
     public void stop() {
@@ -59,8 +96,7 @@ public class Connection {
     private void connect() throws Exception {
         ClientListenerEndPoint clientEndPoint = new ClientListenerEndPoint();
 
-        String uri = relay.getUri();
-        if (uri.startsWith("wss://")) {
+        if (uri.getScheme().equals("wss")) {
             SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
             sslContextFactory.setIncludeProtocols("TLSv1.3");
             ClientConnector clientConnector = new ClientConnector();
@@ -72,17 +108,15 @@ public class Connection {
             // Create the HttpClientTransportDynamic, preferring h2 over h1.
             HttpClientTransport transport = new HttpClientTransportDynamic(clientConnector, h1, h2);
             httpClient = new HttpClient(transport);
-        } else if (uri.startsWith("ws://")) {
+        } else if (uri.getScheme().equals("ws")) {
             httpClient = new HttpClient();
         } else {
-            //TODO
+//        	TODO
             throw new RuntimeException();
         }
 
         webSocketClient = new WebSocketClient(httpClient);
         webSocketClient.start();
-
-        URI serverURI = URI.create(uri);
 
         // Create a custom HTTP request.
         ClientUpgradeRequest customRequest = new ClientUpgradeRequest();
@@ -109,17 +143,16 @@ public class Connection {
                 });
             }
         };
-        CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, serverURI, customRequest, listener);
+        CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
 
         this.session = clientSessionPromise.get();
     }
 
     public String getRelayInformation() throws InterruptedException, TimeoutException, ExecutionException, IOException, Exception {
-        URI serverURI = URI.create(this.relay.getUri());
         httpClient.start();
 
         InputStreamResponseListener listener = new InputStreamResponseListener(); //Required for large responses only
-        httpClient.newRequest(serverURI).method(HttpMethod.GET).headers(httpFields -> httpFields.add("Accept", "application/nostr+json")).send(listener);
+        httpClient.newRequest(uri).method(HttpMethod.GET).headers(httpFields -> httpFields.add("Accept", "application/nostr+json")).send(listener);
 
         Response response = listener.get(5, TimeUnit.SECONDS);
 

@@ -265,8 +265,8 @@ public class EventMarshaller extends BaseElementMarshaller {
         IEvent event = (IEvent) getElement();
         Set<ElementAttribute> result = new HashSet<>();
 
-        if (event instanceof GenericEvent) {
-            Set<ElementAttribute> attrs = ((GenericEvent) event).getAttributes();
+        if (event instanceof GenericEvent genericEvent) {
+            Set<ElementAttribute> attrs = genericEvent.getAttributes();
             for (var a : attrs) {
                 if (relay != null && relay.getSupportedNips().contains(a.getNip())) {
                     result.add(a);

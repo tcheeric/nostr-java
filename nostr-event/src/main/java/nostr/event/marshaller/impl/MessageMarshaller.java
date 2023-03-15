@@ -34,7 +34,7 @@ public class MessageMarshaller extends BaseElementMarshaller {
         if (message instanceof EventMessage msg) {
             return "[\"" + msg.getCommand() + "\"," + new EventMarshaller(msg.getEvent(), relay, isEscape()).marshall() + "]";
         } else if (message instanceof ReqMessage msg) {
-            return "[\"" + msg.getCommand() + "\",\"" + msg.getSubscriptionId() + "\"," + new FiltersListMarshaller(msg.getFiltersList(), relay).marshall() + "]";
+            return "[\"" + msg.getCommand() + "\",\"" + msg.getSubscriptionId() + "\"," + new FiltersMarshaller(msg.getFilters(), relay).marshall() + "]";
         } else if (message instanceof NoticeMessage msg) {
             return "[\"" + msg.getCommand() + "\",\"" + msg.getMessage() + "\"]";
         } else if (message instanceof CloseMessage msg) {

@@ -49,7 +49,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         ArrayValue arr;
 
         // Authors
-        var optArr = value.get("\"authors\"");
+        var optArr = value.get("authors");
         if (!optArr.isEmpty()) {
             arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
@@ -59,7 +59,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         // Ref. pub keys
-        optArr = value.get("\"#p\"");
+        optArr = value.get("#p");
         if (!optArr.isEmpty()) {
             arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
@@ -69,7 +69,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         //  Events        
-        optArr = value.get("\"ids\"");
+        optArr = value.get("ids");
         if (!optArr.isEmpty()) {
             arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
@@ -79,7 +79,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         // Referenced Events        
-        optArr = value.get("\"#e\"");
+        optArr = value.get("#e");
         if (!optArr.isEmpty()) {
             arr = (ArrayValue) optArr.get();
             referencedEvents = new EventList();
@@ -90,27 +90,27 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         }
 
         // Kinds
-        optArr = value.get("\"kinds\"");
+        optArr = value.get("kinds");
         if (!optArr.isEmpty()) {
             arr = (ArrayValue) optArr.get();
             for (var i = 0; i < arr.length(); i++) {
-                var ikind = ((NumberValue) arr.get(i).get()).intValue().get();
+                var ikind = ((NumberValue) arr.get(i).get()).intValue();
                 Kind kind = Kind.valueOf(ikind);
                 kindList.add(kind);
             }
         }
 
         //Limit
-        var optNumber = value.get("\"limit\"");
-        Integer limit = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).intValue().get();
+        var optNumber = value.get("limit");
+        Integer limit = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).intValue();
 
         // Since
-        optNumber = value.get("\"since\"");
-        var since = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue().get();
+        optNumber = value.get("since");
+        var since = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue();
 
         // Since
-        optNumber = value.get("\"until\"");
-        var until = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue().get();
+        optNumber = value.get("until");
+        var until = optNumber.isEmpty() ? null : ((NumberValue) optNumber.get()).longValue();
 
         // Generic TagList 
         Filters filters = Filters.builder()
@@ -132,7 +132,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
         var obj = new JsonObjectUnmarshaller(getJson()).unmarshall();
         var exprList = (List<ExpressionValue>) obj.getValue();
         final Optional<GenericTagQueryList> findAny = exprList.stream()
-                .filter(e -> !Arrays.asList("\"authors\"", "\"ids\"", "\"since\"", "\"until\"", "\"limit\"", "\"kinds\"", "\"#e\"", "\"sids\"", "\"#p\"").contains(e.getName()))
+                .filter(e -> !Arrays.asList("authors", "ids", "since", "until", "limit", "kinds", "#e", "#p").contains(e.getName()))
                 .map(FiltersUnmarshaller::gtql).findAny();
         return findAny.isEmpty() ? Optional.empty() : findAny;
 
@@ -140,7 +140,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
 
     private static GenericTagQueryList gtql(ExpressionValue e) {
         GenericTagQueryList result = new GenericTagQueryList();
-        var tagName = e.getName().charAt(2);
+        var tagName = e.getName().charAt(1);
         var valueList = new ArrayList<String>();
 
         final ArrayValue attrArr = (ArrayValue) e.getValue();

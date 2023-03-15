@@ -24,13 +24,13 @@ public class NumberMarshaller extends BaseTypesMarshaller {
             
             switch (numberValue.getNumberType()) {
                 case DOUBLE -> {
-                    return numberValue.doubleValue().toString();
+                    return String.valueOf(numberValue.doubleValue());
                 }
                 case INT -> {
-                    return numberValue.intValue().toString();
+                    return String.valueOf(numberValue.intValue());
                 }
                 case LONG -> {
-                    return numberValue.longValue().toString();
+                    return String.valueOf(numberValue.longValue());
                 }
             }
         }

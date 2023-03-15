@@ -59,17 +59,17 @@ public class JsonTest {
         Assertions.assertEquals("34f", jsonStr.getValue().toString());
 
         NumberValue jsonNum = new JsonNumberUnmarshaller("46").unmarshall();
-        Assertions.assertEquals(Integer.parseInt("46"), ((NumberValue) jsonNum).intValue().get());
+        Assertions.assertEquals(Integer.parseInt("46"), ((NumberValue) jsonNum).intValue());
 
         ArrayValue jsonArr = new JsonArrayUnmarshaller("[2,\"a\"]").unmarshall();
         Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
-        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue().get());
+        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue());
         Assertions.assertEquals("\"a\"", ((ArrayValue) jsonArr).get(1).get().toString());
 
         jsonArr = new JsonArrayUnmarshaller("[1,2,\"bx\"]").unmarshall();
         Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
-        Assertions.assertEquals(1, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue().get());
-        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(1).get()).intValue().get());
+        Assertions.assertEquals(1, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue());
+        Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(1).get()).intValue());
         Assertions.assertEquals("\"bx\"", ((ArrayValue) jsonArr).get(2).get().toString());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"]]").unmarshall();
@@ -87,9 +87,9 @@ public class JsonTest {
 
         IValue jsonObj = new JsonObjectUnmarshaller("{    \"a\":2,\"b\":\"a\"}").unmarshall();
         Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
-        IValue v = ((ObjectValue) jsonObj).get("\"a\"").get();
+        IValue v = ((ObjectValue) jsonObj).get("a").get();
         Assertions.assertTrue(((BaseValue) v).getType().equals(Type.NUMBER));
-        Assertions.assertEquals(2, ((NumberValue) v).intValue().get());
+        Assertions.assertEquals(2, ((NumberValue) v).intValue());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\", {\"a\":2,\"b\":\"a\"}]]").unmarshall();
         Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
@@ -99,7 +99,7 @@ public class JsonTest {
         Assertions.assertTrue(((ObjectValue) jsonObj).getType().equals(Type.OBJECT));
 
         jsonObj = new JsonObjectUnmarshaller("{\"a\":2,\"b\":\"a\", \"nil\":{}}").unmarshall();
-        v = ((ObjectValue) jsonObj).get("\"nil\"").get();
+        v = ((ObjectValue) jsonObj).get("nil").get();
         Assertions.assertTrue(((BaseValue) v).getType().equals(Type.OBJECT));
 
         Assertions.assertDoesNotThrow(
@@ -218,7 +218,7 @@ public class JsonTest {
 
             var jsonValue = new JsonObjectUnmarshaller(jsonEvent).unmarshall();
 
-            Assertions.assertNotNull(((ObjectValue) jsonValue).get("\"ots\""));
+            Assertions.assertNotNull(((ObjectValue) jsonValue).get("ots"));
 
         } catch (IllegalArgumentException | UnsupportedNIPException ex) {
             Assertions.fail(ex);
@@ -273,7 +273,7 @@ public class JsonTest {
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
             Identity identity;
-            identity = new Identity();
+            identity = new Identity("/profile.properties");
             identity.sign(delegationTag);
             tags.add(delegationTag);
 
@@ -283,13 +283,13 @@ public class JsonTest {
 
             Assertions.assertNotNull(jsonEvent);
 
-            var jsonValue = ((ObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("\"tags\"");
+            var jsonValue = ((ObjectValue) new JsonObjectUnmarshaller(jsonEvent).unmarshall()).get("tags");
 
             var tagsArr = (ArrayValue) jsonValue.get();
 
             for (int i = 0; i < tagsArr.length(); i++) {
                 var t = tagsArr.get(i).get();
-                if (((ArrayValue) t).get(0).toString().equals("\"delegation\"")) {
+                if (((ArrayValue) t).get(0).toString().equals("delegation")) {
                     Assertions.assertTrue(true);
                 }
             }
@@ -374,7 +374,7 @@ public class JsonTest {
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
             Identity identity;
-            identity = new Identity();
+            identity = new Identity("/profile.properties");
             identity.sign(delegationTag);
             tags.add(delegationTag);
 
@@ -418,7 +418,7 @@ public class JsonTest {
 
             ExpressionValue expr = (ExpressionValue) vexpr;
 
-            String variable = "\"#" + gtq.getTagName().toString() + "\"";
+            String variable = "#" + gtq.getTagName().toString() + "";
             Assertions.assertEquals(variable, expr.getName());
 
             var jsonValue = expr.getValue();
@@ -461,12 +461,12 @@ public class JsonTest {
 
             ObjectValue obj = (ObjectValue) fObj;
 
-            IValue ids = obj.get("\"ids\"").get();
+            IValue ids = obj.get("ids").get();
             Assertions.assertNotNull(ids);
             Assertions.assertTrue(ids instanceof ArrayValue);
             Assertions.assertEquals(2, ((ArrayValue) ids).length());
 
-            IValue e = obj.get("\"#e\"").get();
+            IValue e = obj.get("#e").get();
             Assertions.assertNotNull(e);
             Assertions.assertTrue(e instanceof ArrayValue);
             Assertions.assertEquals(1, ((ArrayValue) e).length());

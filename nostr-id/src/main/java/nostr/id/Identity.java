@@ -1,18 +1,5 @@
 package nostr.id;
 
-import nostr.base.BaseConfiguration;
-import nostr.base.ISignable;
-import nostr.base.ITag;
-import nostr.util.NostrUtil;
-import nostr.base.PrivateKey;
-import nostr.base.Profile;
-import nostr.base.PublicKey;
-import nostr.base.Signature;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.tag.DelegationTag;
-import nostr.event.impl.GenericEvent;
-import nostr.event.tag.PubKeyTag;
-import nostr.crypto.schnorr.Schnorr;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,20 +15,36 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.logging.Level;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.BaseConfiguration;
+import nostr.base.ISignable;
+import nostr.base.ITag;
+import nostr.base.PrivateKey;
+import nostr.base.Profile;
+import nostr.base.PublicKey;
+import nostr.base.Signature;
+import nostr.crypto.schnorr.Schnorr;
+import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.DelegationTag;
+import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
-import org.bouncycastle.math.ec.ECPoint;
-import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
+import nostr.util.NostrUtil;
 
 /**
  *
@@ -58,8 +61,9 @@ public class Identity {
 
     private final Profile profile;
 
-    public Identity() throws IOException, NostrException {
-        this("/profile.properties");
+    public Identity(Profile profile, PrivateKey privateKey) {
+    	this.profile = profile;
+        this.privateKey = privateKey;
     }
 
     public Identity(String profileFile) throws IOException, NostrException {
@@ -84,6 +88,12 @@ public class Identity {
                 throw new NostrException(ex);
             }
         }
+    }
+    
+    public String decryptDirectMessage(@NonNull DirectMessageEvent encryptedEvent) {
+        String encContent = encryptedEvent.getContent();
+        
+        return Identity.decryptMessage(encryptedEvent.getPubKey().getRawData(), encContent);
     }
 
     public Signature sign(@NonNull ISignable signable) throws NostrException {
@@ -169,6 +179,13 @@ public class Identity {
 
         return new String(encryptedMessage64) + "?iv=" + new String(iv64);
     }
+    
+    private static String decryptMessage(byte[] senderPublicKey, String encodedMessage) {
+        final var Base64Decoder = Base64.getDecoder();
+        final var encryptedMessage = Base64Decoder.decode(encodedMessage);
+        
+        return null;
+    }
 
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {
 
@@ -223,7 +240,7 @@ public class Identity {
             if (privKey.startsWith("file://")) {
                 return new PrivateKey(Files.readAllBytes(Paths.get(privKey)));
             } else {
-                return new PrivateKey(NostrUtil.hexToBytes(privKey));
+                return new PrivateKey(privKey);
             }
         }
 
@@ -240,7 +257,7 @@ public class Identity {
             } else if (pubKey.startsWith("file://")) {
                 return new PublicKey(Files.readAllBytes(Paths.get(pubKey)));
             } else {
-                return new PublicKey(NostrUtil.hexToBytes(pubKey));
+                return new PublicKey(pubKey);
             }
         }
     }

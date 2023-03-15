@@ -25,7 +25,7 @@ class ClientTest {
     private final Client client;
 
     public ClientTest() throws IOException, NostrException {
-        this.client = new Client("TestClient", new Identity());
+        this.client = new Client("TestClient", "/relays.properties", new Identity("/profile.properties"));
     }
 
     @Test

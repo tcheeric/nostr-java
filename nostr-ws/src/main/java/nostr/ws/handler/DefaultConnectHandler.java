@@ -14,6 +14,6 @@ import lombok.ToString;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ConnectHandler extends BaseHandler {
+public class DefaultConnectHandler extends BaseHandler {
     
 }

@@ -40,7 +40,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
                 throw new JsonParseException(String.format("Invalid expression: %s (index %d)", json, cursor));
             }
 
-            String currentKey = json.substring(cursor, closeIdx + 1);
+            String currentKey = json.substring(cursor + 1, closeIdx);
             log.log(Level.FINEST, "Key {0}", currentKey);
 
             cursor = closeIdx + 1;
@@ -57,7 +57,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private IValue getValue() {
 
         char c = json.charAt(cursor);
-        if (c == ':') {            
+        if (c == ':') {
             while (skip(c)) {
                 cursor++;
                 if (cursor >= json.length()) {
@@ -65,13 +65,17 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
                 }
                 c = json.charAt(cursor);
             }
-            
+
             return switch (c) {
-                case '\"' -> getStringValue(c);
-                case '[' -> getArrayValue(c);
-                case '{' -> getObjectValue(c);
-                default -> getNumberValue();
-            }; 
+                case '\"' ->
+                    getStringValue(c);
+                case '[' ->
+                    getArrayValue(c);
+                case '{' ->
+                    getObjectValue(c);
+                default ->
+                    getNumberValue();
+            };
         } else {
             log.log(Level.SEVERE, "2.Parse error at index {0}", cursor);
             throw new JsonParseException(String.format("Invalid expression: %s (index %d)", json, cursor));
@@ -98,7 +102,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private IValue getObjectValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
-        
+
         closeIdx = getClosedParenIndex(c, cursor + 1, json);
         if (closeIdx == -1) {
             log.log(Level.SEVERE, "Parse error at index {0}", cursor);
@@ -112,7 +116,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private IValue getArrayValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
-        
+
         closeIdx = getClosedParenIndex(c, cursor + 1, json);
         if (closeIdx == -1) {
             log.log(Level.SEVERE, "Parse error at index {0}", cursor);
@@ -126,7 +130,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private IValue getStringValue(char c) throws JsonParseException {
         int closeIdx;
         String currentValue;
-        
+
         closeIdx = getClosedParenIndex(c, cursor + 1, json);
         if (closeIdx == -1) {
             log.log(Level.SEVERE, "Parse error at index {0}", cursor);

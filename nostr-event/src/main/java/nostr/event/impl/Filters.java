@@ -66,4 +66,9 @@ public class Filters extends BaseEvent {
     public String toBech32() {
         throw new UnsupportedOperationException("This operation is not supported.");
     }
+
+    @Override
+    public Integer getNip() {
+        return 1;
+    }
 }

@@ -75,6 +75,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
+    
+    @EqualsAndHashCode.Exclude
+    private Integer nip;
 
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;

@@ -17,7 +17,7 @@ import lombok.extern.java.Log;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @Log
-public class ErrorHandler extends BaseHandler {
+public class DefaultErrorHandler extends BaseHandler {
 
     private final Throwable cause;
 

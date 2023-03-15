@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
-import nostr.base.IHandler;
 import nostr.base.Relay;
+import nostr.base.handler.request.IRequestHandler;
 import nostr.event.impl.GenericMessage;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
@@ -24,7 +24,7 @@ import org.eclipse.jetty.websocket.api.Session;
 @Log
 @Data
 @AllArgsConstructor
-public class RequestHandler implements IHandler {
+public class DefaultRequestHandler implements IRequestHandler {
 
     private final GenericMessage message;
     private final Connection connection;
@@ -40,7 +40,7 @@ public class RequestHandler implements IHandler {
     }
 
     private void sendMessage() throws IOException, NostrException {
-        
+
         final Relay relay = connection.getRelay();
 
         if (!relay.getSupportedNips().contains(message.getNip())) {
@@ -51,9 +51,10 @@ public class RequestHandler implements IHandler {
         if (session != null) {
             RemoteEndpoint remote = session.getRemote();
 
-            log.log(Level.FINE, "Sending Message: {0}", message);
-
             final String msg = new MessageMarshaller(message, relay).marshall();
+
+            log.log(Level.INFO, ">>> Sending Message: {0}", msg);
+
             remote.sendString(msg);
 
             return;

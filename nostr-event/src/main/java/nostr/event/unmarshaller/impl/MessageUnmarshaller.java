@@ -62,13 +62,8 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
             }
             case "REQ" -> {
                 String subId = value.get(1).get().getValue().toString();
-                FiltersList filtersList = new FiltersList();
-                for (var i = 1; i < value.length(); i++) {
-                    var filters = value.get(i).get();
-                    filtersList.add((Filters) new FiltersUnmarshaller(filters.toString(), isEscape()).unmarshall());
-
-                }
-                msg = new ReqMessage(subId, filtersList);
+                Filters filters =  (Filters) new FiltersUnmarshaller(value.get(1).get().toString(), isEscape()).unmarshall();
+                msg = new ReqMessage(subId, filters);
             }
             default -> {
                 msg = new GenericMessage(cmd);
@@ -78,7 +73,7 @@ public class MessageUnmarshaller extends BaseElementUnmarshaller {
                 }
             }
         }
-        
+
         return msg;
     }
 

@@ -53,7 +53,7 @@ public class EventTest {
     private final Identity identity;
 
     public EventTest() throws IOException, NostrException {
-        this.identity = new Identity();
+        this.identity = new Identity("/profile.properties");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"").get();
+            IValue tags = ((ObjectValue) jsonValue).get("tags").get();
 
             Assertions.assertEquals(2, ((ArrayValue) tags).length());
 
@@ -128,7 +128,7 @@ public class EventTest {
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
 
-            IValue tags = ((ObjectValue) jsonValue).get("\"tags\"").get();
+            IValue tags = ((ObjectValue) jsonValue).get("tags").get();
 
             Assertions.assertEquals(2, ((ArrayValue) tags).length());
 

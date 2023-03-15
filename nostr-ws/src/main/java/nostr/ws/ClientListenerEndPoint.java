@@ -1,19 +1,19 @@
 package nostr.ws;
 
-import nostr.ws.handler.CloseHandler;
-import nostr.ws.handler.ConnectHandler;
-import nostr.ws.handler.ErrorHandler;
-import nostr.ws.handler.response.BaseResponseHandler;
-import nostr.ws.handler.response.EoseResponseHandler;
-import nostr.ws.handler.response.EventResponseHandler;
-import nostr.ws.handler.response.NoticeResponseHandler;
-import nostr.ws.handler.response.OkResponseHandler;
+import nostr.ws.handler.DefaultCloseHandler;
+import nostr.ws.handler.DefaultConnectHandler;
+import nostr.ws.handler.DefaultErrorHandler;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
-import nostr.ws.handler.response.OkResponseHandler.Reason;
+import nostr.base.BaseConfiguration;
+import nostr.base.handler.response.IEoseResponseHandler;
+import nostr.base.handler.response.IEventResponseHandler;
+import nostr.base.handler.response.INoticeResponseHandler;
+import nostr.base.handler.response.IOkResponseHandler;
+import nostr.base.handler.response.IOkResponseHandler.Reason;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
@@ -23,6 +23,12 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import nostr.base.handler.response.IResponseHandler;
+import nostr.types.values.IValue;
+import nostr.ws.handler.response.DefaultEoseResponseHandler;
+import nostr.ws.handler.response.DefaultEventResponseHandler;
+import nostr.ws.handler.response.DefaultNoticeResponseHandler;
+import nostr.ws.handler.response.DefaultOkResponseHandler;
 
 /**
  *
@@ -33,20 +39,23 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 @Log
 public class ClientListenerEndPoint {
 
+    private IResponseHandler responseHandler;
+    //private String handlersConfigFile;
+
     @OnWebSocketConnect
     public void onConnect(Session session) {
         log.fine("onConnect");
 
         session.setMaxTextMessageSize(16 * 1024);
 
-        ConnectHandler.builder().build().process();
+        DefaultConnectHandler.builder().build().process();
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
         log.log(Level.FINE, "onClose {0}, {1}", new Object[]{statusCode, reason});
 
-        CloseHandler.builder().reason(reason).statusCode(statusCode).build().process();
+        DefaultCloseHandler.builder().reason(reason).statusCode(statusCode).build().process();
 
         disposeResources();
     }
@@ -55,9 +64,11 @@ public class ClientListenerEndPoint {
     public void onError(Throwable cause) {
         log.fine("onError");
 
-        log.log(Level.SEVERE, "An error has occurred: {}", cause.getMessage());
+        log.log(Level.SEVERE, "An error has occurred: {0}", cause);
+        
+        cause.printStackTrace(System.out);
 
-        ErrorHandler.builder().cause(cause).build().process();
+        DefaultErrorHandler.builder().cause(cause).build().process();
 
         disposeResources();
     }
@@ -73,18 +84,20 @@ public class ClientListenerEndPoint {
         log.log(Level.FINE, "onTextMessage: Message: {0}", message);
 
         ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = (jsonArr).get(0).toString();
+        final String command = (jsonArr).get(0).get().getValue().toString();
         String msg;
-        BaseResponseHandler responseHandler = null;
+
         switch (command) {
-            case "\"EOSE\"" -> {
-                msg = (jsonArr).get(1).toString();
-                responseHandler = new EoseResponseHandler(msg);
+            case "EOSE" -> {
+                msg = (jsonArr).get(1).get().getValue().toString();
+
+                responseHandler = createEoseResponseHandler();
+                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
             }
-            case "\"OK\"" -> {
-                String eventId = (jsonArr).get(1).toString();
+            case "OK" -> {
+                String eventId = (jsonArr).get(1).get().getValue().toString();
                 boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
-                msg = (jsonArr).get(3).toString();
+                msg = (jsonArr).get(3).get().getValue().toString();
                 final int colonIndex = msg.indexOf(":");
                 Reason reason;
                 String reasonMessage = "";
@@ -95,16 +108,27 @@ public class ClientListenerEndPoint {
                     reason = Reason.fromCode(msg.substring(1, colonIndex)).orElseThrow(RuntimeException::new);
                     reasonMessage = msg.substring(colonIndex + 1);
                 }
-                responseHandler = new OkResponseHandler(eventId, result, reason, reasonMessage);
+
+                responseHandler = createOkResponseHandler();
+                ((IOkResponseHandler) responseHandler).setEventId(eventId);
+                ((IOkResponseHandler) responseHandler).setMessage(msg);
+                ((IOkResponseHandler) responseHandler).setReason(reason);
+                ((IOkResponseHandler) responseHandler).setResult(result);
             }
-            case "\"NOTICE\"" -> {
-                msg = (jsonArr).get(1).toString();
-                responseHandler = new NoticeResponseHandler(msg);
+            case "NOTICE" -> {
+                msg = jsonArr.get(1).get().getValue().toString();
+                responseHandler = createNoticeResponseHandler();
+                ((INoticeResponseHandler) responseHandler).setMessage(msg); //new NoticeResponseHandler(msg);
             }
-            case "\"EVENT\"" -> {
-                String subId = (jsonArr).get(1).toString();
-                String jsonEvent = (jsonArr).get(2).toString();
-                responseHandler = new EventResponseHandler(subId, jsonEvent);
+            case "EVENT" -> {
+                String subId = jsonArr.get(1).get().getValue().toString();
+                String jsonEvent = jsonArr.get(2).get().toString();
+                
+                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
+                
+                responseHandler = createEventResponseHandler();
+                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
+                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
             }
             default -> {
             }
@@ -135,5 +159,76 @@ public class ClientListenerEndPoint {
 
     private void savePNGImage(byte[] payload, int offset, int length) {
         log.log(Level.FINE, "savePNGImage");
+    }
+
+    private IEoseResponseHandler createEoseResponseHandler() {
+        try {
+            var config = new HandlerConfiguration();
+            var strClass = config.getEoseResponseHandler();
+            return (IEoseResponseHandler) Class.forName(strClass).newInstance();
+        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            log.log(Level.WARNING, null, ex);
+            return new DefaultEoseResponseHandler();
+        }
+    }
+
+    private IOkResponseHandler createOkResponseHandler() {
+        try {
+            var config = new HandlerConfiguration();
+            var strClass = config.getOkResponseHandler();            
+            return strClass == null ? new DefaultOkResponseHandler() : (IOkResponseHandler) Class.forName(strClass).newInstance();
+        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            log.log(Level.WARNING, null, ex);
+            return new DefaultOkResponseHandler();
+        }
+    }
+
+    private INoticeResponseHandler createNoticeResponseHandler() {
+        try {
+            var config = new HandlerConfiguration();
+            var strClass = config.getNoticeResponseHandler();
+            return strClass == null ? new DefaultNoticeResponseHandler() : (INoticeResponseHandler) Class.forName(strClass).newInstance();
+        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            log.log(Level.WARNING, null, ex);
+            return new DefaultNoticeResponseHandler();
+        }
+    }
+
+    private IEventResponseHandler createEventResponseHandler() {
+        try {
+            var config = new HandlerConfiguration();
+            var strClass = config.getEventResponseHandler();
+            return strClass == null ? new DefaultEventResponseHandler() : (IEventResponseHandler) Class.forName(strClass).newInstance();
+        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            log.log(Level.WARNING, null, ex);
+            return new DefaultEventResponseHandler();
+        }
+    }
+    
+    static class HandlerConfiguration extends BaseConfiguration {
+                
+        HandlerConfiguration() throws IOException {
+            this("/handlers.properties");
+        }
+        
+        HandlerConfiguration(String file) throws IOException {
+            super(file);
+        }
+        
+        String getEoseResponseHandler() {
+            return getProperty("eose.handler");
+        }
+        
+        String getOkResponseHandler() {
+            return getProperty("ok.handler");
+        }
+        
+        String getNoticeResponseHandler() {
+            return getProperty("notice.handler");
+        }
+        
+        String getEventResponseHandler() {
+            return getProperty("event.handler");
+        }
     }
 }
