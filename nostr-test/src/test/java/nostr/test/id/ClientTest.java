@@ -1,20 +1,19 @@
 package nostr.test.id;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
 import nostr.base.PublicKey;
+import nostr.event.impl.GenericMessage;
 import nostr.event.message.EventMessage;
 import nostr.id.Client;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import java.io.IOException;
-import nostr.base.ElementAttribute;
-import nostr.base.Relay;
-import nostr.event.impl.GenericMessage;
 import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *

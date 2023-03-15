@@ -57,7 +57,7 @@ public class Connection {
         this.relay = relay;
         this.uri = serverURI(relay.getUri());
         this.connect();
-    }
+    } 
 
     private static URI serverURI(String uri) throws URISyntaxException {
         try {
