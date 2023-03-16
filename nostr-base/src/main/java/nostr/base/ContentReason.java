@@ -13,13 +13,9 @@ import lombok.EqualsAndHashCode;
 @Builder
 @Data
 @EqualsAndHashCode
-public class Channel {
+public class ContentReason {
 
-    private String name;
-
-    private String about;
-
-    private String picture;
+    private String reason;
     
     @Override
     public String toString() {
