@@ -30,7 +30,6 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.FiltersList;
 import nostr.event.list.KindList;
 import nostr.event.list.PubKeyTagList;
 import nostr.event.list.TagList;
