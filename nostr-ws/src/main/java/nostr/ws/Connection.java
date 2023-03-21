@@ -57,7 +57,7 @@ public class Connection {
         this.relay = relay;
         this.uri = serverURI(relay.getUri());
         this.connect();
-    } 
+    }
 
     private static URI serverURI(String uri) throws URISyntaxException {
         try {
@@ -68,7 +68,7 @@ public class Connection {
             openConnection.connect();
             return new URI("wss://" + uri);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.log(Level.WARNING, null, e);
         } catch (IOException e) {
             log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTPS", uri);
         }
@@ -80,7 +80,7 @@ public class Connection {
             openConnection.connect();
             return new URI("ws://" + uri);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.log(Level.WARNING, null, e);
         } catch (IOException e) {
             log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTP", uri);
         }
