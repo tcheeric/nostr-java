@@ -1,15 +1,15 @@
 package nostr.event.unmarshaller;
 
 import lombok.Data;
-import nostr.base.IElement;
 import nostr.base.IUnmarshaller;
 
 /**
  *
  * @author squirrel
+ * @param <T>
  */
 @Data
-public abstract class BaseElementUnmarshaller implements IUnmarshaller<IElement> {
+public abstract class BaseElementUnmarshaller<T> implements IUnmarshaller<T> {
 
     private final String json;
     private final boolean escape;

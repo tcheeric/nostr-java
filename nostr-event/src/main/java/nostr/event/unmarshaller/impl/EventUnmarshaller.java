@@ -1,6 +1,5 @@
 package nostr.event.unmarshaller.impl;
 
-import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
@@ -12,7 +11,7 @@ import nostr.util.NostrUtil;
  *
  * @author squirrel
  */
-public class EventUnmarshaller extends BaseElementUnmarshaller {
+public class EventUnmarshaller extends BaseElementUnmarshaller<GenericEvent> {
 
     public EventUnmarshaller(String event) {
         this(event, false);
@@ -23,7 +22,7 @@ public class EventUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public IEvent unmarshall() {
+    public GenericEvent unmarshall() {
         var value = new JsonObjectUnmarshaller(this.getJson()).unmarshall();
 
         // Public Key

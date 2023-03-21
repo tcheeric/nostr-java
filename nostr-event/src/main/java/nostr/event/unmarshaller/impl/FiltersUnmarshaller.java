@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import nostr.base.GenericTagQuery;
-import nostr.base.IElement;
 import nostr.base.PublicKey;
 import nostr.event.BaseEvent.ProxyEvent;
 import nostr.event.Kind;
@@ -25,7 +24,7 @@ import nostr.util.NostrUtil;
  *
  * @author squirrel
  */
-public class FiltersUnmarshaller extends BaseElementUnmarshaller {
+public class FiltersUnmarshaller extends BaseElementUnmarshaller<Filters> {
 
     public FiltersUnmarshaller(String event) {
         this(event, false);
@@ -36,7 +35,7 @@ public class FiltersUnmarshaller extends BaseElementUnmarshaller {
     }
 
     @Override
-    public IElement unmarshall() {
+    public Filters unmarshall() {
 
         var value = new JsonObjectUnmarshaller(getJson()).unmarshall();
         var publicKeyList = new PublicKeyList();

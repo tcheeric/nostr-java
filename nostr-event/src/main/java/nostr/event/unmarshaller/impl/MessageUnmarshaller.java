@@ -5,7 +5,6 @@ import nostr.base.IEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.event.list.FiltersList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -20,7 +19,7 @@ import nostr.types.values.impl.StringValue;
  *
  * @author squirrel
  */
-public class MessageUnmarshaller extends BaseElementUnmarshaller {
+public class MessageUnmarshaller extends BaseElementUnmarshaller<GenericMessage> {
 
     public MessageUnmarshaller(String event) {
         this(event, false);
