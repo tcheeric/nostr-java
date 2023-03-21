@@ -62,7 +62,8 @@ public class Identity {
     private final Profile profile;
 
     public Identity(Profile profile, PrivateKey privateKey) {
-    	this.profile = profile;
+        //TODO - Ensure pKey and secKey match
+        this.profile = profile;
         this.privateKey = privateKey;
     }
 
@@ -80,8 +81,8 @@ public class Identity {
         ITag pkTag = (ITag) dmEvent.getTags().getList().get(0);
         if (pkTag instanceof PubKeyTag pubKeyTag) {
             try {
-                var publicKey = pubKeyTag.getPublicKey().getRawData();
-                var encryptedContent = encryptMessage(privateKey.getRawData(), publicKey, dmEvent.getContent());
+                var rcptPublicKey = pubKeyTag.getPublicKey();
+                var encryptedContent = encryptMessage(privateKey.getRawData(), rcptPublicKey.getRawData(), dmEvent.getContent());
                 dmEvent.setContent(encryptedContent);
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
                 log.log(Level.SEVERE, null, ex);
@@ -89,11 +90,15 @@ public class Identity {
             }
         }
     }
-    
-    public String decryptDirectMessage(@NonNull DirectMessageEvent encryptedEvent) {
-        String encContent = encryptedEvent.getContent();
-        
-        return Identity.decryptMessage(encryptedEvent.getPubKey().getRawData(), encContent);
+
+    public String decryptDirectMessage(@NonNull String encContent, PublicKey senderPublicKey) throws NostrException {
+        try {
+            var sharedSecret = getSharedSecretKeySpec(this.privateKey.getRawData(), senderPublicKey.getRawData());
+            return Identity.decryptMessage(sharedSecret, encContent);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new NostrException(ex);
+        }
     }
 
     public Signature sign(@NonNull ISignable signable) throws NostrException {
@@ -156,35 +161,48 @@ public class Identity {
      */
     private static String encryptMessage(byte[] senderPrivateKey, byte[] rcptPublicKey, String message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, NostrException {
 
-        final var Base64Encoder = Base64.getEncoder();
-        final var msg = message.getBytes(StandardCharsets.UTF_8);
-
-        final String secKeyHex = NostrUtil.bytesToHex(senderPrivateKey);
-        final String pubKeyHex = NostrUtil.bytesToHex(rcptPublicKey);
-
-        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);
-        var sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
+        var sharedSecretKey = getSharedSecretKeySpec(senderPrivateKey, rcptPublicKey);
 
         var iv = NostrUtil.createRandomByteArray(16);
         var ivParamSpec = new IvParameterSpec(iv);
 
-        var sharedSecretKey = new SecretKeySpec(sharedX, "AES");
         var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, ivParamSpec);
 
+        final var msg = message.getBytes(StandardCharsets.UTF_8);
         var encryptedMessage = cipher.doFinal(msg);
+
+        final var Base64Encoder = Base64.getEncoder();
         var encryptedMessage64 = Base64Encoder.encode(encryptedMessage);
 
         var iv64 = Base64Encoder.encode(ivParamSpec.getIV());
 
         return new String(encryptedMessage64) + "?iv=" + new String(iv64);
     }
-    
-    private static String decryptMessage(byte[] senderPublicKey, String encodedMessage) {
+
+    private static SecretKeySpec getSharedSecretKeySpec(byte[] privateKey, byte[] publicKey) throws NostrException {
+        final String secKeyHex = NostrUtil.bytesToHex(privateKey);
+        final String pubKeyHex = NostrUtil.bytesToHex(publicKey);
+
+        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);
+        var sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
+
+        return new SecretKeySpec(sharedX, "AES");
+    }
+
+    private static String decryptMessage(SecretKeySpec sharedSecretKey, String encodedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+
+        final var parts = encodedMessage.split("\\?iv=");
+
         final var Base64Decoder = Base64.getDecoder();
-        final var encryptedMessage = Base64Decoder.decode(encodedMessage);
-        
-        return null;
+        final var encryptedMessage = Base64Decoder.decode(parts[0]);
+        final var iv = Base64Decoder.decode(parts[1]);
+
+        var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        var ivParamSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, sharedSecretKey, ivParamSpec);
+
+        return new String(cipher.doFinal(encryptedMessage), StandardCharsets.UTF_8);
     }
 
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {

@@ -148,6 +148,7 @@ public class Client {
         }
     }
 
+    @Log
     static class RelayConfiguration extends BaseConfiguration {
 
         RelayConfiguration() throws IOException {
@@ -162,9 +163,8 @@ public class Client {
             Set<Object> relays = this.properties.keySet();
             List<Relay> result = new ArrayList<>();
 
-            //for (Object r : relays) 
-            relays.stream().forEach(r -> {
-                Relay relay = Relay.builder().name(r.toString()).uri(this.getProperty(r.toString())).build();
+            relays.stream().forEach(r -> {                
+                var relay = Relay.builder().name(r.toString()).uri(this.getProperty(r.toString())).build();
                 result.add(relay);
             });
             return result;
