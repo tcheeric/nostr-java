@@ -12,7 +12,9 @@ import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
+
 import nostr.crypto.bech32.Bech32;
+
 import nostr.event.Kind;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
@@ -35,13 +37,18 @@ import nostr.event.unmarshaller.impl.MessageUnmarshaller;
 import nostr.event.unmarshaller.impl.TagListUnmarshaller;
 import nostr.event.unmarshaller.impl.TagUnmarshaller;
 import nostr.event.util.Nip05Validator;
+
 import nostr.id.Identity;
+
 import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
+
 import nostr.test.EntityFactory;
+
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ArrayValue;
 import nostr.types.values.impl.ObjectValue;
 import nostr.types.values.impl.StringValue;
+
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.UnsupportedNIPException;

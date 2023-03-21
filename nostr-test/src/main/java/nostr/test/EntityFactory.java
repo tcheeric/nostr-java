@@ -26,6 +26,7 @@ import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
+import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.OtsEvent;
 import nostr.event.list.EventList;
@@ -42,6 +43,7 @@ import nostr.util.NostrException;
  * @author squirrel
  */
 @Log
+//TODO - Add the sender PK to all createEvents.
 public class EntityFactory {
 
     @Log
@@ -65,6 +67,18 @@ public class EntityFactory {
                 GenericEvent event = new EphemeralEvent(publicKey, tagList);
                 event.update();
                 return (EphemeralEvent) event;
+            } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        public static DirectMessageEvent createDirectMessageEvent(PublicKey senderPublicKey,PublicKey rcptPublicKey, String content) {
+            try {
+                TagList tagList = new TagList();
+                tagList.add(PubKeyTag.builder().publicKey(rcptPublicKey).petName("uq7yfx3l").build());
+                GenericEvent event = new DirectMessageEvent(senderPublicKey, tagList, content);
+                event.update();
+                return (DirectMessageEvent) event;
             } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
                 throw new RuntimeException(ex);
             }
