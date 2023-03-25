@@ -1,11 +1,16 @@
 package nostr.ws;
 
-import nostr.ws.handler.DefaultCloseHandler;
-import nostr.ws.handler.DefaultConnectHandler;
-import nostr.ws.handler.DefaultErrorHandler;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
+
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.StatusCode;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
@@ -14,17 +19,13 @@ import nostr.base.handler.response.IEventResponseHandler;
 import nostr.base.handler.response.INoticeResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler.Reason;
+import nostr.base.handler.response.IResponseHandler;
+import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import nostr.base.handler.response.IResponseHandler;
-import nostr.types.values.IValue;
+import nostr.ws.handler.DefaultCloseHandler;
+import nostr.ws.handler.DefaultConnectHandler;
+import nostr.ws.handler.DefaultErrorHandler;
 import nostr.ws.handler.response.DefaultEoseResponseHandler;
 import nostr.ws.handler.response.DefaultEventResponseHandler;
 import nostr.ws.handler.response.DefaultNoticeResponseHandler;
@@ -44,7 +45,7 @@ public class ClientListenerEndPoint {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        log.fine("onConnect");
+        log.log(Level.FINE, "onConnect Relay {0}", session.getRemoteAddress());
 
         session.setMaxTextMessageSize(16 * 1024);
 
@@ -81,7 +82,7 @@ public class ClientListenerEndPoint {
             return;
         }
 
-        log.log(Level.FINE, "onTextMessage: Message: {0}", message);
+        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
 
         ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
         final String command = (jsonArr).get(0).get().getValue().toString();
