@@ -1,14 +1,15 @@
 package nostr.event.marshaller.impl;
 
+import java.util.logging.Level;
+
+import lombok.extern.java.Log;
 import nostr.base.Relay;
+import nostr.event.impl.GenericMessage;
 import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
-import java.util.logging.Level;
-import lombok.extern.java.Log;
-import nostr.event.impl.GenericMessage;
 import nostr.util.NostrException;
 
 /**
@@ -26,6 +27,7 @@ public class MessageMarshaller extends BaseElementMarshaller {
         super(baseMessage, relay, escape);
     }
 
+//    TODO: Improve
     @Override
     public String marshall() throws NostrException {
         GenericMessage message = (GenericMessage) getElement();

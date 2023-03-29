@@ -1,14 +1,15 @@
 package nostr.event.marshaller.impl;
 
-import nostr.base.ITag;
-import nostr.base.Relay;
-import nostr.util.UnsupportedNIPException;
-import nostr.event.BaseTag;
-import nostr.event.marshaller.BaseElementMarshaller;
 import java.util.List;
-import static nostr.base.NipUtil.checkSupport;
+
+import nostr.base.ITag;
+import nostr.base.NipUtil;
+import nostr.base.Relay;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericTag;
+import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -26,38 +27,14 @@ public class TagMarshaller extends BaseElementMarshaller {
 
     @Override
     public String marshall() throws NostrException {
-        return toJson();
-    }
-
-    private String toJson() throws NostrException {
-
         ITag tag = (ITag) getElement();
         Relay relay = getRelay();
 
         if (!nipSupportForTag()) {
             throw new UnsupportedNIPException(relay + " does not support tag " + tag.getCode());
         }
-
-        StringBuilder result = new StringBuilder();
-        result.append("[");
-        if (!isEscape()) {
-            result.append("\"");
-        } else {
-            result.append("\\\"");
-        }
-
-        result.append(tag.getCode());
-
-        if (!isEscape()) {
-            result.append("\"");
-        } else {
-            result.append("\\\"");
-        }
-
-        result.append(tag.printAttributes(relay, isEscape()));
-        result.append("]");
-
-        return result.toString();
+        
+        return toJson(tag);
     }
 
     // TODO test me
@@ -80,7 +57,7 @@ public class TagMarshaller extends BaseElementMarshaller {
             nip = genericTag.getNip();
             return snips.contains(nip);
         } else {
-            return checkSupport(relay, tag) && checkSupport(relay, ((BaseTag) tag).getParent());
+            return NipUtil.checkSupport(relay, tag) && NipUtil.checkSupport(relay, ((BaseTag) tag).getParent());
         }
 
     }

@@ -73,34 +73,11 @@ public class NostrExamples {
     		.build();
 	private final static Identity identity = new Identity(profile, new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"));
 	private final static Map<String, String> relays = Stream.of(new String[][] {
-			{ "nostr-01.bolt.observer", "nostr-01.bolt.observer" },
-			{ "relay.nostr-latam.link", "relay.nostr-latam.link" },
-			{ "nostr.uselessshit.co", "nostr.uselessshit.co" },
-			{ "nostr.milou.lol", "nostr.milou.lol" },
-			{ "relay.nostr.vision", "relay.nostr.vision" },
-			{ "nostr.zebedee.cloud", "nostr.zebedee.cloud" },
-			{ "nostr.roundrockbitcoiners.com", "nostr.roundrockbitcoiners.com" },
-			{ "nostr-relay.derekross.me", "nostr-relay.derekross.me" },
-			{ "nostr.screaminglife.io", "nostr.screaminglife.io" },
-			{ "nostr.drss.io", "nostr.drss.io" },
-			{ "nostr.handyjunky.com", "nostr.handyjunky.com" },
-			{ "nostr.gromeul.eu", "nostr.gromeul.eu" },
-			{ "relay.taxi", "relay.taxi" },
-			{ "nostr.massmux.com", "nostr.massmux.com" },
-			{ "nostr.bostonbtc.com", "nostr.bostonbtc.com" },
-			{ "nostr-relay.schnitzel.world", "nostr-relay.schnitzel.world" },
-			{ "nostrical.com", "nostrical.com" },
-			{ "nostr.easydns.ca", "nostr.easydns.ca" },
-			{ "relay.nostr.info", "relay.nostr.info" },
-			{ "nostr.shawnyeager.net", "nostr.shawnyeager.net" },
-			{ "knostr.neutrine.com", "knostr.neutrine.com" },
-			{ "lightningrelay.com", "lightningrelay.com" },
-			{ "nostr.developer.li", "nostr.developer.li" },
-			{ "nostr-1.nbo.angani.co", "nostr-1.nbo.angani.co" },
-			{ "at.nostrworks.com", "at.nostrworks.com" },
-			{ "relay.ryzizub.com", "relay.ryzizub.com" },
-			{ "nostr.ownscale.org", "nostr.ownscale.org" },
-			{ "no-str.org", "no-str.org" }
+			{ "brb", "brb.io" },
+			{ "ZBD", "nostr.zebedee.cloud" },
+			{ "damus", "relay.damus.io" },
+			{ "taxi", "relay.taxi" },
+			{ "relay.nostr.vision", "relay.nostr.vision" }
 		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 	private final static Client client = new Client("test", identity, relays);
 
@@ -128,7 +105,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    sendTextNoteEvent(identity, client);
+                    sendTextNoteEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -136,7 +113,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    sendEncryptedDirectMessage(identity, client);
+                    sendEncryptedDirectMessage();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -144,7 +121,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    mentionsEvent(identity, client);
+                    mentionsEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -152,7 +129,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    deletionEvent(identity, client);
+                    deletionEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -160,7 +137,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    metaDataEvent(identity, client);
+                    metaDataEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -168,7 +145,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    ephemerealEvent(identity, client);
+                    ephemerealEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -176,7 +153,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    reactionEvent(identity, client);
+                    reactionEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -184,7 +161,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    replaceableEvent(identity, client);
+                    replaceableEvent();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -192,7 +169,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    internetIdMetadata(identity, client);
+                    internetIdMetadata();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -200,7 +177,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    filters(identity, client);
+                    filters();
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -242,7 +219,7 @@ public class NostrExamples {
         }
     }
 
-	private static void sendTextNoteEvent(Identity identity, Client client) throws NostrException {
+	private static void sendTextNoteEvent() throws NostrException {
         logHeader("sendTextNoteEvent");
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
@@ -251,20 +228,19 @@ public class NostrExamples {
             TagList tagList = new TagList();
             tagList.add(pkSenderTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, from the nostr-java API!");
+            GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello world, I'm here on nostr-java API!");
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
-            log.log(Level.FINER, "Sending message {0}", event);
-            client.send(message);
 
+            client.send(message);
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
         }
     }
 
-    private static void sendEncryptedDirectMessage(Identity identity, Client client) throws NostrException {
+    private static void sendEncryptedDirectMessage() throws NostrException {
         logHeader("sendEncryptedDirectMessage");
 
         try {
@@ -289,7 +265,7 @@ public class NostrExamples {
         }
     }
 
-    private static void mentionsEvent(Identity identity, Client client) throws NostrException {
+    private static void mentionsEvent() throws NostrException {
         logHeader("mentionsEvent");
 
         try {
@@ -317,7 +293,7 @@ public class NostrExamples {
         }
     }
 
-    private static void deletionEvent(Identity identity, Client client) throws NostrException {
+    private static void deletionEvent() throws NostrException {
         logHeader("deletionEvent");
 
         try {
@@ -331,12 +307,11 @@ public class NostrExamples {
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+          
             client.send(message);
 
             tagList = new TagList();
-            tagList.add(EventTag.builder().relatedEvent(event).build());
+            tagList.add(EventTag.builder().idEvent(event.getId()).build());
             GenericEvent delEvent = new DeletionEvent(publicKeySender, tagList);
 
             identity.sign(delEvent);
@@ -349,7 +324,7 @@ public class NostrExamples {
         }
     }
 
-    private static void metaDataEvent(Identity identity, Client client) throws NostrException {
+    private static void metaDataEvent() throws NostrException {
         logHeader("metaDataEvent");
 
         try {
@@ -364,8 +339,7 @@ public class NostrExamples {
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
 
         } catch (UnsupportedNIPException ex) {
@@ -373,7 +347,7 @@ public class NostrExamples {
         }
     }
 
-    private static void ephemerealEvent(Identity identity, Client client) throws NostrException {
+    private static void ephemerealEvent() throws NostrException {
         logHeader("ephemerealEvent");
 
         try {
@@ -387,15 +361,14 @@ public class NostrExamples {
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
         } catch (UnsupportedNIPException ex) {
             log.log(Level.WARNING, null, ex);
         }
     }
 
-    private static void reactionEvent(Identity identity, Client client) throws NostrException {
+    private static void reactionEvent() throws NostrException {
         logHeader("reactionEvent");
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
@@ -408,12 +381,11 @@ public class NostrExamples {
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
 
             tagList = new TagList();
-            tagList.add(EventTag.builder().relatedEvent(event).build());
+            tagList.add(EventTag.builder().idEvent(event.getId()).build());
             tagList.add(PubKeyTag.builder().publicKey(publicKeySender).build());
             GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tagList, Reaction.LIKE, event);
 
@@ -427,7 +399,7 @@ public class NostrExamples {
         }
     }
 
-    private static void replaceableEvent(Identity identity, Client client) throws NostrException {
+    private static void replaceableEvent() throws NostrException {
         logHeader("replaceableEvent");
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
@@ -440,12 +412,11 @@ public class NostrExamples {
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
 
             tagList = new TagList();
-            tagList.add(EventTag.builder().relatedEvent(event).build());
+            tagList.add(EventTag.builder().idEvent(event.getId()).build());
             GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, tagList, "New content", event);
 
             identity.sign(replaceableEvent);
@@ -458,7 +429,7 @@ public class NostrExamples {
         }
     }
 
-    private static void internetIdMetadata(Identity identity, Client client) throws NostrException {
+    private static void internetIdMetadata() throws NostrException {
         logHeader("internetIdMetadata");
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
@@ -480,7 +451,7 @@ public class NostrExamples {
     }
 
     // FIXME
-    public static void filters(Identity identity, Client client) throws NostrException {
+    public static void filters() throws NostrException {
         logHeader("filters");
         try {
             KindList kindList = new KindList();
@@ -503,24 +474,16 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 
-            ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender)
-            			.petName("nostr-java")
-            			.mainRelayUrl(client.getRelays().stream().findFirst().get().getUri())
-            			.build();
-            TagList tagList = new TagList();
-            tagList.add(pkSenderTag);
-
             var channel = Channel.builder()
-            		.name("99cf4426cb4507")
+            		.name("JNostr Channel")
             		.about("This is a channel to test NIP28 in nostr-java")
             		.picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg")
             		.build();
-            GenericEvent event = new ChannelCreateEvent(publicKeySender, tagList, channel.toString());
+            GenericEvent event = new ChannelCreateEvent(publicKeySender, new TagList(), channel.toString());
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);
 
-            log.log(Level.FINER, "Sending message {0}", event);
             client.send(message);
             
             return event;
@@ -538,7 +501,7 @@ public class NostrExamples {
 
             var tagList = new TagList();
             tagList.add(EventTag.builder()
-            		.relatedEvent(channelCreateEvent)
+            		.idEvent(channelCreateEvent.getId())
             		.recommendedRelayUrl(client.getRelays().stream().findFirst().get().getUri())
             		.build());
 
@@ -551,8 +514,7 @@ public class NostrExamples {
 
             identity.sign(event);
             var message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
         } catch (Exception ex) {
             throw new NostrException(ex);
@@ -568,7 +530,7 @@ public class NostrExamples {
 
             var tagList = new TagList();
             tagList.add(EventTag.builder()
-            		.relatedEvent(channelCreateEvent)
+            		.idEvent(channelCreateEvent.getId())
             		.recommendedRelayUrl(client.getRelays().stream().findFirst().get().getUri())
             		.marker(Marker.ROOT)
             		.build());
@@ -577,8 +539,7 @@ public class NostrExamples {
 
             identity.sign(event);
             var message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
             
             return event;
@@ -596,15 +557,14 @@ public class NostrExamples {
 
             var tagList = new TagList();
             tagList.add(EventTag.builder()
-            		.relatedEvent(channelMessageEvent)
+            		.idEvent(channelMessageEvent.getId())
             		.build());
 
             GenericEvent event = new HideMessageEvent(publicKeySender, tagList, ContentReason.builder().reason("Dick pic").build().toString());
 
             identity.sign(event);
             var message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
             
             return event;
@@ -625,8 +585,7 @@ public class NostrExamples {
 
             identity.sign(event);
             var message = new EventMessage(event);
-
-            log.log(Level.FINER, "Sending message {0}", event);
+            
             client.send(message);
             
             return event;

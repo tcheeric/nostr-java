@@ -345,7 +345,7 @@ public class JsonTest {
 
             PublicKey publicKey = new PublicKey(new byte[]{});
             GenericEvent relatedEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
-            ITag eventTag = new EventTag(relatedEvent);
+            ITag eventTag = new EventTag(relatedEvent.getId());
 
             var jsonEventTag = new TagMarshaller(eventTag, relay).marshall();
 

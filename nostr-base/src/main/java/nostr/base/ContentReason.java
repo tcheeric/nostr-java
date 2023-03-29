@@ -1,6 +1,7 @@
 package nostr.base;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +20,13 @@ public class ContentReason {
     
     @Override
     public String toString() {
-    	Gson gson = new Gson();
-    	return gson.toJson(this).replace("\"", "\\\"");
+    	ObjectMapper mapper = new ObjectMapper();
+    	
+    	try {
+			return mapper.writeValueAsString(this).replace("\"", "\\\"");
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
     }
 
 }
