@@ -1,6 +1,7 @@
 package nostr.id;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +80,8 @@ public class Client {
 
     private void init(Map<String, String> mapRelays) {
         for (Map.Entry<String, String> r : mapRelays.entrySet()) {
-            this.addRelay(Relay.builder().name(r.getKey()).uri(r.getValue()).build());
+        	URI serverURI = Connection.serverURI(r.getValue());
+            this.addRelay(Relay.builder().name(r.getKey()).uri(serverURI.toString()).build());
         }
 
     }

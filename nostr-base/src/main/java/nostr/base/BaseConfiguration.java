@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
@@ -19,6 +20,7 @@ import lombok.extern.java.Log;
  */
 @Data
 @Log
+@NoArgsConstructor
 public class BaseConfiguration {
 
     protected final Properties properties = new Properties();

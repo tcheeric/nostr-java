@@ -64,11 +64,11 @@ public class Connection {
 
     public Connection(@NonNull Relay relay) throws Exception {
         this.relay = relay;
-        this.uri = serverURI(relay.getUri());
+        this.uri = new URI(relay.getUri());
         this.connect();
     }
 
-    private static URI serverURI(String uri) throws URISyntaxException {
+    public static URI serverURI(String uri) {
         try {
             URL url = new URL("https://" + uri);
 
@@ -79,8 +79,11 @@ public class Connection {
         } catch (MalformedURLException e) {
             log.log(Level.WARNING, null, e);
         } catch (IOException e) {
-            log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTPS", uri);
-        }
+            log.log(Level.WARNING, "It wasn't possible to connect to server {0} using HTTPS", uri);
+        } catch (URISyntaxException e) {
+            log.log(Level.SEVERE, "Invalid URI: {0}", uri);
+            throw new RuntimeException(e);
+		}
 
         try {
             URL url = new URL("http://" + uri);
@@ -92,7 +95,10 @@ public class Connection {
             log.log(Level.WARNING, null, e);
         } catch (IOException e) {
             log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTP", uri);
-        }
+        } catch (URISyntaxException e) {
+            log.log(Level.SEVERE, "Invalid URI: {0}", uri);
+            throw new RuntimeException(e);
+		}
 
 //    	TODO
         throw new RuntimeException();
@@ -152,6 +158,7 @@ public class Connection {
                 });
             }
         };
+        
         CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
 
         this.session = clientSessionPromise.get();
