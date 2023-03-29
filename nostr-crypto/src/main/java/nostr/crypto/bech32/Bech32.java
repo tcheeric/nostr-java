@@ -126,10 +126,6 @@ public class Bech32 {
             throw new NostrException("Human-readable part is too short");
         }
 
-        if (hrp.length() > 83) {
-            throw new NostrException("Human-readable part is too long");
-        }
-
         hrp = hrp.toLowerCase(Locale.ROOT);
         byte[] checksum = createChecksum(encoding, hrp, values);
         byte[] combined = new byte[values.length + checksum.length];
@@ -156,9 +152,6 @@ public class Bech32 {
         boolean lower = false, upper = false;
         if (str.length() < 8) {
             throw new NostrException("Input too short: " + str.length());
-        }
-        if (str.length() > 90) {
-            throw new NostrException("Input too long: " + str.length());
         }
         for (int i = 0; i < str.length(); ++i) {
             char c = str.charAt(i);
