@@ -207,6 +207,22 @@ public class NostrExamples {
 				}
 			});
 
+			executor.submit(() -> {
+				try {
+					hideMessage();
+				} catch (NostrException ex) {
+					log.log(Level.SEVERE, null, ex);
+				}
+			});
+
+			executor.submit(() -> {
+				try {
+					muteUser();
+				} catch (NostrException ex) {
+					log.log(Level.SEVERE, null, ex);
+				}
+			});
+
 			stop(executor);
 
 			if (executor.isTerminated()) {
