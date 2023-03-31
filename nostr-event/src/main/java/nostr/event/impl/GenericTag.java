@@ -3,12 +3,15 @@ package nostr.event.impl;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
-import nostr.base.Relay;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
+import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.types.MarshallException;
@@ -24,8 +27,10 @@ import nostr.util.NostrException;
 @Log
 public class GenericTag extends BaseTag implements IGenericElement {
 
+	private final String code;
+	@JsonIgnore
     private final Integer nip;
-    private final String code;
+	@JsonIgnore
     private final Set<ElementAttribute> attributes;
 
     public GenericTag(String code) {

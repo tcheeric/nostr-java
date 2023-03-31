@@ -263,7 +263,7 @@ public class NostrExamples {
 			final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 			PublicKey publicKeyRcpt = new PublicKey(PUBLIC_KEY);
 
-			ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("Nakamoto").build();
+			ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).build();
 			TagList tagList = new TagList();
 			tagList.add(pkeyRcptTag);
 
