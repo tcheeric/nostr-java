@@ -31,7 +31,7 @@ class ClientTest {
     public void testSend() {
         try {
             System.out.println("testSend");
-            PublicKey publicKey = client.getIdentity().getProfile().getPublicKey();
+            PublicKey publicKey = client.getIdentity().getPublicKey();
             GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
             this.client.send(msg);
             assertTrue(true);

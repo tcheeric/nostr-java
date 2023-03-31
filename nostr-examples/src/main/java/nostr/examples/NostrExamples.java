@@ -48,19 +48,19 @@ import nostr.util.UnsupportedNIPException;
  */
 @Log
 public class NostrExamples {
-	
-	/**
-	 * Private key of the public key, in case you want to check the messages: 
-	 * 
-	 * nsec1yjs4nalp47mwhvjwg0ne7gltwcv8g8glzhsucnmyujdvr87hda8qkjl88s
-	 * 24a159f7e1afb6ebb24e43e79f23eb7618741d1f15e1cc4f64e49ac19fd76f4e
-	 */
-	private final static String PUBLIC_KEY = "98fd512949146f36fe4e84ee0c68e6f04780c7037c6e2cf8baf74033ccd1b687";
-	private final static Profile PROFILE = Profile.builder()
-    		.name("test")
-    		.about("Hey, it's me!")
-    		.publicKey(new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"))
-    		.build();
+
+    /**
+     * Private key of the public key, in case you want to check the messages:
+     *
+     * nsec1yjs4nalp47mwhvjwg0ne7gltwcv8g8glzhsucnmyujdvr87hda8qkjl88s
+     * 24a159f7e1afb6ebb24e43e79f23eb7618741d1f15e1cc4f64e49ac19fd76f4e
+     */
+    private final static String PUBLIC_KEY = "98fd512949146f36fe4e84ee0c68e6f04780c7037c6e2cf8baf74033ccd1b687";
+    private final static Profile PROFILE = Profile.builder()
+            .name("test")
+            .about("Hey, it's me!")
+            .publicKey(new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"))
+            .build();
 
     static {
         final LogManager logManager = LogManager.getLogManager();
@@ -69,12 +69,12 @@ public class NostrExamples {
         } catch (IOException ex) {
             System.exit(-1000);
         }
-        
+
         try {
-			PROFILE.setPicture(new URL("https://images.unsplash.com/photo-1462888210965-cdf193fb74de"));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+            PROFILE.setPicture(new URL("https://images.unsplash.com/photo-1462888210965-cdf193fb74de"));
+        } catch (MalformedURLException e) {
+            log.log(Level.WARNING, null, e);
+        }
     }
 
     public static void main(String[] args) throws IOException, Exception {
@@ -82,8 +82,8 @@ public class NostrExamples {
 
             log.log(Level.FINE, "================= The Beginning");
 
-            Identity identity = new Identity(PROFILE, new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"));
-            Client client = new Client("nostr-java", identity, Map.of("brb", "brb.io",  "wine", "nostr.wine",  "ZBD", "nostr.zebedee.cloud"));
+            Identity identity = new Identity(new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"), new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"));
+            Client client = new Client("nostr-java", identity, Map.of("brb", "brb.io", "wine", "nostr.wine", "ZBD", "nostr.zebedee.cloud"));
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -153,7 +153,7 @@ public class NostrExamples {
 
             executor.submit(() -> {
                 try {
-                    internetIdMetadata(identity, client);
+                    internetIdMetadata(identity, PROFILE, client);
                 } catch (NostrException ex) {
                     log.log(Level.SEVERE, null, ex);
                 }
@@ -168,7 +168,7 @@ public class NostrExamples {
             });
 
             stop(executor);
-            
+
             if (executor.isTerminated()) {
                 log.log(Level.FINE, "================== The End");
             }
@@ -182,7 +182,7 @@ public class NostrExamples {
     private static void sendTextNoteEvent(Identity identity, Client client) throws NostrException {
         logHeader("sendTextNoteEvent");
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -205,7 +205,7 @@ public class NostrExamples {
         logHeader("sendEncryptedDirectMessage");
 
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
             PublicKey publicKeyRcpt = new PublicKey(PUBLIC_KEY);
 
             ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("willy").build();
@@ -230,7 +230,7 @@ public class NostrExamples {
         logHeader("mentionsEvent");
 
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkeySenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -258,7 +258,7 @@ public class NostrExamples {
         logHeader("deletionEvent");
 
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -290,12 +290,11 @@ public class NostrExamples {
         logHeader("metaDataEvent");
 
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             TagList tagList = new TagList();
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             tagList.add(pkSenderTag);
-
 
             var event = new MetadataEvent(publicKeySender, tagList, PROFILE);
 
@@ -314,7 +313,7 @@ public class NostrExamples {
         logHeader("ephemerealEvent");
 
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -335,7 +334,7 @@ public class NostrExamples {
     private static void reactionEvent(Identity identity, Client client) throws NostrException {
         logHeader("reactionEvent");
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -367,7 +366,7 @@ public class NostrExamples {
     private static void replaceableEvent(Identity identity, Client client) throws NostrException {
         logHeader("replaceableEvent");
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
@@ -395,16 +394,16 @@ public class NostrExamples {
         }
     }
 
-    private static void internetIdMetadata(Identity identity, Client client) throws NostrException {
+    private static void internetIdMetadata(Identity identity, Profile profile, Client client) throws NostrException {
         logHeader("internetIdMetadata");
         try {
-            final PublicKey publicKeySender = identity.getProfile().getPublicKey();
+            final PublicKey publicKeySender = identity.getPublicKey();
 
             ITag pkSenderTag = PubKeyTag.builder().publicKey(publicKeySender).petName("nostr-java").build();
             TagList tagList = new TagList();
             tagList.add(pkSenderTag);
 
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, identity.getProfile());
+            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, profile);
 
             identity.sign(event);
             GenericMessage message = new EventMessage(event);

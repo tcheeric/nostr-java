@@ -24,7 +24,6 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import nostr.base.handler.response.IResponseHandler;
-import nostr.types.values.IValue;
 import nostr.ws.handler.response.DefaultEoseResponseHandler;
 import nostr.ws.handler.response.DefaultEventResponseHandler;
 import nostr.ws.handler.response.DefaultNoticeResponseHandler;
@@ -98,6 +97,9 @@ public class ClientListenerEndPoint {
                 String eventId = (jsonArr).get(1).get().getValue().toString();
                 boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
                 msg = (jsonArr).get(3).get().getValue().toString();
+                
+                log.log(Level.INFO, "## message: {0}", msg);
+                
                 final int colonIndex = msg.indexOf(":");
                 Reason reason;
                 String reasonMessage = "";

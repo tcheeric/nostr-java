@@ -4,11 +4,7 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,12 +28,13 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
+import nostr.base.Bech32Prefix;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PrivateKey;
-import nostr.base.Profile;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
+import nostr.crypto.bech32.Bech32;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
@@ -58,23 +55,21 @@ public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
-
-    private final Profile profile;
-
-    public Identity(Profile profile, PrivateKey privateKey) {
-        //TODO - Ensure pKey and secKey match
-        this.profile = profile;
-        this.privateKey = privateKey;
-    }
+    private final PublicKey publicKey;
 
     public Identity(String profileFile) throws IOException, NostrException {
-        this.privateKey = new ProfileConfiguration(profileFile).getPrivateKey();
-        this.profile = new ProfileConfiguration(profileFile).getProfile();
+        this.privateKey = new IdentityConfiguration(profileFile).getPrivateKey();
+        this.publicKey = new IdentityConfiguration(profileFile).getPublicKey();
     }
 
     public Identity(PrivateKey privateKey, PublicKey publicKey) {
         this.privateKey = privateKey;
-        this.profile = Profile.builder().publicKey(publicKey).build();
+        this.publicKey = publicKey;
+    }
+
+    public Identity(PrivateKey privateKey) throws Exception {
+        this.privateKey = privateKey;
+        this.publicKey = generatePublicKey(privateKey);
     }
 
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
@@ -130,14 +125,14 @@ public class Identity {
         event.update();
         log.log(Level.FINER, "Serialized event: {0}", new String(event.get_serializedEvent()));
         final var signedHashedSerializedEvent = Schnorr.sign(NostrUtil.sha256(event.get_serializedEvent()), privateKey.getRawData(), generateAuxRand());
-        final Signature signature = Signature.builder().rawData(signedHashedSerializedEvent).pubKey(this.profile.getPublicKey()).build();
+        final Signature signature = Signature.builder().rawData(signedHashedSerializedEvent).pubKey(this.getPublicKey()).build();
         event.setSignature(signature);
         return signature;
     }
 
     private Signature signDelegationTag(@NonNull DelegationTag delegationTag) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
         final var signedHashedToken = Schnorr.sign(NostrUtil.sha256(delegationTag.getToken().getBytes(StandardCharsets.UTF_8)), privateKey.getRawData(), generateAuxRand());
-        final Signature signature = Signature.builder().rawData(signedHashedToken).pubKey(this.profile.getPublicKey()).build();
+        final Signature signature = Signature.builder().rawData(signedHashedToken).pubKey(this.getPublicKey()).build();
         delegationTag.setSignature(signature);
         return signature;
     }
@@ -213,53 +208,24 @@ public class Identity {
         return pubKeyPt.multiply(tweakVal).getEncoded(true);
     }
 
+    private static PublicKey generatePublicKey(PrivateKey privateKey) throws Exception {
+        var rawDate = Schnorr.genPubKey(privateKey.getRawData());
+        return new PublicKey(rawDate);
+    }
+
     @Log
-    static class ProfileConfiguration extends BaseConfiguration {
+    static class IdentityConfiguration extends BaseConfiguration {
 
-        ProfileConfiguration(String profileFile) throws IOException {
-            super(profileFile);
+        IdentityConfiguration(String propertyFile) throws IOException {
+            super(propertyFile);
         }
 
-        Profile getProfile() throws NostrException, IOException {
-            log.log(Level.FINE, "Getting the profile details from the configuration file...");
-            return Profile.builder().about(getAbout()).nip05(getNip05()).name(getName()).picture(getPicture()).publicKey(getPublicKey()).build();
-        }
-
-        String getName() {
-            return getProperty("name");
-        }
-
-        String getAbout() {
-            return getProperty("about");
-        }
-
-        URL getPicture() {
-            try {
-                final String pic = getProperty("picture");
-                if (pic != null) {
-                    return new URL(pic);
-                }
-            } catch (MalformedURLException ex) {
-                log.log(Level.SEVERE, null, ex);
-                return null;
-            }
-
-            return null;
-        }
-
-        String getNip05() {
-            return getProperty("nip05");
-        }
-
-        PrivateKey getPrivateKey() throws IOException {
+        PrivateKey getPrivateKey() throws IOException, NostrException {
             String privKey = getProperty("privateKey");
             log.log(Level.FINE, "Reading the private key...");
 
-            if (privKey.startsWith("file://")) {
-                return new PrivateKey(Files.readAllBytes(Paths.get(privKey)));
-            } else {
-                return new PrivateKey(privKey);
-            }
+            String hex = privKey.startsWith(Bech32Prefix.NSEC.getCode()) ? Bech32.fromBech32(privKey) : privKey;
+            return new PrivateKey(hex);
         }
 
         PublicKey getPublicKey() throws NostrException, IOException {
@@ -267,15 +233,14 @@ public class Identity {
             if (pubKey == null || "".equals(pubKey.trim())) {
                 log.log(Level.FINE, "Generating new public key");
                 try {
-                    return new PublicKey(Schnorr.genPubKey(getPrivateKey().getRawData()));
+                    return Identity.generatePublicKey(getPrivateKey());
                 } catch (Exception ex) {
                     log.log(Level.SEVERE, null, ex);
                     throw new NostrException(ex);
                 }
-            } else if (pubKey.startsWith("file://")) {
-                return new PublicKey(Files.readAllBytes(Paths.get(pubKey)));
             } else {
-                return new PublicKey(pubKey);
+                String hex = pubKey.startsWith(Bech32Prefix.NPUB.getCode()) ? Bech32.fromBech32(pubKey) : pubKey;
+                return new PublicKey(hex);
             }
         }
     }
