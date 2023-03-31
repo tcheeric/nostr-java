@@ -263,11 +263,11 @@ public class NostrExamples {
 			final PublicKey publicKeySender = identity.getProfile().getPublicKey();
 			PublicKey publicKeyRcpt = new PublicKey(PUBLIC_KEY);
 
-			ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("willy").build();
+			ITag pkeyRcptTag = PubKeyTag.builder().publicKey(publicKeyRcpt).petName("Nakamoto").build();
 			TagList tagList = new TagList();
 			tagList.add(pkeyRcptTag);
 
-			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Willy!");
+			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Nakamoto!");
 
 			identity.encryptDirectMessage(event2);
 			identity.sign(event2);

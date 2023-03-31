@@ -8,7 +8,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,9 +61,8 @@ public abstract class BaseElementMarshaller implements IMarshaller {
     
     protected String toJson(ITag iTag) throws NostrException {
     	ObjectMapper mapper = new ObjectMapper();
+    	mapper.setSerializationInclusion(Include.NON_NULL);
     	try {
-			mapper.writeValueAsString(iTag);
-
 	    	JsonNode node = mapper.valueToTree(iTag);
 	    	
 	    	Iterator<Entry<String,JsonNode>> fields = node.fields();
@@ -74,7 +73,7 @@ public abstract class BaseElementMarshaller implements IMarshaller {
 	                .collect(Collectors.toList());
 	    	
 	    	return mapper.valueToTree(list).toString();
-		} catch (JsonProcessingException e) {
+		} catch (Exception e) {
 			throw new NostrException(e);
 		} 
     }
