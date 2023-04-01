@@ -23,6 +23,14 @@ import nostr.base.handler.response.IResponseHandler;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.StatusCode;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import nostr.base.handler.response.IResponseHandler;
 import nostr.ws.handler.DefaultCloseHandler;
 import nostr.ws.handler.DefaultConnectHandler;
 import nostr.ws.handler.DefaultErrorHandler;
@@ -104,7 +112,6 @@ public class ClientListenerEndPoint {
                 String reasonMessage = msg;
                 if (msgSplit.length<2) {
                     reason = Reason.UNDEFINED;
-                    reasonMessage = msg;
                 } else {
                     reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
                     reasonMessage = msgSplit[1];

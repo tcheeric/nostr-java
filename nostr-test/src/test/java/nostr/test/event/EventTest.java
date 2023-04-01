@@ -69,7 +69,7 @@ public class EventTest {
     public void testCreateTextNoteEvent() {
         try {
             System.out.println("testCreateTextNoteEvent");
-            PublicKey publicKey = this.identity.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             Assertions.assertNotNull(instance.getId());
             Assertions.assertNotNull(instance.getCreatedAt());
@@ -86,7 +86,7 @@ public class EventTest {
     public void testCreateGenericTag() {
         try {
             System.out.println("testCreateGenericTag");
-            PublicKey publicKey = this.identity.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -125,7 +125,7 @@ public class EventTest {
     public void testCreateUnsupportedGenericTagAttribute() {
         try {
             System.out.println("testCreateUnsupportedGenericTagAttribute");
-            PublicKey publicKey = this.identity.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -160,7 +160,7 @@ public class EventTest {
     @Test
     public void testCreateUnsupportedGenericTag() {
         System.out.println("testCreateUnsupportedGenericTag");
-        PublicKey publicKey = this.identity.getProfile().getPublicKey();
+        PublicKey publicKey = this.identity.getPublicKey();
         IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
@@ -184,7 +184,7 @@ public class EventTest {
         System.out.println("testUnmarshallEvent");
 
         // Tag
-        PublicKey publicKey = this.identity.getProfile().getPublicKey();
+        PublicKey publicKey = this.identity.getPublicKey();
         var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
         var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
         Assertions.assertEquals(tag.getCode(), unTag.getCode());

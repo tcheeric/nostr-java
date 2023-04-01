@@ -30,7 +30,7 @@ public class IdentityTest {
     public void testSignEvent() {
         try {
             System.out.println("testSignEvent");
-            PublicKey publicKey = this.identity.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             this.identity.sign(instance);
             Assertions.assertNotNull(instance.getSignature());
@@ -43,7 +43,7 @@ public class IdentityTest {
     public void testSignDelegationTag() {
         try {
             System.out.println("testSignDelegationTag");
-            PublicKey publicKey = this.identity.getProfile().getPublicKey();
+            PublicKey publicKey = this.identity.getPublicKey();
             DelegationTag delegationTag = new DelegationTag(publicKey, null);
             this.identity.sign(delegationTag);
             Assertions.assertNotNull(delegationTag.getSignature());
@@ -57,7 +57,7 @@ public class IdentityTest {
     public void testDecryptMessage() {
         try {
             System.out.println("testDecryptMessage");
-            var senderPublicKey = this.identity.getProfile().getPublicKey();
+            var senderPublicKey = this.identity.getPublicKey();
             
             PrivateKey rcptSecKey = new PrivateKey(NostrUtil.hexToBytes(Bech32.fromBech32("nsec13sntjjh35dd4u3lwy42lnpszydmkwar708y3jzwxr937fy2q73hsmvez4z")));
             PublicKey rcptPubKey = new PublicKey("edd898fc2817ee64f7ee1941d193d53c2daa77db4b8409240565fc9644626878");
