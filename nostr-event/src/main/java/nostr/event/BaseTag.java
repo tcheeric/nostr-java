@@ -8,12 +8,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import nostr.base.IEvent;
-import nostr.base.ITag;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.IEvent;
+import nostr.base.ITag;
 import nostr.base.NipUtil;
 import nostr.base.Relay;
 import nostr.base.annotation.Key;
@@ -24,12 +28,14 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
+@JsonPropertyOrder({"code"})
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @Log
 public abstract class BaseTag implements ITag {
 
+	@JsonIgnore
     private IEvent parent;
 
     @Override

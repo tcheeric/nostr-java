@@ -21,3 +21,4 @@ Have a look at [NostrExamples.java](https://github.com/tcheeric/nostr-java/blob/
  12. NIP-19 (Partial: Bare keys and ids)
  13. NIP-25
  14. NIP-26
+ 15. NIP-28

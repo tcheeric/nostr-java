@@ -1,9 +1,11 @@
 package nostr.ws.handler.request;
 
-import nostr.ws.Connection;
-import nostr.event.marshaller.impl.MessageMarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
+
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Session;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +13,10 @@ import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.handler.request.IRequestHandler;
 import nostr.event.impl.GenericMessage;
+import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
+import nostr.ws.Connection;
 
 /**
  *

@@ -5,6 +5,10 @@
  */
 package nostr.event.tag;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,12 +22,14 @@ import nostr.event.BaseTag;
  *
  * @author squirrel
  */
+@JsonPropertyOrder({"code", "pubKey"})
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "p")
 public class PubKeyTag extends BaseTag {
 
+	@JsonIgnore
     @Key
     private PublicKey publicKey;
 
@@ -37,5 +43,10 @@ public class PubKeyTag extends BaseTag {
         this.publicKey = publicKey;
         this.mainRelayUrl = mainRelayUrl;
         this.petName = petName;
+    }
+    
+    @JsonGetter("pubKey")
+    public String getStringPubKey() {
+    	return publicKey.toString();
     }
 }

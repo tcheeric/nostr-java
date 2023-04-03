@@ -30,6 +30,7 @@
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.24</lombok.version>
         <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
+
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
         <assertj.version>3.23.1</assertj.version>
@@ -48,6 +49,11 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
+            <dependency>
+			    <groupId>com.fasterxml.jackson.core</groupId>
+			    <artifactId>jackson-databind</artifactId>
+			    <version>2.14.1</version>
+			</dependency>
 
             <!-- Test Dependencies -->
             <dependency>

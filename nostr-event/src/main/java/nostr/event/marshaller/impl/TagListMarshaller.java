@@ -1,14 +1,16 @@
 package nostr.event.marshaller.impl;
 
-import nostr.base.ITag;
-import nostr.base.Relay;
-import nostr.event.marshaller.BaseListMarhsaller;
+import static nostr.base.NipUtil.checkSupport;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import lombok.extern.java.Log;
-import static nostr.base.NipUtil.checkSupport;
+import nostr.base.ITag;
+import nostr.base.Relay;
 import nostr.event.list.TagList;
+import nostr.event.marshaller.BaseListMarhsaller;
 import nostr.util.NostrException;
 
 /**
@@ -30,13 +32,11 @@ public class TagListMarshaller extends BaseListMarhsaller {
     public String marshall() throws NostrException {
 
         StringBuilder result = new StringBuilder();
-        TagList tagList = (TagList) getList();
         Relay relay = getRelay();
 
         final List<ITag> list = getSupportedTags(relay).getList();
+        result.append("[");
         if (!list.isEmpty()) {
-            result.append("[");
-
             result.append(list.stream().filter(t -> t != null).map(t -> {
                 try {
                     return new TagMarshaller(t, relay, isEscape()).marshall();
@@ -44,10 +44,9 @@ public class TagListMarshaller extends BaseListMarhsaller {
                     log.log(Level.SEVERE, null, ex);
                     throw new RuntimeException(ex);
                 }
-            }).collect(Collectors.joining(",")));
-            
-            result.append("]");
+            }).collect(Collectors.joining(",")));            
         }
+        result.append("]");
 
         return result.toString();
     }

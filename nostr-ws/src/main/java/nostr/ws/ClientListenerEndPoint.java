@@ -1,11 +1,16 @@
 package nostr.ws;
 
-import nostr.ws.handler.DefaultCloseHandler;
-import nostr.ws.handler.DefaultConnectHandler;
-import nostr.ws.handler.DefaultErrorHandler;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import java.io.IOException;
 import java.util.logging.Level;
+
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.StatusCode;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
@@ -14,6 +19,8 @@ import nostr.base.handler.response.IEventResponseHandler;
 import nostr.base.handler.response.INoticeResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler.Reason;
+import nostr.base.handler.response.IResponseHandler;
+import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
@@ -24,6 +31,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import nostr.base.handler.response.IResponseHandler;
+import nostr.ws.handler.DefaultCloseHandler;
+import nostr.ws.handler.DefaultConnectHandler;
+import nostr.ws.handler.DefaultErrorHandler;
 import nostr.ws.handler.response.DefaultEoseResponseHandler;
 import nostr.ws.handler.response.DefaultEventResponseHandler;
 import nostr.ws.handler.response.DefaultNoticeResponseHandler;
@@ -43,7 +53,7 @@ public class ClientListenerEndPoint {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        log.fine("onConnect");
+        log.log(Level.FINE, "onConnect Relay {0}", session.getRemoteAddress());
 
         session.setMaxTextMessageSize(16 * 1024);
 
@@ -80,7 +90,7 @@ public class ClientListenerEndPoint {
             return;
         }
 
-        log.log(Level.FINE, "onTextMessage: Message: {0}", message);
+        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
 
         ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
         final String command = (jsonArr).get(0).get().getValue().toString();
@@ -97,18 +107,14 @@ public class ClientListenerEndPoint {
                 String eventId = (jsonArr).get(1).get().getValue().toString();
                 boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
                 msg = (jsonArr).get(3).get().getValue().toString();
-                
-                log.log(Level.INFO, "## message: {0}", msg);
-                
-                final int colonIndex = msg.indexOf(":");
+                final var msgSplit = msg.split(":", 2);
                 Reason reason;
-                String reasonMessage = "";
-                if (colonIndex == -1) {
+                String reasonMessage = msg;
+                if (msgSplit.length<2) {
                     reason = Reason.UNDEFINED;
-                    reasonMessage = msg;
                 } else {
-                    reason = Reason.fromCode(msg.substring(1, colonIndex)).orElseThrow(RuntimeException::new);
-                    reasonMessage = msg.substring(colonIndex + 1);
+                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
+                    reasonMessage = msgSplit[1];
                 }
 
                 responseHandler = createOkResponseHandler();
@@ -210,7 +216,8 @@ public class ClientListenerEndPoint {
     static class HandlerConfiguration extends BaseConfiguration {
                 
         HandlerConfiguration() throws IOException {
-            this("/handlers.properties");
+//        	TODO
+//            this("/handlers.properties");
         }
         
         HandlerConfiguration(String file) throws IOException {

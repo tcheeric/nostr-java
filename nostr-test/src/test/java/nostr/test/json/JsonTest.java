@@ -1,7 +1,6 @@
 package nostr.test.json;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.java.Log;
-
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.ITag;
@@ -347,7 +345,7 @@ public class JsonTest {
 
             PublicKey publicKey = new PublicKey(new byte[]{});
             GenericEvent relatedEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
-            ITag eventTag = new EventTag(relatedEvent);
+            ITag eventTag = new EventTag(relatedEvent.getId());
 
             var jsonEventTag = new TagMarshaller(eventTag, relay).marshall();
 

@@ -5,14 +5,14 @@
  */
 package nostr.event.tag;
 
-import nostr.base.annotation.Key;
-import nostr.event.BaseTag;
-import nostr.event.Marker;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.event.impl.GenericEvent;
+import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
+import nostr.event.BaseTag;
+import nostr.event.Marker;
 
 /**
  *
@@ -21,11 +21,12 @@ import nostr.base.annotation.Tag;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
 @Tag(code = "e", name = "event")
 public class EventTag extends BaseTag {
 
     @Key
-    private GenericEvent relatedEvent;
+    private String idEvent;
 
     @Key
     private String recommendedRelayUrl;
@@ -33,19 +34,9 @@ public class EventTag extends BaseTag {
     @Key(nip = 10)
     private Marker marker;
 
-    public EventTag(GenericEvent relatedEvent) {
-        this(relatedEvent, null);
-    }
-
-    private EventTag(GenericEvent relatedEvent, String recommendedRelayUrl, Marker marker) {
-        this.recommendedRelayUrl = recommendedRelayUrl;
-        this.relatedEvent = relatedEvent;
-        this.marker = marker;
-    }
-
-    private EventTag(GenericEvent relatedEvent, String recommendedRelayUrl) {
-        this.recommendedRelayUrl = recommendedRelayUrl;
-        this.relatedEvent = relatedEvent;
-        this.marker = this.relatedEvent == null ? Marker.ROOT : Marker.REPLY;
+    public EventTag(String idEvent) {
+        this.recommendedRelayUrl = null;
+        this.idEvent = idEvent;
+        this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
     }
 }
