@@ -70,7 +70,8 @@ public class NostrExamples {
     		.publicKey(new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"))
     		.build();
 	private final static Identity IDENTITY = new Identity(new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"), PROFILE.getPublicKey());
-	private final static Client CLIENT = new Client("test", IDENTITY, Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision"));
+	private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
+	private final static Client CLIENT = new Client("test", IDENTITY, RELAYS);
 
 	static {
 		final LogManager logManager = LogManager.getLogManager();
@@ -89,7 +90,12 @@ public class NostrExamples {
 
 	public static void main(String[] args) throws IOException, Exception {
 		try {
-
+			
+//			Wait it until tried to connect to a half of relays 
+			while(CLIENT.getThreadPool().getCompletedTaskCount() < (RELAYS.size()/2)) {
+				Thread.sleep(5000);	
+			}
+			
 			log.log(Level.FINE, "================= The Beginning");
 
 			ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -258,7 +264,7 @@ public class NostrExamples {
 			TagList tagList = new TagList();
 			tagList.add(pkeyRcptTag);
 
-			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Nakamoto!");
+			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Test threads");
 
 			IDENTITY.encryptDirectMessage(event2);
 			IDENTITY.sign(event2);
@@ -530,7 +536,8 @@ public class NostrExamples {
 
 			var tagList = new TagList();
 			tagList.add(EventTag.builder().idEvent(channelCreateEvent.getId())
-					.recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri()).marker(Marker.ROOT)
+					.recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri())
+					.marker(Marker.ROOT)
 					.build());
 
 			GenericEvent event = new ChannelMessageEvent(publicKeySender, tagList, "Hello everybody!");
