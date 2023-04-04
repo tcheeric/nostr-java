@@ -1,17 +1,20 @@
 package nostr.base;
 
-import nostr.util.NostrUtil;
-import nostr.crypto.bech32.Bech32;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.annotation.JsonString;
+import nostr.crypto.bech32.Bech32;
 import nostr.util.NostrException;
+import nostr.util.NostrUtil;
 
 /**
  *
@@ -33,6 +36,7 @@ public abstract class BaseKey implements IKey {
 
     protected final Bech32Prefix prefix;
 
+    @JsonValue
     @Override
     public String toString() {
         return NostrUtil.bytesToHex(rawData);

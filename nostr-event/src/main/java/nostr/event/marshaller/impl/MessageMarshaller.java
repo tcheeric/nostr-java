@@ -1,6 +1,11 @@
 package nostr.event.marshaller.impl;
 
-import java.util.logging.Level;
+import java.util.ArrayList;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.java.Log;
 import nostr.base.Relay;
@@ -27,23 +32,34 @@ public class MessageMarshaller extends BaseElementMarshaller {
         super(baseMessage, relay, escape);
     }
 
-//    TODO: Improve
     @Override
     public String marshall() throws NostrException {
         GenericMessage message = (GenericMessage) getElement();
         Relay relay = getRelay();
-
-        if (message instanceof EventMessage msg) {
-            return "[\"" + msg.getCommand() + "\"," + new EventMarshaller(msg.getEvent(), relay, isEscape()).marshall() + "]";
-        } else if (message instanceof ReqMessage msg) {
-            return "[\"" + msg.getCommand() + "\",\"" + msg.getSubscriptionId() + "\"," + new FiltersMarshaller(msg.getFilters(), relay).marshall() + "]";
-        } else if (message instanceof NoticeMessage msg) {
-            return "[\"" + msg.getCommand() + "\",\"" + msg.getMessage() + "\"]";
-        } else if (message instanceof CloseMessage msg) {
-            return "[\"" + msg.getCommand() + "\",\"" + msg.getSubscriptionId() + "\"]";
-        } else {
-            log.log(Level.SEVERE, "Invalid message type {0}", message);
-            throw new RuntimeException();
-        }
+    	var msgArray = new ArrayList<>();
+        try {
+	    	ObjectMapper mapper = new ObjectMapper()
+	    			.setSerializationInclusion(Include.NON_NULL);
+	
+	    	msgArray.add(message.getCommand());
+	        if (message instanceof EventMessage msg) {
+	        	JsonNode tree = mapper.readTree(new EventMarshaller(msg.getEvent(), relay, isEscape()).marshall());
+	        	msgArray.add(tree);
+	        } else if (message instanceof ReqMessage msg) {
+	        	msgArray.add(msg.getSubscriptionId());
+	        	JsonNode tree = mapper.readTree(new FiltersMarshaller(msg.getFilters(), relay).marshall());
+	        	msgArray.add(tree);
+	        } else if (message instanceof NoticeMessage msg) {
+	        	msgArray.add(msg.getMessage());
+	        } else if (message instanceof CloseMessage msg) {
+	        	msgArray.add(msg.getSubscriptionId());
+	        } else {
+	            throw new NostrException(String.format("Invalid message type %s", message));
+	        }
+        
+			return mapper.writeValueAsString(msgArray);
+		} catch (JsonProcessingException e) {
+			throw new NostrException(e);
+		}
     }
 }

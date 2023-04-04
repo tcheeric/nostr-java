@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.java.Log;
 import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.IMarshaller;
@@ -39,15 +38,21 @@ import nostr.util.NostrException;
  */
 @AllArgsConstructor
 @Data
-@Log
 public abstract class BaseElementMarshaller implements IMarshaller {
 
     private final IElement element;
     private final Relay relay;
+    private final ObjectMapper mapper;
     private boolean escape;
 
     public BaseElementMarshaller(IElement element, Relay relay) {
         this(element, relay, false);
+    }
+
+    public BaseElementMarshaller(IElement element, Relay relay, boolean escape) {
+        this(element, relay, new ObjectMapper(), escape);
+        
+		mapper.setSerializationInclusion(Include.NON_NULL);
     }
 
     protected boolean nipFieldSupport(Field field) {
@@ -59,11 +64,17 @@ public abstract class BaseElementMarshaller implements IMarshaller {
         return NipUtil.checkSupport(relay, field);
     }
     
-    protected String toJson(ITag iTag) throws NostrException {
-    	ObjectMapper mapper = new ObjectMapper();
-    	mapper.setSerializationInclusion(Include.NON_NULL);
+    protected String toJson() throws NostrException {
     	try {
-	    	JsonNode node = mapper.valueToTree(iTag);
+	    	return mapper.writeValueAsString(element);
+		} catch (Exception e) {
+			throw new NostrException(e);
+		} 
+    }
+    
+    protected String toArrayJson() throws NostrException {
+    	try {
+	    	JsonNode node = mapper.valueToTree(element);
 	    	
 	    	Iterator<Entry<String,JsonNode>> fields = node.fields();
 	    	

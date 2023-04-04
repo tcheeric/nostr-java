@@ -1,20 +1,25 @@
 package nostr.event.impl;
 
+import java.beans.IntrospectionException;
+import java.beans.Transient;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import lombok.Data;
-import java.beans.Transient;
-import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.base.Bech32Prefix;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
@@ -30,6 +35,7 @@ import nostr.event.Kind;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
+import nostr.event.serializer.CustomTagListSerializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.UnsupportedNIPException;
@@ -48,11 +54,13 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     private String id;
 
     @Key(name = "pubkey")
+    @JsonProperty("pubkey")
     @EqualsAndHashCode.Include
     @JsonString
     private PublicKey pubKey;
 
     @Key(name = "created_at")
+    @JsonProperty("created_at")
     @EqualsAndHashCode.Exclude
     private Long createdAt;
 
@@ -62,6 +70,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Key
     @EqualsAndHashCode.Exclude
+    @JsonSerialize(using=CustomTagListSerializer.class)
     private TagList tags;
 
     @Key
@@ -69,16 +78,20 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     private String content;
 
     @Key(name = "sig")
+    @JsonProperty("sig")
     @EqualsAndHashCode.Exclude
     @JsonString
     private Signature signature;
 
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
-    
+
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Integer nip;
 
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;
 

@@ -62,15 +62,11 @@ public class EventMarshaller extends BaseElementMarshaller {
         }
 
         try {
-            Map<Field, Object> keysMapEvent = getKeysMap();
-
-            StringBuilder jsonEvent = toJson(keysMapEvent);
-
-            return "{" + jsonEvent + "}";
-        } catch (IllegalArgumentException | NoSuchAlgorithmException | IllegalAccessException | IntrospectionException | InvocationTargetException | NostrException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
-        }
+			return toJson();
+		} catch (NostrException e) {
+			log.log(Level.SEVERE, null, e);
+            throw new RuntimeException(e);
+		}
     }
 
     protected void toJson(Field field, StringBuilder result, Map<Field, Object> keysMap, Relay relay, int i) throws NostrException {

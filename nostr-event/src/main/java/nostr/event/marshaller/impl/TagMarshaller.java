@@ -18,7 +18,7 @@ import nostr.util.UnsupportedNIPException;
 public class TagMarshaller extends BaseElementMarshaller {
 
     public TagMarshaller(ITag tag, Relay relay) {
-        this(tag, relay, false);
+    	super(tag, relay, false);
     }
 
     public TagMarshaller(ITag iTag, Relay relay, boolean escape) {
@@ -34,7 +34,7 @@ public class TagMarshaller extends BaseElementMarshaller {
             throw new UnsupportedNIPException(relay + " does not support tag " + tag.getCode());
         }
         
-        return toJson(tag);
+        return toArrayJson();
     }
 
     // TODO test me
