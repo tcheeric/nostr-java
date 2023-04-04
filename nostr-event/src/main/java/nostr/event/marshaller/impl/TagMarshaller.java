@@ -34,7 +34,7 @@ public class TagMarshaller extends BaseElementMarshaller {
             throw new UnsupportedNIPException(relay + " does not support tag " + tag.getCode());
         }
         
-        return toArrayJson();
+        return toJson();
     }
 
     // TODO test me

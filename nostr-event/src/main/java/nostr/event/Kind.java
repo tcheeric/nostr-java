@@ -1,6 +1,8 @@
 
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -38,6 +40,7 @@ public enum Kind {
         return UNDEFINED;
     }
 
+    @JsonValue
     @Override
     public String toString() {
         return Integer.toString(value);

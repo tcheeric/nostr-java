@@ -3,8 +3,8 @@ package nostr.event.marshaller.impl;
 import static nostr.base.NipUtil.checkSupport;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.java.Log;
 import nostr.base.ITag;
@@ -30,29 +30,19 @@ public class TagListMarshaller extends BaseListMarhsaller {
 
     @Override
     public String marshall() throws NostrException {
-
-        StringBuilder result = new StringBuilder();
         Relay relay = getRelay();
 
         final List<ITag> list = getSupportedTags(relay).getList();
-        result.append("[");
-        if (!list.isEmpty()) {
-            result.append(list.stream().filter(t -> t != null).map(t -> {
-                try {
-                    return new TagMarshaller(t, relay, isEscape()).marshall();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                    throw new RuntimeException(ex);
-                }
-            }).collect(Collectors.joining(",")));            
-        }
-        result.append("]");
-
-        return result.toString();
+        
+        try {
+			return getMapper().writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			throw new NostrException(e);
+		}
     }
 
     private TagList getSupportedTags(Relay relay) {
-        TagList tagList = (TagList) getList();
+        TagList tagList = (TagList) getElement();
         TagList result = new TagList();
 
         for (var t : tagList.getList()) {

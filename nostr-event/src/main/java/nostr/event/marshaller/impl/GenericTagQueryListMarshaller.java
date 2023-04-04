@@ -3,6 +3,7 @@ package nostr.event.marshaller.impl;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.INostrList;
@@ -28,7 +29,7 @@ public class GenericTagQueryListMarshaller extends BaseListMarhsaller {
 
     @Override
     public String marshall() throws NostrException {
-        var gtql = (GenericTagQueryList) this.getList();
+        var gtql = (GenericTagQueryList) this.getElement();
 
         var result = new StringBuilder();
         final List<GenericTagQuery> list = gtql.getList();

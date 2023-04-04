@@ -14,7 +14,6 @@ import java.util.logging.Level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,7 +34,6 @@ import nostr.event.Kind;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.EventMarshaller;
 import nostr.event.marshaller.impl.TagListMarshaller;
-import nostr.event.serializer.CustomTagListSerializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.UnsupportedNIPException;
@@ -70,7 +68,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Key
     @EqualsAndHashCode.Exclude
-    @JsonSerialize(using=CustomTagListSerializer.class)
     private TagList tags;
 
     @Key

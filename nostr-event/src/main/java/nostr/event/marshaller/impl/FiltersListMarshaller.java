@@ -3,6 +3,7 @@ package nostr.event.marshaller.impl;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
@@ -28,9 +29,8 @@ public class FiltersListMarshaller extends BaseListMarhsaller {
 
     @Override
     public String marshall() throws NostrException {
-
         StringBuilder result = new StringBuilder();
-        FiltersList filtersList = (FiltersList) getList();
+        FiltersList filtersList = (FiltersList) getElement();
         Relay relay = getRelay();
 
         final List<Filters> list = filtersList.getList();

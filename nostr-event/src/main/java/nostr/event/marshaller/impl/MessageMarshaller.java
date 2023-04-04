@@ -2,12 +2,9 @@ package nostr.event.marshaller.impl;
 
 import java.util.ArrayList;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.event.impl.GenericMessage;
 import nostr.event.marshaller.BaseElementMarshaller;
@@ -21,7 +18,6 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-@Log
 public class MessageMarshaller extends BaseElementMarshaller {
 
     public MessageMarshaller(GenericMessage message, Relay relay) {
@@ -38,8 +34,7 @@ public class MessageMarshaller extends BaseElementMarshaller {
         Relay relay = getRelay();
     	var msgArray = new ArrayList<>();
         try {
-	    	ObjectMapper mapper = new ObjectMapper()
-	    			.setSerializationInclusion(Include.NON_NULL);
+	    	var mapper = getMapper();
 	
 	    	msgArray.add(message.getCommand());
 	        if (message instanceof EventMessage msg) {
