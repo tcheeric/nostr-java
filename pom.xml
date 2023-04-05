@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.tcheeric</groupId>
+    <groupId>com.github</groupId>
     <artifactId>nostr-java</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -50,10 +50,10 @@
                 <version>${lombok.version}</version>
             </dependency>
             <dependency>
-			    <groupId>com.fasterxml.jackson.core</groupId>
-			    <artifactId>jackson-databind</artifactId>
-			    <version>2.14.1</version>
-			</dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.14.1</version>
+            </dependency>
 
             <!-- Test Dependencies -->
             <dependency>
@@ -68,8 +68,23 @@
                 <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
+            
+            <!-- JitPack integration -->
+            <dependency>
+                <groupId>com.github.User</groupId>
+                <artifactId>Repo</artifactId>
+                <version>Tag</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>

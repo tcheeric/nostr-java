@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tcheeric</groupId>
+        <groupId>com.github</groupId>
         <artifactId>nostr-java</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
@@ -19,9 +19,9 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		</dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
 
         <!-- Project Dependencies -->
         <dependency>
