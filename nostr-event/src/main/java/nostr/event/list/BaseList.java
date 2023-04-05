@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.INostrList;
 import nostr.base.annotation.JsonList;
 import nostr.event.serializer.CustomBaseListSerializer;

@@ -14,6 +14,8 @@ import java.util.logging.Level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +24,7 @@ import lombok.extern.java.Log;
 import nostr.base.Bech32Prefix;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
+import nostr.base.IMarshaller;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
@@ -32,11 +35,8 @@ import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
 import nostr.event.Kind;
 import nostr.event.list.TagList;
-import nostr.event.marshaller.impl.EventMarshaller;
-import nostr.event.marshaller.impl.TagListMarshaller;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
-import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -51,13 +51,13 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Include
     private String id;
 
-    @Key(name = "pubkey")
+    @Key
     @JsonProperty("pubkey")
     @EqualsAndHashCode.Include
     @JsonString
     private PublicKey pubKey;
 
-    @Key(name = "created_at")
+    @Key
     @JsonProperty("created_at")
     @EqualsAndHashCode.Exclude
     private Long createdAt;
@@ -74,7 +74,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Exclude
     private String content;
 
-    @Key(name = "sig")
+    @Key
     @JsonProperty("sig")
     @EqualsAndHashCode.Exclude
     @JsonString
@@ -113,16 +113,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         // Update parents
         updateTagsParents(tags);
-    }
-
-    @Override
-    public String toString() {
-        try {
-            return new EventMarshaller(this, null).marshall();
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
-        }
     }
 
     @Override
@@ -182,23 +172,24 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
-        var sb = new StringBuilder();
-        sb.append("[");
-        sb.append("0").append(",\"");
-        sb.append(this.pubKey).append("\",");
-        sb.append(this.createdAt).append(",");
-        sb.append(this.kind).append(",");
-
-        sb.append(new TagListMarshaller(tags, null).marshall());
-        sb.append(",\"");
-        sb.append(this.content);
-        sb.append("\"]");
-
-        return sb.toString();
+    	var mapper = IMarshaller.MAPPER;
+    	var arrayNode = JsonNodeFactory.instance.arrayNode();
+    	
+    	try {
+	    	arrayNode.add(0);
+	    	arrayNode.add(this.pubKey.toString());
+	    	arrayNode.add(this.createdAt);
+	    	arrayNode.add(this.kind);
+			arrayNode.add(mapper.valueToTree(tags.getList()));
+	    	arrayNode.add(this.content);
+	    	
+	    	return mapper.writeValueAsString(arrayNode);
+    	} catch (JsonProcessingException e) {
+            throw new NostrException(e);
+    	}
     }
 
     private void updateTagsParents(TagList tagList) {
-
         if (tagList != null && !tagList.getList().isEmpty()) {
             for (Object t : tagList.getList()) {
                 ITag tag = (ITag) t;

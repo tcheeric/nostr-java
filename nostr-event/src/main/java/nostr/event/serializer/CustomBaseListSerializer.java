@@ -9,14 +9,13 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import lombok.extern.java.Log;
+import nostr.base.IMarshaller;
 import nostr.event.list.BaseList;
 
 
@@ -41,8 +40,7 @@ public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
 	}
     
     protected JsonNode toJson(Object obj) {
-	    var mapper = new ObjectMapper()
-	    		.setSerializationInclusion(Include.NON_NULL);
+	    var mapper = IMarshaller.MAPPER;
     	try {
 	    	JsonNode node = mapper.valueToTree(obj);
 	    	
