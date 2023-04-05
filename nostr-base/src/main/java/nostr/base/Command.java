@@ -6,6 +6,7 @@ package nostr.base;
  * @author squirrel
  */
 public enum Command {
+    AUTH("IN/OUT"),
     EVENT("IN/OUT"),
     REQ("OUT"),
     CLOSE("OUT"),

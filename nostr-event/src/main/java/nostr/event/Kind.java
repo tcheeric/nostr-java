@@ -25,6 +25,7 @@ public enum Kind {
     MUTE_USER(44, "mute_user"),
     REPLACEABLE_EVENT(10_000, "replaceable_event"),
     EPHEMEREAL_EVENT(20_000, "ephemereal_event"),
+    CLIENT_AUTH(22_242, "authentication_of_clients_to_relays"),
     UNDEFINED(-1, "undefined");
             
     private final int value;    

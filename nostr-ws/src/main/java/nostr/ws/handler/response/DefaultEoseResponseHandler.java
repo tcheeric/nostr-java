@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.handler.response.IEoseResponseHandler;
@@ -25,7 +26,7 @@ public class DefaultEoseResponseHandler implements IEoseResponseHandler {
 
     private String subscriptionId;
 
-    public DefaultEoseResponseHandler(String subscriptionId) {
+    public DefaultEoseResponseHandler(@NonNull String subscriptionId) {
         this.subscriptionId = subscriptionId;
     }
 

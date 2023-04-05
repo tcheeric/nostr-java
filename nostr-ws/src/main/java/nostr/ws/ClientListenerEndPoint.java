@@ -1,25 +1,20 @@
 package nostr.ws;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.logging.Level;
-
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
+import nostr.base.Relay;
+import nostr.base.handler.response.IAuthResponseHandler;
 import nostr.base.handler.response.IEoseResponseHandler;
 import nostr.base.handler.response.IEventResponseHandler;
 import nostr.base.handler.response.INoticeResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler.Reason;
-import nostr.base.handler.response.IResponseHandler;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
@@ -34,6 +29,7 @@ import nostr.base.handler.response.IResponseHandler;
 import nostr.ws.handler.DefaultCloseHandler;
 import nostr.ws.handler.DefaultConnectHandler;
 import nostr.ws.handler.DefaultErrorHandler;
+import nostr.ws.handler.response.DefaultAuthResponseHandler;
 import nostr.ws.handler.response.DefaultEoseResponseHandler;
 import nostr.ws.handler.response.DefaultEventResponseHandler;
 import nostr.ws.handler.response.DefaultNoticeResponseHandler;
@@ -74,7 +70,7 @@ public class ClientListenerEndPoint {
         log.fine("onError");
 
         log.log(Level.SEVERE, "An error has occurred: {0}", cause);
-        
+
         cause.printStackTrace(System.out);
 
         DefaultErrorHandler.builder().cause(cause).build().process();
@@ -110,7 +106,7 @@ public class ClientListenerEndPoint {
                 final var msgSplit = msg.split(":", 2);
                 Reason reason;
                 String reasonMessage = msg;
-                if (msgSplit.length<2) {
+                if (msgSplit.length < 2) {
                     reason = Reason.UNDEFINED;
                 } else {
                     reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
@@ -126,17 +122,23 @@ public class ClientListenerEndPoint {
             case "NOTICE" -> {
                 msg = jsonArr.get(1).get().getValue().toString();
                 responseHandler = createNoticeResponseHandler();
-                ((INoticeResponseHandler) responseHandler).setMessage(msg); //new NoticeResponseHandler(msg);
+                ((INoticeResponseHandler) responseHandler).setMessage(msg);
             }
             case "EVENT" -> {
                 String subId = jsonArr.get(1).get().getValue().toString();
                 String jsonEvent = jsonArr.get(2).get().toString();
-                
+
                 log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
-                
+
                 responseHandler = createEventResponseHandler();
                 ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
                 ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
+            }
+            case "AUTH" -> {
+                String challenge = jsonArr.get(1).get().getValue().toString();
+                responseHandler = createAuthResponseHandler();
+                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
+                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
             }
             default -> {
             }
@@ -183,7 +185,7 @@ public class ClientListenerEndPoint {
     private IOkResponseHandler createOkResponseHandler() {
         try {
             var config = new HandlerConfiguration();
-            var strClass = config.getOkResponseHandler();            
+            var strClass = config.getOkResponseHandler();
             return strClass == null ? new DefaultOkResponseHandler() : (IOkResponseHandler) Class.forName(strClass).newInstance();
         } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
             log.log(Level.WARNING, null, ex);
@@ -212,32 +214,54 @@ public class ClientListenerEndPoint {
             return new DefaultEventResponseHandler();
         }
     }
-    
+
+    private IAuthResponseHandler createAuthResponseHandler() {
+        try {
+            var config = new HandlerConfiguration();
+            var strClass = config.getAuthResponseHandler();
+            return strClass == null ? new DefaultAuthResponseHandler() : (IAuthResponseHandler) Class.forName(strClass).newInstance();
+        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            log.log(Level.WARNING, null, ex);
+            return new DefaultAuthResponseHandler();
+        }
+    }
+
+    private Relay getRelay(Session session) {
+        SocketAddress remoteAddress = session.getRemoteAddress();
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
+        String remoteHostname = inetSocketAddress.getHostName();
+        return Relay.builder().uri(remoteHostname).build();
+    }
+
     static class HandlerConfiguration extends BaseConfiguration {
-                
+
         HandlerConfiguration() throws IOException {
 //        	TODO
 //            this("/handlers.properties");
         }
-        
+
         HandlerConfiguration(String file) throws IOException {
             super(file);
         }
-        
+
         String getEoseResponseHandler() {
             return getProperty("eose.handler");
         }
-        
+
         String getOkResponseHandler() {
             return getProperty("ok.handler");
         }
-        
+
         String getNoticeResponseHandler() {
             return getProperty("notice.handler");
         }
-        
+
         String getEventResponseHandler() {
             return getProperty("event.handler");
+        }
+
+        String getAuthResponseHandler() {
+            return getProperty("auth.handler");
         }
     }
 }
