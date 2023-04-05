@@ -28,16 +28,20 @@ public class BaseConfiguration {
     private static final String PREFIX_FILE = "file";
     private static final String CONFIG_DIR = "config.folder";
 
-    protected BaseConfiguration(String file) throws IOException {
+    protected BaseConfiguration(@NonNull String file) throws IOException {
 
         var configFolder = System.getProperty(CONFIG_DIR);
         InputStream inputStream;
 
         if (configFolder == null) {
-            inputStream = file.startsWith("/") ? this.getClass().getResourceAsStream(file) : new FileInputStream(file);
+            inputStream = file.startsWith("/") ? this.getClass().getResourceAsStream(file) : file.startsWith("file://") ? new FileInputStream(file.substring(7)) : null;
         } else {
             var tmpFile = file.startsWith("/") ? file.substring(1) : file;
             inputStream = new FileInputStream(new File(new File(configFolder), tmpFile));
+        }
+
+        if (inputStream == null) {
+            throw new IOException(String.format("Invalid file: %s", file));
         }
 
         this.properties.load(inputStream);
@@ -45,7 +49,6 @@ public class BaseConfiguration {
 
     protected String getFileLocation(String key) throws FileNotFoundException {
 
-        String location = null;
         String prefix = getPrefix(key);
 
         if (PREFIX_FILE.equals(prefix)) {
@@ -53,11 +56,13 @@ public class BaseConfiguration {
 
             if (configFolder != null) {
                 configFolder = configFolder.endsWith("/") ? configFolder : configFolder + "/";
-                location = configFolder;
+                return configFolder;
+            } else {
+                return properties.getProperty(key);
             }
         }
 
-        return location;
+        throw new FileNotFoundException(properties.getProperty(key));
     }
 
     protected String getProperty(String key) {
@@ -82,7 +87,7 @@ public class BaseConfiguration {
     private String getPrefix(String key) {
         int index = key.indexOf('.');
         if (index > 0) {
-            return key.substring(0, index - 1);
+            return key.substring(0, index);
         }
         return null;
     }
