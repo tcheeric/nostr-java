@@ -264,7 +264,7 @@ public class NostrExamples {
 			TagList tagList = new TagList();
 			tagList.add(pkeyRcptTag);
 
-			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Test threads");
+			var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Nakamoto!");
 
 			IDENTITY.encryptDirectMessage(event2);
 			IDENTITY.sign(event2);
