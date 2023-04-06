@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tcheeric</groupId>
+        <groupId>com.github</groupId>
         <artifactId>nostr-java</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
