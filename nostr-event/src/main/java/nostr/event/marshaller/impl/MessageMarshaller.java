@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import nostr.base.Relay;
 import nostr.event.impl.GenericMessage;
-import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
@@ -17,7 +16,7 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-public class MessageMarshaller extends BaseElementMarshaller {
+public class MessageMarshaller extends ElementMarshaller {
 
     public MessageMarshaller(GenericMessage baseMessage, Relay relay) {
         super(baseMessage, relay);
@@ -31,11 +30,11 @@ public class MessageMarshaller extends BaseElementMarshaller {
         try {	
         	arrayNode.add(message.getCommand());
 	        if (message instanceof EventMessage msg) {
-	        	JsonNode tree = MAPPER.readTree(new BaseElementMarshaller(msg.getEvent(), relay).marshall());
+	        	JsonNode tree = MAPPER.readTree(new ElementMarshaller(msg.getEvent(), relay).marshall());
 	        	arrayNode.add(tree);
 	        } else if (message instanceof ReqMessage msg) {
 	        	arrayNode.add(msg.getSubscriptionId());
-	        	JsonNode tree = MAPPER.readTree(new BaseElementMarshaller(msg.getFilters(), relay).marshall());
+	        	JsonNode tree = MAPPER.readTree(new ElementMarshaller(msg.getFilters(), relay).marshall());
 	        	arrayNode.add(tree);
 	        } else if (message instanceof NoticeMessage msg) {
 	        	arrayNode.add(msg.getMessage());

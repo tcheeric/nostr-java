@@ -24,7 +24,7 @@ import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.list.TagList;
-import nostr.event.marshaller.BaseElementMarshaller;
+import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.unmarshaller.impl.EventUnmarshaller;
@@ -88,7 +88,7 @@ public class EventTest {
                 relay.addNipSupport(a.getNip());
             }
 
-            BaseElementMarshaller marshaller = new BaseElementMarshaller(genericTag.getParent(), relay);
+            ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
             var strJsonEvent = marshaller.marshall();
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
@@ -123,7 +123,7 @@ public class EventTest {
             relay.addNipSupport(1);
             relay.addNipSupport(genericTag.getNip());
 
-            BaseElementMarshaller marshaller = new BaseElementMarshaller(genericTag.getParent(), relay);
+            ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
             var strJsonEvent = marshaller.marshall();
 
             var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
@@ -158,7 +158,7 @@ public class EventTest {
         Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
         relay.addNipSupport(0);
 
-        BaseElementMarshaller marshaller = new BaseElementMarshaller(genericTag.getParent(), relay);
+        ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
 
         UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                 () -> {
@@ -177,7 +177,7 @@ public class EventTest {
         // Tag
         PublicKey publicKey = this.identity.getPublicKey();
         var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
-        var unTag = new TagUnmarshaller(new BaseElementMarshaller(tag, null).marshall()).unmarshall();
+        var unTag = new TagUnmarshaller(new ElementMarshaller(tag, null).marshall()).unmarshall();
         Assertions.assertEquals(tag.getCode(), unTag.getCode());
         //Assertions.assertEquals(tag.getPetName(), ((GenericTag)unTag).getAttributes().);
 
@@ -185,12 +185,12 @@ public class EventTest {
         var tagList = new TagList();
         tagList.add(tag);
         tagList.add(new NonceTag(Integer.SIZE, Integer.MIN_VALUE));
-        var unTagList = new TagListUnmarshaller(new BaseElementMarshaller(tagList, null).marshall()).unmarshall();
+        var unTagList = new TagListUnmarshaller(new ElementMarshaller(tagList, null).marshall()).unmarshall();
         Assertions.assertEquals(tagList.size(), unTagList.size());
 
         // Event
         var event = EntityFactory.Events.createOtsEvent(publicKey);
-        var unmarshalledEvent = new EventUnmarshaller(new BaseElementMarshaller(event, null).marshall()).unmarshall();
+        var unmarshalledEvent = new EventUnmarshaller(new ElementMarshaller(event, null).marshall()).unmarshall();
         Assertions.assertEquals(event.getKind(), ((GenericEvent) unmarshalledEvent).getKind());
 
         // Filters

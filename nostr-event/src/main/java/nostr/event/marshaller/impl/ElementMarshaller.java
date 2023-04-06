@@ -1,4 +1,4 @@
-package nostr.event.marshaller;
+package nostr.event.marshaller.impl;
 
 import java.lang.reflect.Field;
 import java.util.logging.Level;
@@ -21,7 +21,7 @@ import nostr.util.UnsupportedNIPException;
 @AllArgsConstructor
 @Log
 @Data
-public class BaseElementMarshaller implements IMarshaller {
+public class ElementMarshaller implements IMarshaller {
 
     private final IElement element;
     private final Relay relay;

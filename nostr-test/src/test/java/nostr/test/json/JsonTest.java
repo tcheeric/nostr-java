@@ -22,7 +22,7 @@ import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.TagList;
-import nostr.event.marshaller.BaseElementMarshaller;
+import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.marshaller.impl.FilterMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
@@ -154,7 +154,7 @@ public class JsonTest {
 
             IEvent event = EntityFactory.Events.createTextNoteEvent(publicKey, "Free Willy!");
 
-            Assertions.assertNotNull(new BaseElementMarshaller(event, relay).marshall());
+            Assertions.assertNotNull(new ElementMarshaller(event, relay).marshall());
         } catch (IllegalArgumentException | NostrException ex) {
             Assertions.fail(ex);
         }
@@ -176,7 +176,7 @@ public class JsonTest {
 
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
 
-            final String jsonEvent = new BaseElementMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
@@ -213,7 +213,7 @@ public class JsonTest {
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
             //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
 
-            final String jsonEvent = new BaseElementMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
@@ -245,7 +245,7 @@ public class JsonTest {
 
             UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                     () -> {
-                        new BaseElementMarshaller(event, relay).marshall();
+                        new ElementMarshaller(event, relay).marshall();
                     },
                     "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
             );
@@ -282,7 +282,7 @@ public class JsonTest {
 
             IEvent event = new TextNoteEvent(publicKey, tags, "Free Willy!");
 
-            final String jsonEvent = new BaseElementMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             Assertions.assertNotNull(jsonEvent);
 
@@ -319,7 +319,7 @@ public class JsonTest {
 
             ITag subjectTag = new SubjectTag("Hello World!");
 
-            var jsonSubjectTag = new BaseElementMarshaller(subjectTag, relay).marshall();
+            var jsonSubjectTag = new ElementMarshaller(subjectTag, relay).marshall();
 
             Assertions.assertNotNull(jsonSubjectTag);
 
@@ -348,7 +348,7 @@ public class JsonTest {
             GenericEvent relatedEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
             ITag eventTag = new EventTag(relatedEvent.getId());
 
-            var jsonEventTag = new BaseElementMarshaller(eventTag, relay).marshall();
+            var jsonEventTag = new ElementMarshaller(eventTag, relay).marshall();
 
             Assertions.assertNotNull(jsonEventTag);
 
@@ -385,7 +385,7 @@ public class JsonTest {
 
             UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                     () -> {
-                        new BaseElementMarshaller(event, relay).marshall();
+                        new ElementMarshaller(event, relay).marshall();
                     }
             );
 
