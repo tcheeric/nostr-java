@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.IElement;
-import nostr.base.IEvent;
 import nostr.base.IMarshaller;
 import nostr.base.NipUtil;
 import nostr.base.Relay;
@@ -45,7 +44,7 @@ public class ElementMarshaller implements IMarshaller {
     private boolean nipEventSupport() {
         Relay relay = getRelay();
 
-        return (relay != null) ? NipUtil.checkSupport(relay, (IEvent) getElement()) : true;
+        return (relay != null) ? NipUtil.checkSupport(relay, getElement()) : true;
     }
 
     protected boolean nipFieldSupport(Field field) {
