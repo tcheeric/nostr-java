@@ -9,12 +9,9 @@ import java.util.logging.Level;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
-import nostr.base.IMarshaller;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -24,6 +21,7 @@ import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.marshaller.impl.FilterMarshaller;
+import nostr.event.marshaller.impl.GenericTagMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
@@ -411,7 +409,7 @@ public class JsonTest {
 
             GenericTagQuery gtq = EntityFactory.Events.createGenericTagQuery();
 
-            String strExpr = IMarshaller.MAPPER.writeValueAsString(gtq);
+            String strExpr = new GenericTagMarshaller(gtq, relay).marshall();
 
             IValue vexpr = new JsonExpressionUnmarshaller(strExpr).unmarshall();
 
@@ -431,7 +429,7 @@ public class JsonTest {
                 Assertions.assertTrue(gtq.getValue().contains(v));
             }
 
-        } catch (JsonProcessingException ex) {
+        } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }

@@ -25,11 +25,11 @@ import nostr.base.ITag;
 @Log
 public class CustomTagSerializer extends StdSerializer<ITag> {
 
+	private static final long serialVersionUID = -3877972991082754068L;
+
 	public CustomTagSerializer() {
 		super(ITag.class);
 	}
-
-	private static final long serialVersionUID = -3877972991082754068L;
 
 	@Override
 	public void serialize(ITag value, JsonGenerator gen, SerializerProvider serializers) {

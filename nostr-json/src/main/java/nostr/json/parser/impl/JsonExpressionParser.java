@@ -17,7 +17,7 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private int cursor;
 
     public JsonExpressionParser(String json) {
-        super(json.trim());
+        super(json.substring(json.indexOf("{")+1, json.indexOf("}")).trim());
         this.cursor = 0;
         log.log(Level.FINE, "Parsing expression {0}", json.trim());
     }
