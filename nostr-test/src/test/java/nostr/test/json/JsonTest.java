@@ -19,9 +19,9 @@ import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.TagList;
-import nostr.event.marshaller.impl.EventMarshaller;
-import nostr.event.marshaller.impl.FiltersMarshaller;
-import nostr.event.marshaller.impl.GenericTagQueryMarshaller;
+import nostr.event.marshaller.impl.ElementMarshaller;
+import nostr.event.marshaller.impl.FilterMarshaller;
+import nostr.event.marshaller.impl.GenericTagMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
@@ -153,8 +153,8 @@ public class JsonTest {
 
             IEvent event = EntityFactory.Events.createTextNoteEvent(publicKey, "Free Willy!");
 
-            Assertions.assertNotNull(new EventMarshaller(event, relay).marshall());
-        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
+            Assertions.assertNotNull(new ElementMarshaller(event, relay).marshall());
+        } catch (IllegalArgumentException | NostrException ex) {
             Assertions.fail(ex);
         }
     }
@@ -175,7 +175,7 @@ public class JsonTest {
 
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
 
-            final String jsonEvent = new EventMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
@@ -191,7 +191,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(thrown);
 
-        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
+        } catch (IllegalArgumentException | NostrException ex) {
             Assertions.fail(ex);
         }
     }
@@ -212,7 +212,7 @@ public class JsonTest {
             IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
             //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
 
-            final String jsonEvent = new EventMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
@@ -222,7 +222,7 @@ public class JsonTest {
 
             Assertions.assertNotNull(((ObjectValue) jsonValue).get("ots"));
 
-        } catch (IllegalArgumentException | UnsupportedNIPException ex) {
+        } catch (IllegalArgumentException | NostrException ex) {
             Assertions.fail(ex);
         }
     }
@@ -244,7 +244,7 @@ public class JsonTest {
 
             UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                     () -> {
-                        new EventMarshaller(event, relay).marshall();
+                        new ElementMarshaller(event, relay).marshall();
                     },
                     "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
             );
@@ -281,7 +281,7 @@ public class JsonTest {
 
             IEvent event = new TextNoteEvent(publicKey, tags, "Free Willy!");
 
-            final String jsonEvent = new EventMarshaller(event, relay).marshall();
+            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
 
             Assertions.assertNotNull(jsonEvent);
 
@@ -352,7 +352,6 @@ public class JsonTest {
             Assertions.assertNotNull(jsonEventTag);
 
             var jsonCodeValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
-            //var jsonEventIdValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(1);
 
             Assertions.assertEquals("\"e\"", jsonCodeValue.get().toString());
         } catch (NostrException ex) {
@@ -384,7 +383,7 @@ public class JsonTest {
 
             UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                     () -> {
-                        new EventMarshaller(event, relay).marshall();
+                        new ElementMarshaller(event, relay).marshall();
                     }
             );
 
@@ -410,9 +409,7 @@ public class JsonTest {
 
             GenericTagQuery gtq = EntityFactory.Events.createGenericTagQuery();
 
-            GenericTagQueryMarshaller gtqm = new GenericTagQueryMarshaller(gtq, relay);
-
-            String strExpr = gtqm.marshall();
+            String strExpr = new GenericTagMarshaller(gtq, relay).marshall();
 
             IValue vexpr = new JsonExpressionUnmarshaller(strExpr).unmarshall();
 
@@ -454,7 +451,7 @@ public class JsonTest {
 
             Filters filters = EntityFactory.Events.createFilters(publicKey);
 
-            var fm = new FiltersMarshaller(filters, relay);
+            var fm = new FilterMarshaller(filters, relay);
             var strJson = fm.marshall();
 
             System.out.println("@@@ " + strJson);
@@ -480,7 +477,7 @@ public class JsonTest {
             var variable = "\"#" + c.toString() + "\"";
             Assertions.assertNotNull(obj.get(variable));
 
-        } catch (UnsupportedNIPException ex) {
+        } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }

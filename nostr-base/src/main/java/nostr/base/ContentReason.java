@@ -23,7 +23,7 @@ public class ContentReason {
     	ObjectMapper mapper = new ObjectMapper();
     	
     	try {
-			return mapper.writeValueAsString(this).replace("\"", "\\\"");
+			return mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
