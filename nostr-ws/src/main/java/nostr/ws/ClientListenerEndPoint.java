@@ -237,7 +237,7 @@ public class ClientListenerEndPoint {
 
         HandlerConfiguration() throws IOException {
 //        	TODO
-//            this("/handlers.properties");
+            this("/handlers.properties");
         }
 
         HandlerConfiguration(String file) throws IOException {
