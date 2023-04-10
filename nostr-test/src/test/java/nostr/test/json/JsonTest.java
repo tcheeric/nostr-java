@@ -24,6 +24,7 @@ import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.marshaller.impl.FilterMarshaller;
+import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
@@ -319,7 +320,7 @@ public class JsonTest {
 
             ITag subjectTag = new SubjectTag("Hello World!");
 
-            var jsonSubjectTag = new ElementMarshaller(subjectTag, relay).marshall();
+            var jsonSubjectTag = new TagMarshaller(subjectTag, relay).marshall();
 
             Assertions.assertNotNull(jsonSubjectTag);
 
@@ -348,12 +349,11 @@ public class JsonTest {
             GenericEvent relatedEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
             ITag eventTag = new EventTag(relatedEvent.getId());
 
-            var jsonEventTag = new ElementMarshaller(eventTag, relay).marshall();
+            var jsonEventTag = new TagMarshaller(eventTag, relay).marshall();
 
             Assertions.assertNotNull(jsonEventTag);
 
             var jsonCodeValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
-            //var jsonEventIdValue = ((JsonArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(1);
 
             Assertions.assertEquals("\"e\"", jsonCodeValue.get().toString());
         } catch (NostrException ex) {

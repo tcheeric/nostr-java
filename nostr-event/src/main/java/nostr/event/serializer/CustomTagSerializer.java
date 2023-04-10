@@ -11,27 +11,37 @@ import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import lombok.extern.java.Log;
 import nostr.base.IMarshaller;
 import nostr.base.ITag;
-import nostr.event.list.TagList;
-
 
 /**
  * @author guilhermegps
  *
  */
 @Log
-public class CustomTagListSerializer extends JsonSerializer<TagList> {
+public class CustomTagSerializer extends StdSerializer<ITag> {
+
+	public CustomTagSerializer() {
+		super(ITag.class);
+	}
+
+	private static final long serialVersionUID = -3877972991082754068L;
 
 	@Override
-	public void serialize(TagList value, JsonGenerator gen, SerializerProvider serializers) {
+	public void serialize(ITag value, JsonGenerator gen, SerializerProvider serializers) {
 		try {
-			var list = value.getList().parallelStream().map(tag -> toArrayJson((ITag) tag))
-					.collect(Collectors.toList());
+		    var mapper = IMarshaller.MAPPER;
+	    	JsonNode node = mapper.valueToTree(value);
+	    	
+	    	Iterator<Entry<String,JsonNode>> fields = node.fields();
+	    	var list = StreamSupport.stream(
+	                Spliterators.spliteratorUnknownSize(fields, Spliterator.ORDERED), false)
+	                .map(f -> f.getValue().asText().toLowerCase() )
+	                .collect(Collectors.toList());
 			
 			gen.writePOJO(list);
 		} catch (IOException e) {
@@ -39,24 +49,5 @@ public class CustomTagListSerializer extends JsonSerializer<TagList> {
             throw new RuntimeException(e);
 		}
 	}
-    
-    protected JsonNode toArrayJson(ITag iTag) {
-	    var mapper = IMarshaller.MAPPER;
-    	try {
-	    	JsonNode node = mapper.valueToTree(iTag);
-	    	
-	    	Iterator<Entry<String,JsonNode>> fields = node.fields();
-	    	
-	    	var list = StreamSupport.stream(
-	                Spliterators.spliteratorUnknownSize(fields, Spliterator.ORDERED), false)
-	                .map(f -> f.getValue().asText().toLowerCase() )
-	                .collect(Collectors.toList());
-	    	
-	    	return mapper.valueToTree(list);
-		} catch (Exception e) {
-            log.log(Level.SEVERE, null, e);
-            throw new RuntimeException(e);
-		} 
-    }
 
 }
