@@ -12,6 +12,7 @@ import nostr.types.values.IValue;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+//@JsonSerialize(using=ExpressionValueSerializer.class)
 public class ExpressionValue extends BaseValue {
 
     private final String name;
