@@ -22,6 +22,7 @@ import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.marshaller.impl.FilterMarshaller;
 import nostr.event.marshaller.impl.GenericTagMarshaller;
+import nostr.event.marshaller.impl.OstEventMarshaller;
 import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.DelegationTag;
 import nostr.event.tag.EventTag;
@@ -209,10 +210,9 @@ public class JsonTest {
 
             PublicKey publicKey = new PublicKey(new byte[]{});
 
-            IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
-            //((GenericEvent) event).setOts(EntityFactory.generateRamdomAlpha(32));
+            var event = EntityFactory.Events.createOtsEvent(publicKey);
 
-            final String jsonEvent = new ElementMarshaller(event, relay).marshall();
+            final String jsonEvent = new OstEventMarshaller(event, relay).marshall();
 
             log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 

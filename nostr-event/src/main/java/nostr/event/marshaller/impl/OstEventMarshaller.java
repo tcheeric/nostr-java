@@ -1,16 +1,16 @@
 package nostr.event.marshaller.impl;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import nostr.base.ElementAttribute;
 import nostr.base.IMarshaller;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
-import nostr.event.serializer.CustomTagSerializer;
+import nostr.types.values.impl.ExpressionValue;
 import nostr.util.NostrException;
 
 /**
@@ -22,7 +22,7 @@ import nostr.util.NostrException;
 @Builder
 public class OstEventMarshaller implements IMarshaller {
 
-    private final OtsEvent tag;
+    private final OtsEvent event;
     private final Relay relay;
 
     @Override
@@ -33,13 +33,17 @@ public class OstEventMarshaller implements IMarshaller {
     @Override
     public String toJson() throws NostrException {
     	try {
-    		SimpleModule module = new SimpleModule();
-    		module.addSerializer(new CustomTagSerializer());
-    		var mappe = (new ObjectMapper())
-    				.setSerializationInclusion(Include.NON_NULL)
-    				.registerModule(module);
+	    	JsonNode node = MAPPER.valueToTree(event);
+	    	ObjectNode objNode = (ObjectNode) node;
+    		event.getAttributes().parallelStream()
+    			.map(ElementAttribute::getValue)
+    			.forEach(ev -> {
+    				var expression = (ExpressionValue) ev;
+    				
+    		    	objNode.set(expression.getName(), MAPPER.valueToTree(expression.getValue().toString()));
+    			});
     		
-	    	return mappe.writeValueAsString(tag);
+	    	return MAPPER.writeValueAsString(node);
 		} catch (Exception e) {
 			throw new NostrException(e);
 		} 
