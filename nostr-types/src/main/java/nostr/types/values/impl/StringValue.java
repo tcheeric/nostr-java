@@ -12,9 +12,4 @@ public class StringValue extends BaseValue {
     public StringValue(String value) {
         super(Type.STRING, value);
     }
-
-    @Override
-    public String toString() {
-        return getValue().toString();
-    }
 }
