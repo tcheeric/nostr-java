@@ -25,6 +25,7 @@ import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.ElementMarshaller;
+import nostr.event.marshaller.impl.FilterMarshaller;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.unmarshaller.impl.EventUnmarshaller;
@@ -204,7 +205,7 @@ public class EventTest {
         final TextNoteEvent evt = EntityFactory.Events.createTextNoteEvent(publicKey);
         eventList.add(evt);
         filters.setEvents(eventList);
-        Filters unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();
+        Filters unFilters = (Filters) new FiltersUnmarshaller(new FilterMarshaller(filters, null).marshall()).unmarshall();
         Assertions.assertEquals(filters.getKinds().size(), unFilters.getKinds().size());
         Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.DELETION));
         Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.ENCRYPTED_DIRECT_MESSAGE));
