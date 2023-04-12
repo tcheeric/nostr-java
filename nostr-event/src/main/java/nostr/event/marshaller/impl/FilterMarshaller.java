@@ -32,29 +32,28 @@ public class FilterMarshaller implements IMarshaller {
     public String marshall() throws NostrException {
         return toJson();
     }
-    
+
     @Override
     public String toJson() throws NostrException {
-    	try {
-    		JsonNode node = MAPPER.valueToTree(filters);
-	    	ObjectNode objNode = (ObjectNode) node;
-    		var arrayNode = (ArrayNode) node.get("genericTagQueryList");
-    		if(!arrayNode.isNull()) {
-    	        for (JsonNode jn : arrayNode) {
-    	        	StreamSupport.stream(
-    	        			Spliterators.spliteratorUnknownSize(jn.fields(), Spliterator.ORDERED), false)
-    	        	.forEach(f -> {
-    	        		objNode.set(f.getKey(), f.getValue());
-    	        	});
-    	        }
-    		}
-	    	objNode.remove("genericTagQueryList");
-    		
-    		
-	    	return MAPPER.writeValueAsString(node);
-		} catch (Exception e) {
-			throw new NostrException(e);
-		} 
+        try {
+            JsonNode node = MAPPER.valueToTree(filters);
+            ObjectNode objNode = (ObjectNode) node;
+            var arrayNode = (ArrayNode) node.get("genericTagQueryList");
+            if (arrayNode != null && !arrayNode.isNull()) {
+                for (JsonNode jn : arrayNode) {
+                    StreamSupport.stream(
+                            Spliterators.spliteratorUnknownSize(jn.fields(), Spliterator.ORDERED), false)
+                            .forEach(f -> {
+                                objNode.set(f.getKey(), f.getValue());
+                            });
+                }
+            }
+            objNode.remove("genericTagQueryList");
+
+            return MAPPER.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new NostrException(e);
+        }
     }
 
 }
