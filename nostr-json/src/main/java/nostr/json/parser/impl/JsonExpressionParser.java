@@ -1,9 +1,10 @@
 package nostr.json.parser.impl;
 
-import nostr.json.parser.JsonParseException;
-import nostr.json.parser.BaseParser;
 import java.util.logging.Level;
+
 import lombok.extern.java.Log;
+import nostr.json.parser.BaseParser;
+import nostr.json.parser.JsonParseException;
 import nostr.types.values.IValue;
 import nostr.types.values.impl.ExpressionValue;
 
@@ -17,9 +18,16 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     private int cursor;
 
     public JsonExpressionParser(String json) {
-        super(json.trim());
+        super(format(json));
         this.cursor = 0;
         log.log(Level.FINE, "Parsing expression {0}", json.trim());
+    }
+    
+    private static String format(String json) {
+    	if(json.startsWith("{"))
+    		return json.substring(json.indexOf("{")+1, json.indexOf("}")).trim();
+    	
+    	return json.trim();
     }
 
     @Override
@@ -31,7 +39,6 @@ public class JsonExpressionParser extends BaseParser<ExpressionValue> {
     }
 
     private String getVariable() {
-
         char c = json.charAt(cursor);
         if (c == '\"') { // -- Get the expression varaiable
             int closeIdx = json.indexOf("\"", cursor + 1);

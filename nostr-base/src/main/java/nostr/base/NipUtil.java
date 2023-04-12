@@ -1,6 +1,7 @@
 package nostr.base;
 
 import java.lang.reflect.Field;
+
 import lombok.NonNull;
 import nostr.base.annotation.Event;
 import nostr.base.annotation.Key;
@@ -19,30 +20,24 @@ public class NipUtil {
         return relay.getSupportedNips().contains(nip);
     }
 
-    public static boolean checkSupport(@NonNull Relay relay, IEvent event) {
-
-        if (event == null) {
+    public static boolean checkSupport(@NonNull Relay relay, IElement element) {
+        if (element == null)
             return true;
+
+        var nip = 1;
+        if (element instanceof IEvent event) {
+        	var e = element.getClass().getDeclaredAnnotation(Event.class);
+        	nip = (e==null) ? event.getNip() : e.nip();
+        } else if(element instanceof ITag) {
+        	var t = element.getClass().getDeclaredAnnotation(Tag.class);
+        	nip = (t==null) ? nip : t.nip();
         }
-
-        var e = event.getClass().getDeclaredAnnotation(Event.class);
-        var nip = e == null ? event.getNip() : e.nip();
-        return relay.getSupportedNips().contains(nip);
-    }
-
-    public static boolean checkSupport(@NonNull Relay relay, @NonNull ITag tag) {
-
-        var t = tag.getClass().getDeclaredAnnotation(Tag.class);
-        int nip = t == null ? 1 : t.nip();
+        
         return relay.getSupportedNips().contains(nip);
     }
 
     public static boolean checkSupport(@NonNull Relay relay, @NonNull GenericTagQuery gtq) {
 
         return relay.getSupportedNips().contains(12);
-    }
-
-    public int getNip(IEvent event) {
-        return event.getNip() == null ? 1 : event.getNip();
     }
 }
