@@ -26,6 +26,7 @@ import nostr.event.list.PublicKeyList;
 import nostr.event.list.TagList;
 import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.marshaller.impl.FilterMarshaller;
+import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.unmarshaller.impl.EventUnmarshaller;
@@ -178,7 +179,7 @@ public class EventTest {
         // Tag
         PublicKey publicKey = this.identity.getPublicKey();
         var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
-        var unTag = new TagUnmarshaller(new ElementMarshaller(tag, null).marshall()).unmarshall();
+        var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
         Assertions.assertEquals(tag.getCode(), unTag.getCode());
         //Assertions.assertEquals(tag.getPetName(), ((GenericTag)unTag).getAttributes().);
 
