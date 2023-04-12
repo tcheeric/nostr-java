@@ -180,7 +180,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 	    	arrayNode.add(this.pubKey.toString());
 	    	arrayNode.add(this.createdAt);
 	    	arrayNode.add(this.kind);
-			arrayNode.add(mapper.valueToTree(tags.getList()));
+			arrayNode.add(mapper.valueToTree(tags));
 	    	arrayNode.add(this.content);
 	    	
 	    	return mapper.writeValueAsString(arrayNode);
