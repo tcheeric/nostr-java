@@ -41,6 +41,7 @@ public enum Kind {
         return UNDEFINED;
     }
 
+    // BUG: This is a problem, because you will marshall int value as strings. This fails on unmarshalling (see EventTest.testUnmarshallEvent @ Line:208) and may also fail when submitting filters to relays
     @JsonValue
     @Override
     public String toString() {
