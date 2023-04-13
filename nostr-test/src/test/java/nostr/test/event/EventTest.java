@@ -219,7 +219,7 @@ public class EventTest {
         final GenericTagQuery gtq = GenericTagQuery.builder().tagName('x').value(Arrays.asList("one", "two", "three")).build();
         gtqList.add(gtq);
         filters.setGenericTagQueryList(gtqList);
-        unFilters = (Filters) new FiltersUnmarshaller(filters.toString()).unmarshall();
+        unFilters = (Filters) new FiltersUnmarshaller(new FilterMarshaller(filters, null).marshall()).unmarshall();
         Assertions.assertTrue(unFilters.getGenericTagQueryList().getList().contains(gtq));
     }
 

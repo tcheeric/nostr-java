@@ -29,7 +29,8 @@ public enum Kind {
     EPHEMEREAL_EVENT(20_000, "ephemereal_event"),
     CLIENT_AUTH(22_242, "authentication_of_clients_to_relays"),
     UNDEFINED(-1, "undefined");
-            
+	
+	@JsonValue
     private final int value;    
     private final String name;
     
@@ -41,9 +42,6 @@ public enum Kind {
         return UNDEFINED;
     }
 
-    // BUG: https://github.com/tcheeric/nostr-java/issues/22
-    // This is a problem, because you will marshall int value as strings. This fails on unmarshalling (see EventTest.testUnmarshallEvent @ Line:208) and may also fail when submitting filters to relays
-    @JsonValue
     @Override
     public String toString() {
         return Integer.toString(value);
