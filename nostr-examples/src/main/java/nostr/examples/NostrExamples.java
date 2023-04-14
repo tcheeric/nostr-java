@@ -63,15 +63,15 @@ public class NostrExamples {
 	 * nsec1yjs4nalp47mwhvjwg0ne7gltwcv8g8glzhsucnmyujdvr87hda8qkjl88s
 	 * 24a159f7e1afb6ebb24e43e79f23eb7618741d1f15e1cc4f64e49ac19fd76f4e
 	 */
-	private final static String PUBLIC_KEY = "98fd512949146f36fe4e84ee0c68e6f04780c7037c6e2cf8baf74033ccd1b687";
-	private final static Profile PROFILE = Profile.builder()
+	private static final String PUBLIC_KEY = "98fd512949146f36fe4e84ee0c68e6f04780c7037c6e2cf8baf74033ccd1b687";
+	private static final Profile PROFILE = Profile.builder()
     		.name("test")
     		.about("Hey, it's me!")
     		.publicKey(new PublicKey("99cf4426cb4507688ff151a760ec098ff78af3cfcdcb6e74fa9c9ed76cba43fa"))
     		.build();
-	private final static Identity IDENTITY = new Identity(new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"), PROFILE.getPublicKey());
-	private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
-	private final static Client CLIENT = new Client("test", IDENTITY, RELAYS);
+	private static final Identity IDENTITY = new Identity(new PrivateKey("04a7dd63ef4dfd4ab95ff8c1576b1d252831a0c53f13657d959a199b4de4b670"), PROFILE.getPublicKey());
+	private static final Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
+	private static final Client CLIENT = new Client("test", IDENTITY, RELAYS);
 
 	static {
 		final LogManager logManager = LogManager.getLogManager();
