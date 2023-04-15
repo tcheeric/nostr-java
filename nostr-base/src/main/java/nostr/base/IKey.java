@@ -5,7 +5,7 @@ package nostr.base;
  *
  * @author squirrel
  */
-public interface IKey extends IBech32Encodable {
+public interface IKey {
 
     public abstract byte[] getRawData();
 }
