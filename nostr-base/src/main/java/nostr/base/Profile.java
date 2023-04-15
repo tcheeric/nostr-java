@@ -1,6 +1,8 @@
 package nostr.base;
 
 import nostr.crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32Prefix;
+
 import java.net.URL;
 import java.util.logging.Level;
 import lombok.Builder;

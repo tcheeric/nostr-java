@@ -1,13 +1,14 @@
 package nostr.crypto.schnorr;
 
-import nostr.crypto.Point;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.logging.Level;
+
 import lombok.extern.java.Log;
+import nostr.crypto.Point;
 import nostr.util.NostrUtil;
 
 @Log

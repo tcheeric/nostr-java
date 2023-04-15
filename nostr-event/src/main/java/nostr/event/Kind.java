@@ -1,6 +1,8 @@
 
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,7 +29,8 @@ public enum Kind {
     EPHEMEREAL_EVENT(20_000, "ephemereal_event"),
     CLIENT_AUTH(22_242, "authentication_of_clients_to_relays"),
     UNDEFINED(-1, "undefined");
-            
+	
+	@JsonValue
     private final int value;    
     private final String name;
     
