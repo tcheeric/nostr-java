@@ -20,10 +20,10 @@ public class PrivateKey extends BaseKey {
     
     /**
      * 
-     * @return A strong pseudo random hexadecimal private key 
+     * @return A strong pseudo random private key 
      */
-    public static String generateRandomPrivKey() {
-    	return NostrUtil.bytesToHex(Schnorr.generatePrivateKey());
+    public static PrivateKey generateRandomPrivKey() {
+    	return new PrivateKey(Schnorr.generatePrivateKey());
     }
 
 }

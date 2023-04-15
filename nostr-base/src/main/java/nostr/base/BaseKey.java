@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.annotation.JsonString;
+import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
 /**
@@ -28,6 +30,11 @@ public abstract class BaseKey implements IKey {
     protected final byte[] rawData;
 
     protected final Bech32Prefix prefix;
+    
+    @Override
+    public String getBech32() throws NostrException {
+    	return Bech32.toBech32(prefix, rawData);
+    }
 
     @JsonValue
     @Override
