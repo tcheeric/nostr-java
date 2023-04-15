@@ -31,33 +31,23 @@ import nostr.ws.handler.request.DefaultRequestHandler;
  */
 @Log
 @Data
-@ToString
 public class Client {
 
     @ToString.Exclude
     private final Set<Future<Relay>> futureRelays;
 
-    private final String name;
-
     @ToString.Exclude
     private final ThreadPoolExecutor threadPool;
 
-    @ToString.Include
-    private final Identity identity;
-
-    public Client(@NonNull String name, String relayConfFile, @NonNull Identity identity) throws IOException {
+    public Client(String relayConfFile) throws IOException {
         this.futureRelays = new HashSet<>();
-        this.name = name;
-        this.identity = identity;
         
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relayConfFile);
     }
 
-    public Client(@NonNull String name, @NonNull Identity identity, Map<String, String> relays) {
+    public Client(Map<String, String> relays) {
         this.futureRelays = new HashSet<>();
-        this.name = name;
-        this.identity = identity;
 
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relays);
@@ -151,7 +141,6 @@ public class Client {
 
     @Log
     static class RelayConfiguration extends BaseConfiguration {
-
         RelayConfiguration() throws IOException {
             this("/relays.properties");
         }
