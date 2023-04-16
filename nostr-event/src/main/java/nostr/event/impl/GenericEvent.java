@@ -2,7 +2,6 @@ package nostr.event.impl;
 
 import java.beans.IntrospectionException;
 import java.beans.Transient;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +20,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.Bech32Prefix;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.base.IMarshaller;
@@ -32,6 +30,7 @@ import nostr.base.Signature;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.Kind;
 import nostr.event.list.TagList;
@@ -126,8 +125,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             }
         }
         try {
-            return Bech32.toBech32(Bech32Prefix.NOTE.getCode(), this.getId());
-        } catch (NostrException | NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+            return Bech32.toBech32(Bech32Prefix.NOTE, this.getId());
+        } catch (NostrException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }
