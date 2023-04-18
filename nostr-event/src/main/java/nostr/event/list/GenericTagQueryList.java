@@ -2,9 +2,9 @@ package nostr.event.list;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 
 /**
@@ -12,6 +12,7 @@ import nostr.base.GenericTagQuery;
  * @author squirrel
  */
 @Builder
+@Log
 public class GenericTagQueryList extends BaseList<GenericTagQuery> {
 
     public GenericTagQueryList() {

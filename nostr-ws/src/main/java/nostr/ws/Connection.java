@@ -79,9 +79,9 @@ public class Connection {
         } catch (MalformedURLException e) {
             log.log(Level.WARNING, null, e);
         } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS", uri), e);
+            log.log(Level.WARNING, "It wasn't possible to connect to server {0} using HTTPS", uri);
         } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
+            log.log(Level.SEVERE, "Invalid URI: {0}", uri);
             throw new RuntimeException(e);
 		}
 
@@ -94,9 +94,9 @@ public class Connection {
         } catch (MalformedURLException e) {
             log.log(Level.WARNING, null, e);
         } catch (IOException e) {
-            log.log(Level.FINER, String.format("It wasn't possible to connect to server %s using HTTP", uri), e);
+            log.log(Level.FINER, "It wasn't possible to connect to server {0} using HTTP", uri);
         } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
+            log.log(Level.SEVERE, "Invalid URI: {0}", uri);
             throw new RuntimeException(e);
 		}
 

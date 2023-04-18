@@ -1,10 +1,26 @@
 package nostr.crypto.bech32;
 
+/*
+ * Copyright 2018 Coinomi Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distrithrow NostrException buted under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
@@ -61,20 +77,19 @@ public class Bech32 {
         }
     }
 
-    public static String toBech32(Bech32Prefix hrp, byte[] hexKey) throws NostrException {
-        var data = convertBits(hexKey, 8, 5, true);
+    // Added by squirrel
+    public static String toBech32(String hrp, String hexPubKey) throws NoSuchAlgorithmException, NostrException, UnsupportedEncodingException {
 
-        return Bech32.encode(Bech32.Encoding.BECH32, hrp.getCode(), data);
-    }
+        var data = NostrUtil.hexToBytes(hexPubKey);
 
-    public static String toBech32(Bech32Prefix hrp, String hexKey) throws NostrException {
-        var data = NostrUtil.hexToBytes(hexKey);
+        data = convertBits(data, 8, 5, true);
 
-        return toBech32(hrp, data);
+        return Bech32.encode(Bech32.Encoding.BECH32, hrp, data);
     }
 
     // Added by squirrel
     public static String fromBech32(String strBech32) throws NostrException {
+
         var data = Bech32.decode(strBech32).data;
 
         data = convertBits(data, 5, 8, true);

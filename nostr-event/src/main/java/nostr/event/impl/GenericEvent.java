@@ -1,28 +1,23 @@
 package nostr.event.impl;
 
-import java.beans.IntrospectionException;
-import java.beans.Transient;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.HashSet;
+import lombok.EqualsAndHashCode;
+import lombok.extern.java.Log;
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import lombok.Data;
+import java.beans.Transient;
+import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import nostr.base.Bech32Prefix;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
-import nostr.base.IMarshaller;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
@@ -30,12 +25,14 @@ import nostr.base.Signature;
 import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.crypto.bech32.Bech32;
-import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.Kind;
 import nostr.event.list.TagList;
+import nostr.event.marshaller.impl.EventMarshaller;
+import nostr.event.marshaller.impl.TagListMarshaller;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
+import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -50,14 +47,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Include
     private String id;
 
-    @Key
-    @JsonProperty("pubkey")
+    @Key(name = "pubkey")
     @EqualsAndHashCode.Include
     @JsonString
     private PublicKey pubKey;
 
-    @Key
-    @JsonProperty("created_at")
+    @Key(name = "created_at")
     @EqualsAndHashCode.Exclude
     private Long createdAt;
 
@@ -73,21 +68,17 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Exclude
     private String content;
 
-    @Key
-    @JsonProperty("sig")
+    @Key(name = "sig")
     @EqualsAndHashCode.Exclude
     @JsonString
     private Signature signature;
 
-    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private byte[] _serializedEvent;
-
-    @JsonIgnore
+    
     @EqualsAndHashCode.Exclude
     private Integer nip;
 
-    @JsonIgnore
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;
 
@@ -115,6 +106,16 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     @Override
+    public String toString() {
+        try {
+            return new EventMarshaller(this, null).marshall();
+        } catch (UnsupportedNIPException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
     public String toBech32() {
         if (!isSigned()) {
             try {
@@ -125,8 +126,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             }
         }
         try {
-            return Bech32.toBech32(Bech32Prefix.NOTE, this.getId());
-        } catch (NostrException ex) {
+            return Bech32.toBech32(Bech32Prefix.NOTE.getCode(), this.getId());
+        } catch (NostrException | NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }
@@ -171,24 +172,23 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
-    	var mapper = IMarshaller.MAPPER;
-    	var arrayNode = JsonNodeFactory.instance.arrayNode();
-    	
-    	try {
-	    	arrayNode.add(0);
-	    	arrayNode.add(this.pubKey.toString());
-	    	arrayNode.add(this.createdAt);
-	    	arrayNode.add(this.kind);
-			arrayNode.add(mapper.valueToTree(tags));
-	    	arrayNode.add(this.content);
-	    	
-	    	return mapper.writeValueAsString(arrayNode);
-    	} catch (JsonProcessingException e) {
-            throw new NostrException(e);
-    	}
+        var sb = new StringBuilder();
+        sb.append("[");
+        sb.append("0").append(",\"");
+        sb.append(this.pubKey).append("\",");
+        sb.append(this.createdAt).append(",");
+        sb.append(this.kind).append(",");
+
+        sb.append(new TagListMarshaller(tags, null).marshall());
+        sb.append(",\"");
+        sb.append(this.content);
+        sb.append("\"]");
+
+        return sb.toString();
     }
 
     private void updateTagsParents(TagList tagList) {
+
         if (tagList != null && !tagList.getList().isEmpty()) {
             for (Object t : tagList.getList()) {
                 ITag tag = (ITag) t;

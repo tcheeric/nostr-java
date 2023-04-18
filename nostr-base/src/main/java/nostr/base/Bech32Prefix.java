@@ -1,4 +1,4 @@
-package nostr.crypto.bech32;
+package nostr.base;
 
 /**
  *

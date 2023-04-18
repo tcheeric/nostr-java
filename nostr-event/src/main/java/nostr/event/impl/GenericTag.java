@@ -13,7 +13,7 @@ import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.marshaller.impl.ElementMarshaller;
+import nostr.event.marshaller.impl.TagMarshaller;
 import nostr.types.MarshallException;
 import nostr.types.values.marshaller.BaseTypesMarshaller;
 import nostr.util.NostrException;
@@ -83,7 +83,7 @@ public class GenericTag extends BaseTag implements IGenericElement {
     @Override
     public String toString() {
         try {
-            return new ElementMarshaller(this, null).marshall();
+            return new TagMarshaller(this, null).marshall();
         } catch (NostrException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);

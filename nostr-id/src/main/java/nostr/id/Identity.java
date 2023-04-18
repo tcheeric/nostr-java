@@ -22,19 +22,19 @@ import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
+import nostr.base.Bech32Prefix;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.bech32.Bech32;
-import nostr.crypto.bech32.Bech32Prefix;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
@@ -49,22 +49,27 @@ import nostr.util.NostrUtil;
  */
 @Data
 @Log
-@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
+    private final PublicKey publicKey;
 
     public Identity(String profileFile) throws IOException, NostrException {
         this.privateKey = new IdentityConfiguration(profileFile).getPrivateKey();
+        this.publicKey = new IdentityConfiguration(profileFile).getPublicKey();
     }
-    
-    public PublicKey getPublicKey() {
-    	try {
-			return new PublicKey(Schnorr.genPubKey(privateKey.getRawData()));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+
+    public Identity(PrivateKey privateKey, PublicKey publicKey) {
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+    }
+
+    public Identity(PrivateKey privateKey) throws Exception {
+        this.privateKey = privateKey;
+        this.publicKey = generatePublicKey(privateKey);
     }
 
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
@@ -114,14 +119,6 @@ public class Identity {
             }
         }
         throw new NostrException();
-    }
-    
-    /**
-     * 
-     * @return A strong pseudo random Identity
-     */
-    public static Identity generateRandomIdentity() {
-    	return new Identity(PrivateKey.generateRandomPrivKey());
     }
 
     private Signature signEvent(@NonNull GenericEvent event) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {

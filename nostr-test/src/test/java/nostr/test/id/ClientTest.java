@@ -22,18 +22,16 @@ import nostr.util.NostrException;
 class ClientTest {
 
     private final Client client;
-    private final Identity identity;
 
     public ClientTest() throws IOException, NostrException {
-        this.client = new Client("/relays.properties");
-        this.identity = new Identity("/profile.properties");
+        this.client = new Client("TestClient", "/relays.properties", new Identity("/profile.properties"));
     }
 
     @Test
     public void testSend() {
         try {
             System.out.println("testSend");
-            PublicKey publicKey = identity.getPublicKey();
+            PublicKey publicKey = client.getIdentity().getPublicKey();
             GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
             this.client.send(msg);
             assertTrue(true);

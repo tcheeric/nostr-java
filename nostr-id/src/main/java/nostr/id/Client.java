@@ -3,7 +3,6 @@ package nostr.id;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,63 +30,73 @@ import nostr.ws.handler.request.DefaultRequestHandler;
  */
 @Log
 @Data
+@ToString
 public class Client {
 
     @ToString.Exclude
     private final Set<Future<Relay>> futureRelays;
 
+    private final String name;
+
     @ToString.Exclude
     private final ThreadPoolExecutor threadPool;
 
-    public Client(String relayConfFile) throws IOException {
+    @ToString.Include
+    private final Identity identity;
+
+    public Client(@NonNull String name, String relayConfFile, @NonNull Identity identity) throws IOException {
         this.futureRelays = new HashSet<>();
-        
+        this.name = name;
+        this.identity = identity;
+
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relayConfFile);
     }
 
-    public Client(Map<String, String> relays) {
+    public Client(@NonNull String name, @NonNull Identity identity, Map<String, String> relays) {
         this.futureRelays = new HashSet<>();
+        this.name = name;
+        this.identity = identity;
 
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relays);
     }
 
-    public Set<Relay> getRelays() {
-        return futureRelays.parallelStream()
+	public Set<Relay> getRelays() {
+		return futureRelays.parallelStream()
                 .filter(fr -> {
-                    try {
-                        return fr.isDone();
-                    } catch (Exception e) {
-                        log.log(Level.WARNING, null, e);
-                    }
-
-                    return false;
-                }).map(fr -> {
-            try {
-                return fr.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.log(Level.SEVERE, null, e);
-            }
-
-            return null;
-        }).collect(Collectors.toSet());
-    }
+					try {
+						return fr.isDone();
+					} catch (Exception e) {
+			            log.log(Level.WARNING, null, e);
+					}
+					
+					return false;
+				}).map(fr -> {
+					try {
+						return fr.get();
+					} catch (InterruptedException | ExecutionException e) {
+                        log.log(Level.SEVERE, null, e);
+					}
+					
+					return null;
+				}).collect(Collectors.toSet());
+	}
 
     public void send(@NonNull GenericMessage message) {
         futureRelays.parallelStream()
                 .filter(fr -> {
-                    try {
-                        return fr.isDone() && fr.get().getSupportedNips().contains(message.getNip());
-                    } catch (InterruptedException | ExecutionException e) {
-                        log.log(Level.WARNING, null, e);
-                    }
-
-                    return false;
-                })
+					try {
+						return fr.isDone() && fr.get().getSupportedNips().contains(message.getNip());
+					} catch (InterruptedException | ExecutionException e) {
+			            log.log(Level.WARNING, null, e);
+					}
+					
+					return false;
+				})
                 .forEach(fr -> {
                     try {
-                        Relay r = fr.get();
+                    	Relay r = fr.get();
                         var rh = DefaultRequestHandler.builder().connection(new Connection(r)).message(message).build();
                         log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
                         rh.process();
@@ -98,36 +107,34 @@ public class Client {
     }
 
     private Relay openRelay(@NonNull String name, @NonNull String uri) {
-        URI serverURI = Connection.serverURI(uri);
-        Relay relay = Relay.builder().name(name).uri(serverURI.toString()).build();
-
+    	URI serverURI = Connection.serverURI(uri);
+    	Relay relay = Relay.builder().name(name).uri(serverURI.toString()).build();
+        
         return openRelay(relay);
     }
 
     private Relay openRelay(@NonNull Relay relay) {
         updateRelayInformation(relay);
         log.log(Level.FINE, "Relay connected: {0}", relay);
-
+        
         return relay;
     }
 
-    private void init(Map<String, String> mapRelays) {
-        mapRelays.entrySet().parallelStream().forEach(r -> {
-            Future<Relay> future = this.threadPool.submit(() -> this.openRelay(r.getKey(), r.getValue()));
-
-            this.futureRelays.add(future);
-        });
-    }
-
     private void init(String file) throws IOException {
-        this.init(toMapRelays(file));
+        List<Relay> relayList = new RelayConfiguration(file).getRelays();
+        relayList.parallelStream().forEach(r -> {
+    		Future<Relay> future = this.threadPool.submit(() -> this.openRelay(r));
+        	
+        	this.futureRelays.add(future);
+    	});
     }
 
-    private Map<String, String> toMapRelays(String file) throws IOException {
-        Map<String, String> relays = new HashMap<>();
-        List<Relay> relayList = new RelayConfiguration(file).getRelays();
-        relayList.stream().forEach(r -> relays.put(r.getName(), r.getUri()));
-        return relays;
+    private void init(Map<String, String> mapRelays) {
+    	mapRelays.entrySet().parallelStream().forEach(r -> {
+    		Future<Relay> future = this.threadPool.submit(() -> this.openRelay(r.getKey(), r.getValue()));
+        	
+        	this.futureRelays.add(future);
+    	});
     }
 
     private void updateRelayInformation(@NonNull Relay relay) {
@@ -141,6 +148,7 @@ public class Client {
 
     @Log
     static class RelayConfiguration extends BaseConfiguration {
+
         RelayConfiguration() throws IOException {
             this("/relays.properties");
         }
@@ -153,7 +161,7 @@ public class Client {
             Set<Object> relays = this.properties.keySet();
             List<Relay> result = new ArrayList<>();
 
-            relays.stream().forEach(r -> {
+            relays.stream().forEach(r -> {                
                 var relay = Relay.builder().name(r.toString()).uri(this.getProperty(r.toString())).build();
                 result.add(relay);
             });

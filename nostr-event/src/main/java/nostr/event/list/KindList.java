@@ -1,19 +1,20 @@
 
 package nostr.event.list;
 
+import nostr.event.Kind;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.base.annotation.JsonList;
-import nostr.event.Kind;
 
 /**
  *
  * @author squirrel
  */
 @Builder
+@Log
 @JsonList
 public class KindList extends BaseList<Kind> {
 

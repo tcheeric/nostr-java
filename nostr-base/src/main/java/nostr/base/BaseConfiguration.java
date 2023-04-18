@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.Properties;
 import java.util.logging.Level;
@@ -28,26 +29,40 @@ public class BaseConfiguration {
     private static final String CONFIG_DIR = "config.folder";
 
     protected BaseConfiguration(@NonNull String file) throws IOException {
-        load(file);
+
+        var configFolder = System.getProperty(CONFIG_DIR);
+        InputStream inputStream;
+
+        if (configFolder == null) {
+            inputStream = file.startsWith("/") ? this.getClass().getResourceAsStream(file) : file.startsWith("file://") ? new FileInputStream(file.substring(7)) : null;
+        } else {
+            var tmpFile = file.startsWith("/") ? file.substring(1) : file;
+            inputStream = new FileInputStream(new File(new File(configFolder), tmpFile));
+        }
+
+        if (inputStream == null) {
+            throw new IOException(String.format("Invalid file: %s", file));
+        }
+
+        this.properties.load(inputStream);
     }
 
     protected String getFileLocation(String key) throws FileNotFoundException {
 
         String prefix = getPrefix(key);
-        final String filename = properties.getProperty(key);
 
         if (PREFIX_FILE.equals(prefix)) {
             var configFolder = System.getProperty(CONFIG_DIR);
 
             if (configFolder != null) {
                 configFolder = configFolder.endsWith("/") ? configFolder : configFolder + "/";
-                return (configFolder + filename).replace("//", "/");
+                return configFolder;
             } else {
-                return filename;
+                return properties.getProperty(key);
             }
         }
 
-        throw new FileNotFoundException(filename);
+        throw new FileNotFoundException(properties.getProperty(key));
     }
 
     protected String getProperty(String key) {
@@ -75,39 +90,6 @@ public class BaseConfiguration {
             return key.substring(0, index);
         }
         return null;
-    }
-
-    private void load(@NonNull String filename) throws FileNotFoundException, IOException {
-
-        var configFolder = System.getProperty(CONFIG_DIR);
-
-        if (configFolder != null) {
-
-            var tmpFile = filename.startsWith("/") ? filename.substring(1) : filename;
-
-            final File file = new File(new File(configFolder), tmpFile);
-            if (file.exists()) {
-
-                var inputStream = new FileInputStream(file);
-                properties.load(inputStream);
-                return;
-            }
-        }
-
-        if (filename.startsWith("/")) {
-            var inputStream = this.getClass().getResourceAsStream(filename);
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
-            return;
-        }
-
-        if (new File(filename).exists()) {
-            properties.load(new FileInputStream(filename));
-            return;
-        }
-
-        throw new FileNotFoundException(filename);
     }
 
 }

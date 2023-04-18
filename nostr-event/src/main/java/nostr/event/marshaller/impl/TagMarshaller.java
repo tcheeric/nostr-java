@@ -1,48 +1,64 @@
 package nostr.event.marshaller.impl;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import nostr.base.IMarshaller;
 import nostr.base.ITag;
+import nostr.base.NipUtil;
 import nostr.base.Relay;
-import nostr.event.serializer.CustomTagSerializer;
+import nostr.event.BaseTag;
+import nostr.event.impl.GenericTag;
+import nostr.event.marshaller.BaseElementMarshaller;
 import nostr.util.NostrException;
+import nostr.util.UnsupportedNIPException;
 
 /**
- * @author guilhermegps
  *
+ * @author squirrel
  */
-@AllArgsConstructor
-@Data
-@Builder
-public class TagMarshaller implements IMarshaller {
+public class TagMarshaller extends BaseElementMarshaller {
 
-    private final ITag tag;
-    private final Relay relay;
+    public TagMarshaller(ITag tag, Relay relay) {
+        this(tag, relay, false);
+    }
+
+    public TagMarshaller(ITag iTag, Relay relay, boolean escape) {
+        super(iTag, relay, escape);
+    }
 
     @Override
     public String marshall() throws NostrException {
-        return toJson();
-    }
-    
-    @Override
-    public String toJson() throws NostrException {
-    	try {
-    		SimpleModule module = new SimpleModule();
-    		module.addSerializer(new CustomTagSerializer());
-    		var mappe = (new ObjectMapper())
-    				.setSerializationInclusion(Include.NON_NULL)
-    				.registerModule(module);
-    		
-	    	return mappe.writeValueAsString(tag);
-		} catch (Exception e) {
-			throw new NostrException(e);
-		} 
+        ITag tag = (ITag) getElement();
+        Relay relay = getRelay();
+
+        if (!nipSupportForTag()) {
+            throw new UnsupportedNIPException(relay + " does not support tag " + tag.getCode());
+        }
+        
+        return toJson(tag);
     }
 
+    // TODO test me
+    private boolean nipSupportForTag() {
+
+        Relay relay = getRelay();
+        if (relay == null) {
+            return true;
+        }
+        
+        List<Integer> snips = relay.getSupportedNips();
+        Integer nip;
+
+        ITag tag = (ITag) getElement();
+        if (tag == null) {
+            return false;
+        }
+
+        if (tag instanceof GenericTag genericTag) {
+            nip = genericTag.getNip();
+            return snips.contains(nip);
+        } else {
+            return NipUtil.checkSupport(relay, tag) && NipUtil.checkSupport(relay, ((BaseTag) tag).getParent());
+        }
+
+    }
 }

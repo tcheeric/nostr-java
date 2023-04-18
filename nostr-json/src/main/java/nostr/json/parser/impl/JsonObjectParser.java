@@ -2,12 +2,11 @@ package nostr.json.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import nostr.json.parser.JsonParseException;
+import nostr.json.parser.BaseParser;
 import java.util.logging.Level;
-
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.json.parser.BaseParser;
-import nostr.json.parser.JsonParseException;
 import nostr.types.values.impl.ExpressionValue;
 import nostr.types.values.impl.ObjectValue;
 
@@ -41,6 +40,7 @@ public class JsonObjectParser extends BaseParser<ObjectValue> {
     }
 
     private List<ExpressionValue> splitExpressions(String subJsonStr) {
+
         List<ExpressionValue> result = new ArrayList<>();
 
         if ("".equals(subJsonStr)) {

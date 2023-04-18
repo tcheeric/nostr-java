@@ -1,7 +1,6 @@
 package nostr.base;
 
 import lombok.EqualsAndHashCode;
-import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
 
 /**

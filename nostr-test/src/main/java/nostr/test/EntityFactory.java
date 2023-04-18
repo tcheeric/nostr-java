@@ -1,5 +1,19 @@
 package nostr.test;
 
+import nostr.base.Profile;
+import nostr.base.PublicKey;
+import nostr.event.Reaction;
+import nostr.event.impl.DeletionEvent;
+import nostr.event.impl.EphemeralEvent;
+import nostr.event.impl.GenericEvent;
+import nostr.event.impl.Filters;
+import nostr.event.impl.InternetIdentifierMetadataEvent;
+import nostr.event.impl.MentionsEvent;
+import nostr.event.impl.MetadataEvent;
+import nostr.event.tag.PubKeyTag;
+import nostr.event.impl.ReactionEvent;
+import nostr.event.impl.ReplaceableEvent;
+import nostr.event.impl.TextNoteEvent;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -8,33 +22,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
-import nostr.base.Profile;
-import nostr.base.PublicKey;
-import nostr.event.Reaction;
 import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
-import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.impl.InternetIdentifierMetadataEvent;
-import nostr.event.impl.MentionsEvent;
-import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.OtsEvent;
-import nostr.event.impl.ReactionEvent;
-import nostr.event.impl.ReplaceableEvent;
-import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PubKeyTagList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.list.TagList;
-import nostr.event.tag.PubKeyTag;
 import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
@@ -48,6 +48,16 @@ public class EntityFactory {
 
     @Log
     public static class Events {
+
+        public static DeletionEvent createDeletionEvent(PublicKey pubKey, TagList tags) {
+            try {
+                GenericEvent event = new DeletionEvent(pubKey, tags);
+                event.update();
+                return (DeletionEvent) event;
+            } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException | NostrException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         @SuppressWarnings("unchecked")
         public static EphemeralEvent createEphemeralEvent(PublicKey publicKey) {
