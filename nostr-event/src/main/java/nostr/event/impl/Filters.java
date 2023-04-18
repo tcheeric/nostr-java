@@ -1,19 +1,21 @@
 
 package nostr.event.impl;
 
-import java.util.logging.Level;
-import nostr.event.BaseEvent;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
 import nostr.base.annotation.Key;
+import nostr.event.BaseEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
-import nostr.event.marshaller.impl.FiltersMarshaller;
-import nostr.util.UnsupportedNIPException;
+import nostr.event.serializer.CustomGenericTagListSerializer;
+import nostr.event.serializer.CustomIdEventListSerializer;
 
 /**
  *
@@ -22,22 +24,27 @@ import nostr.util.UnsupportedNIPException;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Log
 public class Filters extends BaseEvent {
 
-    @Key(name = "ids")
+    @Key
+    @JsonProperty("ids")
+    @JsonSerialize(using=CustomIdEventListSerializer.class)
     private EventList events;
 
-    @Key(name = "authors")
+    @Key
+    @JsonProperty("authors")
     private PublicKeyList authors;
 
     @Key
     private KindList kinds;
 
-    @Key(name = "#e")
+    @Key
+    @JsonProperty("#e")
+    @JsonSerialize(using=CustomIdEventListSerializer.class)
     private EventList referencedEvents;
 
-    @Key(name = "#p")
+    @Key
+    @JsonProperty("#p")
     private PublicKeyList referencePubKeys;
 
     @Key
@@ -50,23 +57,15 @@ public class Filters extends BaseEvent {
     private Integer limit;
 
     @Key(nip = 12)
+    @JsonSerialize(using=CustomGenericTagListSerializer.class)
     private GenericTagQueryList genericTagQueryList;
-
-    @Override
-    public String toString() {
-        try {
-            return new FiltersMarshaller(this, null).marshall();
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
-        }
-    }
 
     @Override
     public String toBech32() {
         throw new UnsupportedOperationException("This operation is not supported.");
     }
 
+    @JsonIgnore
     @Override
     public Integer getNip() {
         return 1;

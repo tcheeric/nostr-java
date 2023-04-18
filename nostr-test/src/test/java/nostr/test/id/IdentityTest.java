@@ -66,7 +66,7 @@ public class IdentityTest {
             
             this.identity.encryptDirectMessage(dmEvent);
             
-            var rcptId = new Identity(rcptSecKey, rcptPubKey);
+            var rcptId = new Identity(rcptSecKey);
             var msg = rcptId.decryptDirectMessage(dmEvent.getContent(), dmEvent.getPubKey());
             
             Assertions.assertEquals("Hello uq7yfx3l!", msg);
