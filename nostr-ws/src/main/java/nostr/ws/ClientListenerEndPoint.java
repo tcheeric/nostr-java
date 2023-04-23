@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
 import nostr.base.Relay;
-import nostr.base.handler.response.IAuthResponseHandler;
-import nostr.base.handler.response.IEoseResponseHandler;
-import nostr.base.handler.response.IEventResponseHandler;
-import nostr.base.handler.response.INoticeResponseHandler;
-import nostr.base.handler.response.IOkResponseHandler;
-import nostr.base.handler.response.IOkResponseHandler.Reason;
 import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
+import nostr.ws.base.handler.response.IAuthResponseHandler;
+import nostr.ws.base.handler.response.IEoseResponseHandler;
+import nostr.ws.base.handler.response.IEventResponseHandler;
+import nostr.ws.base.handler.response.INoticeResponseHandler;
+import nostr.ws.base.handler.response.IOkResponseHandler;
+import nostr.ws.base.handler.response.IOkResponseHandler.Reason;
+import nostr.ws.base.handler.response.IResponseHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -25,10 +26,6 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import nostr.base.handler.response.IResponseHandler;
-import nostr.ws.handler.DefaultCloseHandler;
-import nostr.ws.handler.DefaultConnectHandler;
-import nostr.ws.handler.DefaultErrorHandler;
 import nostr.ws.handler.response.DefaultAuthResponseHandler;
 import nostr.ws.handler.response.DefaultEoseResponseHandler;
 import nostr.ws.handler.response.DefaultEventResponseHandler;
@@ -45,7 +42,6 @@ import nostr.ws.handler.response.DefaultOkResponseHandler;
 public class ClientListenerEndPoint {
 
     private IResponseHandler responseHandler;
-    //private String handlersConfigFile;
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -53,29 +49,25 @@ public class ClientListenerEndPoint {
 
         session.setMaxTextMessageSize(16 * 1024);
 
-        DefaultConnectHandler.builder().build().process();
+        log.log(Level.INFO, "Connected");
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        log.log(Level.FINE, "onClose {0}, {1}", new Object[]{statusCode, reason});
-
-        DefaultCloseHandler.builder().reason(reason).statusCode(statusCode).build().process();
+        log.log(Level.FINE, "onClose");
 
         disposeResources();
+
+        log.log(Level.INFO, "Connection closed with parameters: Reason {0} - StatusCode: {1}", new Object[]{statusCode, reason});
     }
 
     @OnWebSocketError
     public void onError(Throwable cause) {
         log.fine("onError");
 
-        log.log(Level.SEVERE, "An error has occurred: {0}", cause);
-
-        cause.printStackTrace(System.out);
-
-        DefaultErrorHandler.builder().cause(cause).build().process();
-
         disposeResources();
+
+        log.log(Level.SEVERE, "An error has occurred: {0}", cause);
     }
 
     @OnWebSocketMessage
