@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.Command;
-import nostr.base.handler.response.INoticeResponseHandler;
+import nostr.ws.base.handler.response.INoticeResponseHandler;
 
 /**
  *

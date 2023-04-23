@@ -3,7 +3,7 @@ package nostr.ws.handler;
 
 import java.util.logging.Level;
 import lombok.extern.java.Log;
-import nostr.base.handler.request.IRequestHandler;
+import nostr.ws.base.handler.request.IRequestHandler;
 
 /**
  *

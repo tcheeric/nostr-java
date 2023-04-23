@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import nostr.base.handler.response.IOkResponseHandler;
+import nostr.ws.base.handler.response.IOkResponseHandler;
 
 /**
  *

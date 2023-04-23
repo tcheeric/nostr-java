@@ -10,8 +10,8 @@ import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.Relay;
-import nostr.base.handler.response.IAuthResponseHandler;
 import nostr.util.NostrException;
+import nostr.ws.base.handler.response.IAuthResponseHandler;
 
 /**
  *

@@ -61,5 +61,10 @@
             <artifactId>nostr-types</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-handler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

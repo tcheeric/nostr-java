@@ -11,12 +11,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
-import nostr.base.handler.request.IRequestHandler;
 import nostr.event.impl.GenericMessage;
 import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
 import nostr.ws.Connection;
+import nostr.ws.base.handler.request.IRequestHandler;
 
 /**
  *

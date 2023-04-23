@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import nostr.base.handler.response.IEventResponseHandler;
 import nostr.util.NostrException;
+import nostr.ws.base.handler.response.IEventResponseHandler;
 
 /**
  *

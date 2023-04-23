@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import nostr.base.handler.IHandler;
+import nostr.ws.base.handler.IHandler;
 
 /**
  *
