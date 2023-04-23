@@ -41,7 +41,7 @@ public class Client {
 
     public Client(String relayConfFile) throws IOException {
         this.futureRelays = new HashSet<>();
-        
+
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relayConfFile);
     }

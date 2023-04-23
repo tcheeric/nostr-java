@@ -19,6 +19,7 @@
         <module>nostr-crypto</module>
         <module>nostr-types</module>
         <module>nostr-ws</module>
+        <module>nostr-ws-handler</module>
     </modules>
 
     <properties>
@@ -81,6 +82,13 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <showDeprecation>true</showDeprecation>
+                        <annotationProcessorPaths>
+                            <annotationProcessorPath>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </annotationProcessorPath>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
                 <plugin>

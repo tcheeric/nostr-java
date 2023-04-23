@@ -8,5 +8,4 @@ import lombok.experimental.StandardException;
  */
 @StandardException
 public class MarshallException extends Exception {
-
 }
