@@ -1,13 +1,14 @@
-package nostr.ws.base.handler.response;
+package nostr.ws.base.handler.command;
 
 import java.util.Arrays;
 import java.util.Optional;
+import nostr.ws.base.handler.ICommandHandler;
 
 /**
  *
  * @author eric
  */
-public interface IOkResponseHandler extends IResponseHandler {
+public interface IOkCommandHandler extends ICommandHandler {
     
     public enum Reason {
         UNDEFINED(""),
@@ -17,6 +18,10 @@ public interface IOkResponseHandler extends IResponseHandler {
         RATE_LIMITED("rate-limited"),
         ERROR("error"),
         POW("pow");
+
+        public static Reason valueOf(Object param) {
+            throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        }
 
         private final String code;
 

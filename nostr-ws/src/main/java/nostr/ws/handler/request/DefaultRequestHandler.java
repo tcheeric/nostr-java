@@ -16,7 +16,7 @@ import nostr.event.marshaller.impl.MessageMarshaller;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
 import nostr.ws.Connection;
-import nostr.ws.base.handler.request.IRequestHandler;
+import nostr.ws.base.handler.IRequestHandler;
 
 /**
  *

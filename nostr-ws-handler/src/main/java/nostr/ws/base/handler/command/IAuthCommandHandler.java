@@ -1,12 +1,13 @@
-package nostr.ws.base.handler.response;
+package nostr.ws.base.handler.command;
 
 import nostr.base.Relay;
+import nostr.ws.base.handler.ICommandHandler;
 
 /**
  *
  * @author eric
  */
-public interface IAuthResponseHandler extends IResponseHandler {
+public interface IAuthCommandHandler extends ICommandHandler {
     
     public void setChallenge(String challenge);
 

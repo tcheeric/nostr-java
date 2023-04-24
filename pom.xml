@@ -20,6 +20,8 @@
         <module>nostr-types</module>
         <module>nostr-ws</module>
         <module>nostr-ws-handler</module>
+        <module>nostr-ws-handler-impl</module>
+        <module>nostr-ws-handler-defaultimpl</module>
     </modules>
 
     <properties>
