@@ -22,6 +22,8 @@
         <module>nostr-ws-handler</module>
         <module>nostr-ws-handler-impl</module>
         <module>nostr-ws-handler-defaultimpl</module>
+        <module>nostr-ws-response-handler-impl</module>
+        <module>nostr-ws-handler-default-command</module>
     </modules>
 
     <properties>
