@@ -1,24 +1,24 @@
 
 package nostr.event.impl;
 
-import nostr.base.Profile;
-import nostr.event.Kind;
-import nostr.base.PublicKey;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
+import nostr.base.IMarshaller;
+import nostr.base.Profile;
+import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.event.Kind;
 import nostr.event.list.TagList;
-import nostr.types.values.IValue;
-import nostr.types.values.impl.ExpressionValue;
-import nostr.types.values.impl.ObjectValue;
-import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -33,6 +33,7 @@ public final class MetadataEvent extends GenericEvent {
 
     private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
 
+    @JsonIgnore
     private Profile profile;
 
     public MetadataEvent(PublicKey pubKey, TagList tagList, Profile profile) throws NostrException {
@@ -61,23 +62,19 @@ public final class MetadataEvent extends GenericEvent {
         }
     }
 
-    private void setContent() {        
-        IValue nameValue = new StringValue(this.getProfile().getName());
-        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
-
-        IValue aboutValue = new StringValue(this.getProfile().getAbout());
-        ExpressionValue aboutExpr = new ExpressionValue("about", aboutValue);
-
-        IValue picValue = new StringValue(this.getProfile().getPicture().toString());
-        ExpressionValue picExpr = new ExpressionValue("picture", picValue);
-
-        List<ExpressionValue> value = new ArrayList<>();
-        value.add(nameExpr);
-        value.add(aboutExpr);
-        value.add(picExpr);
-
-        ObjectValue content = new ObjectValue(value);
-        setContent(content.toString(true));
+    private void setContent() {
+	    var mapper = IMarshaller.MAPPER;
+    	try {
+	    	ObjectNode objNode = JsonNodeFactory.instance.objectNode();
+	    	objNode.set("name", mapper.valueToTree(this.getProfile().getName()));
+	    	objNode.set("about", mapper.valueToTree(this.getProfile().getAbout()));
+	    	objNode.set("picture", mapper.valueToTree(this.getProfile().getPicture().toString()));
+	    	
+	    	setContent(mapper.writeValueAsString(objNode));
+		} catch (Exception e) {
+            log.log(Level.SEVERE, null, e);
+            throw new RuntimeException(e);
+		} 
     }
 
 }
