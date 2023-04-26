@@ -5,23 +5,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.base.IEvent;
 import nostr.event.impl.GenericMessage;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
 public class AuthMessage extends GenericMessage {
 
-    private final IEvent event;
+    private final String challenge;
     
-    public AuthMessage(IEvent event) {
+    public AuthMessage(String challenge) {
         super(Command.AUTH.name());
-        this.event = event;
+        this.challenge = challenge;
     }
     
 }

@@ -6,8 +6,6 @@ import nostr.base.PublicKey;
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,10 +14,6 @@ import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
 import nostr.event.list.TagList;
 import nostr.event.util.Nip05Validator;
-import nostr.types.values.IValue;
-import nostr.types.values.impl.ExpressionValue;
-import nostr.types.values.impl.ObjectValue;
-import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -58,19 +52,21 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     }
 
+    // TODO #30 - Use jackson
     private void setContent() {
-        IValue nameValue = new StringValue(this.name);
-        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
-
-        IValue nip05Value = new StringValue(this.nip05);
-        ExpressionValue nip05Expr = new ExpressionValue("nip05", nip05Value);
-
-        List<ExpressionValue> expressions = new ArrayList<>();
-        expressions.add(nameExpr);
-        expressions.add(nip05Expr);
-
-        ObjectValue content = new ObjectValue(expressions);
-
-        setContent(content.toString());
+//        IValue nameValue = new StringValue(this.name);
+//        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
+//        
+//        IValue nip05Value = new StringValue(this.nip05);
+//        ExpressionValue nip05Expr = new ExpressionValue("nip05", nip05Value);
+//
+//        List<ExpressionValue> expressions = new ArrayList<>();
+//        expressions.add(nameExpr);
+//        expressions.add(nip05Expr);
+//
+//        ObjectValue content = new ObjectValue(expressions);
+//
+//        // TODO #30 - the content string encapsulates the name ane nip05 attributes in json format
+//        setContent(content.toString());
     }
 }

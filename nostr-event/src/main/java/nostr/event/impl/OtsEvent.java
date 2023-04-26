@@ -1,12 +1,11 @@
 
 package nostr.event.impl;
 
+import java.util.Map;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.list.TagList;
-import nostr.types.values.impl.ExpressionValue;
-import nostr.types.values.impl.StringValue;
 
 /**
  *
@@ -17,7 +16,7 @@ public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, TagList tags, String content, String ots) {
         super(pubKey, tags, content);
-        var attribute = ElementAttribute.builder().nip(3).value(new ExpressionValue("ots", new StringValue(ots))).build();
+        var attribute = ElementAttribute.builder().nip(3).value(Map.of("ots", ots)).build();
         this.addAttribute(attribute);
     }
         

@@ -4,10 +4,10 @@ import nostr.base.Relay;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public interface IAuthResponseHandler extends IResponseHandler {
-    
+
     public void setChallenge(String challenge);
 
     public void setRelay(Relay relay);

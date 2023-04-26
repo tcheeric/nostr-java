@@ -15,7 +15,7 @@ import nostr.util.NostrException;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Builder
 @NoArgsConstructor

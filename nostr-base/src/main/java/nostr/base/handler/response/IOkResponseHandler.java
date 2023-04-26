@@ -5,7 +5,7 @@ import java.util.Optional;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public interface IOkResponseHandler extends IResponseHandler {
     

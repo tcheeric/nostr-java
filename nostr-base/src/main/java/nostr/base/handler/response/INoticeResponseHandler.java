@@ -2,7 +2,7 @@ package nostr.base.handler.response;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public interface INoticeResponseHandler extends IResponseHandler {
 

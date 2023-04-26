@@ -15,8 +15,6 @@ import nostr.base.handler.response.IEventResponseHandler;
 import nostr.base.handler.response.INoticeResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler.Reason;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
-import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -81,72 +79,73 @@ public class ClientListenerEndPoint {
     @OnWebSocketMessage
     public void onTextMessage(Session session, String message) throws IOException, NostrException {
 
-        if ("close".equalsIgnoreCase(message)) {
-            session.close(StatusCode.NORMAL, "bye");
-            return;
-        }
-
-        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
-
-        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = (jsonArr).get(0).get().getValue().toString();
-        String msg;
-
-        switch (command) {
-            case "EOSE" -> {
-                msg = (jsonArr).get(1).get().getValue().toString();
-
-                responseHandler = createEoseResponseHandler();
-                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
-            }
-            case "OK" -> {
-                String eventId = (jsonArr).get(1).get().getValue().toString();
-                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
-                msg = (jsonArr).get(3).get().getValue().toString();
-                final var msgSplit = msg.split(":", 2);
-                Reason reason;
-                String reasonMessage = msg;
-                if (msgSplit.length < 2) {
-                    reason = Reason.UNDEFINED;
-                } else {
-                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
-                    reasonMessage = msgSplit[1];
-                }
-
-                responseHandler = createOkResponseHandler();
-                ((IOkResponseHandler) responseHandler).setEventId(eventId);
-                ((IOkResponseHandler) responseHandler).setMessage(msg);
-                ((IOkResponseHandler) responseHandler).setReason(reason);
-                ((IOkResponseHandler) responseHandler).setResult(result);
-            }
-            case "NOTICE" -> {
-                msg = jsonArr.get(1).get().getValue().toString();
-                responseHandler = createNoticeResponseHandler();
-                ((INoticeResponseHandler) responseHandler).setMessage(msg);
-            }
-            case "EVENT" -> {
-                String subId = jsonArr.get(1).get().getValue().toString();
-                String jsonEvent = jsonArr.get(2).get().toString();
-
-                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
-
-                responseHandler = createEventResponseHandler();
-                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
-                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
-            }
-            case "AUTH" -> {
-                String challenge = jsonArr.get(1).get().getValue().toString();
-                responseHandler = createAuthResponseHandler();
-                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
-                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
-            }
-            default -> {
-            }
-        }
-
-        if (responseHandler != null) {
-            responseHandler.process();
-        }
+//        if ("close".equalsIgnoreCase(message)) {
+//            session.close(StatusCode.NORMAL, "bye");
+//            return;
+//        }
+//
+//        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
+//
+//        //TODO #30 - Use jackson to extract the attribute values from the json string
+//        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
+//        final String command = (jsonArr).get(0).get().getValue().toString();
+//        String msg;
+//
+//        switch (command) {
+//            case "EOSE" -> {
+//                msg = (jsonArr).get(1).get().getValue().toString();
+//
+//                responseHandler = createEoseResponseHandler();
+//                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
+//            }
+//            case "OK" -> {
+//                String eventId = (jsonArr).get(1).get().getValue().toString();
+//                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
+//                msg = (jsonArr).get(3).get().getValue().toString();
+//                final var msgSplit = msg.split(":", 2);
+//                Reason reason;
+//                String reasonMessage = msg;
+//                if (msgSplit.length < 2) {
+//                    reason = Reason.UNDEFINED;
+//                } else {
+//                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
+//                    reasonMessage = msgSplit[1];
+//                }
+//
+//                responseHandler = createOkResponseHandler();
+//                ((IOkResponseHandler) responseHandler).setEventId(eventId);
+//                ((IOkResponseHandler) responseHandler).setMessage(msg);
+//                ((IOkResponseHandler) responseHandler).setReason(reason);
+//                ((IOkResponseHandler) responseHandler).setResult(result);
+//            }
+//            case "NOTICE" -> {
+//                msg = jsonArr.get(1).get().getValue().toString();
+//                responseHandler = createNoticeResponseHandler();
+//                ((INoticeResponseHandler) responseHandler).setMessage(msg);
+//            }
+//            case "EVENT" -> {
+//                String subId = jsonArr.get(1).get().getValue().toString();
+//                String jsonEvent = jsonArr.get(2).get().toString();
+//
+//                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
+//
+//                responseHandler = createEventResponseHandler();
+//                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
+//                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
+//            }
+//            case "AUTH" -> {
+//                String challenge = jsonArr.get(1).get().getValue().toString();
+//                responseHandler = createAuthResponseHandler();
+//                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
+//                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
+//            }
+//            default -> {
+//            }
+//        }
+//
+//        if (responseHandler != null) {
+//            responseHandler.process();
+//        }
     }
 
     @OnWebSocketMessage

@@ -12,9 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
-import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
-import nostr.types.values.IValue;
-import nostr.types.values.impl.ObjectValue;
 import nostr.util.NostrException;
 
 /**
@@ -79,11 +76,13 @@ public class Nip05Validator {
         throw new NostrException(String.format("Failed to connect to {0}. Error message: {1)", new Object[]{strUrl, connection.getResponseMessage()}));
     }
 
+    // TODO #30 - Use jackson
     private String getPublicKey(StringBuilder content, String localPart) {
-        ObjectValue jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
-        IValue namesObj = ((ObjectValue) jsonObjValue).get( "names" ).get();
-        IValue pubKey = ((ObjectValue) namesObj).get( localPart ).get();
-        return pubKey.getValue().toString();
+        return null;
+//        ObjectValue jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
+//        IValue namesObj = ((ObjectValue) jsonObjValue).get( "names" ).get();
+//        IValue pubKey = ((ObjectValue) namesObj).get( localPart ).get();
+//        return pubKey.getValue().toString();
     }
 
 }
