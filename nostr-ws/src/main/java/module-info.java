@@ -23,7 +23,6 @@ module nostr.ws {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires nostr.ws.handler;
-    requires nostr.plugin;
     requires nostr.crypto;
     requires nostr.json;
     requires nostr.util;
