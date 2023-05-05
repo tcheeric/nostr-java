@@ -5,12 +5,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.logging.Level;
 
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.util.NostrException;
-import nostr.ws.base.handler.IResponseHandler;
+import nostr.ws.handler.spi.IResponseHandler;
+import nostr.ws.response.handler.provider.ResponseHandlerImpl;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -24,11 +24,14 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
  * @author squirrel
  */
 @WebSocket(idleTimeout = Integer.MAX_VALUE)
-@NoArgsConstructor
 @Log
 public class ClientListenerEndPoint {
 
-    private IResponseHandler responseHandler;
+    private final IResponseHandler responseHandler;
+
+    public ClientListenerEndPoint() {
+        this.responseHandler = new ResponseHandlerImpl();
+    }        
 
     @OnWebSocketConnect
     public void onConnect(Session session) {

@@ -17,13 +17,14 @@ import java.util.stream.Collectors;
 
 import lombok.Data;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
 import nostr.base.Relay;
 import nostr.event.impl.GenericMessage;
+import nostr.util.NostrException;
 import nostr.ws.Connection;
-import nostr.ws.handler.request.DefaultRequestHandler;
+import nostr.ws.handler.spi.IRequestHandler;
+import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
 /**
  *
@@ -33,15 +34,13 @@ import nostr.ws.handler.request.DefaultRequestHandler;
 @Data
 public class Client {
 
-    @ToString.Exclude
     private final Set<Future<Relay>> futureRelays;
-
-    @ToString.Exclude
     private final ThreadPoolExecutor threadPool;
+    private IRequestHandler requestHandler;
 
-    public Client(String relayConfFile) throws IOException {
+    public Client(String relayConfFile) throws IOException {        
         this.futureRelays = new HashSet<>();
-
+        this.requestHandler = new DefaultRequestHandler();
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relayConfFile);
     }
@@ -88,10 +87,11 @@ public class Client {
                 .forEach(fr -> {
                     try {
                         Relay r = fr.get();
-                        var rh = DefaultRequestHandler.builder().connection(new Connection(r)).message(message).build();
+                        //var rh = DefaultRequestHandler.builder().connection(new Connection(r)).message(message).build();
                         log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
-                        rh.process();
-                    } catch (Exception ex) {
+                        
+                        this.requestHandler.process(message, r);
+                    } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
                     }
                 });
@@ -141,6 +141,7 @@ public class Client {
 
     @Log
     static class RelayConfiguration extends BaseConfiguration {
+
         RelayConfiguration() throws IOException {
             this("/relays.properties");
         }

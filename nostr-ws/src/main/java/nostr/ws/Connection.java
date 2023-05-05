@@ -83,7 +83,7 @@ public class Connection {
         } catch (URISyntaxException e) {
             log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
             throw new RuntimeException(e);
-		}
+        }
 
         try {
             URL url = new URL("http://" + uri);
@@ -98,7 +98,7 @@ public class Connection {
         } catch (URISyntaxException e) {
             log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
             throw new RuntimeException(e);
-		}
+        }
 
 //    	TODO
         throw new RuntimeException();
@@ -158,7 +158,7 @@ public class Connection {
                 });
             }
         };
-        
+
         CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
 
         this.session = clientSessionPromise.get();
@@ -180,7 +180,7 @@ public class Connection {
 
         throw new IOException("The request has failed with the response code: " + response.getStatus());
     }
-    
+
     public void updateRelayMetadata() throws Exception {
         String strInfo = getRelayInformation();
         log.log(Level.FINE, "Relay information: {0}", strInfo);

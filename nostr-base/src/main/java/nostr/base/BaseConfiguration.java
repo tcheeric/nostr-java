@@ -79,26 +79,15 @@ public class BaseConfiguration {
 
     private void load(@NonNull String filename) throws FileNotFoundException, IOException {
 
-        var configFolder = System.getProperty(CONFIG_DIR);
+        var configFolder = System.getProperty(CONFIG_DIR);        
 
         if (configFolder != null) {
-
-            var tmpFile = filename.startsWith("/") ? filename.substring(1) : filename;
-
-            final File file = new File(new File(configFolder), tmpFile);
-            if (file.exists()) {
-
-                var inputStream = new FileInputStream(file);
-                properties.load(inputStream);
-                return;
-            }
+            loadFromConfigDir(filename, configFolder);
+            return;
         }
 
         if (filename.startsWith("/")) {
-            var inputStream = this.getClass().getResourceAsStream(filename);
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
+            loadFromResourceStream(filename);
             return;
         }
 
@@ -108,6 +97,32 @@ public class BaseConfiguration {
         }
 
         throw new FileNotFoundException(filename);
+    }
+
+    private void loadFromResourceStream(String filename) throws IOException {
+        var inputStream = this.getClass().getResourceAsStream(filename);
+        if (inputStream != null) {
+            properties.load(inputStream);
+        } else {
+            final String fname = filename.substring(1);
+            inputStream = this.getClass().getClassLoader().getResourceAsStream(fname);
+            if (inputStream != null) {
+                properties.load(inputStream);
+            } else {
+                throw new IOException(String.format("Failed to load resource %s", fname));
+            }
+        }
+    }
+
+    private void loadFromConfigDir(String filename, String configFolder) throws IOException {
+        final String fname = filename.substring(1);
+        var tmpFile = filename.startsWith("/") ? fname : filename;
+        final File file = new File(new File(configFolder), tmpFile);
+        if (file.exists()) {
+            var inputStream = new FileInputStream(file);
+            properties.load(inputStream);
+            return;
+        }
     }
 
 }

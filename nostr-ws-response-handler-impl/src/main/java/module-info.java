@@ -3,22 +3,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/module-info.java to edit this template
  */
 
-module nostr.ws.handler {
+module nostr.ws.response.handler.provider {
+    requires nostr.ws.handler;
     requires nostr.util;
-    requires static lombok;
     requires nostr.base;
+    requires nostr.crypto;
+    requires nostr.json;
+    requires nostr.types;
+    requires nostr.plugin;
+
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
-    requires nostr.crypto;
-    requires nostr.event;
+
+    requires static lombok;
     requires java.logging;
     
-    exports nostr.ws.handler.spi;
-    exports nostr.ws.handler.command.spi;
-    
-    uses nostr.ws.handler.spi.IRequestHandler;
-    uses nostr.ws.handler.spi.IResponseHandler;
+    exports nostr.ws.response.handler.provider;
     
     uses nostr.ws.handler.command.spi.ICommandHandler;
+    
+    provides nostr.ws.handler.spi.IResponseHandler with nostr.ws.response.handler.provider.ResponseHandlerImpl;
 }

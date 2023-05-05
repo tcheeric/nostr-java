@@ -1,5 +1,10 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/module-info.java to edit this template
+ */
 
-module nostr.ws {
+module nostr.ws.request.handler.provider {
+    requires nostr.ws;
     requires org.eclipse.jetty.websocket.jetty.client;
     requires org.eclipse.jetty.websocket.jetty.api;
     requires org.eclipse.jetty.websocket.jetty.common;
@@ -18,18 +23,18 @@ module nostr.ws {
     requires org.eclipse.jetty.alpn.java.client;
     requires nostr.event;
     requires static lombok;
+    requires java.logging;
     requires nostr.base;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
-    requires nostr.ws.handler;
-    requires nostr.plugin;
     requires nostr.crypto;
     requires nostr.json;
     requires nostr.util;
     requires nostr.types;
-    requires nostr.ws.response.handler.provider;
-    requires java.logging;
+    requires nostr.ws.handler;
     
-    exports nostr.ws;
+    exports nostr.ws.request.handler.provider;
+    
+    provides nostr.ws.handler.spi.IRequestHandler with nostr.ws.request.handler.provider.DefaultRequestHandler;
 }

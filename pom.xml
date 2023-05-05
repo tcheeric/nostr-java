@@ -20,10 +20,12 @@
         <module>nostr-types</module>
         <module>nostr-ws</module>
         <module>nostr-ws-handler</module>
-        <module>nostr-ws-handler-impl</module>
-        <module>nostr-ws-handler-defaultimpl</module>
+        <!--<module>nostr-ws-handler-impl</module>
+        <module>nostr-ws-handler-defaultimpl</module>-->
         <module>nostr-ws-response-handler-impl</module>
         <module>nostr-ws-handler-default-command</module>
+        <module>nostr-ws-request-handler-provider</module>
+        <module>nostr-plugin</module>
     </modules>
 
     <properties>

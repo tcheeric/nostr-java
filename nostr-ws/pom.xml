@@ -39,12 +39,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>nostr-util</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -63,7 +57,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-ws-handler</artifactId>
+            <artifactId>nostr-ws-handler-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-response-handler-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
