@@ -1,10 +1,14 @@
 package nostr.event.unmarshaller.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import nostr.base.IMarshaller;
 import nostr.base.IUnmarshaller;
 import nostr.event.list.TagList;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
 
 /**
  *
@@ -23,15 +27,19 @@ public class TagListUnmarshaller implements IUnmarshaller<TagList> {
 
     @Override
     public TagList unmarshall() {
-        var value = new JsonArrayUnmarshaller(this.getJson()).unmarshall();
-        TagList result = new TagList();
-
-        for (int i = 0; i < value.length(); i++) {
-            var tag = value.get(i).get();
-            result.add(new TagUnmarshaller(tag.toString()).unmarshall());
-        }
-        
-        return result;
+    	var mapper = IMarshaller.MAPPER;
+    	TagList result = new TagList();
+    	try {
+			var arrayNode = (ArrayNode) mapper.readTree(this.getJson());
+			
+			for (JsonNode node : arrayNode) {
+				result.add(new TagUnmarshaller(node.toString()).unmarshall());
+			}
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+    	
+    	return result;
     }
 
 }

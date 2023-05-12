@@ -64,14 +64,14 @@ public class Client {
 
                     return false;
                 }).map(fr -> {
-            try {
-                return fr.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.log(Level.SEVERE, null, e);
-            }
-
-            return null;
-        }).collect(Collectors.toSet());
+		            try {
+		                return fr.get();
+		            } catch (InterruptedException | ExecutionException e) {
+		                log.log(Level.SEVERE, null, e);
+		            }
+		
+		            return null;
+		        }).collect(Collectors.toSet());
     }
 
     public void send(@NonNull GenericMessage message) {

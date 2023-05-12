@@ -56,15 +56,15 @@ import nostr.util.UnsupportedNIPException;
 @Log
 public class NostrExamples {
 
-	private final static Identity RECEIVER = Identity.generateRandomIdentity();
-	private final static Identity SENDER = Identity.generateRandomIdentity();
-	private final static Profile PROFILE = Profile.builder()
+	private static final Identity RECEIVER = Identity.generateRandomIdentity();
+	private static final Identity SENDER = Identity.generateRandomIdentity();
+	private static final Profile PROFILE = Profile.builder()
     		.name("test")
     		.about("Hey, it's me!")
     		.publicKey(SENDER.getPublicKey())
     		.build();
-	private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
-	private final static Client CLIENT = new Client(RELAYS);
+	private static final Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
+	private static final Client CLIENT = new Client(RELAYS);
 
 	static {
 		final LogManager logManager = LogManager.getLogManager();

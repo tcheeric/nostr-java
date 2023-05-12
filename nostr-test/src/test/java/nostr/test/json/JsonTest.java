@@ -67,13 +67,13 @@ public class JsonTest {
         ArrayValue jsonArr = new JsonArrayUnmarshaller("[2,\"a\"]").unmarshall();
         Assertions.assertEquals(2, ((ArrayValue) jsonArr).length());
         Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue());
-        Assertions.assertEquals("\"a\"", ((ArrayValue) jsonArr).get(1).get().toString());
+        Assertions.assertEquals("a", ((ArrayValue) jsonArr).get(1).get().toString());
 
         jsonArr = new JsonArrayUnmarshaller("[1,2,\"bx\"]").unmarshall();
         Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
         Assertions.assertEquals(1, ((NumberValue) ((ArrayValue) jsonArr).get(0).get()).intValue());
         Assertions.assertEquals(2, ((NumberValue) ((ArrayValue) jsonArr).get(1).get()).intValue());
-        Assertions.assertEquals("\"bx\"", ((ArrayValue) jsonArr).get(2).get().toString());
+        Assertions.assertEquals("bx", ((ArrayValue) jsonArr).get(2).get().toString());
 
         jsonArr = new JsonArrayUnmarshaller("[2,\"a\",[1,2,\"bx\"]]").unmarshall();
         Assertions.assertEquals(3, ((ArrayValue) jsonArr).length());
@@ -324,7 +324,7 @@ public class JsonTest {
 
             var jsonValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonSubjectTag).unmarshall()).get(0);
 
-            Assertions.assertEquals("\"subject\"", jsonValue.get().toString());
+            Assertions.assertEquals("subject", jsonValue.get().toString());
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
@@ -353,7 +353,7 @@ public class JsonTest {
 
             var jsonCodeValue = ((ArrayValue) new JsonArrayUnmarshaller(jsonEventTag).unmarshall()).get(0);
 
-            Assertions.assertEquals("\"e\"", jsonCodeValue.get().toString());
+            Assertions.assertEquals("e", jsonCodeValue.get().toString());
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
