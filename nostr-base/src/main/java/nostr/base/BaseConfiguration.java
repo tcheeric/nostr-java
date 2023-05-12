@@ -33,9 +33,9 @@ public class BaseConfiguration {
 
     protected String getFileLocation(String key) throws FileNotFoundException {
 
-        String prefix = getPrefix(key);
         final String filename = properties.getProperty(key);
 
+        String prefix = getPrefix(key);
         if (PREFIX_FILE.equals(prefix)) {
             var configFolder = System.getProperty(CONFIG_DIR);
 
@@ -79,8 +79,9 @@ public class BaseConfiguration {
 
     private void load(@NonNull String filename) throws FileNotFoundException, IOException {
 
-        var configFolder = System.getProperty(CONFIG_DIR);        
+        var configFolder = System.getProperty(CONFIG_DIR);
 
+        log.log(Level.FINER, "Configuration location: {0}", configFolder);
         if (configFolder != null) {
             loadFromConfigDir(filename, configFolder);
             return;
@@ -115,13 +116,15 @@ public class BaseConfiguration {
     }
 
     private void loadFromConfigDir(String filename, String configFolder) throws IOException {
+        log.log(Level.FINER, "loadFromConfigDir({0}, {1})", new Object[]{filename, configFolder});
         final String fname = filename.substring(1);
         var tmpFile = filename.startsWith("/") ? fname : filename;
         final File file = new File(new File(configFolder), tmpFile);
+        log.log(Level.FINER, "Configuration file {0}", file.getName());
         if (file.exists()) {
             var inputStream = new FileInputStream(file);
+            log.log(Level.FINER, "Loading configuration file from {0}", file.getParent());
             properties.load(inputStream);
-            return;
         }
     }
 

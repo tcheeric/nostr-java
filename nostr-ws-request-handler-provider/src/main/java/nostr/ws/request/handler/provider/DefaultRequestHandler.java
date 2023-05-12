@@ -2,7 +2,6 @@ package nostr.ws.request.handler.provider;
 
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -29,7 +28,6 @@ import nostr.ws.handler.spi.IRequestHandler;
 @DefaultHandler
 public class DefaultRequestHandler implements IRequestHandler {
 
-    //private GenericMessage message;
     private Connection connection;
 
     @Override
