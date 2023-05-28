@@ -21,23 +21,23 @@ import nostr.util.NostrException;
  */
 class ClientTest {
 
-    private final Client client;
-    private final Identity identity;
+//    private final Client client;
+//    private final Identity identity;
 
     public ClientTest() throws IOException, NostrException {
-        this.client = new Client("/relays.properties");
-        this.identity = new Identity("/profile.properties");
+//        this.client = new Client("/relays.properties");
+//        this.identity = new Identity("/profile.properties");
     }
 
     @Test
     public void testSend() {
         try {
             System.out.println("testSend");
-            PublicKey publicKey = identity.getPublicKey();
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
             GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
-            this.client.send(msg);
+            Client.getInstance("/relays.properties").send(msg);
             assertTrue(true);
-        } catch (Exception ex) {
+        } catch (IOException | NostrException ex) {
             fail(ex);
         }
     }

@@ -9,17 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.BaseConfiguration;
 import nostr.base.Relay;
-import nostr.base.handler.response.IAuthResponseHandler;
-import nostr.base.handler.response.IEoseResponseHandler;
-import nostr.base.handler.response.IEventResponseHandler;
-import nostr.base.handler.response.INoticeResponseHandler;
-import nostr.base.handler.response.IOkResponseHandler;
-import nostr.base.handler.response.IOkResponseHandler.Reason;
 import nostr.util.NostrException;
+import nostr.ws.handler.spi.IResponseHandler;
+import nostr.ws.response.handler.provider.ResponseHandlerImpl;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -27,27 +22,20 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import nostr.base.handler.response.IResponseHandler;
-import nostr.ws.handler.DefaultCloseHandler;
-import nostr.ws.handler.DefaultConnectHandler;
-import nostr.ws.handler.DefaultErrorHandler;
-import nostr.ws.handler.response.DefaultAuthResponseHandler;
-import nostr.ws.handler.response.DefaultEoseResponseHandler;
-import nostr.ws.handler.response.DefaultEventResponseHandler;
-import nostr.ws.handler.response.DefaultNoticeResponseHandler;
-import nostr.ws.handler.response.DefaultOkResponseHandler;
 
 /**
  *
  * @author squirrel
  */
 @WebSocket(idleTimeout = Integer.MAX_VALUE)
-@NoArgsConstructor
 @Log
 public class ClientListenerEndPoint {
 
-    private IResponseHandler responseHandler;
-    //private String handlersConfigFile;
+    private final IResponseHandler responseHandler;
+
+    public ClientListenerEndPoint() {
+        this.responseHandler = new ResponseHandlerImpl();
+    }
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -55,33 +43,29 @@ public class ClientListenerEndPoint {
 
         session.setMaxTextMessageSize(16 * 1024);
 
-        DefaultConnectHandler.builder().build().process();
+        log.log(Level.INFO, "Connected");
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        log.log(Level.FINE, "onClose {0}, {1}", new Object[]{statusCode, reason});
-
-        DefaultCloseHandler.builder().reason(reason).statusCode(statusCode).build().process();
+        log.log(Level.FINE, "onClose");
 
         disposeResources();
+
+        log.log(Level.INFO, "Connection closed with parameters: Reason {0} - StatusCode: {1}", new Object[]{statusCode, reason});
     }
 
     @OnWebSocketError
     public void onError(Throwable cause) {
         log.fine("onError");
 
-        log.log(Level.SEVERE, "An error has occurred: {0}", cause);
-
-        cause.printStackTrace(System.out);
-
-        DefaultErrorHandler.builder().cause(cause).build().process();
-
         disposeResources();
+
+        log.log(Level.SEVERE, "An error has occurred: {0}", cause);
     }
 
     @OnWebSocketMessage
-    public void onTextMessage(Session session, String message) throws IOException, NostrException {
+    public void onTextMessage(Session session, @NonNull String message) throws IOException, NostrException {
 
         if ("close".equalsIgnoreCase(message)) {
             session.close(StatusCode.NORMAL, "bye");
@@ -90,65 +74,7 @@ public class ClientListenerEndPoint {
 
         log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
 
-        List<String> msgItemList = unmarshall(message);
-        final String command = msgItemList.get(0);
-        String msg;
-
-        switch (command) {
-            case "EOSE" -> {
-                msg = msgItemList.get(1);
-
-                responseHandler = createEoseResponseHandler();
-                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
-            }
-            case "OK" -> {
-                String eventId = msgItemList.get(1);
-                boolean result = Boolean.parseBoolean(msgItemList.get(2));
-                msg = msgItemList.get(3);
-                final var msgSplit = msg.split(":", 2);
-                Reason reason;
-                String reasonMessage = msg;
-                if (msgSplit.length < 2) {
-                    reason = Reason.UNDEFINED;
-                } else {
-                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
-                    reasonMessage = msgSplit[1];
-                }
-
-                responseHandler = createOkResponseHandler();
-                ((IOkResponseHandler) responseHandler).setEventId(eventId);
-                ((IOkResponseHandler) responseHandler).setMessage(msg);
-                ((IOkResponseHandler) responseHandler).setReason(reason);
-                ((IOkResponseHandler) responseHandler).setResult(result);
-            }
-            case "NOTICE" -> {
-                msg = msgItemList.get(1);
-                responseHandler = createNoticeResponseHandler();
-                ((INoticeResponseHandler) responseHandler).setMessage(msg);
-            }
-            case "EVENT" -> {
-                String subId = msgItemList.get(1);
-                String jsonEvent = msgItemList.get(2);
-
-                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
-
-                responseHandler = createEventResponseHandler();
-                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
-                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
-            }
-            case "AUTH" -> {
-                String challenge = msgItemList.get(1);
-                responseHandler = createAuthResponseHandler();
-                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
-                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
-            }
-            default -> {
-            }
-        }
-
-        if (responseHandler != null) {
-            responseHandler.process();
-        }
+        responseHandler.process(message, getRelay(session));
     }
 
     @OnWebSocketMessage
@@ -165,74 +91,15 @@ public class ClientListenerEndPoint {
         savePNGImage(payload, offset, length);
     }
 
-    private void disposeResources() {
-        log.log(Level.FINE, "disposeResources");
-    }
-
-    private void savePNGImage(byte[] payload, int offset, int length) {
-        log.log(Level.FINE, "savePNGImage");
-    }
-
-    private IEoseResponseHandler createEoseResponseHandler() {
-        try {
-            var config = new HandlerConfiguration();
-            var strClass = config.getEoseResponseHandler();
-            return (IEoseResponseHandler) Class.forName(strClass).newInstance();
-        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            log.log(Level.WARNING, null, ex);
-            return new DefaultEoseResponseHandler();
-        }
-    }
-
-    private IOkResponseHandler createOkResponseHandler() {
-        try {
-            var config = new HandlerConfiguration();
-            var strClass = config.getOkResponseHandler();
-            return strClass == null ? new DefaultOkResponseHandler() : (IOkResponseHandler) Class.forName(strClass).newInstance();
-        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            log.log(Level.WARNING, null, ex);
-            return new DefaultOkResponseHandler();
-        }
-    }
-
-    private INoticeResponseHandler createNoticeResponseHandler() {
-        try {
-            var config = new HandlerConfiguration();
-            var strClass = config.getNoticeResponseHandler();
-            return strClass == null ? new DefaultNoticeResponseHandler() : (INoticeResponseHandler) Class.forName(strClass).newInstance();
-        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            log.log(Level.WARNING, null, ex);
-            return new DefaultNoticeResponseHandler();
-        }
-    }
-
-    private IEventResponseHandler createEventResponseHandler() {
-        try {
-            var config = new HandlerConfiguration();
-            var strClass = config.getEventResponseHandler();
-            return strClass == null ? new DefaultEventResponseHandler() : (IEventResponseHandler) Class.forName(strClass).newInstance();
-        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            log.log(Level.WARNING, null, ex);
-            return new DefaultEventResponseHandler();
-        }
-    }
-
-    private IAuthResponseHandler createAuthResponseHandler() {
-        try {
-            var config = new HandlerConfiguration();
-            var strClass = config.getAuthResponseHandler();
-            return strClass == null ? new DefaultAuthResponseHandler() : (IAuthResponseHandler) Class.forName(strClass).newInstance();
-        } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-            log.log(Level.WARNING, null, ex);
-            return new DefaultAuthResponseHandler();
-        }
-    }
-
     private Relay getRelay(Session session) {
         SocketAddress remoteAddress = session.getRemoteAddress();
         InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
         String remoteHostname = inetSocketAddress.getHostName();
         return Relay.builder().uri(remoteHostname).build();
+    }
+
+    private void disposeResources() {
+        log.log(Level.FINE, "disposeResources");
     }
 
     private List<String> unmarshall(String message) {
@@ -244,35 +111,7 @@ public class ClientListenerEndPoint {
         }
     }
 
-    static class HandlerConfiguration extends BaseConfiguration {
-
-        HandlerConfiguration() throws IOException {
-//        	TODO
-            this("/handlers.properties");
-        }
-
-        HandlerConfiguration(String file) throws IOException {
-            super(file);
-        }
-
-        String getEoseResponseHandler() {
-            return getProperty("eose.handler");
-        }
-
-        String getOkResponseHandler() {
-            return getProperty("ok.handler");
-        }
-
-        String getNoticeResponseHandler() {
-            return getProperty("notice.handler");
-        }
-
-        String getEventResponseHandler() {
-            return getProperty("event.handler");
-        }
-
-        String getAuthResponseHandler() {
-            return getProperty("auth.handler");
-        }
+    private void savePNGImage(byte[] payload, int offset, int length) {
+        log.log(Level.FINE, "savePNGImage");
     }
 }

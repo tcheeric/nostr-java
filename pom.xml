@@ -5,7 +5,7 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -17,6 +17,10 @@
         <module>nostr-util</module>
         <module>nostr-crypto</module>
         <module>nostr-ws</module>
+        <module>nostr-ws-handler</module>
+        <module>nostr-ws-response-handler-provider</module>
+        <module>nostr-ws-handler-default-command</module>
+        <module>nostr-ws-request-handler-provider</module>
     </modules>
 
     <properties>
@@ -79,6 +83,13 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <showDeprecation>true</showDeprecation>
+                        <annotationProcessorPaths>
+                            <annotationProcessorPath>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </annotationProcessorPath>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
                 <plugin>

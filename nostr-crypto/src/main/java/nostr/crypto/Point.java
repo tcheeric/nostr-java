@@ -101,23 +101,7 @@ public class Point {
         return new Point(x3, lam.multiply(P1.getX().subtract(x3)).subtract(P1.getY()).mod(p));
     }
 
-    public static Point substr(@NonNull Point p, @NonNull Point other) {
-        return add(p, negate(other));
-    }
-
-    public static Point negate(Point p) {
-        return new Point(p.getX(), mod(p.getY().negate()));
-    }
-
-    public static BigInteger mod(@NonNull BigInteger a, @NonNull BigInteger b) {
-        return a.mod(b);
-    }
-
-    public static BigInteger mod(@NonNull BigInteger a) {
-        return mod(a, getp());
-    }
-
-    public static Point mul(@NonNull Point P, @NonNull BigInteger n) {
+    public static Point mul(Point P, BigInteger n) {
 
         Point R = null;
 

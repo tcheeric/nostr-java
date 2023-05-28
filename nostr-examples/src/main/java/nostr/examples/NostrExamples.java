@@ -63,8 +63,9 @@ public class NostrExamples {
     		.about("Hey, it's me!")
     		.publicKey(SENDER.getPublicKey())
     		.build();
-	private static final Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
-	private static final Client CLIENT = new Client(RELAYS);
+	private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
+	//private final static Client CLIENT = new Client(RELAYS);
+        private final static Client CLIENT = Client.getInstance(RELAYS);
 
 	static {
 		final LogManager logManager = LogManager.getLogManager();

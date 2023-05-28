@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
@@ -90,6 +91,10 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private final Set<ElementAttribute> attributes;
+    
+    public GenericEvent() {
+        this.attributes = new HashSet<>();
+    }    
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
         this(pubKey, kind, new TagList(), null);
@@ -134,10 +139,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public void setTags(TagList tags) {
 
-        @SuppressWarnings("rawtypes")
-        List list = tags.getList();
+        this.tags = tags;
 
-        for (Object o : list) {
+        for (Object o : tags.getList()) {
             ((ITag) o).setParent(this);
         }
     }
@@ -188,7 +192,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
-    private void updateTagsParents(TagList tagList) {
+    protected final void updateTagsParents(TagList tagList) {
         if (tagList != null && !tagList.getList().isEmpty()) {
             for (Object t : tagList.getList()) {
                 ITag tag = (ITag) t;

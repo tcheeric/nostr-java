@@ -6,7 +6,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>nostr-id</artifactId>
@@ -48,6 +48,16 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>${bcprov-jdk18on.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-handler-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-request-handler-provider</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

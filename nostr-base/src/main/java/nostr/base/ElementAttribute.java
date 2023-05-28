@@ -17,11 +17,8 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ElementAttribute {
 
+    private final String name;
     private final Object value;
-
     private final Integer nip;
 
-    public ElementAttribute(Object value) {
-        this(value, 1);
-    }
 }

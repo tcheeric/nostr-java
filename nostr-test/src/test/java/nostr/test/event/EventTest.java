@@ -28,17 +28,17 @@ import nostr.util.UnsupportedNIPException;
  */
 public class EventTest {
 
-    private final Identity identity;
-
+    //private final Identity identity;
     public EventTest() throws IOException, NostrException {
-        this.identity = new Identity("/profile.properties");
+        //this.identity = new Identity("/profile.properties");
     }
 
     @Test
     public void testCreateTextNoteEvent() {
         try {
             System.out.println("testCreateTextNoteEvent");
-            PublicKey publicKey = this.identity.getPublicKey();
+            //PublicKey publicKey = this.identity.getPublicKey();
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             Assertions.assertNotNull(instance.getId());
             Assertions.assertNotNull(instance.getCreatedAt());
@@ -46,7 +46,7 @@ public class EventTest {
             final String bech32 = instance.toBech32();
             Assertions.assertNotNull(bech32);
             Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
-        } catch (NostrException ex) {
+        } catch (NostrException | IOException ex) {
             Assertions.fail(ex);
         }
     }
@@ -127,9 +127,10 @@ public class EventTest {
     }
 
     @Test
-    public void testCreateUnsupportedGenericTag() {
+    public void testCreateUnsupportedGenericTag() throws IOException, NostrException {
         System.out.println("testCreateUnsupportedGenericTag");
-        PublicKey publicKey = this.identity.getPublicKey();
+        //PublicKey publicKey = this.identity.getPublicKey();
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
         IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
@@ -146,57 +147,6 @@ public class EventTest {
         );
 
         Assertions.assertNotNull(thrown);
-    }
-
-    @Test
-    public void testUnmarshallEvent() throws NostrException {
-        System.out.println("testUnmarshallEvent");
-
-//        // Tag
-//        PublicKey publicKey = this.identity.getPublicKey();
-//        var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
-//        var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
-//        Assertions.assertEquals(tag.getCode(), unTag.getCode());
-//        //Assertions.assertEquals(tag.getPetName(), ((GenericTag)unTag).getAttributes().);
-//
-//        // TagList
-//        var tagList = new TagList();
-//        tagList.add(tag);
-//        tagList.add(new NonceTag(Integer.SIZE, Integer.MIN_VALUE));
-//        var unTagList = new TagListUnmarshaller(new ElementMarshaller(tagList, null).marshall()).unmarshall();
-//        Assertions.assertEquals(tagList.size(), unTagList.size());
-//
-//        // Event
-//        var event = EntityFactory.Events.createOtsEvent(publicKey);
-//        var unmarshalledEvent = new EventUnmarshaller(new ElementMarshaller(event, null).marshall()).unmarshall();
-//        Assertions.assertEquals(event.getKind(), ((GenericEvent) unmarshalledEvent).getKind());
-//
-//        // Filters
-//        var authors = new PublicKeyList();
-//        authors.add(publicKey);
-//        var kindList = new KindList();
-//        kindList.add(Kind.DELETION);
-//        kindList.add(Kind.ENCRYPTED_DIRECT_MESSAGE);
-//        var filters = EntityFactory.Events.createFilters(authors, kindList, Long.MIN_VALUE);
-//        EventList eventList = new EventList();
-//        final TextNoteEvent evt = EntityFactory.Events.createTextNoteEvent(publicKey);
-//        eventList.add(evt);
-//        filters.setEvents(eventList);
-//        Filters unFilters = (Filters) new FiltersUnmarshaller(new FilterMarshaller(filters, null).marshall()).unmarshall();
-//        Assertions.assertEquals(filters.getKinds().size(), unFilters.getKinds().size());
-//        Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.DELETION));
-//        Assertions.assertTrue(unFilters.getKinds().getList().contains(Kind.ENCRYPTED_DIRECT_MESSAGE));
-//        Assertions.assertTrue(unFilters.getAuthors().getList().contains(publicKey));
-//        Assertions.assertEquals(1, unFilters.getEvents().getList().size());
-//        Assertions.assertTrue(unFilters.getEvents().getList().get(0).getId().equals(evt.getId()));
-//
-//        // Filters with GenericTagQueryList
-//        var gtqList = new GenericTagQueryList();
-//        final GenericTagQuery gtq = GenericTagQuery.builder().tagName('x').value(Arrays.asList("one", "two", "three")).build();
-//        gtqList.add(gtq);
-//        filters.setGenericTagQueryList(gtqList);
-//        unFilters = (Filters) new FiltersUnmarshaller(new FilterMarshaller(filters, null).marshall()).unmarshall();
-//        Assertions.assertTrue(unFilters.getGenericTagQueryList().getList().contains(gtq));
     }
 
     @Test
@@ -221,7 +171,7 @@ public class EventTest {
 
         GenericMessage msg = new GenericMessage("AUTH", 42);
         String attr = "challenge-string";
-        msg.addAttribute(new ElementAttribute(attr));
+        msg.addAttribute(ElementAttribute.builder().name("challenge").value(attr).build());
 
         var muattr = (msg.getAttributes().iterator().next().getValue()).toString();
         Assertions.assertEquals(attr, muattr);

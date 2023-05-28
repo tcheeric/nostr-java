@@ -24,7 +24,7 @@ public class BaseConfiguration {
 
     protected final Properties properties = new Properties();
 
-    private static final String PREFIX_FILE = "file";
+    private static final String PREFIX_FILE = "file.";
     private static final String CONFIG_DIR = "config.folder";
 
     protected BaseConfiguration(@NonNull String file) throws IOException {
@@ -33,18 +33,20 @@ public class BaseConfiguration {
 
     protected String getFileLocation(String key) throws FileNotFoundException {
 
-        String prefix = getPrefix(key);
         final String filename = properties.getProperty(key);
+        var location = filename;
 
+        String prefix = getPrefix(key);
         if (PREFIX_FILE.equals(prefix)) {
             var configFolder = System.getProperty(CONFIG_DIR);
 
             if (configFolder != null) {
                 configFolder = configFolder.endsWith("/") ? configFolder : configFolder + "/";
-                return (configFolder + filename).replace("//", "/");
-            } else {
-                return filename;
+                location = (configFolder + filename).replace("//", "/");
             }
+
+            log.log(Level.INFO, "file location ({0}): {1}", new Object[]{key, location});
+            return location;
         }
 
         throw new FileNotFoundException(filename);
@@ -72,7 +74,7 @@ public class BaseConfiguration {
     private String getPrefix(String key) {
         int index = key.indexOf('.');
         if (index > 0) {
-            return key.substring(0, index);
+            return key.substring(0, index + 1);
         }
         return null;
     }
@@ -81,24 +83,14 @@ public class BaseConfiguration {
 
         var configFolder = System.getProperty(CONFIG_DIR);
 
+        log.log(Level.FINER, "Configuration location: {0}", configFolder);
         if (configFolder != null) {
-
-            var tmpFile = filename.startsWith("/") ? filename.substring(1) : filename;
-
-            final File file = new File(new File(configFolder), tmpFile);
-            if (file.exists()) {
-
-                var inputStream = new FileInputStream(file);
-                properties.load(inputStream);
-                return;
-            }
+            loadFromConfigDir(filename, configFolder);
+            return;
         }
 
         if (filename.startsWith("/")) {
-            var inputStream = this.getClass().getResourceAsStream(filename);
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
+            loadFromResourceStream(filename);
             return;
         }
 
@@ -108,6 +100,34 @@ public class BaseConfiguration {
         }
 
         throw new FileNotFoundException(filename);
+    }
+
+    private void loadFromResourceStream(String filename) throws IOException {
+        var inputStream = this.getClass().getResourceAsStream(filename);
+        if (inputStream != null) {
+            properties.load(inputStream);
+        } else {
+            final String fname = filename.substring(1);
+            inputStream = this.getClass().getClassLoader().getResourceAsStream(fname);
+            if (inputStream != null) {
+                properties.load(inputStream);
+            } else {
+                throw new IOException(String.format("Failed to load resource %s", fname));
+            }
+        }
+    }
+
+    private void loadFromConfigDir(String filename, String configFolder) throws IOException {
+        log.log(Level.FINER, "loadFromConfigDir({0}, {1})", new Object[]{filename, configFolder});
+        final String fname = filename.substring(1);
+        var tmpFile = filename.startsWith("/") ? fname : filename;
+        final File file = new File(new File(configFolder), tmpFile);
+        log.log(Level.FINER, "Configuration file {0}", file.getName());
+        if (file.exists()) {
+            var inputStream = new FileInputStream(file);
+            log.log(Level.FINER, "Loading configuration file from {0}", file.getParent());
+            properties.load(inputStream);
+        }
     }
 
 }
