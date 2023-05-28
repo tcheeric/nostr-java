@@ -99,7 +99,8 @@ public class Client {
 
     private Relay openRelay(@NonNull String name, @NonNull String uri) {
         URI serverURI = Connection.serverURI(uri);
-        Relay relay = Relay.builder().name(name).uri(serverURI.toString()).build();
+        Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(name).build();
+        Relay relay = Relay.builder().uri(serverURI.toString()).informationDocument(rid).build();
 
         return openRelay(relay);
     }
@@ -154,7 +155,8 @@ public class Client {
             List<Relay> result = new ArrayList<>();
 
             relays.stream().forEach(r -> {
-                var relay = Relay.builder().name(r.toString()).uri(this.getProperty(r.toString())).build();
+                Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
+                var relay = Relay.builder().uri(this.getProperty(r.toString())).informationDocument(rid).build();
                 result.add(relay);
             });
             return result;

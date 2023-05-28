@@ -1,6 +1,7 @@
 package nostr.event.impl;
 
-import nostr.base.Profile;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import java.beans.IntrospectionException;
@@ -11,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.Profile;
 import nostr.base.annotation.Event;
 import nostr.event.list.TagList;
 import nostr.event.util.Nip05Validator;
@@ -37,13 +39,13 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     @Override
     public void update() throws NostrException {
-        
+
         try {
             // NIP-05 validator
             Nip05Validator.builder().nip05(nip05).publicKey(getPubKey()).build().validate();
-            
+
             setContent();
-            
+
             super.update();
         } catch (NoSuchAlgorithmException | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
             log.log(Level.SEVERE, null, ex);
@@ -54,19 +56,29 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     // TODO #30 - Use jackson
     private void setContent() {
-//        IValue nameValue = new StringValue(this.name);
-//        ExpressionValue nameExpr = new ExpressionValue("name", nameValue);
-//        
-//        IValue nip05Value = new StringValue(this.nip05);
-//        ExpressionValue nip05Expr = new ExpressionValue("nip05", nip05Value);
-//
-//        List<ExpressionValue> expressions = new ArrayList<>();
-//        expressions.add(nameExpr);
-//        expressions.add(nip05Expr);
-//
-//        ObjectValue content = new ObjectValue(expressions);
-//
-//        // TODO #30 - the content string encapsulates the name ane nip05 attributes in json format
-//        setContent(content.toString());
+
+        try {
+            Profile profile = Profile.builder().name(name).nip05(nip05).build();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonString = objectMapper.writeValueAsString(profile);
+
+            // Escape the JSON string
+            String escapedJsonString = escapeJsonString(jsonString);
+
+            this.setContent(escapedJsonString);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static String escapeJsonString(String jsonString) {
+        return jsonString.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }

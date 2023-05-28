@@ -1,5 +1,8 @@
 package nostr.event.util;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import lombok.Builder;
 import lombok.Data;
@@ -68,7 +73,7 @@ public class Nip05Validator {
             if (pubKey != null && !pubKey.equals(publicKey.toString())) {
                 throw new NostrException(String.format("Public key mismatch. Expected {0} - Received: {1}", new Object[]{publicKey.toString(), pubKey}));
             }
-            
+
             // All well!
             return;
         }
@@ -78,11 +83,62 @@ public class Nip05Validator {
 
     // TODO #30 - Use jackson
     private String getPublicKey(StringBuilder content, String localPart) {
-        return null;
-//        ObjectValue jsonObjValue = new JsonObjectUnmarshaller(content.toString()).unmarshall();
-//        IValue namesObj = ((ObjectValue) jsonObjValue).get( "names" ).get();
-//        IValue pubKey = ((ObjectValue) namesObj).get( localPart ).get();
-//        return pubKey.getValue().toString();
+        return Nip05Decoder.builder().jsonContent(content.toString()).build().getPublicKey(localPart).toString();
+    }
+
+    @Builder
+    private static class Nip05Decoder {
+
+        private final String jsonContent;
+
+        PublicKey getPublicKey(String localPart) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Content content = objectMapper.readValue(this.jsonContent, Content.class);
+
+                // Access the decoded data
+                Map<String, String> names = content.getNames();
+                for (Map.Entry<String, String> entry : names.entrySet()) {
+                    String name = entry.getKey();
+                    String hash = entry.getValue();
+                    if (name.equals(localPart)) {
+                        return new PublicKey(hash);
+                    }
+                }
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            return null;
+        }
+
+        List<String> getRelays(String localPart) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Content content = objectMapper.readValue(this.jsonContent, Content.class);
+
+                PublicKey pk = getPublicKey(localPart);
+                if (pk == null) {
+                    return null;
+                }
+
+                return content.getRelays().get(pk.toString());
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        @Data
+        private static class Content {
+
+            @JsonProperty("names")
+            private Map<String, String> names;
+
+            @JsonProperty("relays")
+            private Map<String, List<String>> relays;
+
+        }
+
     }
 
 }
