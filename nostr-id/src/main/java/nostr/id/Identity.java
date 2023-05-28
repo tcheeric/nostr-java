@@ -52,19 +52,29 @@ import nostr.util.NostrUtil;
 @AllArgsConstructor
 public class Identity {
 
+    private static Identity INSTANCE;
+    
     @ToString.Exclude
     private final PrivateKey privateKey;
 
-    public Identity(String profileFile) throws IOException, NostrException {
+    private Identity(String profileFile) throws IOException, NostrException {
         this.privateKey = new IdentityConfiguration(profileFile).getPrivateKey();
     }
     
+    public static Identity getInstance() throws IOException, NostrException {
+        if(INSTANCE == null) {
+            INSTANCE = new Identity("/profile.properties");
+        }
+        
+        return INSTANCE;
+    }
+
     public PublicKey getPublicKey() {
-    	try {
-			return new PublicKey(Schnorr.genPubKey(privateKey.getRawData()));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            return new PublicKey(Schnorr.genPubKey(privateKey.getRawData()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
@@ -115,13 +125,13 @@ public class Identity {
         }
         throw new NostrException();
     }
-    
+
     /**
-     * 
+     *
      * @return A strong pseudo random Identity
      */
     public static Identity generateRandomIdentity() {
-    	return new Identity(PrivateKey.generateRandomPrivKey());
+        return new Identity(PrivateKey.generateRandomPrivKey());
     }
 
     private Signature signEvent(@NonNull GenericEvent event) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
