@@ -1,8 +1,12 @@
 package nostr.ws;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import lombok.NoArgsConstructor;
@@ -79,73 +83,72 @@ public class ClientListenerEndPoint {
     @OnWebSocketMessage
     public void onTextMessage(Session session, String message) throws IOException, NostrException {
 
-//        if ("close".equalsIgnoreCase(message)) {
-//            session.close(StatusCode.NORMAL, "bye");
-//            return;
-//        }
-//
-//        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
-//
-//        //TODO #30 - Use jackson to extract the attribute values from the json string
-//        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-//        final String command = (jsonArr).get(0).get().getValue().toString();
-//        String msg;
-//
-//        switch (command) {
-//            case "EOSE" -> {
-//                msg = (jsonArr).get(1).get().getValue().toString();
-//
-//                responseHandler = createEoseResponseHandler();
-//                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
-//            }
-//            case "OK" -> {
-//                String eventId = (jsonArr).get(1).get().getValue().toString();
-//                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
-//                msg = (jsonArr).get(3).get().getValue().toString();
-//                final var msgSplit = msg.split(":", 2);
-//                Reason reason;
-//                String reasonMessage = msg;
-//                if (msgSplit.length < 2) {
-//                    reason = Reason.UNDEFINED;
-//                } else {
-//                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
-//                    reasonMessage = msgSplit[1];
-//                }
-//
-//                responseHandler = createOkResponseHandler();
-//                ((IOkResponseHandler) responseHandler).setEventId(eventId);
-//                ((IOkResponseHandler) responseHandler).setMessage(msg);
-//                ((IOkResponseHandler) responseHandler).setReason(reason);
-//                ((IOkResponseHandler) responseHandler).setResult(result);
-//            }
-//            case "NOTICE" -> {
-//                msg = jsonArr.get(1).get().getValue().toString();
-//                responseHandler = createNoticeResponseHandler();
-//                ((INoticeResponseHandler) responseHandler).setMessage(msg);
-//            }
-//            case "EVENT" -> {
-//                String subId = jsonArr.get(1).get().getValue().toString();
-//                String jsonEvent = jsonArr.get(2).get().toString();
-//
-//                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
-//
-//                responseHandler = createEventResponseHandler();
-//                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
-//                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
-//            }
-//            case "AUTH" -> {
-//                String challenge = jsonArr.get(1).get().getValue().toString();
-//                responseHandler = createAuthResponseHandler();
-//                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
-//                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
-//            }
-//            default -> {
-//            }
-//        }
-//
-//        if (responseHandler != null) {
-//            responseHandler.process();
-//        }
+        if ("close".equalsIgnoreCase(message)) {
+            session.close(StatusCode.NORMAL, "bye");
+            return;
+        }
+
+        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
+
+        List<String> msgItemList = unmarshall(message);
+        final String command = msgItemList.get(0);
+        String msg;
+
+        switch (command) {
+            case "EOSE" -> {
+                msg = msgItemList.get(1);
+
+                responseHandler = createEoseResponseHandler();
+                ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
+            }
+            case "OK" -> {
+                String eventId = msgItemList.get(1);
+                boolean result = Boolean.parseBoolean(msgItemList.get(2));
+                msg = msgItemList.get(3);
+                final var msgSplit = msg.split(":", 2);
+                Reason reason;
+                String reasonMessage = msg;
+                if (msgSplit.length < 2) {
+                    reason = Reason.UNDEFINED;
+                } else {
+                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
+                    reasonMessage = msgSplit[1];
+                }
+
+                responseHandler = createOkResponseHandler();
+                ((IOkResponseHandler) responseHandler).setEventId(eventId);
+                ((IOkResponseHandler) responseHandler).setMessage(msg);
+                ((IOkResponseHandler) responseHandler).setReason(reason);
+                ((IOkResponseHandler) responseHandler).setResult(result);
+            }
+            case "NOTICE" -> {
+                msg = msgItemList.get(1);
+                responseHandler = createNoticeResponseHandler();
+                ((INoticeResponseHandler) responseHandler).setMessage(msg);
+            }
+            case "EVENT" -> {
+                String subId = msgItemList.get(1);
+                String jsonEvent = msgItemList.get(2);
+
+                log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
+
+                responseHandler = createEventResponseHandler();
+                ((IEventResponseHandler) responseHandler).setJsonEvent(jsonEvent);
+                ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
+            }
+            case "AUTH" -> {
+                String challenge = msgItemList.get(1);
+                responseHandler = createAuthResponseHandler();
+                ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
+                ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
+            }
+            default -> {
+            }
+        }
+
+        if (responseHandler != null) {
+            responseHandler.process();
+        }
     }
 
     @OnWebSocketMessage
@@ -230,6 +233,15 @@ public class ClientListenerEndPoint {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
         String remoteHostname = inetSocketAddress.getHostName();
         return Relay.builder().uri(remoteHostname).build();
+    }
+
+    private List<String> unmarshall(String message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return Arrays.asList(objectMapper.readValue(message, String[].class));
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     static class HandlerConfiguration extends BaseConfiguration {
