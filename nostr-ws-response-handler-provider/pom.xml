@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
     <artifactId>nostr-ws-response-handler-provider</artifactId>
     <packaging>jar</packaging>
