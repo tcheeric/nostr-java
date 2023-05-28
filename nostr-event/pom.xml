@@ -6,7 +6,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>nostr-event</artifactId>
@@ -22,22 +22,12 @@
         <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-types</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

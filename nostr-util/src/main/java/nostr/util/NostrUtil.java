@@ -8,13 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import lombok.extern.java.Log;
 
 /**
  *
  * @author squirrel
  */
-@Log
 public class NostrUtil {
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();

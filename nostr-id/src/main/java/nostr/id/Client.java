@@ -13,17 +13,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import lombok.Data;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.BaseConfiguration;
 import nostr.base.Relay;
+import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
+import nostr.event.message.AuthMessage;
+import nostr.util.NostrException;
 import nostr.ws.Connection;
-import nostr.ws.handler.request.DefaultRequestHandler;
+import nostr.ws.handler.spi.IRequestHandler;
+import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
 /**
  *
@@ -33,24 +38,45 @@ import nostr.ws.handler.request.DefaultRequestHandler;
 @Data
 public class Client {
 
-    @ToString.Exclude
+    private static Client INSTANCE;
+
     private final Set<Future<Relay>> futureRelays;
-
-    @ToString.Exclude
     private final ThreadPoolExecutor threadPool;
+    private IRequestHandler requestHandler;
 
-    public Client(String relayConfFile) throws IOException {
+    private Client(String relayConfFile) throws IOException {
         this.futureRelays = new HashSet<>();
-        
+        this.requestHandler = new DefaultRequestHandler();
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relayConfFile);
     }
 
-    public Client(Map<String, String> relays) {
+    private Client(Map<String, String> relays) {
         this.futureRelays = new HashSet<>();
-
+        this.requestHandler = new DefaultRequestHandler();
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relays);
+    }
+
+    public static Client getInstance(String relayConfFile) {
+        if (INSTANCE == null) {
+            try {
+                INSTANCE = new Client(relayConfFile);
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
+        }
+
+        return INSTANCE;
+    }
+
+    public static Client getInstance(Map<String, String> relays) {
+        if (INSTANCE == null) {
+            INSTANCE = new Client(relays);
+        }
+
+        return INSTANCE;
     }
 
     public Set<Relay> getRelays() {
@@ -64,14 +90,14 @@ public class Client {
 
                     return false;
                 }).map(fr -> {
-            try {
-                return fr.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.log(Level.SEVERE, null, e);
-            }
-
-            return null;
-        }).collect(Collectors.toSet());
+		            try {
+		                return fr.get();
+		            } catch (InterruptedException | ExecutionException e) {
+		                log.log(Level.SEVERE, null, e);
+		            }
+		
+		            return null;
+		        }).collect(Collectors.toSet());
     }
 
     public void send(@NonNull GenericMessage message) {
@@ -81,25 +107,48 @@ public class Client {
                         return fr.isDone() && fr.get().getSupportedNips().contains(message.getNip());
                     } catch (InterruptedException | ExecutionException e) {
                         log.log(Level.WARNING, null, e);
+                        return false;
                     }
-
-                    return false;
                 })
                 .forEach(fr -> {
                     try {
                         Relay r = fr.get();
-                        var rh = DefaultRequestHandler.builder().connection(new Connection(r)).message(message).build();
-                        log.log(Level.INFO, "Client {0} sending message to {1}", new Object[]{this, r});
-                        rh.process();
-                    } catch (Exception ex) {
+                        this.requestHandler.process(message, r);
+                    } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
                     }
                 });
     }
 
+    public void auth(Identity identity, String challenge) throws NostrException {
+
+        log.log(Level.INFO, "Authenticating...");
+        Set<Relay> relays = getRelaySet();
+        GenericEvent event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
+        GenericMessage authMsg = new AuthMessage(event);
+
+        identity.sign(event);
+        this.send(authMsg);
+    }
+
+    private Set<Relay> getRelaySet() {
+        Set<Relay> result = new HashSet<>();
+
+        futureRelays.stream().forEach(fr -> {
+            try {
+                result.add(fr.get());
+            } catch (InterruptedException | ExecutionException ex) {
+                log.log(Level.SEVERE, null, ex);
+            }
+        });
+
+        return result;
+    }
+
     private Relay openRelay(@NonNull String name, @NonNull String uri) {
         URI serverURI = Connection.serverURI(uri);
-        Relay relay = Relay.builder().name(name).uri(serverURI.toString()).build();
+        Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(name).build();
+        Relay relay = Relay.builder().uri(serverURI.toString()).informationDocument(rid).build();
 
         return openRelay(relay);
     }
@@ -141,6 +190,7 @@ public class Client {
 
     @Log
     static class RelayConfiguration extends BaseConfiguration {
+
         RelayConfiguration() throws IOException {
             this("/relays.properties");
         }
@@ -154,7 +204,8 @@ public class Client {
             List<Relay> result = new ArrayList<>();
 
             relays.stream().forEach(r -> {
-                var relay = Relay.builder().name(r.toString()).uri(this.getProperty(r.toString())).build();
+                Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
+                var relay = Relay.builder().uri(this.getProperty(r.toString())).informationDocument(rid).build();
                 result.add(relay);
             });
             return result;

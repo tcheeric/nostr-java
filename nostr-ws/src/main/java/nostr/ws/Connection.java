@@ -1,13 +1,12 @@
 package nostr.ws;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -38,14 +37,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.json.unmarshaller.impl.JsonObjectUnmarshaller;
-import nostr.types.values.IValue;
-import nostr.types.values.impl.ArrayValue;
-import nostr.types.values.impl.NumberValue;
-import nostr.types.values.impl.ObjectValue;
-import nostr.util.NostrUtil;
 
 /**
  *
@@ -74,6 +66,8 @@ public class Connection {
 
             URLConnection openConnection = url.openConnection();
 
+            log.log(Level.INFO, "Openning a secure connection to {0}", uri);
+
             openConnection.connect();
             return new URI("wss://" + uri);
         } catch (MalformedURLException e) {
@@ -83,13 +77,17 @@ public class Connection {
         } catch (URISyntaxException e) {
             log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
             throw new RuntimeException(e);
-		}
+        }
 
         try {
             URL url = new URL("http://" + uri);
 
             URLConnection openConnection = url.openConnection();
+
+            log.log(Level.INFO, "Openning an un-secure connection to {0}", uri);
+
             openConnection.connect();
+
             return new URI("ws://" + uri);
         } catch (MalformedURLException e) {
             log.log(Level.WARNING, null, e);
@@ -98,7 +96,7 @@ public class Connection {
         } catch (URISyntaxException e) {
             log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
             throw new RuntimeException(e);
-		}
+        }
 
 //    	TODO
         throw new RuntimeException();
@@ -158,10 +156,12 @@ public class Connection {
                 });
             }
         };
-        
+
         CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
 
         this.session = clientSessionPromise.get();
+
+        log.log(Level.INFO, "The session is now open to {0}", relay.getUri());
     }
 
     public String getRelayInformation() throws InterruptedException, TimeoutException, ExecutionException, IOException, Exception {
@@ -180,57 +180,14 @@ public class Connection {
 
         throw new IOException("The request has failed with the response code: " + response.getStatus());
     }
-    
+
     public void updateRelayMetadata() throws Exception {
         String strInfo = getRelayInformation();
         log.log(Level.FINE, "Relay information: {0}", strInfo);
-        ObjectValue info = new JsonObjectUnmarshaller(strInfo).unmarshall();
 
-        if (((ObjectValue) info).get("contact").isPresent()) {
-            final IValue contact = ((ObjectValue) info).get("contact").get();
-            var strContact = contact == null ? "" : contact.toString();
-            relay.setContact(strContact);
-        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        var relayInfoDoc = objectMapper.readValue(strInfo, Relay.RelayInformationDocument.class);
 
-        if (((ObjectValue) info).get("description").isPresent()) {
-            final IValue desc = ((ObjectValue) info).get("description").get();
-            var strDesc = desc == null ? "" : desc.toString();
-            relay.setDescription(strDesc);
-        }
-
-        if (((ObjectValue) info).get("name").isPresent()) {
-            final IValue relayName = ((ObjectValue) info).get("name").get();
-            var strRelayName = relayName == null ? "" : relayName.toString();
-            relay.setName(strRelayName);
-        }
-
-        if (((ObjectValue) info).get("software").isPresent()) {
-            final IValue software = ((ObjectValue) info).get("software").get();
-            var strSoftware = software == null ? "" : software.toString();
-            relay.setSoftware(strSoftware);
-        }
-
-        if (((ObjectValue) info).get("version").isPresent()) {
-            final IValue version = ((ObjectValue) info).get("version").get();
-            var strVersion = version == null ? "" : version.toString();
-            relay.setVersion(strVersion);
-        }
-
-        if (((ObjectValue) info).get("supported_nips").isPresent()) {
-            List<Integer> snipList = new ArrayList<>();
-            ArrayValue snips = (ArrayValue) ((ObjectValue) info).get("supported_nips").get();
-            int len = snips.length();
-            for (int i = 0; i < len; i++) {
-                snipList.add(((NumberValue) snips.get(i).get()).intValue());
-            }
-            relay.setSupportedNips(snipList);
-        }
-
-        if (((ObjectValue) info).get("pubkey").isPresent()) {
-            final IValue pubKey = ((ObjectValue) info).get("pubkey").get();
-            var strPubKey = pubKey == null ? "" : pubKey.toString();
-            relay.setPubKey(new PublicKey(NostrUtil.hexToBytes(strPubKey)));
-        }
+        this.relay.setInformationDocument(relayInfoDoc);        
     }
-
 }

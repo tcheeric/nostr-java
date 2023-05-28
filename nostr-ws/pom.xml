@@ -6,7 +6,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
 
     <artifactId>nostr-ws</artifactId>
@@ -39,17 +39,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-event</artifactId>
             <version>${project.version}</version>
+            <!--
             <exclusions>
                 <exclusion>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>nostr-util</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-json</artifactId>
-            <version>${project.version}</version>
+            -->
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -59,6 +56,16 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-types</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-handler-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-ws-response-handler-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
