@@ -1,8 +1,12 @@
 package nostr.ws;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import lombok.NoArgsConstructor;
@@ -15,8 +19,6 @@ import nostr.base.handler.response.IEventResponseHandler;
 import nostr.base.handler.response.INoticeResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler;
 import nostr.base.handler.response.IOkResponseHandler.Reason;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
-import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -88,21 +90,21 @@ public class ClientListenerEndPoint {
 
         log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
 
-        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = (jsonArr).get(0).get().getValue().toString();
+        List<String> msgItemList = unmarshall(message);
+        final String command = msgItemList.get(0);
         String msg;
 
         switch (command) {
             case "EOSE" -> {
-                msg = (jsonArr).get(1).get().getValue().toString();
+                msg = msgItemList.get(1);
 
                 responseHandler = createEoseResponseHandler();
                 ((IEoseResponseHandler) responseHandler).setSubscriptionId(msg);
             }
             case "OK" -> {
-                String eventId = (jsonArr).get(1).get().getValue().toString();
-                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
-                msg = (jsonArr).get(3).get().getValue().toString();
+                String eventId = msgItemList.get(1);
+                boolean result = Boolean.parseBoolean(msgItemList.get(2));
+                msg = msgItemList.get(3);
                 final var msgSplit = msg.split(":", 2);
                 Reason reason;
                 String reasonMessage = msg;
@@ -120,13 +122,13 @@ public class ClientListenerEndPoint {
                 ((IOkResponseHandler) responseHandler).setResult(result);
             }
             case "NOTICE" -> {
-                msg = jsonArr.get(1).get().getValue().toString();
+                msg = msgItemList.get(1);
                 responseHandler = createNoticeResponseHandler();
                 ((INoticeResponseHandler) responseHandler).setMessage(msg);
             }
             case "EVENT" -> {
-                String subId = jsonArr.get(1).get().getValue().toString();
-                String jsonEvent = jsonArr.get(2).get().toString();
+                String subId = msgItemList.get(1);
+                String jsonEvent = msgItemList.get(2);
 
                 log.log(Level.FINE, "jsonEvent: {0}", jsonEvent);
 
@@ -135,7 +137,7 @@ public class ClientListenerEndPoint {
                 ((IEventResponseHandler) responseHandler).setSubscriptionId(subId);
             }
             case "AUTH" -> {
-                String challenge = jsonArr.get(1).get().getValue().toString();
+                String challenge = msgItemList.get(1);
                 responseHandler = createAuthResponseHandler();
                 ((IAuthResponseHandler) responseHandler).setChallenge(challenge);
                 ((IAuthResponseHandler) responseHandler).setRelay(getRelay(session));
@@ -231,6 +233,15 @@ public class ClientListenerEndPoint {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
         String remoteHostname = inetSocketAddress.getHostName();
         return Relay.builder().uri(remoteHostname).build();
+    }
+
+    private List<String> unmarshall(String message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return Arrays.asList(objectMapper.readValue(message, String[].class));
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     static class HandlerConfiguration extends BaseConfiguration {

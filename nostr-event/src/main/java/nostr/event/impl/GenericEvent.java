@@ -171,21 +171,21 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
-    	var mapper = IMarshaller.MAPPER;
-    	var arrayNode = JsonNodeFactory.instance.arrayNode();
-    	
-    	try {
-	    	arrayNode.add(0);
-	    	arrayNode.add(this.pubKey.toString());
-	    	arrayNode.add(this.createdAt);
-	    	arrayNode.add(this.kind);
-			arrayNode.add(mapper.valueToTree(tags));
-	    	arrayNode.add(this.content);
-	    	
-	    	return mapper.writeValueAsString(arrayNode);
-    	} catch (JsonProcessingException e) {
+        var mapper = IMarshaller.MAPPER;
+        var arrayNode = JsonNodeFactory.instance.arrayNode();
+
+        try {
+            arrayNode.add(0);
+            arrayNode.add(this.pubKey.toString());
+            arrayNode.add(this.createdAt);
+            arrayNode.add(this.kind);
+            arrayNode.add(mapper.valueToTree(tags));
+            arrayNode.add(this.content);
+
+            return mapper.writeValueAsString(arrayNode);
+        } catch (JsonProcessingException e) {
             throw new NostrException(e);
-    	}
+        }
     }
 
     private void updateTagsParents(TagList tagList) {

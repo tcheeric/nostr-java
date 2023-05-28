@@ -35,7 +35,6 @@ import nostr.event.list.PubKeyTagList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.list.TagList;
 import nostr.event.tag.PubKeyTag;
-import nostr.types.values.impl.StringValue;
 import nostr.util.NostrException;
 
 /**
@@ -191,18 +190,14 @@ public class EntityFactory {
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
             GenericTag tag = new GenericTag("devil");
-//            List<String> valueList = new ArrayList<>();
-//            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().value(new StringValue("Lucifer")).nip(666).build());
+            tag.addAttribute(ElementAttribute.builder().value("Lucifer").nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
             GenericTag tag = new GenericTag(tagNip, "devil");
-//            List<String> valueList = new ArrayList<>();
-//            valueList.add("Lucifer");
-            tag.addAttribute(ElementAttribute.builder().value(new StringValue("Lucifer")).nip(666).build());
+            tag.addAttribute(ElementAttribute.builder().value("Lucifer").nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }

@@ -5,7 +5,7 @@ import nostr.base.handler.IHandler;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 public interface IResponseHandler extends IHandler {
 

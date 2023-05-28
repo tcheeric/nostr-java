@@ -129,7 +129,6 @@ public class FilterRelays {
 	public static void main(String[] args) {
     	for (Map.Entry<String,String> r : relaysURLs.entrySet()) 
     		relays.add(updateRelayMetadata(Relay.builder()
-    				.name(r.getKey())
     				.uri(r.getValue())
     				.build()));
     	

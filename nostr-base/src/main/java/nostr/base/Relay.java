@@ -1,9 +1,12 @@
 package nostr.base;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -17,49 +20,132 @@ public class Relay {
 
     private final String uri;
 
-    private String name;
-
     @ToString.Exclude
-    private String description;
-
-    private PublicKey pubKey;
-
-    @ToString.Exclude
-    private String contact;
-
     @Builder.Default
-    @ToString.Exclude
-    private List<Integer> supportedNips = new ArrayList<>();
+    private RelayInformationDocument informationDocument = new RelayInformationDocument();
 
-    @ToString.Exclude
-    private String software;
+    // Helper method
+    public List<Integer> getSupportedNips() {
+        return this.getInformationDocument().getSupportedNips();
+    }
 
-    @ToString.Exclude
-    private String version;
+    // Helper method
+    public void addNipSupport(int nip) {
+        this.getSupportedNips().add(nip);
+    }
 
+    // Helper method
     public String printSupportedNips() {
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        final List<Integer> supportedNipList = this.getSupportedNips();
+        return convertToJsonArray(this.getInformationDocument().getSupportedNips());
+    }
 
-        sb.append("[");
-        for (int n : supportedNipList) {
-
-            sb.append(n);
-
-            if (i++ < supportedNipList.size() - 1) {
-                sb.append(",");
+    private static String convertToJsonArray(List<Integer> list) {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("[");
+        for (int i = 0; i < list.size(); i++) {
+            jsonBuilder.append("\"").append(list.get(i)).append("\"");
+            if (i != list.size() - 1) {
+                jsonBuilder.append(",");
             }
         }
-        sb.append("]");
+        jsonBuilder.append("]");
 
-        return sb.toString();
+        return jsonBuilder.toString();
     }
 
-    public void addNipSupport(Integer nip) {
-        if (!this.supportedNips.contains(nip)) {
-            this.supportedNips.add(nip);
+    // Helper method
+    public String getName() {
+        return this.getInformationDocument().getName();
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelayInformationDocument {
+
+        private String name;
+
+        private String description;
+
+        private String pubkey;
+
+        private String contact;
+
+        @Builder.Default
+        private List<Integer> supportedNips = new ArrayList<>();
+
+        @Builder.Default
+        private List<String> supportedNipExtensions = new ArrayList<>();
+
+        private String software;
+
+        private String version;
+
+        private Limitation limitation;
+
+        private String paymentsUrl;
+
+        private Fees fees;
+
+        @Data
+        public static class Limitation {
+
+            @JsonProperty("max_message_length")
+            private int maxMessageLength;
+
+            @JsonProperty("max_subscriptions")
+            private int maxSubscriptions;
+
+            @JsonProperty("max_filters")
+            private int maxFilters;
+
+            @JsonProperty("max_limit")
+            private int maxLimit;
+
+            @JsonProperty("max_subid_length")
+            private int maxSubIdLength;
+
+            @JsonProperty("min_prefix")
+            private int minPrefix;
+
+            @JsonProperty("max_event_tags")
+            private int maxEventTags;
+
+            @JsonProperty("max_content_length")
+            private int maxContentLength;
+
+            @JsonProperty("min_pow_difficulty")
+            private int minPowDifficulty;
+
+            @JsonProperty("auth_required")
+            private boolean authRequired;
+
+            @JsonProperty("payment_required")
+            private boolean paymentRequired;
+
         }
-    }
 
+        @Data
+        public static class Fees {
+
+            private List<AdmissionFee> admission;
+            private List<PublicationFee> publication;
+
+            @Data
+            public static class AdmissionFee {
+
+                private int amount;
+                private String unit;
+            }
+
+            @Data
+            public static class PublicationFee {
+
+                private int amount;
+                private String unit;
+            }
+        }
+
+    }
 }

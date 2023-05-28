@@ -8,7 +8,7 @@ import nostr.event.list.TagList;
 
 /**
  *
- * @author eric
+ * @author squirrel
  */
 @Event(name = "Authentication of clients to relays", nip = 42)
 public class ClientAuthenticationEvent extends GenericEvent {

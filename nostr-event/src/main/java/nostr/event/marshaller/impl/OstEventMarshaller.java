@@ -1,7 +1,9 @@
 package nostr.event.marshaller.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.HashMap;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +12,6 @@ import nostr.base.ElementAttribute;
 import nostr.base.IMarshaller;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
-import nostr.types.values.impl.ExpressionValue;
 import nostr.util.NostrException;
 
 /**
@@ -29,24 +30,24 @@ public class OstEventMarshaller implements IMarshaller {
     public String marshall() throws NostrException {
         return toJson();
     }
-    
+
     @Override
     public String toJson() throws NostrException {
-    	try {
-	    	JsonNode node = MAPPER.valueToTree(event);
-	    	ObjectNode objNode = (ObjectNode) node;
-    		event.getAttributes().parallelStream()
-    			.map(ElementAttribute::getValue)
-    			.forEach(ev -> {
-    				var expression = (ExpressionValue) ev;
-    				
-    		    	objNode.set(expression.getName(), MAPPER.valueToTree(expression.getValue().toString()));
-    			});
-    		
-	    	return MAPPER.writeValueAsString(node);
-		} catch (Exception e) {
-			throw new NostrException(e);
-		} 
+        try {
+            JsonNode node = MAPPER.valueToTree(event);
+            ObjectNode objNode = (ObjectNode) node;
+            event.getAttributes().parallelStream()
+                    .map(ElementAttribute::getValue)
+                    .forEach(ev -> {
+                        var expression = (HashMap<String, String>) ev;
+
+                        objNode.set("ots", MAPPER.valueToTree(expression.get("ots")));
+                    });
+
+            return MAPPER.writeValueAsString(node);
+        } catch (JsonProcessingException | IllegalArgumentException e) {
+            throw new NostrException(e);
+        }
     }
 
 }
