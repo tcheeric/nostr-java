@@ -274,9 +274,9 @@ public class JsonTest {
             TagList tags = new TagList();
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
-            Identity identity;
-            identity = new Identity("/profile.properties");
-            identity.sign(delegationTag);
+            //Identity identity;
+            //identity = new Identity("/profile.properties");
+            Identity.getInstance().sign(delegationTag);
             tags.add(delegationTag);
 
             IEvent event = new TextNoteEvent(publicKey, tags, "Free Willy!");
@@ -374,9 +374,9 @@ public class JsonTest {
             TagList tags = new TagList();
             tags.add(PubKeyTag.builder().publicKey(publicKey).petName("willy").build());
             final DelegationTag delegationTag = new DelegationTag(publicKey, "whatever");
-            Identity identity;
-            identity = new Identity("/profile.properties");
-            identity.sign(delegationTag);
+            //Identity identity;
+            //identity = new Identity("/profile.properties");
+            Identity.getInstance().sign(delegationTag);
             tags.add(delegationTag);
 
             IEvent event = new TextNoteEvent(publicKey, tags, "Free Willy!");

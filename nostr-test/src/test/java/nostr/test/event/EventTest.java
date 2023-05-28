@@ -52,17 +52,17 @@ import nostr.util.UnsupportedNIPException;
  */
 public class EventTest {
 
-    private final Identity identity;
-
+    //private final Identity identity;
     public EventTest() throws IOException, NostrException {
-        this.identity = new Identity("/profile.properties");
+        //this.identity = new Identity("/profile.properties");
     }
 
     @Test
     public void testCreateTextNoteEvent() {
         try {
             System.out.println("testCreateTextNoteEvent");
-            PublicKey publicKey = this.identity.getPublicKey();
+            //PublicKey publicKey = this.identity.getPublicKey();
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
             GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
             Assertions.assertNotNull(instance.getId());
             Assertions.assertNotNull(instance.getCreatedAt());
@@ -70,7 +70,7 @@ public class EventTest {
             final String bech32 = instance.toBech32();
             Assertions.assertNotNull(bech32);
             Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
-        } catch (NostrException ex) {
+        } catch (NostrException | IOException ex) {
             Assertions.fail(ex);
         }
     }
@@ -79,7 +79,8 @@ public class EventTest {
     public void testCreateGenericTag() {
         try {
             System.out.println("testCreateGenericTag");
-            PublicKey publicKey = this.identity.getPublicKey();
+            //PublicKey publicKey = this.identity.getPublicKey();
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -109,7 +110,7 @@ public class EventTest {
 
             Assertions.assertEquals("devil", code.getValue());
 
-        } catch (NostrException ex) {
+        } catch (NostrException | IOException ex) {
             Assertions.fail(ex);
         }
     }
@@ -118,7 +119,8 @@ public class EventTest {
     public void testCreateUnsupportedGenericTagAttribute() {
         try {
             System.out.println("testCreateUnsupportedGenericTagAttribute");
-            PublicKey publicKey = this.identity.getPublicKey();
+            //PublicKey publicKey = this.identity.getPublicKey();
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
             GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
             Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
@@ -145,15 +147,16 @@ public class EventTest {
             Assertions.assertEquals("devil", code.getValue());
             Assertions.assertEquals(1, ((ArrayValue) tag).length());
 
-        } catch (NostrException ex) {
+        } catch (NostrException | IOException ex) {
             Assertions.fail(ex);
         }
     }
 
     @Test
-    public void testCreateUnsupportedGenericTag() {
+    public void testCreateUnsupportedGenericTag() throws IOException, NostrException {
         System.out.println("testCreateUnsupportedGenericTag");
-        PublicKey publicKey = this.identity.getPublicKey();
+        //PublicKey publicKey = this.identity.getPublicKey();
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
         IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
 
@@ -173,11 +176,12 @@ public class EventTest {
     }
 
     @Test
-    public void testUnmarshallEvent() throws NostrException {
+    public void testUnmarshallEvent() throws NostrException, IOException {
         System.out.println("testUnmarshallEvent");
 
         // Tag
-        PublicKey publicKey = this.identity.getPublicKey();
+        //PublicKey publicKey = this.identity.getPublicKey();
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
         var tag = PubKeyTag.builder().publicKey(publicKey).petName("john").build();
         var unTag = new TagUnmarshaller(new TagMarshaller(tag, null).marshall()).unmarshall();
         Assertions.assertEquals(tag.getCode(), unTag.getCode());
@@ -192,6 +196,7 @@ public class EventTest {
 
         // Event
         var event = EntityFactory.Events.createOtsEvent(publicKey);
+        Identity.getInstance().sign(event);
         var unmarshalledEvent = new EventUnmarshaller(new ElementMarshaller(event, null).marshall()).unmarshall();
         Assertions.assertEquals(event.getKind(), ((GenericEvent) unmarshalledEvent).getKind());
 
