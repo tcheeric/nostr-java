@@ -1,6 +1,9 @@
 package nostr.event.unmarshaller.impl;
 
+import java.util.logging.Level;
+import lombok.extern.java.Log;
 import nostr.base.PublicKey;
+import nostr.base.Signature;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.event.unmarshaller.BaseElementUnmarshaller;
@@ -11,6 +14,7 @@ import nostr.util.NostrUtil;
  *
  * @author squirrel
  */
+@Log
 public class EventUnmarshaller extends BaseElementUnmarshaller<GenericEvent> {
 
     public EventUnmarshaller(String event) {
@@ -40,7 +44,22 @@ public class EventUnmarshaller extends BaseElementUnmarshaller<GenericEvent> {
         // Content 
         var content = value.get("content").get().getValue().toString();
 
-        return new GenericEvent(pubKey, kind, tags, content);
+        // Created At
+        var createdAt = value.get("created_at").get().getValue();
+
+        // Event Id
+        var id = value.get("id").get().getValue().toString();
+
+        // Signature
+        var sig = value.get("sig").get().getValue().toString();
+
+        var event = new GenericEvent(pubKey, kind, tags, content);
+
+        event.setCreatedAt(Math.round((Double) createdAt));
+        event.setId(id);
+        event.setSignature(new Signature(NostrUtil.hexToBytes(sig), pubKey));
+
+        return event;
     }
 
 }
