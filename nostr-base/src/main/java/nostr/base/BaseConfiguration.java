@@ -24,7 +24,7 @@ public class BaseConfiguration {
 
     protected final Properties properties = new Properties();
 
-    private static final String PREFIX_FILE = "file";
+    private static final String PREFIX_FILE = "file.";
     private static final String CONFIG_DIR = "config.folder";
 
     protected BaseConfiguration(@NonNull String file) throws IOException {
@@ -34,6 +34,7 @@ public class BaseConfiguration {
     protected String getFileLocation(String key) throws FileNotFoundException {
 
         final String filename = properties.getProperty(key);
+        var location = filename;
 
         String prefix = getPrefix(key);
         if (PREFIX_FILE.equals(prefix)) {
@@ -41,10 +42,11 @@ public class BaseConfiguration {
 
             if (configFolder != null) {
                 configFolder = configFolder.endsWith("/") ? configFolder : configFolder + "/";
-                return (configFolder + filename).replace("//", "/");
-            } else {
-                return filename;
+                location = (configFolder + filename).replace("//", "/");
             }
+
+            log.log(Level.INFO, "file location ({0}): {1}", new Object[]{key, location});
+            return location;
         }
 
         throw new FileNotFoundException(filename);
@@ -72,7 +74,7 @@ public class BaseConfiguration {
     private String getPrefix(String key) {
         int index = key.indexOf('.');
         if (index > 0) {
-            return key.substring(0, index);
+            return key.substring(0, index + 1);
         }
         return null;
     }
