@@ -34,18 +34,12 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
                 .findFirst()
                 .get();
-                
-        
-        log.log(Level.INFO, ">>> {0}", commandHandler);
-//                .stream()
-//                .map(ServiceLoader.Provider::get)
-//                .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
-//                .findFirst()
-//                .get();
     }
 
     @Override
     public void process(String message, Relay relay) throws NostrException {
+
+        log.log(Level.INFO, "Process Message: {0} from relay: {1}", new Object[]{message, relay});
         ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
         final String command = (jsonArr).get(0).get().getValue().toString();
 
