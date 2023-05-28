@@ -74,6 +74,8 @@ public class Connection {
 
             URLConnection openConnection = url.openConnection();
 
+            log.log(Level.INFO, "Openning a secure connection to {0}", uri);
+
             openConnection.connect();
             return new URI("wss://" + uri);
         } catch (MalformedURLException e) {
@@ -89,7 +91,11 @@ public class Connection {
             URL url = new URL("http://" + uri);
 
             URLConnection openConnection = url.openConnection();
+
+            log.log(Level.INFO, "Openning an un-secure connection to {0}", uri);
+
             openConnection.connect();
+
             return new URI("ws://" + uri);
         } catch (MalformedURLException e) {
             log.log(Level.WARNING, null, e);
@@ -162,6 +168,8 @@ public class Connection {
         CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
 
         this.session = clientSessionPromise.get();
+
+        log.log(Level.INFO, "The session is now open to {0}", relay.getUri());
     }
 
     public String getRelayInformation() throws InterruptedException, TimeoutException, ExecutionException, IOException, Exception {
