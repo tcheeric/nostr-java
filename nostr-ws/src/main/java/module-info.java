@@ -24,9 +24,7 @@ module nostr.ws {
     requires com.fasterxml.jackson.core;
     requires nostr.ws.handler;
     requires nostr.crypto;
-    requires nostr.json;
     requires nostr.util;
-    requires nostr.types;
     requires nostr.ws.response.handler.provider;
     requires java.logging;
     

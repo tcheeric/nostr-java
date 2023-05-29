@@ -8,8 +8,6 @@ module nostr.ws.response.handler.provider {
     requires nostr.util;
     requires nostr.base;
     requires nostr.crypto;
-    requires nostr.json;
-    requires nostr.types;
 
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;

@@ -3,14 +3,16 @@
  */
 package nostr.ws.response.handler.provider;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
-import nostr.json.unmarshaller.impl.JsonArrayUnmarshaller;
-import nostr.types.values.impl.ArrayValue;
 import nostr.util.NostrException;
 import nostr.ws.handler.command.spi.ICommandHandler;
 import nostr.ws.handler.command.spi.ICommandHandler.Reason;
@@ -40,18 +42,26 @@ public class ResponseHandlerImpl implements IResponseHandler {
     public void process(String message, Relay relay) throws NostrException {
 
         log.log(Level.INFO, "Process Message: {0} from relay: {1}", new Object[]{message, relay});
-        ArrayValue jsonArr = new JsonArrayUnmarshaller(message).unmarshall();
-        final String command = (jsonArr).get(0).get().getValue().toString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> items;
+        try {
+            items = Arrays.asList(objectMapper.readValue(message, String[].class));
+        } catch (JsonProcessingException ex) {
+            throw new NostrException(ex);
+        }
+
+        final String command = items.get(0);
 
         switch (command) {
             case "EOSE" -> {
-                var subId = (jsonArr).get(1).get().getValue().toString();
+                var subId = items.get(1);
                 commandHandler.onEose(subId, relay);
             }
             case "OK" -> {
-                String eventId = (jsonArr).get(1).get().getValue().toString();
-                boolean result = Boolean.parseBoolean((jsonArr).get(2).toString());
-                String msg = (jsonArr).get(3).get().getValue().toString();
+                String eventId = items.get(1);
+                boolean result = Boolean.parseBoolean(items.get(2));
+                String msg = items.get(3);
                 final var msgSplit = msg.split(":", 2);
                 Reason reason;
                 String reasonMessage = msg;
@@ -65,17 +75,17 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 commandHandler.onOk(eventId, reasonMessage, reason, result, relay);
             }
             case "NOTICE" -> {
-                var param = jsonArr.get(1).get().getValue().toString();
+                var param = items.get(1);
                 commandHandler.onNotice(param);
             }
             case "EVENT" -> {
-                var subId = jsonArr.get(1).get().getValue().toString();
-                var jsonEvent = jsonArr.get(2).get().toString();
+                var subId = items.get(1);
+                var jsonEvent = items.get(2);
 
                 commandHandler.onEvent(jsonEvent, subId, relay);
             }
             case "AUTH" -> {
-                var challenge = jsonArr.get(1).get().getValue().toString();
+                var challenge = items.get(1);
 
                 commandHandler.onAuth(challenge, relay);
             }
