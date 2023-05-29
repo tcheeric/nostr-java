@@ -5,7 +5,6 @@ module nostr.id {
     requires nostr.crypto;
     requires nostr.event;
     requires nostr.util;
-    requires nostr.types;
     requires nostr.ws;
     requires nostr.ws.handler;
     requires nostr.ws.request.handler.provider;

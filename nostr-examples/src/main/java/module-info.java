@@ -2,7 +2,6 @@
 module nostr.examples {
     requires nostr.event;
     requires static lombok;
-    requires nostr.types;
     requires nostr.ws;
     requires org.eclipse.jetty.websocket.jetty.client;
     requires org.eclipse.jetty.websocket.jetty.api;
@@ -26,7 +25,6 @@ module nostr.examples {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires nostr.crypto;
-    requires nostr.json;
     requires nostr.id;
     requires org.bouncycastle.provider;
     requires java.logging;

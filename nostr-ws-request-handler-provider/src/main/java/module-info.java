@@ -29,9 +29,7 @@ module nostr.ws.request.handler.provider {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires nostr.crypto;
-    requires nostr.json;
     requires nostr.util;
-    requires nostr.types;
     requires nostr.ws.handler;
     
     exports nostr.ws.request.handler.provider;

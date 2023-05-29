@@ -11,9 +11,7 @@ module nostr.ws.handler.command.provider {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires nostr.crypto;
-    requires nostr.json;
     requires static lombok;
-    requires nostr.types;
     requires java.logging;
     
     exports nostr.ws.handler.command.provider;

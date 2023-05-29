@@ -14,11 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-ws-handler-interface</artifactId>
             <version>${project.version}</version>
         </dependency>
