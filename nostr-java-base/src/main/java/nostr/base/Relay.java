@@ -79,7 +79,7 @@ public class Relay {
         private String contact;
 
         @Builder.Default
-        @JsonProperty("supported_nipd")
+        @JsonProperty("supported_nips")
         @JsonIgnoreProperties(ignoreUnknown = true)
         private List<Integer> supportedNips = new ArrayList<>();
 
