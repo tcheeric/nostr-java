@@ -7,7 +7,8 @@ package nostr.event;
  */
 public enum Marker {
     ROOT("root"),
-    REPLY("reply");
+    REPLY("reply"),
+    MENTION("mention");
     
     private final String value;
 
