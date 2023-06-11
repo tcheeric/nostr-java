@@ -2,12 +2,13 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import lombok.NonNull;
 import nostr.base.ChannelProfile;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.list.TagList;
 
 /**
  * @author guilhermegps
@@ -16,11 +17,11 @@ import nostr.event.list.TagList;
 @Event(name = "Channel Metadata", nip = 28)
 public class ChannelMetadataEvent extends GenericEvent {
 
-    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull TagList tags, String content) {
+    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, String content) {
         super(pubKey, Kind.CHANNEL_METADATA, tags, content);
     }
 
-    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull TagList tags, ChannelProfile profile) {
+    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, ChannelProfile profile) {
         super(pubKey, Kind.CHANNEL_METADATA, tags);
         this.setContent(profile);
     }

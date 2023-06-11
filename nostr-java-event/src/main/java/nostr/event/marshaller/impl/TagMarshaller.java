@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import nostr.base.IMarshaller;
-import nostr.base.ITag;
 import nostr.base.Relay;
-import nostr.event.serializer.CustomTagSerializer;
+import nostr.event.BaseTag;
+import nostr.event.codec.CustomTagEncoder;
 import nostr.util.NostrException;
 
 /**
@@ -23,7 +23,7 @@ import nostr.util.NostrException;
 @Builder
 public class TagMarshaller implements IMarshaller {
 
-    private final ITag tag;
+    private final BaseTag tag;
     private final Relay relay;
 
     @Override
@@ -31,16 +31,15 @@ public class TagMarshaller implements IMarshaller {
         return toJson();
     }
 
-    @Override
-    public String toJson() throws NostrException {
+    private String toJson() throws NostrException {
         try {
             SimpleModule module = new SimpleModule();
-            module.addSerializer(new CustomTagSerializer());
-            var mappe = (new ObjectMapper())
+            module.addSerializer(new CustomTagEncoder());
+            var mapper = (new ObjectMapper())
                     .setSerializationInclusion(Include.NON_NULL)
                     .registerModule(module);
 
-            return mappe.writeValueAsString(tag);
+            return mapper.writeValueAsString(tag);
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }

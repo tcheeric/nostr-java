@@ -1,4 +1,4 @@
-package nostr.event.serializer;
+package nostr.event.codec;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -18,11 +18,11 @@ import nostr.base.IMarshaller;
  *
  */
 @Log
-public class CustomGenericTagSerializer extends StdSerializer<GenericTagQuery> {
+public class CustomGenericTagEncoder extends StdSerializer<GenericTagQuery> {
 
     private static final long serialVersionUID = 6803478463890319884L;
 
-    public CustomGenericTagSerializer() {
+    public CustomGenericTagEncoder() {
         super(GenericTagQuery.class);
     }
 

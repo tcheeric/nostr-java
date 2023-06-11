@@ -10,12 +10,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.Key;
 import nostr.event.BaseEvent;
+import nostr.event.codec.CustomGenericTagListEncoder;
+import nostr.event.codec.CustomIdEventListEncoder;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
-import nostr.event.serializer.CustomGenericTagListSerializer;
-import nostr.event.serializer.CustomIdEventListSerializer;
 
 /**
  *
@@ -28,7 +28,7 @@ public class Filters extends BaseEvent {
 
     @Key
     @JsonProperty("ids")
-    @JsonSerialize(using=CustomIdEventListSerializer.class)
+    @JsonSerialize(using=CustomIdEventListEncoder.class)
     private EventList events;
 
     @Key
@@ -40,7 +40,7 @@ public class Filters extends BaseEvent {
 
     @Key
     @JsonProperty("#e")
-    @JsonSerialize(using=CustomIdEventListSerializer.class)
+    @JsonSerialize(using=CustomIdEventListEncoder.class)
     private EventList referencedEvents;
 
     @Key
@@ -57,7 +57,7 @@ public class Filters extends BaseEvent {
     private Integer limit;
 
     @Key(nip = 12)
-    @JsonSerialize(using=CustomGenericTagListSerializer.class)
+    @JsonSerialize(using=CustomGenericTagListEncoder.class)
     private GenericTagQueryList genericTagQueryList;
 
     @Override

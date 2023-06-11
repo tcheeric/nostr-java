@@ -2,9 +2,9 @@ package nostr.event.impl;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.logging.Level;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,10 +24,10 @@ import nostr.util.NostrException;
 @Log
 public class GenericTag extends BaseTag implements IGenericElement {
 
-	private final String code;
-	@JsonIgnore
+    private final String code;
+    @JsonIgnore
     private final Integer nip;
-	@JsonIgnore
+    @JsonIgnore
     private final Set<ElementAttribute> attributes;
 
     public GenericTag(String code) {

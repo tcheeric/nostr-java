@@ -1,10 +1,7 @@
 package nostr.test;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,6 +12,7 @@ import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
@@ -32,7 +30,6 @@ import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
-import nostr.event.list.TagList;
 import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
 
@@ -49,7 +46,7 @@ public class EntityFactory {
 
         @SuppressWarnings("unchecked")
         public static EphemeralEvent createEphemeralEvent(PublicKey publicKey) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("eric").build());
             GenericEvent event = new EphemeralEvent(publicKey, tagList);
             event.update();
@@ -57,7 +54,7 @@ public class EntityFactory {
         }
 
         public static DirectMessageEvent createDirectMessageEvent(PublicKey senderPublicKey, PublicKey rcptPublicKey, String content) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(rcptPublicKey).petName("uq7yfx3l").build());
             GenericEvent event = new DirectMessageEvent(senderPublicKey, tagList, content);
             event.update();
@@ -71,7 +68,7 @@ public class EntityFactory {
         @SuppressWarnings("unchecked")
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) throws NostrException {
             final PublicKey publicKey = profile.getPublicKey();
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("daniel").build());
             GenericEvent event = new InternetIdentifierMetadataEvent(publicKey, tagList, profile);
             event.update();
@@ -80,14 +77,14 @@ public class EntityFactory {
 
         @SuppressWarnings("unchecked")
         public static MentionsEvent createMentionsEvent(PublicKey publicKey) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("charlie").build());
             String content = generateRamdomAlpha(32);
             StringBuilder sbContent = new StringBuilder(content);
 
-            int len = tagList.getList().size();
+            int len = tagList.size();
             for (int i = 0; i < len; i++) {
-                sbContent.append(", ").append(((PubKeyTag) tagList.getList().get(i)).getPublicKey().toString());
+                sbContent.append(", ").append(((PubKeyTag) tagList.get(i)).getPublicKey().toString());
 
             }
             GenericEvent event = new MentionsEvent(publicKey, tagList, sbContent.toString());
@@ -104,7 +101,7 @@ public class EntityFactory {
 
         @SuppressWarnings("unchecked")
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("charlie").build());
             GenericEvent event = new ReactionEvent(publicKey, tagList, Reaction.LIKE, original);
             return (ReactionEvent) event;
@@ -112,7 +109,7 @@ public class EntityFactory {
 
         public static ReplaceableEvent createReplaceableEvent(PublicKey publicKey) {
             String content = generateRamdomAlpha(32);
-            GenericEvent event = new ReplaceableEvent(publicKey, 15000, new TagList(), content);
+            GenericEvent event = new ReplaceableEvent(publicKey, 15000, new ArrayList<>(), content);
             return (ReplaceableEvent) event;
         }
 
@@ -121,16 +118,15 @@ public class EntityFactory {
             return createTextNoteEvent(publicKey, content);
         }
 
-        @SuppressWarnings("unchecked")
         public static TextNoteEvent createTextNoteEvent(PublicKey publicKey, String content) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("alice").build());
             GenericEvent event = new TextNoteEvent(publicKey, tagList, content);
             return (TextNoteEvent) event;
         }
 
         public static OtsEvent createOtsEvent(PublicKey publicKey) {
-            TagList tagList = new TagList();
+            List<BaseTag> tagList = new ArrayList<>();
             final PubKeyTag pkTag = PubKeyTag.builder().publicKey(publicKey).petName("bob").build();
             tagList.add(pkTag);
             OtsEvent event = new OtsEvent(publicKey, tagList, generateRamdomAlpha(32), generateRamdomAlpha(32));

@@ -4,17 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.ITag;
 import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
-import nostr.event.list.TagList;
+import nostr.event.BaseTag;
 import nostr.event.util.Nip05Validator;
 import nostr.util.NostrException;
 
@@ -28,13 +27,13 @@ import nostr.util.NostrException;
 @Event(name = "Internet Identifier Metadata Event", nip = 5)
 public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
-    public InternetIdentifierMetadataEvent(PublicKey pubKey, TagList tags, @NonNull UserProfile profile) throws NostrException {
+    public InternetIdentifierMetadataEvent(PublicKey pubKey, List<? extends BaseTag> tags, @NonNull UserProfile profile) throws NostrException {
         super(pubKey, Kind.SET_METADATA, tags);
         this.init(profile);
     }
 
     public InternetIdentifierMetadataEvent(PublicKey pubKey, @NonNull UserProfile profile) throws NostrException {
-        this(pubKey, new TagList(), profile);
+        this(pubKey, new ArrayList<BaseTag>(), profile);
     }
 
     private void init(UserProfile profile) throws NostrException {

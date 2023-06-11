@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.List;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.Reaction;
@@ -7,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.event.list.TagList;
+import nostr.event.BaseTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 
@@ -21,7 +22,7 @@ import nostr.event.tag.PubKeyTag;
 @Event(name = "Reactions", nip = 25)
 public class ReactionEvent extends GenericEvent {
 
-    public ReactionEvent(PublicKey pubKey, TagList tags, Reaction content, GenericEvent sourceEvent) {
+    public ReactionEvent(PublicKey pubKey, List<? extends BaseTag> tags, Reaction content, GenericEvent sourceEvent) {
         super(pubKey, Kind.REACTION, tags, content.getEmoji());
     }
 

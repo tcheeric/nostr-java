@@ -1,20 +1,18 @@
 package nostr.event.impl;
 
-import java.beans.IntrospectionException;
 import java.beans.Transient;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import java.util.ArrayList;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,8 +30,8 @@ import nostr.base.annotation.Key;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.list.TagList;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
@@ -67,7 +65,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Key
     @EqualsAndHashCode.Exclude
-    private TagList tags;
+    @JsonProperty("tags")
+    private List<? extends BaseTag> tags;
 
     @Key
     @EqualsAndHashCode.Exclude
@@ -96,18 +95,18 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
-        this(pubKey, kind, new TagList(), null);
+        this(pubKey, kind, new ArrayList<>(), null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags) {
         this(pubKey, kind, tags, null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull TagList tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags, String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull TagList tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<? extends BaseTag> tags, String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
@@ -131,25 +130,20 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
-    public void setTags(TagList tags) {
+    public void setTags(List<? extends BaseTag> tags) {
 
         this.tags = tags;
 
-        for (Object o : tags.getList()) {
+        for (Object o : tags) {
             ((ITag) o).setParent(this);
         }
     }
 
-    public void addTag(ITag tag) {
-        if (this.tags == null) {
-            this.tags = new TagList();
-        }
+    public void addTag(BaseTag tag) {
 
-        List list = tags.getList();
-
-        if (!list.contains(tag)) {
+        if (!tags.contains(tag)) {
             tag.setParent(this);
-            list.add(tag);
+            ((List<BaseTag>) tags).add(tag);
         }
     }
 
@@ -211,9 +205,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
-    protected final void updateTagsParents(TagList tagList) {
-        if (tagList != null && !tagList.getList().isEmpty()) {
-            for (Object t : tagList.getList()) {
+    protected final void updateTagsParents(List<? extends BaseTag> tagList) {
+        if (tagList != null && !tagList.isEmpty()) {
+            for (Object t : tagList) {
                 ITag tag = (ITag) t;
                 tag.setParent(this);
             }

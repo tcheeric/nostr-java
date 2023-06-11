@@ -1,18 +1,18 @@
 package nostr.event.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.list.TagList;
 
 /**
  *
@@ -21,7 +21,7 @@ import nostr.event.list.TagList;
 @Event(name = "Authentication of clients to relays", nip = 42)
 public class ClientAuthenticationEvent extends GenericEvent {
 
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull TagList tags) {
+    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags) {
         super(pubKey, Kind.CLIENT_AUTH, tags);
     }
 
@@ -32,10 +32,10 @@ public class ClientAuthenticationEvent extends GenericEvent {
         var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
         chAttributes.add(attribute);
 
-        this.setTags(new TagList());
+        this.setTags(new ArrayList<>());
         ITag chTag = new GenericTag(42, "challenge", chAttributes);
 
-        this.addTag(chTag);
+        this.addTag((GenericTag) chTag);
 
         relays.stream().forEach(r -> {
             try {
@@ -43,7 +43,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
                 final ElementAttribute relayAttribute = getRelayAttribute(r);
                 relayAttributes.add(relayAttribute);
                 final ITag relayTag = new GenericTag(42, "relay", relayAttributes);
-                this.addTag(relayTag);
+                this.addTag((BaseTag) relayTag);
             } catch (InterruptedException | ExecutionException ex) {
                 throw new RuntimeException(ex);
             }
@@ -60,16 +60,16 @@ public class ClientAuthenticationEvent extends GenericEvent {
             var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
             chAttributes.add(attribute);
 
-            this.setTags(new TagList());
+            this.setTags(new ArrayList<>());
             ITag chTag = new GenericTag(42, "challenge", chAttributes);
 
-            this.addTag(chTag);
+            this.addTag((BaseTag) chTag);
 
             final Set<ElementAttribute> relayAttributes = new HashSet<>();
             final ElementAttribute relayAttribute = getRelayAttribute(relay);
             relayAttributes.add(relayAttribute);
             final ITag relayTag = new GenericTag(42, "relay", relayAttributes);
-            this.addTag(relayTag);
+            this.addTag((BaseTag) relayTag);
 
             this.setNip(42);
         } catch (ExecutionException | InterruptedException ex) {

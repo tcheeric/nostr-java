@@ -2,13 +2,13 @@ package nostr.event.marshaller.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.IElement;
 import nostr.base.IMarshaller;
+import static nostr.base.IMarshaller.MAPPER;
 import nostr.base.NipUtil;
 import nostr.base.Relay;
 import nostr.util.NostrException;
@@ -32,12 +32,7 @@ public class ElementMarshaller implements IMarshaller {
             throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
         }
 
-        try {
-            return toJson();
-        } catch (NostrException e) {
-            log.log(Level.SEVERE, null, e);
-            throw new RuntimeException(e);
-        }
+        return toJson();
     }
 
     private boolean nipEventSupport() {
@@ -48,8 +43,7 @@ public class ElementMarshaller implements IMarshaller {
         return (relay != null) ? NipUtil.checkSupport(relay, field) : true;
     }
 
-    @Override
-    public String toJson() throws NostrException {
+    private String toJson() throws NostrException {
         try {
             return MAPPER.writeValueAsString(element);
         } catch (JsonProcessingException e) {

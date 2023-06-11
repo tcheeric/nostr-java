@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,8 +15,8 @@ import nostr.base.IMarshaller;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.list.TagList;
 import nostr.util.NostrException;
 
 /**
@@ -34,7 +35,7 @@ public final class MetadataEvent extends GenericEvent {
     private UserProfile profile;
 
     public MetadataEvent(PublicKey pubKey, UserProfile profile) throws NostrException {
-        super(pubKey, Kind.SET_METADATA, new TagList());
+        super(pubKey, Kind.SET_METADATA, new ArrayList<BaseTag>());
         this.profile = profile;
     }
 

@@ -1,4 +1,4 @@
-package nostr.event.serializer;
+package nostr.event.codec;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -23,7 +23,7 @@ import nostr.event.list.BaseList;
  *
  */
 @Log
-public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
+public class CustomBaseListEncoder extends JsonSerializer<BaseList> {
 
     @Override
     public void serialize(BaseList value, JsonGenerator gen, SerializerProvider serializers) {

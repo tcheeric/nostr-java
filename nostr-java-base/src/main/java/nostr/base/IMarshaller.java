@@ -15,5 +15,5 @@ public interface IMarshaller {
     
     public abstract String marshall() throws NostrException;
     
-    public String toJson() throws NostrException;
+//    public String toJson() throws NostrException;
 }

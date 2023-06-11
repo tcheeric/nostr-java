@@ -1,28 +1,30 @@
 package nostr.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import nostr.util.NostrUtil;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
+import nostr.base.util.SignatureDeserializer;
 
 /**
  *
  * @author squirrel
  */
 @Data
-@Builder
-@AllArgsConstructor
+@NoArgsConstructor
+@JsonDeserialize(using = SignatureDeserializer.class)
 public class Signature {
     
-    @NonNull
-    private final byte[] rawData;
-    
-    @NonNull
-    private final PublicKey pubKey;
+    @JsonProperty("rawData")
+    private byte[] rawData;
+
+    @JsonIgnore
+    private PublicKey pubKey;
 
     @JsonValue
     @Override

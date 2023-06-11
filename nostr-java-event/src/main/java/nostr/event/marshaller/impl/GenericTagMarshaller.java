@@ -1,9 +1,6 @@
 package nostr.event.marshaller.impl;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +8,6 @@ import lombok.Data;
 import nostr.base.GenericTagQuery;
 import nostr.base.IMarshaller;
 import nostr.base.Relay;
-import nostr.event.serializer.CustomGenericTagSerializer;
 import nostr.util.NostrException;
 
 /**
@@ -31,16 +27,15 @@ public class GenericTagMarshaller implements IMarshaller {
         return toJson();
     }
 
-    @Override
-    public String toJson() throws NostrException {
+    private String toJson() throws NostrException {
         try {
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(new CustomGenericTagSerializer());
-            var mappe = (new ObjectMapper())
-                    .setSerializationInclusion(Include.NON_NULL)
-                    .registerModule(module);
+//            SimpleModule module = new SimpleModule();
+//            module.addSerializer(new CustomGenericTagSerializer());
+//            var mapper = (new ObjectMapper())
+//                    .setSerializationInclusion(Include.NON_NULL)
+//            MAPPER.registerModule(module);
 
-            return mappe.writeValueAsString(tag);
+            return MAPPER.writeValueAsString(tag);
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }

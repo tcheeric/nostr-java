@@ -87,10 +87,10 @@ public abstract class AbstractBaseConfiguration {
         //var configFolder = System.getProperty(CONFIG_DIR);
         var configFolder = this.appConfig.getDefaultConfigFolder();
         log.log(Level.INFO, "loading configuration file: {0}", filename);
-        log.log(Level.FINE, "Configuration location: {0}", configFolder);
+        log.log(Level.INFO, "Configuration folder location: {0}", configFolder);
         if (configFolder != null) {
             final var baseConfigFolder = appConfig.getDefaultBaseConfigFolder();
-            final var configLocationFolder = new File(baseConfigFolder, configFolder);//(baseConfigFolder + configFolder).replace("//", "/");
+            final var configLocationFolder = new File(baseConfigFolder, configFolder);
             loadFromConfigDir(filename, configLocationFolder);
             return;
         }
@@ -128,11 +128,13 @@ public abstract class AbstractBaseConfiguration {
         final String fname = filename.substring(1);
         var tmpFile = filename.startsWith("/") ? fname : filename;
         final File file = new File(configFolder, tmpFile);
-        log.log(Level.FINER, "Configuration file {0}", file.getName());
+        log.log(Level.INFO, "Configuration file {0}", file.getAbsoluteFile());
         if (file.exists()) {
             var inputStream = new FileInputStream(file);
-            log.log(Level.FINER, "Loading configuration file from {0}", file.getParent());
+            log.log(Level.INFO, "Loading configuration file from {0}", file.getParent());
             properties.load(inputStream);
+        } else {
+            log.log(Level.WARNING, "The file {0} does not exist", file.getAbsoluteFile());
         }
     }
 

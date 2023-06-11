@@ -34,8 +34,7 @@ public class FilterMarshaller implements IMarshaller {
         return toJson();
     }
 
-    @Override
-    public String toJson() throws NostrException {
+    private String toJson() throws NostrException {
         try {
             JsonNode node = MAPPER.valueToTree(filters);
             ObjectNode objNode = (ObjectNode) node;

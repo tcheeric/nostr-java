@@ -37,11 +37,6 @@ public class ApplicationConfiguration {
         return id == null ? DEFAULT_ID_CONFIG : id;
     }
 
-//    public String getClientProperties() {
-//        var client = getProperty("client");
-//        return client == null ? DEFAULT_CLIENT_CONFIG : client;
-//    }
-
     public String getRelaysProperties() {
         var client = getProperty("relays");
         return client == null ? DEFAULT_RELAYS_CONFIG : client;

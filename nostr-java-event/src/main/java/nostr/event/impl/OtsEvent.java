@@ -1,11 +1,12 @@
 
 package nostr.event.impl;
 
+import java.util.List;
 import java.util.Map;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.list.TagList;
+import nostr.event.BaseTag;
 
 /**
  *
@@ -14,7 +15,7 @@ import nostr.event.list.TagList;
 @Event(name = "OpenTimestamps Attestations for Events", nip = 1)
 public class OtsEvent extends TextNoteEvent {
     
-    public OtsEvent(PublicKey pubKey, TagList tags, String content, String ots) {
+    public OtsEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content, String ots) {
         super(pubKey, tags, content);
         var attribute = ElementAttribute.builder().nip(3).value(Map.of("ots", ots)).build();
         this.addAttribute(attribute);

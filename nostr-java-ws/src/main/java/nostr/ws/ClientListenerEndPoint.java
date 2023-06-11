@@ -67,9 +67,7 @@ public class ClientListenerEndPoint {
             session.close(StatusCode.NORMAL, "bye");
             return;
         }
-
-        log.log(Level.FINE, "onTextMessage Relay {0}: Message: {1}", new Object[]{session.getRemoteAddress(), message});
-
+        
         responseHandler.process(message, getRelay(session));
     }
 

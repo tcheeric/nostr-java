@@ -1,4 +1,4 @@
-package nostr.event.serializer;
+package nostr.event.codec;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -20,7 +20,7 @@ import nostr.event.list.GenericTagQueryList;
  *
  */
 @Log
-public class CustomGenericTagListSerializer extends JsonSerializer<GenericTagQueryList> {
+public class CustomGenericTagListEncoder extends JsonSerializer<GenericTagQueryList> {
 
     @Override
     public void serialize(GenericTagQueryList value, JsonGenerator gen, SerializerProvider serializers) {

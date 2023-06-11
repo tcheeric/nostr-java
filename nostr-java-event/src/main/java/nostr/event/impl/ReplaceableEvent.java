@@ -1,11 +1,12 @@
 package nostr.event.impl;
 
+import java.util.List;
 import nostr.base.PublicKey;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
-import nostr.event.list.TagList;
+import nostr.event.BaseTag;
 
 /**
  *
@@ -17,7 +18,7 @@ import nostr.event.list.TagList;
 @Event(name = "Replaceable Events", nip = 16)
 public class ReplaceableEvent extends GenericEvent {
 
-    public ReplaceableEvent(PublicKey sender, Integer kind, TagList tags, String content) {
+    public ReplaceableEvent(PublicKey sender, Integer kind, List<? extends BaseTag> tags, String content) {
         super(sender, kind, tags, content);
     }
 

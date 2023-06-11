@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +19,7 @@ import nostr.base.ContentReason;
 import nostr.base.ITag;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.Reaction;
@@ -38,7 +41,6 @@ import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.KindList;
-import nostr.event.list.TagList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
@@ -229,11 +231,11 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tagList,
+            GenericEvent event = new TextNoteEvent(publicKeySender, tags,
                     "Hello world, I'm here on nostr-java API!");
 
             SENDER.sign(event);
@@ -251,11 +253,11 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            var event2 = new DirectMessageEvent(publicKeySender, tagList, "Hello Nakamoto!");
+            var event2 = new DirectMessageEvent(publicKeySender, tags, "Hello Nakamoto!");
 
             SENDER.encryptDirectMessage(event2);
             SENDER.sign(event2);
@@ -275,11 +277,11 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new MentionsEvent(publicKeySender, tagList, "Hello " + RECEIVER.getPublicKey().toString());
+            GenericEvent event = new MentionsEvent(publicKeySender, tags, "Hello " + RECEIVER.getPublicKey().toString());
             SENDER.sign(event);
 
             GenericMessage message = new EventMessage(event);
@@ -297,20 +299,20 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add((PubKeyTag) rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please delete me!");
+            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please delete me!");
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
-            tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(event.getId()).build());
-            GenericEvent delEvent = new DeletionEvent(publicKeySender, tagList);
+            tags = new ArrayList<>();
+            tags.add(EventTag.builder().idEvent(event.getId()).build());
+            GenericEvent delEvent = new DeletionEvent(publicKeySender, tags);
 
             SENDER.sign(delEvent);
             message = new EventMessage(delEvent);
@@ -346,11 +348,11 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new EphemeralEvent(publicKeySender, tagList);
+            GenericEvent event = new EphemeralEvent(publicKeySender, tags);
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
@@ -366,21 +368,21 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please like me!");
+            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please like me!");
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
-            tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(event.getId()).build());
-            tagList.add(PubKeyTag.builder().publicKey(publicKeySender).build());
-            GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tagList, Reaction.LIKE, event);
+            tags = new ArrayList<>();
+            tags.add(EventTag.builder().idEvent(event.getId()).build());
+            tags.add(PubKeyTag.builder().publicKey(publicKeySender).build());
+            GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tags, Reaction.LIKE, event);
 
             SENDER.sign(reactionEvent);
             message = new EventMessage(reactionEvent);
@@ -397,27 +399,27 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tagList, "Hello Astral, Please replace me!");
+            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please replace me!");
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
-            tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(event.getId()).build());
-            GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tagList, "Content");
+            tags = new ArrayList<>();
+            tags.add(EventTag.builder().idEvent(event.getId()).build());
+            GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "Content");
 
             SENDER.sign(replaceableEvent);
             message = new EventMessage(replaceableEvent);
 
             CLIENT.send(message);
 
-            replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tagList, "New Content");
+            replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "New Content");
 
             SENDER.sign(replaceableEvent);
             message = new EventMessage(replaceableEvent);
@@ -433,11 +435,11 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            ITag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            TagList tagList = new TagList();
-            tagList.add(rcptTag);
+            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+            List<BaseTag> tags = new ArrayList<>();
+            tags.add(rcptTag);
 
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tagList, PROFILE);
+            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tags, PROFILE);
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
@@ -476,7 +478,7 @@ public class NostrExamples {
             var channel = Channel.builder().name("JNostr Channel")
                     .about("This is a channel to test NIP28 in nostr-java")
                     .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-            GenericEvent event = new ChannelCreateEvent(publicKeySender, new TagList(), channel.toString());
+            GenericEvent event = new ChannelCreateEvent(publicKeySender, new ArrayList<BaseTag>(), channel.toString());
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
@@ -484,7 +486,7 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             throw new NostrException(ex);
         }
     }
@@ -496,14 +498,14 @@ public class NostrExamples {
 
             var channelCreateEvent = createChannel();
 
-            var tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(channelCreateEvent.getId())
+            var tags = new ArrayList<BaseTag>();
+            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
                     .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri()).build());
 
             var channel = Channel.builder().name("test change name")
                     .about("This is a channel to test NIP28 in nostr-java | changed")
                     .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-            GenericEvent event = new ChannelMetadataEvent(publicKeySender, tagList, channel.toString());
+            GenericEvent event = new ChannelMetadataEvent(publicKeySender, tags, channel.toString());
 
             SENDER.sign(event);
             var message = new EventMessage(event);
@@ -521,13 +523,13 @@ public class NostrExamples {
 
             var channelCreateEvent = createChannel();
 
-            var tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(channelCreateEvent.getId())
+            var tags = new ArrayList<BaseTag>();
+            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
                     .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri())
                     .marker(Marker.ROOT)
                     .build());
 
-            GenericEvent event = new ChannelMessageEvent(publicKeySender, tagList, "Hello everybody!");
+            GenericEvent event = new ChannelMessageEvent(publicKeySender, tags, "Hello everybody!");
 
             SENDER.sign(event);
             var message = new EventMessage(event);
@@ -535,7 +537,7 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             throw new NostrException(ex);
         }
     }
@@ -547,10 +549,10 @@ public class NostrExamples {
 
             var channelMessageEvent = sendChannelMessage();
 
-            var tagList = new TagList();
-            tagList.add(EventTag.builder().idEvent(channelMessageEvent.getId()).build());
+            var tags = new ArrayList<BaseTag>();
+            tags.add(EventTag.builder().idEvent(channelMessageEvent.getId()).build());
 
-            GenericEvent event = new HideMessageEvent(publicKeySender, tagList,
+            GenericEvent event = new HideMessageEvent(publicKeySender, tags,
                     ContentReason.builder().reason("Dick pic").build().toString());
 
             SENDER.sign(event);
@@ -559,7 +561,7 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             throw new NostrException(ex);
         }
     }
@@ -569,10 +571,10 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            var tagList = new TagList();
-            tagList.add(PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build());
+            var tags = new ArrayList<BaseTag>();
+            tags.add(PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build());
 
-            GenericEvent event = new MuteUserEvent(publicKeySender, tagList,
+            GenericEvent event = new MuteUserEvent(publicKeySender, tags,
                     ContentReason.builder().reason("Posting dick pics").build().toString());
 
             SENDER.sign(event);
@@ -581,7 +583,7 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (Exception ex) {
+        } catch (NostrException ex) {
             throw new NostrException(ex);
         }
     }

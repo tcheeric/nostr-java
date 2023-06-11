@@ -30,9 +30,8 @@ public class OstEventMarshaller implements IMarshaller {
     public String marshall() throws NostrException {
         return toJson();
     }
-
-    @Override
-    public String toJson() throws NostrException {
+    
+    private String toJson() throws NostrException {
         try {
             JsonNode node = MAPPER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
