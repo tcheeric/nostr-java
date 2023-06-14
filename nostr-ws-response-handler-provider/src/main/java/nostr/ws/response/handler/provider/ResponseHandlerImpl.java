@@ -4,11 +4,14 @@
 package nostr.ws.response.handler.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
@@ -46,7 +49,8 @@ public class ResponseHandlerImpl implements IResponseHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> items;
         try {
-            items = Arrays.asList(objectMapper.readValue(message, String[].class));
+            var listObj = objectMapper.readValue(message, new TypeReference<List<Object>>() {});
+            items = listObj.stream().map(Object::toString).collect(Collectors.toList());
         } catch (JsonProcessingException ex) {
             throw new NostrException(ex);
         }
