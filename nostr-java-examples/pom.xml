@@ -38,5 +38,10 @@
             <artifactId>nostr-java-id</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-ws-handler-command-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
