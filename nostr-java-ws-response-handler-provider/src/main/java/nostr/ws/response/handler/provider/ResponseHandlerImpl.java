@@ -5,6 +5,7 @@ package nostr.ws.response.handler.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import lombok.Data;
@@ -25,15 +26,24 @@ import nostr.ws.handler.spi.IResponseHandler;
 @Log
 public class ResponseHandlerImpl implements IResponseHandler {
 
-    private final ICommandHandler commandHandler;
+    private ICommandHandler commandHandler;
 
     public ResponseHandlerImpl() {
 
-        this.commandHandler = ServiceLoader
-                .load(ICommandHandler.class).stream().map(p -> p.get())
-                .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
-                .findFirst()
-                .get();
+        try {
+            this.commandHandler = ServiceLoader
+                    .load(ICommandHandler.class).stream().map(p -> p.get())
+                    .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
+                    .findFirst()
+                    .get();
+        } catch (NoSuchElementException ex) {
+            log.log(Level.WARNING, "No custom command handler provided. Using default command handler");
+            this.commandHandler = ServiceLoader
+                    .load(ICommandHandler.class).stream().map(p -> p.get())
+                    .filter(ch -> ch.getClass().isAnnotationPresent(DefaultHandler.class))
+                    .findFirst()
+                    .get();
+        }
     }
 
     @Override
