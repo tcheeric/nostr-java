@@ -256,7 +256,7 @@ public class Identity {
         }
 
         PublicKey getPublicKey() throws NostrException, IOException {
-            String pubKey = getProperty("publickKey");
+            String pubKey = getProperty("publicKey");
             if (pubKey == null || "".equals(pubKey.trim())) {
                 log.log(Level.FINE, "Generating new public key");
                 try {
