@@ -37,12 +37,16 @@ public class ResponseHandlerImpl implements IResponseHandler {
                     .findFirst()
                     .get();
         } catch (NoSuchElementException ex) {
-            log.log(Level.WARNING, "No custom command handler provided. Using default command handler");
-            this.commandHandler = ServiceLoader
-                    .load(ICommandHandler.class).stream().map(p -> p.get())
-                    .filter(ch -> ch.getClass().isAnnotationPresent(DefaultHandler.class))
-                    .findFirst()
-                    .get();
+            log.log(Level.WARNING, "No custom command handler provided. Using default command handler...");
+            try {
+                this.commandHandler = ServiceLoader
+                        .load(ICommandHandler.class).stream().map(p -> p.get())
+                        .filter(ch -> ch.getClass().isAnnotationPresent(DefaultHandler.class))
+                        .findFirst()
+                        .get();
+            } catch (NoSuchElementException e) {
+                throw new AssertionError("Could not load the default handler", e);
+            }
         }
     }
 
