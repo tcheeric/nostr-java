@@ -73,6 +73,10 @@ public class Relay {
 
         @JsonProperty
         private String pubkey;
+        
+        @JsonProperty
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        private String id;
 
         @JsonProperty
         @JsonIgnoreProperties(ignoreUnknown = true)
