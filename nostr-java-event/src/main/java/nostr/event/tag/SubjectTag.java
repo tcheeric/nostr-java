@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;

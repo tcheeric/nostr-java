@@ -21,16 +21,16 @@ public class Channel {
     private String about;
 
     private String picture;
-    
+
     @Override
     public String toString() {
-    	ObjectMapper mapper = new ObjectMapper();
-    	
-    	try {
-			return mapper.writeValueAsString(this);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import nostr.util.NostrUtil;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nostr.base.util.SignatureDeserializer;
 
 /**
  *
@@ -17,7 +15,6 @@ import nostr.base.util.SignatureDeserializer;
  */
 @Data
 @NoArgsConstructor
-@JsonDeserialize(using = SignatureDeserializer.class)
 public class Signature {
     
     @JsonProperty("rawData")

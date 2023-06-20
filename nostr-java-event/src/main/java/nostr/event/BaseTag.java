@@ -23,8 +23,8 @@ import nostr.base.NipUtil;
 import nostr.base.Relay;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
-import nostr.event.codec.CustomTagEncoder;
-import nostr.event.codec.ITagDecoder;
+import nostr.event.json.deserializer.TagDeserializer;
+import nostr.event.json.serializer.TagSerializer;
 import nostr.util.NostrException;
 
 /**
@@ -36,8 +36,8 @@ import nostr.util.NostrException;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @Log
-@JsonDeserialize(using = ITagDecoder.class)
-@JsonSerialize(using = CustomTagEncoder.class)
+@JsonDeserialize(using = TagDeserializer.class)
+@JsonSerialize(using = TagSerializer.class)
 public abstract class BaseTag implements ITag {
 
     @JsonIgnore

@@ -1,4 +1,4 @@
-package nostr.event.codec;
+package nostr.event.json.serializer;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import lombok.extern.java.Log;
-import nostr.base.IMarshaller;
+import nostr.base.IEncoder;
 import nostr.event.list.BaseList;
 
 /**
@@ -23,7 +23,7 @@ import nostr.event.list.BaseList;
  *
  */
 @Log
-public class CustomBaseListEncoder extends JsonSerializer<BaseList> {
+public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
 
     @Override
     public void serialize(BaseList value, JsonGenerator gen, SerializerProvider serializers) {
@@ -39,7 +39,7 @@ public class CustomBaseListEncoder extends JsonSerializer<BaseList> {
     }
 
     protected JsonNode toJson(Object obj) {
-        var mapper = IMarshaller.MAPPER;
+        var mapper = IEncoder.MAPPER;
         try {
             JsonNode node = mapper.valueToTree(obj);
 

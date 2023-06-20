@@ -1,25 +1,23 @@
 package nostr.test.event;
 
-import java.beans.IntrospectionException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.ElementAttribute;
+import nostr.base.IEncoder;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+import nostr.event.BaseTag;
+import nostr.event.json.codec.ElementEncoder;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
-import nostr.event.marshaller.impl.ElementMarshaller;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
@@ -32,8 +30,7 @@ import nostr.util.UnsupportedNIPException;
  * @author squirrel
  */
 public class EventTest {
-
-    //private final Identity identity;
+    
     public EventTest() throws IOException, NostrException {
     }
 
@@ -52,42 +49,29 @@ public class EventTest {
     }
 
     @Test
-    public void testCreateGenericTag() {
-//        try {
-//            System.out.println("testCreateGenericTag");
-//            PublicKey publicKey = this.identity.getPublicKey();
-//            GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
-//
-//            Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
-//            relay.addNipSupport(1);
-//            relay.addNipSupport(genericTag.getNip());
-//            var attrs = genericTag.getAttributes();
-//            for (var a : attrs) {
-//                relay.addNipSupport(a.getNip());
-//            }
-//
-//            ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
-//            var strJsonEvent = marshaller.marshall();
-//
-//            var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
-//
-//            IValue tags = ((ObjectValue) jsonValue).get("tags").get();
-//
-//            Assertions.assertEquals(2, ((ArrayValue) tags).length());
-//
-//            IValue tag = ((ArrayValue) tags).get(1).get();
-//
-//            Assertions.assertTrue(tag instanceof ArrayValue);
-//
-//            IValue code = ((ArrayValue) tag).get(0).get();
-//
-//            Assertions.assertTrue(code instanceof StringValue);
-//
-//            Assertions.assertEquals("devil", code.getValue());
-//
-//        } catch (NostrException ex) {
-//            Assertions.fail(ex);
-//        }
+    public void testCreateGenericTag() throws JsonProcessingException {
+        try {
+            System.out.println("testCreateGenericTag");
+            PublicKey publicKey = Identity.getInstance().getPublicKey();
+            GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
+
+            Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
+            relay.addNipSupport(1);
+            relay.addNipSupport(genericTag.getNip());
+            var attrs = genericTag.getAttributes();
+            for (var a : attrs) {
+                relay.addNipSupport(a.getNip());
+            }
+
+            ElementEncoder encoder = new ElementEncoder((BaseTag)genericTag, relay);
+            var strJsonEvent = encoder.encode();
+
+            var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
+            Assertions.assertEquals(genericTag, tag);
+
+        } catch (NostrException ex) {
+            Assertions.fail(ex);
+        }
     }
 
     @Test
@@ -101,7 +85,7 @@ public class EventTest {
 //            relay.addNipSupport(1);
 //            relay.addNipSupport(genericTag.getNip());
 //
-//            ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
+//            ElementEncoder marshaller = new ElementEncoder(genericTag.getParent(), relay);
 //            var strJsonEvent = marshaller.marshall();
 //
 //            var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
@@ -137,11 +121,11 @@ public class EventTest {
         Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
         relay.addNipSupport(0);
 
-        ElementMarshaller marshaller = new ElementMarshaller(genericTag.getParent(), relay);
+        ElementEncoder marshaller = new ElementEncoder(genericTag.getParent(), relay);
 
         UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                 () -> {
-                    marshaller.marshall();
+                    marshaller.encode();
                 },
                 "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
         );

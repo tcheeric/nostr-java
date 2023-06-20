@@ -25,9 +25,4 @@ public class DeletionEvent extends GenericEvent {
     public DeletionEvent(PublicKey pubKey, List<? extends BaseTag> tags) {        
         this(pubKey, tags, "Deletion request");
     }
-
-//    public DeletionEvent(PublicKey pubKey, List<GenericEvent> eventsToDelete) {
-//        super(pubKey, Kind.DELETION);
-//        eventsToDelete.stream().map(e -> e.getId()).forEach(eId -> addTag(EventTag.builder().idEvent(eId).build()));
-//    }
 }

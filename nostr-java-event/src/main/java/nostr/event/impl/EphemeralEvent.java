@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
@@ -20,16 +21,18 @@ import nostr.event.tag.PubKeyTag;
 @Event(name = "Ephemeral Events", nip = 16)
 public class EphemeralEvent extends GenericEvent {
 
-    public EphemeralEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content) {
-        super(pubKey, Kind.EPHEMEREAL_EVENT, tags, content);
+    public EphemeralEvent(PublicKey pubKey, Integer kind, List<? extends BaseTag> tags, String content) {
+        super(pubKey, kind, tags, content);
     }
 
-    public EphemeralEvent(PublicKey pubKey, List<? extends BaseTag> tags) {
-        this(pubKey, tags, "...");
+    public EphemeralEvent(PublicKey pubKey, Integer kind, List<? extends BaseTag> tags) {
+        this(pubKey, kind, tags, "...");
     }
 
-    public EphemeralEvent(PublicKey sender, PublicKey recipient) {
-        super(sender, Kind.EPHEMEREAL_EVENT);
+    public EphemeralEvent(PublicKey sender, Integer kind, PublicKey recipient) {
+        this(sender, kind, new ArrayList<>());
         this.addTag(PubKeyTag.builder().publicKey(recipient).build());
     }
+    
+    // TODO - Validate the kind.
 }

@@ -1,4 +1,4 @@
-package nostr.event.marshaller.impl;
+package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Spliterator;
@@ -12,7 +12,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import nostr.base.IMarshaller;
+import lombok.EqualsAndHashCode;
+import nostr.base.GenericTagQuery;
+import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;
@@ -21,22 +23,22 @@ import nostr.util.NostrException;
  * @author guilhermegps
  *
  */
-@AllArgsConstructor
 @Data
-@Builder
-public class FilterMarshaller implements IMarshaller {
+@EqualsAndHashCode(callSuper = false)
+public class FilterEncoder extends ElementEncoder {
 
-    private final Filters filters;
-    private final Relay relay;
-
-    @Override
-    public String marshall() throws NostrException {
-        return toJson();
+    public FilterEncoder(Filters filters, Relay relay) {
+        super(filters, relay);
     }
 
-    private String toJson() throws NostrException {
+    public FilterEncoder(Filters filters) {
+        super(filters);
+    }
+
+    @Override
+    protected String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree(filters);
+            JsonNode node = MAPPER.valueToTree((Filters) getElement());
             ObjectNode objNode = (ObjectNode) node;
             var arrayNode = (ArrayNode) node.get("genericTagQueryList");
             if (arrayNode != null && !arrayNode.isNull()) {

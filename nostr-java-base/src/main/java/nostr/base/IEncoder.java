@@ -10,10 +10,8 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-public interface IMarshaller {
+public interface IEncoder {
     public static final ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     
-    public abstract String marshall() throws NostrException;
-    
-//    public String toJson() throws NostrException;
+    public abstract String encode() throws NostrException;    
 }

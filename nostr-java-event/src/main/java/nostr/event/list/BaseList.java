@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NonNull;
 import nostr.base.INostrList;
 import nostr.base.annotation.JsonList;
-import nostr.event.codec.CustomBaseListEncoder;
+import nostr.event.json.serializer.CustomBaseListSerializer;
 
 /**
  *
@@ -20,7 +20,7 @@ import nostr.event.codec.CustomBaseListEncoder;
 @AllArgsConstructor
 @Data
 @JsonList
-@JsonSerialize(using=CustomBaseListEncoder.class)
+@JsonSerialize(using=CustomBaseListSerializer.class)
 public abstract class BaseList<T> implements INostrList<T> {
 
     @NonNull

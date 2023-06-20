@@ -1,20 +1,22 @@
-package nostr.event.codec;
+package nostr.event.json.deserializer;
 
+import nostr.event.json.codec.GenericTagDecoder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
-import nostr.base.ITag;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
+import nostr.util.NostrException;
 
-public class ITagDecoder<T extends ITag> extends JsonDeserializer<T> {
+public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
     @Override
     public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
@@ -94,8 +96,15 @@ public class ITagDecoder<T extends ITag> extends JsonDeserializer<T> {
                     }
                     return (T) tag;
                 }
-                default ->
-                    throw new IOException("Unknown tag type: " + code);
+                default -> {
+                    try {
+                        var tag = new GenericTagDecoder(node.toString()).decode();
+                        return (T) tag;
+                    } catch (NostrException ex) {
+                        throw new IOException(ex);
+                    }
+                }
+
             }
         }
     }

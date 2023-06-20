@@ -13,9 +13,10 @@ module nostr.event {
     exports nostr.event;
     exports nostr.event.impl;
     exports nostr.event.list;
-    exports nostr.event.marshaller.impl;
     exports nostr.event.message;
-    exports nostr.event.codec;
+    exports nostr.event.json.codec;
+    exports nostr.event.json.deserializer;
+    exports nostr.event.json.serializer;
     exports nostr.event.tag;
     exports nostr.event.util;
 }

@@ -1,4 +1,4 @@
-package nostr.event.codec;
+package nostr.event.json.serializer;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,7 +17,7 @@ import nostr.event.list.EventList;
  *
  */
 @Log
-public class CustomIdEventListEncoder extends JsonSerializer<EventList> {
+public class CustomIdEventListSerializer extends JsonSerializer<EventList> {
 
     @Override
     public void serialize(EventList value, JsonGenerator gen, SerializerProvider serializers) {

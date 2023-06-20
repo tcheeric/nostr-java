@@ -1,45 +1,43 @@
-package nostr.event.marshaller.impl;
+package nostr.event.json.codec;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import nostr.base.IMarshaller;
+import lombok.EqualsAndHashCode;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.codec.CustomTagEncoder;
+import nostr.event.json.serializer.TagSerializer;
 import nostr.util.NostrException;
 
 /**
  * @author guilhermegps
  *
  */
-@AllArgsConstructor
 @Data
-@Builder
-public class TagMarshaller implements IMarshaller {
+@EqualsAndHashCode(callSuper = false)
+public class TagEncoder extends ElementEncoder {
 
-    private final BaseTag tag;
-    private final Relay relay;
-
-    @Override
-    public String marshall() throws NostrException {
-        return toJson();
+    public TagEncoder(BaseTag tag, Relay relay) {
+        super(tag, relay);
     }
 
-    private String toJson() throws NostrException {
+    public TagEncoder(BaseTag tag) {
+        super(tag);
+    }        
+
+    @Override
+    protected String toJson() throws NostrException {
         try {
             SimpleModule module = new SimpleModule();
-            module.addSerializer(new CustomTagEncoder());
+            module.addSerializer(new TagSerializer());
             var mapper = (new ObjectMapper())
                     .setSerializationInclusion(Include.NON_NULL)
                     .registerModule(module);
 
-            return mapper.writeValueAsString(tag);
+            return mapper.writeValueAsString((BaseTag) getElement());
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }

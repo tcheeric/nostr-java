@@ -1,43 +1,42 @@
-package nostr.event.codec;
+package nostr.event.json.serializer;
 
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
-import nostr.base.IMarshaller;
+import nostr.base.IEncoder;
+import nostr.event.list.GenericTagQueryList;
 
 /**
  * @author guilhermegps
  *
  */
 @Log
-public class CustomGenericTagEncoder extends StdSerializer<GenericTagQuery> {
-
-    private static final long serialVersionUID = 6803478463890319884L;
-
-    public CustomGenericTagEncoder() {
-        super(GenericTagQuery.class);
-    }
+public class CustomGenericTagListSerializer extends JsonSerializer<GenericTagQueryList> {
 
     @Override
-    public void serialize(GenericTagQuery value, JsonGenerator gen, SerializerProvider serializers) {
+    public void serialize(GenericTagQueryList value, JsonGenerator gen, SerializerProvider serializers) {
         try {
-            gen.writePOJO(toJson(value));
+            var list = value.getList().parallelStream().map(gtq -> toJson(gtq))
+                    .collect(Collectors.toList());
+
+            gen.writePOJO(list);
         } catch (IOException e) {
             log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
 
-    public static JsonNode toJson(GenericTagQuery gtq) {
-        var mapper = IMarshaller.MAPPER;
+    protected JsonNode toJson(GenericTagQuery gtq) {
+        var mapper = IEncoder.MAPPER;
         try {
             JsonNode node = mapper.valueToTree(gtq);
             ObjectNode objNode = (ObjectNode) node;

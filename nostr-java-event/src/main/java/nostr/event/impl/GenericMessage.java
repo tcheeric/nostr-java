@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
@@ -14,8 +15,12 @@ import nostr.base.IGenericElement;
 @Data
 public class GenericMessage implements IGenericElement, IElement {
 
-    private final String command;    
+    private final String command;
+    
+    @JsonIgnore
     private final Set<ElementAttribute> attributes;
+    
+    @JsonIgnore
     private final Integer nip;
     
     public GenericMessage(String command) {

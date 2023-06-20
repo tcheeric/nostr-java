@@ -1,4 +1,4 @@
-package nostr.event.marshaller.impl;
+package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,25 +17,25 @@ import nostr.util.NostrException;
  *
  * @author squirrel
  */
-public class MessageMarshaller extends ElementMarshaller {
+public class MessageEncoder extends ElementEncoder {
 
-    public MessageMarshaller(GenericMessage baseMessage, Relay relay) {
+    public MessageEncoder(GenericMessage baseMessage, Relay relay) {
         super(baseMessage, relay);
     }
 
     @Override
-    public String marshall() throws NostrException {
+    public String encode() throws NostrException {
         GenericMessage message = (GenericMessage) getElement();
         Relay relay = getRelay();
         var arrayNode = JsonNodeFactory.instance.arrayNode();
         try {
             arrayNode.add(message.getCommand());
             if (message instanceof EventMessage msg) {
-                JsonNode tree = MAPPER.readTree(new ElementMarshaller(msg.getEvent(), relay).marshall());
+                JsonNode tree = MAPPER.readTree(new ElementEncoder(msg.getEvent(), relay).encode());
                 arrayNode.add(tree);
             } else if (message instanceof ReqMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
-                JsonNode tree = MAPPER.readTree(new ElementMarshaller(msg.getFilters(), relay).marshall());
+                JsonNode tree = MAPPER.readTree(new ElementEncoder(msg.getFilters(), relay).encode());
                 arrayNode.add(tree);
             } else if (message instanceof NoticeMessage msg) {
                 arrayNode.add(msg.getMessage());

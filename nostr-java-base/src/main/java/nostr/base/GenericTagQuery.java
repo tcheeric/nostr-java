@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class GenericTagQuery {
+public class GenericTagQuery implements IElement {
     
     private final Character tagName;
     private final List<String> value;

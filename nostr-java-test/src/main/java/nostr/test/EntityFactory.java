@@ -13,6 +13,7 @@ import nostr.base.IEvent;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
@@ -48,7 +49,7 @@ public class EntityFactory {
         public static EphemeralEvent createEphemeralEvent(PublicKey publicKey) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("eric").build());
-            GenericEvent event = new EphemeralEvent(publicKey, tagList);
+            GenericEvent event = new EphemeralEvent(publicKey, Kind.EPHEMEREAL_EVENT.getValue(), tagList);
             event.update();
             return (EphemeralEvent) event;
         }

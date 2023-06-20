@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.NonNull;
 import nostr.base.ChannelProfile;
-import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;

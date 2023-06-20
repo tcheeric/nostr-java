@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.java.Log;
-import nostr.base.IMarshaller;
+import nostr.base.IEncoder;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
@@ -55,7 +55,7 @@ public final class MetadataEvent extends GenericEvent {
     }
 
     private void setContent() {
-        var mapper = IMarshaller.MAPPER;
+        var mapper = IEncoder.MAPPER;
         try {
             ObjectNode objNode = JsonNodeFactory.instance.objectNode();
             objNode.set("name", mapper.valueToTree(this.getProfile().getName()));

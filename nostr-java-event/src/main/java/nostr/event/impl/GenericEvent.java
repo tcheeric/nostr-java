@@ -11,6 +11,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
 
@@ -19,8 +20,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
+import nostr.base.IEncoder;
 import nostr.base.IGenericElement;
-import nostr.base.IMarshaller;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
@@ -32,6 +33,8 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
+import nostr.event.json.deserializer.PublicKeyDeserializer;
+import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
@@ -52,6 +55,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @JsonProperty("pubkey")
     @EqualsAndHashCode.Include
     @JsonString
+    @JsonDeserialize(using = PublicKeyDeserializer.class)
     private PublicKey pubKey;
 
     @Key
@@ -76,6 +80,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @JsonProperty("sig")
     @EqualsAndHashCode.Exclude
     @JsonString
+    @JsonDeserialize(using = SignatureDeserializer.class)
     private Signature signature;
 
     @JsonIgnore
@@ -188,7 +193,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
-        var mapper = IMarshaller.MAPPER;
+        var mapper = IEncoder.MAPPER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {

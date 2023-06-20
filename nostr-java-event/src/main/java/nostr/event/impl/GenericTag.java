@@ -12,7 +12,7 @@ import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
-import nostr.event.marshaller.impl.ElementMarshaller;
+import nostr.event.json.codec.ElementEncoder;
 import nostr.util.NostrException;
 
 /**
@@ -23,11 +23,14 @@ import nostr.util.NostrException;
 @EqualsAndHashCode(callSuper = false)
 @Log
 public class GenericTag extends BaseTag implements IGenericElement {
-
+    
     private final String code;
+    
     @JsonIgnore
+    @EqualsAndHashCode.Exclude
     private final Integer nip;
-    @JsonIgnore
+    
+    //@JsonIgnore
     private final Set<ElementAttribute> attributes;
 
     public GenericTag(String code) {
@@ -52,7 +55,7 @@ public class GenericTag extends BaseTag implements IGenericElement {
     @Override
     public String toString() {
         try {
-            return new ElementMarshaller(this, null).marshall();
+            return new ElementEncoder(this).encode();
         } catch (NostrException ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);

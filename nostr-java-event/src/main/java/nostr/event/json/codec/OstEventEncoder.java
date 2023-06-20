@@ -1,15 +1,14 @@
-package nostr.event.marshaller.impl;
+package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
-import nostr.base.IMarshaller;
+import static nostr.base.IEncoder.MAPPER;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
 import nostr.util.NostrException;
@@ -18,21 +17,27 @@ import nostr.util.NostrException;
  * @author guilhermegps
  *
  */
-@AllArgsConstructor
 @Data
-@Builder
-public class OstEventMarshaller implements IMarshaller {
+@EqualsAndHashCode(callSuper = false)
+public class OstEventEncoder extends ElementEncoder {
 
-    private final OtsEvent event;
-    private final Relay relay;
+    public OstEventEncoder(OtsEvent event, Relay relay) {
+        super(event, relay);
+    }
+
+    public OstEventEncoder(OtsEvent event) {
+        super(event);
+    }
 
     @Override
-    public String marshall() throws NostrException {
+    public String encode() throws NostrException {
         return toJson();
     }
-    
-    private String toJson() throws NostrException {
+
+    @Override
+    protected String toJson() throws NostrException {
         try {
+            final OtsEvent event = (OtsEvent) getElement();
             JsonNode node = MAPPER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
             event.getAttributes().parallelStream()

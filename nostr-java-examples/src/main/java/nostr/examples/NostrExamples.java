@@ -16,7 +16,6 @@ import java.util.logging.LogManager;
 import lombok.extern.java.Log;
 import nostr.base.Channel;
 import nostr.base.ContentReason;
-import nostr.base.ITag;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -352,7 +351,7 @@ public class NostrExamples {
             List<BaseTag> tags = new ArrayList<>();
             tags.add(rcptTag);
 
-            GenericEvent event = new EphemeralEvent(publicKeySender, tags);
+            GenericEvent event = new EphemeralEvent(publicKeySender, Kind.EPHEMEREAL_EVENT.getValue(), tags);
 
             SENDER.sign(event);
             GenericMessage message = new EventMessage(event);
