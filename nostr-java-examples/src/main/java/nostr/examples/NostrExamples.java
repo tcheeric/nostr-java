@@ -59,7 +59,7 @@ public class NostrExamples {
     private static final Identity RECEIVER = Identity.generateRandomIdentity();
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
-    private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "erict875@nostr-java.io", "eric t", "It's me!", null);
+    private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "erict875@nostr-java.io", "It's me!", null);
 
     private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
 

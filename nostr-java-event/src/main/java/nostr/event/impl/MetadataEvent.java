@@ -41,7 +41,14 @@ public final class MetadataEvent extends GenericEvent {
 
     @Override
     protected void validate() {
-        var valid = this.profile.getName().matches(NAME_PATTERN);
+        boolean valid = true;
+        
+        var strNameArr = this.profile.getName().split("@");
+        if (strNameArr.length == 2) {
+            var localPart = strNameArr[0];
+            valid = localPart.matches(NAME_PATTERN);
+        }
+
         if (!valid) {
             throw new AssertionError("Invalid profile name: " + this.profile, null);
         }

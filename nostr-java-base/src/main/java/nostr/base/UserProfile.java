@@ -23,12 +23,9 @@ public final class UserProfile extends Profile implements IBech32Encodable {
 
     private final PublicKey publicKey;
 
-    private String nip05;
-
-    public UserProfile(PublicKey publicKey, String nip05, String name, String about, URL picture) {
-        super(name, about, picture);
+    public UserProfile(PublicKey publicKey, String nip05, String about, URL picture) {
+        super(nip05, about, picture);
         this.publicKey = publicKey;
-        this.nip05 = nip05;
     }
 
     @Override

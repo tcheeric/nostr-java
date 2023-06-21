@@ -37,7 +37,7 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
     private void init(UserProfile profile) throws NostrException {
         // NIP-05 validator
-        Nip05Validator.builder().nip05(profile.getNip05()).publicKey(getPubKey()).build().validate();
+        Nip05Validator.builder().nip05(profile.getName()).publicKey(getPubKey()).build().validate();
 
         setContent(profile);
     }
