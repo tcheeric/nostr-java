@@ -1,6 +1,5 @@
 package nostr.event.json.deserializer;
 
-import nostr.event.json.codec.GenericTagDecoder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -10,6 +9,7 @@ import java.io.IOException;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
+import nostr.event.json.codec.GenericTagDecoder;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;

@@ -189,7 +189,7 @@ public class EntityFactory {
             String nip05 = name + "@tcheeric.com";
             String url = "http://assets.tcheeric.com/" + number + ".PNG";
 
-            return new UserProfile(pubKey, nip05, about, new URL(url));
+            return new UserProfile(pubKey, name, nip05, about, new URL(url));
 
         } catch (MalformedURLException ex) {
             throw new RuntimeException(ex);

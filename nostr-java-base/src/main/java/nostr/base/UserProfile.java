@@ -7,6 +7,7 @@ import nostr.crypto.bech32.Bech32Prefix;
 import java.util.logging.Level;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.util.NostrException;
@@ -22,10 +23,12 @@ import nostr.util.NostrException;
 public final class UserProfile extends Profile implements IBech32Encodable {
 
     private final PublicKey publicKey;
+    private final String nip05;
 
-    public UserProfile(PublicKey publicKey, String nip05, String about, URL picture) {
-        super(nip05, about, picture);
+    public UserProfile(@NonNull PublicKey publicKey, String name, String nip05, String about, URL picture) {
+        super(name, about, picture);
         this.publicKey = publicKey;
+        this.nip05 = nip05;
     }
 
     @Override
