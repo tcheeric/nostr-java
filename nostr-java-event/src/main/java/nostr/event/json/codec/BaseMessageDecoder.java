@@ -20,7 +20,7 @@ import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.OkMessage;
-import nostr.event.message.RelayAuthMessage;
+import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 import nostr.util.NostrException;
 
@@ -60,7 +60,7 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                     } else {
                         // Relay Auth                        
                         final var challenge = arg.toString();
-                        authMsg = new RelayAuthMessage(challenge);
+                        authMsg = new RelayAuthenticationMessage(challenge);
                     }
                     message = authMsg;
                 }
@@ -69,10 +69,17 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                 case EOSE ->
                     message = new EoseMessage(arg.toString());
                 case EVENT -> {
-                    if (arg instanceof Map map) {
+                    if (msgArr.length == 2 && arg instanceof Map map) {
                         var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {
                         });
                         message = new EventMessage(event);
+                    } else if (msgArr.length == 3 && arg instanceof String) {
+                        var subId = arg.toString();
+                        if (msgArr[2] instanceof Map map) {
+                            var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {
+                            });
+                            message = new EventMessage(event, subId);
+                        }
                     } else {
                         throw new AssertionError("Invalid argument: " + arg);
                     }
@@ -80,14 +87,14 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                 case NOTICE ->
                     message = new NoticeMessage(arg.toString());
                 case OK -> {
-                    //Boolean duplicate = (Boolean) msgArr[2];
-                    if (msgArr[2] instanceof Boolean duplicate) {
+                    if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
                         String msgArg = msgArr[3].toString();
                         message = new OkMessage(arg.toString(), duplicate, msgArg);
                     } else {
                         throw new AssertionError("Invalid argument: " + msgArr[2]);
                     }
                 }
+                // TODO - Cater for more than one filters. Create issue in Github
                 case REQ -> {
                     if (arg instanceof Map map) {
                         var filters = mapper.convertValue(map, new TypeReference<Filters>() {

@@ -21,9 +21,17 @@ public class EventMessage extends GenericMessage {
 
     @JsonProperty
     private final IEvent event;
+    
+    @JsonProperty
+    private String subscriptionId;
 
     public EventMessage(@NonNull IEvent event) {
+        this(event, null);
+    }
+
+    public EventMessage(@NonNull IEvent event, String subscriptionId) {
         super(Command.EVENT.name());
         this.event = event;
+        this.subscriptionId = subscriptionId;
     }
 }

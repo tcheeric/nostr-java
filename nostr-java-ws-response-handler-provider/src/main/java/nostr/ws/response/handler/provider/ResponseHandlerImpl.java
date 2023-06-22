@@ -8,10 +8,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
+import nostr.event.impl.GenericMessage;
+import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.EoseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.NoticeMessage;
+import nostr.event.message.OkMessage;
+import nostr.event.message.RelayAuthenticationMessage;
 import nostr.util.NostrException;
 import nostr.ws.handler.command.spi.ICommandHandler;
 import nostr.ws.handler.command.spi.ICommandHandler.Reason;
@@ -55,61 +64,68 @@ public class ResponseHandlerImpl implements IResponseHandler {
 
         log.log(Level.INFO, "Process Message: {0} from relay: {1}", new Object[]{message, relay});
 
-        Object[] items = unmarshall(message);
-        final String command = items[0].toString();
+        var oMsg = new BaseMessageDecoder(message).decode();
+        final String command = oMsg.getCommand();
 
         switch (command) {
             case "EOSE" -> {
-                var subId = items[1].toString();
-                commandHandler.onEose(subId, relay);
+                if (oMsg instanceof EoseMessage msg) {
+                    commandHandler.onEose(msg.getSubscriptionId(), relay);
+                } else {
+                    throw new AssertionError();
+                }
             }
             case "OK" -> {
-                String eventId = items[1].toString();
-                boolean result = Boolean.parseBoolean(items[2].toString());
-                String msg = items[3].toString();
-                final var msgSplit = msg.split(":", 2);
-                Reason reason;
-                String reasonMessage = msg;
-                if (msgSplit.length < 2) {
-                    reason = Reason.UNDEFINED;
-                } else {
-                    reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
-                    reasonMessage = msgSplit[1];
-                }
+                if (oMsg instanceof OkMessage msg) {
+                    String eventId = msg.getEventId();
+                    boolean result = msg.getFlag();
+                    String strMsg = msg.getMessage();
+                    final var msgSplit = strMsg.split(":", 2);
+                    Reason reason;
+                    String reasonMessage = strMsg;
+                    if (msgSplit.length < 2) {
+                        reason = Reason.UNDEFINED;
+                    } else {
+                        reason = Reason.fromCode(msgSplit[0]).orElseThrow(RuntimeException::new);
+                        reasonMessage = msgSplit[1];
+                    }
 
-                commandHandler.onOk(eventId, reasonMessage, reason, result, relay);
+                    commandHandler.onOk(eventId, reasonMessage, reason, result, relay);
+                } else {
+                    throw new AssertionError();
+                }
             }
             case "NOTICE" -> {
-                var param = items[1].toString();
-                commandHandler.onNotice(param);
+                if (oMsg instanceof NoticeMessage msg) {
+                    commandHandler.onNotice(msg.getMessage());
+                } else {
+                    throw new AssertionError();
+                }
             }
             case "EVENT" -> {
-                try {
-                    var subId = items[1].toString();
-                    var jsonEvent = new ObjectMapper().writeValueAsString(items[2]);
+                if (oMsg instanceof EventMessage msg) {
+                    var subId = msg.getSubscriptionId();
+                    var jsonEvent = msg.getEvent().toString();
                     commandHandler.onEvent(jsonEvent, subId, relay);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
+                } else {
+                    throw new AssertionError();
                 }
             }
 
             case "AUTH" -> {
-                var challenge = items[1].toString();
+                if (oMsg instanceof RelayAuthenticationMessage msg) {
+                    var challenge = msg.getChallenge();
+                    commandHandler.onAuth(challenge, relay);
+                } else if (oMsg instanceof ClientAuthenticationMessage msg) {
+                    // Actually, do nothing!
+                } else {
+                    throw new AssertionError();
+                }
 
-                commandHandler.onAuth(challenge, relay);
             }
             default -> {
                 throw new AssertionError();
             }
-        }
-    }
-
-    private Object[] unmarshall(String jsonString) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonString, Object[].class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 }

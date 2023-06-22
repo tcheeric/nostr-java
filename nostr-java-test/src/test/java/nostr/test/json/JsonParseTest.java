@@ -20,6 +20,7 @@ public class JsonParseTest {
 
         final String parseTarget
                 = "[\"EVENT\","
+                + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
                 + "{"
                 + "\"content\":\"直んないわ。まあええか\","
                 + "\"created_at\":1686199583,"
@@ -35,6 +36,7 @@ public class JsonParseTest {
         Assertions.assertEquals(Command.EVENT.toString(), message.getCommand());
 
         final var event = (GenericEvent) (((EventMessage) message).getEvent());
+        Assertions.assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((EventMessage) message).getSubscriptionId());
         Assertions.assertEquals(1, event.getKind().intValue());
         Assertions.assertEquals(1686199583, event.getCreatedAt().longValue());
         Assertions.assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());

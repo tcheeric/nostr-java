@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.event.impl.GenericMessage;
 
 /**
  *
@@ -14,12 +13,12 @@ import nostr.event.impl.GenericMessage;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class RelayAuthMessage extends BaseAuthMessage {
+public class RelayAuthenticationMessage extends BaseAuthMessage {
 
     @JsonProperty
     private final String challenge;
 
-    public RelayAuthMessage(String challenge) {
+    public RelayAuthenticationMessage(String challenge) {
         super(Command.AUTH.name());
         this.challenge = challenge;
     }

@@ -10,7 +10,7 @@ import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
-import nostr.event.message.RelayAuthMessage;
+import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 import nostr.util.NostrException;
 
@@ -44,7 +44,7 @@ public class MessageEncoder extends ElementEncoder {
                 arrayNode.add(msg.getSubscriptionId());
             } else if (message instanceof ClientAuthenticationMessage msg) {
                 arrayNode.add(msg.getEvent().toString());
-            } else if (message instanceof RelayAuthMessage msg){
+            } else if (message instanceof RelayAuthenticationMessage msg){
                 arrayNode.add(msg.getChallenge());
             } else {
                 throw new NostrException(String.format("Invalid message type %s", message));
