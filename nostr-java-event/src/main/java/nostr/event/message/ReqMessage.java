@@ -1,6 +1,7 @@
 
 package nostr.event.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -17,7 +18,10 @@ import nostr.event.impl.GenericMessage;
 @ToString(callSuper = true)
 public class ReqMessage extends GenericMessage {
 
+    @JsonProperty
     private final String subscriptionId;
+    
+    @JsonProperty
     private final Filters filters;
 
     public ReqMessage(String subscriptionId, Filters filters) {

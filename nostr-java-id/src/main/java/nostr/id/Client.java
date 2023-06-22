@@ -21,9 +21,8 @@ import lombok.extern.java.Log;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.base.Relay;
 import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.event.message.AuthMessage;
+import nostr.event.message.ClientAuthenticationMessage;
 import nostr.util.NostrException;
 import nostr.ws.Connection;
 import nostr.ws.handler.spi.IRequestHandler;
@@ -123,8 +122,8 @@ public class Client {
 
         log.log(Level.INFO, "Authenticating...");
         Set<Relay> relays = getRelaySet();
-        GenericEvent event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
-        GenericMessage authMsg = new AuthMessage(event);
+        var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
+        GenericMessage authMsg = new ClientAuthenticationMessage(event);
 
         identity.sign(event);
         this.send(authMsg);
@@ -133,8 +132,8 @@ public class Client {
     public void auth(Identity identity, String challenge, Relay relay) throws NostrException {
 
         log.log(Level.INFO, "Authenticating...");
-        GenericEvent event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);
-        GenericMessage authMsg = new AuthMessage(event);
+        var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);
+        GenericMessage authMsg = new ClientAuthenticationMessage(event);
 
         identity.sign(event);
         this.send(authMsg);

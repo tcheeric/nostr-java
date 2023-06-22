@@ -1,12 +1,11 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IDecoder;
-import nostr.event.impl.GenericEvent;
+import nostr.event.impl.Filters;
 import nostr.util.NostrException;
 
 /**
@@ -15,18 +14,18 @@ import nostr.util.NostrException;
  */
 @Data
 @AllArgsConstructor
-public class BaseEventDecoder implements IDecoder<GenericEvent> {
+public class FiltersDecoder implements IDecoder<Filters> {
 
-    private final String jsonEvent;
+    private final String jsonString;
 
     @Override
-    public GenericEvent decode() throws NostrException {
+    public Filters decode() throws NostrException {
         try {
-            var mapper = new ObjectMapper();
-            mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-            return mapper.readValue(jsonEvent, GenericEvent.class);
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(jsonString, Filters.class);
         } catch (JsonProcessingException ex) {
             throw new NostrException(ex);
         }
     }
+
 }

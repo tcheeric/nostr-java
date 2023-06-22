@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import nostr.base.Relay;
 import nostr.event.impl.GenericMessage;
-import nostr.event.message.AuthMessage;
+import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
+import nostr.event.message.RelayAuthMessage;
 import nostr.event.message.ReqMessage;
 import nostr.util.NostrException;
 
@@ -41,8 +42,10 @@ public class MessageEncoder extends ElementEncoder {
                 arrayNode.add(msg.getMessage());
             } else if (message instanceof CloseMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
-            } else if (message instanceof AuthMessage msg) {
+            } else if (message instanceof ClientAuthenticationMessage msg) {
                 arrayNode.add(msg.getEvent().toString());
+            } else if (message instanceof RelayAuthMessage msg){
+                arrayNode.add(msg.getChallenge());
             } else {
                 throw new NostrException(String.format("Invalid message type %s", message));
             }

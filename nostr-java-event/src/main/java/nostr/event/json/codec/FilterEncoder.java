@@ -9,12 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.GenericTagQuery;
-import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;

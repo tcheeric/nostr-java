@@ -1,6 +1,7 @@
 
 package nostr.event.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -16,8 +17,13 @@ import nostr.event.impl.GenericMessage;
 @ToString
 public class OkMessage extends GenericMessage {
 
+    @JsonProperty
     private final String eventId;
+    
+    @JsonProperty
     private final Boolean flag;
+    
+    @JsonProperty
     private final String message;
 
     public OkMessage(String eventId, Boolean flag, String message) {

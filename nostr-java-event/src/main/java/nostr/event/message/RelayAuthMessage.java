@@ -1,11 +1,10 @@
-
 package nostr.event.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.base.IEvent;
 import nostr.event.impl.GenericMessage;
 
 /**
@@ -15,13 +14,14 @@ import nostr.event.impl.GenericMessage;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class AuthMessage extends GenericMessage {
+public class RelayAuthMessage extends BaseAuthMessage {
 
-    private final IEvent event;
-    
-    public AuthMessage(IEvent event) {
+    @JsonProperty
+    private final String challenge;
+
+    public RelayAuthMessage(String challenge) {
         super(Command.AUTH.name());
-        this.event = event;
+        this.challenge = challenge;
     }
-    
+
 }
