@@ -3,17 +3,13 @@
  */
 package nostr.ws.response.handler.provider;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
-import nostr.event.impl.GenericMessage;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.EoseMessage;
@@ -72,7 +68,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 if (oMsg instanceof EoseMessage msg) {
                     commandHandler.onEose(msg.getSubscriptionId(), relay);
                 } else {
-                    throw new AssertionError();
+                    throw new AssertionError("EOSE");
                 }
             }
             case "OK" -> {
@@ -92,14 +88,14 @@ public class ResponseHandlerImpl implements IResponseHandler {
 
                     commandHandler.onOk(eventId, reasonMessage, reason, result, relay);
                 } else {
-                    throw new AssertionError();
+                    throw new AssertionError("OK");
                 }
             }
             case "NOTICE" -> {
                 if (oMsg instanceof NoticeMessage msg) {
                     commandHandler.onNotice(msg.getMessage());
                 } else {
-                    throw new AssertionError();
+                    throw new AssertionError("NOTICE");
                 }
             }
             case "EVENT" -> {
@@ -108,7 +104,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
                     var jsonEvent = msg.getEvent().toString();
                     commandHandler.onEvent(jsonEvent, subId, relay);
                 } else {
-                    throw new AssertionError();
+                    throw new AssertionError("EVENT");
                 }
             }
 
@@ -119,12 +115,12 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 } else if (oMsg instanceof ClientAuthenticationMessage msg) {
                     // Actually, do nothing!
                 } else {
-                    throw new AssertionError();
+                    throw new AssertionError("AUTH");
                 }
 
             }
             default -> {
-                throw new AssertionError();
+                throw new AssertionError("Unknown command " + command);
             }
         }
     }
