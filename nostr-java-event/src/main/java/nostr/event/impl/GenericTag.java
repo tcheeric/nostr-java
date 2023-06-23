@@ -30,7 +30,6 @@ public class GenericTag extends BaseTag implements IGenericElement {
     @EqualsAndHashCode.Exclude
     private final Integer nip;
     
-    //@JsonIgnore
     private final Set<ElementAttribute> attributes;
 
     public GenericTag(String code) {
