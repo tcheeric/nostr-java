@@ -4,12 +4,16 @@ import nostr.base.Command;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
+import nostr.event.BaseMessage;
+import nostr.event.BaseTag;
+import nostr.event.Marker;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.GenericTagDecoder;
-import nostr.event.json.codec.TagDecoder;
+import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.message.EventMessage;
+import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
@@ -22,8 +26,8 @@ import org.junit.jupiter.api.Test;
 public class JsonParseTest {
 
     @Test
-    public void issue39() throws NostrException {
-        System.out.println("issue39");
+    public void testBaseMessageDecoder() throws NostrException {
+        System.out.println("testBaseMessageDecoder");
 
         final String parseTarget
                 = "[\"EVENT\","
@@ -50,6 +54,39 @@ public class JsonParseTest {
     }
 
     @Test
+    public void testBaseMessageMarkerDecoder() throws NostrException {
+        System.out.println("testBaseMessageMarkerDecoder");
+
+        String json = "["
+                + "\"EVENT\","
+                + "\"temp20230627\","
+                + "{"
+                + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
+                + "\"kind\":1,"
+                + "\"pubkey\":\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\","
+                + "\"created_at\":1687765220,"
+                + "\"content\":\"手順書が間違ってたら作業者は無理だな\","
+                + "\"tags\":["
+                + "[\"e\",\"494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346\",\"\",\"root\"],"
+                + "[\"p\",\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\"]"
+                + "],"
+                + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
+                + "}]";
+
+        BaseMessageDecoder decoder = new BaseMessageDecoder(json);
+        BaseMessage message = decoder.decode();
+
+        final var event = (GenericEvent) (((EventMessage) message).getEvent());
+        var tags = event.getTags();
+        for (BaseTag t : tags) {
+            if (t.getCode().equalsIgnoreCase("e")) {
+                EventTag et = (EventTag) t;
+                Assertions.assertEquals(Marker.ROOT, et.getMarker());
+            }
+        }
+    }
+
+    @Test
     public void testGenericTagDecoder() throws NostrException {
         System.out.println("testGenericTagDecoder");
         final String jsonString = "[\"saturn\", \"jetpack\", false]";
@@ -68,7 +105,7 @@ public class JsonParseTest {
 
         String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
         final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new TagDecoder(jsonString).decode();
+        var tag = new BaseTagDecoder(jsonString).decode();
 
         Assertions.assertTrue(tag instanceof PubKeyTag);
 
@@ -84,7 +121,7 @@ public class JsonParseTest {
 
         String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
         final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new TagDecoder(jsonString).decode();
+        var tag = new BaseTagDecoder(jsonString).decode();
 
         Assertions.assertTrue(tag instanceof GenericTag);
 
