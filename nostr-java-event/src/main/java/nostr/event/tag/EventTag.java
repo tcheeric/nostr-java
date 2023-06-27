@@ -8,6 +8,7 @@ package nostr.event.tag;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,5 +50,10 @@ public class EventTag extends BaseTag {
         this.recommendedRelayUrl = null;
         this.idEvent = idEvent;
         this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
+    }
+
+    @JsonSetter("marker")
+    public void setMarker(String marker) {
+        this.marker = Marker.fromValue(marker);
     }
 }
