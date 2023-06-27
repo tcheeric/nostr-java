@@ -43,10 +43,17 @@ public final class MetadataEvent extends GenericEvent {
         this.validate();
     }
 
-    private void validate() throws NostrException {
-        var valid = this.profile.getName().matches(NAME_PATTERN);
+    private void validate() {
+        boolean valid = false;
+
+        var strNameArr = this.profile.getNip05().split("@");
+        if (strNameArr.length == 2) {
+            var localPart = strNameArr[0];
+            valid = localPart.matches(NAME_PATTERN);
+        }
+
         if (!valid) {
-            throw new NostrException("Invalid profile name: " + this.profile);
+            throw new AssertionError("Invalid profile name: " + this.profile, null);
         }
     }
 
