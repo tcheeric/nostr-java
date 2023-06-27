@@ -43,7 +43,7 @@ public final class MetadataEvent extends GenericEvent {
         this.validate();
     }
 
-    private void validate() throws NostrException {
+    private void validate() {
         boolean valid = false;
 
         var strNameArr = this.profile.getNip05().split("@");
