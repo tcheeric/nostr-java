@@ -51,9 +51,4 @@ public class EventTag extends BaseTag {
         this.idEvent = idEvent;
         this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
     }
-
-    @JsonSetter("marker")
-    public void setMarker(String marker) {
-        this.marker = Marker.fromValue(marker);
-    }
 }

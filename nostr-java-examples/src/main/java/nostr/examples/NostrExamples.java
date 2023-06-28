@@ -18,6 +18,7 @@ import nostr.base.Channel;
 import nostr.base.ContentReason;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
+import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Marker;
@@ -238,7 +239,7 @@ public class NostrExamples {
                     "Hello world, I'm here on nostr-java API!");
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
         } catch (UnsupportedNIPException ex) {
@@ -261,7 +262,7 @@ public class NostrExamples {
             SENDER.encryptDirectMessage(event2);
             SENDER.sign(event2);
 
-            GenericMessage message = new EventMessage(event2);
+            BaseMessage message = new EventMessage(event2);
 
             CLIENT.send(message);
 
@@ -283,7 +284,7 @@ public class NostrExamples {
             GenericEvent event = new MentionsEvent(publicKeySender, tags, "Hello " + RECEIVER.getPublicKey().toString());
             SENDER.sign(event);
 
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -305,7 +306,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please delete me!");
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -332,7 +333,7 @@ public class NostrExamples {
             var event = new MetadataEvent(publicKeySender, PROFILE);
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -354,7 +355,7 @@ public class NostrExamples {
             GenericEvent event = new EphemeralEvent(publicKeySender, Kind.EPHEMEREAL_EVENT.getValue(), tags);
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
         } catch (UnsupportedNIPException ex) {
@@ -374,7 +375,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please like me!");
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -405,7 +406,7 @@ public class NostrExamples {
             GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please replace me!");
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -441,7 +442,7 @@ public class NostrExamples {
             GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tags, PROFILE);
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 
@@ -461,7 +462,7 @@ public class NostrExamples {
             Filters filters = Filters.builder().kinds(kindList).limit(10).build();
 
             String subId = "subId" + System.currentTimeMillis();
-            GenericMessage message = new ReqMessage(subId, filters);
+            BaseMessage message = new ReqMessage(subId, filters);
 
             CLIENT.send(message);
         } catch (Exception ex) {
@@ -480,7 +481,7 @@ public class NostrExamples {
             GenericEvent event = new ChannelCreateEvent(publicKeySender, new ArrayList<BaseTag>(), channel.toString());
 
             SENDER.sign(event);
-            GenericMessage message = new EventMessage(event);
+            BaseMessage message = new EventMessage(event);
 
             CLIENT.send(message);
 

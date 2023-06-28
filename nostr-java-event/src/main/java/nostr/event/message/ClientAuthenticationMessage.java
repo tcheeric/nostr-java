@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.base.IEvent;
 import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.impl.GenericMessage;
 
 /**
  *

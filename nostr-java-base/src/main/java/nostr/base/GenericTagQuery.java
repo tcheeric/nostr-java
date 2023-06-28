@@ -2,18 +2,22 @@
 package nostr.base;
 
 import java.util.List;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author squirrel
  */
 @Data
-@Builder
+@NoArgsConstructor
 public class GenericTagQuery implements IElement {
     
-    private final Character tagName;
-    private final List<String> value;
-        
+    private Character tagName;
+    private List<String> value;
+
+    @Override
+    public Integer getNip() {
+        return 1;
+    }        
 }

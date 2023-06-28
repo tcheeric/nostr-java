@@ -7,8 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import nostr.base.Command;
+import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
+import nostr.event.BaseMessage;
 import nostr.event.impl.ClientAuthenticationEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
@@ -30,27 +31,26 @@ import nostr.util.NostrException;
  */
 @Data
 @AllArgsConstructor
-public class BaseMessageDecoder implements IDecoder<GenericMessage> {
+public class BaseMessageDecoder implements IDecoder<BaseMessage> {
 
     private final String jsonString;
 
     @Override
-    public GenericMessage decode() throws NostrException {
+    public BaseMessage decode() throws NostrException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
             var msgArr = mapper.readValue(jsonString, Object[].class);
             final String strCmd = msgArr[0].toString();
-            final Command command = Command.valueOf(strCmd);
             final Object arg = msgArr[1];
-            GenericMessage message = null;
+            BaseMessage message = null;
 
             if (arg == null) {
                 throw new AssertionError("arg == null");
             }
 
-            switch (command) {
-                case AUTH -> {
+            switch (strCmd) {
+                case "AUTH" -> {
                     final BaseAuthMessage authMsg;
                     // Client Auth
                     if (arg instanceof Map map) {
@@ -64,11 +64,11 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                     }
                     message = authMsg;
                 }
-                case CLOSE ->
+                case "CLOSE" ->
                     message = new CloseMessage(arg.toString());
-                case EOSE ->
+                case "EOSE" ->
                     message = new EoseMessage(arg.toString());
-                case EVENT -> {
+                case "EVENT" -> {
                     if (msgArr.length == 2 && arg instanceof Map map) {
                         var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {
                         });
@@ -84,9 +84,9 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                         throw new AssertionError("Invalid argument: " + arg);
                     }
                 }
-                case NOTICE ->
+                case "NOTICE" ->
                     message = new NoticeMessage(arg.toString());
-                case OK -> {
+                case "OK" -> {
                     if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
                         String msgArg = msgArr[3].toString();
                         message = new OkMessage(arg.toString(), duplicate, msgArg);
@@ -95,7 +95,7 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                     }
                 }
                 // TODO - Cater for more than one filters. Create issue in Github
-                case REQ -> {
+                case "REQ" -> {
                     if (arg instanceof Map map) {
                         var filters = mapper.convertValue(map, new TypeReference<Filters>() {
                         });
@@ -104,8 +104,16 @@ public class BaseMessageDecoder implements IDecoder<GenericMessage> {
                         throw new AssertionError("Invalid argument: " + msgArr[2]);
                     }
                 }
-                default ->
-                    throw new AssertionError("Invalid command " + strCmd);
+                default -> {
+                    //throw new AssertionError("Invalid command " + strCmd);
+                    // NOTE: Only String attribute suppoeted. It would be impossible to guess the object's type
+                    GenericMessage gm = new GenericMessage(strCmd);
+                    for (int i = 1; i < msgArr.length; i++) {
+                        if (msgArr[i] instanceof String) {
+                            gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+                        }
+                    }
+                }
             }
             return message;
         } catch (JsonProcessingException ex) {

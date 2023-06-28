@@ -38,7 +38,7 @@ public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
         }
     }
 
-    protected JsonNode toJson(Object obj) {
+    private JsonNode toJson(Object obj) {
         var mapper = IEncoder.MAPPER;
         try {
             JsonNode node = mapper.valueToTree(obj);

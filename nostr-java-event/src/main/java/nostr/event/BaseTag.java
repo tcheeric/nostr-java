@@ -1,6 +1,5 @@
 package nostr.event;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -52,6 +51,11 @@ public abstract class BaseTag implements ITag {
     public String getCode() {
         var tag = this.getClass().getAnnotation(Tag.class);
         return tag.code();
+    }
+
+    @Override
+    public Integer getNip() {
+        return 1;
     }
 
     public String getFieldValue(Field field) throws NostrException {

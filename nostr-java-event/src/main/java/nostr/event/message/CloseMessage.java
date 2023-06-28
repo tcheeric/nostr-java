@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.event.impl.GenericMessage;
+import nostr.event.BaseMessage;
 
 /**
  *
@@ -19,7 +19,7 @@ import nostr.event.impl.GenericMessage;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class CloseMessage extends GenericMessage {
+public class CloseMessage extends BaseMessage {
 
     @JsonProperty
     private final String subscriptionId;

@@ -147,7 +147,7 @@ public class EntityFactory {
         }
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
-            GenericTag tag = new GenericTag(tagNip, "devil");
+            GenericTag tag = new GenericTag("devil", tagNip);
             tag.addAttribute(ElementAttribute.builder().value("Lucifer").nip(666).build());
             ((GenericEvent) event).addTag(tag);
             return tag;
@@ -177,7 +177,11 @@ public class EntityFactory {
             list.add(v3);
             list.add(v2);
             list.add(v1);
-            return GenericTagQuery.builder().tagName(c).value(list).build();
+            
+            var result = new GenericTagQuery();
+            result.setTagName(c);
+            result.setValue(list);
+            return result;
         }
     }
 

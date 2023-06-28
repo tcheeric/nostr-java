@@ -21,4 +21,9 @@ public class Nip05Content implements IElement {
     @JsonProperty("relays")
     private Map<String, List<String>> relays;
 
+    @Override
+    public Integer getNip() {
+        return 1;
+    }
+
 }

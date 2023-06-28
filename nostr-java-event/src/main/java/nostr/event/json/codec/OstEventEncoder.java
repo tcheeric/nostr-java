@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
+import lombok.AllArgsConstructor;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
+import nostr.base.IEncoder;
 import static nostr.base.IEncoder.MAPPER;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
@@ -18,15 +19,14 @@ import nostr.util.NostrException;
  *
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class OstEventEncoder extends ElementEncoder {
+@AllArgsConstructor
+public class OstEventEncoder implements IEncoder<OtsEvent> {
 
-    public OstEventEncoder(OtsEvent event, Relay relay) {
-        super(event, relay);
-    }
-
+    private final OtsEvent event;
+    private final Relay relay;
+    
     public OstEventEncoder(OtsEvent event) {
-        super(event);
+        this(event, null);
     }
 
     @Override
@@ -34,10 +34,8 @@ public class OstEventEncoder extends ElementEncoder {
         return toJson();
     }
 
-    @Override
-    protected String toJson() throws NostrException {
+    private String toJson() throws NostrException {
         try {
-            final OtsEvent event = (OtsEvent) getElement();
             JsonNode node = MAPPER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
             event.getAttributes().parallelStream()

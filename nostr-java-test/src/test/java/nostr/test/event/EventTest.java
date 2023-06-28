@@ -2,22 +2,24 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
+import nostr.base.ElementAttribute;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.ElementEncoder;
+import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
@@ -63,7 +65,7 @@ public class EventTest {
                 relay.addNipSupport(a.getNip());
             }
 
-            ElementEncoder encoder = new ElementEncoder((BaseTag)genericTag, relay);
+            var encoder = new BaseTagEncoder((BaseTag)genericTag, relay);
             var strJsonEvent = encoder.encode();
 
             var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
@@ -85,7 +87,7 @@ public class EventTest {
 //            relay.addNipSupport(1);
 //            relay.addNipSupport(genericTag.getNip());
 //
-//            ElementEncoder marshaller = new ElementEncoder(genericTag.getParent(), relay);
+//            BaseEventEncoder marshaller = new BaseEventEncoder(genericTag.getParent(), relay);
 //            var strJsonEvent = marshaller.marshall();
 //
 //            var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
@@ -121,11 +123,11 @@ public class EventTest {
         Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
         relay.addNipSupport(0);
 
-        ElementEncoder marshaller = new ElementEncoder(genericTag.getParent(), relay);
+        var encoder = new BaseEventEncoder((BaseEvent) genericTag.getParent(), relay);
 
         UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
                 () -> {
-                    marshaller.encode();
+                    encoder.encode();
                 },
                 "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
         );
@@ -140,7 +142,7 @@ public class EventTest {
             var nip05 = "erict875@getalby.com";
             var publicKey = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub126klq89p42wk78p4j5ur8wlxmxdqepdh8tez9e4axpd4run5nahsmff27j")));
 
-            Nip05Validator nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
+            var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
 
             nip05Validator.validate();
         } catch (NostrException ex) {

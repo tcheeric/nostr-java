@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.PublicKey;
-import nostr.event.impl.GenericMessage;
+import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
 import nostr.id.Client;
 import nostr.id.Identity;
@@ -27,7 +27,7 @@ class ClientTest {
     public void testSend() {
         System.out.println("testSend");
         PublicKey publicKey = Identity.getInstance().getPublicKey();
-        GenericMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
+        BaseMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
         Client.getInstance().send(msg);
         assertTrue(true);
     }

@@ -1,42 +1,31 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nostr.base.GenericTagQuery;
-import static nostr.base.IEncoder.MAPPER;
+import lombok.NonNull;
+import nostr.base.IEncoder;
 import nostr.base.Relay;
+import nostr.event.impl.GenericTag;
 import nostr.util.NostrException;
 
 /**
- * @author guilhermegps
  *
+ * @author eric
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class GenericTagEncoder extends ElementEncoder {
+@AllArgsConstructor
+public class GenericTagEncoder implements IEncoder<GenericTag> {
 
-    public GenericTagEncoder(GenericTagQuery tag, Relay relay) {
-        super(tag, relay);
+    private final GenericTag tag;
+    private final Relay relay;
+
+    public GenericTagEncoder(@NonNull GenericTag tag) {
+        this(tag, null);
     }
-
-    public GenericTagEncoder(GenericTagQuery tag) {
-        super(tag);
-    }
-
+    
     @Override
     public String encode() throws NostrException {
-        return toJson();
-    }
-
-    @Override
-    protected String toJson() throws NostrException {
-        try {
-            return MAPPER.writeValueAsString((GenericTagQuery) getElement());
-        } catch (JsonProcessingException e) {
-            throw new NostrException(e);
-        }
-    }
-
+        var encoder = new BaseTagEncoder(tag, relay);
+        return encoder.encode();
+    }    
 }

@@ -20,8 +20,8 @@ import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.base.Relay;
+import nostr.event.BaseMessage;
 import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.impl.GenericMessage;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.util.NostrException;
 import nostr.ws.Connection;
@@ -98,7 +98,7 @@ public class Client {
 		        }).collect(Collectors.toSet());
     }
 
-    public void send(@NonNull GenericMessage message) {
+    public void send(@NonNull BaseMessage message) {
         futureRelays.parallelStream()
                 .filter(fr -> {
                     try {
@@ -123,7 +123,7 @@ public class Client {
         log.log(Level.INFO, "Authenticating...");
         Set<Relay> relays = getRelaySet();
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
-        GenericMessage authMsg = new ClientAuthenticationMessage(event);
+        BaseMessage authMsg = new ClientAuthenticationMessage(event);
 
         identity.sign(event);
         this.send(authMsg);
@@ -133,7 +133,7 @@ public class Client {
 
         log.log(Level.INFO, "Authenticating...");
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);
-        GenericMessage authMsg = new ClientAuthenticationMessage(event);
+        BaseMessage authMsg = new ClientAuthenticationMessage(event);
 
         identity.sign(event);
         this.send(authMsg);

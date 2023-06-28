@@ -31,7 +31,7 @@ public class GenericTagDecoder implements IDecoder<GenericTag> {
                 attributes.add(attribute);
             }
 
-            return new GenericTag(null, code, attributes);
+            return new GenericTag(code, null, attributes);
         } catch (JsonProcessingException ex) {
             throw new NostrException(ex);
         }

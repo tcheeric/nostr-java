@@ -3,6 +3,7 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Builder;
@@ -10,7 +11,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.annotation.Key;
 import nostr.event.BaseEvent;
-import nostr.event.json.serializer.CustomGenericTagListSerializer;
+import nostr.event.json.deserializer.CustomGenericTagQueryListDeserializer;
+import nostr.event.json.serializer.CustomGenericTagQueryListSerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
@@ -57,7 +59,8 @@ public class Filters extends BaseEvent {
     private Integer limit;
 
     @Key(nip = 12)
-    @JsonSerialize(using=CustomGenericTagListSerializer.class)
+    @JsonSerialize(using=CustomGenericTagQueryListSerializer.class)    
+    @JsonDeserialize(using=CustomGenericTagQueryListDeserializer.class)    
     private GenericTagQueryList genericTagQueryList;
 
     @Override

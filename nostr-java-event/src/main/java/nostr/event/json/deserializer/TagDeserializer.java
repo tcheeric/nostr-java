@@ -83,7 +83,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
                     final JsonNode nodeMarker = node.get(3);
                     if (nodeMarker != null) {
-                        tag.setMarker(nodeMarker.asText());
+                        tag.setMarker(Marker.valueOf(nodeMarker.asText().toUpperCase()));
                     }
                     return (T) tag;
                 }

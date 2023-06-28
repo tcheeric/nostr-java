@@ -2,7 +2,7 @@ package nostr.ws.handler.spi;
 
 import nostr.base.IHandler;
 import nostr.base.Relay;
-import nostr.event.impl.GenericMessage;
+import nostr.event.BaseMessage;
 import nostr.util.NostrException;
 
 /**
@@ -11,5 +11,5 @@ import nostr.util.NostrException;
  */
 public interface IRequestHandler extends IHandler {
 
-    public abstract void process(GenericMessage message, Relay relay) throws NostrException;
+    public abstract void process(BaseMessage message, Relay relay) throws NostrException;
 }

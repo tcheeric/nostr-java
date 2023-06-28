@@ -33,7 +33,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
         chAttributes.add(attribute);
 
         this.setTags(new ArrayList<>());
-        ITag chTag = new GenericTag(42, "challenge", chAttributes);
+        ITag chTag = new GenericTag("auth", 42, chAttributes);
 
         this.addTag((GenericTag) chTag);
 
@@ -42,7 +42,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
                 final Set<ElementAttribute> relayAttributes = new HashSet<>();
                 final ElementAttribute relayAttribute = getRelayAttribute(r);
                 relayAttributes.add(relayAttribute);
-                final ITag relayTag = new GenericTag(42, "relay", relayAttributes);
+                final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
                 this.addTag((BaseTag) relayTag);
             } catch (InterruptedException | ExecutionException ex) {
                 throw new RuntimeException(ex);
@@ -61,14 +61,14 @@ public class ClientAuthenticationEvent extends GenericEvent {
             chAttributes.add(attribute);
 
             this.setTags(new ArrayList<>());
-            ITag chTag = new GenericTag(42, "challenge", chAttributes);
+            ITag chTag = new GenericTag("auth", 42, chAttributes);
 
             this.addTag((BaseTag) chTag);
 
             final Set<ElementAttribute> relayAttributes = new HashSet<>();
             final ElementAttribute relayAttribute = getRelayAttribute(relay);
             relayAttributes.add(relayAttribute);
-            final ITag relayTag = new GenericTag(42, "relay", relayAttributes);
+            final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
             this.addTag((BaseTag) relayTag);
 
             this.setNip(42);

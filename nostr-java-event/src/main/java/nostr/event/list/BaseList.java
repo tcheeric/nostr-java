@@ -1,4 +1,3 @@
-
 package nostr.event.list;
 
 import java.util.List;
@@ -20,7 +19,7 @@ import nostr.event.json.serializer.CustomBaseListSerializer;
 @AllArgsConstructor
 @Data
 @JsonList
-@JsonSerialize(using=CustomBaseListSerializer.class)
+@JsonSerialize(using = CustomBaseListSerializer.class)
 public abstract class BaseList<T> implements INostrList<T> {
 
     @NonNull
@@ -46,4 +45,10 @@ public abstract class BaseList<T> implements INostrList<T> {
     public int size() {
         return this.list.size();
     }
+
+    @Override
+    public Integer getNip() {
+        return 1;
+    }
+
 }

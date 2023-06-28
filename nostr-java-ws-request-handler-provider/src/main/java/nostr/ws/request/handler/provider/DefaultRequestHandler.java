@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
+import nostr.event.BaseMessage;
 import nostr.event.impl.GenericMessage;
-import nostr.event.json.codec.MessageEncoder;
+import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
 import nostr.ws.Connection;
@@ -31,7 +32,7 @@ public class DefaultRequestHandler implements IRequestHandler {
     private Connection connection;
 
     @Override
-    public void process(GenericMessage message, Relay relay) throws NostrException {
+    public void process(BaseMessage message, Relay relay) throws NostrException {
         try {
             this.connection = new Connection(relay);
             sendMessage(message);
@@ -46,7 +47,7 @@ public class DefaultRequestHandler implements IRequestHandler {
         }
     }
 
-    private void sendMessage(GenericMessage message) throws IOException, NostrException {
+    private void sendMessage(BaseMessage message) throws IOException, NostrException {
 
         final Relay relay = connection.getRelay();
 
@@ -58,7 +59,7 @@ public class DefaultRequestHandler implements IRequestHandler {
         if (session != null) {
             RemoteEndpoint remote = session.getRemote();
 
-            final String msg = new MessageEncoder(message, relay).encode();
+            final String msg = new BaseMessageEncoder(message, relay).encode();
 
             log.log(Level.INFO, ">>> Sending Message: {0}", msg);
 

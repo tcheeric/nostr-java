@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.logging.Level;
+import lombok.AllArgsConstructor;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,8 +12,6 @@ import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
-import nostr.event.json.codec.ElementEncoder;
-import nostr.util.NostrException;
 
 /**
  *
@@ -22,28 +20,23 @@ import nostr.util.NostrException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Log
+@AllArgsConstructor
 public class GenericTag extends BaseTag implements IGenericElement {
-    
+
     private final String code;
-    
+
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private final Integer nip;
-    
+
     private final Set<ElementAttribute> attributes;
 
     public GenericTag(String code) {
-        this(1, code, new HashSet<>());
+        this(code, 1);
     }
 
-    public GenericTag(Integer nip, String code) {
-        this(nip, code, new HashSet<>());
-    }
-
-    public GenericTag(Integer nip, String code, Set<ElementAttribute> attributes) {
-        this.nip = nip;
-        this.code = code;
-        this.attributes = attributes;
+    public GenericTag(String code, Integer nip) {
+        this(code, nip, new HashSet<>());
     }
 
     @Override
@@ -51,13 +44,4 @@ public class GenericTag extends BaseTag implements IGenericElement {
         this.attributes.add(attribute);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return new ElementEncoder(this).encode();
-        } catch (NostrException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
-        }
-    }
 }

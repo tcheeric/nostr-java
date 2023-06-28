@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nostr.base.Command;
+import nostr.event.BaseMessage;
 import nostr.event.impl.Filters;
-import nostr.event.impl.GenericMessage;
 
 /**
  *
@@ -16,7 +16,7 @@ import nostr.event.impl.GenericMessage;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class ReqMessage extends GenericMessage {
+public class ReqMessage extends BaseMessage {
 
     @JsonProperty
     private final String subscriptionId;
