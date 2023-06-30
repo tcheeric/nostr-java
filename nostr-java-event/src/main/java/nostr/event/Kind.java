@@ -18,6 +18,7 @@ public enum Kind {
     CONTACT_LIST(3, "contact_list"),
     ENCRYPTED_DIRECT_MESSAGE(4, "encrypted_direct_message"),
     DELETION(5, "deletion"),
+    REPOST(6,"repost"),
     REACTION(7, "reaction"),
     CHANNEL_CREATE(40, "channel_create"),
     CHANNEL_METADATA(41, "channel_metadata"),
