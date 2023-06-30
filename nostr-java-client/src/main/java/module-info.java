@@ -1,8 +1,19 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/module-info.java to edit this template
+ */
 
-module nostr.examples {
+module nostr.client {
     requires nostr.event;
-    requires nostr.client;
     requires static lombok;
+    requires java.logging;
+    requires nostr.util;
+    requires nostr.base;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.core;
+    requires nostr.crypto;
+    requires nostr.id;
     requires nostr.ws;
     requires org.eclipse.jetty.websocket.jetty.client;
     requires org.eclipse.jetty.websocket.jetty.api;
@@ -20,15 +31,10 @@ module nostr.examples {
     requires org.eclipse.jetty.alpn.client;
     requires org.eclipse.jetty.http2.http.client.transport;
     requires org.eclipse.jetty.alpn.java.client;
-    requires nostr.util;
-    requires nostr.base;
-    requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.core;
-    requires nostr.crypto;
-    requires nostr.id;
+    requires nostr.ws.response.handler.provider;
     requires org.bouncycastle.provider;
-    requires java.logging;
+    requires nostr.ws.handler;
+    requires nostr.ws.request.handler.provider;
     
-    exports nostr.examples;
+    exports nostr.client;
 }

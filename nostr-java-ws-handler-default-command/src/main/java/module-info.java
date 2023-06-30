@@ -9,6 +9,7 @@ module nostr.ws.handler.command.provider {
     requires nostr.base;
     requires nostr.id;
     requires nostr.event;
+    requires nostr.client;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;

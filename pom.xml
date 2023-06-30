@@ -21,6 +21,7 @@
         <module>nostr-java-ws-handler-default-command</module>
         <module>nostr-java-ws-request-handler-provider</module>
         <module>nostr-java-ws-response-handler-provider</module>
+        <module>nostr-java-client</module>
     </modules>
 
     <properties>

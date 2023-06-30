@@ -1,4 +1,4 @@
-package nostr.id;
+package nostr.client;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +23,7 @@ import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.impl.ClientAuthenticationEvent;
 import nostr.event.message.ClientAuthenticationMessage;
+import nostr.id.Identity;
 import nostr.util.NostrException;
 import nostr.ws.Connection;
 import nostr.ws.handler.spi.IRequestHandler;

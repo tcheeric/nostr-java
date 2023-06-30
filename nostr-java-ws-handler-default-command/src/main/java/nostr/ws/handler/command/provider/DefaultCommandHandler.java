@@ -9,7 +9,7 @@ import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
-import nostr.id.Client;
+import nostr.client.Client;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import nostr.ws.handler.command.spi.ICommandHandler;

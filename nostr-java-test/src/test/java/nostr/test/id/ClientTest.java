@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
-import nostr.id.Client;
+import nostr.client.Client;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import nostr.util.NostrException;
