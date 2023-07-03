@@ -1,11 +1,18 @@
 package nostr.crypto.schnorr;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.Security;
+import java.security.interfaces.ECPrivateKey;
+import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
-import java.util.logging.Level;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import lombok.extern.java.Log;
 import nostr.crypto.Point;
@@ -13,12 +20,6 @@ import nostr.util.NostrUtil;
 
 @Log
 public class Schnorr {
-
-    private static final String RANDOM_NUMBER_ALGORITHM = "SHA1PRNG";
-    private static final String RANDOM_NUMBER_ALGORITHM_PROVIDER = "SUN";
-
-    private static final BigInteger MAXPRIVATEKEY
-            = new BigInteger("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140", 16);
 
     /**
      * 
@@ -119,26 +120,17 @@ public class Schnorr {
      * @return 
      */
     public static byte[] generatePrivateKey() {
-        SecureRandom secureRandom;
         try {
-            secureRandom = SecureRandom.getInstance(RANDOM_NUMBER_ALGORITHM, RANDOM_NUMBER_ALGORITHM_PROVIDER);
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            log.log(Level.SEVERE, null, e);
-            secureRandom = new SecureRandom();
+        	Security.addProvider(new BouncyCastleProvider());	
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", "BC");
+            kpg.initialize(new ECGenParameterSpec("secp256k1"), SecureRandom.getInstanceStrong());
+            KeyPair processorKeyPair = kpg.genKeyPair();
+            
+            return NostrUtil.bytesFromBigInteger(((ECPrivateKey) processorKeyPair.getPrivate()).getS());
+        
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new RuntimeException(e);
         }
-
-        // Generate the key, skipping as many as desired.
-        byte[] privateKeyAttempt = new byte[32];
-        secureRandom.nextBytes(privateKeyAttempt);
-        BigInteger privateKeyCheck = new BigInteger(1, privateKeyAttempt);
-
-        while (privateKeyCheck.compareTo(BigInteger.ZERO) == 0
-                || privateKeyCheck.compareTo(MAXPRIVATEKEY) == 1) {
-            secureRandom.nextBytes(privateKeyAttempt);
-            privateKeyCheck = new BigInteger(1, privateKeyAttempt);
-        }
-
-        return privateKeyAttempt;
     }
 
     public static byte[] genPubKey(byte[] secKey) throws Exception {
