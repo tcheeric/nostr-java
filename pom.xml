@@ -5,22 +5,23 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>nostr-event</module>
-        <module>nostr-base</module>
-        <module>nostr-id</module>
-        <module>nostr-test</module>
-        <module>nostr-examples</module>
-        <module>nostr-util</module>
-        <module>nostr-crypto</module>
-        <module>nostr-ws</module>
-        <module>nostr-ws-handler</module>
-        <module>nostr-ws-response-handler-provider</module>
-        <module>nostr-ws-handler-default-command</module>
-        <module>nostr-ws-request-handler-provider</module>
+        <module>nostr-java-base</module>
+        <module>nostr-java-crypto</module>
+        <module>nostr-java-event</module>
+        <module>nostr-java-examples</module>
+        <module>nostr-java-id</module>
+        <module>nostr-java-test</module>
+        <module>nostr-java-util</module>
+        <module>nostr-java-ws</module>
+        <module>nostr-java-ws-handler-interface</module>
+        <module>nostr-java-ws-handler-default-command</module>
+        <module>nostr-java-ws-request-handler-provider</module>
+        <module>nostr-java-ws-response-handler-provider</module>
+        <module>nostr-java-client</module>
     </modules>
 
     <properties>
@@ -56,6 +57,11 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>2.14.1</version>
             </dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk15on</artifactId>
+				<version>1.70</version>
+			</dependency>
 
             <!-- Test Dependencies -->
             <dependency>

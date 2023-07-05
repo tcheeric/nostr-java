@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>nostr-java</groupId>
+        <artifactId>nostr-java</artifactId>
+        <version>0.2</version>
+    </parent>
+
+    <artifactId>nostr-java-ws</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <jetty-websocket.version>11.0.13</jetty-websocket.version>
+    </properties>
+
+    <dependencies>
+        <!-- Jetty Dependencies -->
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-jetty-client</artifactId>
+            <version>${jetty-websocket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-client</artifactId>
+            <version>${jetty-websocket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-http-client-transport</artifactId>
+            <version>${jetty-websocket.version}</version>
+        </dependency>
+
+        <!-- Project Dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-event</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-ws-handler-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-ws-response-handler-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>
