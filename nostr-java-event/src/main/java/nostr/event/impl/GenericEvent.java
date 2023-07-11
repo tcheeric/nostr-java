@@ -26,7 +26,6 @@ import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
-import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
@@ -54,7 +53,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @JsonProperty("pubkey")
     @EqualsAndHashCode.Include
-    @JsonString
     @JsonDeserialize(using = PublicKeyDeserializer.class)
     private PublicKey pubKey;
 
@@ -79,7 +77,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @JsonProperty("sig")
     @EqualsAndHashCode.Exclude
-    @JsonString
     @JsonDeserialize(using = SignatureDeserializer.class)
     private Signature signature;
 
