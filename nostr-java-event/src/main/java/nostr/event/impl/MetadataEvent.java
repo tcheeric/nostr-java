@@ -43,7 +43,7 @@ public final class MetadataEvent extends GenericEvent {
     protected void validate() {
         boolean valid = true;
         
-        var strNameArr = this.profile.getName().split("@");
+        var strNameArr = this.profile.getNip05().split("@");
         if (strNameArr.length == 2) {
             var localPart = strNameArr[0];
             valid = localPart.matches(NAME_PATTERN);
