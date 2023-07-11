@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.annotation.JsonList;
 
 /**
  *
@@ -15,7 +14,6 @@ import nostr.base.annotation.JsonList;
  */
 @Builder
 @Log
-@JsonList
 public class FiltersList extends BaseList<Filters> {
 
     public FiltersList() {
