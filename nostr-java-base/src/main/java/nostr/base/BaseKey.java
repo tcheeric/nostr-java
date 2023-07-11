@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.base.annotation.JsonString;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrException;
@@ -26,7 +25,6 @@ public abstract class BaseKey implements IKey {
     protected final KeyType type;
 
     @NonNull
-    @JsonString
     protected final byte[] rawData;
 
     protected final Bech32Prefix prefix;
