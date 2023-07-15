@@ -12,10 +12,6 @@ module nostr.api {
     
     requires lombok;
     requires java.logging;
-    /*requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.core;
-    requires org.bouncycastle.provider;*/
 
     exports nostr.api;
 }
