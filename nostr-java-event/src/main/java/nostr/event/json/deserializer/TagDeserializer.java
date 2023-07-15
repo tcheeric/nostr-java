@@ -61,7 +61,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                         tag.setNonce(Integer.valueOf(nodeNonce.asText()));
                     }
 
-                    final JsonNode nodeDifficulty = node.get(1);
+                    final JsonNode nodeDifficulty = node.get(2);
                     if (nodeDifficulty != null) {
                         tag.setDifficulty(Integer.valueOf(nodeDifficulty.asText()));
                     }
