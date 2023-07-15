@@ -18,11 +18,16 @@ import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.base.IEvent;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.impl.Filters;
 import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CloseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import nostr.ws.Connection;
@@ -99,6 +104,27 @@ public class Client {
 		        }).collect(Collectors.toSet());
     }
 
+    public void send(@NonNull IEvent event) {
+        EventMessage message = new EventMessage(event);
+        send(message);
+    }
+
+    public void send(@NonNull IEvent event, String subsciptionId) {
+        EventMessage message = new EventMessage(event, subsciptionId);
+        send(message);
+    }
+
+    public void send(@NonNull Filters filters, String subscriptionId) {
+        ReqMessage message = new ReqMessage(subscriptionId, filters);
+        send(message);
+    }
+
+    public void send(@NonNull String subscriptionId) {
+        CloseMessage message = new CloseMessage(subscriptionId);
+        send(message);
+    }
+
+    // TODO - Make private?
     public void send(@NonNull BaseMessage message) {
         futureRelays.parallelStream()
                 .filter(fr -> {

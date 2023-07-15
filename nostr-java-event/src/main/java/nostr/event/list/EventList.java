@@ -13,6 +13,7 @@ import nostr.event.impl.GenericEvent;
  * @author squirrel
  */
 @Builder
+// TODO - public class EventList extends BaseList<? extends GenericEvent>
 public class EventList extends BaseList<GenericEvent> {
 
     public EventList() {

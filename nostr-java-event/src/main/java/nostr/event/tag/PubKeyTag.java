@@ -29,7 +29,7 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "p")
 @NoArgsConstructor
-public class PubKeyTag extends BaseTag {
+public class PubKeyTag extends NIP01Tags {
 
     @Key
     @JsonProperty("publicKey")

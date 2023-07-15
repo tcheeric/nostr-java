@@ -22,6 +22,7 @@
         <module>nostr-java-ws-request-handler-provider</module>
         <module>nostr-java-ws-response-handler-provider</module>
         <module>nostr-java-client</module>
+        <module>nostr-java-api</module>
     </modules>
 
     <properties>
