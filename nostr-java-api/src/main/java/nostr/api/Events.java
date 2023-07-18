@@ -9,14 +9,10 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
-import nostr.base.annotation.Key;
 import nostr.event.impl.ContactListEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.OtsEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.json.deserializer.CustomGenericTagQueryListDeserializer;
-import nostr.event.json.serializer.CustomGenericTagQueryListSerializer;
-import nostr.event.json.serializer.CustomIdEventListSerializer;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
@@ -28,6 +24,7 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
+@Deprecated(forRemoval = true)
 public class Events {
 
     @Data

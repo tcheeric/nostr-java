@@ -18,6 +18,7 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
+@Deprecated(forRemoval = true)
 public class Tags {
 
     @Data
