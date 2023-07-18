@@ -31,7 +31,7 @@ public class NIP02 {
 
         
         @Override
-        public ContactListEvent createEvent() {
+        public ContactListEvent create() {
             return new ContactListEvent(getSender(), relatedPubKeys);
         }
 

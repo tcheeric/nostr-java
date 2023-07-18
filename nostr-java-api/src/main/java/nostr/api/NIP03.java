@@ -33,7 +33,7 @@ public class NIP03 {
         }
 
         @Override
-        public OtsEvent createEvent() {
+        public OtsEvent create() {
             var event = new OtsEvent(getSender(), new ArrayList<>(), getContent(), ots);
             relatedEvents.stream().forEach(e -> event.addTag(e));
             relatedPubKeys.stream().forEach(p -> event.addTag(p));

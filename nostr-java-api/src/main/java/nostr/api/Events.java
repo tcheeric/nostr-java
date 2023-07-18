@@ -57,7 +57,7 @@ public class Events {
         }
 
         @Override
-        public TextNoteEvent createEvent() {
+        public TextNoteEvent create() {
             var event = new TextNoteEvent(getSender(), new ArrayList<>(), getContent());
             relatedEvents.stream().forEach(e -> event.addTag(e));
             relatedPubKeys.stream().forEach(p -> event.addTag(p));
@@ -81,7 +81,7 @@ public class Events {
         }
 
         @Override
-        public ContactListEvent createEvent() {
+        public ContactListEvent create() {
             return new ContactListEvent(getSender(), relatedPubKeys);
         }
 
@@ -103,7 +103,7 @@ public class Events {
         }
 
         @Override
-        public OtsEvent createEvent() {
+        public OtsEvent create() {
             var event = new OtsEvent(getSender(), new ArrayList<>(), getContent(), ots);
             relatedEvents.stream().forEach(e -> event.addTag(e));
             relatedPubKeys.stream().forEach(p -> event.addTag(p));

@@ -24,5 +24,5 @@ public abstract class EventFactory<T extends IEvent> {
         this.sender = sender;
     }
 
-    public abstract T createEvent();
+    public abstract T create();
 }

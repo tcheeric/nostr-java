@@ -13,5 +13,5 @@ import nostr.base.ITag;
  */
 public abstract class TagFactory<T extends ITag> {
 
-    public abstract T createTag();
+    public abstract T create();
 }

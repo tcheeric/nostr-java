@@ -45,7 +45,7 @@ public class Tags {
         }
 
         @Override
-        public NIP01Tags createTag() {
+        public NIP01Tags create() {
             switch (type) {
                 case Event -> {
                     return createEventTag(relateEvent, recommendedRelayUrl, marker);

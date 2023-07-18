@@ -42,7 +42,7 @@ public class NIP01 {
         }
 
         @Override
-        public TextNoteEvent createEvent() {
+        public TextNoteEvent create() {
             var event = new nostr.event.impl.TextNoteEvent(getSender(), new ArrayList<>(), getContent());
             relatedEvents.stream().forEach(e -> event.addTag(e));
             relatedPubKeys.stream().forEach(p -> event.addTag(p));
@@ -64,7 +64,7 @@ public class NIP01 {
         }
 
         @Override
-        public EventTag createTag() {
+        public EventTag create() {
             return new EventTag(relateEvent.getId(), recommendedRelayUrl, marker);
         }
         
@@ -83,7 +83,7 @@ public class NIP01 {
         }
 
         @Override
-        public PubKeyTag createTag() {
+        public PubKeyTag create() {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
         
@@ -109,8 +109,8 @@ public class NIP01 {
         }
 
         @Override
-        public nostr.event.impl.Filters createEvent() {
-            return nostr.event.impl.Filters.builder().authors(authors).events(events).genericTagQueryList(genericTagQueryList).kinds(kinds).limit(limit).referencePubKeys(referencePubKeys).referencedEvents(referencedEvents).since(since).until(until).build();
+        public Filters create() {
+            return Filters.builder().authors(authors).events(events).genericTagQueryList(genericTagQueryList).kinds(kinds).limit(limit).referencePubKeys(referencePubKeys).referencedEvents(referencedEvents).since(since).until(until).build();
         }
 
     }
