@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
 import nostr.base.ITag;
@@ -25,6 +27,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
         super(pubKey, Kind.CLIENT_AUTH, tags);
     }
 
+    @Deprecated(forRemoval = true)
     public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Set<Relay> relays) {
         super(pubKey, Kind.CLIENT_AUTH);
 
