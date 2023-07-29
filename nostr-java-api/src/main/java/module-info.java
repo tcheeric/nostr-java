@@ -9,6 +9,7 @@ module nostr.api {
     requires nostr.crypto;
     requires nostr.event;
     requires nostr.id;
+    requires nostr.client;
     
     requires lombok;
     requires java.logging;

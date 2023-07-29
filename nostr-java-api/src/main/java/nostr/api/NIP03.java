@@ -4,29 +4,30 @@
  */
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
+import nostr.api.factory.EventFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
 import nostr.event.impl.OtsEvent;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.PubKeyTag;
 
 /**
  *
  * @author eric
  */
-public class NIP03 {
+public class NIP03 extends Api {
     
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class OtsEventFactory extends EventFactory<OtsEvent> {
 
         private final String ots;
-        private List<EventTag> relatedEvents;
-        private List<PubKeyTag> relatedPubKeys;
 
+        public OtsEventFactory(String ots, String content) {
+            super(content);
+            this.ots = ots;
+        }
+
+        @Deprecated
         public OtsEventFactory(String ots, PublicKey sender, String content) {
             super(sender, content);
             this.ots = ots;
@@ -34,10 +35,7 @@ public class NIP03 {
 
         @Override
         public OtsEvent create() {
-            var event = new OtsEvent(getSender(), new ArrayList<>(), getContent(), ots);
-            relatedEvents.stream().forEach(e -> event.addTag(e));
-            relatedPubKeys.stream().forEach(p -> event.addTag(p));
-            return event;
+            return new OtsEvent(getSender(), getTags(), getContent(), ots);
         }
         
     }

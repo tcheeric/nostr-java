@@ -24,6 +24,11 @@
             <artifactId>nostr-java-id</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>nostr-client</groupId>
+            <artifactId>nostr-client</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <properties>
         <exec.mainClass>nostr.java.api.NostrJavaApi</exec.mainClass>

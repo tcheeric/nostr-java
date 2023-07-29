@@ -4,11 +4,14 @@
  */
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
+import nostr.api.factory.EventFactory;
+import nostr.api.factory.TagFactory;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import nostr.api.factory.MessageFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.Marker;
@@ -18,6 +21,11 @@ import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
+import nostr.event.message.CloseMessage;
+import nostr.event.message.EoseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.NoticeMessage;
+import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 
@@ -25,27 +33,26 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
-public class NIP01 {
+public class NIP01 extends Api {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class TextNoteEventFactory extends EventFactory<TextNoteEvent> {
 
         // TextEvents attributes
-        private List<EventTag> relatedEvents;
-        private List<PubKeyTag> relatedPubKeys;
+        public TextNoteEventFactory(String content) {
+            super(content);
+        }
 
+        @Deprecated
         public TextNoteEventFactory(PublicKey sender, String content) {
             super(sender, content);
-            this.relatedEvents = new ArrayList<>();
-            this.relatedPubKeys = new ArrayList<>();
         }
 
         @Override
         public TextNoteEvent create() {
-            var event = new nostr.event.impl.TextNoteEvent(getSender(), new ArrayList<>(), getContent());
-            relatedEvents.stream().forEach(e -> event.addTag(e));
-            relatedPubKeys.stream().forEach(p -> event.addTag(p));
+            var event = new nostr.event.impl.TextNoteEvent(getSender(), getTags(), getContent());
+            getTags().stream().forEach(t -> event.addTag(t));
             return event;
         }
 
@@ -67,9 +74,9 @@ public class NIP01 {
         public EventTag create() {
             return new EventTag(relateEvent.getId(), recommendedRelayUrl, marker);
         }
-        
+
     }
-    
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class PubKeyTagFactory extends TagFactory<PubKeyTag> {
@@ -86,12 +93,12 @@ public class NIP01 {
         public PubKeyTag create() {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
-        
+
     }
-    
+
     @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class FiltersFactory extends EventFactory<Filters> {
+    @NoArgsConstructor
+    public static class FiltersFactory {
 
         // Filters attributes
         private EventList events;
@@ -104,14 +111,86 @@ public class NIP01 {
         private Integer limit;
         private GenericTagQueryList genericTagQueryList;
 
-        public FiltersFactory() {
-            super(null, null);
-        }
-
-        @Override
         public Filters create() {
             return Filters.builder().authors(authors).events(events).genericTagQueryList(genericTagQueryList).kinds(kinds).limit(limit).referencePubKeys(referencePubKeys).referencedEvents(referencedEvents).since(since).until(until).build();
         }
+    }
 
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class EventMessageFactory extends MessageFactory<EventMessage> {
+
+        private final IEvent event;
+        private String subscriptionId;
+
+        public EventMessageFactory(IEvent event) {
+            this.event = event;
+        }
+
+        @Override
+        public EventMessage create() {
+            return new EventMessage(event, subscriptionId);
+        }
+
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    public static class ReqMessageFactory extends MessageFactory<ReqMessage> {
+
+        private final String subscriptionId;
+        private final Filters filters;
+
+        @Override
+        public ReqMessage create() {
+            return new ReqMessage(subscriptionId, filters);
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    public static class CloseMessageFactory extends MessageFactory<CloseMessage> {
+
+        private final String subscriptionId;
+
+        @Override
+        public CloseMessage create() {
+            return new CloseMessage(subscriptionId);
+        }
+
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    public static class EoseMessageFactory extends MessageFactory<EoseMessage> {
+
+        private final String subscriptionId;
+
+        @Override
+        public EoseMessage create() {
+            return new EoseMessage(subscriptionId);
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    public static class NoticeMessageFactory extends MessageFactory<NoticeMessage> {
+
+        private final String message;
+
+        @Override
+        public NoticeMessage create() {
+            return new NoticeMessage(message);
+        }
+    }
+
+    public static class Kinds {
+        public static final Integer KIND_SET_METADATA = 0;
+        public static final Integer KIND_TEXT_NOTE = 1;
+        public static final Integer KIND_RECOMMEND_SERVER = 2;
     }
 }

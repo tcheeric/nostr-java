@@ -4,7 +4,7 @@
  */
 package nostr.api;
 
-import java.util.ArrayList;
+import nostr.api.factory.EventFactory;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,24 +16,30 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
-public class NIP02 {
+public class NIP02 extends Api {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class ContactListEventFactory extends EventFactory<ContactListEvent> {
 
-        private List<PubKeyTag> relatedPubKeys;
+        public ContactListEventFactory(String content, List<PubKeyTag> relatedPubKeys) {
+            super(relatedPubKeys, content);
+        }
 
+        @Deprecated
         public ContactListEventFactory(PublicKey sender, String content) {
             super(sender, content);
-            this.relatedPubKeys = new ArrayList<>();
         }
 
-        
         @Override
         public ContactListEvent create() {
-            return new ContactListEvent(getSender(), relatedPubKeys);
+            return new ContactListEvent(getSender(), getTags());
         }
-
     }
+
+    public static class Kinds {
+
+        public static final Integer KIND_CONTACT_LIST = 3;
+    }
+
 }
