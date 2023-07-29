@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.tag.PubKeyTag;
 
 /**
  *
@@ -18,7 +18,7 @@ import nostr.event.tag.PubKeyTag;
 @Event(name = "Contact List and Petnames", nip = 2)
 public class ContactListEvent extends GenericEvent {
 
-    public ContactListEvent(@NonNull PublicKey pubKey, @NonNull List<PubKeyTag> tags) {
+    public ContactListEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags) {
         super(pubKey, Kind.CONTACT_LIST, tags);
     }
 
