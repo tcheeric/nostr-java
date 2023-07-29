@@ -15,7 +15,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
-import nostr.event.BaseTag;
 import nostr.event.Marker;
 
 /**
