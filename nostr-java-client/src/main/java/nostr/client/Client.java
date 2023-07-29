@@ -94,14 +94,14 @@ public class Client {
 
                     return false;
                 }).map(fr -> {
-		            try {
-		                return fr.get();
-		            } catch (InterruptedException | ExecutionException e) {
-		                log.log(Level.SEVERE, null, e);
-		            }
-		
-		            return null;
-		        }).collect(Collectors.toSet());
+            try {
+                return fr.get();
+            } catch (InterruptedException | ExecutionException e) {
+                log.log(Level.SEVERE, null, e);
+            }
+
+            return null;
+        }).collect(Collectors.toSet());
     }
 
     public void send(@NonNull IEvent event) {
@@ -154,6 +154,10 @@ public class Client {
 
         identity.sign(event);
         this.send(authMsg);
+    }
+
+    public void auth(String challenge, Relay relay) throws NostrException {
+        auth(Identity.getInstance(), challenge, relay);
     }
 
     public void auth(Identity identity, String challenge, Relay relay) throws NostrException {
@@ -225,7 +229,7 @@ public class Client {
 
     @Log
     static class RelayConfiguration extends AbstractBaseConfiguration {
-        
+
         RelayConfiguration() throws IOException {
             super();
             var configFile = appConfig.getRelaysProperties();
