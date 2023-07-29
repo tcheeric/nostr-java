@@ -1,0 +1,72 @@
+package nostr.event.impl;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import nostr.base.PublicKey;
+import nostr.base.annotation.Event;
+import nostr.event.AbstractContent;
+import nostr.event.BaseTag;
+
+/**
+ *
+ * @author eric
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Event(name = "Create or update a stall", nip = 15)
+public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
+
+    public CreateOrUpdateStallEvent(PublicKey sender, List<? extends BaseTag> tags, @NonNull Stall stall) {
+        super(sender, 30017, tags, stall);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class Stall extends AbstractContent<CreateOrUpdateStallEvent> {
+
+        @JsonProperty
+        private final String id;
+        
+        @JsonProperty
+        private String name;
+        
+        @JsonProperty
+        private String description;
+        
+        @JsonProperty
+        private String currency;
+        
+        @JsonProperty
+        private Shipping shipping;        
+
+        public Stall() {
+            this.id = UUID.randomUUID().toString();
+        }
+
+        @Data
+        public static class Shipping {
+
+            @JsonProperty
+            private final String id;
+            
+            @JsonProperty
+            private String name;
+            
+            @JsonProperty
+            private Float cost;
+            
+            @JsonProperty
+            private List<String> countries;
+
+            public Shipping() {
+                this.countries = new ArrayList<>();
+                this.id = UUID.randomUUID().toString();
+            }
+        }
+    }
+}
