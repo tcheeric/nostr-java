@@ -6,6 +6,7 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
+import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.base.Relay;
@@ -43,74 +44,96 @@ public abstract class Api {
         return identity.sign(signable);
     }
 
-    // Events
-    public static String toJson(@NonNull BaseEvent event) throws NostrException {
-        return Api.toJson(event, null);
-    }
+    public static class Json {
+        // Events
 
-    public static String toJson(@NonNull BaseEvent event, Relay relay) throws NostrException {
-        final var enc = new BaseEventEncoder(event, relay);
-        return enc.encode();
-    }
+        public static String encode(@NonNull BaseEvent event) throws NostrException {
+            return Api.Json.encode(event, null);
+        }
 
-    public static BaseEvent fromJsonEvent(@NonNull String json) throws NostrException {
-        final var dec = new BaseEventDecoder(json);
-        return dec.decode();
-    }
+        public static String encode(@NonNull BaseEvent event, Relay relay) throws NostrException {
+            final var enc = new BaseEventEncoder(event, relay);
+            return enc.encode();
+        }
 
-    // Messages
-    public static String toJson(@NonNull BaseMessage message, Relay relay) throws NostrException {
-        final var enc = new BaseMessageEncoder(message, relay);
-        return enc.encode();
-    }
+        public static BaseEvent decodeEvent(@NonNull String json) throws NostrException {
+            final var dec = new BaseEventDecoder(json);
+            return dec.decode();
+        }
 
-    public static String toJson(@NonNull BaseMessage message) throws NostrException {
-        return Api.toJson(message, null);
-    }
+        // Messages
+        public static String encode(@NonNull BaseMessage message, Relay relay) throws NostrException {
+            final var enc = new BaseMessageEncoder(message, relay);
+            return enc.encode();
+        }
 
-    public static BaseMessage fromJsonMessage(@NonNull String json) throws NostrException {
-        final var dec = new BaseMessageDecoder(json);
-        return dec.decode();
-    }
+        public static String encode(@NonNull BaseMessage message) throws NostrException {
+            return Api.Json.encode(message, null);
+        }
 
-    // Tags
-    public static String toJson(@NonNull BaseTag tag, Relay relay) throws NostrException {
-        final var enc = new BaseTagEncoder(tag, relay);
-        return enc.encode();
-    }
+        public static BaseMessage decodeMessage(@NonNull String json) throws NostrException {
+            final var dec = new BaseMessageDecoder(json);
+            return dec.decode();
+        }
 
-    public static String toJson(@NonNull BaseTag tag) throws NostrException {
-        return Api.toJson(tag, null);
-    }
+        // Tags
+        public static String encode(@NonNull BaseTag tag, Relay relay) throws NostrException {
+            final var enc = new BaseTagEncoder(tag, relay);
+            return enc.encode();
+        }
 
-    public static BaseTag fromJsonTag(@NonNull String json) throws NostrException {
-        final var dec = new BaseTagDecoder(json);
-        return dec.decode();
-    }
+        public static String encode(@NonNull BaseTag tag) throws NostrException {
+            return Api.Json.encode(tag, null);
+        }
 
-    // Filters
-    public static String toJson(@NonNull Filters filters, Relay relay) throws NostrException {
-        final var enc = new FiltersEncoder(filters, relay);
-        return enc.encode();
-    }
+        public static BaseTag decodeTag(@NonNull String json) throws NostrException {
+            final var dec = new BaseTagDecoder(json);
+            return dec.decode();
+        }
 
-    public static String toJson(@NonNull Filters filters) throws NostrException {
-        return Api.toJson(filters, null);
-    }
+        // Filters
+        public static String encode(@NonNull Filters filters, Relay relay) throws NostrException {
+            final var enc = new FiltersEncoder(filters, relay);
+            return enc.encode();
+        }
 
-    public static Filters fromJsonFilters(@NonNull String json) throws NostrException {
-        final var dec = new FiltersDecoder(json);
-        return dec.decode();
-    }
+        public static String encode(@NonNull Filters filters) throws NostrException {
+            return Api.Json.encode(filters, null);
+        }
 
-    // Generic Tag Queries
-    public static String toJson(@NonNull GenericTagQuery gtq, Relay relay) throws NostrException {
-        final var enc = new GenericTagQueryEncoder(gtq, relay);
-        return enc.encode();
-    }
+        public static Filters decodeFilters(@NonNull String json) throws NostrException {
+            final var dec = new FiltersDecoder(json);
+            return dec.decode();
+        }
 
-    public static String toJson(@NonNull GenericTagQuery gtq) throws NostrException {
-        return Api.toJson(gtq, null);
+        // Generic Tag Queries
+        public static String encode(@NonNull GenericTagQuery gtq, Relay relay) throws NostrException {
+            final var enc = new GenericTagQueryEncoder(gtq, relay);
+            return enc.encode();
+        }
+
+        public static String encode(@NonNull GenericTagQuery gtq) throws NostrException {
+            return Api.Json.encode(gtq, null);
+        }
+
+        public static IElement decode(@NonNull String json, @NonNull Class clazz) throws NostrException {
+            switch (clazz.getName()) {
+                case "nostr.event.BaseEvent.class" -> {
+                    return decodeEvent(json);
+                }
+                case "nostr.event.BaseMessage.class" -> {
+                    return decodeMessage(json);
+                }
+                case "nostr.event.BaseTag.class" -> {
+                    return decodeTag(json);
+                }
+                case "nostr.event.Filters.class" -> {
+                    return decodeFilters(json);
+                }
+                default -> throw new AssertionError();
+            }
+        }
+
     }
 
     // Utils
