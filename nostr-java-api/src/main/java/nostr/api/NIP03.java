@@ -14,7 +14,7 @@ import nostr.event.impl.OtsEvent;
  *
  * @author eric
  */
-public class NIP03 extends Api {
+public class NIP03 extends Nostr {
     
     @Data
     @EqualsAndHashCode(callSuper = false)

@@ -27,7 +27,7 @@ import nostr.util.NostrException;
  *
  * @author eric
  */
-public class NIP42 extends Api {
+public class NIP42 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -114,7 +114,7 @@ public class NIP42 extends Api {
     }
 
     public static void auth(String challenge, Relay relay) throws NostrException {
-        Client client = Client.getInstance();
+        Client client = Nostr.createClient();
         client.auth(challenge, relay);
     }
 

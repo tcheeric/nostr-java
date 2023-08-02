@@ -18,7 +18,7 @@ import nostr.event.impl.GenericTag;
  *
  * @author eric
  */
-public class NIP30 extends Api {
+public class NIP30 extends Nostr {
     
     @Data
     @EqualsAndHashCode(callSuper = false)

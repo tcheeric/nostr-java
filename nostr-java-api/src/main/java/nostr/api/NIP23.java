@@ -22,7 +22,7 @@ import nostr.event.impl.GenericTag;
  *
  * @author eric
  */
-public class NIP23 extends Api {
+public class NIP23 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

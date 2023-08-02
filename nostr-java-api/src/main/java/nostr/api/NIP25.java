@@ -18,7 +18,7 @@ import nostr.util.NostrException;
  *
  * @author eric
  */
-public class NIP25 extends Api {
+public class NIP25 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -69,7 +69,7 @@ public class NIP25 extends Api {
     public static void react(GenericEvent event, String reaction, URL url) throws NostrException {
         var reactionEvent = new ReactionEventFactory(event, reaction, url).create();
 
-        Api.sign(reactionEvent);
-        Api.send(reactionEvent);        
+        Nostr.sign(reactionEvent);
+        Nostr.send(reactionEvent);        
     }
 }

@@ -13,7 +13,7 @@ import nostr.event.tag.SubjectTag;
  *
  * @author eric
  */
-public class NIP14 extends Api {
+public class NIP14 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

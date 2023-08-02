@@ -32,7 +32,7 @@ import nostr.util.NostrException;
  *
  * @author eric
  */
-public abstract class Api {
+public abstract class Nostr {
 
     public static void send(@NonNull IEvent event) {
         var client = createClient();
@@ -48,7 +48,7 @@ public abstract class Api {
         // Events
 
         public static String encode(@NonNull BaseEvent event) throws NostrException {
-            return Api.Json.encode(event, null);
+            return Nostr.Json.encode(event, null);
         }
 
         public static String encode(@NonNull BaseEvent event, Relay relay) throws NostrException {
@@ -68,7 +68,7 @@ public abstract class Api {
         }
 
         public static String encode(@NonNull BaseMessage message) throws NostrException {
-            return Api.Json.encode(message, null);
+            return Nostr.Json.encode(message, null);
         }
 
         public static BaseMessage decodeMessage(@NonNull String json) throws NostrException {
@@ -83,7 +83,7 @@ public abstract class Api {
         }
 
         public static String encode(@NonNull BaseTag tag) throws NostrException {
-            return Api.Json.encode(tag, null);
+            return Nostr.Json.encode(tag, null);
         }
 
         public static BaseTag decodeTag(@NonNull String json) throws NostrException {
@@ -98,7 +98,7 @@ public abstract class Api {
         }
 
         public static String encode(@NonNull Filters filters) throws NostrException {
-            return Api.Json.encode(filters, null);
+            return Nostr.Json.encode(filters, null);
         }
 
         public static Filters decodeFilters(@NonNull String json) throws NostrException {
@@ -113,7 +113,7 @@ public abstract class Api {
         }
 
         public static String encode(@NonNull GenericTagQuery gtq) throws NostrException {
-            return Api.Json.encode(gtq, null);
+            return Nostr.Json.encode(gtq, null);
         }
 
         public static IElement decode(@NonNull String json, @NonNull Class clazz) throws NostrException {
@@ -137,7 +137,7 @@ public abstract class Api {
     }
 
     // Utils
-    private static Client createClient() {
+    protected static Client createClient() {
         final var client = Client.getInstance();
 
         do {

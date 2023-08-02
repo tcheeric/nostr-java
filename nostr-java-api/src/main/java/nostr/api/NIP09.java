@@ -12,7 +12,7 @@ import nostr.event.impl.DeletionEvent;
  *
  * @author eric
  */
-public class NIP09 extends Api {
+public class NIP09 extends Nostr {
 
     public static class EventDeletionFactory extends EventFactory<DeletionEvent> {
 

@@ -16,7 +16,7 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
-public class NIP02 extends Api {
+public class NIP02 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

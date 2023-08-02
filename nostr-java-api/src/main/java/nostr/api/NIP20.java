@@ -14,7 +14,7 @@ import nostr.event.message.OkMessage;
  *
  * @author eric
  */
-public class NIP20 extends Api {
+public class NIP20 extends Nostr {
     
     @Data
     @EqualsAndHashCode(callSuper = false)

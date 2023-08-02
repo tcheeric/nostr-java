@@ -14,7 +14,7 @@ import nostr.event.tag.ExpirationTag;
  *
  * @author eric
  */
-public class NIP40 extends Api {
+public class NIP40 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

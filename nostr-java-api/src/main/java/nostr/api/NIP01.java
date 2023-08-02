@@ -33,7 +33,7 @@ import nostr.event.tag.PubKeyTag;
  *
  * @author eric
  */
-public class NIP01 extends Api {
+public class NIP01 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

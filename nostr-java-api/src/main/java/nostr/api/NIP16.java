@@ -14,7 +14,7 @@ import nostr.event.impl.ReplaceableEvent;
  *
  * @author eric
  */
-public class NIP16 extends Api {
+public class NIP16 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

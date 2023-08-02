@@ -15,7 +15,7 @@ import nostr.util.NostrException;
  *
  * @author eric
  */
-public class NIP04 extends Api {
+public class NIP04 extends Nostr {
 
     public static class DirectMessageEventFactory extends EventFactory<DirectMessageEvent> {
 

@@ -28,7 +28,7 @@ import nostr.event.tag.IdentifierTag;
  *
  * @author eric
  */
-public class NIP15 extends Api {
+public class NIP15 extends Nostr {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
