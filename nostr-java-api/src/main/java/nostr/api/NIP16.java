@@ -4,9 +4,11 @@
  */
 package nostr.api;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.api.factory.EventFactory;
+import nostr.event.BaseTag;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.ReplaceableEvent;
 
@@ -24,6 +26,11 @@ public class NIP16 extends Nostr {
         
         public ReplaceableEventFactory(Integer kind, String content) {
             super(content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(List<BaseTag> tags, Integer kind, String content) {
+            super(tags, content);
             this.kind = kind;
         }
 

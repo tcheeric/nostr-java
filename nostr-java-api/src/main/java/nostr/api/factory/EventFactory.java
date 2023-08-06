@@ -22,7 +22,7 @@ public abstract class EventFactory<T extends IEvent> {
 
     private final PublicKey sender;
     private final String content;
-    private final List<? extends BaseTag> tags;
+    private final List<BaseTag> tags;
     
     public EventFactory(String content) {
         this.content = content;
@@ -30,7 +30,7 @@ public abstract class EventFactory<T extends IEvent> {
         this.sender = getSenderPublicKey();
     }
 
-    public EventFactory(List<? extends BaseTag> tags, String content) {
+    public EventFactory(List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
         this.sender = getSenderPublicKey();
@@ -40,7 +40,7 @@ public abstract class EventFactory<T extends IEvent> {
         this(sender, new ArrayList<>(), content);
     }
 
-    public EventFactory(PublicKey sender, List<? extends BaseTag> tags, String content) {
+    public EventFactory(PublicKey sender, List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
         this.sender = sender;

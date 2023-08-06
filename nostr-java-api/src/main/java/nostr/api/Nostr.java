@@ -45,8 +45,8 @@ public abstract class Nostr {
     }
 
     public static class Json {
+        
         // Events
-
         public static String encode(@NonNull BaseEvent event) throws NostrException {
             return Nostr.Json.encode(event, null);
         }

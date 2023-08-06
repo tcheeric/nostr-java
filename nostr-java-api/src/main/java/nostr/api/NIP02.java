@@ -9,8 +9,8 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
-import nostr.event.tag.PubKeyTag;
 
 /**
  *
@@ -22,8 +22,12 @@ public class NIP02 extends Nostr {
     @EqualsAndHashCode(callSuper = false)
     public static class ContactListEventFactory extends EventFactory<ContactListEvent> {
 
-        public ContactListEventFactory(String content, List<PubKeyTag> relatedPubKeys) {
-            super(relatedPubKeys, content);
+        public ContactListEventFactory(String content) {
+            super(content);
+        }
+
+        public ContactListEventFactory(List<BaseTag> tags, String content) {
+            super(tags, content);
         }
 
         @Deprecated

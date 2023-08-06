@@ -4,10 +4,12 @@
  */
 package nostr.api;
 
+import java.util.List;
 import nostr.api.factory.EventFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.impl.OtsEvent;
 
 /**
@@ -23,6 +25,11 @@ public class NIP03 extends Nostr {
         private final String ots;
 
         public OtsEventFactory(String ots, String content) {
+            super(content);
+            this.ots = ots;
+        }
+
+        public OtsEventFactory(List<BaseTag> tags, String ots, String content) {
             super(content);
             this.ots = ots;
         }

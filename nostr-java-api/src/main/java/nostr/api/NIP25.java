@@ -5,10 +5,12 @@
 package nostr.api;
 
 import java.net.URL;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
+import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
@@ -33,8 +35,20 @@ public class NIP25 extends Nostr {
             this.emoji = null;
         }
 
+        public ReactionEventFactory(List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
+            super(tags, reaction);
+            this.event = event;
+            this.emoji = null;
+        }
+
         public ReactionEventFactory(@NonNull GenericEvent event, String reaction, URL emoji) {
             super(reaction);
+            this.event = event;
+            this.emoji = emoji;
+        }
+
+        public ReactionEventFactory(List<BaseTag> tags, @NonNull GenericEvent event, String reaction, URL emoji) {
+            super(tags, reaction);
             this.event = event;
             this.emoji = emoji;
         }

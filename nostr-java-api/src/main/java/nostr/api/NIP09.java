@@ -4,8 +4,10 @@
  */
 package nostr.api;
 
+import java.util.List;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.impl.DeletionEvent;
 
 /**
@@ -18,6 +20,10 @@ public class NIP09 extends Nostr {
 
         public EventDeletionFactory() {
             super(null);
+        }
+
+        public EventDeletionFactory(List<BaseTag> tags) {
+            super(tags, null);
         }
 
         @Deprecated

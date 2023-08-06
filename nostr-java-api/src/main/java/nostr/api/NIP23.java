@@ -28,8 +28,12 @@ public class NIP23 extends Nostr {
     @EqualsAndHashCode(callSuper = false)
     public static class LongFormContentEventFactory extends EventFactory<GenericEvent> {
 
-        public LongFormContentEventFactory(List<BaseTag> tags, String content) {
+        public LongFormContentEventFactory(String content) {
             super(content);
+        }
+
+        public LongFormContentEventFactory(List<BaseTag> tags, String content) {
+            super(tags, content);
         }
         
         @Override

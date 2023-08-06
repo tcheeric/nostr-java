@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.impl.CreateOrUpdateProductEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
@@ -39,6 +40,12 @@ public class NIP15 extends Nostr {
 
         public VerifyPaymentOrShippedEventFactory(PaymentShipmentStatus status, Customer customer) {
             super(status.toString());
+            this.status = status;
+            this.customer = customer;
+        }
+
+        public VerifyPaymentOrShippedEventFactory(List<BaseTag> tags, PaymentShipmentStatus status, Customer customer) {
+            super(tags, status.toString());
             this.status = status;
             this.customer = customer;
         }

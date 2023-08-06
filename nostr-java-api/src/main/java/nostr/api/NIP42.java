@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ import nostr.base.Command;
 import nostr.base.ElementAttribute;
 import nostr.base.Relay;
 import nostr.client.Client;
+import nostr.event.BaseTag;
 import nostr.event.impl.ClientAuthenticationEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
@@ -38,6 +40,12 @@ public class NIP42 extends Nostr {
 
         public ClientAuthenticationEventFactory(@NonNull String challenge, @NonNull Relay relay) {
             super(null);
+            this.challenge = challenge;
+            this.relay = relay;
+        }
+
+        public ClientAuthenticationEventFactory(List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
+            super(tags, null);
             this.challenge = challenge;
             this.relay = relay;
         }

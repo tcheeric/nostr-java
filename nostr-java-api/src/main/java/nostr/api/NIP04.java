@@ -4,10 +4,14 @@
  */
 package nostr.api;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.impl.DirectMessageEvent;
+import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 
@@ -22,6 +26,11 @@ public class NIP04 extends Nostr {
         private final PublicKey recipient;
 
         public DirectMessageEventFactory(PublicKey recipient, String content) {
+            super(content);
+            this.recipient = recipient;
+        }
+
+        public DirectMessageEventFactory(List<BaseTag> tags, PublicKey recipient, String content) {
             super(content);
             this.recipient = recipient;
         }
@@ -45,7 +54,14 @@ public class NIP04 extends Nostr {
 
     public static String decrypt(@NonNull DirectMessageEvent dm) throws NostrException {
         var identity = Identity.getInstance();
-        return identity.decryptDirectMessage(dm.getContent(), dm.getPubKey());
+        var recipient = dm.getTags()
+                .stream()
+                .filter(t -> t.getCode().equalsIgnoreCase("p"))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
+        var rcpt = (PubKeyTag) recipient;
+        return identity.decryptDirectMessage(dm.getContent(), rcpt.getPublicKey());
+
     }
 
     public static class Kinds {

@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import java.util.List;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.TagFactory;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.NonNull;
 import nostr.api.factory.MessageFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
+import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.Filters;
 import nostr.event.impl.TextNoteEvent;
@@ -42,6 +44,10 @@ public class NIP01 extends Nostr {
         // TextEvents attributes
         public TextNoteEventFactory(String content) {
             super(content);
+        }
+
+        public TextNoteEventFactory(List<BaseTag> tags, String content) {
+            super(tags, content);
         }
 
         @Deprecated
