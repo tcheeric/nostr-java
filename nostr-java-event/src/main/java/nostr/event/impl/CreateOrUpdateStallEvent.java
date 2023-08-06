@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractContent;
+import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
 
 /**
@@ -25,9 +28,10 @@ public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
         super(sender, 30017, tags, stall);
     }
 
-    @Data
+    @Getter
+    @Setter
     @EqualsAndHashCode(callSuper = false)
-    public static class Stall extends AbstractContent<CreateOrUpdateStallEvent> {
+    public static class Stall extends AbstractEventContent<CreateOrUpdateStallEvent> {
 
         @JsonProperty
         private final String id;

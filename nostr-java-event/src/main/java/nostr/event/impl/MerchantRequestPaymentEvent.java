@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractContent;
+import nostr.event.AbstractEventContent;
 import nostr.event.impl.CustomerOrderEvent.Customer;
 
 /**
@@ -27,9 +30,11 @@ public class MerchantRequestPaymentEvent extends CheckoutEvent {
         super(sender, customer.getContact().getPublicKey(), payment);
     }
     
-    @Data
+    @Getter
+    @Setter
     @EqualsAndHashCode(callSuper = false)
-    public static class Payment extends AbstractContent<MerchantRequestPaymentEvent> { 
+    @ToString(callSuper = true)
+    public static class Payment extends AbstractEventContent<MerchantRequestPaymentEvent> { 
 
         @JsonProperty
         private final String id;

@@ -9,7 +9,7 @@ import nostr.base.IEvent;
  * @author eric
  * @param <T>
  */
-public abstract class AbstractContent<T extends IEvent> implements IContent {
+public abstract class AbstractEventContent<T extends IEvent> implements IContent {
         
     @Override
     public String toString() {

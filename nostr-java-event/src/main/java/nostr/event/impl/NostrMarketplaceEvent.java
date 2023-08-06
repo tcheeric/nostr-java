@@ -8,9 +8,11 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractContent;
+import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
 import nostr.event.IContent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
@@ -24,16 +26,17 @@ import nostr.event.json.serializer.SpecSerializer;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "", nip = 15)
-public abstract class NostrMarketplaceEvent extends ReplaceableEvent {
+public abstract class NostrMarketplaceEvent extends ParameterizedReplaceableEvent {
 
     public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<? extends BaseTag> tags, IContent content) {
         super(sender, kind, tags, content.toString());
     }
 
-    @Data
+    @Getter
+    @Setter
     @EqualsAndHashCode(callSuper = false)
     @JsonSerialize(using = ProductSerializer.class)
-    public static class Product extends AbstractContent<NostrMarketplaceEvent> {
+    public static class Product extends AbstractEventContent<NostrMarketplaceEvent> {
 
         @JsonProperty
         private final String id;

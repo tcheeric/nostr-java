@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractContent;
+import nostr.event.AbstractEventContent;
 import nostr.event.impl.CustomerOrderEvent.Customer;
 
 /**
@@ -22,9 +25,11 @@ public class VerifyPaymentOrShippedEvent extends CheckoutEvent {
         super(sender, customer.getContact().getPublicKey(), status);
     }
     
-    @Data
+    @Getter
+    @Setter
     @EqualsAndHashCode(callSuper = false)
-    public static class PaymentShipmentStatus extends AbstractContent<VerifyPaymentOrShippedEvent> {
+    @ToString(callSuper = true)
+    public static class PaymentShipmentStatus extends AbstractEventContent<VerifyPaymentOrShippedEvent> {
 
         @JsonProperty
         private final String id;

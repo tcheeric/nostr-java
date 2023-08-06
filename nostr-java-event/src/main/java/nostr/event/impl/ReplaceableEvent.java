@@ -18,15 +18,24 @@ import nostr.event.BaseTag;
 @Event(name = "Replaceable Events", nip = 16)
 public class ReplaceableEvent extends GenericEvent {
 
+    private final int minKind;
+    private final int maxKind;
+          
     public ReplaceableEvent(PublicKey sender, Integer kind, List<? extends BaseTag> tags, String content) {
+        this(sender, kind, tags, content, 10_000, 20_000);
+    }
+
+    protected ReplaceableEvent(PublicKey sender, Integer kind, List<? extends BaseTag> tags, String content, int minKind, int maxKind) {
         super(sender, kind, tags, content);
+        this.minKind = minKind;
+        this.maxKind = maxKind;
     }
 
     @Override
     protected void validate() {
-        if (this.getKind() >= 10_000 && this.getKind() < 20_000) {
+        if (this.getKind() >= this.minKind && this.getKind() < this.maxKind) {
             return;
         }
-        throw new AssertionError("Invalid kind value. Must be between 10000 and 20000 (excl)", null);
+        throw new AssertionError(String.format("Invalid kind value. Must be between %d and %d (excl)", this.minKind, this.maxKind), null);
     }
 }

@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractContent;
-import nostr.event.BaseTag;
+import nostr.event.AbstractEventContent;
 import nostr.event.impl.NostrMarketplaceEvent.Product;
 import nostr.event.json.serializer.ItemSerializer;
 
@@ -29,9 +31,11 @@ public class CustomerOrderEvent extends CheckoutEvent {
         super(sender, customer.getContact().getPublicKey(), customer);
     }
 
-    @Data
+    @Getter
+    @Setter
     @EqualsAndHashCode(callSuper = false)
-    public static class Customer extends AbstractContent<CheckoutEvent> {
+    @ToString(callSuper = true)
+    public static class Customer extends AbstractEventContent<CheckoutEvent> {
 
         @JsonProperty
         private final String id;
