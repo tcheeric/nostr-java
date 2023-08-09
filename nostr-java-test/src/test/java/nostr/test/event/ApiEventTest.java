@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -14,6 +15,8 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
+import nostr.event.impl.NostrMarketplaceEvent;
+import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -88,24 +91,7 @@ public class ApiEventTest {
     public void testNIP15CreateStallEvent() throws NostrException, JsonProcessingException {
         System.out.println("testNIP15CreateStallEvent");
 
-        // Create the county list
-        List<String> countries = new ArrayList<>();
-        countries.add("France");
-        countries.add("Canada");
-        countries.add("Cameroun");
-
-        // Create the shipping object
-        var shipping = new CreateOrUpdateStallEvent.Stall.Shipping();
-        shipping.setCost(12.00f);
-        shipping.setCountries(countries);
-        shipping.setName("French Countries");
-
-        // Create the stall object
-        var stall = new CreateOrUpdateStallEvent.Stall();
-        stall.setCurrency("USD");
-        stall.setDescription("This is a test stall");
-        stall.setName("Maximus Primus");
-        stall.setShipping(shipping);
+        Stall stall = createStall();
 
         // Create and send the nostr event
         var instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
@@ -120,10 +106,74 @@ public class ApiEventTest {
 
         Assertions.assertEquals(expected, stall);
     }
-    
+
     @Test
     public void testNIP15UpdateStallEvent() throws NostrException, JsonProcessingException {
         System.out.println("testNIP15UpdateStallEvent");
+
+        var stall = createStall();
+
+        // Create and send the nostr event
+        var instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
+        var signature = Nostr.sign(instance);
+        Assertions.assertNotNull(signature);
+        Nostr.send(instance);
+
+        // Update the shipping
+        var shipping = stall.getShipping();
+        shipping.setCost(20.00f);
+        instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
+        Nostr.sign(instance);
+        Nostr.send(instance);
+    }
+
+    @Test
+    public void testNIP15CreateProductEvent() throws NostrException {
+
+        System.out.println("testNIP15CreateProductEvent");
+
+        // Create the stall object
+        var stall = createStall();
+
+        // Create the product
+        var product = createProduct(stall);
+
+        List<String> categories = new ArrayList<>();
+        categories.add("bijoux");
+        categories.add("Hommes");
+
+        var instance = new NIP15.CreateOrUpdateProductEventFactory(product, categories).create();
+        Nostr.sign(instance);
+        Nostr.send(instance);
+    }
+
+    @Test
+    public void testNIP15UpdateProductEvent() throws NostrException {
+
+        System.out.println("testNIP15UpdateProductEvent");
+
+        // Create the stall object
+        var stall = createStall();
+
+        // Create the product
+        var product = createProduct(stall);
+
+        List<String> categories = new ArrayList<>();
+        categories.add("bijoux");
+        categories.add("Hommes");
+
+        var instance = new NIP15.CreateOrUpdateProductEventFactory(product, categories).create();
+        Nostr.sign(instance);
+        Nostr.send(instance);
+        
+        product.setDescription("Un nouveau bijou en or");
+        categories.add("bagues");
+        
+        Nostr.sign(instance);
+        Nostr.send(instance);
+    }
+
+    private Stall createStall() {
 
         // Create the county list
         List<String> countries = new ArrayList<>();
@@ -144,21 +194,25 @@ public class ApiEventTest {
         stall.setName("Maximus Primus");
         stall.setShipping(shipping);
 
-        // Create and send the nostr event
-        var instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
-        var signature = Nostr.sign(instance);
-        Assertions.assertNotNull(signature);
-        Nostr.send(instance);
-
-        // Update the shipping
-        shipping.setCost(20.00f);
-        instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
-        Nostr.sign(instance);
-        Nostr.send(instance);
+        return stall;
     }
 
-    @Test
-    public void testNIP15CreateProductEvent() {
-        
+    private NostrMarketplaceEvent.Product createProduct(Stall stall) {
+
+        // Create the product
+        var product = new NostrMarketplaceEvent.Product();
+        product.setCurrency("USD");
+        product.setDescription("Un bijou en or");
+        product.setImages(new ArrayList<>());
+        product.setName("Bague");
+        product.setPrice(450.00f);
+        product.setQuantity(4);
+        List<Spec> specs = new ArrayList<>();
+        specs.add(new Spec("couleur", "or"));
+        specs.add(new Spec("poids", "150g"));
+        product.setSpecs(specs);
+        product.setStall(stall);
+
+        return product;
     }
 }

@@ -60,9 +60,9 @@ public class NIP25 extends Nostr {
             
             var reactEvent = new ReactionEvent(getSender(), event, reaction);
             switch (reaction) {
-                case "+", "-" -> {
+                case "+", "-" -> { // Standard emoji - No tag required
                 }
-                default -> {
+                default -> { // Custom emoji
                     var tag = new NIP30.CustomEmojiTagFactory(reaction, url).create();
                     reactEvent.addTag(tag);
                 }
