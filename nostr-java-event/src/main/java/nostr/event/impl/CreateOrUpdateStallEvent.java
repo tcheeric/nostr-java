@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.ToString;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.AbstractEventContent;
@@ -24,7 +23,7 @@ import nostr.event.BaseTag;
 @Event(name = "Create or update a stall", nip = 15)
 public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
 
-    public CreateOrUpdateStallEvent(PublicKey sender, List<? extends BaseTag> tags, @NonNull Stall stall) {
+    public CreateOrUpdateStallEvent(PublicKey sender, List<BaseTag> tags, @NonNull Stall stall) {
         super(sender, 30017, tags, stall);
     }
 

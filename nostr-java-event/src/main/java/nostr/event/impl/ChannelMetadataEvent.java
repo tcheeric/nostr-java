@@ -17,11 +17,11 @@ import nostr.event.Kind;
 @Event(name = "Channel Metadata", nip = 28)
 public class ChannelMetadataEvent extends GenericEvent {
 
-    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, String content) {
+    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, String content) {
         super(pubKey, Kind.CHANNEL_METADATA, tags, content);
     }
 
-    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, ChannelProfile profile) {
+    public ChannelMetadataEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, ChannelProfile profile) {
         super(pubKey, Kind.CHANNEL_METADATA, tags);
         this.setContent(profile);
     }

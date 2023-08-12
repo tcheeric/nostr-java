@@ -15,7 +15,7 @@ import nostr.event.tag.EventTag;
 @Event(name = "Hide Message on Channel", nip = 28)
 public class HideMessageEvent extends GenericEvent {
 
-    public HideMessageEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, String content) {
+    public HideMessageEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, String content) {
         super(pubKey, Kind.HIDE_MESSAGE, tags, content);
     }
 

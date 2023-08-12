@@ -18,7 +18,7 @@ import nostr.event.Kind;
 @Event(name = "Contact List and Petnames", nip = 2)
 public class ContactListEvent extends GenericEvent {
 
-    public ContactListEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags) {
+    public ContactListEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags) {
         super(pubKey, Kind.CONTACT_LIST, tags);
     }
 

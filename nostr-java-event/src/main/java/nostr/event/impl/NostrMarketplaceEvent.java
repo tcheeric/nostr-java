@@ -28,7 +28,7 @@ import nostr.event.json.serializer.SpecSerializer;
 @Event(name = "", nip = 15)
 public abstract class NostrMarketplaceEvent extends ParameterizedReplaceableEvent {
 
-    public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<? extends BaseTag> tags, IContent content) {
+    public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<BaseTag> tags, IContent content) {
         super(sender, kind, tags, content.toString());
     }
 

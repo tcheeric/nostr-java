@@ -68,7 +68,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @EqualsAndHashCode.Exclude
     @JsonProperty("tags")
-    private List<? extends BaseTag> tags;
+    private List<BaseTag> tags;
 
     @Key
     @EqualsAndHashCode.Exclude
@@ -100,15 +100,15 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this(pubKey, kind, new ArrayList<>(), null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags) {
         this(pubKey, kind, tags, null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<? extends BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
@@ -132,7 +132,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
-    public void setTags(List<? extends BaseTag> tags) {
+    public void setTags(List<BaseTag> tags) {
 
         this.tags = tags;
 

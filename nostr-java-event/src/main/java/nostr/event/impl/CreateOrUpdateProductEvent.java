@@ -17,7 +17,7 @@ import nostr.event.BaseTag;
 @Event(name = "", nip = 15)
 public class CreateOrUpdateProductEvent extends NostrMarketplaceEvent {
     
-    public CreateOrUpdateProductEvent(PublicKey sender, List<? extends BaseTag> tags, @NonNull Product product) {
+    public CreateOrUpdateProductEvent(PublicKey sender, List<BaseTag> tags, @NonNull Product product) {
         super(sender, 30018, tags, product);
     }
 }

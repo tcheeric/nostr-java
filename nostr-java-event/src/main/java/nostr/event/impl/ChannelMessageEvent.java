@@ -14,7 +14,7 @@ import nostr.event.Kind;
 @Event(name = "Channel Message", nip = 28)
 public class ChannelMessageEvent extends GenericEvent {
 
-    public ChannelMessageEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, String content) {
+    public ChannelMessageEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, String content) {
         super(pubKey, Kind.CHANNEL_MESSAGE, tags, content);
     }
 }

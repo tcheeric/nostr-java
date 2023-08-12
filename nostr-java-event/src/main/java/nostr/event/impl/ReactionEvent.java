@@ -1,17 +1,20 @@
 package nostr.event.impl;
 
+import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.Reaction;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.IEvent;
+import nostr.base.ElementAttribute;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.PubKeyTag;
 
 /**
  *
@@ -23,18 +26,33 @@ import nostr.event.tag.PubKeyTag;
 @Event(name = "Reactions", nip = 25)
 public class ReactionEvent extends GenericEvent {
 
-    public ReactionEvent(PublicKey pubKey, List<? extends BaseTag> tags, Reaction reaction, GenericEvent sourceEvent) {
+    public ReactionEvent(PublicKey pubKey, List<BaseTag> tags, Reaction reaction) {
         super(pubKey, Kind.REACTION, tags, reaction.getEmoji());
     }
 
     public ReactionEvent(PublicKey pubKey, GenericEvent event, Reaction reaction) {
-        this(pubKey, event, reaction.getEmoji());
+        super(pubKey, Kind.REACTION);
+        this.setContent(reaction.getEmoji());
+        this.addTag(EventTag.builder().idEvent(event.getId()).build());
     }
 
-    public ReactionEvent(PublicKey pubKey, GenericEvent event, String reaction) {
+    public ReactionEvent(PublicKey pubKey, GenericEvent event, String content, @NonNull URL emoji) {
         super(pubKey, Kind.REACTION);
-        this.setContent(reaction);
+        this.setContent(content);
         this.addTag(EventTag.builder().idEvent(event.getId()).build());
-        this.addTag(PubKeyTag.builder().publicKey(event.getPubKey()).build());
+        addEmojiTag(content, emoji, getTags());
+    }
+
+    public ReactionEvent(PublicKey pubKey, List<BaseTag> tags, String content, @NonNull URL emoji) {
+        super(pubKey, Kind.REACTION, tags);
+        this.setContent(content);
+        addEmojiTag(content, emoji, tags);
+    }
+
+    private void addEmojiTag(String content, URL emoji, List<BaseTag> tags) {
+        Set<ElementAttribute> attributes = new HashSet<>();
+        attributes.add(ElementAttribute.builder().name("shortcode").nip(30).value(content).build());
+        attributes.add(ElementAttribute.builder().name("url").nip(30).value(emoji.toString()).build());
+        tags.add(new GenericTag("emoji", 30, attributes));
     }
 }

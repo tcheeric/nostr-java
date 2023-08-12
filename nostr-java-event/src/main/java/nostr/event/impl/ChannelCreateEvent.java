@@ -18,11 +18,11 @@ import static nostr.event.impl.GenericEvent.escapeJsonString;
 @Event(name = "Create Channel", nip = 28)
 public class ChannelCreateEvent extends GenericEvent {
 
-    public ChannelCreateEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, String content) {
+    public ChannelCreateEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, String content) {
         super(pubKey, Kind.CHANNEL_CREATE, tags, content);
     }
 
-    public ChannelCreateEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags, ChannelProfile profile) {
+    public ChannelCreateEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, ChannelProfile profile) {
         super(pubKey, Kind.CHANNEL_CREATE, tags);
         this.setContent(profile);
     }

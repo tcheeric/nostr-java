@@ -21,7 +21,7 @@ import nostr.event.BaseTag;
 @Log
 public final class MentionsEvent extends GenericEvent {
 
-    public MentionsEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content) {
+    public MentionsEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
         super(pubKey, Kind.TEXT_NOTE, tags, content);
     }
 

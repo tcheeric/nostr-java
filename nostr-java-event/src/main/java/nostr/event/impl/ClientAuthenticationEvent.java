@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
 import nostr.base.ITag;
@@ -23,7 +21,7 @@ import nostr.event.Kind;
 @Event(name = "Authentication of clients to relays", nip = 42)
 public class ClientAuthenticationEvent extends GenericEvent {
 
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags) {
+    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags) {
         super(pubKey, Kind.CLIENT_AUTH, tags);
     }
 
