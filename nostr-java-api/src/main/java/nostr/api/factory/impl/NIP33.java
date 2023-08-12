@@ -13,7 +13,6 @@ import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.impl.CreateOrUpdateProductEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;

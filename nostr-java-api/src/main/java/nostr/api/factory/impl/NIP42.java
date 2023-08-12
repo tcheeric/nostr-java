@@ -81,8 +81,8 @@ public class NIP42 {
     @AllArgsConstructor
     public static class RelayAuthenticationMessageFactory extends MessageFactory<GenericMessage> {
 
-        private final @NonNull
-        String challenge;
+        @NonNull
+        private final String challenge;
 
         @Override
         public GenericMessage create() {
@@ -98,8 +98,8 @@ public class NIP42 {
     @AllArgsConstructor
     public static class ClientAuthenticationMessageFactory extends MessageFactory<ClientAuthenticationMessage> {
 
-        private final @NonNull
-        ClientAuthenticationEvent event;
+        @NonNull
+        private final ClientAuthenticationEvent event;
 
         @Override
         public ClientAuthenticationMessage create() {

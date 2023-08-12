@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
+import nostr.event.BaseTag;
 import nostr.event.Marker;
 
 /**
@@ -28,7 +29,7 @@ import nostr.event.Marker;
 @Tag(code = "e", name = "event")
 @JsonPropertyOrder({"idEvent", "recommendedRelayUrl", "marker"})
 @NoArgsConstructor
-public class EventTag extends NIP01Tags {
+public class EventTag extends BaseTag {
 
     @Key
     @JsonProperty("idEvent")
