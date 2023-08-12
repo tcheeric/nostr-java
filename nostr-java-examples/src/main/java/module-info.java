@@ -2,6 +2,7 @@
 module nostr.examples {
     requires nostr.event;
     requires nostr.client;
+    requires nostr.api;
     requires static lombok;
     requires nostr.ws;
     requires org.eclipse.jetty.websocket.jetty.client;
