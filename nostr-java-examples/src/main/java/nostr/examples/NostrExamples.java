@@ -457,8 +457,8 @@ public class NostrExamples {
         logHeader("filters");
         try {
             KindList kindList = new KindList();
-            kindList.add(Kind.EPHEMEREAL_EVENT);
-            kindList.add(Kind.TEXT_NOTE);
+            kindList.add(Kind.EPHEMEREAL_EVENT.getValue());
+            kindList.add(Kind.TEXT_NOTE.getValue());
 
             Filters filters = Filters.builder().kinds(kindList).limit(10).build();
 

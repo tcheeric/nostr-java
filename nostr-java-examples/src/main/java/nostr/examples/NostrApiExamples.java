@@ -241,8 +241,8 @@ public class NostrApiExamples {
         logHeader("filters");
 
         KindList kindList = new KindList();
-        kindList.add(Kind.EPHEMEREAL_EVENT);
-        kindList.add(Kind.TEXT_NOTE);
+        kindList.add(Kind.EPHEMEREAL_EVENT.getValue());
+        kindList.add(Kind.TEXT_NOTE.getValue());
 
         Filters filters = NIP01.createFilters(null, null, kindList, null, null, null, null, null, null);
         String subId = "subId" + System.currentTimeMillis();

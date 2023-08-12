@@ -6,20 +6,19 @@ import java.util.List;
 
 import lombok.Builder;
 import lombok.NonNull;
-import nostr.event.Kind;
 
 /**
  *
  * @author squirrel
  */
 @Builder
-public class KindList extends BaseList<Kind> {
+public class KindList extends BaseList<Integer> {
 
     public KindList() {
         this(new ArrayList<>());
     }
 
-    private KindList(@NonNull List<Kind> list) {
+    private KindList(@NonNull List<Integer> list) {
         super(list);
     }
 }
