@@ -47,6 +47,10 @@ public abstract class EventFactory<T extends IEvent> {
     }
 
     public abstract T create();
+    
+    protected void addTag(BaseTag tag) {
+        this.tags.add(tag);
+    }
 
     private PublicKey getSenderPublicKey() {
         Identity identity = Identity.getInstance();

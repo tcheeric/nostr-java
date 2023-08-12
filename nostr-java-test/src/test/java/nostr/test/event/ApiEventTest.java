@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -34,11 +33,11 @@ public class ApiEventTest {
         System.out.println("testNIP01CreateTextNoteEvent");
 
         PublicKey publicKey = new PublicKey("");
-        var recipient = new NIP01.PubKeyTagFactory(publicKey).create();
+        var recipient = NIP01.createPubKeyTag(publicKey);
         List<BaseTag> tags = new ArrayList<>();
         tags.add(recipient);
 
-        var instance = new NIP01.TextNoteEventFactory(tags, "Hello simplified nostr-java!").create();
+        var instance = NIP01.createTextNoteEvent(tags, "Hello simplified nostr-java!");
         instance.update();
 
         Assertions.assertNotNull(instance.getId());
@@ -54,7 +53,7 @@ public class ApiEventTest {
     public void testNIP01SendTextNoteEvent() throws NostrException {
         System.out.println("testNIP01SendTextNoteEvent");
 
-        var instance = new NIP01.TextNoteEventFactory("Hello simplified nostr-java!").create();
+        var instance = NIP01.createTextNoteEvent("Hello simplified nostr-java!");
 
         var signature = Nostr.sign(instance);
         Assertions.assertNotNull(signature);
@@ -67,7 +66,7 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = new NIP04.DirectMessageEventFactory(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").create();
+        var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
         var signature = Nostr.sign(instance);
         Assertions.assertNotNull(signature);
         Nostr.send(instance);
@@ -79,7 +78,7 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = new NIP04.DirectMessageEventFactory(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").create();
+        var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
         NIP04.encrypt(instance);
         Nostr.sign(instance);
         var message = NIP04.decrypt(instance);
@@ -94,7 +93,7 @@ public class ApiEventTest {
         Stall stall = createStall();
 
         // Create and send the nostr event
-        var instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
+        var instance = NIP15.createCreateOrUpdateStallEvent(stall);
         var signature = Nostr.sign(instance);
         Assertions.assertNotNull(signature);
         Nostr.send(instance);
@@ -114,7 +113,7 @@ public class ApiEventTest {
         var stall = createStall();
 
         // Create and send the nostr event
-        var instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
+        var instance = NIP15.createCreateOrUpdateStallEvent(stall);
         var signature = Nostr.sign(instance);
         Assertions.assertNotNull(signature);
         Nostr.send(instance);
@@ -122,7 +121,7 @@ public class ApiEventTest {
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
-        instance = new NIP15.CreateOrUpdateStallEventFactory(stall).create();
+        instance = NIP15.createCreateOrUpdateStallEvent(stall);
         Nostr.sign(instance);
         Nostr.send(instance);
     }
@@ -142,7 +141,7 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var instance = new NIP15.CreateOrUpdateProductEventFactory(product, categories).create();
+        var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
         Nostr.sign(instance);
         Nostr.send(instance);
     }
@@ -162,7 +161,7 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var instance = new NIP15.CreateOrUpdateProductEventFactory(product, categories).create();
+        var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
         Nostr.sign(instance);
         Nostr.send(instance);
         

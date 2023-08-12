@@ -4,11 +4,10 @@
  */
 package nostr.api;
 
-import nostr.api.factory.TagFactory;
 import java.net.URL;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import nostr.api.factory.impl.NIP12.GeohashTagFactory;
+import nostr.api.factory.impl.NIP12.HashtagTagFactory;
+import nostr.api.factory.impl.NIP12.ReferenceTagFactory;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.ReferenceTag;
@@ -19,51 +18,15 @@ import nostr.event.tag.ReferenceTag;
  */
 public class NIP12 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class HashtagTagFactory extends TagFactory<HashtagTag> {
-
-        private final String hashtag;
-
-        public HashtagTagFactory(@NonNull String hashtag) {
-            this.hashtag = hashtag;
-        }
-
-        @Override
-        public HashtagTag create() {
-            return new HashtagTag(hashtag);
-        }
+    public static HashtagTag createHashtagTag(String hashtag) {
+        return new HashtagTagFactory(hashtag).create();
     }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class ReferenceTagFactory extends TagFactory<ReferenceTag> {
-
-        private final URL url;
-
-        public ReferenceTagFactory(@NonNull URL url) {
-            this.url = url;
-        }
-
-        @Override
-        public ReferenceTag create() {
-            return new ReferenceTag(url);
-        }
+    
+    public static ReferenceTag createReferenceTag(URL url) {
+        return new ReferenceTagFactory(url).create();
     }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class GeohashTagFactory extends TagFactory<GeohashTag> {
-
-        private final String location;
-
-        public GeohashTagFactory(@NonNull String location) {
-            this.location = location;
-        }
-
-        @Override
-        public GeohashTag create() {
-            return new GeohashTag(location);
-        }
-    }
+    
+    public static GeohashTag createGeohashTag(String location) {
+        return new GeohashTagFactory(location).create();
+    }    
 }

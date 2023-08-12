@@ -4,14 +4,32 @@
  */
 package nostr.api.factory;
 
-import nostr.base.ITag;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import nostr.event.impl.GenericTag;
 
 /**
  *
  * @author eric
- * @param <T>
  */
-public abstract class TagFactory<T extends ITag> {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
+public class TagFactory extends AbstractTagFactory<GenericTag> {
 
-    public abstract T create();
+    @NonNull
+    private final String code;
+    
+    @NonNull
+    private final Integer nip;
+    
+    @NonNull
+    private final String param;
+    
+    @Override
+    public GenericTag create() {
+        return GenericTag.create(code, nip, param);
+    }
 }

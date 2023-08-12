@@ -44,4 +44,19 @@ public class GenericTag extends BaseTag implements IGenericElement {
         this.attributes.add(attribute);
     }
 
+    public static GenericTag create(String code, Integer nip, Set<String> params) {
+        Set<ElementAttribute> attributes = new HashSet<>();
+        int i = 0;
+        for (String p : params) {
+            String name = "param" + i++;
+            attributes.add(ElementAttribute.builder().name(name).value(p).build());
+        }
+        return new GenericTag(code, nip, attributes);
+    }
+
+    public static GenericTag create(String code, Integer nip, String param) {
+        Set<ElementAttribute> attributes = new HashSet<>();
+        attributes.add(ElementAttribute.builder().name("param").value(param).build());
+        return new GenericTag(code, nip, attributes);
+    }
 }

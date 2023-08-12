@@ -5,8 +5,7 @@
 package nostr.api;
 
 import java.util.List;
-import nostr.api.factory.EventFactory;
-import nostr.base.PublicKey;
+import nostr.api.factory.impl.NIP09.DeletionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.DeletionEvent;
 
@@ -16,31 +15,7 @@ import nostr.event.impl.DeletionEvent;
  */
 public class NIP09 extends Nostr {
 
-    public static class EventDeletionFactory extends EventFactory<DeletionEvent> {
-
-        public EventDeletionFactory() {
-            super(null);
-        }
-
-        public EventDeletionFactory(List<BaseTag> tags) {
-            super(tags, null);
-        }
-
-        @Deprecated
-        public EventDeletionFactory(PublicKey sender) {
-            super(sender, null);
-        }
-
-        @Override
-        public DeletionEvent create() {
-            return new DeletionEvent(getSender(), getTags());
-        }
-
+    public static DeletionEvent createDeletionEvent(List<BaseTag> tags) {
+        return new DeletionEventFactory(tags).create();
     }
-
-    public static class Kinds {
-
-        public static final Integer KIND_DELETION = 5;
-    }
-
 }

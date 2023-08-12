@@ -6,10 +6,7 @@ package nostr.api;
 
 import java.net.URL;
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import nostr.api.factory.EventFactory;
+import nostr.api.factory.impl.NIP25.ReactionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
@@ -22,54 +19,16 @@ import nostr.util.NostrException;
  */
 public class NIP25 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class ReactionEventFactory extends EventFactory<ReactionEvent> {
+    public static ReactionEvent createReactionEvent(GenericEvent event, Reaction reaction) {
+        return new ReactionEventFactory(event, reaction).create();
+    }
+    
+    public static ReactionEvent createReactionEvent(GenericEvent event, Reaction reaction, URL emoji) {
+        return new ReactionEventFactory(event, reaction.getEmoji(), emoji).create();
+    }
 
-        public final GenericEvent event;
-        private final URL emoji;
-        
-        public ReactionEventFactory(@NonNull GenericEvent event, Reaction reaction) {
-            super(reaction.getEmoji());
-            this.event = event;
-            this.emoji = null;
-        }
-
-        public ReactionEventFactory(List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
-            super(tags, reaction);
-            this.event = event;
-            this.emoji = null;
-        }
-
-        public ReactionEventFactory(@NonNull GenericEvent event, String reaction, URL emoji) {
-            super(reaction);
-            this.event = event;
-            this.emoji = emoji;
-        }
-
-        public ReactionEventFactory(List<BaseTag> tags, @NonNull GenericEvent event, String reaction, URL emoji) {
-            super(tags, reaction);
-            this.event = event;
-            this.emoji = emoji;
-        }
-
-        @Override
-        public ReactionEvent create() {
-            var reaction = getContent();
-            var url = getEmoji();
-            
-            var reactEvent = new ReactionEvent(getSender(), event, reaction);
-            switch (reaction) {
-                case "+", "-" -> { // Standard emoji - No tag required
-                }
-                default -> { // Custom emoji
-                    var tag = new NIP30.CustomEmojiTagFactory(reaction, url).create();
-                    reactEvent.addTag(tag);
-                }
-            }
-            
-            return reactEvent;
-        }
+    public static ReactionEvent createReactionEvent(List<BaseTag> tags, GenericEvent event, Reaction reaction, URL emoji) {
+        return new ReactionEventFactory(tags, event, reaction.getEmoji(), emoji).create();
     }
 
     public static void like(GenericEvent event) throws NostrException {

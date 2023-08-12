@@ -5,14 +5,15 @@
 package nostr.api;
 
 import java.util.List;
-import nostr.api.factory.EventFactory;
-import nostr.api.factory.TagFactory;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import nostr.api.factory.MessageFactory;
+import nostr.api.factory.impl.NIP01.CloseMessageFactory;
+import nostr.api.factory.impl.NIP01.EoseMessageFactory;
+import nostr.api.factory.impl.NIP01.EventMessageFactory;
+import nostr.api.factory.impl.NIP01.EventTagFactory;
+import nostr.api.factory.impl.NIP01.FiltersFactory;
+import nostr.api.factory.impl.NIP01.NoticeMessageFactory;
+import nostr.api.factory.impl.NIP01.PubKeyTagFactory;
+import nostr.api.factory.impl.NIP01.ReqMessageFactory;
+import nostr.api.factory.impl.NIP01.TextNoteEventFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -37,166 +38,69 @@ import nostr.event.tag.PubKeyTag;
  */
 public class NIP01 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class TextNoteEventFactory extends EventFactory<TextNoteEvent> {
-
-        // TextEvents attributes
-        public TextNoteEventFactory(String content) {
-            super(content);
-        }
-
-        public TextNoteEventFactory(List<BaseTag> tags, String content) {
-            super(tags, content);
-        }
-
-        @Deprecated
-        public TextNoteEventFactory(PublicKey sender, String content) {
-            super(sender, content);
-        }
-
-        @Override
-        public TextNoteEvent create() {
-            var event = new nostr.event.impl.TextNoteEvent(getSender(), getTags(), getContent());
-            getTags().stream().forEach(t -> event.addTag(t));
-            return event;
-        }
-
+    public static TextNoteEvent createTextNoteEvent(String content) {
+        return new TextNoteEventFactory(content).create();
+    }
+    
+    public static TextNoteEvent createTextNoteEvent(List<BaseTag> tags, String content) {
+        return new TextNoteEventFactory(tags, content).create();
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class EventTagFactory extends TagFactory<EventTag> {
-
-        private final IEvent relateEvent;
-        private String recommendedRelayUrl;
-        private Marker marker;
-
-        public EventTagFactory(@NonNull IEvent relateEvent) {
-            this.relateEvent = relateEvent;
-        }
-
-        @Override
-        public EventTag create() {
-            return new EventTag(relateEvent.getId(), recommendedRelayUrl, marker);
-        }
-
+    public static EventTag createEventTag(IEvent relateEvent) {
+        return new EventTagFactory(relateEvent).create();        
+    }
+    
+    public static EventTag createEventTag(IEvent relateEvent, String recommendedRelayUrl, Marker marker) {
+        var result = new EventTagFactory(relateEvent).create();
+        result.setMarker(marker);
+        result.setRecommendedRelayUrl(recommendedRelayUrl);
+        return result;
+    }
+    
+    public static PubKeyTag createPubKeyTag(PublicKey publicKey) {
+        return new PubKeyTagFactory(publicKey).create();
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class PubKeyTagFactory extends TagFactory<PubKeyTag> {
-
-        private final PublicKey publicKey;
-        private String mainRelayUrl;
-        private String petName;
-
-        public PubKeyTagFactory(@NonNull PublicKey publicKey) {
-            this.publicKey = publicKey;
-        }
-
-        @Override
-        public PubKeyTag create() {
-            return new PubKeyTag(publicKey, mainRelayUrl, petName);
-        }
-
+    public static PubKeyTag createPubKeyTag(PublicKey publicKey, String mainRelayUrl, String petName) {
+        var result = new PubKeyTagFactory(publicKey).create();
+        result.setMainRelayUrl(mainRelayUrl);
+        result.setPetName(petName);
+        return result;
     }
 
-    @Data
-    @NoArgsConstructor
-    public static class FiltersFactory {
-
-        // Filters attributes
-        private EventList events;
-        private PublicKeyList authors;
-        private KindList kinds;
-        private EventList referencedEvents;
-        private PublicKeyList referencePubKeys;
-        private Long since;
-        private Long until;
-        private Integer limit;
-        private GenericTagQueryList genericTagQueryList;
-
-        public Filters create() {
-            return Filters.builder().authors(authors).events(events).genericTagQueryList(genericTagQueryList).kinds(kinds).limit(limit).referencePubKeys(referencePubKeys).referencedEvents(referencedEvents).since(since).until(until).build();
-        }
+    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQueryList genericTagQueryList) {
+        var factory = new FiltersFactory();
+        factory.setAuthors(authors);
+        factory.setEvents(events);
+        factory.setGenericTagQueryList(genericTagQueryList);
+        factory.setKinds(kinds);
+        factory.setLimit(limit);
+        factory.setReferencePubKeys(referencePubKeys);
+        factory.setReferencedEvents(referencedEvents);
+        factory.setSince(since);
+        factory.setUntil(until);
+        return factory.create();
+    }
+    
+    public static EventMessage createEventMessage(IEvent event, String subscriptionId) {
+        var result = new EventMessageFactory(event).create();
+        result.setSubscriptionId(subscriptionId);
+        return result;
+    }
+    
+    public static ReqMessage createReqMessage(String subscriptionId, Filters filters) {
+        return new ReqMessageFactory(subscriptionId, filters).create();
+    }
+    
+    public static CloseMessage createCloseMessage(String subscriptionId) {
+        return new CloseMessageFactory(subscriptionId).create();
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class EventMessageFactory extends MessageFactory<EventMessage> {
-
-        private final IEvent event;
-        private String subscriptionId;
-
-        public EventMessageFactory(IEvent event) {
-            this.event = event;
-        }
-
-        @Override
-        public EventMessage create() {
-            return new EventMessage(event, subscriptionId);
-        }
-
+    public static EoseMessage createEoseMessage(String subscriptionId) {
+        return new EoseMessageFactory(subscriptionId).create();
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor
-    public static class ReqMessageFactory extends MessageFactory<ReqMessage> {
-
-        private final String subscriptionId;
-        private final Filters filters;
-
-        @Override
-        public ReqMessage create() {
-            return new ReqMessage(subscriptionId, filters);
-        }
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor
-    public static class CloseMessageFactory extends MessageFactory<CloseMessage> {
-
-        private final String subscriptionId;
-
-        @Override
-        public CloseMessage create() {
-            return new CloseMessage(subscriptionId);
-        }
-
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor
-    public static class EoseMessageFactory extends MessageFactory<EoseMessage> {
-
-        private final String subscriptionId;
-
-        @Override
-        public EoseMessage create() {
-            return new EoseMessage(subscriptionId);
-        }
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor
-    public static class NoticeMessageFactory extends MessageFactory<NoticeMessage> {
-
-        private final String message;
-
-        @Override
-        public NoticeMessage create() {
-            return new NoticeMessage(message);
-        }
-    }
-
-    public static class Kinds {
-        public static final Integer KIND_SET_METADATA = 0;
-        public static final Integer KIND_TEXT_NOTE = 1;
-        public static final Integer KIND_RECOMMEND_SERVER = 2;
+    public static NoticeMessage createNoticeMessage(String message) {
+        return new NoticeMessageFactory(message).create();
     }
 }

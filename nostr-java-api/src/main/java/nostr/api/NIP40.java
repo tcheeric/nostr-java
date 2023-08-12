@@ -4,10 +4,7 @@
  */
 package nostr.api;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import nostr.api.factory.TagFactory;
+import nostr.api.factory.impl.NIP40.ExpirationTagFactory;
 import nostr.event.tag.ExpirationTag;
 
 /**
@@ -16,20 +13,7 @@ import nostr.event.tag.ExpirationTag;
  */
 public class NIP40 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class ExpirationTagFactory extends TagFactory<ExpirationTag> {
-
-        private Integer expiration;
-
-        public ExpirationTagFactory(@NonNull Integer expiration) {
-            this.expiration = expiration;
-        }
-
-        @Override
-        public ExpirationTag create() {
-            return new ExpirationTag(expiration);
-        }
-    }
-
+    public static ExpirationTag createExpirationTag(Integer expiration) {
+        return new ExpirationTagFactory(expiration).create();
+    }    
 }

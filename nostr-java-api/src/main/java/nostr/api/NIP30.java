@@ -5,13 +5,7 @@
 package nostr.api;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import nostr.api.factory.TagFactory;
-import nostr.base.ElementAttribute;
+import nostr.api.factory.impl.NIP30.CustomEmojiTagFactory;
 import nostr.event.impl.GenericTag;
 
 /**
@@ -20,30 +14,7 @@ import nostr.event.impl.GenericTag;
  */
 public class NIP30 extends Nostr {
     
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class CustomEmojiTagFactory extends TagFactory<GenericTag> {
-
-        private final String emoji;
-        private final URL url; 
-        
-        public CustomEmojiTagFactory(@NonNull String emoji, @NonNull URL url) {
-            this.emoji = emoji;
-            this.url = url;
-        }
-        
-        @Override
-        public GenericTag create() {
-            
-            // Create the tag attributes
-            Set<ElementAttribute> attributes = new HashSet<>();
-            ElementAttribute attrName = new ElementAttribute("reaction", getEmoji(), 30);
-            ElementAttribute attrUrl = new ElementAttribute("url", getUrl().toString(), 30);
-            attributes.add(attrUrl);
-            attributes.add(attrName);
-            
-            // Create the emoji tag
-            return new GenericTag("emoji", 30, attributes);
-        }        
+    public static GenericTag createCustomEmojiTag(String emoji, URL url) {
+        return new CustomEmojiTagFactory(emoji, url).create();
     }    
 }

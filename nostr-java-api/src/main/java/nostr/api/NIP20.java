@@ -4,9 +4,7 @@
  */
 package nostr.api;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nostr.api.factory.MessageFactory;
+import nostr.api.factory.impl.NIP20.OkMessageFactory;
 import nostr.base.IEvent;
 import nostr.event.message.OkMessage;
 
@@ -16,26 +14,7 @@ import nostr.event.message.OkMessage;
  */
 public class NIP20 extends Nostr {
     
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class OkMessageFactory extends MessageFactory<OkMessage> {
-
-        private final IEvent event;
-        private final boolean flag;
-        private final String message;
-
-        public OkMessageFactory(IEvent event, boolean flag, String message) {
-            this.event = event;
-            this.flag = flag;
-            this.message = message;
-        }
-        
-        
-        @Override
-        public OkMessage create() {
-            return new OkMessage(event.getId(), flag, message);
-        }        
-    }
-    
-    
+    public static OkMessage createOkMessage(IEvent event, boolean flag, String message) {
+        return new OkMessageFactory(event, flag, message).create();
+    }    
 }

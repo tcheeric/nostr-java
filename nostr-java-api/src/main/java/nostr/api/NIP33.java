@@ -5,11 +5,9 @@
 package nostr.api;
 
 import java.util.List;
-import nostr.api.factory.TagFactory;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import nostr.api.factory.EventFactory;
+import nostr.api.factory.impl.NIP33.AddressTagFactory;
+import nostr.api.factory.impl.NIP33.IdentifierTagFactory;
+import nostr.api.factory.impl.NIP33.ParameterizedReplaceableEventFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
@@ -23,55 +21,23 @@ import nostr.event.tag.IdentifierTag;
  */
 public class NIP33 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class ParameterizedReplaceableEventFactory extends EventFactory<ParameterizedReplaceableEvent> {
-
-        private final Integer kind;
-        
-        public ParameterizedReplaceableEventFactory(@NonNull List<BaseTag> tags, Integer kind, String comment) {
-            super(tags, comment);
-            this.kind = kind;
-        }
-
-        @Override
-        public ParameterizedReplaceableEvent create() {
-            return new ParameterizedReplaceableEvent(getSender(), kind, getTags(), getContent());
-        }        
+    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(Integer kind, String comment) {
+        return new ParameterizedReplaceableEventFactory(kind, comment).create();
     }
     
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class IdentifierTagFactory extends TagFactory<IdentifierTag> {
-
-        private final String id;
-
-        public IdentifierTagFactory(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public IdentifierTag create() {
-            return new IdentifierTag(id);
-        }
+    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(List<BaseTag> tags, Integer kind, String comment) {
+        return new ParameterizedReplaceableEventFactory(tags, kind, comment).create();
+    }
+    
+    public static IdentifierTag createIdentifierTag(String id) {
+        return new IdentifierTagFactory(id).create();
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class AddressTagFactory extends TagFactory<AddressTag> {
-
-        private Integer kind;
-        private final PublicKey publicKey;
-        private IdentifierTag identifierTag;
-        private Relay relay;
-
-        public AddressTagFactory(@NonNull PublicKey publicKey) {
-            this.publicKey = publicKey;
-        }
-
-        @Override
-        public AddressTag create() {
-            return new AddressTag(kind, publicKey, identifierTag, relay);
-        }
-    }
+    public static AddressTag createAddressTag(Integer kind, PublicKey publicKey, IdentifierTag idTag, Relay relay) {
+        var result = new AddressTagFactory(publicKey).create();
+        result.setIdentifierTag(idTag);
+        result.setKind(kind);
+        result.setRelay(relay);
+        return result;
+    }    
 }

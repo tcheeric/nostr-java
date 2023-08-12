@@ -4,9 +4,7 @@
  */
 package nostr.api;
 
-import nostr.api.factory.TagFactory;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import nostr.api.factory.impl.NIP14.SubjectTagFactory;
 import nostr.event.tag.SubjectTag;
 
 /**
@@ -15,20 +13,7 @@ import nostr.event.tag.SubjectTag;
  */
 public class NIP14 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class SubjectTagFactory extends TagFactory<SubjectTag> {
-
-        private final String subject;
-
-        public SubjectTagFactory(String subject) {
-            this.subject = subject;
-        }
-
-        @Override
-        public SubjectTag create() {
-            return new SubjectTag(subject);
-        }
-
-    }
+    public static SubjectTag createSubjectTag(String subject) {
+        return new SubjectTagFactory(subject).create();
+    }    
 }

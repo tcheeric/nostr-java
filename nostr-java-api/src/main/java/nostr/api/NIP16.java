@@ -5,9 +5,8 @@
 package nostr.api;
 
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nostr.api.factory.EventFactory;
+import nostr.api.factory.impl.NIP16.EphemeralEventFactory;
+import nostr.api.factory.impl.NIP16.ReplaceableEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.ReplaceableEvent;
@@ -18,41 +17,15 @@ import nostr.event.impl.ReplaceableEvent;
  */
 public class NIP16 extends Nostr {
 
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class ReplaceableEventFactory extends EventFactory<ReplaceableEvent> {
-
-        private final Integer kind;
-        
-        public ReplaceableEventFactory(Integer kind, String content) {
-            super(content);
-            this.kind = kind;
-        }
-
-        public ReplaceableEventFactory(List<BaseTag> tags, Integer kind, String content) {
-            super(tags, content);
-            this.kind = kind;
-        }
-
-        @Override
-        public ReplaceableEvent create() {
-            return new ReplaceableEvent(getSender(), kind, getTags(), getContent());
-        }
+    public static ReplaceableEvent createReplaceableEvent(Integer kind, String content) {
+        return new ReplaceableEventFactory(kind, content).create();
     }
     
-    public static class EphemeralEventFactory extends EventFactory<EphemeralEvent> {
-
-        private final Integer kind;
-
-        public EphemeralEventFactory(Integer kind, String content) {
-            super(content);
-            this.kind = kind;
-        }
-
-        @Override
-        public EphemeralEvent create() {
-            return new EphemeralEvent(getSender(), kind, getTags(), getContent());
-        }
-        
+    public static ReplaceableEvent createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
+        return new ReplaceableEventFactory(tags, kind, content).create();
     }
+
+    public static EphemeralEvent createEphemeralEvent(Integer kind, String content) {
+        return new EphemeralEventFactory(kind, content).create();        
+    }    
 }
