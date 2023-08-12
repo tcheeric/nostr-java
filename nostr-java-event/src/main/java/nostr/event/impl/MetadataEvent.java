@@ -17,7 +17,6 @@ import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.util.NostrException;
 
 /**
  *
@@ -34,7 +33,7 @@ public final class MetadataEvent extends GenericEvent {
     @JsonIgnore
     private UserProfile profile;
 
-    public MetadataEvent(PublicKey pubKey, UserProfile profile) throws NostrException {
+    public MetadataEvent(PublicKey pubKey, UserProfile profile) {
         super(pubKey, Kind.SET_METADATA, new ArrayList<BaseTag>());
         this.profile = profile;
     }

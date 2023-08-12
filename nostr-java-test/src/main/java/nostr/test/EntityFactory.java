@@ -69,9 +69,7 @@ public class EntityFactory {
         @SuppressWarnings("unchecked")
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) throws NostrException {
             final PublicKey publicKey = profile.getPublicKey();
-            List<BaseTag> tagList = new ArrayList<>();
-            tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("daniel").build());
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKey, tagList, profile);
+            GenericEvent event = new InternetIdentifierMetadataEvent(publicKey, profile);
             event.update();
             return (InternetIdentifierMetadataEvent) event;
         }

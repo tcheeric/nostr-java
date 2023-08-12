@@ -4,15 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
-import nostr.event.BaseTag;
 import nostr.event.util.Nip05Validator;
 import nostr.util.NostrException;
 
@@ -26,22 +23,22 @@ import nostr.util.NostrException;
 @Event(name = "Internet Identifier Metadata Event", nip = 5)
 public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
-    public InternetIdentifierMetadataEvent(PublicKey pubKey, List<? extends BaseTag> tags, @NonNull UserProfile profile) throws NostrException {
-        super(pubKey, Kind.SET_METADATA, tags);
+    public InternetIdentifierMetadataEvent(PublicKey pubKey, @NonNull UserProfile profile) {
+        super(pubKey, Kind.SET_METADATA);
         this.init(profile);
     }
 
-    public InternetIdentifierMetadataEvent(PublicKey pubKey, @NonNull UserProfile profile) throws NostrException {
-        this(pubKey, new ArrayList<BaseTag>(), profile);
+    private void init(UserProfile profile) {
+        try {
+            // NIP-05 validator
+            Nip05Validator.builder().nip05(profile.getName()).publicKey(getPubKey()).build().validate();
+
+            setContent(profile);
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    private void init(UserProfile profile) throws NostrException {
-        // NIP-05 validator
-        Nip05Validator.builder().nip05(profile.getName()).publicKey(getPubKey()).build().validate();
-
-        setContent(profile);
-    }
-    
     private void setContent(UserProfile profile) {
 
         try {
