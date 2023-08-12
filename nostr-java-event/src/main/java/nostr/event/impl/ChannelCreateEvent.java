@@ -22,6 +22,11 @@ public class ChannelCreateEvent extends GenericEvent {
         super(pubKey, Kind.CHANNEL_CREATE, tags, content);
     }
 
+    public ChannelCreateEvent(@NonNull PublicKey pubKey, ChannelProfile profile) {
+        super(pubKey, Kind.CHANNEL_CREATE);
+        this.setContent(profile);
+    }
+
     public ChannelCreateEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, ChannelProfile profile) {
         super(pubKey, Kind.CHANNEL_CREATE, tags);
         this.setContent(profile);
