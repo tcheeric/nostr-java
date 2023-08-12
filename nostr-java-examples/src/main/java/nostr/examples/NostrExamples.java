@@ -54,6 +54,7 @@ import nostr.util.UnsupportedNIPException;
  * @author squirrel
  */
 @Log
+@Deprecated
 public class NostrExamples {
 
     private static final Identity RECEIVER = Identity.generateRandomIdentity();
@@ -431,6 +432,7 @@ public class NostrExamples {
 
     private static void internetIdMetadata() throws NostrException {
         logHeader("internetIdMetadata");
+        
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
@@ -438,7 +440,7 @@ public class NostrExamples {
             List<BaseTag> tags = new ArrayList<>();
             tags.add(rcptTag);
 
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, tags, PROFILE);
+            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, PROFILE);
 
             SENDER.sign(event);
             BaseMessage message = new EventMessage(event);
