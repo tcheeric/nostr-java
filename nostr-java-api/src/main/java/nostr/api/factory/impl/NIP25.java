@@ -20,6 +20,7 @@ import nostr.event.impl.ReactionEvent;
  *
  * @author eric
  */
+// TESTME
 public class NIP25 {
 
     @Data
@@ -41,16 +42,16 @@ public class NIP25 {
             this.emoji = null;
         }
 
-        public ReactionEventFactory(@NonNull GenericEvent event, String reaction, URL emoji) {
-            super(reaction);
+        public ReactionEventFactory(@NonNull GenericEvent event, String content, URL emoji) {
+            super(content);
             this.event = event;
-            this.emoji = emoji;
+            this.emoji = emoji;            
         }
 
-        public ReactionEventFactory(List<BaseTag> tags, @NonNull GenericEvent event, String reaction, URL emoji) {
-            super(tags, reaction);
-            this.event = event;
+        public ReactionEventFactory(List<BaseTag> tags, String content, URL emoji) {
+            super(tags, content);
             this.emoji = emoji;
+            this.event = null;
         }
 
         @Override
@@ -58,17 +59,9 @@ public class NIP25 {
             var reaction = getContent();
             var url = getEmoji();
 
-            var reactEvent = new ReactionEvent(getSender(), event, reaction);
-            switch (reaction) {
-                case "+", "-" -> { // Standard emoji - No tag required
-                }
-                default -> { // Custom emoji
-                    var tag = new CustomEmojiTagFactory(reaction, url).create();
-                    reactEvent.addTag(tag);
-                }
-            }
-
-            return reactEvent;
+            return event != null ? 
+                    new ReactionEvent(getSender(), event, reaction, url) : 
+                    new ReactionEvent(getSender(), getTags(), reaction, url);            
         }
     }
 
