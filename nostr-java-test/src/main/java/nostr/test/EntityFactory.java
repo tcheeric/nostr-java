@@ -31,6 +31,7 @@ import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
+import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
 
@@ -101,8 +102,8 @@ public class EntityFactory {
         @SuppressWarnings("unchecked")
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
             List<BaseTag> tagList = new ArrayList<>();
-            tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("charlie").build());
-            GenericEvent event = new ReactionEvent(publicKey, tagList, Reaction.LIKE, original);
+            tagList.add(EventTag.builder().idEvent(original.getId()).build());
+            GenericEvent event = new ReactionEvent(publicKey, tagList, Reaction.LIKE);
             return (ReactionEvent) event;
         }
 

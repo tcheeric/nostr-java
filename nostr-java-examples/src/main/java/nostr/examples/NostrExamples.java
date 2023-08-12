@@ -382,7 +382,7 @@ public class NostrExamples {
             tags = new ArrayList<>();
             tags.add(EventTag.builder().idEvent(event.getId()).build());
             tags.add(PubKeyTag.builder().publicKey(publicKeySender).build());
-            GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tags, Reaction.LIKE, event);
+            GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tags, Reaction.LIKE);
 
             SENDER.sign(reactionEvent);
             message = new EventMessage(reactionEvent);
