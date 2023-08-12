@@ -15,9 +15,11 @@ import nostr.api.factory.EventFactory;
 import nostr.api.factory.MessageFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
+import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.Filters;
+import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
@@ -61,7 +63,24 @@ public class NIP01 {
             getTags().stream().forEach(t -> event.addTag(t));
             return event;
         }
+    }
+    
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class MetadataEventFactory extends EventFactory<MetadataEvent> {
 
+        private UserProfile profile;
+
+        public MetadataEventFactory(@NonNull UserProfile profile) {
+            super(null);
+            this.profile = profile;
+        }
+        
+        
+        @Override
+        public MetadataEvent create() {
+            return new MetadataEvent(getSender(), profile);
+        }        
     }
 
     @Data
