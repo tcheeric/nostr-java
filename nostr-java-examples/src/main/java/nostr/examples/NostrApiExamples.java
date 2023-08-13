@@ -3,6 +3,8 @@ package nostr.examples;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -58,8 +61,8 @@ public class NostrApiExamples {
         }
 
         try {
-            PROFILE.setPicture(new URL("https://images.unsplash.com/photo-1462888210965-cdf193fb74de"));
-        } catch (MalformedURLException e) {
+            PROFILE.setPicture(new URI("https://images.unsplash.com/photo-1462888210965-cdf193fb74de").toURL());
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
