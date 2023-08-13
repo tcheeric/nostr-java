@@ -178,7 +178,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    protected static String escapeJsonString(String jsonString) {
+    public static String escapeJsonString(String jsonString) {
         return jsonString.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\b", "\\b")
