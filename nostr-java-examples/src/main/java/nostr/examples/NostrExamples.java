@@ -14,14 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 
 import lombok.extern.java.Log;
-import nostr.base.Channel;
+import nostr.base.ChannelProfile;
 import nostr.base.ContentReason;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.Marker;
 import nostr.event.Reaction;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
@@ -432,7 +431,7 @@ public class NostrExamples {
 
     private static void internetIdMetadata() throws NostrException {
         logHeader("internetIdMetadata");
-        
+
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
@@ -476,10 +475,8 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            var channel = Channel.builder().name("JNostr Channel")
-                    .about("This is a channel to test NIP28 in nostr-java")
-                    .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-            GenericEvent event = new ChannelCreateEvent(publicKeySender, new ArrayList<BaseTag>(), channel.toString());
+            var channel = new ChannelProfile("JNostr Channel", "This is a channel to test NIP28 in nostr-java", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
+            var event = new ChannelCreateEvent(publicKeySender, channel);
 
             SENDER.sign(event);
             BaseMessage message = new EventMessage(event);
@@ -487,8 +484,8 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (NostrException ex) {
-            throw new NostrException(ex);
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -499,14 +496,9 @@ public class NostrExamples {
 
             var channelCreateEvent = createChannel();
 
-            var tags = new ArrayList<BaseTag>();
-            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
-                    .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri()).build());
+            var channel = new ChannelProfile("JNostr Channel | changed", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
 
-            var channel = Channel.builder().name("test change name")
-                    .about("This is a channel to test NIP28 in nostr-java | changed")
-                    .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-            GenericEvent event = new ChannelMetadataEvent(publicKeySender, tags, channel.toString());
+            GenericEvent event = new ChannelMetadataEvent(publicKeySender, (ChannelCreateEvent) channelCreateEvent, channel);
 
             SENDER.sign(event);
             var message = new EventMessage(event);
@@ -524,13 +516,7 @@ public class NostrExamples {
 
             var channelCreateEvent = createChannel();
 
-            var tags = new ArrayList<BaseTag>();
-            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
-                    .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri())
-                    .marker(Marker.ROOT)
-                    .build());
-
-            GenericEvent event = new ChannelMessageEvent(publicKeySender, tags, "Hello everybody!");
+            var event = new ChannelMessageEvent(publicKeySender, (ChannelCreateEvent) channelCreateEvent, "Hello everybody!");
 
             SENDER.sign(event);
             var message = new EventMessage(event);
@@ -550,10 +536,7 @@ public class NostrExamples {
 
             var channelMessageEvent = sendChannelMessage();
 
-            var tags = new ArrayList<BaseTag>();
-            tags.add(EventTag.builder().idEvent(channelMessageEvent.getId()).build());
-
-            GenericEvent event = new HideMessageEvent(publicKeySender, tags,
+            GenericEvent event = new HideMessageEvent(publicKeySender, (ChannelMessageEvent) channelMessageEvent,
                     ContentReason.builder().reason("Dick pic").build().toString());
 
             SENDER.sign(event);
@@ -572,10 +555,7 @@ public class NostrExamples {
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            var tags = new ArrayList<BaseTag>();
-            tags.add(PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build());
-
-            GenericEvent event = new MuteUserEvent(publicKeySender, tags,
+            GenericEvent event = new MuteUserEvent(publicKeySender, RECEIVER.getPublicKey(),
                     ContentReason.builder().reason("Posting dick pics").build().toString());
 
             SENDER.sign(event);

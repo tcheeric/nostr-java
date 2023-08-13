@@ -19,12 +19,17 @@ import nostr.api.NIP08;
 import nostr.api.NIP09;
 import nostr.api.NIP16;
 import nostr.api.NIP25;
+import nostr.api.NIP28;
 import nostr.api.Nostr;
+import nostr.base.ChannelProfile;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
+import nostr.event.impl.ChannelCreateEvent;
+import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.list.KindList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
@@ -43,7 +48,6 @@ public class NostrApiExamples {
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "erict875", "erict875@nostr-java.io", "It's me!", null);
 
-    //private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD", "nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
     static {
         final LogManager logManager = LogManager.getLogManager();
         try (final InputStream is = NostrApiExamples.class
@@ -107,24 +111,24 @@ public class NostrApiExamples {
                 filters();
             });
 
-//            executor.submit(() -> {
-//                createChannel();
-//            });
-//            executor.submit(() -> {
-//                updateChannelMetadata();
-//            });
-//
-//            executor.submit(() -> {
-//                sendChannelMessage();
-//            });
-//
-//            executor.submit(() -> {
-//                hideMessage();
-//            });
-//
-//            executor.submit(() -> {
-//                muteUser();
-//            });
+            executor.submit(() -> {
+                createChannel();
+            });
+            executor.submit(() -> {
+                updateChannelMetadata();
+            });
+
+            executor.submit(() -> {
+                sendChannelMessage();
+            });
+
+            executor.submit(() -> {
+                hideMessage();
+            });
+
+            executor.submit(() -> {
+                muteUser();
+            });
 
             stop(executor);
 
@@ -249,121 +253,81 @@ public class NostrApiExamples {
         Nostr.send(filters, subId);
     }
 
-//    private static GenericEvent createChannel() throws NostrException {
-//        logHeader("createChannel");
-//        try {
-//            final PublicKey publicKeySender = SENDER.getPublicKey();
-//
-//            var channel = Channel.builder().name("JNostr Channel")
-//                    .about("This is a channel to test NIP28 in nostr-java")
-//                    .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-//            GenericEvent event = new ChannelCreateEvent(publicKeySender, new ArrayList<BaseTag>(), channel.toString());
-//
-//            SENDER.sign(event);
-//            BaseMessage message = new EventMessage(event);
-//
-//            CLIENT.send(message);
-//
-//            return event;
-//        } catch (NostrException ex) {
-//            throw new NostrException(ex);
-//        }
-//    }
-//
-//    private static void updateChannelMetadata() throws NostrException {
-//        logHeader("updateChannelMetadata");
-//        try {
-//            final PublicKey publicKeySender = SENDER.getPublicKey();
-//
-//            var channelCreateEvent = createChannel();
-//
-//            var tags = new ArrayList<BaseTag>();
-//            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
-//                    .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri()).build());
-//
-//            var channel = Channel.builder().name("test change name")
-//                    .about("This is a channel to test NIP28 in nostr-java | changed")
-//                    .picture("https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg").build();
-//            GenericEvent event = new ChannelMetadataEvent(publicKeySender, tags, channel.toString());
-//
-//            SENDER.sign(event);
-//            var message = new EventMessage(event);
-//
-//            CLIENT.send(message);
-//        } catch (Exception ex) {
-//            throw new NostrException(ex);
-//        }
-//    }
-//
-//    private static GenericEvent sendChannelMessage() throws NostrException {
-//        logHeader("sendChannelMessage");
-//        try {
-//            final PublicKey publicKeySender = SENDER.getPublicKey();
-//
-//            var channelCreateEvent = createChannel();
-//
-//            var tags = new ArrayList<BaseTag>();
-//            tags.add(EventTag.builder().idEvent(channelCreateEvent.getId())
-//                    .recommendedRelayUrl(CLIENT.getRelays().stream().findFirst().get().getUri())
-//                    .marker(Marker.ROOT)
-//                    .build());
-//
-//            GenericEvent event = new ChannelMessageEvent(publicKeySender, tags, "Hello everybody!");
-//
-//            SENDER.sign(event);
-//            var message = new EventMessage(event);
-//
-//            CLIENT.send(message);
-//
-//            return event;
-//        } catch (NostrException ex) {
-//            throw new NostrException(ex);
-//        }
-//    }
-//    private static GenericEvent hideMessage() throws NostrException {
-//        logHeader("hideMessage");
-//        try {
-//            final PublicKey publicKeySender = SENDER.getPublicKey();
-//
-//            var channelMessageEvent = sendChannelMessage();
-//
-//            var tags = new ArrayList<BaseTag>();
-//            tags.add(EventTag.builder().idEvent(channelMessageEvent.getId()).build());
-//
-//            GenericEvent event = new HideMessageEvent(publicKeySender, tags,
-//                    ContentReason.builder().reason("Dick pic").build().toString());
-//
-//            SENDER.sign(event);
-//            var message = new EventMessage(event);
-//
-//            CLIENT.send(message);
-//
-//            return event;
-//        } catch (NostrException ex) {
-//            throw new NostrException(ex);
-//        }
-//    }
-//    private static GenericEvent muteUser() throws NostrException {
-//        logHeader("muteUser");
-//        try {
-//            final PublicKey publicKeySender = SENDER.getPublicKey();
-//
-//            var tags = new ArrayList<BaseTag>();
-//            tags.add(PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build());
-//
-//            GenericEvent event = new MuteUserEvent(publicKeySender, tags,
-//                    ContentReason.builder().reason("Posting dick pics").build().toString());
-//
-//            SENDER.sign(event);
-//            var message = new EventMessage(event);
-//
-//            CLIENT.send(message);
-//
-//            return event;
-//        } catch (NostrException ex) {
-//            throw new NostrException(ex);
-//        }
-//    }
+    private static GenericEvent createChannel() {
+        try {
+            logHeader("createChannel");
+            
+            var channel = new ChannelProfile("JNostr Channel", "This is a channel to test NIP28 in nostr-java", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
+            var event = NIP28.createChannelCreateEvent(channel);
+            
+            Nostr.sign(event);
+            Nostr.send(event);
+            
+            return event;
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static void updateChannelMetadata() {
+        try {
+            logHeader("updateChannelMetadata");
+            
+            var channelCreateEvent = createChannel();
+            
+            BaseTag tag = EventTag.builder()
+                    .idEvent(channelCreateEvent.getId())
+                    .recommendedRelayUrl("localhost:8080")
+                    .build();
+            
+            var channel = new ChannelProfile("test change name", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
+            var event = NIP28.createChannelCreateEvent(channel);
+            event.addTag(tag);
+            
+            Nostr.sign(event);
+            Nostr.send(event);
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    private static GenericEvent sendChannelMessage() {
+        logHeader("sendChannelMessage");
+
+        var channelCreateEvent = createChannel();
+
+        GenericEvent event = NIP28.createChannelMessageEvent((ChannelCreateEvent) channelCreateEvent, "Hello everybody!");
+        Nostr.sign(event);
+        Nostr.send(event);
+
+        return event;
+    }
+
+    private static GenericEvent hideMessage() {
+        logHeader("hideMessage");
+
+        var channelMessageEvent = sendChannelMessage();
+
+        GenericEvent event = NIP28.createHideMessageEvent((ChannelMessageEvent) channelMessageEvent, "Dick pic");
+
+        Nostr.sign(event);
+        Nostr.send(event);
+
+        return event;
+    }
+
+    private static GenericEvent muteUser() {
+        logHeader("muteUser");
+
+        GenericEvent event = NIP28.createMuteUserEvent(RECEIVER.getPublicKey(), "Posting dick pics");
+
+        Nostr.sign(event);
+        Nostr.send(event);
+
+        return event;
+    }
+
     private static void logAccountsData() throws NostrException {
         var msg = new StringBuilder("################################ ACCOUNTS BEGINNING ################################")
                 .append('\n').append("*** RECEIVER ***").append('\n')
