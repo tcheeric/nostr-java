@@ -6,6 +6,7 @@ package nostr.api;
 
 import java.net.URL;
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP23.ImageTagFactory;
 import nostr.api.factory.impl.NIP23.LongFormContentEventFactory;
 import nostr.api.factory.impl.NIP23.PublishedAtTagFactory;
@@ -26,7 +27,7 @@ public class NIP23 extends Nostr {
      * @param content a text in Markdown syntax
      * @return 
      */
-    public static GenericEvent creatLongFormContentEvent(String content) {
+    public static GenericEvent creatLongFormContentEvent(@NonNull String content) {
         return new LongFormContentEventFactory(content).create();
     }
     
@@ -36,7 +37,7 @@ public class NIP23 extends Nostr {
      * @param content a text in Markdown syntax
      * @return 
      */
-    public static GenericEvent creatLongFormContentEvent(List<BaseTag> tags, String content) {
+    public static GenericEvent creatLongFormContentEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
         return new LongFormContentEventFactory(tags, content).create();
     }
 
@@ -45,7 +46,7 @@ public class NIP23 extends Nostr {
      * @param title the article title
      * @return 
      */
-    public static GenericTag createTitleTag(String title) {
+    public static GenericTag createTitleTag(@NonNull String title) {
         return new TitleTagFactory(title).create();
     }    
 
@@ -54,7 +55,7 @@ public class NIP23 extends Nostr {
      * @param url a URL pointing to an image to be shown along with the title
      * @return 
      */
-    public static GenericTag createImageTag(URL url) {
+    public static GenericTag createImageTag(@NonNull URL url) {
         return new ImageTagFactory(url).create();
     }
 
@@ -63,7 +64,7 @@ public class NIP23 extends Nostr {
      * @param summary the article summary
      * @return 
      */
-    public static GenericTag createSummaryTag(String summary) {
+    public static GenericTag createSummaryTag(@NonNull String summary) {
         return new SummaryTagFactory(summary).create();
     }
 
@@ -72,7 +73,7 @@ public class NIP23 extends Nostr {
      * @param date the timestamp in unix seconds (stringified) of the first time the article was published
      * @return 
      */
-    public static GenericTag createPublishedAtTag(Integer date) {
+    public static GenericTag createPublishedAtTag(@NonNull Integer date) {
         return new PublishedAtTagFactory(date).create();
     }
 }

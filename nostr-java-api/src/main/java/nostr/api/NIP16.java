@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP16.EphemeralEventFactory;
 import nostr.api.factory.impl.NIP16.ReplaceableEventFactory;
 import nostr.event.BaseTag;
@@ -23,7 +24,7 @@ public class NIP16 extends Nostr {
      * @param content the content
      * @return 
      */
-    public static ReplaceableEvent createReplaceableEvent(Integer kind, String content) {
+    public static ReplaceableEvent createReplaceableEvent(@NonNull Integer kind, String content) {
         return new ReplaceableEventFactory(kind, content).create();
     }
     
@@ -34,7 +35,7 @@ public class NIP16 extends Nostr {
      * @param content the note's content
      * @return 
      */
-    public static ReplaceableEvent createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
+    public static ReplaceableEvent createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
         return new ReplaceableEventFactory(tags, kind, content).create();
     }
 
@@ -44,7 +45,7 @@ public class NIP16 extends Nostr {
      * @param content the note's content
      * @return 
      */
-    public static EphemeralEvent createEphemeralEvent(Integer kind, String content) {
+    public static EphemeralEvent createEphemeralEvent(@NonNull Integer kind, String content) {
         return new EphemeralEventFactory(kind, content).create();        
     }    
 }

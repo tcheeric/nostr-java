@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.net.URL;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP30.CustomEmojiTagFactory;
 import nostr.event.impl.GenericTag;
 
@@ -20,7 +21,7 @@ public class NIP30 extends Nostr {
      * @param url
      * @return 
      */
-    public static GenericTag createCustomEmojiTag(String emoji, URL url) {
+    public static GenericTag createCustomEmojiTag(@NonNull String emoji, URL url) {
         return new CustomEmojiTagFactory(emoji, url).create();
     }    
 }

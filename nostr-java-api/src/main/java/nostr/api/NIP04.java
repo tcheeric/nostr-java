@@ -6,8 +6,6 @@ package nostr.api;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP04.DirectMessageEventFactory;
 import nostr.base.PublicKey;
@@ -29,7 +27,7 @@ public class NIP04 extends Nostr {
      * @param content the DM content in clear-text
      * @return the DM event
      */
-    public static DirectMessageEvent createDirectMessageEvent(PublicKey recipient, String content) {
+    public static DirectMessageEvent createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
         return new DirectMessageEventFactory(recipient, content).create();
     }
     
@@ -40,7 +38,7 @@ public class NIP04 extends Nostr {
      * @param content the DM content
      * @return the DM event
      */
-    public static DirectMessageEvent createDirectMessageEvent(List<BaseTag> tags, PublicKey recipient, String content) {
+    public static DirectMessageEvent createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
         return new DirectMessageEventFactory(tags, recipient, content).create();
     }
 

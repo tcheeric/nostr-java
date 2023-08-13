@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP01.CloseMessageFactory;
 import nostr.api.factory.impl.NIP01.EoseMessageFactory;
 import nostr.api.factory.impl.NIP01.EventMessageFactory;
@@ -46,7 +47,7 @@ public class NIP01 extends Nostr {
      * @param content the content of the note
      * @return the text note without tags
      */
-    public static TextNoteEvent createTextNoteEvent(String content) {
+    public static TextNoteEvent createTextNoteEvent(@NonNull String content) {
         return new TextNoteEventFactory(content).create();
     }
     
@@ -56,7 +57,7 @@ public class NIP01 extends Nostr {
      * @param content the content of the note
      * @return a text note event
      */
-    public static TextNoteEvent createTextNoteEvent(List<BaseTag> tags, String content) {
+    public static TextNoteEvent createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
         return new TextNoteEventFactory(tags, content).create();
     }
     
@@ -66,7 +67,7 @@ public class NIP01 extends Nostr {
      * @param profile the associated profile
      * @return a metadata event associated for the profile
      */
-    public static MetadataEvent createMetadataEvent(UserProfile profile) {
+    public static MetadataEvent createMetadataEvent(@NonNull UserProfile profile) {
         return new MetadataEventFactory(profile).create();
     }
 
@@ -75,7 +76,7 @@ public class NIP01 extends Nostr {
      * @param relateEvent the related event
      * @return an event tag with the id of the related event
      */
-    public static EventTag createEventTag(IEvent relateEvent) {
+    public static EventTag createEventTag(@NonNull IEvent relateEvent) {
         return new EventTagFactory(relateEvent).create();        
     }
     
@@ -86,7 +87,7 @@ public class NIP01 extends Nostr {
      * @param marker the marker
      * @return an event tag with the id of the related event and optional recommended relay and marker
      */
-    public static EventTag createEventTag(IEvent relateEvent, String recommendedRelayUrl, Marker marker) {
+    public static EventTag createEventTag(@NonNull IEvent relateEvent, String recommendedRelayUrl, Marker marker) {
         var result = new EventTagFactory(relateEvent).create();
         result.setMarker(marker);
         result.setRecommendedRelayUrl(recommendedRelayUrl);
@@ -98,7 +99,7 @@ public class NIP01 extends Nostr {
      * @param publicKey the associated public key
      * @return a pubkey tag with the hex representation of the associated public key
      */
-    public static PubKeyTag createPubKeyTag(PublicKey publicKey) {
+    public static PubKeyTag createPubKeyTag(@NonNull PublicKey publicKey) {
         return new PubKeyTagFactory(publicKey).create();
     }
 
@@ -109,7 +110,7 @@ public class NIP01 extends Nostr {
      * @param petName the petname
      * @return a pubkey tag with the hex representation of the associated public key and the optional recommended relay and petname
      */
-    public static PubKeyTag createPubKeyTag(PublicKey publicKey, String mainRelayUrl, String petName) {
+    public static PubKeyTag createPubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl, String petName) {
         var result = new PubKeyTagFactory(publicKey).create();
         result.setMainRelayUrl(mainRelayUrl);
         result.setPetName(petName);
@@ -149,7 +150,7 @@ public class NIP01 extends Nostr {
      * @param subscriptionId the related subscription id
      * @return an event message  
      */
-    public static EventMessage createEventMessage(IEvent event, String subscriptionId) {
+    public static EventMessage createEventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
         var result = new EventMessageFactory(event).create();
         result.setSubscriptionId(subscriptionId);
         return result;
@@ -161,7 +162,7 @@ public class NIP01 extends Nostr {
      * @param filters the filters object
      * @return a REQ message
      */
-    public static ReqMessage createReqMessage(String subscriptionId, Filters filters) {
+    public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull Filters filters) {
         return new ReqMessageFactory(subscriptionId, filters).create();
     }
     
@@ -170,7 +171,7 @@ public class NIP01 extends Nostr {
      * @param subscriptionId the subscription id
      * @return a CLOSE message
      */
-    public static CloseMessage createCloseMessage(String subscriptionId) {
+    public static CloseMessage createCloseMessage(@NonNull String subscriptionId) {
         return new CloseMessageFactory(subscriptionId).create();
     }
 
@@ -179,7 +180,7 @@ public class NIP01 extends Nostr {
      * @param subscriptionId the subscription id
      * @return an EOSE message
      */
-    public static EoseMessage createEoseMessage(String subscriptionId) {
+    public static EoseMessage createEoseMessage(@NonNull String subscriptionId) {
         return new EoseMessageFactory(subscriptionId).create();
     }
 
@@ -188,7 +189,7 @@ public class NIP01 extends Nostr {
      * @param message the human-readable message to send to the client
      * @return a NOTICE message
      */
-    public static NoticeMessage createNoticeMessage(String message) {
+    public static NoticeMessage createNoticeMessage(@NonNull String message) {
         return new NoticeMessageFactory(message).create();
     }
 }

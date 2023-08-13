@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP20.OkMessageFactory;
 import nostr.base.IEvent;
 import nostr.event.message.OkMessage;
@@ -21,7 +22,7 @@ public class NIP20 extends Nostr {
      * @param message additional information as to why the command succeeded or failed
      * @return the OK message
      */
-    public static OkMessage createOkMessage(IEvent event, boolean flag, String message) {
+    public static OkMessage createOkMessage(@NonNull IEvent event, boolean flag, String message) {
         return new OkMessageFactory(event, flag, message).create();
     }    
 }

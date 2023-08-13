@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP33.AddressTagFactory;
 import nostr.api.factory.impl.NIP33.IdentifierTagFactory;
 import nostr.api.factory.impl.NIP33.ParameterizedReplaceableEventFactory;
@@ -27,7 +28,7 @@ public class NIP33 extends Nostr {
      * @param comment
      * @return 
      */
-    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(Integer kind, String comment) {
+    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
         return new ParameterizedReplaceableEventFactory(kind, comment).create();
     }
     
@@ -38,7 +39,7 @@ public class NIP33 extends Nostr {
      * @param comment
      * @return 
      */
-    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(List<BaseTag> tags, Integer kind, String comment) {
+    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String comment) {
         return new ParameterizedReplaceableEventFactory(tags, kind, comment).create();
     }
     
@@ -47,7 +48,7 @@ public class NIP33 extends Nostr {
      * @param id
      * @return 
      */
-    public static IdentifierTag createIdentifierTag(String id) {
+    public static IdentifierTag createIdentifierTag(@NonNull String id) {
         return new IdentifierTagFactory(id).create();
     }
 
@@ -59,7 +60,7 @@ public class NIP33 extends Nostr {
      * @param relay
      * @return 
      */
-    public static AddressTag createAddressTag(Integer kind, PublicKey publicKey, IdentifierTag idTag, Relay relay) {
+    public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, @NonNull IdentifierTag idTag, Relay relay) {
         var result = new AddressTagFactory(publicKey).create();
         result.setIdentifierTag(idTag);
         result.setKind(kind);

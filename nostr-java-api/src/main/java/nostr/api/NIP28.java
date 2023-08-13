@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP28.ChannelCreateEventFactory;
 import nostr.api.factory.impl.NIP28.ChannelMessageEventFactory;
 import nostr.api.factory.impl.NIP28.ChannelMetadataEventFactory;
@@ -29,7 +30,7 @@ public class NIP28 {
      * @param profile the channel metadata
      * @return 
      */
-    public static ChannelCreateEvent createChannelCreateEvent(ChannelProfile profile) {
+    public static ChannelCreateEvent createChannelCreateEvent(@NonNull ChannelProfile profile) {
         return new ChannelCreateEventFactory(profile).create();
     }
     
@@ -39,7 +40,7 @@ public class NIP28 {
      * @param content the message
      * @return 
      */
-    public static ChannelMessageEvent createChannelMessageEvent(ChannelCreateEvent channelCreateEvent, String content) {
+    public static ChannelMessageEvent createChannelMessageEvent(@NonNull ChannelCreateEvent channelCreateEvent, String content) {
         return createChannelMessageEvent(channelCreateEvent, null, content);
     }
 
@@ -50,7 +51,7 @@ public class NIP28 {
      * @param content the message
      * @return 
      */
-    public static ChannelMessageEvent createChannelMessageEvent(ChannelCreateEvent channelCreateEvent, ChannelMessageEvent channelMessageEvent, String content) {
+    public static ChannelMessageEvent createChannelMessageEvent(@NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelMessageEvent channelMessageEvent, String content) {
         return createChannelMessageEvent(channelCreateEvent, channelMessageEvent, content, null, null);
     }
 
@@ -63,7 +64,7 @@ public class NIP28 {
      * @param recommendedRelayReply the recommended relay for the KIND-42 event
      * @return 
      */
-    public static ChannelMessageEvent createChannelMessageEvent(ChannelCreateEvent channelCreateEvent, ChannelMessageEvent channelMessageEvent, String content, Relay recommendedRelayRoot, Relay recommendedRelayReply) {
+    public static ChannelMessageEvent createChannelMessageEvent(@NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelMessageEvent channelMessageEvent, String content, Relay recommendedRelayRoot, Relay recommendedRelayReply) {
         var factory = new ChannelMessageEventFactory(channelCreateEvent, content);
         factory.setRecommendedRelayReply(recommendedRelayReply);
         factory.setRecommendedRelayRoot(recommendedRelayRoot);
@@ -77,7 +78,7 @@ public class NIP28 {
      * @param profile the channel metadata 
      * @return 
      */
-    public static ChannelMetadataEvent createChannelMetadataEvent(ChannelCreateEvent channelCreateEvent,ChannelProfile profile) {
+    public static ChannelMetadataEvent createChannelMetadataEvent(@NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelProfile profile) {
         return new ChannelMetadataEventFactory(channelCreateEvent, profile).create();
     }
     
@@ -87,7 +88,7 @@ public class NIP28 {
      * @param reason optional reason for the action
      * @return 
      */
-    public static HideMessageEvent createHideMessageEvent(ChannelMessageEvent channelMessageEvent, String reason) {
+    public static HideMessageEvent createHideMessageEvent(@NonNull ChannelMessageEvent channelMessageEvent, String reason) {
         return new HideMessageEventFactory(channelMessageEvent, reason).create();
     }
     
@@ -97,7 +98,7 @@ public class NIP28 {
      * @param reason optional reason for the action
      * @return 
      */
-    public static MuteUserEvent createMuteUserEvent(PublicKey mutedUser, String reason) {
+    public static MuteUserEvent createMuteUserEvent(@NonNull PublicKey mutedUser, String reason) {
         return new MuteUserEventFactory(mutedUser, reason).create();
     } 
 }

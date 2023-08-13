@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP05.InternetIdentifierMetadataEventFactory;
 import nostr.base.UserProfile;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
@@ -19,7 +20,7 @@ public class NIP05 {
      * @param profile the associate user profile
      * @return the IIM event
      */
-    public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {
+    public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
         return new InternetIdentifierMetadataEventFactory(profile).create();
     }
 }

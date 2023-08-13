@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP42.ChallengeTagFactory;
 import nostr.api.factory.impl.NIP42.ClientAuthenticationEventFactory;
 import nostr.api.factory.impl.NIP42.ClientAuthenticationMessageFactory;
@@ -31,7 +32,7 @@ public class NIP42 extends Nostr {
      * @param relay
      * @return 
      */
-    public static ClientAuthenticationEvent createClientAuthenticationEvent(String challenge, Relay relay) {
+    public static ClientAuthenticationEvent createClientAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
         return new ClientAuthenticationEventFactory(challenge, relay).create();
     }
     
@@ -42,7 +43,7 @@ public class NIP42 extends Nostr {
      * @param relay
      * @return 
      */
-    public static ClientAuthenticationEvent createClientAuthenticationEvent(List<BaseTag> tags, String challenge, Relay relay) {
+    public static ClientAuthenticationEvent createClientAuthenticationEvent(@NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
         return new ClientAuthenticationEventFactory(tags, challenge, relay).create();
     }
     
@@ -51,7 +52,7 @@ public class NIP42 extends Nostr {
      * @param relay
      * @return 
      */
-    public static GenericTag createRelayTag(Relay relay) {
+    public static GenericTag createRelayTag(@NonNull Relay relay) {
         return new RelaysTagFactory(relay).create();
     }
     
@@ -60,7 +61,7 @@ public class NIP42 extends Nostr {
      * @param challenge
      * @return 
      */
-    public static GenericTag createChallengeTag(String challenge) {
+    public static GenericTag createChallengeTag(@NonNull String challenge) {
         return new ChallengeTagFactory(challenge).create();
     }
     
@@ -69,7 +70,7 @@ public class NIP42 extends Nostr {
      * @param event
      * @return 
      */
-    public static ClientAuthenticationMessage createClientAuthenticationMessage(ClientAuthenticationEvent event) {
+    public static ClientAuthenticationMessage createClientAuthenticationMessage(@NonNull ClientAuthenticationEvent event) {
         return new ClientAuthenticationMessageFactory(event).create();
     }
     
@@ -78,7 +79,7 @@ public class NIP42 extends Nostr {
      * @param challenge
      * @return 
      */
-    public static GenericMessage createRelayAuthenticationMessage(String challenge) {
+    public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
         return new RelayAuthenticationMessageFactory(challenge).create();
     }
 
@@ -88,7 +89,7 @@ public class NIP42 extends Nostr {
      * @param relay
      * @throws NostrException 
      */
-    public static void auth(String challenge, Relay relay) throws NostrException {
+    public static void auth(@NonNull String challenge, @NonNull Relay relay) throws NostrException {
         Client client = Nostr.createClient();
         client.auth(challenge, relay);
     }

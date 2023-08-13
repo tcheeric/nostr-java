@@ -6,6 +6,7 @@ package nostr.api;
 
 import java.net.URL;
 import java.util.List;
+import lombok.NonNull;
 import nostr.api.factory.impl.NIP25.ReactionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Reaction;
@@ -25,7 +26,7 @@ public class NIP25 extends Nostr {
      * @param reaction
      * @return 
      */
-    public static ReactionEvent createReactionEvent(GenericEvent event, Reaction reaction) {
+    public static ReactionEvent createReactionEvent(@NonNull GenericEvent event, @NonNull Reaction reaction) {
         return new ReactionEventFactory(event, reaction).create();
     }
     
@@ -36,7 +37,7 @@ public class NIP25 extends Nostr {
      * @param emoji the emoji image url
      * @return 
      */
-    public static ReactionEvent createReactionEvent(GenericEvent event, String content, URL emoji) {
+    public static ReactionEvent createReactionEvent(@NonNull GenericEvent event, @NonNull String content, URL emoji) {
         return new ReactionEventFactory(event, content, emoji).create();
     }
 
@@ -47,7 +48,7 @@ public class NIP25 extends Nostr {
      * @param emoji the emoji image url
      * @return 
      */
-    public static ReactionEvent createReactionEvent(List<BaseTag> tags, String content, URL emoji) {
+    public static ReactionEvent createReactionEvent(@NonNull List<BaseTag> tags, @NonNull String content, URL emoji) {
         return new ReactionEventFactory(tags, content, emoji).create();
     }
 
@@ -56,7 +57,7 @@ public class NIP25 extends Nostr {
      * @param event
      * @throws NostrException 
      */
-    public static void like(GenericEvent event) throws NostrException {
+    public static void like(@NonNull GenericEvent event) throws NostrException {
         react(event, Reaction.LIKE.getEmoji(), null);
     }
 
@@ -65,7 +66,7 @@ public class NIP25 extends Nostr {
      * @param event
      * @throws NostrException 
      */
-    public static void dislike(GenericEvent event) throws NostrException {
+    public static void dislike(@NonNull GenericEvent event) throws NostrException {
         react(event, Reaction.DISLIKE.getEmoji(), null);
     }
     
@@ -76,7 +77,7 @@ public class NIP25 extends Nostr {
      * @param url
      * @throws NostrException 
      */
-    public static void react(GenericEvent event, String reaction, URL url) throws NostrException {
+    public static void react(@NonNull GenericEvent event, @NonNull String reaction, URL url) throws NostrException {
         var reactionEvent = new ReactionEventFactory(event, reaction, url).create();
 
         Nostr.sign(reactionEvent);
