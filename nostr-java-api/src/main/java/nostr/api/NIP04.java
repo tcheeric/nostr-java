@@ -6,6 +6,8 @@ package nostr.api;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP04.DirectMessageEventFactory;
 import nostr.base.PublicKey;
@@ -21,19 +23,46 @@ import nostr.util.NostrException;
  */
 public class NIP04 extends Nostr {
 
+    /**
+     * Create a NIP04 Encrypted Direct Message
+     * @param recipient the DM recipient
+     * @param content the DM content in clear-text
+     * @return the DM event
+     */
     public static DirectMessageEvent createDirectMessageEvent(PublicKey recipient, String content) {
         return new DirectMessageEventFactory(recipient, content).create();
     }
     
+    /**
+     * Create a NIP04 Encrypted Direct Message
+     * @param tags additional note's tags
+     * @param recipient the DM recipient
+     * @param content the DM content
+     * @return the DM event
+     */
     public static DirectMessageEvent createDirectMessageEvent(List<BaseTag> tags, PublicKey recipient, String content) {
         return new DirectMessageEventFactory(tags, recipient, content).create();
     }
 
-    public static void encrypt(@NonNull DirectMessageEvent dm) throws NostrException {
+    /**
+     * Encrypt a DM event
+     * @param dm the DM event
+     */
+    public static void encrypt(@NonNull DirectMessageEvent dm) {
         var identity = Identity.getInstance();
-        identity.encryptDirectMessage(dm);
+        try {
+            identity.encryptDirectMessage(dm);
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
+    /**
+     * Decrypt an encrypted direct message
+     * @param dm the encrypted direct message
+     * @return the DM content in clear-text
+     * @throws NostrException 
+     */
     public static String decrypt(@NonNull DirectMessageEvent dm) throws NostrException {
         var identity = Identity.getInstance();
         var recipient = dm.getTags()

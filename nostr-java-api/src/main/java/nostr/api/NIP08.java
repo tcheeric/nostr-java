@@ -16,19 +16,19 @@ import nostr.event.impl.MentionsEvent;
 public class NIP08 {
     
     /**
-     * 
-     * @param content
-     * @return 
+     * Create a NIP08 mentions event without pubkey tags
+     * @param content the note's content 
+     * @return the mentions event without pubkey tags
      */
     public static MentionsEvent createMentionsEvent(String content) {
         return new MentionsEventFactory(content).create();
     }
 
     /**
-     * 
-     * @param tags
-     * @param content
-     * @return 
+     * Create a NIP08 mentions event 
+     * @param tags the event's tags containing the referenced pubkey tags
+     * @param content the note's content 
+     * @return the mentions event
      */
     public static MentionsEvent createMentionsEvent(List<BaseTag> tags, String content) {
         return new MentionsEventFactory(tags, content).create();

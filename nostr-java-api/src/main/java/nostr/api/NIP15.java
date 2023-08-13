@@ -28,26 +28,61 @@ import nostr.event.impl.VerifyPaymentOrShippedEvent.PaymentShipmentStatus;
  */
 public class NIP15 extends Nostr {
 
+    /**
+     * 
+     * @param customer
+     * @param status
+     * @return 
+     */
     public static VerifyPaymentOrShippedEvent createVerifyPaymentOrShippedEvent(Customer customer, PaymentShipmentStatus status) {
         return new VerifyPaymentOrShippedEventFactory(status, customer).create();
     }
     
+    /**
+     * 
+     * @param tags
+     * @param customer
+     * @param status
+     * @return 
+     */
     public static VerifyPaymentOrShippedEvent createVerifyPaymentOrShippedEvent(List<BaseTag> tags, Customer customer, PaymentShipmentStatus status) {
         return new VerifyPaymentOrShippedEventFactory(tags, status, customer).create();
     }
     
+    /**
+     * 
+     * @param payment
+     * @param customer
+     * @return 
+     */
     public static MerchantRequestPaymentEvent createMerchantRequestPaymentEvent(Payment payment, Customer customer) {
         return new MerchantRequestPaymentEventFactory(customer, payment).create();
     }
 
+    /**
+     * 
+     * @param customer
+     * @return 
+     */
     public static CustomerOrderEvent createCustomerOrderEvent(Customer customer) {
         return new CustomerOrderEventFactory(customer).create();
     }
     
+    /**
+     * 
+     * @param stall
+     * @return 
+     */
     public static CreateOrUpdateStallEvent createCreateOrUpdateStallEvent(Stall stall) {
         return new CreateOrUpdateStallEventFactory(stall).create();
     }
     
+    /**
+     * 
+     * @param product
+     * @param categories
+     * @return 
+     */
     public static CreateOrUpdateProductEvent createCreateOrUpdateProductEvent(Product product, List<String> categories) {
         return new CreateOrUpdateProductEventFactory(product, categories).create();
     }

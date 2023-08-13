@@ -13,6 +13,11 @@ import nostr.event.tag.SubjectTag;
  */
 public class NIP14 extends Nostr {
 
+    /**
+     * Create a subject tag
+     * @param subject the subject
+     * @return 
+     */
     public static SubjectTag createSubjectTag(String subject) {
         return new SubjectTagFactory(subject).create();
     }    

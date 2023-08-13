@@ -15,10 +15,21 @@ import nostr.event.impl.ContactListEvent;
  */
 public class NIP02 extends Nostr {
 
+    /**
+     * Create a contact list event
+     * @param tags the list of pubkey objects
+     * @return a contact list event
+     */
     public static ContactListEvent createContactListEvent(List<BaseTag> tags) {
         return new ContactListEventFactory(tags, null).create();
     }
 
+    /**
+     * Create a contact list event
+     * @param tags the list of pubkey objects
+     * @param content the note's content
+     * @return a contact list event
+     */
     public static ContactListEvent createContactListEvent(List<BaseTag> tags, String content) {
         return new ContactListEventFactory(tags, content).create();
     }    

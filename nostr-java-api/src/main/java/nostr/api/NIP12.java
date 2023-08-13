@@ -18,14 +18,29 @@ import nostr.event.tag.ReferenceTag;
  */
 public class NIP12 extends Nostr {
 
+    /**
+     * Create a hashtag tag
+     * @param hashtag the hashtag
+     * @return 
+     */
     public static HashtagTag createHashtagTag(String hashtag) {
         return new HashtagTagFactory(hashtag).create();
     }
     
+    /**
+     * Create an URL tag
+     * @param url the reference
+     * @return 
+     */
     public static ReferenceTag createReferenceTag(URL url) {
         return new ReferenceTagFactory(url).create();
     }
     
+    /**
+     * Create a Geo tag 
+     * @param location the geohash
+     * @return 
+     */
     public static GeohashTag createGeohashTag(String location) {
         return new GeohashTagFactory(location).create();
     }    

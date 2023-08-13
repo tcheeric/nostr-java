@@ -15,6 +15,11 @@ import nostr.event.impl.DeletionEvent;
  */
 public class NIP09 extends Nostr {
 
+    /**
+     * Create a NIP09 Deletion Event  
+     * @param tags list of event or address tags to be deleted
+     * @return the deletion event
+     */
     public static DeletionEvent createDeletionEvent(List<BaseTag> tags) {
         return new DeletionEventFactory(tags).create();
     }

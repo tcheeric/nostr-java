@@ -26,6 +26,16 @@ import nostr.util.NostrException;
  */
 public class NIP57 extends Nostr {
 
+    /**
+     * 
+     * @param amount
+     * @param lnurl
+     * @param relay
+     * @param recipient
+     * @param eventTag
+     * @param content
+     * @return 
+     */
     public static GenericEvent createZapEvent(Integer amount, String lnurl, Relay relay, PublicKey recipient, EventTag eventTag, String content) {
         var tags = new ArrayList<BaseTag>();
         tags.add(createLnurlTag(lnurl));
@@ -38,6 +48,16 @@ public class NIP57 extends Nostr {
         return new GenericEvent(sender, 9734, tags, content);
     }
 
+    /**
+     * 
+     * @param zapEvent
+     * @param bolt11
+     * @param description
+     * @param preimage
+     * @param recipient
+     * @param eventTag
+     * @return 
+     */
     public static GenericEvent createZapReceiptEvent(GenericEvent zapEvent, String bolt11, String description, String preimage, PublicKey recipient, EventTag eventTag) {
         var tags = new ArrayList<BaseTag>();
         tags.add(createBolt11Tag(bolt11));
@@ -54,26 +74,58 @@ public class NIP57 extends Nostr {
         }
     }
 
+    /**
+     * 
+     * @param lnurl
+     * @return 
+     */
     public static GenericTag createLnurlTag(String lnurl) {
         return new TagFactory("lnurl", 57, lnurl).create();
     }
 
+    /**
+     * 
+     * @param bolt11
+     * @return 
+     */
     public static GenericTag createBolt11Tag(String bolt11) {
         return new TagFactory("lnurl", 57, bolt11).create();
     }
 
+    /**
+     * 
+     * @param preimage
+     * @return 
+     */
     public static GenericTag createPreImageTag(String preimage) {
         return new TagFactory("lnurl", 57, preimage).create();
     }
 
+    /**
+     * 
+     * @param description
+     * @return 
+     */
     public static GenericTag createDescriptionTag(String description) {
         return new TagFactory("lnurl", 57, description).create();
     }
 
+    /**
+     * 
+     * @param amount
+     * @return 
+     */
     public static GenericTag createAmountTag(Integer amount) {
         return new TagFactory("lnurl", 57, amount.toString()).create();
     }
 
+    /**
+     * 
+     * @param receiver
+     * @param relay
+     * @param weight
+     * @return 
+     */
     public static GenericTag createZapTag(PublicKey receiver, Relay relay, Integer weight) {
             Set<ElementAttribute> attributes = new HashSet<>();
             var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
@@ -90,6 +142,12 @@ public class NIP57 extends Nostr {
             return result;
     }
 
+    /**
+     * 
+     * @param receiver
+     * @param relay
+     * @return 
+     */
     public static GenericTag createZapTag(PublicKey receiver, Relay relay) {
         return createZapTag(receiver, relay, null);
     }

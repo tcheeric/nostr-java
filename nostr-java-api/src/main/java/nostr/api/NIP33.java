@@ -21,18 +21,44 @@ import nostr.event.tag.IdentifierTag;
  */
 public class NIP33 extends Nostr {
 
+    /**
+     * 
+     * @param kind
+     * @param comment
+     * @return 
+     */
     public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(Integer kind, String comment) {
         return new ParameterizedReplaceableEventFactory(kind, comment).create();
     }
     
+    /**
+     * 
+     * @param tags
+     * @param kind
+     * @param comment
+     * @return 
+     */
     public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(List<BaseTag> tags, Integer kind, String comment) {
         return new ParameterizedReplaceableEventFactory(tags, kind, comment).create();
     }
     
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     public static IdentifierTag createIdentifierTag(String id) {
         return new IdentifierTagFactory(id).create();
     }
 
+    /**
+     * 
+     * @param kind
+     * @param publicKey
+     * @param idTag
+     * @param relay
+     * @return 
+     */
     public static AddressTag createAddressTag(Integer kind, PublicKey publicKey, IdentifierTag idTag, Relay relay) {
         var result = new AddressTagFactory(publicKey).create();
         result.setIdentifierTag(idTag);

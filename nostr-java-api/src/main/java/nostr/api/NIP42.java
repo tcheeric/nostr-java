@@ -25,30 +25,69 @@ import nostr.util.NostrException;
  */
 public class NIP42 extends Nostr {
 
+    /**
+     * 
+     * @param challenge
+     * @param relay
+     * @return 
+     */
     public static ClientAuthenticationEvent createClientAuthenticationEvent(String challenge, Relay relay) {
         return new ClientAuthenticationEventFactory(challenge, relay).create();
     }
     
+    /**
+     * 
+     * @param tags
+     * @param challenge
+     * @param relay
+     * @return 
+     */
     public static ClientAuthenticationEvent createClientAuthenticationEvent(List<BaseTag> tags, String challenge, Relay relay) {
         return new ClientAuthenticationEventFactory(tags, challenge, relay).create();
     }
     
+    /**
+     * 
+     * @param relay
+     * @return 
+     */
     public static GenericTag createRelayTag(Relay relay) {
         return new RelaysTagFactory(relay).create();
     }
     
+    /**
+     * 
+     * @param challenge
+     * @return 
+     */
     public static GenericTag createChallengeTag(String challenge) {
         return new ChallengeTagFactory(challenge).create();
     }
     
+    /**
+     * 
+     * @param event
+     * @return 
+     */
     public static ClientAuthenticationMessage createClientAuthenticationMessage(ClientAuthenticationEvent event) {
         return new ClientAuthenticationMessageFactory(event).create();
     }
     
+    /**
+     * 
+     * @param challenge
+     * @return 
+     */
     public static GenericMessage createRelayAuthenticationMessage(String challenge) {
         return new RelayAuthenticationMessageFactory(challenge).create();
     }
 
+    /**
+     * 
+     * @param challenge
+     * @param relay
+     * @throws NostrException 
+     */
     public static void auth(String challenge, Relay relay) throws NostrException {
         Client client = Nostr.createClient();
         client.auth(challenge, relay);

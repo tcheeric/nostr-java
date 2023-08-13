@@ -17,14 +17,33 @@ import nostr.event.impl.ReplaceableEvent;
  */
 public class NIP16 extends Nostr {
 
+    /**
+     * Create a replaceable event
+     * @param kind the kind (1000 <= kind < 10000)
+     * @param content the content
+     * @return 
+     */
     public static ReplaceableEvent createReplaceableEvent(Integer kind, String content) {
         return new ReplaceableEventFactory(kind, content).create();
     }
     
+    /**
+     * Create a replaceable event
+     * @param tags the note's tags
+     * @param kind the kind (1000 <= kind < 10000)
+     * @param content the note's content
+     * @return 
+     */
     public static ReplaceableEvent createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
         return new ReplaceableEventFactory(tags, kind, content).create();
     }
 
+    /**
+     * Create an ephemeral event
+     * @param kind the kind (20000 <= n < 30000)
+     * @param content the note's content
+     * @return 
+     */
     public static EphemeralEvent createEphemeralEvent(Integer kind, String content) {
         return new EphemeralEventFactory(kind, content).create();        
     }    

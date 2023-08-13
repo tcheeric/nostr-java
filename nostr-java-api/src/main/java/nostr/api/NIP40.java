@@ -13,6 +13,11 @@ import nostr.event.tag.ExpirationTag;
  */
 public class NIP40 extends Nostr {
 
+    /**
+     * 
+     * @param expiration
+     * @return 
+     */
     public static ExpirationTag createExpirationTag(Integer expiration) {
         return new ExpirationTagFactory(expiration).create();
     }    

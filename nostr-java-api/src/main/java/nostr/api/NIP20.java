@@ -14,6 +14,13 @@ import nostr.event.message.OkMessage;
  */
 public class NIP20 extends Nostr {
     
+    /**
+     * Create an OK message providing information about if an event was accepted or rejected.
+     * @param event the related event
+     * @param flag 
+     * @param message additional information as to why the command succeeded or failed
+     * @return the OK message
+     */
     public static OkMessage createOkMessage(IEvent event, boolean flag, String message) {
         return new OkMessageFactory(event, flag, message).create();
     }    

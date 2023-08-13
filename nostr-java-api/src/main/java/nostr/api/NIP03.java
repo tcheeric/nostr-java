@@ -15,10 +15,23 @@ import nostr.event.impl.OtsEvent;
  */
 public class NIP03 extends Nostr {
     
+    /**
+     * Create a NIP03 OTS event
+     * @param ots the OpenTimestamp attestation
+     * @param content the note's content
+     * @return an OTS event
+     */
     public static OtsEvent createOtsEvent(String ots, String content) {
         return new OtsEventFactory(ots, content).create();
     }
     
+    /**
+     * Create a NIP03 OTS event
+     * @param tags the note's tags
+     * @param ots the OpenTimestamp attestation
+     * @param content the note's content
+     * @return the OTS event
+     */
     public static OtsEvent createOtsEvent(List<BaseTag> tags, String ots, String content) {
         return new OtsEventFactory(tags, ots, content).create();
     }

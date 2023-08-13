@@ -14,6 +14,12 @@ import nostr.event.impl.GenericTag;
  */
 public class NIP30 extends Nostr {
     
+    /**
+     * 
+     * @param emoji
+     * @param url
+     * @return 
+     */
     public static GenericTag createCustomEmojiTag(String emoji, URL url) {
         return new CustomEmojiTagFactory(emoji, url).create();
     }    

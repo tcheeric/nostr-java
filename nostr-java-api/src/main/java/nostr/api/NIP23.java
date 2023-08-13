@@ -21,27 +21,57 @@ import nostr.event.impl.GenericTag;
  */
 public class NIP23 extends Nostr {
 
+    /**
+     * Create a Long-form Content event without tags
+     * @param content a text in Markdown syntax
+     * @return 
+     */
     public static GenericEvent creatLongFormContentEvent(String content) {
         return new LongFormContentEventFactory(content).create();
     }
     
+    /**
+     * Create a Long-form Content event with tags
+     * @param tags the note's tags
+     * @param content a text in Markdown syntax
+     * @return 
+     */
     public static GenericEvent creatLongFormContentEvent(List<BaseTag> tags, String content) {
         return new LongFormContentEventFactory(tags, content).create();
     }
 
+    /**
+     * Create a title tag
+     * @param title the article title
+     * @return 
+     */
     public static GenericTag createTitleTag(String title) {
         return new TitleTagFactory(title).create();
     }    
 
+    /**
+     * Create an image tag
+     * @param url a URL pointing to an image to be shown along with the title
+     * @return 
+     */
     public static GenericTag createImageTag(URL url) {
         return new ImageTagFactory(url).create();
     }
 
-
+    /**
+     * Create a summary tag
+     * @param summary the article summary
+     * @return 
+     */
     public static GenericTag createSummaryTag(String summary) {
         return new SummaryTagFactory(summary).create();
     }
 
+    /**
+     * Create a published_at tag
+     * @param date the timestamp in unix seconds (stringified) of the first time the article was published
+     * @return 
+     */
     public static GenericTag createPublishedAtTag(Integer date) {
         return new PublishedAtTagFactory(date).create();
     }
