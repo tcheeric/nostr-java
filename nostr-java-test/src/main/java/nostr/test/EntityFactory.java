@@ -1,10 +1,14 @@
 package nostr.test;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
@@ -192,9 +196,9 @@ public class EntityFactory {
             String nip05 = name + "@tcheeric.com";
             String url = "http://assets.tcheeric.com/" + number + ".PNG";
 
-            return new UserProfile(pubKey, name, nip05, about, new URL(url));
+            return new UserProfile(pubKey, name, nip05, about, new URI(url).toURL());
 
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
     }
