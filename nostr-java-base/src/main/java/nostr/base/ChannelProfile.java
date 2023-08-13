@@ -20,6 +20,6 @@ public class ChannelProfile extends Profile {
     }
 
     public ChannelProfile(String name, String about, String url) throws MalformedURLException {
-        this(name, about, new URL(url));
+        this(name, about, new URL(url));        
     }
 }
