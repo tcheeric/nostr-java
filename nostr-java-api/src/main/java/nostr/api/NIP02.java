@@ -17,7 +17,7 @@ public class NIP02 extends Nostr {
 
     /**
      * Create a contact list event
-     * @param tags the list of pubkey objects
+     * @param tags the list of pubkey tag objects
      * @return a contact list event
      */
     public static ContactListEvent createContactListEvent(List<BaseTag> tags) {
@@ -26,7 +26,7 @@ public class NIP02 extends Nostr {
 
     /**
      * Create a contact list event
-     * @param tags the list of pubkey objects
+     * @param tags the list of pubkey tag objects
      * @param content the note's content
      * @return a contact list event
      */
