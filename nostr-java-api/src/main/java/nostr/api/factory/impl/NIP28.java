@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.ChannelProfile;
-import nostr.base.NIP28ContentMetadata;
+import nostr.base.ContentReason;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.impl.ChannelCreateEvent;
@@ -97,8 +97,8 @@ public class NIP28 {
         @Override
         public String getContent() {
             if (reason != null) {
-                NIP28ContentMetadata contentMetadata = new NIP28ContentMetadata(reason);
-                return escapeJsonString(contentMetadata.toString());
+                ContentReason contentReason = new ContentReason(reason);
+                return escapeJsonString(contentReason.toString());
             }
 
             return null;
@@ -126,8 +126,8 @@ public class NIP28 {
         @Override
         public String getContent() {
             if (reason != null) {
-                NIP28ContentMetadata contentMetadata = new NIP28ContentMetadata(reason);
-                return escapeJsonString(contentMetadata.toString());
+                ContentReason contentReason = new ContentReason(reason);
+                return escapeJsonString(contentReason.toString());
             }
 
             return null;
