@@ -6,8 +6,9 @@ package nostr.api.factory.impl;
 
 import java.util.List;
 import nostr.api.factory.EventFactory;
-import nostr.event.BaseTag;
+import nostr.base.PublicKey;
 import nostr.event.impl.MentionsEvent;
+import nostr.event.tag.PubKeyTag;
 
 /**
  *
@@ -21,8 +22,9 @@ public class NIP08 {
             super(content);
         }
 
-        public MentionsEventFactory(List<BaseTag> tags, String content) {
-            super(tags, content);
+        public MentionsEventFactory(List<PublicKey> publicKeys, String content) {
+            super(content);
+            publicKeys.stream().forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
         }
 
         @Override

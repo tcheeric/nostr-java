@@ -7,6 +7,7 @@ package nostr.api;
 import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP08.MentionsEventFactory;
+import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.MentionsEvent;
 
@@ -27,11 +28,11 @@ public class NIP08 {
 
     /**
      * Create a NIP08 mentions event 
-     * @param tags the event's tags containing the referenced pubkey tags
-     * @param content the note's content 
+     * @param publicKeys the referenced public keys
+     * @param content the note's content containing the references to the public keys
      * @return the mentions event
      */
-    public static MentionsEvent createMentionsEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-        return new MentionsEventFactory(tags, content).create();
+    public static MentionsEvent createMentionsEvent(@NonNull List<PublicKey> publicKeys, @NonNull String content) {
+        return new MentionsEventFactory(publicKeys, content).create();
     }
 }
