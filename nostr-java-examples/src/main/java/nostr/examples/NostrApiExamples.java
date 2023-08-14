@@ -25,6 +25,7 @@ import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.Nostr;
 import nostr.base.ChannelProfile;
+import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -169,11 +170,10 @@ public class NostrApiExamples {
     private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
-        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(rcptTag);
+        List<PublicKey> publicKeys = new ArrayList<>();
+        publicKeys.add(RECEIVER.getPublicKey());
 
-        var event = NIP08.createMentionsEvent(tags, "Hello " + RECEIVER.getPublicKey().toString());
+        var event = NIP08.createMentionsEvent(publicKeys, "Hello #[1]");
         Nostr.sign(event);
         Nostr.send(event);
     }
