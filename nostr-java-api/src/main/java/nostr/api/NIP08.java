@@ -8,7 +8,6 @@ import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP08.MentionsEventFactory;
 import nostr.base.PublicKey;
-import nostr.event.BaseTag;
 import nostr.event.impl.MentionsEvent;
 
 /**
