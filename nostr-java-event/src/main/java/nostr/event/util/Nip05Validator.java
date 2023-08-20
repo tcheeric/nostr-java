@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
@@ -43,17 +45,17 @@ public class Nip05Validator {
             // Verify the public key
             try {
                 validatePublicKey(domain, localPart);
-            } catch (IOException ex) {
+            } catch (IOException | URISyntaxException ex) {
                 throw new NostrException(ex);
             }
         }
     }
 
-    private void validatePublicKey(String domain, String localPart) throws MalformedURLException, NostrException, IOException, ProtocolException {
+    private void validatePublicKey(String domain, String localPart) throws MalformedURLException, NostrException, IOException, ProtocolException, URISyntaxException {
 
         // Set up and estgetPublicKeyablish the HTTP connection
         String strUrl = "https://<domain>/.well-known/nostr.json?name=<localPart>".replace("<domain>", domain).replace("<localPart>", localPart);
-        URL url = new URL(strUrl);
+        URL url = new URI(strUrl).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 
