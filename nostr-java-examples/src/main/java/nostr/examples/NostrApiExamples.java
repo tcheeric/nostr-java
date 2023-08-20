@@ -267,7 +267,7 @@ public class NostrApiExamples {
             Nostr.send(event);
             
             return event;
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -289,7 +289,7 @@ public class NostrApiExamples {
             
             Nostr.sign(event);
             Nostr.send(event);
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
 

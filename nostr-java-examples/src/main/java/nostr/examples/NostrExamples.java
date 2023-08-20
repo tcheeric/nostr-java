@@ -3,6 +3,7 @@ package nostr.examples;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import lombok.extern.java.Log;
 import nostr.base.ChannelProfile;
@@ -484,7 +486,7 @@ public class NostrExamples {
             CLIENT.send(message);
 
             return event;
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -504,7 +506,7 @@ public class NostrExamples {
             var message = new EventMessage(event);
 
             CLIENT.send(message);
-        } catch (Exception ex) {
+        } catch (MalformedURLException | URISyntaxException | NostrException ex) {
             throw new NostrException(ex);
         }
     }

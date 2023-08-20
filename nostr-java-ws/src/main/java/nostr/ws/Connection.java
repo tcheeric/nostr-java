@@ -62,7 +62,7 @@ public class Connection {
 
     public static URI serverURI(String uri) {
         try {
-            URL url = new URL("https://" + uri);
+            URL url = new URI("https://" + uri).toURL();
 
             URLConnection openConnection = url.openConnection();
 
@@ -80,7 +80,7 @@ public class Connection {
         }
 
         try {
-            URL url = new URL("http://" + uri);
+            URL url = new URI("http://" + uri).toURL();
 
             URLConnection openConnection = url.openConnection();
 
