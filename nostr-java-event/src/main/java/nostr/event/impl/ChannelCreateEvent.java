@@ -6,7 +6,7 @@ import nostr.base.ChannelProfile;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.Kind;
-import static nostr.event.impl.GenericEvent.escapeJsonString;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  * @author guilhermegps

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 import lombok.AllArgsConstructor;
 
 import lombok.Data;
@@ -44,7 +45,7 @@ public class GenericTag extends BaseTag implements IGenericElement {
         this.attributes.add(attribute);
     }
 
-    public static GenericTag create(String code, Integer nip, Set<String> params) {
+    public static GenericTag create(String code, Integer nip, List<String> params) {
         Set<ElementAttribute> attributes = new HashSet<>();
         int i = 0;
         for (String p : params) {

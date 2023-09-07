@@ -12,6 +12,7 @@ import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
 import nostr.event.util.Nip05Validator;
 import nostr.util.NostrException;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  *

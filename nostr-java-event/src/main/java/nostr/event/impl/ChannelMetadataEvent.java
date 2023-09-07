@@ -1,7 +1,5 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import lombok.NonNull;
 import nostr.base.ChannelProfile;
@@ -9,6 +7,7 @@ import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.Kind;
 import nostr.event.tag.EventTag;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  * @author guilhermegps

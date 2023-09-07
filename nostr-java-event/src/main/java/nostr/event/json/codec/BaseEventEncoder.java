@@ -21,7 +21,7 @@ import nostr.util.UnsupportedNIPException;
 @AllArgsConstructor
 @Log
 @Data
-    public class BaseEventEncoder implements IEncoder<BaseEvent> {
+public class BaseEventEncoder implements IEncoder<BaseEvent> {
 
     private final BaseEvent event;
     private final Relay relay;
@@ -31,12 +31,20 @@ import nostr.util.UnsupportedNIPException;
     }
 
     @Override
-    public String encode() throws UnsupportedNIPException, NostrException {
+    public String encode() {
         if (!nipEventSupport()) {
-            throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
+            try {
+                throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
+            } catch (UnsupportedNIPException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
-        return toJson();
+        try {
+            return toJson();
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     protected boolean nipFieldSupport(Field field) {

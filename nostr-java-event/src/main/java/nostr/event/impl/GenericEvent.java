@@ -182,16 +182,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    public static String escapeJsonString(String jsonString) {
-        return jsonString.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
     @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
         var mapper = IEncoder.MAPPER;

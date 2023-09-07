@@ -9,7 +9,6 @@ import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.impl.GenericTag;
-import nostr.util.NostrException;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +17,7 @@ public class GenericTagDecoder implements IDecoder<GenericTag> {
     private final String json;
 
     @Override
-    public GenericTag decode() throws NostrException {
+    public GenericTag decode() {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String[] jsonElements = objectMapper.readValue(this.json, String[].class);
@@ -33,7 +32,7 @@ public class GenericTagDecoder implements IDecoder<GenericTag> {
 
             return new GenericTag(code, null, attributes);
         } catch (JsonProcessingException ex) {
-            throw new NostrException(ex);
+            throw new RuntimeException(ex);
         }
     }
 }

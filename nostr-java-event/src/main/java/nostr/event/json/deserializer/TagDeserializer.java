@@ -14,7 +14,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
-import nostr.util.NostrException;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
@@ -97,12 +96,8 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                     return (T) tag;
                 }
                 default -> {
-                    try {
-                        var tag = new GenericTagDecoder(node.toString()).decode();
-                        return (T) tag;
-                    } catch (NostrException ex) {
-                        throw new IOException(ex);
-                    }
+                    var tag = new GenericTagDecoder(node.toString()).decode();
+                    return (T) tag;
                 }
 
             }
