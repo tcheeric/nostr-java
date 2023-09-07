@@ -13,6 +13,7 @@ import lombok.NonNull;
 import nostr.api.factory.AbstractTagFactory;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.MessageFactory;
+import nostr.api.factory.TagFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.UserProfile;
@@ -87,17 +88,17 @@ public class NIP01 {
     @EqualsAndHashCode(callSuper = false)
     public static class EventTagFactory extends AbstractTagFactory<EventTag> {
 
-        private final IEvent relateEvent;
+        private final String relateEventId;
         private String recommendedRelayUrl;
         private Marker marker;
-
-        public EventTagFactory(@NonNull IEvent relateEvent) {
-            this.relateEvent = relateEvent;
+        
+        public EventTagFactory(@NonNull String relateEventId) {
+            this.relateEventId = relateEventId;
         }
 
         @Override
         public EventTag create() {
-            return new EventTag(relateEvent.getId(), recommendedRelayUrl, marker);
+            return new EventTag(relateEventId, recommendedRelayUrl, marker);
         }
 
     }
@@ -118,9 +119,8 @@ public class NIP01 {
         public PubKeyTag create() {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
-
     }
-
+    
     @Data
     @NoArgsConstructor
     public static class FiltersFactory {
