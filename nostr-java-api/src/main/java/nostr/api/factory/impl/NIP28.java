@@ -15,9 +15,9 @@ import nostr.base.Relay;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.ChannelMetadataEvent;
-import static nostr.event.impl.GenericEvent.escapeJsonString;
 import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.MuteUserEvent;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  *
