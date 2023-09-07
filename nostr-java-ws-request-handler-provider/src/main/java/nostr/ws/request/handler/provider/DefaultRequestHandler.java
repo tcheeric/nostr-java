@@ -12,7 +12,6 @@ import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
 import nostr.event.BaseMessage;
-import nostr.event.impl.GenericMessage;
 import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
