@@ -4,8 +4,6 @@
  */
 package nostr.api;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
@@ -37,8 +35,8 @@ import nostr.util.NostrException;
 public abstract class Nostr {
 
     /**
-     * 
-     * @param event 
+     *
+     * @param event
      */
     public static void send(@NonNull IEvent event) {
         var client = createClient();
@@ -51,7 +49,7 @@ public abstract class Nostr {
     }
 
     /**
-     * 
+     *
      * @param signable
      * @return
      */
@@ -65,177 +63,162 @@ public abstract class Nostr {
     }
 
     /**
-     * 
+     *
      */
     public static class Json {
-        
+
         // Events
         /**
-         * 
+         *
          * @param event
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseEvent event) throws NostrException {
+        public static String encode(@NonNull BaseEvent event) {
             return Nostr.Json.encode(event, null);
         }
 
         /**
-         * 
+         *
          * @param event
          * @param relay
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseEvent event, Relay relay) throws NostrException {
+        public static String encode(@NonNull BaseEvent event, Relay relay) {
             final var enc = new BaseEventEncoder(event, relay);
             return enc.encode();
         }
 
         /**
-         * 
+         *
          * @param json
          * @return
-         * @throws NostrException 
          */
-        public static BaseEvent decodeEvent(@NonNull String json) throws NostrException {
+        public static BaseEvent decodeEvent(@NonNull String json) {
             final var dec = new BaseEventDecoder(json);
             return dec.decode();
         }
 
         // Messages
         /**
-         * 
+         *
          * @param message
          * @param relay
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseMessage message, Relay relay) throws NostrException {
+        public static String encode(@NonNull BaseMessage message, Relay relay) {
             final var enc = new BaseMessageEncoder(message, relay);
             return enc.encode();
         }
 
         /**
-         * 
+         *
          * @param message
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseMessage message) throws NostrException {
+        public static String encode(@NonNull BaseMessage message) {
             return Nostr.Json.encode(message, null);
         }
 
         /**
-         * 
+         *
          * @param json
          * @return
-         * @throws NostrException 
          */
-        public static BaseMessage decodeMessage(@NonNull String json) throws NostrException {
+        public static BaseMessage decodeMessage(@NonNull String json) {
             final var dec = new BaseMessageDecoder(json);
             return dec.decode();
         }
 
         // Tags
         /**
-         * 
+         *
          * @param tag
          * @param relay
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseTag tag, Relay relay) throws NostrException {
+        public static String encode(@NonNull BaseTag tag, Relay relay) {
             final var enc = new BaseTagEncoder(tag, relay);
             return enc.encode();
         }
 
         /**
-         * 
+         *
          * @param tag
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull BaseTag tag) throws NostrException {
+        public static String encode(@NonNull BaseTag tag) {
             return Nostr.Json.encode(tag, null);
         }
 
         /**
-         * 
+         *
          * @param json
          * @return
-         * @throws NostrException 
          */
-        public static BaseTag decodeTag(@NonNull String json) throws NostrException {
+        public static BaseTag decodeTag(@NonNull String json) {
             final var dec = new BaseTagDecoder(json);
             return dec.decode();
         }
 
         // Filters
         /**
-         * 
+         *
          * @param filters
          * @param relay
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull Filters filters, Relay relay) throws NostrException {
+        public static String encode(@NonNull Filters filters, Relay relay) {
             final var enc = new FiltersEncoder(filters, relay);
             return enc.encode();
         }
 
         /**
-         * 
+         *
          * @param filters
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull Filters filters) throws NostrException {
+        public static String encode(@NonNull Filters filters) {
             return Nostr.Json.encode(filters, null);
         }
 
         /**
-         * 
+         *
          * @param json
          * @return
-         * @throws NostrException 
          */
-        public static Filters decodeFilters(@NonNull String json) throws NostrException {
+        public static Filters decodeFilters(@NonNull String json) {
             final var dec = new FiltersDecoder(json);
             return dec.decode();
         }
 
         // Generic Tag Queries
         /**
-         * 
+         *
          * @param gtq
          * @param relay
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull GenericTagQuery gtq, Relay relay) throws NostrException {
+        public static String encode(@NonNull GenericTagQuery gtq, Relay relay) {
             final var enc = new GenericTagQueryEncoder(gtq, relay);
             return enc.encode();
         }
 
         /**
-         * 
+         *
          * @param gtq
          * @return
-         * @throws NostrException 
          */
-        public static String encode(@NonNull GenericTagQuery gtq) throws NostrException {
+        public static String encode(@NonNull GenericTagQuery gtq) {
             return Nostr.Json.encode(gtq, null);
         }
 
         /**
-         * 
+         *
          * @param json
          * @param clazz
          * @return
-         * @throws NostrException 
          */
-        public static IElement decode(@NonNull String json, @NonNull Class clazz) throws NostrException {
+        public static IElement decode(@NonNull String json, @NonNull Class clazz) {
             switch (clazz.getName()) {
                 case "nostr.event.BaseEvent.class" -> {
                     return decodeEvent(json);
@@ -249,7 +232,8 @@ public abstract class Nostr {
                 case "nostr.event.Filters.class" -> {
                     return decodeFilters(json);
                 }
-                default -> throw new AssertionError();
+                default ->
+                    throw new AssertionError();
             }
         }
 
@@ -257,8 +241,8 @@ public abstract class Nostr {
 
     // Utils
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected static Client createClient() {
         final var client = Client.getInstance();
