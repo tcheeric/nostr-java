@@ -4,7 +4,8 @@
  */
 package nostr.api.factory;
 
-import lombok.AllArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -16,7 +17,6 @@ import nostr.event.impl.GenericTag;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
 public class TagFactory extends AbstractTagFactory<GenericTag> {
 
     @NonNull
@@ -26,10 +26,23 @@ public class TagFactory extends AbstractTagFactory<GenericTag> {
     private final Integer nip;
     
     @NonNull
-    private final String param;
+    private final List<String> params;
+
+    public TagFactory(String code, Integer nip, String param) {
+        this.code = code;
+        this.nip = nip;
+        this.params = new ArrayList<>();
+        this.params.add(param);
+    }
+    
+    public TagFactory(String code, Integer nip, List<String> params) {
+        this.code = code;
+        this.nip = nip;
+        this.params = params;
+    }
     
     @Override
     public GenericTag create() {
-        return GenericTag.create(code, nip, param);
+        return GenericTag.create(code, nip, params);
     }
 }
