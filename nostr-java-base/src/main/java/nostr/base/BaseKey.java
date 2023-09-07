@@ -30,8 +30,12 @@ public abstract class BaseKey implements IKey {
     protected final Bech32Prefix prefix;
     
     @Override
-    public String getBech32() throws NostrException {
-    	return Bech32.toBech32(prefix, rawData);
+    public String getBech32() {
+        try {
+            return Bech32.toBech32(prefix, rawData);
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @JsonValue

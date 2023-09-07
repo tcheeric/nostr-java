@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -17,12 +18,15 @@ import lombok.ToString;
 @Builder
 @Data
 @ToString
+@EqualsAndHashCode
 public class Relay {
 
+    @EqualsAndHashCode.Include
     private final String uri;
 
     @ToString.Exclude
     @Builder.Default
+    @EqualsAndHashCode.Exclude
     private RelayInformationDocument informationDocument = new RelayInformationDocument();
 
     // Helper method
