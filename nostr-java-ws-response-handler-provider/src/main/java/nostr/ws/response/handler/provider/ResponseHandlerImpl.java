@@ -37,7 +37,9 @@ public class ResponseHandlerImpl implements IResponseHandler {
 
         try {
             this.commandHandler = ServiceLoader
-                    .load(ICommandHandler.class).stream().map(p -> p.get())
+                    .load(ICommandHandler.class)
+                    .stream()
+                    .map(p -> p.get())
                     .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
                     .findFirst()
                     .get();
@@ -45,7 +47,9 @@ public class ResponseHandlerImpl implements IResponseHandler {
             log.log(Level.WARNING, "No custom command handler provided. Using default command handler...");
             try {
                 this.commandHandler = ServiceLoader
-                        .load(ICommandHandler.class).stream().map(p -> p.get())
+                        .load(ICommandHandler.class)
+                        .stream()
+                        .map(p -> p.get())
                         .filter(ch -> ch.getClass().isAnnotationPresent(DefaultHandler.class))
                         .findFirst()
                         .get();
