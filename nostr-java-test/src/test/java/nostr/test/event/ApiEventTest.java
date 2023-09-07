@@ -3,11 +3,14 @@ package nostr.test.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
+import nostr.api.NIP32;
 import nostr.api.Nostr;
+import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
@@ -50,7 +53,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() throws NostrException {
+    public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
         var instance = NIP01.createTextNoteEvent("Hello simplified nostr-java!");
@@ -61,7 +64,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP04SendDirectMessage() throws NostrException {
+    public void testNIP04SendDirectMessage() {
         System.out.println("testNIP04SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -87,7 +90,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15CreateStallEvent() throws NostrException, JsonProcessingException {
+    public void testNIP15CreateStallEvent() throws JsonProcessingException {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
@@ -107,7 +110,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateStallEvent() throws NostrException, JsonProcessingException {
+    public void testNIP15UpdateStallEvent() {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
@@ -127,7 +130,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15CreateProductEvent() throws NostrException {
+    public void testNIP15CreateProductEvent() {
 
         System.out.println("testNIP15CreateProductEvent");
 
@@ -147,7 +150,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateProductEvent() throws NostrException {
+    public void testNIP15UpdateProductEvent() {
 
         System.out.println("testNIP15UpdateProductEvent");
 
@@ -164,12 +167,53 @@ public class ApiEventTest {
         var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
         Nostr.sign(instance);
         Nostr.send(instance);
-        
+
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
-        
+
         Nostr.sign(instance);
         Nostr.send(instance);
+    }
+
+    @Test
+    public void testNIP32CreateNameSpace() {
+        
+        System.out.println("testNIP32CreateNameSpace");
+        
+        var langNS = NIP32.createNameSpaceTag("Languages");
+        
+        Assertions.assertEquals("L", langNS.getCode());
+        Assertions.assertEquals(1, langNS.getAttributes().size());
+        Assertions.assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
+    }
+    
+    @Test
+    public void testNIP32CreateLabel1() {
+
+        System.out.println("testNIP32CreateLabel1");
+                
+        var label = NIP32.createLabelTag("Languages", "english");
+        
+        Assertions.assertEquals("l", label.getCode());
+        Assertions.assertEquals(2, label.getAttributes().size());
+        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
+        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
+    }
+
+    @Test
+    public void testNIP32CreateLabel2() {
+
+        System.out.println("testNIP32CreateLabel2");
+                
+        var metadata = new HashMap<String, Object>();
+        metadata.put("article", "the");
+        var label = NIP32.createLabelTag("Languages", "english", metadata);
+        
+        Assertions.assertEquals("l", label.getCode());
+        Assertions.assertEquals(3, label.getAttributes().size());
+        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
+        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
+        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
     }
 
     private Stall createStall() {

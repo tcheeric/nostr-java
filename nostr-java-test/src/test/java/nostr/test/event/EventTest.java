@@ -32,7 +32,7 @@ import nostr.util.UnsupportedNIPException;
  * @author squirrel
  */
 public class EventTest {
-    
+
     public EventTest() throws IOException, NostrException {
     }
 
@@ -52,28 +52,24 @@ public class EventTest {
 
     @Test
     public void testCreateGenericTag() throws JsonProcessingException {
-        try {
-            System.out.println("testCreateGenericTag");
-            PublicKey publicKey = Identity.getInstance().getPublicKey();
-            GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
+        System.out.println("testCreateGenericTag");
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
-            Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
-            relay.addNipSupport(1);
-            relay.addNipSupport(genericTag.getNip());
-            var attrs = genericTag.getAttributes();
-            for (var a : attrs) {
-                relay.addNipSupport(a.getNip());
-            }
-
-            var encoder = new BaseTagEncoder((BaseTag)genericTag, relay);
-            var strJsonEvent = encoder.encode();
-
-            var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
-            Assertions.assertEquals(genericTag, tag);
-
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
+        Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
+        relay.addNipSupport(1);
+        relay.addNipSupport(genericTag.getNip());
+        var attrs = genericTag.getAttributes();
+        for (var a : attrs) {
+            relay.addNipSupport(a.getNip());
         }
+
+        var encoder = new BaseTagEncoder((BaseTag) genericTag, relay);
+        var strJsonEvent = encoder.encode();
+
+        var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
+        Assertions.assertEquals(genericTag, tag);
+
     }
 
     @Test
@@ -125,7 +121,7 @@ public class EventTest {
 
         var encoder = new BaseEventEncoder((BaseEvent) genericTag.getParent(), relay);
 
-        UnsupportedNIPException thrown = Assertions.assertThrows(UnsupportedNIPException.class,
+        RuntimeException thrown = Assertions.assertThrows(RuntimeException.class,
                 () -> {
                     encoder.encode();
                 },
