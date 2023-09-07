@@ -19,7 +19,6 @@ import nostr.event.impl.GenericTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrException;
 
 /**
  *
@@ -28,14 +27,14 @@ import nostr.util.NostrException;
 public class NIP57 extends Nostr {
 
     /**
-     * 
+     *
      * @param amount
      * @param lnurl
      * @param relay
      * @param recipient
      * @param eventTag
      * @param content
-     * @return 
+     * @return
      */
     public static GenericEvent createZapEvent(@NonNull Integer amount, @NonNull String lnurl, Relay relay, @NonNull PublicKey recipient, EventTag eventTag, String content) {
         var tags = new ArrayList<BaseTag>();
@@ -50,14 +49,14 @@ public class NIP57 extends Nostr {
     }
 
     /**
-     * 
+     *
      * @param zapEvent
      * @param bolt11
      * @param description
      * @param preimage
      * @param recipient
      * @param eventTag
-     * @return 
+     * @return
      */
     public static GenericEvent createZapReceiptEvent(@NonNull GenericEvent zapEvent, @NonNull String bolt11, String description, @NonNull String preimage, @NonNull PublicKey recipient, @NonNull EventTag eventTag) {
         var tags = new ArrayList<BaseTag>();
@@ -67,87 +66,83 @@ public class NIP57 extends Nostr {
         tags.add(new PubKeyTag(recipient, null, null));
         tags.add(eventTag);
 
-        try {
-            var sender = Identity.getInstance().getPublicKey();
-            return new GenericEvent(sender, 9735, tags, Nostr.Json.encode(zapEvent));
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
-        }
+        var sender = Identity.getInstance().getPublicKey();
+        return new GenericEvent(sender, 9735, tags, Nostr.Json.encode(zapEvent));
     }
 
     /**
-     * 
+     *
      * @param lnurl
-     * @return 
+     * @return
      */
     public static GenericTag createLnurlTag(@NonNull String lnurl) {
         return new TagFactory("lnurl", 57, lnurl).create();
     }
 
     /**
-     * 
+     *
      * @param bolt11
-     * @return 
+     * @return
      */
     public static GenericTag createBolt11Tag(@NonNull String bolt11) {
         return new TagFactory("lnurl", 57, bolt11).create();
     }
 
     /**
-     * 
+     *
      * @param preimage
-     * @return 
+     * @return
      */
     public static GenericTag createPreImageTag(@NonNull String preimage) {
         return new TagFactory("lnurl", 57, preimage).create();
     }
 
     /**
-     * 
+     *
      * @param description
-     * @return 
+     * @return
      */
     public static GenericTag createDescriptionTag(@NonNull String description) {
         return new TagFactory("lnurl", 57, description).create();
     }
 
     /**
-     * 
+     *
      * @param amount
-     * @return 
+     * @return
      */
     public static GenericTag createAmountTag(@NonNull Integer amount) {
         return new TagFactory("lnurl", 57, amount.toString()).create();
     }
 
     /**
-     * 
+     *
      * @param receiver
      * @param relay
      * @param weight
-     * @return 
+     * @return
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay, Integer weight) {
-            Set<ElementAttribute> attributes = new HashSet<>();
-            var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
-            var relayAttr = new ElementAttribute("relay", relay.getUri(), 57);
-            if (weight != null) {
-                var weightAttr = new ElementAttribute("weight", weight, 57);
-                attributes.add(weightAttr);
-            }
-            
-            attributes.add(receiverAttr);
-            attributes.add(relayAttr);
-            
-            var result = new GenericTag("zap", 57, attributes);
-            return result;
+        Set<ElementAttribute> attributes = new HashSet<>();
+        var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
+        var relayAttr = new ElementAttribute("relay", relay.getUri(), 57);
+        if (weight != null) {
+            var weightAttr = new ElementAttribute("weight", weight, 57);
+            attributes.add(weightAttr);
+        }
+
+        attributes.add(receiverAttr);
+        attributes.add(relayAttr);
+
+        var result = new GenericTag("zap", 57, attributes);
+        return result;
     }
 
     /**
-     * 
+     *
      * @param receiver
      * @param relay
-     * @return 
+     * @return
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay) {
         return createZapTag(receiver, relay, null);
