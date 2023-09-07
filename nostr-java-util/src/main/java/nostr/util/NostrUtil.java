@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-
 /**
  *
  * @author squirrel
@@ -85,4 +84,25 @@ public class NostrUtil {
         new SecureRandom().nextBytes(b);
         return b;
     }
+
+    public static String escapeJsonString(String jsonString) {
+        return jsonString.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
+    public static String unEscapeJsonString(String jsonString) {
+        return jsonString.replace("\\\\", "\\")
+                .replace("\\\"", "\"")
+                .replace("\\b", "\b")
+                .replace("\\f", "\f")
+                .replace("\\n", "\n")
+                .replace("\\r", "\r")
+                .replace("\\t", "\t");
+    }
+
 }
