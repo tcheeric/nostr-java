@@ -48,7 +48,7 @@ public class BaseEventEncoder implements IEncoder<BaseEvent> {
     }
 
     protected boolean nipFieldSupport(Field field) {
-        return (relay != null) ? NipUtil.checkSupport(relay, field) : true;
+        return relay == null || NipUtil.checkSupport(relay, field);
     }
 
     protected String toJson() throws NostrException {
@@ -60,7 +60,7 @@ public class BaseEventEncoder implements IEncoder<BaseEvent> {
     }
 
     private boolean nipEventSupport() {
-        return (relay != null) ? NipUtil.checkSupport(relay, event) : true;
+        return relay == null || NipUtil.checkSupport(relay, event);
     }
 
 }

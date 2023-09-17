@@ -6,5 +6,5 @@ package nostr.event;
  */
 public interface IContent {
 
-    public abstract String getId();
+    String getId();
 }
