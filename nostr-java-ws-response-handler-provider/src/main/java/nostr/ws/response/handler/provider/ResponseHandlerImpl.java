@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
+import nostr.event.BaseEvent;
+import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.EoseMessage;
@@ -105,7 +107,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
             case "EVENT" -> {
                 if (oMsg instanceof EventMessage msg) {
                     var subId = msg.getSubscriptionId();
-                    var jsonEvent = msg.getEvent().toString();
+                    var jsonEvent = new BaseEventEncoder((BaseEvent) msg.getEvent()).encode();
                     commandHandler.onEvent(jsonEvent, subId, relay);
                 } else {
                     throw new AssertionError("EVENT");
