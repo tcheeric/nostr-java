@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
 
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
@@ -49,7 +48,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
 
             // Populate the node with the attributes data
             if (value instanceof GenericTag genericTag) {
-                Set<ElementAttribute> attrs = genericTag.getAttributes();
+                List<ElementAttribute> attrs = genericTag.getAttributes();
                 attrs.stream().forEach(a -> node.put(a.getName(), a.getValue().toString()));
             }
 
