@@ -213,7 +213,7 @@ public class Bech32 {
      */
     private static byte[] expandHrp(final String hrp) {
         int hrpLength = hrp.length();
-        byte ret[] = new byte[hrpLength * 2 + 1];
+        byte[] ret = new byte[hrpLength * 2 + 1];
         for (int i = 0; i < hrpLength; ++i) {
             int c = hrp.charAt(i) & 0x7f; // Limit to standard 7-bit ASCII
             ret[i] = (byte) ((c >>> 5) & 0x07);
