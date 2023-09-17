@@ -38,7 +38,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             List<Field> fields = value.getSupportedFields(null);
 
             // Populate the node with the fields data
-            fields.stream().forEach((Field f) -> {
+            fields.forEach((Field f) -> {
                 try {
                     node.put(f.getName(), value.getFieldValue(f));
                 } catch (NostrException ex) {
@@ -49,7 +49,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             // Populate the node with the attributes data
             if (value instanceof GenericTag genericTag) {
                 List<ElementAttribute> attrs = genericTag.getAttributes();
-                attrs.stream().forEach(a -> node.put(a.getName(), a.getValue().toString()));
+                attrs.forEach(a -> node.put(a.getName(), a.getValue().toString()));
             }
 
             // Extract the property values from the node and serialize them as an array

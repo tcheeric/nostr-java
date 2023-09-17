@@ -71,17 +71,17 @@ public class Nip05Validator {
             log.log(Level.INFO, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
 
             if (pubKey != null && !pubKey.equals(publicKey.toString())) {
-                throw new NostrException(String.format("Public key mismatch. Expected {0} - Received: {1}", publicKey.toString(), pubKey));
+                throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));
             }
 
             // All well!
             return;
         }
 
-        throw new NostrException(String.format("Failed to connect to {0}. Error message: {1)", strUrl, connection.getResponseMessage()));
+        throw new NostrException(String.format("Failed to connect to %s. Error message: %s", strUrl, connection.getResponseMessage()));
     }
 
-    private String getPublicKey(StringBuilder content, String localPart) throws NostrException {
+    private String getPublicKey(StringBuilder content, String localPart) {
 
         Nip05Content nip05Content = new Nip05ContentDecoder(content.toString()).decode();
 

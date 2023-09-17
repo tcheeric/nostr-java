@@ -130,8 +130,8 @@ public class FilterRelays {
     				.build()));
     	
 //    	Filter by NIPs supported
-    	var relaysByNips = relays.stream().filter(r -> r.getSupportedNips().containsAll(List.of(28)))
-        		.collect(Collectors.toList());
+    	var relaysByNips = relays.stream().filter(r -> new HashSet<>(r.getSupportedNips()).contains(28))
+        		.toList();
     	
     	System.out.println(relaysByNips.stream().map(Relay::getUri).collect(Collectors.toList()));
 	}

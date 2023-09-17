@@ -173,7 +173,7 @@ public class Client {
     private Set<Relay> getRelaySet() {
         Set<Relay> result = new HashSet<>();
 
-        futureRelays.stream().forEach(fr -> {
+        futureRelays.forEach(fr -> {
             try {
                 result.add(fr.get());
             } catch (InterruptedException | ExecutionException ex) {
@@ -214,7 +214,7 @@ public class Client {
     private Map<String, String> toMapRelays() throws IOException {
         Map<String, String> relays = new HashMap<>();
         List<Relay> relayList = new RelayConfiguration().getRelays();
-        relayList.stream().forEach(r -> relays.put(r.getName(), r.getUri()));
+        relayList.forEach(r -> relays.put(r.getName(), r.getUri()));
         return relays;
     }
 
@@ -241,7 +241,7 @@ public class Client {
             Set<Object> relays = this.properties.keySet();
             List<Relay> result = new ArrayList<>();
 
-            relays.stream().forEach(r -> {
+            relays.forEach(r -> {
                 Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
                 var relay = Relay.builder().uri(this.getProperty(r.toString())).informationDocument(rid).build();
                 result.add(relay);

@@ -22,12 +22,11 @@ import nostr.util.NostrUtil;
 public class Schnorr {
 
     /**
-     * 
      * @param msg
      * @param secKey
      * @param auxRand
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand) throws Exception {
         if (msg.length != 32) {
@@ -45,6 +44,11 @@ public class Schnorr {
         int len = NostrUtil.bytesFromBigInteger(secKey0).length + P.toBytes().length + msg.length;
         byte[] buf = new byte[len];
         byte[] t = NostrUtil.xor(NostrUtil.bytesFromBigInteger(secKey0), Point.taggedHash("BIP0340/aux", auxRand));
+
+        if (t == null) {
+            throw new RuntimeException("Unexpected error. Null array");
+        }
+
         System.arraycopy(t, 0, buf, 0, t.length);
         System.arraycopy(P.toBytes(), 0, buf, t.length, P.toBytes().length);
         System.arraycopy(msg, 0, buf, t.length + P.toBytes().length, msg.length);
@@ -77,12 +81,11 @@ public class Schnorr {
     }
 
     /**
-     * 
      * @param msg
      * @param pubkey
      * @param sig
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws Exception {
         if (msg.length != 32) {
@@ -117,17 +120,17 @@ public class Schnorr {
     /**
      * Generate a random private key that can be used with Secp256k1.
      *
-     * @return 
+     * @return
      */
     public static byte[] generatePrivateKey() {
         try {
-        	Security.addProvider(new BouncyCastleProvider());	
+            Security.addProvider(new BouncyCastleProvider());
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", "BC");
             kpg.initialize(new ECGenParameterSpec("secp256k1"), SecureRandom.getInstanceStrong());
             KeyPair processorKeyPair = kpg.genKeyPair();
-            
+
             return NostrUtil.bytesFromBigInteger(((ECPrivateKey) processorKeyPair.getPrivate()).getS());
-        
+
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new RuntimeException(e);
         }

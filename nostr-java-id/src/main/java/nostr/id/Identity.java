@@ -221,7 +221,7 @@ public class Identity {
         return new String(cipher.doFinal(encryptedMessage), StandardCharsets.UTF_8);
     }
 
-    private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) throws NostrException {
+    private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) {
 
         SecP256K1Curve curve = new SecP256K1Curve();
         ECPoint pubKeyPt = curve.decodePoint(NostrUtil.hexToBytes("02" + publicKeyHex));
@@ -244,7 +244,7 @@ public class Identity {
             load(configFile);
         }
 
-        PrivateKey getPrivateKey() throws IOException, NostrException {
+        PrivateKey getPrivateKey() throws NostrException {
             String privKey = getProperty("privateKey");
             log.log(Level.FINE, "Reading the private key...");
 
@@ -255,9 +255,9 @@ public class Identity {
             return new PrivateKey(hex);
         }
 
-        PublicKey getPublicKey() throws NostrException, IOException {
+        PublicKey getPublicKey() throws NostrException {
             String pubKey = getProperty("publicKey");
-            if (pubKey == null || "".equals(pubKey.trim())) {
+            if (pubKey == null || pubKey.trim().isEmpty()) {
                 log.log(Level.FINE, "Generating new public key");
                 try {
                     return Identity.generatePublicKey(getPrivateKey());

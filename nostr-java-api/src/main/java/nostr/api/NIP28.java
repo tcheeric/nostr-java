@@ -51,7 +51,7 @@ public class NIP28 {
      * @param content the message
      * @return 
      */
-    public static ChannelMessageEvent createChannelMessageEvent(@NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelMessageEvent channelMessageEvent, String content) {
+    public static ChannelMessageEvent createChannelMessageEvent(@NonNull ChannelCreateEvent channelCreateEvent, ChannelMessageEvent channelMessageEvent, String content) {
         return createChannelMessageEvent(channelCreateEvent, channelMessageEvent, content, null, null);
     }
 

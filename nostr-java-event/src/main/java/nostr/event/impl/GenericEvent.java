@@ -138,8 +138,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         this.tags = tags;
 
-        for (Object o : tags) {
-            ((ITag) o).setParent(this);
+        for (ITag o : tags) {
+            o.setParent(this);
         }
     }
 
@@ -201,8 +201,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
         if (tagList != null && !tagList.isEmpty()) {
-            for (Object t : tagList) {
-                ITag tag = (ITag) t;
+            for (ITag t : tagList) {
+                ITag tag = t;
                 tag.setParent(this);
             }
         }

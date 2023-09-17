@@ -99,7 +99,7 @@ public class JsonParseTest {
 
         Assertions.assertEquals("saturn", tag.getCode());
         Assertions.assertEquals(2, tag.getAttributes().size());
-        Assertions.assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue());
+        Assertions.assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
         Assertions.assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue().toString()));
     }
 

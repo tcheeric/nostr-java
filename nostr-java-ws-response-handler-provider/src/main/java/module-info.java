@@ -7,12 +7,7 @@ module nostr.ws.response.handler.provider {
     requires nostr.ws.handler;
     requires nostr.util;
     requires nostr.base;
-    requires nostr.crypto;
     requires nostr.event;
-
-    requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.core;
 
     requires static lombok;
     requires java.logging;

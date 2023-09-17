@@ -1,6 +1,7 @@
 package nostr.event.json.serializer;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.logging.Level;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -20,6 +21,7 @@ import nostr.base.IEncoder;
 @Log
 public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQuery> {
 
+    @Serial
     private static final long serialVersionUID = 6803478463890319884L;
 
     public CustomGenericTagQuerySerializer() {

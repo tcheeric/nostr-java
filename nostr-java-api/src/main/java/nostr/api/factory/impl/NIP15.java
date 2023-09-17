@@ -159,7 +159,7 @@ public class NIP15 {
             var event = new CreateOrUpdateProductEvent(getSender(), new ArrayList<>(), product);
             event.addTag(new IdentifierTag(product.getId()));
             if (categories != null) {
-                categories.stream().forEach(c -> event.addTag(new HashtagTag(c)));
+                categories.forEach(c -> event.addTag(new HashtagTag(c)));
             }
 
             return event;

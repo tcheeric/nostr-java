@@ -3,6 +3,7 @@ package nostr.event.impl;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.IContent;
@@ -26,15 +27,12 @@ public abstract class CheckoutEvent extends DirectMessageEvent {
         ORDER_STATUS_UPDATE(2, "Merchant");
 
         private final int value;
+        @Getter
         private final String sentBy;
 
         MessageType(int value, String sentBy) {
             this.value = value;
             this.sentBy = sentBy;
-        }
-
-        public String getSentBy() {
-            return sentBy;
         }
 
         @JsonValue

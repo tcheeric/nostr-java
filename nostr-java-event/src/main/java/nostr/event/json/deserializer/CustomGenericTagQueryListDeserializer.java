@@ -13,7 +13,7 @@ import nostr.event.list.GenericTagQueryList;
 public class CustomGenericTagQueryListDeserializer extends JsonDeserializer<GenericTagQueryList> {
 
     @Override
-    public GenericTagQueryList deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public GenericTagQueryList deserialize(JsonParser p, DeserializationContext ctxt) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

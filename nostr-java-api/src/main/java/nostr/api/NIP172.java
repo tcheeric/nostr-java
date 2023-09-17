@@ -5,9 +5,9 @@
 package nostr.api;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import lombok.Getter;
 import nostr.api.factory.TagFactory;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
@@ -29,6 +29,7 @@ public class NIP172 {
     /**
      * 
      */
+    @Getter
     public enum StatusCode {
 
         SUCCESS("success"),
@@ -40,9 +41,6 @@ public class NIP172 {
             this.value = value;
         }
 
-        public String getValue() {
-            return value;
-        }
     }
 
     /**
@@ -69,7 +67,7 @@ public class NIP172 {
         tags.add(createBidTag(bidTagAmount, bidTagMaxPrice));
         tags.add(new nostr.api.factory.impl.NIP40.ExpirationTagFactory(expiration).create());
         tags.add(new nostr.api.factory.impl.NIP33.IdentifierTagFactory(uniqueJobName).create());
-        serviceProviders.stream().forEach(p -> tags.add(PubKeyTag.builder().publicKey(p).build()));
+        serviceProviders.forEach(p -> tags.add(PubKeyTag.builder().publicKey(p).build()));
 
         PublicKey sender = Identity.getInstance().getPublicKey();
         return new GenericEvent(sender, 68001, tags, null);

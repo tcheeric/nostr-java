@@ -32,16 +32,16 @@ public class ClientAuthenticationEvent extends GenericEvent {
         chAttributes.add(attribute);
 
         this.setTags(new ArrayList<>());
-        ITag chTag = new GenericTag("auth", 42, chAttributes);
+        GenericTag chTag = new GenericTag("auth", 42, chAttributes);
 
-        this.addTag((GenericTag) chTag);
+        this.addTag(chTag);
 
-        relays.stream().forEach(r -> {
+        relays.forEach(r -> {
             final List<ElementAttribute> relayAttributes = new ArrayList<>();
             final ElementAttribute relayAttribute = getRelayAttribute(r);
             relayAttributes.add(relayAttribute);
-            final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
-            this.addTag((BaseTag) relayTag);
+            final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
+            this.addTag(relayTag);
         });
 
         this.setNip(42);
@@ -55,15 +55,15 @@ public class ClientAuthenticationEvent extends GenericEvent {
         chAttributes.add(attribute);
 
         this.setTags(new ArrayList<>());
-        ITag chTag = new GenericTag("auth", 42, chAttributes);
+        BaseTag chTag = new GenericTag("auth", 42, chAttributes);
 
-        this.addTag((BaseTag) chTag);
+        this.addTag(chTag);
 
         final List<ElementAttribute> relayAttributes = new ArrayList<>();
         final ElementAttribute relayAttribute = getRelayAttribute(relay);
         relayAttributes.add(relayAttribute);
-        final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
-        this.addTag((BaseTag) relayTag);
+        final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
+        this.addTag(relayTag);
 
         this.setNip(42);
     }

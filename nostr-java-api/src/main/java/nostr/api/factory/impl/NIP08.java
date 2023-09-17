@@ -24,13 +24,13 @@ public class NIP08 {
 
         public MentionsEventFactory(List<PublicKey> publicKeys, String content) {
             super(content);
-            publicKeys.stream().forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
+            publicKeys.forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
         }
 
         @Override
         public MentionsEvent create() {
             var event = new nostr.event.impl.MentionsEvent(getSender(), getTags(), getContent());
-            getTags().stream().forEach(t -> event.addTag(t));
+            getTags().forEach(t -> event.addTag(t));
             return event;
         }
 

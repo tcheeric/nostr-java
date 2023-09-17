@@ -590,7 +590,7 @@ public class NostrExamples {
 //        }
 //
 //    }
-    private static void logAccountsData() throws NostrException {
+    private static void logAccountsData() {
         String msg = "################################ ACCOUNTS BEGINNING ################################" +
                 '\n' + "*** RECEIVER ***" + '\n' +
                 '\n' + "* PrivateKey: " + RECEIVER.getPrivateKey().getBech32() +

@@ -75,9 +75,8 @@ public class NIP25 extends Nostr {
      * @param event
      * @param reaction
      * @param url
-     * @throws NostrException 
      */
-    public static void react(@NonNull GenericEvent event, @NonNull String reaction, URL url) throws NostrException {
+    public static void react(@NonNull GenericEvent event, @NonNull String reaction, URL url) {
         var reactionEvent = new ReactionEventFactory(event, reaction, url).create();
 
         Nostr.sign(reactionEvent);

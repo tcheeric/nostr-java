@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
-import nostr.api.factory.impl.NIP30.CustomEmojiTagFactory;
 import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;

@@ -11,5 +11,5 @@ public interface IKey {
 
     byte[] getRawData();
 
-    String getBech32() throws NostrException;
+    String getBech32();
 }

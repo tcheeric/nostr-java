@@ -1,10 +1,13 @@
 
 package nostr.base;
 
+import lombok.Getter;
+
 /**
  *
  * @author squirrel
  */
+@Getter
 public enum Command {
     AUTH("IN/OUT"),
     EVENT("IN/OUT"),
@@ -24,7 +27,4 @@ public enum Command {
         this.direction = direction;
     }
 
-    public String getDirection() {
-        return direction;
-    }        
 }

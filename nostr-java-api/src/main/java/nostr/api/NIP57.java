@@ -133,8 +133,7 @@ public class NIP57 extends Nostr {
         attributes.add(receiverAttr);
         attributes.add(relayAttr);
 
-        var result = new GenericTag("zap", 57, attributes);
-        return result;
+        return new GenericTag("zap", 57, attributes);
     }
 
     /**

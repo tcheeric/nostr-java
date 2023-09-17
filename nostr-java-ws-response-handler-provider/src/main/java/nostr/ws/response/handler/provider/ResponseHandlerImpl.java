@@ -125,9 +125,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 }
 
             }
-            default -> {
-                throw new AssertionError("Unknown command " + command);
-            }
+            default -> throw new AssertionError("Unknown command " + command);
         }
     }
 }

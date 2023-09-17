@@ -61,7 +61,7 @@ public class ClientListenerEndPoint {
     }
 
     @OnWebSocketMessage
-    public void onTextMessage(Session session, @NonNull String message) throws IOException, NostrException {
+    public void onTextMessage(Session session, @NonNull String message) throws NostrException {
 
         if ("close".equalsIgnoreCase(message)) {
             session.close(StatusCode.NORMAL, "bye");

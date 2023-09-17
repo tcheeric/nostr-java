@@ -36,7 +36,7 @@ public abstract class BaseList<T> implements INostrList<T> {
     }
 
     public void addAll(@NonNull List<T> aList) {
-        aList.stream().forEach(e -> this.list.add(e));
+        this.list.addAll(aList);
     }
 
     @Override

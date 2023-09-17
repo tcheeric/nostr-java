@@ -13,7 +13,6 @@ import lombok.NonNull;
 import nostr.api.factory.AbstractTagFactory;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.MessageFactory;
-import nostr.api.factory.TagFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.UserProfile;
@@ -61,7 +60,7 @@ public class NIP01 {
         @Override
         public TextNoteEvent create() {
             var event = new nostr.event.impl.TextNoteEvent(getSender(), getTags(), getContent());
-            getTags().stream().forEach(t -> event.addTag(t));
+            getTags().forEach(t -> event.addTag(t));
             return event;
         }
     }

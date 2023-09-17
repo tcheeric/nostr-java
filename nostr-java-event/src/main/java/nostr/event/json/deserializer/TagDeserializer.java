@@ -25,7 +25,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
         String code = node.get(0).asText();
 
         if (null == code) {
-            throw new IOException("Unknown tag code: " + code);
+            throw new IOException("Unknown tag code: " + null);
         } else // Perform custom deserialization logic based on the concrete class
         {
             switch (code) {

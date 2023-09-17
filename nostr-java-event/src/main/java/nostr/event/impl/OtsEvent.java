@@ -12,12 +12,12 @@ import nostr.event.BaseTag;
  *
  * @author squirrel
  */
-@Event(name = "OpenTimestamps Attestations for Events", nip = 1)
+@Event(name = "OpenTimestamps Attestations for Events")
 public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, List<BaseTag> tags, String content, String ots) {
         super(pubKey, tags, content);
-        var attribute = ElementAttribute.builder().nip(3).value(Map.of("ots", ots)).build();
+        var attribute = ElementAttribute.builder().nip(3).name("param0").value(Map.of("ots", ots)).build();
         this.addAttribute(attribute);
     }
         
