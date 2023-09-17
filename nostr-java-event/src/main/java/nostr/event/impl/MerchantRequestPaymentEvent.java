@@ -57,7 +57,7 @@ public class MerchantRequestPaymentEvent extends CheckoutEvent {
         @NoArgsConstructor
         public static class PaymentOptions {
 
-            public static enum Type {
+            public enum Type {
                 URL,
                 BTC,
                 LN,

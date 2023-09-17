@@ -32,8 +32,9 @@ public final class MentionsEvent extends GenericEvent {
 
         int index = 0;
 
+        // TODO - Refactor with the EntityAttributeUtil class
         while (getTags().iterator().hasNext()) {
-            ITag tag = (ITag) getTags().iterator().next();
+            ITag tag = getTags().iterator().next();
             String replacement = "#[" + index++ + "]";
             setContent(this.getContent().replace(((PubKeyTag) tag).getPublicKey().toString(), replacement));
         }

@@ -20,7 +20,7 @@ public abstract class CheckoutEvent extends DirectMessageEvent {
         super(sender, recipient, content.toString());
     }
     
-    public static enum MessageType {
+    public enum MessageType {
         NEW_ORDER(0, "Customer"),
         PAYMENT_REQUEST(1, "Merchant"),
         ORDER_STATUS_UPDATE(2, "Merchant");
@@ -28,7 +28,7 @@ public abstract class CheckoutEvent extends DirectMessageEvent {
         private final int value;
         private final String sentBy;
 
-        private MessageType(int value, String sentBy) {
+        MessageType(int value, String sentBy) {
             this.value = value;
             this.sentBy = sentBy;
         }
