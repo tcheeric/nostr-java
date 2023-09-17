@@ -1,10 +1,11 @@
 package nostr.event.impl;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 
 import lombok.Data;
@@ -15,7 +16,6 @@ import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
 
 /**
- *
  * @author squirrel
  */
 @Data
@@ -30,14 +30,14 @@ public class GenericTag extends BaseTag implements IGenericElement {
     @EqualsAndHashCode.Exclude
     private final Integer nip;
 
-    private final Set<ElementAttribute> attributes;
+    private final List<ElementAttribute> attributes;
 
     public GenericTag(String code) {
         this(code, 1);
     }
 
     public GenericTag(String code, Integer nip) {
-        this(code, nip, new HashSet<>());
+        this(code, nip, new ArrayList<>());
     }
 
     @Override
@@ -46,18 +46,18 @@ public class GenericTag extends BaseTag implements IGenericElement {
     }
 
     public static GenericTag create(String code, Integer nip, List<String> params) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        int i = 0;
-        for (String p : params) {
-            String name = "param" + i++;
-            attributes.add(ElementAttribute.builder().name(name).value(p).build());
+        List<ElementAttribute> attributes = new ArrayList<>();
+        for (int i = 0; i < params.size(); i++) {
+            String name = "param" + i;
+            var p = params.get(i);
+            attributes.add(i, ElementAttribute.builder().name(name).value(p).build());
         }
         return new GenericTag(code, nip, attributes);
     }
 
     public static GenericTag create(String code, Integer nip, String param) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        attributes.add(ElementAttribute.builder().name("param").value(param).build());
+        List<ElementAttribute> attributes = new ArrayList<>();
+        attributes.add(0, ElementAttribute.builder().name("param0").value(param).build());
         return new GenericTag(code, nip, attributes);
     }
 }

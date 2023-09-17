@@ -1,9 +1,8 @@
 package nostr.event.impl;
 
 import java.net.URL;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import nostr.event.Kind;
 import nostr.base.PublicKey;
 import nostr.event.Reaction;
@@ -50,7 +49,7 @@ public class ReactionEvent extends GenericEvent {
     }
 
     private void addEmojiTag(String content, URL emoji, List<BaseTag> tags) {
-        Set<ElementAttribute> attributes = new HashSet<>();
+        List<ElementAttribute> attributes = new ArrayList<>();
         attributes.add(ElementAttribute.builder().name("shortcode").nip(30).value(content).build());
         attributes.add(ElementAttribute.builder().name("url").nip(30).value(emoji.toString()).build());
         tags.add(new GenericTag("emoji", 30, attributes));

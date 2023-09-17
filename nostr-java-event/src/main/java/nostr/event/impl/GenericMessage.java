@@ -1,8 +1,9 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
@@ -22,20 +23,20 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
 //    private final String command;
     
     @JsonIgnore
-    private final Set<ElementAttribute> attributes;
+    private final List<ElementAttribute> attributes;
     
     @JsonIgnore
     private final Integer nip;
     
     public GenericMessage(String command) {
-        this(command, new HashSet<>(), 1);
+        this(command, new ArrayList<>(), 1);
     }
 
     public GenericMessage(String command, Integer nip) {
-        this(command, new HashSet<>(), nip);
+        this(command, new ArrayList<>(), nip);
     }
 
-    public GenericMessage(String command, Set<ElementAttribute> attributes, Integer nip) {
+    public GenericMessage(String command, List<ElementAttribute> attributes, Integer nip) {
         super(command);
         this.attributes = attributes;
         this.nip = nip;
