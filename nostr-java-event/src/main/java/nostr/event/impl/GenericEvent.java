@@ -4,9 +4,7 @@ import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -90,10 +88,10 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private final Set<ElementAttribute> attributes;
+    private final List<ElementAttribute> attributes;
 
     public GenericEvent() {
-        this.attributes = new HashSet<>();
+        this.attributes = new ArrayList<>();
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
@@ -117,7 +115,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this.kind = kind;
         this.tags = tags;
         this.content = content;
-        this.attributes = new HashSet<>();
+        this.attributes = new ArrayList<>();
 
         // Update parents
         updateTagsParents(tags);
@@ -149,7 +147,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         if (!tags.contains(tag)) {
             tag.setParent(this);
-            ((List<BaseTag>) tags).add(tag);
+            tags.add(tag);
         }
     }
 
