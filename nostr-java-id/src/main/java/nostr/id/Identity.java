@@ -82,7 +82,7 @@ public class Identity {
     }
 
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
-        ITag pkTag = (ITag) dmEvent.getTags().get(0);
+        ITag pkTag = dmEvent.getTags().get(0);
         if (pkTag instanceof PubKeyTag pubKeyTag) {
             try {
                 var rcptPublicKey = pubKeyTag.getPublicKey();
@@ -138,7 +138,7 @@ public class Identity {
         return new Identity(PrivateKey.generateRandomPrivKey());
     }
 
-    private Signature signEvent(@NonNull GenericEvent event) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
+    private Signature signEvent(@NonNull GenericEvent event) throws Exception {
         event.update();
         log.log(Level.FINER, "Serialized event: {0}", new String(event.get_serializedEvent()));
         final var signedHashedSerializedEvent = Schnorr.sign(NostrUtil.sha256(event.get_serializedEvent()), privateKey.getRawData(), generateAuxRand());
@@ -149,7 +149,7 @@ public class Identity {
         return signature;
     }
 
-    private Signature signDelegationTag(@NonNull DelegationTag delegationTag) throws NoSuchAlgorithmException, IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException, Exception {
+    private Signature signDelegationTag(@NonNull DelegationTag delegationTag) throws Exception {
         final var signedHashedToken = Schnorr.sign(NostrUtil.sha256(delegationTag.getToken().getBytes(StandardCharsets.UTF_8)), privateKey.getRawData(), generateAuxRand());
         final Signature signature = new Signature();
         signature.setRawData(signedHashedToken);
