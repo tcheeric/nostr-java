@@ -41,8 +41,6 @@ public class DefaultRequestHandler implements IRequestHandler {
         } catch (Exception ex) {
             log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
-        } finally {
-            //this.connection.stop();
         }
     }
 
@@ -51,7 +49,7 @@ public class DefaultRequestHandler implements IRequestHandler {
         final Relay relay = connection.getRelay();
 
         if (!relay.getSupportedNips().contains(message.getNip())) {
-            throw new UnsupportedNIPException(String.format("NIP-%d is not supported by relay %s. Supported NIPS: %s", new Object[]{message.getNip(), relay, relay.printSupportedNips()}));
+            throw new UnsupportedNIPException(String.format("NIP-%d is not supported by relay %s. Supported NIPS: %s", message.getNip(), relay, relay.printSupportedNips()));
         }
 
         final Session session = this.connection.getSession();
