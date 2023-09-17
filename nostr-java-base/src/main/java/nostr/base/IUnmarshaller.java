@@ -8,6 +8,6 @@ package nostr.base;
  */
 public interface IUnmarshaller<T> {
 
-    public abstract T unmarshall();
+    T unmarshall();
 
 }

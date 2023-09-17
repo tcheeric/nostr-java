@@ -20,7 +20,7 @@ public enum Command {
 
     private final String direction;
 
-    private Command(String direction) {
+    Command(String direction) {
         this.direction = direction;
     }
 

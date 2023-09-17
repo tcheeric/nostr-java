@@ -9,7 +9,7 @@ import nostr.util.NostrException;
  */
 public interface IKey {
 
-    public abstract byte[] getRawData();
+    byte[] getRawData();
 
-    public String getBech32() throws NostrException;
+    String getBech32() throws NostrException;
 }

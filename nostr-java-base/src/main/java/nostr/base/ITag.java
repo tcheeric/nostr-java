@@ -7,9 +7,9 @@ package nostr.base;
  */
 public interface ITag extends IElement {
 
-    public abstract void setParent(IEvent event);
+    void setParent(IEvent event);
     
-    public abstract String getCode();
+    String getCode();
     
 //    public abstract String printAttributes(Relay relay, boolean escape) throws NostrException;    
 }

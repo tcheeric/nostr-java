@@ -6,5 +6,5 @@ package nostr.base;
  */
 public interface IEvent extends IElement, IBech32Encodable {
 
-    public abstract String getId();
+    String getId();
 }

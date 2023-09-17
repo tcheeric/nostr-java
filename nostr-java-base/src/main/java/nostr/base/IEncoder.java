@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @param <T>
  */
 public interface IEncoder<T extends IElement> {
-    public static final ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+    ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     
-    public abstract String encode();    
+    String encode();
 }

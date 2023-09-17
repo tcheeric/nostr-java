@@ -7,6 +7,6 @@ package nostr.base;
  */
 public interface IDecoder<T extends IElement> {
 
-    public abstract T decode();
+    T decode();
     
 }
