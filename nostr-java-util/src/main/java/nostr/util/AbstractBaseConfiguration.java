@@ -82,7 +82,7 @@ public abstract class AbstractBaseConfiguration {
         return null;
     }
 
-    protected final void load(@NonNull String filename) throws FileNotFoundException, IOException {
+    protected final void load(@NonNull String filename) throws IOException {
 
         //var configFolder = System.getProperty(CONFIG_DIR);
         var configFolder = this.appConfig.getDefaultConfigFolder();
