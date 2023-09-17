@@ -1,10 +1,8 @@
 package nostr.event.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
 import nostr.base.ITag;
@@ -29,7 +27,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
     public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Set<Relay> relays) {
         super(pubKey, Kind.CLIENT_AUTH);
 
-        Set<ElementAttribute> chAttributes = new HashSet<>();
+        List<ElementAttribute> chAttributes = new ArrayList<>();
         var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
         chAttributes.add(attribute);
 
@@ -39,7 +37,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
         this.addTag((GenericTag) chTag);
 
         relays.stream().forEach(r -> {
-            final Set<ElementAttribute> relayAttributes = new HashSet<>();
+            final List<ElementAttribute> relayAttributes = new ArrayList<>();
             final ElementAttribute relayAttribute = getRelayAttribute(r);
             relayAttributes.add(relayAttribute);
             final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
@@ -52,7 +50,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
     public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Relay relay) {
         super(pubKey, Kind.CLIENT_AUTH);
 
-        Set<ElementAttribute> chAttributes = new HashSet<>();
+        List<ElementAttribute> chAttributes = new ArrayList<>();
         var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
         chAttributes.add(attribute);
 
@@ -61,7 +59,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
 
         this.addTag((BaseTag) chTag);
 
-        final Set<ElementAttribute> relayAttributes = new HashSet<>();
+        final List<ElementAttribute> relayAttributes = new ArrayList<>();
         final ElementAttribute relayAttribute = getRelayAttribute(relay);
         relayAttributes.add(relayAttribute);
         final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
