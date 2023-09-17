@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -68,7 +66,7 @@ public class NostrApiExamples {
         }
     }
 
-    public static void main(String[] args) throws IOException, Exception {
+    public static void main(String[] args) throws Exception {
         try {
             log.log(Level.FINE, "================= The Beginning");
             logAccountsData();
@@ -332,20 +330,20 @@ public class NostrApiExamples {
     }
 
     private static void logAccountsData() throws NostrException {
-        var msg = new StringBuilder("################################ ACCOUNTS BEGINNING ################################")
-                .append('\n').append("*** RECEIVER ***").append('\n')
-                .append('\n').append("* PrivateKey: ").append(RECEIVER.getPrivateKey().getBech32())
-                .append('\n').append("* PrivateKey HEX: ").append(RECEIVER.getPrivateKey().toString())
-                .append('\n').append("* PublicKey: ").append(RECEIVER.getPublicKey().getBech32())
-                .append('\n').append("* PublicKey HEX: ").append(RECEIVER.getPublicKey().toString())
-                .append('\n').append('\n').append("*** SENDER ***").append('\n')
-                .append('\n').append("* PrivateKey: ").append(SENDER.getPrivateKey().getBech32())
-                .append('\n').append("* PrivateKey HEX: ").append(SENDER.getPrivateKey().toString())
-                .append('\n').append("* PublicKey: ").append(SENDER.getPublicKey().getBech32())
-                .append('\n').append("* PublicKey HEX: ").append(SENDER.getPublicKey().toString())
-                .append('\n').append('\n').append("################################ ACCOUNTS END ################################");
+        String msg = "################################ ACCOUNTS BEGINNING ################################" +
+                '\n' + "*** RECEIVER ***" + '\n' +
+                '\n' + "* PrivateKey: " + RECEIVER.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + RECEIVER.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + RECEIVER.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + RECEIVER.getPublicKey().toString() +
+                '\n' + '\n' + "*** SENDER ***" + '\n' +
+                '\n' + "* PrivateKey: " + SENDER.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + SENDER.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
+                '\n' + '\n' + "################################ ACCOUNTS END ################################";
 
-        log.log(Level.INFO, msg.toString());
+        log.log(Level.INFO, msg);
     }
 
     private static void logHeader(String header) {

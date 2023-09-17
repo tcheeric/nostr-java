@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import lombok.extern.java.Log;
 import nostr.base.ChannelProfile;
@@ -83,7 +82,7 @@ public class NostrExamples {
         }
     }
 
-    public static void main(String[] args) throws IOException, Exception {
+    public static void main(String[] args) throws Exception {
         try {
 //			Wait it until tried to connect to a half of relays 
             while (CLIENT.getThreadPool().getCompletedTaskCount() < (RELAYS.size() / 2)) {
@@ -302,7 +301,7 @@ public class NostrExamples {
 
             PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
             List<BaseTag> tags = new ArrayList<>();
-            tags.add((PubKeyTag) rcptTag);
+            tags.add(rcptTag);
 
             GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please delete me!");
 
@@ -592,20 +591,20 @@ public class NostrExamples {
 //
 //    }
     private static void logAccountsData() throws NostrException {
-        StringBuilder msg = new StringBuilder("################################ ACCOUNTS BEGINNING ################################")
-                .append('\n').append("*** RECEIVER ***").append('\n')
-                .append('\n').append("* PrivateKey: ").append(RECEIVER.getPrivateKey().getBech32())
-                .append('\n').append("* PrivateKey HEX: ").append(RECEIVER.getPrivateKey().toString())
-                .append('\n').append("* PublicKey: ").append(RECEIVER.getPublicKey().getBech32())
-                .append('\n').append("* PublicKey HEX: ").append(RECEIVER.getPublicKey().toString())
-                .append('\n').append('\n').append("*** SENDER ***").append('\n')
-                .append('\n').append("* PrivateKey: ").append(SENDER.getPrivateKey().getBech32())
-                .append('\n').append("* PrivateKey HEX: ").append(SENDER.getPrivateKey().toString())
-                .append('\n').append("* PublicKey: ").append(SENDER.getPublicKey().getBech32())
-                .append('\n').append("* PublicKey HEX: ").append(SENDER.getPublicKey().toString())
-                .append('\n').append('\n').append("################################ ACCOUNTS END ################################");
+        String msg = "################################ ACCOUNTS BEGINNING ################################" +
+                '\n' + "*** RECEIVER ***" + '\n' +
+                '\n' + "* PrivateKey: " + RECEIVER.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + RECEIVER.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + RECEIVER.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + RECEIVER.getPublicKey().toString() +
+                '\n' + '\n' + "*** SENDER ***" + '\n' +
+                '\n' + "* PrivateKey: " + SENDER.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + SENDER.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
+                '\n' + '\n' + "################################ ACCOUNTS END ################################";
 
-        log.log(Level.INFO, msg.toString());
+        log.log(Level.INFO, msg);
     }
 
     private static void logHeader(String header) {
