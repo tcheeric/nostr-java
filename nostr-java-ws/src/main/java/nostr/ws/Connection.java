@@ -164,7 +164,7 @@ public class Connection {
         log.log(Level.INFO, "The session is now open to {0}", relay.getUri());
     }
 
-    public String getRelayInformation() throws InterruptedException, TimeoutException, ExecutionException, IOException, Exception {
+    public String getRelayInformation() throws Exception {
         httpClient.start();
 
         InputStreamResponseListener listener = new InputStreamResponseListener(); //Required for large responses only
