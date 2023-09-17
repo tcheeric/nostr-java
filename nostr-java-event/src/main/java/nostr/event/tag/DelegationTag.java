@@ -47,8 +47,6 @@ public class DelegationTag extends BaseTag implements ISignable {
 
     @Transient
     public String getToken() {
-        StringBuilder strToken = new StringBuilder();
-        strToken.append("nostr:").append(getCode()).append(":").append(delegator.toString()).append(":").append(conditions);
-        return strToken.toString();
+        return "nostr:" + getCode() + ":" + delegator.toString() + ":" + conditions;
     }
 }
