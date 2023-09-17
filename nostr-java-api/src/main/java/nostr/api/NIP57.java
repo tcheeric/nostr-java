@@ -5,8 +5,7 @@
 package nostr.api;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
 import nostr.api.factory.impl.NIP42.RelaysTagFactory;
@@ -123,7 +122,7 @@ public class NIP57 extends Nostr {
      * @return
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay, Integer weight) {
-        Set<ElementAttribute> attributes = new HashSet<>();
+        List<ElementAttribute> attributes = new ArrayList<>();
         var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
         var relayAttr = new ElementAttribute("relay", relay.getUri(), 57);
         if (weight != null) {

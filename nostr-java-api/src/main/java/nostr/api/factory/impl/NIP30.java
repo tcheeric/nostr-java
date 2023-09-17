@@ -5,8 +5,8 @@
 package nostr.api.factory.impl;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -36,7 +36,7 @@ public class NIP30 {
         public GenericTag create() {
 
             // Create the tag attributes
-            Set<ElementAttribute> attributes = new HashSet<>();
+            List<ElementAttribute> attributes = new ArrayList<>();
             ElementAttribute attrName = new ElementAttribute("reaction", getEmoji(), 30);
             ElementAttribute attrUrl = new ElementAttribute("url", getUrl().toString(), 30);
             attributes.add(attrUrl);

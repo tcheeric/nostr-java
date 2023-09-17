@@ -36,7 +36,7 @@ public class NIP172 {
 
         private final String value;
 
-        private StatusCode(String value) {
+        StatusCode(String value) {
             this.value = value;
         }
 
@@ -105,9 +105,9 @@ public class NIP172 {
      * @return 
      */
     public static GenericTag createJobTag(String jobType, String jobModel) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        attributes.add(new ElementAttribute("param0", jobType, 172));
-        attributes.add(new ElementAttribute("param1", jobModel, 172));
+        List<ElementAttribute> attributes = new ArrayList<>();
+        attributes.add(0, new ElementAttribute("param0", jobType, 172));
+        attributes.add(1, new ElementAttribute("param1", jobModel, 172));
         return new GenericTag("j", 172, attributes);
     }
 
@@ -119,10 +119,10 @@ public class NIP172 {
      * @return 
      */
     public static GenericTag createInputTag(String data, String inputType, Marker marker) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        attributes.add(new ElementAttribute("param0", data, 172));
-        attributes.add(new ElementAttribute("param1", inputType, 172));
-        attributes.add(new ElementAttribute("param2", marker, 172));
+        List<ElementAttribute> attributes = new ArrayList<>();
+        attributes.add(0, new ElementAttribute("param0", data, 172));
+        attributes.add(1, new ElementAttribute("param1", inputType, 172));
+        attributes.add(2, new ElementAttribute("param2", marker, 172));
         return new GenericTag("input", 172, attributes);
     }
 
@@ -133,9 +133,9 @@ public class NIP172 {
      * @return 
      */
     public static GenericTag createBidTag(Integer satAmount, Integer maxPrice) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        attributes.add(new ElementAttribute("param0", satAmount, 172));
-        attributes.add(new ElementAttribute("param1", maxPrice, 172));
+        List<ElementAttribute> attributes = new ArrayList<>();
+        attributes.add(0, new ElementAttribute("param0", satAmount, 172));
+        attributes.add(1, new ElementAttribute("param1", maxPrice, 172));
         return new GenericTag("bid", 172, attributes);
     }
 
@@ -146,9 +146,9 @@ public class NIP172 {
      * @return 
      */
     public static GenericTag createStatusTag(StatusCode status, String statusMoreInfo) {
-        Set<ElementAttribute> attributes = new HashSet<>();
-        attributes.add(ElementAttribute.builder().name("param0").nip(172).value(status).build());
-        attributes.add(ElementAttribute.builder().name("param1").nip(172).value(statusMoreInfo).build());
+        List<ElementAttribute> attributes = new ArrayList<>();
+        attributes.add(0, ElementAttribute.builder().name("param0").nip(172).value(status).build());
+        attributes.add(1, ElementAttribute.builder().name("param1").nip(172).value(statusMoreInfo).build());
         return new GenericTag("status", 172, attributes);
     }
 

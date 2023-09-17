@@ -4,9 +4,8 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -86,7 +85,7 @@ public class NIP42 {
 
         @Override
         public GenericMessage create() {
-            final Set<ElementAttribute> attributes = new HashSet<>();
+            final List<ElementAttribute> attributes = new ArrayList<>();
             final var attr = new ElementAttribute("challenge", challenge, 42);
             attributes.add(attr);
             return new GenericMessage(Command.AUTH.name(), attributes, 42);
