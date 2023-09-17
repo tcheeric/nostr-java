@@ -16,17 +16,17 @@ import nostr.util.NostrException;
  */
 public interface ICommandHandler extends IHandler {
 
-    public abstract void onEose(String subId, Relay relay);
+    void onEose(String subId, Relay relay);
 
-    public abstract void onOk(String eventId, String reasonMessage, Reason reason, boolean result, Relay relay);
+    void onOk(String eventId, String reasonMessage, Reason reason, boolean result, Relay relay);
 
-    public abstract void onNotice(String message);
+    void onNotice(String message);
 
-    public abstract void onEvent(String jsonEvent, String subId, Relay relay);
+    void onEvent(String jsonEvent, String subId, Relay relay);
 
-    public abstract void onAuth(String challenge, Relay relay) throws NostrException;
+    void onAuth(String challenge, Relay relay) throws NostrException;
 
-    public enum Reason {
+    enum Reason {
         UNDEFINED(""),
         DUPLICATE("duplicate"),
         BLOCKED("blocked"),
