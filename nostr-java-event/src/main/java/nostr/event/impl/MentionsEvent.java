@@ -25,7 +25,6 @@ public final class MentionsEvent extends GenericEvent {
         super(pubKey, Kind.TEXT_NOTE, tags, content);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void update() {
         super.update();

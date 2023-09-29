@@ -13,6 +13,7 @@ module nostr.api {
     requires com.fasterxml.jackson.databind;
     
     requires lombok;
+    requires java.logging;
 
     exports nostr.api;
 }

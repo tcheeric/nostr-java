@@ -1,8 +1,6 @@
 
 package nostr.base;
 
-import nostr.util.NostrException;
-
 /**
  *
  * @author squirrel

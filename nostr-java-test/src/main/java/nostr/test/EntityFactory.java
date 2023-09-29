@@ -34,7 +34,6 @@ import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.util.NostrException;
 
 /**
  *
@@ -47,7 +46,6 @@ public class EntityFactory {
     @Log
     public static class Events {
 
-        @SuppressWarnings("unchecked")
         public static EphemeralEvent createEphemeralEvent(PublicKey publicKey) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("eric").build());
@@ -68,7 +66,6 @@ public class EntityFactory {
             return Filters.builder().authors(authors).kinds(kindList).since(since).build();
         }
 
-        @SuppressWarnings("unchecked")
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {
             final PublicKey publicKey = profile.getPublicKey();
             InternetIdentifierMetadataEvent event = new InternetIdentifierMetadataEvent(publicKey, profile);
@@ -76,7 +73,6 @@ public class EntityFactory {
             return event;
         }
 
-        @SuppressWarnings("unchecked")
         public static MentionsEvent createMentionsEvent(PublicKey publicKey) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("charlie").build());
@@ -93,25 +89,20 @@ public class EntityFactory {
             return event;
         }
 
-        @SuppressWarnings("unchecked")
         public static MetadataEvent createMetadataEvent(UserProfile profile) {
             final PublicKey publicKey = profile.getPublicKey();
-            MetadataEvent event = new MetadataEvent(publicKey, profile);
-            return event;
+            return new MetadataEvent(publicKey, profile);
         }
 
-        @SuppressWarnings("unchecked")
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(EventTag.builder().idEvent(original.getId()).build());
-            ReactionEvent event = new ReactionEvent(publicKey, tagList, Reaction.LIKE);
-            return event;
+            return new ReactionEvent(publicKey, tagList, Reaction.LIKE);
         }
 
         public static ReplaceableEvent createReplaceableEvent(PublicKey publicKey) {
             String content = generateRamdomAlpha(32);
-            ReplaceableEvent event = new ReplaceableEvent(publicKey, 15000, new ArrayList<>(), content);
-            return event;
+            return new ReplaceableEvent(publicKey, 15000, new ArrayList<>(), content);
         }
 
         public static TextNoteEvent createTextNoteEvent(PublicKey publicKey) {
@@ -122,8 +113,7 @@ public class EntityFactory {
         public static TextNoteEvent createTextNoteEvent(PublicKey publicKey, String content) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("alice").build());
-            TextNoteEvent event = new TextNoteEvent(publicKey, tagList, content);
-            return event;
+            return new TextNoteEvent(publicKey, tagList, content);
         }
 
         public static OtsEvent createOtsEvent(PublicKey publicKey) {

@@ -14,6 +14,9 @@ import nostr.event.tag.PubKeyTag;
 @Event(name = "Encrypted Direct Message", nip = 4)
 public class DirectMessageEvent extends GenericEvent {
 
+    protected DirectMessageEvent() {
+    }
+
     public DirectMessageEvent(PublicKey sender, List<BaseTag> tags, String content) {
         super(sender, Kind.ENCRYPTED_DIRECT_MESSAGE, tags, content);
     }

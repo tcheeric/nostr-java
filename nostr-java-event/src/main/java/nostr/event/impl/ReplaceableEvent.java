@@ -20,7 +20,12 @@ public class ReplaceableEvent extends GenericEvent {
 
     private final int minKind;
     private final int maxKind;
-          
+
+    protected ReplaceableEvent() {
+        this.minKind = 0;
+        this.maxKind = 0;
+    }
+
     public ReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
         this(sender, kind, tags, content, 10_000, 20_000);
     }

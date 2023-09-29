@@ -28,6 +28,12 @@ public class TagFactory extends AbstractTagFactory<GenericTag> {
     @NonNull
     private final List<String> params;
 
+    protected TagFactory() {
+        this.code = "";
+        this.nip = 0;
+        this.params = new ArrayList<>();
+    }
+
     public TagFactory(String code, Integer nip, String param) {
         this.code = code;
         this.nip = nip;

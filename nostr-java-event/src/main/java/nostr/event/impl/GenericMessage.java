@@ -19,9 +19,6 @@ import nostr.event.BaseMessage;
 @EqualsAndHashCode(callSuper = false)
 public class GenericMessage extends BaseMessage implements IGenericElement, IElement {
 
-//    @JsonProperty
-//    private final String command;
-    
     @JsonIgnore
     private final List<ElementAttribute> attributes;
     

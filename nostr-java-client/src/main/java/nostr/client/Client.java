@@ -1,25 +1,9 @@
 package nostr.client;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.IEvent;
-import nostr.util.AbstractBaseConfiguration;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.impl.ClientAuthenticationEvent;
@@ -29,13 +13,23 @@ import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
+import nostr.util.AbstractBaseConfiguration;
 import nostr.util.NostrException;
 import nostr.ws.Connection;
 import nostr.ws.handler.spi.IRequestHandler;
 import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
 /**
- *
  * @author squirrel
  */
 @Log
@@ -44,19 +38,19 @@ public class Client {
 
     private static Client INSTANCE;
 
-    private final Set<Future<Relay>> futureRelays;
+    private final List<Future<Relay>> futureRelays;
     private final ThreadPoolExecutor threadPool;
     private IRequestHandler requestHandler;
 
     private Client() throws IOException {
-        this.futureRelays = new HashSet<>();
+        this.futureRelays = new ArrayList<>();
         this.requestHandler = new DefaultRequestHandler();
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init();
     }
 
     private Client(Map<String, String> relays) {
-        this.futureRelays = new HashSet<>();
+        this.futureRelays = new ArrayList<>();
         this.requestHandler = new DefaultRequestHandler();
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         this.init(relays);
@@ -66,6 +60,15 @@ public class Client {
         if (INSTANCE == null) {
             try {
                 INSTANCE = new Client();
+
+                do {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } while (INSTANCE.getThreadPool().getCompletedTaskCount() < (INSTANCE.getRelays().size() / 2));
+
             } catch (IOException ex) {
                 log.log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
@@ -83,7 +86,7 @@ public class Client {
         return INSTANCE;
     }
 
-    public Set<Relay> getRelays() {
+    public List<Relay> getRelays() {
         return futureRelays.parallelStream()
                 .filter(fr -> {
                     try {
@@ -94,14 +97,14 @@ public class Client {
 
                     return false;
                 }).map(fr -> {
-            try {
-                return fr.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.log(Level.SEVERE, null, e);
-            }
+                    try {
+                        return fr.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        log.log(Level.SEVERE, null, e);
+                    }
 
-            return null;
-        }).collect(Collectors.toSet());
+                    return null;
+                }).collect(Collectors.toList());
     }
 
     public void send(@NonNull IEvent event) {
@@ -148,7 +151,7 @@ public class Client {
     public void auth(Identity identity, String challenge) throws NostrException {
 
         log.log(Level.INFO, "Authenticating...");
-        Set<Relay> relays = getRelaySet();
+        List<Relay> relays = getRelayList();
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
         BaseMessage authMsg = new ClientAuthenticationMessage(event);
 
@@ -170,12 +173,22 @@ public class Client {
         this.send(authMsg);
     }
 
-    private Set<Relay> getRelaySet() {
-        Set<Relay> result = new HashSet<>();
+    public Relay getDefaultRelay() {
+        List<Relay> relays = getRelays();
+        if (!relays.isEmpty()) {
+            return relays.get(0);
+        }
+        throw new RuntimeException("No configured relay list found");
+    }
+
+    private List<Relay> getRelayList() {
+        List<Relay> result = new ArrayList<>();
 
         futureRelays.forEach(fr -> {
             try {
-                result.add(fr.get());
+                if (!result.contains(fr.get())) {
+                    result.add(fr.get());
+                }
             } catch (InterruptedException | ExecutionException ex) {
                 throw new RuntimeException(ex);
             }

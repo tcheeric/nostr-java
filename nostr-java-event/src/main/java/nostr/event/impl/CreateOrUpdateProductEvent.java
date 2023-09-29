@@ -16,7 +16,10 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "", nip = 15)
 public class CreateOrUpdateProductEvent extends NostrMarketplaceEvent {
-    
+
+    private CreateOrUpdateProductEvent() {
+        super();
+    }
     public CreateOrUpdateProductEvent(PublicKey sender, List<BaseTag> tags, @NonNull Product product) {
         super(sender, 30018, tags, product);
     }

@@ -20,30 +20,36 @@ import nostr.id.Identity;
 @Data
 public abstract class EventFactory<T extends IEvent> {
 
-    private final PublicKey sender;
+    private final Identity identity;
     private final String content;
     private final List<BaseTag> tags;
+
+    protected EventFactory() {
+        this.identity = Identity.getInstance();
+        this.content = null;
+        this.tags = new ArrayList<>();
+    }
     
     public EventFactory(String content) {
         this.content = content;
         this.tags = new ArrayList<>();
-        this.sender = getSenderPublicKey();
+        this.identity = Identity.getInstance();
     }
 
     public EventFactory(List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
-        this.sender = getSenderPublicKey();
+        this.identity = Identity.getInstance();
     }
 
-    public EventFactory(PublicKey sender, String content) {
-        this(sender, new ArrayList<>(), content);
+    public EventFactory(Identity identity, String content) {
+        this(identity, new ArrayList<>(), content);
     }
 
-    public EventFactory(PublicKey sender, List<BaseTag> tags, String content) {
+    public EventFactory(Identity identity, List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
-        this.sender = sender;
+        this.identity = identity;
     }
 
     public abstract T create();
@@ -52,8 +58,7 @@ public abstract class EventFactory<T extends IEvent> {
         this.tags.add(tag);
     }
 
-    private PublicKey getSenderPublicKey() {
-        Identity identity = Identity.getInstance();
-        return identity.getPublicKey();
+    protected PublicKey getSender() {
+        return this.identity.getPublicKey();
     }
 }

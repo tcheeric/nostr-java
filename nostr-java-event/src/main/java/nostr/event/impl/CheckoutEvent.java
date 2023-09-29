@@ -17,6 +17,8 @@ import nostr.event.IContent;
 @Event(name = "", nip = 15)
 public abstract class CheckoutEvent extends DirectMessageEvent {
 
+    protected CheckoutEvent() {}
+
     public CheckoutEvent(PublicKey sender, PublicKey recipient, IContent content) {
         super(sender, recipient, content.toString());
     }

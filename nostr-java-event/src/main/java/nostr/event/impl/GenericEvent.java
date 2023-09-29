@@ -180,7 +180,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
         var mapper = IEncoder.MAPPER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
@@ -202,8 +201,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
         if (tagList != null && !tagList.isEmpty()) {
             for (ITag t : tagList) {
-                ITag tag = t;
-                tag.setParent(this);
+                t.setParent(this);
             }
         }
     }

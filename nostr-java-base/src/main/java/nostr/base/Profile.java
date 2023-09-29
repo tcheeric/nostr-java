@@ -26,6 +26,10 @@ public abstract class Profile {
     @ToString.Exclude
     private URL picture;
 
+    protected Profile() {
+        this.name = null;
+    }
+
     @JsonValue
     @Override
     public String toString() {

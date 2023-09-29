@@ -2,10 +2,9 @@ package nostr.event.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
-import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
@@ -24,7 +23,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
     }
 
     @Deprecated(forRemoval = true)
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Set<Relay> relays) {
+    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull List<Relay> relays) {
         super(pubKey, Kind.CLIENT_AUTH);
 
         List<ElementAttribute> chAttributes = new ArrayList<>();

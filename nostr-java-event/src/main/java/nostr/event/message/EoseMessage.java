@@ -20,6 +20,10 @@ public class EoseMessage extends BaseMessage {
     @JsonProperty
     private final String subscriptionId;
 
+    private EoseMessage() {
+        this(null);
+    }
+
     public EoseMessage(String subId) {
         super(Command.EOSE.name());
         this.subscriptionId = subId;

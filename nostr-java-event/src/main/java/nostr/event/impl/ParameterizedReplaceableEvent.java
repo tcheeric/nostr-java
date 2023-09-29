@@ -18,6 +18,10 @@ import nostr.event.BaseTag;
 @Event(name = "Parameterized Replaceable Events", nip = 33)
 public class ParameterizedReplaceableEvent extends ReplaceableEvent {
 
+    protected ParameterizedReplaceableEvent() {
+        super();
+    }
+
     public ParameterizedReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
         super(sender, kind, tags, content, 30_000, 40_000);
     }

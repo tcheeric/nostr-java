@@ -27,6 +27,9 @@ import nostr.event.json.serializer.ItemSerializer;
 @Event(name = "", nip = 15)
 public class CustomerOrderEvent extends CheckoutEvent {
 
+    private CustomerOrderEvent() {
+        super();
+    }
     public CustomerOrderEvent(PublicKey sender, @NonNull Customer customer) {
         super(sender, customer.getContact().getPublicKey(), customer);
     }

@@ -11,6 +11,8 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
+import java.util.Arrays;
+
 /**
  *
  * @author squirrel
@@ -44,4 +46,22 @@ public abstract class BaseKey implements IKey {
         return NostrUtil.bytesToHex(rawData);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        // null check
+        if (o == null)
+            return false;
+
+        // type check and cast
+        if (getClass() != o.getClass())
+            return false;
+
+        BaseKey baseKey = (BaseKey) o;
+
+        // field comparison
+        return Arrays.equals(rawData, baseKey.rawData);
+    }
 }
