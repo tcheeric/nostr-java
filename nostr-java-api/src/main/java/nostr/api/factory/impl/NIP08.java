@@ -5,10 +5,13 @@
 package nostr.api.factory.impl;
 
 import java.util.List;
+
+import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.tag.PubKeyTag;
+import nostr.id.Identity;
 
 /**
  *
@@ -22,8 +25,13 @@ public class NIP08 {
             super(content);
         }
 
-        public MentionsEventFactory(List<PublicKey> publicKeys, String content) {
+        public MentionsEventFactory(@NonNull List<PublicKey> publicKeys, @NonNull String content) {
             super(content);
+            publicKeys.forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
+        }
+
+        public MentionsEventFactory(@NonNull Identity sender, @NonNull List<PublicKey> publicKeys, @NonNull String content) {
+            super(sender, content);
             publicKeys.forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
         }
 

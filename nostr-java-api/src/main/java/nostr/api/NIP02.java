@@ -9,6 +9,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP02.ContactListEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
+import nostr.id.Identity;
 
 /**
  *
@@ -22,7 +23,11 @@ public class NIP02 extends Nostr {
      * @return a contact list event
      */
     public static ContactListEvent createContactListEvent(@NonNull List<BaseTag> tags) {
-        return new ContactListEventFactory(tags, null).create();
+        return new ContactListEventFactory(tags, "").create();
+    }
+
+    public static ContactListEvent createContactListEvent(@NonNull Identity sender, @NonNull List<BaseTag> tags) {
+        return new ContactListEventFactory(sender, tags, "").create();
     }
 
     /**
@@ -33,5 +38,9 @@ public class NIP02 extends Nostr {
      */
     public static ContactListEvent createContactListEvent(@NonNull List<BaseTag> tags, String content) {
         return new ContactListEventFactory(tags, content).create();
-    }    
+    }
+
+    public static ContactListEvent createContactListEvent(@NonNull Identity sender, @NonNull List<BaseTag> tags, String content) {
+        return new ContactListEventFactory(sender, tags, content).create();
+    }
 }

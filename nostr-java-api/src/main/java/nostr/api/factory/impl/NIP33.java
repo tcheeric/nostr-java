@@ -16,6 +16,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
+import nostr.id.Identity;
 
 /**
  *
@@ -34,8 +35,18 @@ public class NIP33 {
             this.kind = kind;
         }
 
+        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, Integer kind, String comment) {
+            super(sender, comment);
+            this.kind = kind;
+        }
+
         public ParameterizedReplaceableEventFactory(@NonNull List<BaseTag> tags, Integer kind, String comment) {
             super(tags, comment);
+            this.kind = kind;
+        }
+
+        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
+            super(sender, tags, comment);
             this.kind = kind;
         }
 

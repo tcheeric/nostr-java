@@ -32,6 +32,7 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.id.Identity;
 
 /**
  *
@@ -44,17 +45,20 @@ public class NIP01 {
     public static class TextNoteEventFactory extends EventFactory<TextNoteEvent> {
 
         // TextEvents attributes
-        public TextNoteEventFactory(String content) {
+        public TextNoteEventFactory(@NonNull String content) {
             super(content);
         }
 
-        public TextNoteEventFactory(List<BaseTag> tags, String content) {
+        public TextNoteEventFactory(@NonNull List<BaseTag> tags, @NonNull String content) {
             super(tags, content);
         }
 
-        @Deprecated
-        public TextNoteEventFactory(PublicKey sender, String content) {
+        public TextNoteEventFactory(@NonNull Identity sender, @NonNull String content) {
             super(sender, content);
+        }
+
+        public TextNoteEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+            super(sender, tags, content);
         }
 
         @Override
@@ -75,8 +79,12 @@ public class NIP01 {
             super(null);
             this.profile = profile;
         }
-        
-        
+
+        public MetadataEventFactory(@NonNull Identity sender, @NonNull UserProfile profile) {
+            super(sender, null);
+            this.profile = profile;
+        }
+
         @Override
         public MetadataEvent create() {
             return new MetadataEvent(getSender(), profile);

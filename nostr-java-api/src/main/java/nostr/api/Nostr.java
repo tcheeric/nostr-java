@@ -16,6 +16,7 @@ import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
@@ -93,7 +94,7 @@ public abstract class Nostr {
          * @param json
          * @return
          */
-        public static BaseEvent decodeEvent(@NonNull String json) {
+        public static GenericEvent decodeEvent(@NonNull String json) {
             final var dec = new GenericEventDecoder(json);
             return dec.decode();
         }
@@ -245,17 +246,8 @@ public abstract class Nostr {
      * @return
      */
     protected static Client createClient() {
-        final var client = Client.getInstance();
 
-        do {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-        } while (client.getThreadPool().getCompletedTaskCount() < (client.getRelays().size() / 2));
-
-        return client;
+        return Client.getInstance();
     }
 
 }

@@ -17,6 +17,8 @@ import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.ChannelMetadataEvent;
 import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.MuteUserEvent;
+import nostr.id.Identity;
+
 import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
@@ -51,8 +53,13 @@ public class NIP28 {
         private Relay recommendedRelayRoot;
         private Relay recommendedRelayReply;
 
-        public ChannelMessageEventFactory(ChannelCreateEvent rootEvent, String content) {
+        public ChannelMessageEventFactory(@NonNull ChannelCreateEvent rootEvent, @NonNull String content) {
             super(content);
+            this.rootEvent = rootEvent;
+        }
+
+        public ChannelMessageEventFactory(@NonNull Identity sender, @NonNull ChannelCreateEvent rootEvent, @NonNull String content) {
+            super(sender, content);
             this.rootEvent = rootEvent;
         }
 
@@ -75,6 +82,12 @@ public class NIP28 {
             this.profile = profile;
         }
 
+        public ChannelMetadataEventFactory(@NonNull Identity sender, @NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelProfile profile) {
+            super(sender, null);
+            this.channelCreateEvent = channelCreateEvent;
+            this.profile = profile;
+        }
+
         @Override
         public ChannelMetadataEvent create() {
             return new ChannelMetadataEvent(getSender(), channelCreateEvent, profile);
@@ -88,8 +101,14 @@ public class NIP28 {
         private final ChannelMessageEvent channelMessageEvent;
         private String reason;
 
-        public HideMessageEventFactory(ChannelMessageEvent channelMessageEvent, String reason) {
+        public HideMessageEventFactory(@NonNull ChannelMessageEvent channelMessageEvent, @NonNull String reason) {
             super(null);
+            this.channelMessageEvent = channelMessageEvent;
+            this.reason = reason;
+        }
+
+        public HideMessageEventFactory(@NonNull Identity sender, @NonNull ChannelMessageEvent channelMessageEvent, @NonNull String reason) {
+            super(sender, null);
             this.channelMessageEvent = channelMessageEvent;
             this.reason = reason;
         }
@@ -117,8 +136,14 @@ public class NIP28 {
         private final PublicKey mutedUser;
         private String reason;
 
-        public MuteUserEventFactory(PublicKey mutedUser, String reason) {
+        public MuteUserEventFactory(@NonNull PublicKey mutedUser, @NonNull String reason) {
             super(null);
+            this.mutedUser = mutedUser;
+            this.reason = reason;
+        }
+
+        public MuteUserEventFactory(@NonNull Identity sender, @NonNull PublicKey mutedUser, @NonNull String reason) {
+            super(sender, null);
             this.mutedUser = mutedUser;
             this.reason = reason;
         }

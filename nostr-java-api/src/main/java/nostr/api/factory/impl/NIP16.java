@@ -7,10 +7,12 @@ package nostr.api.factory.impl;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.ReplaceableEvent;
+import nostr.id.Identity;
 
 /**
  *
@@ -24,13 +26,23 @@ public class NIP16 {
 
         private final Integer kind;
 
-        public ReplaceableEventFactory(Integer kind, String content) {
+        public ReplaceableEventFactory(@NonNull Integer kind, @NonNull String content) {
             super(content);
             this.kind = kind;
         }
 
-        public ReplaceableEventFactory(List<BaseTag> tags, Integer kind, String content) {
+        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+            super(sender, content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(@NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
             super(tags, content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
+            super(sender, tags, content);
             this.kind = kind;
         }
 
@@ -46,8 +58,13 @@ public class NIP16 {
 
         private final Integer kind;
 
-        public EphemeralEventFactory(Integer kind, String content) {
+        public EphemeralEventFactory(@NonNull Integer kind, @NonNull String content) {
             super(content);
+            this.kind = kind;
+        }
+
+        public EphemeralEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+            super(sender, content);
             this.kind = kind;
         }
 

@@ -7,10 +7,11 @@ package nostr.api.factory.impl;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.api.factory.EventFactory;
-import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.OtsEvent;
+import nostr.id.Identity;
 
 /**
  *
@@ -24,18 +25,22 @@ public class NIP03 {
 
         private final String ots;
 
-        public OtsEventFactory(String ots, String content) {
+        public OtsEventFactory(@NonNull String ots, @NonNull String content) {
             super(content);
             this.ots = ots;
         }
 
-        public OtsEventFactory(List<BaseTag> tags, String ots, String content) {
+        public OtsEventFactory(@NonNull Identity sender, @NonNull String ots, @NonNull String content) {
+            super(sender, content);
+            this.ots = ots;
+        }
+
+        public OtsEventFactory(@NonNull List<BaseTag> tags, @NonNull String ots, @NonNull String content) {
             super(content);
             this.ots = ots;
         }
 
-        @Deprecated
-        public OtsEventFactory(String ots, PublicKey sender, String content) {
+        public OtsEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String ots, @NonNull String content) {
             super(sender, content);
             this.ots = ots;
         }

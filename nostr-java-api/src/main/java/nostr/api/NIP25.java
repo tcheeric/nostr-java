@@ -55,18 +55,16 @@ public class NIP25 extends Nostr {
     /**
      * 
      * @param event
-     * @throws NostrException 
      */
-    public static void like(@NonNull GenericEvent event) throws NostrException {
+    public static void like(@NonNull GenericEvent event) {
         react(event, Reaction.LIKE.getEmoji(), null);
     }
 
     /**
      * 
      * @param event
-     * @throws NostrException 
      */
-    public static void dislike(@NonNull GenericEvent event) throws NostrException {
+    public static void dislike(@NonNull GenericEvent event) {
         react(event, Reaction.DISLIKE.getEmoji(), null);
     }
     

@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
-import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.CreateOrUpdateProductEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
@@ -20,6 +19,7 @@ import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.VerifyPaymentOrShippedEvent;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
+import nostr.id.Identity;
 
 /**
  *
@@ -34,20 +34,20 @@ public class NIP15 {
         private final CustomerOrderEvent.Customer customer;
         private final VerifyPaymentOrShippedEvent.PaymentShipmentStatus status;
 
-        public VerifyPaymentOrShippedEventFactory(VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, CustomerOrderEvent.Customer customer) {
+        public VerifyPaymentOrShippedEventFactory(@NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
             super(status.toString());
             this.status = status;
             this.customer = customer;
         }
 
-        public VerifyPaymentOrShippedEventFactory(List<BaseTag> tags, VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, CustomerOrderEvent.Customer customer) {
+        public VerifyPaymentOrShippedEventFactory(@NonNull List<BaseTag> tags, VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
             super(tags, status.toString());
             this.status = status;
             this.customer = customer;
         }
 
         @Deprecated
-        public VerifyPaymentOrShippedEventFactory(PublicKey sender, VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, CustomerOrderEvent.Customer customer) {
+        public VerifyPaymentOrShippedEventFactory(@NonNull Identity sender, @NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
             super(sender, status.toString());
             this.status = status;
             this.customer = customer;
@@ -67,14 +67,14 @@ public class NIP15 {
         private final MerchantRequestPaymentEvent.Payment payment;
         private final CustomerOrderEvent.Customer customer;
 
-        public MerchantRequestPaymentEventFactory(CustomerOrderEvent.Customer customer, MerchantRequestPaymentEvent.Payment payment) {
+        public MerchantRequestPaymentEventFactory(@NonNull CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
             super(payment.toString());
             this.payment = payment;
             this.customer = customer;
         }
 
         @Deprecated
-        public MerchantRequestPaymentEventFactory(PublicKey sender, CustomerOrderEvent.Customer customer, MerchantRequestPaymentEvent.Payment payment) {
+        public MerchantRequestPaymentEventFactory(@NonNull Identity sender, CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
             super(sender, payment.toString());
             this.payment = payment;
             this.customer = customer;
@@ -98,8 +98,8 @@ public class NIP15 {
         }
 
         @Deprecated
-        public CustomerOrderEventFactory(PublicKey sender, @NonNull CustomerOrderEvent.Customer customer) {
-            super(sender, customer.toString());
+        public CustomerOrderEventFactory(Identity identity, @NonNull CustomerOrderEvent.Customer customer) {
+            super(identity, customer.toString());
             this.customer = customer;
         }
 
@@ -122,8 +122,8 @@ public class NIP15 {
         }
 
         @Deprecated
-        public CreateOrUpdateStallEventFactory(PublicKey sender, @NonNull CreateOrUpdateStallEvent.Stall stall) {
-            super(sender, stall.toString());
+        public CreateOrUpdateStallEventFactory(Identity identity, @NonNull CreateOrUpdateStallEvent.Stall stall) {
+            super(identity, stall.toString());
             this.stall = stall;
         }
 
@@ -148,8 +148,8 @@ public class NIP15 {
         }
 
         @Deprecated
-        public CreateOrUpdateProductEventFactory(PublicKey sender, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
-            super(sender, product.toString());
+        public CreateOrUpdateProductEventFactory(Identity identity, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
+            super(identity, product.toString());
             this.product = product;
             this.categories = categories;
         }

@@ -6,6 +6,7 @@ package nostr.api.factory.impl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.api.factory.MessageFactory;
 import nostr.base.IEvent;
 import nostr.event.message.OkMessage;
@@ -24,7 +25,7 @@ public class NIP20 {
         private final boolean flag;
         private final String message;
 
-        public OkMessageFactory(IEvent event, boolean flag, String message) {
+        public OkMessageFactory(@NonNull IEvent event, boolean flag, @NonNull String message) {
             this.event = event;
             this.flag = flag;
             this.message = message;

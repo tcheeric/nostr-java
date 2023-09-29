@@ -7,10 +7,11 @@ package nostr.api.factory.impl;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.api.factory.EventFactory;
-import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
+import nostr.id.Identity;
 
 /**
  *
@@ -26,13 +27,16 @@ public class NIP02 {
             super(content);
         }
 
-        public ContactListEventFactory(List<BaseTag> tags, String content) {
+        public ContactListEventFactory(@NonNull Identity sender, @NonNull String content) {
+            super(sender, content);
+        }
+
+        public ContactListEventFactory(@NonNull List<BaseTag> tags, @NonNull  String content) {
             super(tags, content);
         }
 
-        @Deprecated
-        public ContactListEventFactory(PublicKey sender, String content) {
-            super(sender, content);
+        public ContactListEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+            super(sender, tags, content);
         }
 
         @Override

@@ -8,10 +8,12 @@ import java.net.URL;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.TagFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+import nostr.id.Identity;
 
 /**
  *
@@ -23,14 +25,22 @@ public class NIP23 {
     @EqualsAndHashCode(callSuper = false)
     public static class LongFormContentEventFactory extends EventFactory<GenericEvent> {
 
-        public LongFormContentEventFactory(String content) {
+        public LongFormContentEventFactory(@NonNull String content) {
             super(content);
         }
 
-        public LongFormContentEventFactory(List<BaseTag> tags, String content) {
+        public LongFormContentEventFactory(@NonNull Identity sender, @NonNull String content) {
+            super(sender, content);
+        }
+
+        public LongFormContentEventFactory(@NonNull List<BaseTag> tags, String content) {
             super(tags, content);
         }
-        
+
+        public LongFormContentEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, String content) {
+            super(sender, tags, content);
+        }
+
         @Override
         public GenericEvent create() {
             return new GenericEvent(getSender(), Kinds.KIND_PRE_LONG_FORM_CONTENT, getTags(), getContent());
