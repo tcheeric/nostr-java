@@ -46,6 +46,7 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.client.Client;
 import nostr.id.Identity;
+import nostr.id.IdentityHelper;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
 
@@ -259,7 +260,7 @@ public class NostrExamples {
 
             var event2 = new DirectMessageEvent(publicKeySender, tags, "Hello Nakamoto!");
 
-            SENDER.encryptDirectMessage(event2);
+            new IdentityHelper(SENDER).encryptDirectMessage(event2);
             SENDER.sign(event2);
 
             BaseMessage message = new EventMessage(event2);

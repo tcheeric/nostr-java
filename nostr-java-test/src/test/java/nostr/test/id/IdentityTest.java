@@ -4,6 +4,7 @@ import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+import nostr.id.IdentityHelper;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import nostr.base.PrivateKey;
@@ -60,18 +61,18 @@ public class IdentityTest {
             
             PrivateKey rcptSecKey = new PrivateKey(NostrUtil.hexToBytes(Bech32.fromBech32("nsec13sntjjh35dd4u3lwy42lnpszydmkwar708y3jzwxr937fy2q73hsmvez4z")));
             PublicKey rcptPubKey = new PublicKey("edd898fc2817ee64f7ee1941d193d53c2daa77db4b8409240565fc9644626878");
-            
+
             final DirectMessageEvent dmEvent = EntityFactory.Events.createDirectMessageEvent(senderPublicKey, rcptPubKey, "Hello uq7yfx3l!");
-            
-            Identity.getInstance().encryptDirectMessage(dmEvent);
-            
+
+            new IdentityHelper(Identity.getInstance()).encryptDirectMessage(dmEvent);
+
             var rcptId = new Identity(rcptSecKey);
-            var msg = rcptId.decryptDirectMessage(dmEvent.getContent(), dmEvent.getPubKey());
+            var msg = new IdentityHelper(rcptId).decryptMessage(dmEvent.getContent(), dmEvent.getPubKey());
             
             Assertions.assertEquals("Hello uq7yfx3l!", msg);
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }
-    
+
 }
