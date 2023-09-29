@@ -1,7 +1,6 @@
 package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,12 +13,10 @@ import nostr.util.NostrUtil;
 import java.util.Arrays;
 
 /**
- *
  * @author squirrel
  */
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = false)
 public abstract class BaseKey implements IKey {
 
     @NonNull
@@ -30,7 +27,7 @@ public abstract class BaseKey implements IKey {
     protected final byte[] rawData;
 
     protected final Bech32Prefix prefix;
-    
+
     @Override
     public String getBech32() {
         try {
@@ -44,6 +41,15 @@ public abstract class BaseKey implements IKey {
     @Override
     public String toString() {
         return NostrUtil.bytesToHex(rawData);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + this.type.hashCode();
+        hash = 31 * hash + (this.prefix == null ? 0 : this.prefix.hashCode());
+        hash = 31 * hash + (this.rawData == null ? 0 : this.rawData.hashCode());
+        return hash;
     }
 
     @Override
