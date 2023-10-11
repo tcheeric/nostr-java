@@ -68,7 +68,7 @@ public class ClientAuthenticationEvent extends GenericEvent {
     }
 
     private static ElementAttribute getRelayAttribute(Relay relay) {
-        return ElementAttribute.builder().nip(42).name("uri").value(relay.getUri()).build();
+        return ElementAttribute.builder().nip(42).name("uri").value(relay.getHostname()).build();
     }
 
 }

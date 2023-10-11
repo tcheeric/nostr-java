@@ -2,32 +2,65 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import lombok.*;
+import lombok.extern.java.Log;
 
 /**
- *
  * @author squirrel
  */
-@Builder
+//@Builder
 @Data
-@ToString
 @EqualsAndHashCode
+@AllArgsConstructor
+@Log
 public class Relay {
 
+    public static final String PROTOCOL_WS = "ws";
+    public static final String PROTOCOL_WSS = "wss";
+    public static final Integer DEFAULT_PORT = 80;
+    public static final Integer DEFAULT_SECURE_PORT = 443;
+
+    private String scheme;
+
     @EqualsAndHashCode.Include
-    private final String uri;
+    private final String hostname;
+
+    private int port;
 
     @ToString.Exclude
-    @Builder.Default
     @EqualsAndHashCode.Exclude
-    private RelayInformationDocument informationDocument = new RelayInformationDocument();
+    private RelayInformationDocument informationDocument;
+
+
+    public Relay(@NonNull String hostname) {
+        this(null, hostname, DEFAULT_PORT, new RelayInformationDocument());
+    }
+
+    public Relay(@NonNull String hostname, @NonNull RelayInformationDocument relayInformationDocument) {
+        this(null, hostname, DEFAULT_PORT, relayInformationDocument);
+    }
+
+    public Relay(@NonNull String scheme, @NonNull String hostname) {
+        this(scheme, hostname, DEFAULT_PORT, new RelayInformationDocument());
+    }
+
+    public Relay(@NonNull String scheme, @NonNull String hostname, int port) {
+        this(scheme, hostname, port, new RelayInformationDocument());
+    }
+
+    public URI getURI() {
+        try {
+            return new URI(toString());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // Helper method
     public List<Integer> getSupportedNips() {
@@ -63,6 +96,46 @@ public class Relay {
         return this.getInformationDocument().getName();
     }
 
+    public static Relay fromString(@NonNull String address) {
+        // Split the address into parts based on ":"
+        String[] parts = address.split(":");
+
+        String scheme;
+        String hostname;
+        int port;
+
+        // Check if there are at least two parts (scheme and hostname)
+        if (parts.length >= 2) {
+            scheme = parts[0].trim();
+            hostname = parts[1].trim().substring(2);
+            port = getDefaultPort(scheme);
+
+            // If there's a third part, parse it as the port
+            if (parts.length >= 3) {
+                try {
+                    port = Integer.parseInt(parts[2].trim());
+                } catch (NumberFormatException e) {
+                    port = getDefaultPort(scheme);
+                }
+            }
+        } else {
+            // Handle the case where there are not enough parts in the address
+            // You can choose to throw an exception or handle it differently based on your requirements.
+            throw new IllegalArgumentException("Invalid address format: " + address);
+        }
+
+        return new Relay(scheme, hostname, port, new RelayInformationDocument());
+    }
+
+    @Override
+    public String toString() {
+        return scheme + "://" + hostname + ":" + port;
+    }
+
+    private static int getDefaultPort(@NonNull String scheme) {
+        return scheme.equals("wss") ? DEFAULT_SECURE_PORT : scheme.equals("ws") ? DEFAULT_PORT : -1;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -77,7 +150,7 @@ public class Relay {
 
         @JsonProperty
         private String pubkey;
-        
+
         @JsonProperty
         @JsonIgnoreProperties(ignoreUnknown = true)
         private String id;
@@ -170,7 +243,7 @@ public class Relay {
             @JsonProperty
             @JsonIgnoreProperties(ignoreUnknown = true)
             private List<AdmissionFee> admission;
-            
+
             @JsonProperty
             @JsonIgnoreProperties(ignoreUnknown = true)
             private List<PublicationFee> publication;
@@ -181,7 +254,7 @@ public class Relay {
                 @JsonProperty
                 @JsonIgnoreProperties(ignoreUnknown = true)
                 private int amount;
-                
+
                 @JsonProperty
                 @JsonIgnoreProperties(ignoreUnknown = true)
                 private String unit;
@@ -193,7 +266,7 @@ public class Relay {
                 @JsonProperty
                 @JsonIgnoreProperties(ignoreUnknown = true)
                 private int amount;
-                
+
                 @JsonProperty
                 @JsonIgnoreProperties(ignoreUnknown = true)
                 private String unit;

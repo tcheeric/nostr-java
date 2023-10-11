@@ -49,55 +49,14 @@ public class Connection {
     private Session session;
 
     private final Relay relay;
-    private final URI uri;
+    //private final URI uri;
     private HttpClient httpClient;
 
     public Connection(@NonNull Relay relay) throws Exception {
         this.relay = relay;
-        this.uri = new URI(relay.getUri());
+        log.log(Level.INFO, ">>>>>>>>> Relay: {0}", relay);
+        //this.uri = new URI(relay.toString());
         this.connect();
-    }
-
-    public static URI serverURI(String uri) {
-        try {
-            URL url = new URI("https://" + uri).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.INFO, "Openning a secure connection to {0}", uri);
-
-            openConnection.connect();
-            return new URI("wss://" + uri);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-        } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS", uri), e);
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
-            throw new RuntimeException(e);
-        }
-
-        try {
-            URL url = new URI("http://" + uri).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.INFO, "Openning an un-secure connection to {0}", uri);
-
-            openConnection.connect();
-
-            return new URI("ws://" + uri);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-        } catch (IOException e) {
-            log.log(Level.FINER, String.format("It wasn't possible to connect to server %s using HTTP", uri), e);
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", uri), e);
-            throw new RuntimeException(e);
-        }
-
-//    	TODO
-        throw new RuntimeException();
     }
 
     public void stop() {
@@ -107,7 +66,7 @@ public class Connection {
     private void connect() throws Exception {
         ClientListenerEndPoint clientEndPoint = new ClientListenerEndPoint();
 
-        if (uri.getScheme().equals("wss")) {
+        if (relay.getURI().getScheme().equals("wss")) {
             SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
             sslContextFactory.setIncludeProtocols("TLSv1.3");
             ClientConnector clientConnector = new ClientConnector();
@@ -119,7 +78,7 @@ public class Connection {
             // Create the HttpClientTransportDynamic, preferring h2 over h1.
             HttpClientTransport transport = new HttpClientTransportDynamic(clientConnector, h1, h2);
             httpClient = new HttpClient(transport);
-        } else if (uri.getScheme().equals("ws")) {
+        } else if (relay.getURI().getScheme().equals("ws")) {
             httpClient = new HttpClient();
         } else {
 //        	TODO
@@ -155,18 +114,18 @@ public class Connection {
             }
         };
 
-        CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, uri, customRequest, listener);
+        CompletableFuture<Session> clientSessionPromise = webSocketClient.connect(clientEndPoint, relay.getURI(), customRequest, listener);
 
         this.session = clientSessionPromise.get();
 
-        log.log(Level.INFO, "The session is now open to {0}", relay.getUri());
+        log.log(Level.INFO, "The session is now open to {0}", relay.getHostname());
     }
 
     public String getRelayInformation() throws Exception {
         httpClient.start();
 
         InputStreamResponseListener listener = new InputStreamResponseListener(); //Required for large responses only
-        httpClient.newRequest(uri).method(HttpMethod.GET).headers(httpFields -> httpFields.add("Accept", "application/nostr+json")).send(listener);
+        httpClient.newRequest(relay.getURI()).method(HttpMethod.GET).headers(httpFields -> httpFields.add("Accept", "application/nostr+json")).send(listener);
 
         Response response = listener.get(5, TimeUnit.SECONDS);
 

@@ -19,7 +19,6 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 /**
- *
  * @author squirrel
  */
 @WebSocket(idleTimeout = Integer.MAX_VALUE)
@@ -66,7 +65,7 @@ public class ClientListenerEndPoint {
             session.close(StatusCode.NORMAL, "bye");
             return;
         }
-        
+
         responseHandler.process(message, getRelay(session));
     }
 
@@ -85,10 +84,16 @@ public class ClientListenerEndPoint {
     }
 
     private Relay getRelay(Session session) {
-        SocketAddress remoteAddress = session.getRemoteAddress();
-        InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
-        String remoteHostname = inetSocketAddress.getHostName();
-        return Relay.builder().uri(remoteHostname).build();
+        var remoteAddress = session.getRemoteAddress();
+        var inetSocketAddress = (InetSocketAddress) remoteAddress;
+        var remoteHostname = inetSocketAddress.getHostName();
+        var port = inetSocketAddress.getPort();
+
+        if (session.isSecure()) {
+            return new Relay(Relay.PROTOCOL_WSS, remoteHostname, port);
+        } else {
+            return new Relay(Relay.PROTOCOL_WS, remoteHostname, port);
+        }
     }
 
     private void disposeResources() {
