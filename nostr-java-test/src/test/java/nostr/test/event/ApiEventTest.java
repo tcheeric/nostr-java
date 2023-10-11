@@ -19,6 +19,7 @@ import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
+import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -79,12 +80,12 @@ public class ApiEventTest {
     public void testNIP04EncryptDecrypt() throws NostrException {
         System.out.println("testNIP04EncryptDecrypt");
 
-        PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
+        var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
         var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        NIP04.encrypt(instance);
+        NIP04.encrypt(Identity.getInstance(), instance);
         Nostr.sign(instance);
-        var message = NIP04.decrypt(instance);
+        var message = NIP04.decrypt(Identity.getInstance(), instance);
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }

@@ -7,9 +7,11 @@ package nostr.api.factory;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 
 /**
@@ -20,7 +22,7 @@ import nostr.id.Identity;
 @Data
 public abstract class EventFactory<T extends IEvent> {
 
-    private final Identity identity;
+    private final IIdentity identity;
     private final String content;
     private final List<BaseTag> tags;
 
@@ -29,7 +31,7 @@ public abstract class EventFactory<T extends IEvent> {
         this.content = null;
         this.tags = new ArrayList<>();
     }
-    
+
     public EventFactory(String content) {
         this.content = content;
         this.tags = new ArrayList<>();
@@ -42,11 +44,11 @@ public abstract class EventFactory<T extends IEvent> {
         this.identity = Identity.getInstance();
     }
 
-    public EventFactory(Identity identity, String content) {
+    public EventFactory(IIdentity identity, String content) {
         this(identity, new ArrayList<>(), content);
     }
 
-    public EventFactory(Identity identity, List<BaseTag> tags, String content) {
+    public EventFactory(IIdentity identity, List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
         this.identity = identity;

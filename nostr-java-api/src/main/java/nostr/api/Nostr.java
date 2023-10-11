@@ -26,17 +26,16 @@ import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 
 /**
- *
  * @author eric
  */
 public abstract class Nostr {
 
     /**
-     *
      * @param event
      */
     public static void send(@NonNull IEvent event) {
@@ -50,17 +49,21 @@ public abstract class Nostr {
     }
 
     /**
-     *
      * @param signable
      * @return
      */
-    public static Signature sign(@NonNull ISignable signable) {
-        var identity = Identity.getInstance();
+
+    public static Signature sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
         try {
             return identity.sign(signable);
         } catch (NostrException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static Signature sign(@NonNull ISignable signable) {
+        Identity identity = Identity.getInstance();
+        return identity.sign(signable);
     }
 
     /**
@@ -69,8 +72,8 @@ public abstract class Nostr {
     public static class Json {
 
         // Events
+
         /**
-         *
          * @param event
          * @return
          */
@@ -79,7 +82,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param event
          * @param relay
          * @return
@@ -90,7 +92,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param json
          * @return
          */
@@ -100,8 +101,8 @@ public abstract class Nostr {
         }
 
         // Messages
+
         /**
-         *
          * @param message
          * @param relay
          * @return
@@ -112,7 +113,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param message
          * @return
          */
@@ -121,7 +121,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param json
          * @return
          */
@@ -131,8 +130,8 @@ public abstract class Nostr {
         }
 
         // Tags
+
         /**
-         *
          * @param tag
          * @param relay
          * @return
@@ -143,7 +142,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param tag
          * @return
          */
@@ -152,7 +150,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param json
          * @return
          */
@@ -162,8 +159,8 @@ public abstract class Nostr {
         }
 
         // Filters
+
         /**
-         *
          * @param filters
          * @param relay
          * @return
@@ -174,7 +171,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param filters
          * @return
          */
@@ -183,7 +179,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param json
          * @return
          */
@@ -193,8 +188,8 @@ public abstract class Nostr {
         }
 
         // Generic Tag Queries
+
         /**
-         *
          * @param gtq
          * @param relay
          * @return
@@ -205,7 +200,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param gtq
          * @return
          */
@@ -214,7 +208,6 @@ public abstract class Nostr {
         }
 
         /**
-         *
          * @param json
          * @param clazz
          * @return
@@ -233,16 +226,15 @@ public abstract class Nostr {
                 case "nostr.event.Filters.class" -> {
                     return decodeFilters(json);
                 }
-                default ->
-                    throw new AssertionError();
+                default -> throw new AssertionError();
             }
         }
 
     }
 
     // Utils
+
     /**
-     *
      * @return
      */
     protected static Client createClient() {

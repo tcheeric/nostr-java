@@ -160,7 +160,7 @@ public class NostrApiExamples {
         logHeader("sendEncryptedDirectMessage");
 
         var event2 = NIP04.createDirectMessageEvent(RECEIVER.getPublicKey(), "Hello Nakamoto!");
-        NIP04.encrypt(event2);
+        NIP04.encrypt(SENDER, event2);
         Nostr.sign(event2);
         Nostr.send(event2);
     }
