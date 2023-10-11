@@ -25,7 +25,7 @@ public class ChannelMessageEvent extends GenericEvent {
         super(pubKey, Kind.CHANNEL_MESSAGE, new ArrayList<>(), content);
         final EventTag eventTag = EventTag.builder().idEvent(rootEvent.getId()).marker(Marker.ROOT).build();
         if (recommendedRelay != null) {
-            eventTag.setRecommendedRelayUrl((recommendedRelay.getUri()));
+            eventTag.setRecommendedRelayUrl((recommendedRelay.getHostname()));
         }
         this.addTag(eventTag);
     }
@@ -45,13 +45,13 @@ public class ChannelMessageEvent extends GenericEvent {
 
         final EventTag rootEventTag = EventTag.builder().idEvent(rootEvent.getId()).marker(Marker.ROOT).build();
         if (recommendedRelayRoot != null) {
-            rootEventTag.setRecommendedRelayUrl(recommendedRelayRoot.getUri());
+            rootEventTag.setRecommendedRelayUrl(recommendedRelayRoot.getHostname());
         }
         this.addTag(rootEventTag);
 
         final EventTag replyEventTag = EventTag.builder().idEvent(replyEvent.getId()).marker(Marker.REPLY).build();
         if (recommendedRelayReply != null) {
-            replyEventTag.setRecommendedRelayUrl(recommendedRelayReply.getUri());
+            replyEventTag.setRecommendedRelayUrl(recommendedRelayReply.getHostname());
         }
         this.addTag(replyEventTag);
     }
