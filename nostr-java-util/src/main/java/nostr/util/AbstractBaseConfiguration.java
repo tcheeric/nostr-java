@@ -13,7 +13,6 @@ import lombok.NonNull;
 import lombok.extern.java.Log;
 
 /**
- *
  * @author squirrel
  */
 @Data

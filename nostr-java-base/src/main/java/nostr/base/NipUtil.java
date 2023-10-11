@@ -20,7 +20,10 @@ public class NipUtil {
         return relay.getSupportedNips().contains(nip);
     }
 
+    // TODO - This needs to be configurable. Obly really check if app.properties configuration file says so.
     public static boolean checkSupport(@NonNull Relay relay, IElement element) {
+        return true;
+        /*
         if (element == null) {
             return true;
         }
@@ -35,6 +38,7 @@ public class NipUtil {
         }
 
         return relay.getSupportedNips().contains(nip);
+*/
     }
 
     public static boolean checkSupport(@NonNull Relay relay, @NonNull GenericTagQuery gtq) {

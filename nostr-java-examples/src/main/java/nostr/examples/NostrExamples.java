@@ -229,23 +229,19 @@ public class NostrExamples {
 
     private static void sendTextNoteEvent() throws NostrException {
         logHeader("sendTextNoteEvent");
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tags,
-                    "Hello world, I'm here on nostr-java API!");
+        GenericEvent event = new TextNoteEvent(publicKeySender, tags,
+                "Hello world, I'm here on nostr-java API!");
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
+        CLIENT.send(message);
     }
 
     private static void sendEncryptedDirectMessage() throws NostrException {
@@ -275,182 +271,154 @@ public class NostrExamples {
     private static void mentionsEvent() throws NostrException {
         logHeader("mentionsEvent");
 
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new MentionsEvent(publicKeySender, tags, "Hello " + RECEIVER.getPublicKey().toString());
-            SENDER.sign(event);
+        GenericEvent event = new MentionsEvent(publicKeySender, tags, "Hello " + RECEIVER.getPublicKey().toString());
+        SENDER.sign(event);
 
-            BaseMessage message = new EventMessage(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
     }
 
     private static void deletionEvent() throws NostrException {
         logHeader("deletionEvent");
 
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please delete me!");
+        GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please delete me!");
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            tags = new ArrayList<>();
-            tags.add(EventTag.builder().idEvent(event.getId()).build());
-            GenericEvent delEvent = new DeletionEvent(publicKeySender, tags);
+        tags = new ArrayList<>();
+        tags.add(EventTag.builder().idEvent(event.getId()).build());
+        GenericEvent delEvent = new DeletionEvent(publicKeySender, tags);
 
-            SENDER.sign(delEvent);
-            message = new EventMessage(delEvent);
+        SENDER.sign(delEvent);
+        message = new EventMessage(delEvent);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
     }
 
     private static void metaDataEvent() throws NostrException {
         logHeader("metaDataEvent");
 
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            var event = new MetadataEvent(publicKeySender, PROFILE);
+        var event = new MetadataEvent(publicKeySender, PROFILE);
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
     }
 
     private static void ephemerealEvent() throws NostrException {
         logHeader("ephemerealEvent");
 
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new EphemeralEvent(publicKeySender, Kind.EPHEMEREAL_EVENT.getValue(), tags);
+        GenericEvent event = new EphemeralEvent(publicKeySender, Kind.EPHEMEREAL_EVENT.getValue(), tags);
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
+        CLIENT.send(message);
     }
 
     private static void reactionEvent() throws NostrException {
         logHeader("reactionEvent");
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please like me!");
+        GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please like me!");
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            tags = new ArrayList<>();
-            tags.add(EventTag.builder().idEvent(event.getId()).build());
-            tags.add(PubKeyTag.builder().publicKey(publicKeySender).build());
-            GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tags, Reaction.LIKE);
+        tags = new ArrayList<>();
+        tags.add(EventTag.builder().idEvent(event.getId()).build());
+        tags.add(PubKeyTag.builder().publicKey(publicKeySender).build());
+        GenericEvent reactionEvent = new ReactionEvent(publicKeySender, tags, Reaction.LIKE);
 
-            SENDER.sign(reactionEvent);
-            message = new EventMessage(reactionEvent);
+        SENDER.sign(reactionEvent);
+        message = new EventMessage(reactionEvent);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
     }
 
     private static void replaceableEvent() throws NostrException {
         logHeader("replaceableEvent");
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please replace me!");
+        GenericEvent event = new TextNoteEvent(publicKeySender, tags, "Hello Astral, Please replace me!");
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            tags = new ArrayList<>();
-            tags.add(EventTag.builder().idEvent(event.getId()).build());
-            GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "Content");
+        tags = new ArrayList<>();
+        tags.add(EventTag.builder().idEvent(event.getId()).build());
+        GenericEvent replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "Content");
 
-            SENDER.sign(replaceableEvent);
-            message = new EventMessage(replaceableEvent);
+        SENDER.sign(replaceableEvent);
+        message = new EventMessage(replaceableEvent);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "New Content");
+        replaceableEvent = new ReplaceableEvent(publicKeySender, 15000, tags, "New Content");
 
-            SENDER.sign(replaceableEvent);
-            message = new EventMessage(replaceableEvent);
+        SENDER.sign(replaceableEvent);
+        message = new EventMessage(replaceableEvent);
 
-            CLIENT.send(message);
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
+        CLIENT.send(message);
     }
 
     private static void internetIdMetadata() throws NostrException {
         logHeader("internetIdMetadata");
 
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
-            List<BaseTag> tags = new ArrayList<>();
-            tags.add(rcptTag);
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).petName("nostr-java").build();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(rcptTag);
 
-            GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, PROFILE);
+        GenericEvent event = new InternetIdentifierMetadataEvent(publicKeySender, PROFILE);
 
-            SENDER.sign(event);
-            BaseMessage message = new EventMessage(event);
+        SENDER.sign(event);
+        BaseMessage message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-        } catch (UnsupportedNIPException ex) {
-            log.log(Level.WARNING, null, ex);
-        }
     }
 
     // FIXME
@@ -554,21 +522,17 @@ public class NostrExamples {
 
     private static GenericEvent muteUser() throws NostrException {
         logHeader("muteUser");
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            GenericEvent event = new MuteUserEvent(publicKeySender, RECEIVER.getPublicKey(),
-                    ContentReason.builder().reason("Posting dick pics").build().toString());
+        GenericEvent event = new MuteUserEvent(publicKeySender, RECEIVER.getPublicKey(),
+                ContentReason.builder().reason("Posting dick pics").build().toString());
 
-            SENDER.sign(event);
-            var message = new EventMessage(event);
+        SENDER.sign(event);
+        var message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            return event;
-        } catch (NostrException ex) {
-            throw new NostrException(ex);
-        }
+        return event;
     }
 
 //    public static void sensitiveContentNote(Identity wallet, Client cliepublicKeySendernt) throws NostrException {
