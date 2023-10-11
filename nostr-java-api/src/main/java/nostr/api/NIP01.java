@@ -39,6 +39,7 @@ import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 
 /**
@@ -57,7 +58,7 @@ public class NIP01 extends Nostr {
         return new TextNoteEventFactory(content).create();
     }
 
-    public static TextNoteEvent createTextNoteEvent(@NonNull Identity sender, @NonNull String content) {
+    public static TextNoteEvent createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
         return new TextNoteEventFactory(sender, content).create();
     }
 
@@ -72,7 +73,7 @@ public class NIP01 extends Nostr {
         return new TextNoteEventFactory(tags, content).create();
     }
 
-    public static TextNoteEvent createTextNoteEvent(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+    public static TextNoteEvent createTextNoteEvent(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
         return new TextNoteEventFactory(sender, tags, content).create();
     }
 
@@ -86,7 +87,7 @@ public class NIP01 extends Nostr {
         return new MetadataEventFactory(profile).create();
     }
 
-    public static MetadataEvent createMetadataEvent(@NonNull Identity sender, @NonNull UserProfile profile) {
+    public static MetadataEvent createMetadataEvent(@NonNull IIdentity sender, @NonNull UserProfile profile) {
         return new MetadataEventFactory(sender, profile).create();
     }
 

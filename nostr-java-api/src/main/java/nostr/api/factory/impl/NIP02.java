@@ -11,6 +11,7 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 
 /**
@@ -27,7 +28,7 @@ public class NIP02 {
             super(content);
         }
 
-        public ContactListEventFactory(@NonNull Identity sender, @NonNull String content) {
+        public ContactListEventFactory(@NonNull IIdentity sender, @NonNull String content) {
             super(sender, content);
         }
 
@@ -35,7 +36,7 @@ public class NIP02 {
             super(tags, content);
         }
 
-        public ContactListEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+        public ContactListEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
             super(sender, tags, content);
         }
 

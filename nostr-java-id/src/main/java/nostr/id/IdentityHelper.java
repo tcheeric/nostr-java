@@ -3,11 +3,11 @@ package nostr.id;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.ITag;
-import nostr.base.PrivateKey;
-import nostr.base.PublicKey;
+import nostr.base.*;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.DelegationTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
@@ -73,6 +73,49 @@ public class IdentityHelper {
             log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
         }
+    }
+
+    public Signature sign(@NonNull ISignable signable) throws NostrException {
+        if (signable instanceof GenericEvent genericEvent) {
+            try {
+                return signEvent(genericEvent);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            }
+        } else if (signable instanceof DelegationTag delegationTag) {
+            try {
+                return signDelegationTag(delegationTag);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, null, ex);
+                throw new NostrException(ex);
+            }
+        }
+        throw new NostrException();
+    }
+
+    private Signature signEvent(@NonNull GenericEvent event) throws Exception {
+        event.update();
+        log.log(Level.FINER, "Serialized event: {0}", new String(event.get_serializedEvent()));
+        final var signedHashedSerializedEvent = Schnorr.sign(NostrUtil.sha256(event.get_serializedEvent()), this.identity.getPrivateKey().getRawData(), generateAuxRand());
+        final Signature signature = new Signature();
+        signature.setRawData(signedHashedSerializedEvent);
+        signature.setPubKey(getPublicKey());
+        event.setSignature(signature);
+        return signature;
+    }
+
+    private Signature signDelegationTag(@NonNull DelegationTag delegationTag) throws Exception {
+        final var signedHashedToken = Schnorr.sign(NostrUtil.sha256(delegationTag.getToken().getBytes(StandardCharsets.UTF_8)), this.identity.getPrivateKey().getRawData(), generateAuxRand());
+        final Signature signature = new Signature();
+        signature.setRawData(signedHashedToken);
+        signature.setPubKey(getPublicKey());
+        delegationTag.setSignature(signature);
+        return signature;
+    }
+
+    private byte[] generateAuxRand() {
+        return NostrUtil.createRandomByteArray(32);
     }
 
     private static String decryptMessage(SecretKeySpec sharedSecretKey, String encodedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {

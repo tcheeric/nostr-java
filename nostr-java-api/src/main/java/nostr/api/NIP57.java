@@ -39,7 +39,7 @@ public class NIP57 extends Nostr {
         var tags = new ArrayList<BaseTag>();
         tags.add(createLnurlTag(lnurl));
         tags.add(createAmountTag(amount));
-        tags.add(new RelaysTagFactory(Relay.builder().uri(relay.getUri()).build()).create());
+        tags.add(new RelaysTagFactory(relay).create());
         tags.add(PubKeyTag.builder().publicKey(recipient).build());
         tags.add(eventTag);
 
@@ -124,7 +124,7 @@ public class NIP57 extends Nostr {
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay, Integer weight) {
         List<ElementAttribute> attributes = new ArrayList<>();
         var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
-        var relayAttr = new ElementAttribute("relay", relay.getUri(), 57);
+        var relayAttr = new ElementAttribute("relay", relay.getHostname(), 57);
         if (weight != null) {
             var weightAttr = new ElementAttribute("weight", weight, 57);
             attributes.add(weightAttr);

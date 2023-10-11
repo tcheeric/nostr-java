@@ -10,6 +10,7 @@ import nostr.api.factory.impl.NIP46.NostrConnectEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.NostrConnectEvent;
 import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +24,8 @@ public final class NIP46 extends Nostr {
      * @param signer
      * @return
      */
-    public static NostrConnectEvent createRequestEvent(@NonNull NIP46.NIP46Request request, @NonNull PublicKey signer) {
-        return new NostrConnectEventFactory(request, signer).create();
-    }
-
-    public static NostrConnectEvent createRequestEvent(@NonNull Identity sender, @NonNull NIP46.NIP46Request request, @NonNull PublicKey signer) {
-        return new NostrConnectEventFactory(sender, request, signer).create();
+    public static NostrConnectEvent createRequestEvent(@NonNull NIP46.NIP46Request request, @NonNull IIdentity sender, @NonNull PublicKey signer) {
+        return new NostrConnectEventFactory(request, sender, signer).create();
     }
 
     /**
@@ -36,12 +33,8 @@ public final class NIP46 extends Nostr {
      * @param app
      * @return
      */
-    public static NostrConnectEvent createResponseEvent(@NonNull NIP46.NIP46Response response, @NonNull PublicKey app) {
-        return new NostrConnectEventFactory(response, app).create();
-    }
-
-    public static NostrConnectEvent createResponseEvent(@NonNull Identity sender, @NonNull NIP46.NIP46Response response, @NonNull PublicKey app) {
-        return new NostrConnectEventFactory(sender, response, app).create();
+    public static NostrConnectEvent createResponseEvent(@NonNull NIP46.NIP46Response response, @NonNull IIdentity sender, @NonNull PublicKey app) {
+        return new NostrConnectEventFactory(response, sender, app).create();
     }
 
     public interface NIP46ReqRes {

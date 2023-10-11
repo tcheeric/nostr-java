@@ -12,6 +12,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 import nostr.id.IdentityHelper;
 import nostr.util.NostrException;
@@ -61,8 +62,7 @@ public class NIP04 extends Nostr {
      *
      * @param dm the DM event
      */
-    public static void encrypt(@NonNull DirectMessageEvent dm) {
-        var identity = Identity.getInstance();
+    public static void encrypt(@NonNull IIdentity identity, @NonNull DirectMessageEvent dm) {
         try {
             new IdentityHelper(identity).encryptDirectMessage(dm);
         } catch (NostrException ex) {
@@ -70,24 +70,12 @@ public class NIP04 extends Nostr {
         }
     }
 
-    public static String encrypt(@NonNull String message, @NonNull PublicKey recipient) {
-        var identity = Identity.getInstance();
+    public static String encrypt(@NonNull IIdentity identity, @NonNull String message, @NonNull PublicKey recipient) {
         try {
             return new IdentityHelper(identity).encrypt(message, recipient);
-        } catch (NostrException ex) {
+        } catch (NostrException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException |
+                 IllegalBlockSizeException | NoSuchPaddingException | InvalidAlgorithmParameterException ex) {
             throw new RuntimeException(ex);
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalBlockSizeException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (BadPaddingException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -98,12 +86,11 @@ public class NIP04 extends Nostr {
      * @return the DM content in clear-text
      * @throws NostrException
      */
-    public static String decrypt(@NonNull DirectMessageEvent dm) throws NostrException {
-        return NIP04.decrypt((GenericEvent) dm);
+    public static String decrypt(@NonNull IIdentity identity, @NonNull DirectMessageEvent dm) throws NostrException {
+        return NIP04.decrypt(identity, (GenericEvent) dm);
     }
 
-    public static String decrypt(@NonNull GenericEvent event) throws NostrException {
-        var self = Identity.getInstance();
+    public static String decrypt(@NonNull IIdentity identity, @NonNull GenericEvent event) throws NostrException {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -111,22 +98,21 @@ public class NIP04 extends Nostr {
                 .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
         var pTag = (PubKeyTag) recipient;
 
-        boolean rcptFlag = amITheRecipient(event);
+        boolean rcptFlag = amITheRecipient(identity, event);
 
         if (!rcptFlag) { // I am the message sender
             log.log(Level.INFO, "I am NOT the recipient of {0}", event);
             log.log(Level.INFO, "The message is being decrypted for {0}", pTag.getPublicKey());
-            return new IdentityHelper(self).decryptMessage(event.getContent(), pTag.getPublicKey());
+            return new IdentityHelper(identity).decryptMessage(event.getContent(), pTag.getPublicKey());
         }
 
         // I am the message recipient
         var sender = event.getPubKey();
         log.log(Level.INFO, "The message is being decrypted for {0}", sender);
-        return new IdentityHelper(self).decryptMessage(event.getContent(), sender);
+        return new IdentityHelper(identity).decryptMessage(event.getContent(), sender);
     }
 
-    public static String decrypt(@NonNull String encryptedMessage, @NonNull PublicKey recipient) {
-        var identity = Identity.getInstance();
+    public static String decrypt(@NonNull IIdentity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
         try {
             return new IdentityHelper(identity).decryptMessage(encryptedMessage, recipient);
         } catch (NostrException e) {
@@ -134,19 +120,18 @@ public class NIP04 extends Nostr {
         }
     }
 
-    private static boolean amITheRecipient(@NonNull GenericEvent event) {
+    private static boolean amITheRecipient(@NonNull IIdentity identity, @NonNull GenericEvent event) {
         var pTag = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
-        var self = Identity.getInstance();
-        if (Objects.equals(self.getPublicKey(), ((PubKeyTag) pTag).getPublicKey())) {
+        if (Objects.equals(identity.getPublicKey(), ((PubKeyTag) pTag).getPublicKey())) {
             return true;
         }
 
-        if (Objects.equals(self.getPublicKey(), event.getPubKey())) {
+        if (Objects.equals(identity.getPublicKey(), event.getPubKey())) {
             return false;
         }
 

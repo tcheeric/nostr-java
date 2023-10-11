@@ -28,28 +28,20 @@ public class IdentityTest {
 
     @Test
     public void testSignEvent() throws IOException {
-        try {
-            System.out.println("testSignEvent");
-            PublicKey publicKey = Identity.getInstance().getPublicKey();
-            GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
-            Identity.getInstance().sign(instance);
-            Assertions.assertNotNull(instance.getSignature());
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
-        }
+        System.out.println("testSignEvent");
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
+        Identity.getInstance().sign(instance);
+        Assertions.assertNotNull(instance.getSignature());
     }
 
     @Test
     public void testSignDelegationTag() throws IOException {
-        try {
-            System.out.println("testSignDelegationTag");
-            PublicKey publicKey = Identity.getInstance().getPublicKey();
-            DelegationTag delegationTag = new DelegationTag(publicKey, null);
-            Identity.getInstance().sign(delegationTag);
-            Assertions.assertNotNull(delegationTag.getSignature());
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
-        }
+        System.out.println("testSignDelegationTag");
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        DelegationTag delegationTag = new DelegationTag(publicKey, null);
+        Identity.getInstance().sign(delegationTag);
+        Assertions.assertNotNull(delegationTag.getSignature());
     }
     
     
