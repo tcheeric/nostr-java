@@ -7,18 +7,14 @@ import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
-import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.GenericTagDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
-import nostr.event.json.codec.FiltersDecoder;
-import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.test.EntityFactory;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class JsonParseTest {
 
     @Test
-    public void testBaseMessageDecoder() throws NostrException {
+    public void testBaseMessageDecoder() {
         System.out.println("testBaseMessageDecoder");
 
         final String parseTarget
@@ -58,7 +54,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseMessageMarkerDecoder() throws NostrException {
+    public void testBaseMessageMarkerDecoder() {
         System.out.println("testBaseMessageMarkerDecoder");
 
         String json = "["
@@ -91,7 +87,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testGenericTagDecoder() throws NostrException {
+    public void testGenericTagDecoder() {
         System.out.println("testGenericTagDecoder");
         final String jsonString = "[\"saturn\", \"jetpack\", false]";
 

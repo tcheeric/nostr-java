@@ -48,7 +48,7 @@ public class CustomIdentity implements IIdentity {
 
     // TODO
     @Override
-    public Signature sign(@NonNull ISignable signable) throws NostrException {
+    public Signature sign(@NonNull ISignable signable) {
         try {
             return new IdentityHelper(this).sign(signable);
         } catch (NostrException e) {

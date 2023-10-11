@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -24,6 +26,7 @@ import nostr.util.NostrException;
 @Log
 public class TagSerializer extends StdSerializer<BaseTag> {
 
+    @Serial
     private static final long serialVersionUID = -3877972991082754068L;
 
     public TagSerializer() {

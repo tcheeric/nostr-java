@@ -20,7 +20,7 @@ import nostr.util.NostrException;
  */
 class ClientTest {
 
-    public ClientTest() throws IOException, NostrException {
+    public ClientTest() {
     }
 
     @Test

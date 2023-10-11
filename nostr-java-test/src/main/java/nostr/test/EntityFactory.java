@@ -180,7 +180,7 @@ public class EntityFactory {
             String about = "about_" + number;
             String name = "name_" + number;
             String nip05 = name + "@tcheeric.com";
-            String url = "http://assets.tcheeric.com/" + number + ".PNG";
+            String url = "https://assets.tcheeric.com/" + number + ".PNG";
 
             return new UserProfile(pubKey, name, nip05, about, new URI(url).toURL());
 

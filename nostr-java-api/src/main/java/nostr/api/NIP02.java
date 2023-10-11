@@ -10,7 +10,6 @@ import nostr.api.factory.impl.NIP02.ContactListEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *

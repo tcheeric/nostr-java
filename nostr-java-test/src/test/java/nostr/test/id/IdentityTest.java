@@ -23,11 +23,11 @@ public class IdentityTest {
 
     //private final Identity identity;
 
-    public IdentityTest() throws IOException, NostrException {
+    public IdentityTest() {
     }
 
     @Test
-    public void testSignEvent() throws IOException {
+    public void testSignEvent() {
         System.out.println("testSignEvent");
         PublicKey publicKey = Identity.getInstance().getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
@@ -36,7 +36,7 @@ public class IdentityTest {
     }
 
     @Test
-    public void testSignDelegationTag() throws IOException {
+    public void testSignDelegationTag() {
         System.out.println("testSignDelegationTag");
         PublicKey publicKey = Identity.getInstance().getPublicKey();
         DelegationTag delegationTag = new DelegationTag(publicKey, null);
@@ -46,7 +46,7 @@ public class IdentityTest {
     
     
     @Test
-    public void testDecryptMessage() throws IOException {
+    public void testDecryptMessage() {
         try {
             System.out.println("testDecryptMessage");
             var senderPublicKey = Identity.getInstance().getPublicKey();

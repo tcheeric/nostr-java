@@ -54,11 +54,7 @@ public abstract class Nostr {
      */
 
     public static Signature sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
-        try {
-            return identity.sign(signable);
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
-        }
+        return identity.sign(signable);
     }
 
     public static Signature sign(@NonNull ISignable signable) {

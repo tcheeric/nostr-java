@@ -48,7 +48,7 @@ public abstract class BaseKey implements IKey {
         int hash = 7;
         hash = 31 * hash + this.type.hashCode();
         hash = 31 * hash + (this.prefix == null ? 0 : this.prefix.hashCode());
-        hash = 31 * hash + (this.rawData == null ? 0 : this.rawData.hashCode());
+        hash = 31 * hash + (this.rawData == null ? 0 : Arrays.hashCode(this.rawData));
         return hash;
     }
 

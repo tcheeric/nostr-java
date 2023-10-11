@@ -33,7 +33,6 @@ import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *

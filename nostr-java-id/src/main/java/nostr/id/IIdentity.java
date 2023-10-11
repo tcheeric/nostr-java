@@ -13,5 +13,5 @@ public interface IIdentity {
 
     PublicKey getPublicKey();
 
-    Signature sign(@NonNull ISignable signable) throws NostrException;
+    Signature sign(@NonNull ISignable signable);
 }

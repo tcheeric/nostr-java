@@ -13,7 +13,6 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 import nostr.id.IdentityHelper;
 import nostr.util.NostrException;
 

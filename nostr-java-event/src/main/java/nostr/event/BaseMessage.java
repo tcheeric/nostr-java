@@ -4,7 +4,6 @@ import nostr.base.IElement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
-import nostr.event.message.BaseAuthMessage;
 
 /**
  *

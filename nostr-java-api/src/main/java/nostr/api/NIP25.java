@@ -12,7 +12,6 @@ import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
-import nostr.util.NostrException;
 
 /**
  *

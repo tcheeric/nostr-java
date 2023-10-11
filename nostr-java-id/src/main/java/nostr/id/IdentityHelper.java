@@ -133,7 +133,7 @@ public class IdentityHelper {
         return new String(cipher.doFinal(encryptedMessage), StandardCharsets.UTF_8);
     }
 
-    static String encryptMessage(byte[] senderPrivateKey, byte[] rcptPublicKey, String message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, NostrException {
+    static String encryptMessage(byte[] senderPrivateKey, byte[] rcptPublicKey, String message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
         var sharedSecretKey = getSharedSecretKeySpec(senderPrivateKey, rcptPublicKey);
 

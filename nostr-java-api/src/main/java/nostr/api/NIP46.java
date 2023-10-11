@@ -9,7 +9,6 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP46.NostrConnectEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.NostrConnectEvent;
-import nostr.id.Identity;
 import nostr.id.IIdentity;
 
 import java.util.ArrayList;

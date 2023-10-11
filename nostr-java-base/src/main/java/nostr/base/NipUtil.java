@@ -3,9 +3,7 @@ package nostr.base;
 import java.lang.reflect.Field;
 
 import lombok.NonNull;
-import nostr.base.annotation.Event;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.Tag;
 
 /**
  *

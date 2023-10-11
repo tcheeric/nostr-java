@@ -8,24 +8,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.IEncoder;
-import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
-import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
-import nostr.util.UnsupportedNIPException;
 
 /**
  *
@@ -33,7 +29,7 @@ import nostr.util.UnsupportedNIPException;
  */
 public class EventTest {
 
-    public EventTest() throws IOException, NostrException {
+    public EventTest() {
     }
 
     @Test
@@ -64,7 +60,7 @@ public class EventTest {
             relay.addNipSupport(a.getNip());
         }
 
-        var encoder = new BaseTagEncoder((BaseTag) genericTag, relay);
+        var encoder = new BaseTagEncoder(genericTag, relay);
         var strJsonEvent = encoder.encode();
 
         var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);

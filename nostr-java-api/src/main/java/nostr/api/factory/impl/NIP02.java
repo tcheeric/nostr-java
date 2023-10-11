@@ -12,7 +12,6 @@ import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *

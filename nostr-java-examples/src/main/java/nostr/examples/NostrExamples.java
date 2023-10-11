@@ -96,11 +96,7 @@ public class NostrExamples {
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
             executor.submit(() -> {
-                try {
-                    sendTextNoteEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                sendTextNoteEvent();
             });
 
             executor.submit(() -> {
@@ -112,59 +108,31 @@ public class NostrExamples {
             });
 
             executor.submit(() -> {
-                try {
-                    mentionsEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                mentionsEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    deletionEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                deletionEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    metaDataEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                metaDataEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    ephemerealEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                ephemerealEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    reactionEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                reactionEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    replaceableEvent();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                replaceableEvent();
             });
 
             executor.submit(() -> {
-                try {
-                    internetIdMetadata();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                internetIdMetadata();
             });
 
             executor.submit(() -> {
@@ -176,11 +144,7 @@ public class NostrExamples {
             });
 
             executor.submit(() -> {
-                try {
-                    createChannel();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                createChannel();
             });
 
             executor.submit(() -> {
@@ -208,11 +172,7 @@ public class NostrExamples {
             });
 
             executor.submit(() -> {
-                try {
-                    muteUser();
-                } catch (NostrException ex) {
-                    log.log(Level.SEVERE, null, ex);
-                }
+                muteUser();
             });
 
             stop(executor);
@@ -227,7 +187,7 @@ public class NostrExamples {
         }
     }
 
-    private static void sendTextNoteEvent() throws NostrException {
+    private static void sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
         final PublicKey publicKeySender = SENDER.getPublicKey();
 
@@ -268,7 +228,7 @@ public class NostrExamples {
         }
     }
 
-    private static void mentionsEvent() throws NostrException {
+    private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
         final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -286,7 +246,7 @@ public class NostrExamples {
 
     }
 
-    private static void deletionEvent() throws NostrException {
+    private static void deletionEvent() {
         logHeader("deletionEvent");
 
         final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -313,7 +273,7 @@ public class NostrExamples {
 
     }
 
-    private static void metaDataEvent() throws NostrException {
+    private static void metaDataEvent() {
         logHeader("metaDataEvent");
 
         final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -327,7 +287,7 @@ public class NostrExamples {
 
     }
 
-    private static void ephemerealEvent() throws NostrException {
+    private static void ephemerealEvent() {
         logHeader("ephemerealEvent");
 
         final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -344,7 +304,7 @@ public class NostrExamples {
         CLIENT.send(message);
     }
 
-    private static void reactionEvent() throws NostrException {
+    private static void reactionEvent() {
         logHeader("reactionEvent");
         final PublicKey publicKeySender = SENDER.getPublicKey();
 
@@ -371,7 +331,7 @@ public class NostrExamples {
 
     }
 
-    private static void replaceableEvent() throws NostrException {
+    private static void replaceableEvent() {
         logHeader("replaceableEvent");
         final PublicKey publicKeySender = SENDER.getPublicKey();
 
@@ -403,7 +363,7 @@ public class NostrExamples {
         CLIENT.send(message);
     }
 
-    private static void internetIdMetadata() throws NostrException {
+    private static void internetIdMetadata() {
         logHeader("internetIdMetadata");
 
         final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -440,7 +400,7 @@ public class NostrExamples {
         }
     }
 
-    private static GenericEvent createChannel() throws NostrException {
+    private static GenericEvent createChannel() {
         logHeader("createChannel");
         try {
             final PublicKey publicKeySender = SENDER.getPublicKey();
@@ -474,29 +434,25 @@ public class NostrExamples {
             var message = new EventMessage(event);
 
             CLIENT.send(message);
-        } catch (MalformedURLException | URISyntaxException | NostrException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new NostrException(ex);
         }
     }
 
     private static GenericEvent sendChannelMessage() throws NostrException {
         logHeader("sendChannelMessage");
-        try {
-            final PublicKey publicKeySender = SENDER.getPublicKey();
+        final PublicKey publicKeySender = SENDER.getPublicKey();
 
-            var channelCreateEvent = createChannel();
+        var channelCreateEvent = createChannel();
 
-            var event = new ChannelMessageEvent(publicKeySender, (ChannelCreateEvent) channelCreateEvent, "Hello everybody!");
+        var event = new ChannelMessageEvent(publicKeySender, (ChannelCreateEvent) channelCreateEvent, "Hello everybody!");
 
-            SENDER.sign(event);
-            var message = new EventMessage(event);
+        SENDER.sign(event);
+        var message = new EventMessage(event);
 
-            CLIENT.send(message);
+        CLIENT.send(message);
 
-            return event;
-        } catch (NostrException ex) {
-            throw new NostrException(ex);
-        }
+        return event;
     }
 
     private static GenericEvent hideMessage() throws NostrException {
@@ -520,7 +476,7 @@ public class NostrExamples {
         }
     }
 
-    private static GenericEvent muteUser() throws NostrException {
+    private static GenericEvent muteUser() {
         logHeader("muteUser");
         final PublicKey publicKeySender = SENDER.getPublicKey();
 

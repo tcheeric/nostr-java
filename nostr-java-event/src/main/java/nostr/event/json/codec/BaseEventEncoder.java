@@ -26,6 +26,11 @@ public class BaseEventEncoder implements IEncoder<BaseEvent> {
     private final BaseEvent event;
     private final Relay relay;
 
+    protected BaseEventEncoder() {
+        this.event = null;
+        this.relay = null;
+    }
+    
     public BaseEventEncoder(BaseEvent event) {
         this(event, null);
     }

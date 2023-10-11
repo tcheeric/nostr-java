@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -10,7 +9,6 @@ import nostr.event.tag.PubKeyTag;
 
 import java.util.ArrayList;
 
-@Data
 @Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Nostr Connect", nip = 46)

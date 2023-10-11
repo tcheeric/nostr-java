@@ -1,7 +1,6 @@
 package nostr.ws;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.logging.Level;
 
 import lombok.NonNull;
