@@ -46,7 +46,6 @@ public class CustomIdentity implements IIdentity {
         return this.publicKey;
     }
 
-    // TODO
     @Override
     public Signature sign(@NonNull ISignable signable) {
         try {
