@@ -20,7 +20,7 @@ import nostr.ws.handler.spi.IRequestHandler;
 import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -197,19 +197,59 @@ public class Client {
         return result;
     }
 
-    private Relay openRelay(@NonNull String name, @NonNull String uri) {
-        URI serverURI = Connection.serverURI(uri);
-        Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(name).build();
-        Relay relay = Relay.builder().uri(serverURI.toString()).informationDocument(rid).build();
+    private Relay openRelay(@NonNull String name, @NonNull String hostname) {
+        var serverURI = serverURI(hostname);
+        var relay = Relay.fromString(serverURI.toString());
 
-        return openRelay(relay);
-    }
-
-    private Relay openRelay(@NonNull Relay relay) {
+        var rid = Relay.RelayInformationDocument.builder().name(name).build();
+        relay.setInformationDocument(rid);
         updateRelayInformation(relay);
-        log.log(Level.FINE, "Relay connected: {0}", relay);
 
         return relay;
+    }
+
+    public static URI serverURI(String hostname) {
+        try {
+            URL url = new URI("https://" + hostname).toURL();
+
+            URLConnection openConnection = url.openConnection();
+
+            log.log(Level.INFO, "Openning a secure connection to {0}", hostname);
+
+            openConnection.connect();
+            return new URI("wss://" + hostname);
+        } catch (MalformedURLException e) {
+            log.log(Level.WARNING, null, e);
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS", hostname));
+        } catch (URISyntaxException e) {
+            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
+            throw new RuntimeException(e);
+        }
+
+        try {
+            URL url = new URI("http://" + hostname).toURL();
+
+            URLConnection openConnection = url.openConnection();
+
+            log.log(Level.INFO, "Opening an un-secure connection to {0}", hostname);
+
+            openConnection.connect();
+
+            return new URI("ws://" + hostname);
+        } catch (MalformedURLException e) {
+            log.log(Level.WARNING, null, e);
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTP", hostname));
+        } catch (URISyntaxException e) {
+            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
+            throw new RuntimeException(e);
+        }
+
+//    	TODO
+        throw new RuntimeException();
     }
 
     private void init(Map<String, String> mapRelays) {
@@ -227,7 +267,7 @@ public class Client {
     private Map<String, String> toMapRelays() throws IOException {
         Map<String, String> relays = new HashMap<>();
         List<Relay> relayList = new RelayConfiguration().getRelays();
-        relayList.forEach(r -> relays.put(r.getName(), r.getUri()));
+        relayList.forEach(r -> relays.put(r.getName(), r.getHostname()));
         return relays;
     }
 
@@ -255,8 +295,9 @@ public class Client {
             List<Relay> result = new ArrayList<>();
 
             relays.forEach(r -> {
-                Relay.RelayInformationDocument rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
-                var relay = Relay.builder().uri(this.getProperty(r.toString())).informationDocument(rid).build();
+                var rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
+                var hostname = this.getProperty(r.toString());
+                var relay = new Relay(hostname, rid);
                 result.add(relay);
             });
             return result;
