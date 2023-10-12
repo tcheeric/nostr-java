@@ -13,7 +13,6 @@ import nostr.event.BaseTag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Replaceable Events", nip = 16)
 public class ReplaceableEvent extends GenericEvent {

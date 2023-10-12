@@ -9,7 +9,6 @@ import nostr.event.tag.PubKeyTag;
 
 import java.util.ArrayList;
 
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Nostr Connect", nip = 46)
 public class NostrConnectEvent extends EphemeralEvent {

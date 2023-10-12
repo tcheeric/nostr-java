@@ -32,26 +32,22 @@ public class ClientListenerEndPoint {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        log.log(Level.FINE, "onConnect Relay {0}", session.getRemoteAddress());
-
         session.setMaxTextMessageSize(16 * 1024);
 
-        log.log(Level.INFO, "Connected");
+        log.log(Level.INFO, "Connected to relay {0}", session.getRemoteAddress());
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        log.log(Level.FINE, "onClose");
+        log.log(Level.FINER, "onClose");
 
         disposeResources();
 
-        log.log(Level.INFO, "Connection closed with parameters: Reason {0} - StatusCode: {1}", new Object[]{statusCode, reason});
+        log.log(Level.WARNING, "Connection closed with parameters: Reason {0} - StatusCode: {1}", new Object[]{statusCode, reason});
     }
 
     @OnWebSocketError
     public void onError(Throwable cause) {
-        log.fine("onError");
-
         disposeResources();
 
         log.log(Level.SEVERE, "An error has occurred: {0}", cause);
@@ -70,7 +66,6 @@ public class ClientListenerEndPoint {
 
     @OnWebSocketMessage
     public void onBinaryMessage(byte[] payload, int offset, int length) {
-        log.fine("onBinaryMessage");
 
         // Save only PNG images.
         byte[] pngBytes = new byte[]{(byte) 0x89, 'P', 'N', 'G'};
@@ -96,10 +91,10 @@ public class ClientListenerEndPoint {
     }
 
     private void disposeResources() {
-        log.log(Level.FINE, "disposeResources");
+        log.log(Level.FINEST, "disposeResources");
     }
 
     private void savePNGImage(byte[] payload, int offset, int length) {
-        log.log(Level.FINE, "savePNGImage");
+        log.log(Level.FINEST, "savePNGImage");
     }
 }

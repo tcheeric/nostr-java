@@ -25,7 +25,6 @@ import nostr.event.Kind;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Metadata")
-@Log
 public final class MetadataEvent extends GenericEvent {
 
     private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
@@ -70,7 +69,6 @@ public final class MetadataEvent extends GenericEvent {
 
             setContent(mapper.writeValueAsString(objNode));
         } catch (JsonProcessingException | IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

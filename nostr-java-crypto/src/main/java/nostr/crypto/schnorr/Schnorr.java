@@ -18,7 +18,6 @@ import lombok.extern.java.Log;
 import nostr.crypto.Point;
 import nostr.util.NostrUtil;
 
-@Log
 public class Schnorr {
 
     /**

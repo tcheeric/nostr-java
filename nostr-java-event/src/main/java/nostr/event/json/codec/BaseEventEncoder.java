@@ -19,7 +19,6 @@ import nostr.util.UnsupportedNIPException;
  *
  */
 @AllArgsConstructor
-@Log
 @Data
 public class BaseEventEncoder implements IEncoder<BaseEvent> {
 

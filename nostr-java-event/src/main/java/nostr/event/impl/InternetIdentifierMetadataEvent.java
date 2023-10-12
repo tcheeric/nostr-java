@@ -20,7 +20,6 @@ import static nostr.util.NostrUtil.escapeJsonString;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Log
 @Event(name = "Internet Identifier Metadata Event", nip = 5)
 public final class InternetIdentifierMetadataEvent extends GenericEvent {
 

@@ -15,7 +15,6 @@ import nostr.event.tag.PubKeyTag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Ephemeral Events", nip = 16)
 public class EphemeralEvent extends GenericEvent {

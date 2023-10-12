@@ -13,7 +13,6 @@ import nostr.base.PublicKey;
  * @author squirrel
  */
 @Builder
-@Log
 public class PublicKeyList extends BaseList<PublicKey> {
 
     public PublicKeyList() {

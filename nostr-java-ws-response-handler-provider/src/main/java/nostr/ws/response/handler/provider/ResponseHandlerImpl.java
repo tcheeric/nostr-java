@@ -46,7 +46,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
                     .findFirst()
                     .get();
         } catch (NoSuchElementException ex) {
-            log.log(Level.WARNING, "No custom command handler provided. Using default command handler...");
+            log.log(Level.WARNING, "No custom command handler provided. Using default command handler instead...");
             try {
                 this.commandHandler = ServiceLoader
                         .load(ICommandHandler.class)
@@ -64,7 +64,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
     @Override
     public void process(String message, Relay relay) throws NostrException {
 
-        log.log(Level.INFO, "Process Message: {0} from relay: {1}", new Object[]{message, relay});
+        log.log(Level.FINE, "Processing message: {0} from relay: {1}", new Object[]{message, relay});
 
         var oMsg = new BaseMessageDecoder(message).decode();
         final String command = oMsg.getCommand();

@@ -35,11 +35,7 @@ public class DefaultRequestHandler implements IRequestHandler {
         try {
             this.connection = new Connection(relay);
             sendMessage(message);
-        } catch (IOException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new NostrException(ex);
         } catch (Exception ex) {
-            log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
         }
     }
@@ -58,7 +54,7 @@ public class DefaultRequestHandler implements IRequestHandler {
 
             final String msg = new BaseMessageEncoder(message, relay).encode();
 
-            log.log(Level.INFO, ">>> Sending Message: {0}", msg);
+            log.log(Level.INFO, "Sending Message: {0}", msg);
 
             remote.sendString(msg);
 

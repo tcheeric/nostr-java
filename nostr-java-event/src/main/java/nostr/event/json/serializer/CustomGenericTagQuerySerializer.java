@@ -18,7 +18,6 @@ import nostr.base.IEncoder;
  * @author guilhermegps
  *
  */
-@Log
 public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQuery> {
 
     @Serial
@@ -33,7 +32,6 @@ public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQue
         try {
             gen.writePOJO(toJson(value));
         } catch (IOException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
@@ -49,7 +47,6 @@ public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQue
 
             return node;
         } catch (IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

@@ -129,6 +129,9 @@ public class Client {
 
     // TODO - Make private?
     public void send(@NonNull BaseMessage message) {
+
+        log.log(Level.INFO, "Sending message {0}", message);
+
         futureRelays.parallelStream()
                 .filter(fr -> {
                     try {
@@ -150,7 +153,7 @@ public class Client {
 
     public void auth(Identity identity, String challenge) throws NostrException {
 
-        log.log(Level.INFO, "Authenticating...");
+        log.log(Level.FINER, "Authenticating {0}", identity);
         List<Relay> relays = getRelayList();
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
         BaseMessage authMsg = new ClientAuthenticationMessage(event);
@@ -214,7 +217,7 @@ public class Client {
 
             URLConnection openConnection = url.openConnection();
 
-            log.log(Level.INFO, "Openning a secure connection to {0}", hostname);
+            log.log(Level.FINE, "Openning a secure connection to {0}", hostname);
 
             openConnection.connect();
             return new URI("wss://" + hostname);
@@ -222,7 +225,7 @@ public class Client {
             log.log(Level.WARNING, null, e);
             throw new RuntimeException(e);
         } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS", hostname));
+            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS, trying with HTTP...", hostname));
         } catch (URISyntaxException e) {
             log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
             throw new RuntimeException(e);
@@ -233,7 +236,7 @@ public class Client {
 
             URLConnection openConnection = url.openConnection();
 
-            log.log(Level.INFO, "Opening an un-secure connection to {0}", hostname);
+            log.log(Level.FINE, "Opening an un-secure connection to {0}", hostname);
 
             openConnection.connect();
 

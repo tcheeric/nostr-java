@@ -13,7 +13,6 @@ import nostr.event.BaseTag;
  * @author eric
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Parameterized Replaceable Events", nip = 33)
 public class ParameterizedReplaceableEvent extends ReplaceableEvent {

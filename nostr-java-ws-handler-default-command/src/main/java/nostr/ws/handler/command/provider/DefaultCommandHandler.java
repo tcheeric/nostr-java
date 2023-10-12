@@ -25,12 +25,12 @@ public class DefaultCommandHandler implements ICommandHandler {
 
     @Override
     public void onEose(String subscriptionId, Relay relay) {
-        log.log(Level.INFO, "Command: {0} - Subscription ID: {1} - Relay {3}", new Object[]{Command.EOSE, subscriptionId, relay});
+        log.log(Level.FINE, "Command: {0} - Subscription ID: {1} - Relay {3}", new Object[]{Command.EOSE, subscriptionId, relay});
     }
 
     @Override
     public void onOk(String eventId, String reasonMessage, Reason reason, boolean result, Relay relay) {
-        log.log(Level.INFO, "Command: {0} - Event ID: {1} - Reason: {2} ({3}) - Result: {4} - Relay {5}", new Object[]{Command.OK, eventId, reason, reasonMessage, result, relay});
+        log.log(Level.FINE, "Command: {0} - Event ID: {1} - Reason: {2} ({3}) - Result: {4} - Relay {5}", new Object[]{Command.OK, eventId, reason, reasonMessage, result, relay});
     }
 
     @Override
@@ -40,12 +40,12 @@ public class DefaultCommandHandler implements ICommandHandler {
 
     @Override
     public void onEvent(String jsonEvent, String subId, Relay relay) {
-        log.log(Level.INFO, "Command: {0} - Event: {1} - Subscription ID: {2} - Relay {3}", new Object[]{Command.EVENT, jsonEvent, subId, relay});
+        log.log(Level.FINE, "Command: {0} - Event: {1} - Subscription ID: {2} - Relay {3}", new Object[]{Command.EVENT, jsonEvent, subId, relay});
     }
 
     @Override
     public void onAuth(String challenge, Relay relay) throws NostrException {
-        log.log(Level.INFO, "Command: {0} - Challenge: {1} - Relay {3}", new Object[]{Command.AUTH, challenge, relay});
+        log.log(Level.FINE, "Command: {0} - Relay {1}", new Object[]{Command.AUTH, relay});
         
         var client = Client.getInstance();
         var identity = Identity.getInstance();
@@ -54,6 +54,7 @@ public class DefaultCommandHandler implements ICommandHandler {
     }
     
     public static void auth(String challenge, Relay relay) throws NostrException {
+        log.log(Level.FINE, "Command: {0} - Relay {0}", new Object[]{Command.AUTH, relay});
         new DefaultCommandHandler().onAuth(challenge, relay);
     }
 }

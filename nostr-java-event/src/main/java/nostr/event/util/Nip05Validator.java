@@ -42,6 +42,7 @@ public class Nip05Validator {
 
             // Verify the public key
             try {
+                log.log(Level.FINE, "Validating {0}@{1}", new Object[]{localPart, domain});
                 validatePublicKey(domain, localPart);
             } catch (IOException | URISyntaxException ex) {
                 throw new NostrException(ex);
@@ -68,7 +69,7 @@ public class Nip05Validator {
 
             // (2)
             String pubKey = getPublicKey(content, localPart);
-            log.log(Level.INFO, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
+            log.log(Level.FINE, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
 
             if (pubKey != null && !pubKey.equals(publicKey.toString())) {
                 throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));

@@ -20,7 +20,6 @@ import nostr.event.tag.EventTag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Reactions", nip = 25)
 public class ReactionEvent extends GenericEvent {

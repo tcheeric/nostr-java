@@ -23,7 +23,6 @@ import nostr.util.NostrException;
  * @author guilhermegps
  *
  */
-@Log
 public class TagSerializer extends StdSerializer<BaseTag> {
 
     @Serial

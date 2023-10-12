@@ -20,7 +20,6 @@ import nostr.base.annotation.Tag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Tag(code = "delegation", nip = 26)
 @AllArgsConstructor

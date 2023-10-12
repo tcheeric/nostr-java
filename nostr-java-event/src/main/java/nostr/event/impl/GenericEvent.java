@@ -40,7 +40,6 @@ import nostr.util.NostrUtil;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
 

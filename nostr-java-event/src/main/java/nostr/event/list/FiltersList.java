@@ -13,7 +13,6 @@ import lombok.extern.java.Log;
  * @author squirrel
  */
 @Builder
-@Log
 public class FiltersList extends BaseList<Filters> {
 
     public FiltersList() {

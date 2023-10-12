@@ -91,7 +91,6 @@ public class Identity implements IIdentity {
 
         PrivateKey getPrivateKey() throws NostrException {
             String privKey = getProperty("privateKey");
-            log.log(Level.FINE, "Reading the private key...");
 
             if (privKey == null) {
                 throw new RuntimeException("Missing private key. Aborting....");
@@ -103,7 +102,7 @@ public class Identity implements IIdentity {
         PublicKey getPublicKey() throws NostrException {
             String pubKey = getProperty("publicKey");
             if (pubKey == null || pubKey.trim().isEmpty()) {
-                log.log(Level.FINE, "Generating new public key");
+                log.log(Level.FINE, "Generating new public key...");
                 try {
                     return IdentityHelper.generatePublicKey(getPrivateKey());
                 } catch (Exception ex) {

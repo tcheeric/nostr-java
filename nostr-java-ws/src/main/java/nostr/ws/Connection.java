@@ -44,13 +44,10 @@ public class Connection {
     private Session session;
 
     private final Relay relay;
-    //private final URI uri;
     private HttpClient httpClient;
 
     public Connection(@NonNull Relay relay) throws Exception {
         this.relay = relay;
-        log.log(Level.INFO, ">>>>>>>>> Relay: {0}", relay);
-        //this.uri = new URI(relay.toString());
         this.connect();
     }
 
@@ -95,7 +92,7 @@ public class Connection {
             public void onHandshakeRequest(HttpRequest request) {
                 request.getHeaders().forEach((field)
                         -> {
-                    log.log(Level.FINER, "request header: {0}={1}", new Object[]{field.getName(), field.getValue()});
+                    log.log(Level.FINEST, "request header: {0}={1}", new Object[]{field.getName(), field.getValue()});
                 });
             }
 
@@ -104,7 +101,7 @@ public class Connection {
 
                 response.getHeaders().forEach((field)
                         -> {
-                    log.log(Level.FINER, "response header: {0}={1}", new Object[]{field.getName(), field.getValue()});
+                    log.log(Level.FINEST, "response header: {0}={1}", new Object[]{field.getName(), field.getValue()});
                 });
             }
         };
@@ -126,7 +123,7 @@ public class Connection {
 
         if (response.getStatus() == 200) {
             final String relayInfo = new String(listener.getInputStream().readAllBytes());
-            log.log(Level.FINE, "=====> Response: {0}", relayInfo);
+            log.log(Level.FINEST, "=====> Response: {0}", relayInfo);
             return relayInfo;
         }
 
@@ -135,7 +132,7 @@ public class Connection {
 
     public void updateRelayMetadata() throws Exception {
         String strInfo = getRelayInformation();
-        log.log(Level.INFO, "Relay information: {0}", strInfo);
+        log.log(Level.FINE, "Relay information: {0}", strInfo);
 
         ObjectMapper objectMapper = new ObjectMapper();
         var relayInfoDoc = objectMapper.readValue(strInfo, Relay.RelayInformationDocument.class);

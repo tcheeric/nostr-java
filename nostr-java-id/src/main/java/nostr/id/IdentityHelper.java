@@ -54,7 +54,6 @@ public class IdentityHelper {
                 dmEvent.setContent(encryptedContent);
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
                      InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
-                log.log(Level.SEVERE, null, ex);
                 throw new NostrException(ex);
             }
         }
@@ -70,7 +69,6 @@ public class IdentityHelper {
             return decryptMessage(sharedSecret, encContent);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
                  InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException ex) {
-            log.log(Level.SEVERE, null, ex);
             throw new NostrException(ex);
         }
     }
@@ -80,14 +78,12 @@ public class IdentityHelper {
             try {
                 return signEvent(genericEvent);
             } catch (Exception ex) {
-                log.log(Level.SEVERE, null, ex);
                 throw new NostrException(ex);
             }
         } else if (signable instanceof DelegationTag delegationTag) {
             try {
                 return signDelegationTag(delegationTag);
             } catch (Exception ex) {
-                log.log(Level.SEVERE, null, ex);
                 throw new NostrException(ex);
             }
         }

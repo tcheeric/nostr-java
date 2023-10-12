@@ -47,7 +47,7 @@ public abstract class AbstractBaseConfiguration {
                 location = (configFolder + filename).replace("//", "/");
             }
 
-            log.log(Level.INFO, "file location ({0}): {1}", new Object[]{key, location});
+            log.log(Level.FINE, "file location ({0}): {1}", new Object[]{key, location});
             return location;
         }
 
@@ -68,7 +68,6 @@ public abstract class AbstractBaseConfiguration {
             inputStream.read(result);
             return result;
         } catch (IOException ex) {
-            log.log(Level.SEVERE, "An exception has occurred. Returning an empty byte array", ex);
             return new byte[]{};
         }
     }
@@ -83,57 +82,79 @@ public abstract class AbstractBaseConfiguration {
 
     protected final void load(@NonNull String filename) throws IOException {
 
-        //var configFolder = System.getProperty(CONFIG_DIR);
+        log.log(Level.INFO, "Loading configuration file {0}...", filename);
+
         var configFolder = this.appConfig.getDefaultConfigFolder();
-        log.log(Level.INFO, "loading configuration file: {0}", filename);
-        log.log(Level.INFO, "Configuration folder location: {0}", configFolder);
+
+        log.log(Level.FINER, "loading configuration file: {0}", filename);
+        log.log(Level.FINER, "Configuration folder location: {0}", configFolder);
+
         if (configFolder != null) {
             final var baseConfigFolder = appConfig.getDefaultBaseConfigFolder();
             final var configLocationFolder = new File(baseConfigFolder, configFolder);
-            loadFromConfigDir(filename, configLocationFolder);
-            return;
+
+            if (loadFromConfigDir(filename, configLocationFolder)) {
+                return;
+            }
         }
 
         if (filename.startsWith("/")) {
-            loadFromResourceStream(filename);
-            return;
+            if (loadFromResourceStream(filename)) {
+                return;
+            }
         }
 
         if (new File(filename).exists()) {
             properties.load(new FileInputStream(filename));
+            log.log(Level.FINE, "Loaded {0}", filename);
             return;
         }
 
         throw new FileNotFoundException(filename);
     }
 
-    private void loadFromResourceStream(String filename) throws IOException {
+    private boolean loadFromResourceStream(String filename) throws IOException {
+
+        log.log(Level.FINE, "Attempting to load resource configuration file {0}...", new Object[]{filename});
+
         var inputStream = this.getClass().getResourceAsStream(filename);
+
         if (inputStream != null) {
             properties.load(inputStream);
+            log.log(Level.FINE, "Resource configuration file {0} loaded!", new Object[]{filename});
+            return true;
         } else {
             final String fname = filename.substring(1);
             inputStream = this.getClass().getClassLoader().getResourceAsStream(fname);
             if (inputStream != null) {
                 properties.load(inputStream);
+                log.log(Level.FINE, "Resource configuration file {0} loaded!", new Object[]{filename});
+                return true;
             } else {
-                throw new IOException(String.format("Failed to load resource %s", fname));
+                log.log(Level.WARNING, "Failed to load resource {0}", fname);
+                return false;
             }
         }
     }
 
-    private void loadFromConfigDir(String filename, File configFolder) throws IOException {
-        log.log(Level.FINER, "loadFromConfigDir({0}, {1})", new Object[]{filename, configFolder});
+    private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
+
+        log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
+
         final String fname = filename.substring(1);
         var tmpFile = filename.startsWith("/") ? fname : filename;
         final File file = new File(configFolder, tmpFile);
-        log.log(Level.INFO, "Configuration file {0}", file.getAbsoluteFile());
+
+        log.log(Level.FINER, "Configuration file {0}", file.getAbsoluteFile());
+
         if (file.exists()) {
             var inputStream = new FileInputStream(file);
-            log.log(Level.INFO, "Loading configuration file from {0}", file.getParent());
             properties.load(inputStream);
+            log.log(Level.FINE, "{0} loaded!", filename);
+            return true;
         } else {
             log.log(Level.WARNING, "The file {0} does not exist", file.getAbsoluteFile());
+            return false;
         }
     }
 

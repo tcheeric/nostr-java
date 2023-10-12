@@ -18,7 +18,6 @@ import nostr.event.BaseTag;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Handling Mentions", nip = 8)
-@Log
 public final class MentionsEvent extends GenericEvent {
 
     public MentionsEvent(PublicKey pubKey, List<BaseTag> tags, String content) {

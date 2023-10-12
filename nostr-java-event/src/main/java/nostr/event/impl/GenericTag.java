@@ -20,7 +20,6 @@ import nostr.event.BaseTag;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Log
 @AllArgsConstructor
 public class GenericTag extends BaseTag implements IGenericElement {
 
