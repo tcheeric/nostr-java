@@ -58,11 +58,7 @@ public class CustomIdentity implements IIdentity {
     static class CustomIdentityConfiguration extends Identity.IdentityConfiguration {
 
         CustomIdentityConfiguration(@NonNull String name) throws IOException {
-            super();
-            var configFile = appConfig.getIdentityFolderProperties() + "/" + name + ".properties";
-            configFile = configFile.startsWith("/") ? configFile : "/" + configFile;
-            load(configFile);
+            super(name);
         }
-
     }
 }

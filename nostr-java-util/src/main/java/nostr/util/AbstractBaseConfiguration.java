@@ -25,8 +25,12 @@ public abstract class AbstractBaseConfiguration {
     private static final String PREFIX_FILE = "file.";
     private static final String CONFIG_DIR = "config.folder";
 
-    protected AbstractBaseConfiguration() throws IOException {
+    public static final String CONFIG_TYPE_RELAY = "RELAY";
+    public static final String CONFIG_TYPE_IDENTITY = "IDENTITY";
+
+    protected AbstractBaseConfiguration(@NonNull String name, @NonNull String configType) throws IOException {
         this.appConfig = new ApplicationConfiguration();
+        loadConfigFile(name, configType);
     }
 
     protected AbstractBaseConfiguration(ApplicationConfiguration appConfig) {
@@ -113,6 +117,47 @@ public abstract class AbstractBaseConfiguration {
         throw new FileNotFoundException(filename);
     }
 
+    private void loadConfigFile(@NonNull String name, @NonNull String config) throws IOException {
+        String configFile = switch (config) {
+            case CONFIG_TYPE_IDENTITY -> {
+                yield name.isEmpty() ?
+                        appConfig.getIdentityProperties() :
+                        appConfig.getIdentityFolderProperties() + "/" + name + ".properties";
+            }
+            case CONFIG_TYPE_RELAY -> {
+                // We assume the name is always empty!
+                yield appConfig.getRelaysProperties();
+            }
+            default -> throw new RuntimeException("Invalid configuration type");
+        };
+
+        configFile = configFile.startsWith("/") ? configFile : "/" + configFile;
+
+        load(configFile);
+    }
+
+    private boolean loadFromResourceStream(String filename) throws IOException {
+
+        log.log(Level.FINE, "Attempting to load resource configuration file {0}...", new Object[]{filename});
+
+        var inputStream = this.getClass().getResourceAsStream(filename);
+
+        if (inputStream == null) {
+            final String fname = filename.startsWith("/") ? filename.substring(1) : filename;
+            inputStream = this.getClass().getClassLoader().getResourceAsStream(fname);
+        }
+
+        if (inputStream != null) {
+            properties.load(inputStream);
+            log.log(Level.FINE, "Resource configuration file {0} loaded!", new Object[]{filename});
+            return true;
+        } else {
+            log.log(Level.WARNING, "Failed to load resource {0}", filename);
+            return false;
+        }
+    }
+
+/*
     private boolean loadFromResourceStream(String filename) throws IOException {
 
         log.log(Level.FINE, "Attempting to load resource configuration file {0}...", new Object[]{filename});
@@ -136,7 +181,31 @@ public abstract class AbstractBaseConfiguration {
             }
         }
     }
+*/
 
+    private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
+        log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
+
+        File file = new File(configFolder, filename.startsWith("/") ? filename.substring(1) : filename);
+
+        log.log(Level.FINER, "Configuration file {0}", file.getAbsoluteFile());
+
+        if (file.exists()) {
+            try (var inputStream = new FileInputStream(file)) {
+                properties.load(inputStream);
+                log.log(Level.FINE, "{0} loaded!", filename);
+                return true;
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to load configuration file {0}: {1}", new Object[]{filename, e.getMessage()});
+                return false;
+            }
+        } else {
+            log.log(Level.WARNING, "The file {0} does not exist", file.getAbsoluteFile());
+            return false;
+        }
+    }
+
+/*
     private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
 
         log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
@@ -157,5 +226,6 @@ public abstract class AbstractBaseConfiguration {
             return false;
         }
     }
+*/
 
 }

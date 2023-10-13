@@ -29,7 +29,7 @@ public class Identity implements IIdentity {
     private final PrivateKey privateKey;
 
     private Identity() throws IOException, NostrException {
-        this.privateKey = new IdentityConfiguration().getPrivateKey();
+        this.privateKey = new IdentityConfiguration("").getPrivateKey();
     }
 
     public Identity(@NonNull PrivateKey privateKey) {
@@ -82,11 +82,8 @@ public class Identity implements IIdentity {
     @Log
     static class IdentityConfiguration extends AbstractBaseConfiguration {
 
-        IdentityConfiguration() throws IOException {
-            super();
-            var configFile = appConfig.getIdentityProperties();
-            configFile = configFile.startsWith("/") ? configFile : "/" + configFile;
-            load(configFile);
+        IdentityConfiguration(@NonNull String name) throws IOException {
+            super(name, CONFIG_TYPE_IDENTITY);
         }
 
         PrivateKey getPrivateKey() throws NostrException {

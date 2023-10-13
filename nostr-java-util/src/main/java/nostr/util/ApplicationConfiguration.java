@@ -29,7 +29,7 @@ public class ApplicationConfiguration {
         InputStream appConfig = getAppConfig();
         this.properties = new Properties();
         
-        log.log(Level.FINE, "Loading the application configuration file...");
+        log.log(Level.INFO, "Loading the application configuration file...");
         this.properties.load(appConfig);
     }
 

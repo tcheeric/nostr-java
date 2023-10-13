@@ -287,10 +287,7 @@ public class Client {
     static class RelayConfiguration extends AbstractBaseConfiguration {
 
         RelayConfiguration() throws IOException {
-            super();
-            var configFile = appConfig.getRelaysProperties();
-            configFile = configFile.startsWith("/") ? configFile : "/" + configFile;
-            load(configFile);
+            super("", CONFIG_TYPE_RELAY);
         }
 
         List<Relay> getRelays() {
