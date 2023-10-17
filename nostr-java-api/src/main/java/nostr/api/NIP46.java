@@ -50,7 +50,7 @@ public final class NIP46 extends Nostr {
         private String sessionId;
 
         public NIP46Request(@NonNull String method) {
-            this(UUID.randomUUID().toString(), method, new ArrayList<>());
+            this(UUID.randomUUID().toString(), method, new ArrayList<>(), null);
         }
 
         @Override
@@ -83,9 +83,10 @@ public final class NIP46 extends Nostr {
         private String method;
         private Object result;
         private String error;
+        private String sessionId;
 
         public NIP46Response(@NonNull String id, @NonNull String method, @NonNull String result) {
-            this(id, method, result, null);
+            this(id, method, result, null, null);
         }
 
         @Override
