@@ -63,6 +63,7 @@ public class Client {
 
                 do {
                     try {
+                        log.log(Level.INFO, "Waiting for relays' connections to open...");
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
