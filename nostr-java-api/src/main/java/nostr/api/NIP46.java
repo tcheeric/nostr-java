@@ -47,6 +47,7 @@ public final class NIP46 extends Nostr {
         private String id;
         private String method;
         private List<String> params;
+        private String sessionId;
 
         public NIP46Request(@NonNull String method) {
             this(UUID.randomUUID().toString(), method, new ArrayList<>());
