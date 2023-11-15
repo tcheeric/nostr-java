@@ -59,19 +59,20 @@ public class NIP04 extends Nostr {
     /**
      * Encrypt a DM event
      *
+     * @param senderId
      * @param dm the DM event
      */
-    public static void encrypt(@NonNull IIdentity identity, @NonNull DirectMessageEvent dm) {
+    public static void encrypt(@NonNull IIdentity senderId, @NonNull DirectMessageEvent dm) {
         try {
-            new IdentityHelper(identity).encryptDirectMessage(dm);
+            new IdentityHelper(senderId).encryptDirectMessage(dm);
         } catch (NostrException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    public static String encrypt(@NonNull IIdentity identity, @NonNull String message, @NonNull PublicKey recipient) {
+    public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
         try {
-            return new IdentityHelper(identity).encrypt(message, recipient);
+            return new IdentityHelper(senderId).encrypt(message, recipient);
         } catch (NostrException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException |
                  IllegalBlockSizeException | NoSuchPaddingException | InvalidAlgorithmParameterException ex) {
             throw new RuntimeException(ex);
@@ -81,15 +82,16 @@ public class NIP04 extends Nostr {
     /**
      * Decrypt an encrypted direct message
      *
+     * @param rcptId
      * @param dm the encrypted direct message
      * @return the DM content in clear-text
      * @throws NostrException
      */
-    public static String decrypt(@NonNull IIdentity identity, @NonNull DirectMessageEvent dm) throws NostrException {
-        return NIP04.decrypt(identity, (GenericEvent) dm);
+    public static String decrypt(@NonNull IIdentity rcptId, @NonNull DirectMessageEvent dm) throws NostrException {
+        return NIP04.decrypt(rcptId, (GenericEvent) dm);
     }
 
-    public static String decrypt(@NonNull IIdentity identity, @NonNull GenericEvent event) throws NostrException {
+    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) throws NostrException {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -97,18 +99,18 @@ public class NIP04 extends Nostr {
                 .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
         var pTag = (PubKeyTag) recipient;
 
-        boolean rcptFlag = amITheRecipient(identity, event);
+        boolean rcptFlag = amITheRecipient(rcptId, event);
 
         if (!rcptFlag) { // I am the message sender
             log.log(Level.INFO, "I am NOT the recipient of {0}", event);
             log.log(Level.INFO, "The message is being decrypted for {0}", pTag.getPublicKey());
-            return new IdentityHelper(identity).decryptMessage(event.getContent(), pTag.getPublicKey());
+            return new IdentityHelper(rcptId).decryptMessage(event.getContent(), pTag.getPublicKey());
         }
 
         // I am the message recipient
         var sender = event.getPubKey();
         log.log(Level.INFO, "The message is being decrypted for {0}", sender);
-        return new IdentityHelper(identity).decryptMessage(event.getContent(), sender);
+        return new IdentityHelper(rcptId).decryptMessage(event.getContent(), sender);
     }
 
     public static String decrypt(@NonNull IIdentity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
@@ -119,18 +121,18 @@ public class NIP04 extends Nostr {
         }
     }
 
-    private static boolean amITheRecipient(@NonNull IIdentity identity, @NonNull GenericEvent event) {
+    private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {
         var pTag = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
-        if (Objects.equals(identity.getPublicKey(), ((PubKeyTag) pTag).getPublicKey())) {
+        if (Objects.equals(recipient.getPublicKey(), ((PubKeyTag) pTag).getPublicKey())) {
             return true;
         }
 
-        if (Objects.equals(identity.getPublicKey(), event.getPubKey())) {
+        if (Objects.equals(recipient.getPublicKey(), event.getPubKey())) {
             return false;
         }
 
