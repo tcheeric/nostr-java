@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>${revision}</version>
+        <version>0.3</version>
     </parent>
     <artifactId>nostr-java-client</artifactId>
     <packaging>jar</packaging>
