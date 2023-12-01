@@ -157,32 +157,6 @@ public abstract class AbstractBaseConfiguration {
         }
     }
 
-/*
-    private boolean loadFromResourceStream(String filename) throws IOException {
-
-        log.log(Level.FINE, "Attempting to load resource configuration file {0}...", new Object[]{filename});
-
-        var inputStream = this.getClass().getResourceAsStream(filename);
-
-        if (inputStream != null) {
-            properties.load(inputStream);
-            log.log(Level.FINE, "Resource configuration file {0} loaded!", new Object[]{filename});
-            return true;
-        } else {
-            final String fname = filename.substring(1);
-            inputStream = this.getClass().getClassLoader().getResourceAsStream(fname);
-            if (inputStream != null) {
-                properties.load(inputStream);
-                log.log(Level.FINE, "Resource configuration file {0} loaded!", new Object[]{filename});
-                return true;
-            } else {
-                log.log(Level.WARNING, "Failed to load resource {0}", fname);
-                return false;
-            }
-        }
-    }
-*/
-
     private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
         log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
 
@@ -204,28 +178,5 @@ public abstract class AbstractBaseConfiguration {
             return false;
         }
     }
-
-/*
-    private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
-
-        log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
-
-        final String fname = filename.substring(1);
-        var tmpFile = filename.startsWith("/") ? fname : filename;
-        final File file = new File(configFolder, tmpFile);
-
-        log.log(Level.FINER, "Configuration file {0}", file.getAbsoluteFile());
-
-        if (file.exists()) {
-            var inputStream = new FileInputStream(file);
-            properties.load(inputStream);
-            log.log(Level.FINE, "{0} loaded!", filename);
-            return true;
-        } else {
-            log.log(Level.WARNING, "The file {0} does not exist", file.getAbsoluteFile());
-            return false;
-        }
-    }
-*/
 
 }
