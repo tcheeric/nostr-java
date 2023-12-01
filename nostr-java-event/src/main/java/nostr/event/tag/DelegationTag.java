@@ -20,7 +20,6 @@ import nostr.base.annotation.Tag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Tag(code = "delegation", nip = 26)
 @AllArgsConstructor
@@ -47,8 +46,6 @@ public class DelegationTag extends BaseTag implements ISignable {
 
     @Transient
     public String getToken() {
-        StringBuilder strToken = new StringBuilder();
-        strToken.append("nostr:").append(getCode()).append(":").append(delegator.toString()).append(":").append(conditions);
-        return strToken.toString();
+        return "nostr:" + getCode() + ":" + delegator.toString() + ":" + conditions;
     }
 }

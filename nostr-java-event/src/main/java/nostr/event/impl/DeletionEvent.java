@@ -18,11 +18,11 @@ import nostr.event.BaseTag;
 @Event(name = "Event Deletion", nip = 9)
 public class DeletionEvent extends GenericEvent {
 
-    public DeletionEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content) {        
+    public DeletionEvent(PublicKey pubKey, List<BaseTag> tags, String content) {        
         super(pubKey, Kind.DELETION, tags, content);        
     }
 
-    public DeletionEvent(PublicKey pubKey, List<? extends BaseTag> tags) {        
+    public DeletionEvent(PublicKey pubKey, List<BaseTag> tags) {        
         this(pubKey, tags, "Deletion request");
     }
 }

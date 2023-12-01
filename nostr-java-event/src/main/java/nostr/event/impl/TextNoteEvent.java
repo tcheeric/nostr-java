@@ -14,7 +14,7 @@ import nostr.event.BaseTag;
 @Event(name = "Text Note")
 public class TextNoteEvent extends GenericEvent {
 
-    public TextNoteEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content) {
+    public TextNoteEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
         super(pubKey, Kind.TEXT_NOTE, tags, content);
     }   
 }

@@ -73,4 +73,10 @@ public class Filters extends BaseEvent {
     public Integer getNip() {
         return 1;
     }
+
+    @Override
+    @JsonIgnore
+    public String getId() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

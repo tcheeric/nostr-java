@@ -12,7 +12,6 @@ import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.TagSerializer;
-import nostr.util.NostrException;
 
 /**
  * @author guilhermegps
@@ -30,7 +29,7 @@ public class BaseTagEncoder implements IEncoder<BaseTag> {
     }
 
     @Override
-    public String encode() throws NostrException {
+    public String encode() {
         try {
             SimpleModule module = new SimpleModule();
             module.addSerializer(new TagSerializer());
@@ -40,7 +39,7 @@ public class BaseTagEncoder implements IEncoder<BaseTag> {
 
             return mapper.writeValueAsString(tag);
         } catch (JsonProcessingException e) {
-            throw new NostrException(e);
+            throw new RuntimeException(e);
         }
     }
 }

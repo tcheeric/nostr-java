@@ -22,7 +22,6 @@ import nostr.event.list.BaseList;
  * @author guilhermegps
  *
  */
-@Log
 public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
 
     @Override
@@ -33,7 +32,6 @@ public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
 
             gen.writePOJO(list);
         } catch (IOException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
@@ -56,7 +54,6 @@ public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
 
             return node;
         } catch (IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

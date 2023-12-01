@@ -1,8 +1,8 @@
 
 module nostr.crypto {
-    requires java.logging;
     requires nostr.util;
     requires static lombok;
+    requires java.logging;
     requires org.bouncycastle.provider;
     
     exports nostr.crypto.bech32;

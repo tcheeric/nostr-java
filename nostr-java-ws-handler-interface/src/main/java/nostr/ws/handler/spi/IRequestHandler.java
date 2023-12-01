@@ -11,5 +11,5 @@ import nostr.util.NostrException;
  */
 public interface IRequestHandler extends IHandler {
 
-    public abstract void process(BaseMessage message, Relay relay) throws NostrException;
+    void process(BaseMessage message, Relay relay) throws NostrException;
 }

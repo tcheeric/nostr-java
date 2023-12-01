@@ -6,6 +6,6 @@ package nostr.base;
  */
 public interface IElement {
 
-    public Integer getNip();
+    Integer getNip();
 
 }

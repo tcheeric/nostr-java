@@ -7,7 +7,7 @@ package nostr.base;
  */
 public interface ISignable {
     
-    public abstract Signature getSignature();
+    Signature getSignature();
     
-    public abstract void setSignature(Signature signature);
+    void setSignature(Signature signature);
 }

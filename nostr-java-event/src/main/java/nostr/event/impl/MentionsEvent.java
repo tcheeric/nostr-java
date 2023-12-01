@@ -18,22 +18,21 @@ import nostr.event.BaseTag;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Handling Mentions", nip = 8)
-@Log
 public final class MentionsEvent extends GenericEvent {
 
-    public MentionsEvent(PublicKey pubKey, List<? extends BaseTag> tags, String content) {
+    public MentionsEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
         super(pubKey, Kind.TEXT_NOTE, tags, content);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void update() {
         super.update();
 
         int index = 0;
 
+        // TODO - Refactor with the EntityAttributeUtil class
         while (getTags().iterator().hasNext()) {
-            ITag tag = (ITag) getTags().iterator().next();
+            ITag tag = getTags().iterator().next();
             String replacement = "#[" + index++ + "]";
             setContent(this.getContent().replace(((PubKeyTag) tag).getPublicKey().toString(), replacement));
         }

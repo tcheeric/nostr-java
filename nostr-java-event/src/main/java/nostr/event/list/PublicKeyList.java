@@ -7,15 +7,12 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
-import nostr.base.annotation.JsonList;
 
 /**
  *
  * @author squirrel
  */
 @Builder
-@Log
-@JsonList
 public class PublicKeyList extends BaseList<PublicKey> {
 
     public PublicKeyList() {

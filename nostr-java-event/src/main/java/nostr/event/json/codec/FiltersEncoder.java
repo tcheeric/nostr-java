@@ -34,7 +34,7 @@ public class FiltersEncoder extends BaseEventEncoder {
     @Override
     protected String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree((Filters) getEvent());
+            JsonNode node = MAPPER.valueToTree(getEvent());
             ObjectNode objNode = (ObjectNode) node;
             var arrayNode = (ArrayNode) node.get("genericTagQueryList");
             if (arrayNode != null && !arrayNode.isNull()) {

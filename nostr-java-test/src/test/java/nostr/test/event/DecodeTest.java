@@ -19,7 +19,7 @@ import nostr.event.BaseMessage;
 public class DecodeTest {
 
     @Test
-    public void decodeTest() throws NostrException {
+    public void decodeTest() {
 
         String json = "["
                 + "\"EVENT\","

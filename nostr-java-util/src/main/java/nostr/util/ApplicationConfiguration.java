@@ -16,11 +16,12 @@ import lombok.extern.java.Log;
 @Log
 public class ApplicationConfiguration {
 
-    private final String DEFAULT_APP_CONFIG = "config";
-    private final String DEFAULT_ID_CONFIG = "/profile.properties";
-    private final String DEFAULT_RELAYS_CONFIG = "/relays.properties";
-    //private final String DEFAULT_CLIENT_CONFIG = "/client.properties";
-    private final String DEFAULT_CONFIG_FOLDER = ".nostr-java";
+    private final static String DEFAULT_APP_CONFIG = "config";
+
+    private final static String DEFAULT_ID_CONFIG = "/profile.properties";
+    private final static String DEFAULT_ID_FOLDER = "identities";
+    private final static String DEFAULT_RELAYS_CONFIG = "/relays.properties";
+    private final static String DEFAULT_CONFIG_FOLDER = ".nostr-java";
 
     private final Properties properties;
 
@@ -35,6 +36,11 @@ public class ApplicationConfiguration {
     public String getIdentityProperties() {
         var id = getProperty("profile");
         return id == null ? DEFAULT_ID_CONFIG : id;
+    }
+
+    public String getIdentityFolderProperties() {
+        var id = getProperty("identities");
+        return id == null ? DEFAULT_ID_FOLDER : id;
     }
 
     public String getRelaysProperties() {

@@ -79,6 +79,9 @@ public class Bech32 {
 
         data = convertBits(data, 5, 8, true);
 
+        if(data == null) {
+            throw new RuntimeException("Invalid null data");
+        }
         // Remove trailing bit
         data = Arrays.copyOfRange(data, 0, data.length - 1);
 
@@ -107,7 +110,7 @@ public class Bech32 {
      */
     // Modified to throw NostrExceptions
     public static String encode(Encoding encoding, String hrp, final byte[] values) throws NostrException {
-        if (hrp.length() < 1) {
+        if (hrp.isEmpty()) {
             throw new NostrException("Human-readable part is too short");
         }
 
@@ -213,7 +216,7 @@ public class Bech32 {
      */
     private static byte[] expandHrp(final String hrp) {
         int hrpLength = hrp.length();
-        byte ret[] = new byte[hrpLength * 2 + 1];
+        byte[] ret = new byte[hrpLength * 2 + 1];
         for (int i = 0; i < hrpLength; ++i) {
             int c = hrp.charAt(i) & 0x7f; // Limit to standard 7-bit ASCII
             ret[i] = (byte) ((c >>> 5) & 0x07);

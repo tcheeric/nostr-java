@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
+import nostr.event.BaseEvent;
+import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.EoseMessage;
@@ -37,15 +39,19 @@ public class ResponseHandlerImpl implements IResponseHandler {
 
         try {
             this.commandHandler = ServiceLoader
-                    .load(ICommandHandler.class).stream().map(p -> p.get())
+                    .load(ICommandHandler.class)
+                    .stream()
+                    .map(p -> p.get())
                     .filter(ch -> !ch.getClass().isAnnotationPresent(DefaultHandler.class))
                     .findFirst()
                     .get();
         } catch (NoSuchElementException ex) {
-            log.log(Level.WARNING, "No custom command handler provided. Using default command handler...");
+            log.log(Level.WARNING, "No custom command handler provided. Using default command handler instead...");
             try {
                 this.commandHandler = ServiceLoader
-                        .load(ICommandHandler.class).stream().map(p -> p.get())
+                        .load(ICommandHandler.class)
+                        .stream()
+                        .map(p -> p.get())
                         .filter(ch -> ch.getClass().isAnnotationPresent(DefaultHandler.class))
                         .findFirst()
                         .get();
@@ -58,7 +64,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
     @Override
     public void process(String message, Relay relay) throws NostrException {
 
-        log.log(Level.INFO, "Process Message: {0} from relay: {1}", new Object[]{message, relay});
+        log.log(Level.FINE, "Processing message: {0} from relay: {1}", new Object[]{message, relay});
 
         var oMsg = new BaseMessageDecoder(message).decode();
         final String command = oMsg.getCommand();
@@ -101,7 +107,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
             case "EVENT" -> {
                 if (oMsg instanceof EventMessage msg) {
                     var subId = msg.getSubscriptionId();
-                    var jsonEvent = msg.getEvent().toString();
+                    var jsonEvent = new BaseEventEncoder((BaseEvent) msg.getEvent()).encode();
                     commandHandler.onEvent(jsonEvent, subId, relay);
                 } else {
                     throw new AssertionError("EVENT");
@@ -119,9 +125,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
                 }
 
             }
-            default -> {
-                throw new AssertionError("Unknown command " + command);
-            }
+            default -> throw new AssertionError("Unknown command " + command);
         }
     }
 }

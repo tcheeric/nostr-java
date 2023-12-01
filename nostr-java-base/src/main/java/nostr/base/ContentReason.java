@@ -2,6 +2,7 @@ package nostr.base;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +15,10 @@ import lombok.EqualsAndHashCode;
 @Builder
 @Data
 @EqualsAndHashCode
+@AllArgsConstructor
 public class ContentReason {
 
-    private String reason;
+    private final String reason;
 
     @Override
     public String toString() {

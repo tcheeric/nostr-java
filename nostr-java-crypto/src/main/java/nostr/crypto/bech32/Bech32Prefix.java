@@ -1,9 +1,12 @@
 package nostr.crypto.bech32;
 
+import lombok.Getter;
+
 /**
  *
  * @author squirrel
  */
+@Getter
 public enum Bech32Prefix {
     NPUB("npub", "public keys"),
     NSEC("nsec", "private keys"),
@@ -14,18 +17,10 @@ public enum Bech32Prefix {
     private final String code;
     private final String description;
 
-    private Bech32Prefix(String code, String description) {
+    Bech32Prefix(String code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public String getCode() {
-        return code;
-    }
 
-    public String getDescription() {
-        return description;
-    }
-    
-    
 }

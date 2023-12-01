@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
@@ -42,18 +42,19 @@ public class Nip05Validator {
 
             // Verify the public key
             try {
+                log.log(Level.FINE, "Validating {0}@{1}", new Object[]{localPart, domain});
                 validatePublicKey(domain, localPart);
-            } catch (IOException ex) {
+            } catch (IOException | URISyntaxException ex) {
                 throw new NostrException(ex);
             }
         }
     }
 
-    private void validatePublicKey(String domain, String localPart) throws MalformedURLException, NostrException, IOException, ProtocolException {
+    private void validatePublicKey(String domain, String localPart) throws NostrException, IOException, URISyntaxException {
 
         // Set up and estgetPublicKeyablish the HTTP connection
         String strUrl = "https://<domain>/.well-known/nostr.json?name=<localPart>".replace("<domain>", domain).replace("<localPart>", localPart);
-        URL url = new URL(strUrl);
+        URL url = new URI(strUrl).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 
@@ -68,20 +69,20 @@ public class Nip05Validator {
 
             // (2)
             String pubKey = getPublicKey(content, localPart);
-            log.log(Level.INFO, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
+            log.log(Level.FINE, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
 
             if (pubKey != null && !pubKey.equals(publicKey.toString())) {
-                throw new NostrException(String.format("Public key mismatch. Expected {0} - Received: {1}", new Object[]{publicKey.toString(), pubKey}));
+                throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));
             }
 
             // All well!
             return;
         }
 
-        throw new NostrException(String.format("Failed to connect to {0}. Error message: {1)", new Object[]{strUrl, connection.getResponseMessage()}));
+        throw new NostrException(String.format("Failed to connect to %s. Error message: %s", strUrl, connection.getResponseMessage()));
     }
 
-    private String getPublicKey(StringBuilder content, String localPart) throws NostrException {
+    private String getPublicKey(StringBuilder content, String localPart) {
 
         Nip05Content nip05Content = new Nip05ContentDecoder(content.toString()).decode();
 

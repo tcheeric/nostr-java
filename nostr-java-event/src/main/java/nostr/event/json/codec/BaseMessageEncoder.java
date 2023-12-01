@@ -18,7 +18,6 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
-import nostr.util.NostrException;
 
 /**
  *
@@ -32,7 +31,7 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
     private final Relay relay;
     
     @Override
-    public String encode() throws NostrException {
+    public String encode() {
         var arrayNode = JsonNodeFactory.instance.arrayNode();
         try {
             arrayNode.add(message.getCommand());
@@ -55,12 +54,12 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
                 arrayNode.add(msg.getCommand());
                 msg.getAttributes().stream().map(a -> a.getValue()).forEach(v -> arrayNode.add(v.toString()));
             } else {
-                throw new NostrException(String.format("Invalid message type %s", message));
+                throw new RuntimeException(String.format("Invalid message type %s", message));
             }
 
             return MAPPER.writeValueAsString(arrayNode);
         } catch (JsonProcessingException e) {
-            throw new NostrException(e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -24,6 +24,10 @@ public class CloseMessage extends BaseMessage {
     @JsonProperty
     private final String subscriptionId;
 
+    private CloseMessage() {
+        this(null);
+    }
+
     public CloseMessage(String subscriptionId) {
         super(Command.CLOSE.name());
         this.subscriptionId = subscriptionId;

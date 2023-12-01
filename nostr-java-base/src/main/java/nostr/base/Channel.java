@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 @Builder
 @Data
 @EqualsAndHashCode
+@Deprecated
 public class Channel {
 
     private String name;

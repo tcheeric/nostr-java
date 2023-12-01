@@ -16,7 +16,6 @@ import nostr.event.list.EventList;
  * @author guilhermegps
  *
  */
-@Log
 public class CustomIdEventListSerializer extends JsonSerializer<EventList> {
 
     @Override
@@ -26,7 +25,6 @@ public class CustomIdEventListSerializer extends JsonSerializer<EventList> {
 
             gen.writePOJO(list);
         } catch (IOException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
