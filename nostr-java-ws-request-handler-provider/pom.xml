@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>${project.dev.version}</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>nostr-java-ws-request-handler-provider</artifactId>
     <packaging>jar</packaging>

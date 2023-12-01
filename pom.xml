@@ -5,7 +5,7 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>${project.dev.version}</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -18,7 +18,7 @@
         <module>nostr-java-util</module>
         <module>nostr-java-ws</module>
         <module>nostr-java-ws-handler-interface</module>
-        <module>nostr-java-ws-handler-default-command</module>
+        <module>nostr-java-ws-handler-command-provider</module>
         <module>nostr-java-ws-request-handler-provider</module>
         <module>nostr-java-ws-response-handler-provider</module>
         <module>nostr-java-client</module>
@@ -45,7 +45,7 @@
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
 
         <!-- Current version of the project -->
-        <project.dev.version>0.3</project.dev.version>
+        <revision>0.3</revision>
     </properties>
 
     <dependencyManagement>
@@ -87,6 +87,31 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>1.5.0</version>
+                    <configuration>
+                        <updatePomFile>true</updatePomFile>
+                        <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>flatten</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>flatten</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>flatten.clean</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
