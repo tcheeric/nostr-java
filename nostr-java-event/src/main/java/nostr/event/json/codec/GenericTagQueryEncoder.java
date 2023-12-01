@@ -9,7 +9,6 @@ import nostr.base.IEncoder;
 import static nostr.base.IEncoder.MAPPER;
 import nostr.base.Relay;
 import nostr.base.GenericTagQuery;
-import nostr.util.NostrException;
 
 /**
  * @author guilhermegps
@@ -28,11 +27,11 @@ public class GenericTagQueryEncoder implements IEncoder<GenericTagQuery> {
     }
 
     @Override
-    public String encode() throws NostrException {
+    public String encode() {
         try {
             return MAPPER.writeValueAsString(genericTagQuery);
         } catch (JsonProcessingException e) {
-            throw new NostrException(e);
+            throw new RuntimeException(e);
         }
     }
 }

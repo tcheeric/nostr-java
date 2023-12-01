@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.impl.Filters;
-import nostr.util.NostrException;
 
 /**
  *
@@ -19,12 +18,12 @@ public class FiltersDecoder implements IDecoder<Filters> {
     private final String jsonString;
 
     @Override
-    public Filters decode() throws NostrException {
+    public Filters decode()  {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonString, Filters.class);
         } catch (JsonProcessingException ex) {
-            throw new NostrException(ex);
+            throw new RuntimeException(ex);
         }
     }
 

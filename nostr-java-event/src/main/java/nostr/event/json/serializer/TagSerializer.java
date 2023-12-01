@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
 
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
@@ -22,9 +23,9 @@ import nostr.util.NostrException;
  * @author guilhermegps
  *
  */
-@Log
 public class TagSerializer extends StdSerializer<BaseTag> {
 
+    @Serial
     private static final long serialVersionUID = -3877972991082754068L;
 
     public TagSerializer() {
@@ -39,7 +40,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             List<Field> fields = value.getSupportedFields(null);
 
             // Populate the node with the fields data
-            fields.stream().forEach((Field f) -> {
+            fields.forEach((Field f) -> {
                 try {
                     node.put(f.getName(), value.getFieldValue(f));
                 } catch (NostrException ex) {
@@ -49,8 +50,8 @@ public class TagSerializer extends StdSerializer<BaseTag> {
 
             // Populate the node with the attributes data
             if (value instanceof GenericTag genericTag) {
-                Set<ElementAttribute> attrs = genericTag.getAttributes();
-                attrs.stream().forEach(a -> node.put(a.getName(), a.getValue().toString()));
+                List<ElementAttribute> attrs = genericTag.getAttributes();
+                attrs.forEach(a -> node.put(a.getName(), a.getValue().toString()));
             }
 
             // Extract the property values from the node and serialize them as an array

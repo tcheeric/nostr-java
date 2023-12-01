@@ -1,13 +1,10 @@
 package nostr.event.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
-import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
@@ -21,32 +18,29 @@ import nostr.event.Kind;
 @Event(name = "Authentication of clients to relays", nip = 42)
 public class ClientAuthenticationEvent extends GenericEvent {
 
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<? extends BaseTag> tags) {
+    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags) {
         super(pubKey, Kind.CLIENT_AUTH, tags);
     }
 
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Set<Relay> relays) {
+    @Deprecated(forRemoval = true)
+    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull List<Relay> relays) {
         super(pubKey, Kind.CLIENT_AUTH);
 
-        Set<ElementAttribute> chAttributes = new HashSet<>();
+        List<ElementAttribute> chAttributes = new ArrayList<>();
         var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
         chAttributes.add(attribute);
 
         this.setTags(new ArrayList<>());
-        ITag chTag = new GenericTag("auth", 42, chAttributes);
+        GenericTag chTag = new GenericTag("auth", 42, chAttributes);
 
-        this.addTag((GenericTag) chTag);
+        this.addTag(chTag);
 
-        relays.stream().forEach(r -> {
-            try {
-                final Set<ElementAttribute> relayAttributes = new HashSet<>();
-                final ElementAttribute relayAttribute = getRelayAttribute(r);
-                relayAttributes.add(relayAttribute);
-                final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
-                this.addTag((BaseTag) relayTag);
-            } catch (InterruptedException | ExecutionException ex) {
-                throw new RuntimeException(ex);
-            }
+        relays.forEach(r -> {
+            final List<ElementAttribute> relayAttributes = new ArrayList<>();
+            final ElementAttribute relayAttribute = getRelayAttribute(r);
+            relayAttributes.add(relayAttribute);
+            final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
+            this.addTag(relayTag);
         });
 
         this.setNip(42);
@@ -55,30 +49,26 @@ public class ClientAuthenticationEvent extends GenericEvent {
     public ClientAuthenticationEvent(@NonNull PublicKey pubKey, String challenge, @NonNull Relay relay) {
         super(pubKey, Kind.CLIENT_AUTH);
 
-        try {
-            Set<ElementAttribute> chAttributes = new HashSet<>();
-            var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
-            chAttributes.add(attribute);
+        List<ElementAttribute> chAttributes = new ArrayList<>();
+        var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
+        chAttributes.add(attribute);
 
-            this.setTags(new ArrayList<>());
-            ITag chTag = new GenericTag("auth", 42, chAttributes);
+        this.setTags(new ArrayList<>());
+        BaseTag chTag = new GenericTag("auth", 42, chAttributes);
 
-            this.addTag((BaseTag) chTag);
+        this.addTag(chTag);
 
-            final Set<ElementAttribute> relayAttributes = new HashSet<>();
-            final ElementAttribute relayAttribute = getRelayAttribute(relay);
-            relayAttributes.add(relayAttribute);
-            final ITag relayTag = new GenericTag("relay", 42, relayAttributes);
-            this.addTag((BaseTag) relayTag);
+        final List<ElementAttribute> relayAttributes = new ArrayList<>();
+        final ElementAttribute relayAttribute = getRelayAttribute(relay);
+        relayAttributes.add(relayAttribute);
+        final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
+        this.addTag(relayTag);
 
-            this.setNip(42);
-        } catch (ExecutionException | InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
+        this.setNip(42);
     }
 
-    private static ElementAttribute getRelayAttribute(Relay relay) throws ExecutionException, InterruptedException {
-        return ElementAttribute.builder().nip(42).name("uri").value(relay.getUri()).build();
+    private static ElementAttribute getRelayAttribute(Relay relay) {
+        return ElementAttribute.builder().nip(42).name("uri").value(relay.getHostname()).build();
     }
 
 }

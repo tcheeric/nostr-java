@@ -23,7 +23,6 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
-import nostr.util.NostrException;
 
 /**
  *
@@ -36,7 +35,7 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
     private final String jsonString;
 
     @Override
-    public BaseMessage decode() throws NostrException {
+    public BaseMessage decode() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
@@ -117,7 +116,7 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
             }
             return message;
         } catch (JsonProcessingException ex) {
-            throw new NostrException(ex);
+            throw new RuntimeException(ex);
         }
     }
 

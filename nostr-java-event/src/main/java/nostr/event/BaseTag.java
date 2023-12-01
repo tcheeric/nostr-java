@@ -34,7 +34,6 @@ import nostr.util.NostrException;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@Log
 @JsonDeserialize(using = TagDeserializer.class)
 @JsonSerialize(using = TagSerializer.class)
 public abstract class BaseTag implements ITag {
@@ -82,7 +81,6 @@ public abstract class BaseTag implements ITag {
     private boolean nipSupport(Field field, Relay relay) {
 
         if (field.getAnnotation(Key.class) == null) {
-            log.log(Level.FINE, "@Key annotation not found, skipping field {0}", field.getName());
             return false;
         }
 

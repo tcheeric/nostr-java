@@ -1,6 +1,7 @@
 package nostr.event.json.serializer;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.logging.Level;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -17,9 +18,9 @@ import nostr.base.IEncoder;
  * @author guilhermegps
  *
  */
-@Log
 public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQuery> {
 
+    @Serial
     private static final long serialVersionUID = 6803478463890319884L;
 
     public CustomGenericTagQuerySerializer() {
@@ -31,7 +32,6 @@ public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQue
         try {
             gen.writePOJO(toJson(value));
         } catch (IOException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
@@ -47,7 +47,6 @@ public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQue
 
             return node;
         } catch (IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

@@ -88,6 +88,23 @@ nbdist/
 
 .sts4-cache/
 
+### NetBeans specific ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Class Files #
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
@@ -176,7 +193,6 @@ modules.xml
 
 ### Java ###
 # Compiled class file
-*.class
 
 # Log file
 *.log
@@ -188,10 +204,7 @@ modules.xml
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
 *.nar
-*.ear
 *.zip
 *.tar.gz
 *.rar

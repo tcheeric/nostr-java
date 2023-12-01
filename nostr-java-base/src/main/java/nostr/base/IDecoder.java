@@ -1,7 +1,5 @@
 package nostr.base;
 
-import nostr.util.NostrException;
-
 /**
  *
  * @author eric
@@ -9,6 +7,6 @@ import nostr.util.NostrException;
  */
 public interface IDecoder<T extends IElement> {
 
-    public abstract T decode() throws NostrException;    
+    T decode();
     
 }

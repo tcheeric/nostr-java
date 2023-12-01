@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.BaseTag;
-import nostr.util.NostrException;
 
 /**
  *
@@ -19,12 +18,12 @@ public class BaseTagDecoder implements IDecoder<BaseTag> {
     private final String jsonString;
     
     @Override
-    public BaseTag decode() throws NostrException {
+    public BaseTag decode() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonString, BaseTag.class);
         } catch (JsonProcessingException ex) {
-            throw new NostrException(ex);
+            throw new RuntimeException(ex);
         }
     }
 

@@ -16,6 +16,10 @@ public abstract class BaseMessage implements IElement {
 
     private final String command;
 
+    protected BaseMessage() {
+        this.command = null;
+    }
+
     @Override
     public Integer getNip() {
         return 1;

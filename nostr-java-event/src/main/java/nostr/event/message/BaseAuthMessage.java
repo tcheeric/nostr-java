@@ -8,6 +8,10 @@ import nostr.event.BaseMessage;
  */
 public abstract class BaseAuthMessage extends BaseMessage {
 
+    protected BaseAuthMessage(){
+        super();
+    }
+
     public BaseAuthMessage(String command) {
         super(command);
     }

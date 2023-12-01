@@ -17,7 +17,6 @@ import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.util.NostrException;
 
 /**
  *
@@ -26,7 +25,6 @@ import nostr.util.NostrException;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Metadata")
-@Log
 public final class MetadataEvent extends GenericEvent {
 
     private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
@@ -34,7 +32,7 @@ public final class MetadataEvent extends GenericEvent {
     @JsonIgnore
     private UserProfile profile;
 
-    public MetadataEvent(PublicKey pubKey, UserProfile profile) throws NostrException {
+    public MetadataEvent(PublicKey pubKey, UserProfile profile) {
         super(pubKey, Kind.SET_METADATA, new ArrayList<BaseTag>());
         this.profile = profile;
     }
@@ -43,7 +41,7 @@ public final class MetadataEvent extends GenericEvent {
     protected void validate() {
         boolean valid = true;
         
-        var strNameArr = this.profile.getName().split("@");
+        var strNameArr = this.profile.getNip05().split("@");
         if (strNameArr.length == 2) {
             var localPart = strNameArr[0];
             valid = localPart.matches(NAME_PATTERN);
@@ -71,7 +69,6 @@ public final class MetadataEvent extends GenericEvent {
 
             setContent(mapper.writeValueAsString(objNode));
         } catch (JsonProcessingException | IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

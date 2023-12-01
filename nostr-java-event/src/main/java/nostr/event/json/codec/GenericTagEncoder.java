@@ -6,7 +6,6 @@ import lombok.NonNull;
 import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.GenericTag;
-import nostr.util.NostrException;
 
 /**
  *
@@ -24,7 +23,7 @@ public class GenericTagEncoder implements IEncoder<GenericTag> {
     }
     
     @Override
-    public String encode() throws NostrException {
+    public String encode() {
         var encoder = new BaseTagEncoder(tag, relay);
         return encoder.encode();
     }    

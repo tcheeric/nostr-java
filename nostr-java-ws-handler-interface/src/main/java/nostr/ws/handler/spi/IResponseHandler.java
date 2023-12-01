@@ -11,6 +11,6 @@ import nostr.util.NostrException;
  */
 public interface IResponseHandler extends IHandler {
     
-    public abstract void process(@NonNull String message, Relay relay) throws NostrException;
+    void process(@NonNull String message, Relay relay) throws NostrException;
 
 }

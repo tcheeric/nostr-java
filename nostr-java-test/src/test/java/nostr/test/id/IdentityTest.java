@@ -4,6 +4,7 @@ import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+import nostr.id.IdentityHelper;
 import nostr.test.EntityFactory;
 import java.io.IOException;
 import nostr.base.PrivateKey;
@@ -22,56 +23,48 @@ public class IdentityTest {
 
     //private final Identity identity;
 
-    public IdentityTest() throws IOException, NostrException {
+    public IdentityTest() {
     }
 
     @Test
-    public void testSignEvent() throws IOException {
-        try {
-            System.out.println("testSignEvent");
-            PublicKey publicKey = Identity.getInstance().getPublicKey();
-            GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
-            Identity.getInstance().sign(instance);
-            Assertions.assertNotNull(instance.getSignature());
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
-        }
+    public void testSignEvent() {
+        System.out.println("testSignEvent");
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
+        Identity.getInstance().sign(instance);
+        Assertions.assertNotNull(instance.getSignature());
     }
 
     @Test
-    public void testSignDelegationTag() throws IOException {
-        try {
-            System.out.println("testSignDelegationTag");
-            PublicKey publicKey = Identity.getInstance().getPublicKey();
-            DelegationTag delegationTag = new DelegationTag(publicKey, null);
-            Identity.getInstance().sign(delegationTag);
-            Assertions.assertNotNull(delegationTag.getSignature());
-        } catch (NostrException ex) {
-            Assertions.fail(ex);
-        }
+    public void testSignDelegationTag() {
+        System.out.println("testSignDelegationTag");
+        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        DelegationTag delegationTag = new DelegationTag(publicKey, null);
+        Identity.getInstance().sign(delegationTag);
+        Assertions.assertNotNull(delegationTag.getSignature());
     }
     
     
     @Test
-    public void testDecryptMessage() throws IOException {
+    public void testDecryptMessage() {
         try {
             System.out.println("testDecryptMessage");
             var senderPublicKey = Identity.getInstance().getPublicKey();
             
             PrivateKey rcptSecKey = new PrivateKey(NostrUtil.hexToBytes(Bech32.fromBech32("nsec13sntjjh35dd4u3lwy42lnpszydmkwar708y3jzwxr937fy2q73hsmvez4z")));
             PublicKey rcptPubKey = new PublicKey("edd898fc2817ee64f7ee1941d193d53c2daa77db4b8409240565fc9644626878");
-            
+
             final DirectMessageEvent dmEvent = EntityFactory.Events.createDirectMessageEvent(senderPublicKey, rcptPubKey, "Hello uq7yfx3l!");
-            
-            Identity.getInstance().encryptDirectMessage(dmEvent);
-            
+
+            new IdentityHelper(Identity.getInstance()).encryptDirectMessage(dmEvent);
+
             var rcptId = new Identity(rcptSecKey);
-            var msg = rcptId.decryptDirectMessage(dmEvent.getContent(), dmEvent.getPubKey());
+            var msg = new IdentityHelper(rcptId).decryptMessage(dmEvent.getContent(), dmEvent.getPubKey());
             
             Assertions.assertEquals("Hello uq7yfx3l!", msg);
         } catch (NostrException ex) {
             Assertions.fail(ex);
         }
     }
-    
+
 }

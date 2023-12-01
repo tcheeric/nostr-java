@@ -7,13 +7,8 @@ module nostr.ws.handler {
     requires nostr.util;
     requires static lombok;
     requires nostr.base;
-    requires com.fasterxml.jackson.databind;
-    requires com.fasterxml.jackson.annotation;
-    requires com.fasterxml.jackson.core;
-    requires nostr.crypto;
     requires nostr.event;
-    requires java.logging;
-    
+
     exports nostr.ws.handler.spi;
     exports nostr.ws.handler.command.spi;
     

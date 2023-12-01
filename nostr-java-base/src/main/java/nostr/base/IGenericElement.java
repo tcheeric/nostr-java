@@ -1,14 +1,14 @@
 package nostr.base;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  *
  * @author squirrel
  */
-public interface IGenericElement {
+public interface IGenericElement extends IElement {
 
-    public abstract Set<ElementAttribute> getAttributes();
+    List<ElementAttribute> getAttributes();
 
-    public abstract void addAttribute(ElementAttribute attribute);
+    void addAttribute(ElementAttribute attribute);
 }

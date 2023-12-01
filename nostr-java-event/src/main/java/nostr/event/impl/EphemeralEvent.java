@@ -2,7 +2,6 @@ package nostr.event.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import nostr.event.Kind;
 import nostr.base.PublicKey;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,16 +15,15 @@ import nostr.event.tag.PubKeyTag;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Ephemeral Events", nip = 16)
 public class EphemeralEvent extends GenericEvent {
 
-    public EphemeralEvent(PublicKey pubKey, Integer kind, List<? extends BaseTag> tags, String content) {
+    public EphemeralEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {
         super(pubKey, kind, tags, content);
     }
 
-    public EphemeralEvent(PublicKey pubKey, Integer kind, List<? extends BaseTag> tags) {
+    public EphemeralEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags) {
         this(pubKey, kind, tags, "...");
     }
 

@@ -4,7 +4,6 @@ package nostr.base;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import nostr.util.NostrException;
 
 /**
  *
@@ -12,7 +11,7 @@ import nostr.util.NostrException;
  * @param <T>
  */
 public interface IEncoder<T extends IElement> {
-    public static final ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+    ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     
-    public abstract String encode() throws NostrException;    
+    String encode();
 }

@@ -1,9 +1,6 @@
 package nostr.examples;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,15 +125,13 @@ public class FilterRelays {
 	
 	public static void main(String[] args) {
     	for (Map.Entry<String,String> r : relaysURLs.entrySet()) 
-    		relays.add(updateRelayMetadata(Relay.builder()
-    				.uri(r.getValue())
-    				.build()));
+    		relays.add(updateRelayMetadata(new Relay(r.getValue())));
     	
 //    	Filter by NIPs supported
-    	var relaysByNips = relays.stream().filter(r -> r.getSupportedNips().containsAll(Arrays.asList(28)))
-        		.collect(Collectors.toList());
+    	var relaysByNips = relays.stream().filter(r -> new HashSet<>(r.getSupportedNips()).contains(28))
+        		.toList();
     	
-    	System.out.println(relaysByNips.stream().map(Relay::getUri).collect(Collectors.toList()));
+    	System.out.println(relaysByNips.stream().map(Relay::getHostname).collect(Collectors.toList()));
 	}
 
     private static Relay updateRelayMetadata(@NonNull Relay relay) {

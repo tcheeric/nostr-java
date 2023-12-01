@@ -19,7 +19,6 @@ import nostr.event.list.GenericTagQueryList;
  * @author guilhermegps
  *
  */
-@Log
 public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericTagQueryList> {
 
     @Override
@@ -30,7 +29,6 @@ public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericT
 
             gen.writePOJO(list);
         } catch (IOException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }
@@ -46,7 +44,6 @@ public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericT
 
             return node;
         } catch (IllegalArgumentException e) {
-            log.log(Level.SEVERE, null, e);
             throw new RuntimeException(e);
         }
     }

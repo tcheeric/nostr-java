@@ -14,7 +14,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
-import nostr.util.NostrException;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
@@ -26,7 +25,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
         String code = node.get(0).asText();
 
         if (null == code) {
-            throw new IOException("Unknown tag code: " + code);
+            throw new IOException("Unknown tag code: " + null);
         } else // Perform custom deserialization logic based on the concrete class
         {
             switch (code) {
@@ -61,7 +60,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                         tag.setNonce(Integer.valueOf(nodeNonce.asText()));
                     }
 
-                    final JsonNode nodeDifficulty = node.get(1);
+                    final JsonNode nodeDifficulty = node.get(2);
                     if (nodeDifficulty != null) {
                         tag.setDifficulty(Integer.valueOf(nodeDifficulty.asText()));
                     }
@@ -97,12 +96,8 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                     return (T) tag;
                 }
                 default -> {
-                    try {
-                        var tag = new GenericTagDecoder(node.toString()).decode();
-                        return (T) tag;
-                    } catch (NostrException ex) {
-                        throw new IOException(ex);
-                    }
+                    var tag = new GenericTagDecoder(node.toString()).decode();
+                    return (T) tag;
                 }
 
             }

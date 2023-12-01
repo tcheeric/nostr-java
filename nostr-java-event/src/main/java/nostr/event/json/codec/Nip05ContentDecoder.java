@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.Nip05Content;
-import nostr.util.NostrException;
 
 /**
  *
@@ -19,11 +18,11 @@ public class Nip05ContentDecoder implements IDecoder<Nip05Content> {
     private final String jsonContent;
 
     @Override
-    public Nip05Content decode() throws NostrException {
+    public Nip05Content decode() {
         try {
             return new ObjectMapper().readValue(this.jsonContent, Nip05Content.class);
         } catch (JsonProcessingException ex) {
-            throw new NostrException(ex);
+            throw new RuntimeException(ex);
         }
     }
 }

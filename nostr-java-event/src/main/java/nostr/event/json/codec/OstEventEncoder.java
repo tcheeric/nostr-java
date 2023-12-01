@@ -24,14 +24,18 @@ public class OstEventEncoder implements IEncoder<OtsEvent> {
 
     private final OtsEvent event;
     private final Relay relay;
-    
+
     public OstEventEncoder(OtsEvent event) {
         this(event, null);
     }
 
     @Override
-    public String encode() throws NostrException {
-        return toJson();
+    public String encode() {
+        try {
+            return toJson();
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private String toJson() throws NostrException {

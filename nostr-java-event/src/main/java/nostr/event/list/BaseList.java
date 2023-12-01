@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.INostrList;
-import nostr.base.annotation.JsonList;
 import nostr.event.json.serializer.CustomBaseListSerializer;
 
 /**
@@ -18,7 +17,6 @@ import nostr.event.json.serializer.CustomBaseListSerializer;
  */
 @AllArgsConstructor
 @Data
-@JsonList
 @JsonSerialize(using = CustomBaseListSerializer.class)
 public abstract class BaseList<T> implements INostrList<T> {
 
@@ -38,7 +36,7 @@ public abstract class BaseList<T> implements INostrList<T> {
     }
 
     public void addAll(@NonNull List<T> aList) {
-        aList.stream().forEach(e -> this.list.add(e));
+        this.list.addAll(aList);
     }
 
     @Override

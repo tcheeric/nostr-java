@@ -6,7 +6,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.2</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>nostr-java-test</artifactId>
@@ -51,6 +51,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-client</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

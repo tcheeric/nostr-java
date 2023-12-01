@@ -4,9 +4,7 @@ import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,7 +24,6 @@ import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
-import nostr.base.annotation.JsonString;
 import nostr.base.annotation.Key;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
@@ -43,7 +40,6 @@ import nostr.util.NostrUtil;
  * @author squirrel
  */
 @Data
-@Log
 @EqualsAndHashCode(callSuper = false)
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
 
@@ -54,7 +50,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @JsonProperty("pubkey")
     @EqualsAndHashCode.Include
-    @JsonString
     @JsonDeserialize(using = PublicKeyDeserializer.class)
     private PublicKey pubKey;
 
@@ -70,7 +65,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @EqualsAndHashCode.Exclude
     @JsonProperty("tags")
-    private List<? extends BaseTag> tags;
+    private List<BaseTag> tags;
 
     @Key
     @EqualsAndHashCode.Exclude
@@ -79,7 +74,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Key
     @JsonProperty("sig")
     @EqualsAndHashCode.Exclude
-    @JsonString
     @JsonDeserialize(using = SignatureDeserializer.class)
     private Signature signature;
 
@@ -93,30 +87,34 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private final Set<ElementAttribute> attributes;
+    private final List<ElementAttribute> attributes;
 
     public GenericEvent() {
-        this.attributes = new HashSet<>();
+        this.attributes = new ArrayList<>();
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
         this(pubKey, kind, new ArrayList<>(), null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind) {
+        this(pubKey, kind, new ArrayList<>(), null);
+    }
+
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags) {
         this(pubKey, kind, tags, null);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<? extends BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<? extends BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
         this.content = content;
-        this.attributes = new HashSet<>();
+        this.attributes = new ArrayList<>();
 
         // Update parents
         updateTagsParents(tags);
@@ -135,12 +133,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
-    public void setTags(List<? extends BaseTag> tags) {
+    public void setTags(List<BaseTag> tags) {
 
         this.tags = tags;
 
-        for (Object o : tags) {
-            ((ITag) o).setParent(this);
+        for (ITag o : tags) {
+            o.setParent(this);
         }
     }
 
@@ -148,7 +146,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         if (!tags.contains(tag)) {
             tag.setParent(this);
-            ((List<BaseTag>) tags).add(tag);
+            tags.add(tag);
         }
     }
 
@@ -181,17 +179,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    protected static String escapeJsonString(String jsonString) {
-        return jsonString.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    @SuppressWarnings("unchecked")
     private String serialize() throws NostrException {
         var mapper = IEncoder.MAPPER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
@@ -212,9 +199,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
         if (tagList != null && !tagList.isEmpty()) {
-            for (Object t : tagList) {
-                ITag tag = (ITag) t;
-                tag.setParent(this);
+            for (ITag t : tagList) {
+                t.setParent(this);
             }
         }
     }
