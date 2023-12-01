@@ -5,7 +5,7 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>${project.dev.version}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -43,6 +43,9 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+
+        <!-- Current version of the project -->
+        <project.dev.version>0.3</project.dev.version>
     </properties>
 
     <dependencyManagement>

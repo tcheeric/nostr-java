@@ -6,7 +6,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>${project.dev.version}</version>
     </parent>
 
     <artifactId>nostr-java-event</artifactId>
