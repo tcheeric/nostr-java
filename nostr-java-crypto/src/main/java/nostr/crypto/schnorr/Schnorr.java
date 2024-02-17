@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import lombok.extern.java.Log;
 import nostr.crypto.Point;
 import nostr.util.NostrUtil;
 

@@ -1,13 +1,12 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.lang.reflect.Field;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.java.Log;
 import nostr.base.IEncoder;
-import static nostr.base.IEncoder.MAPPER;
 import nostr.base.NipUtil;
 import nostr.base.Relay;
 import nostr.event.BaseEvent;

@@ -4,6 +4,8 @@
  */
 package nostr.api;
 
+import java.util.Map;
+
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
@@ -17,7 +19,6 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseMessageEncoder;
@@ -25,10 +26,10 @@ import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.id.IIdentity;
 import nostr.id.Identity;
-import nostr.util.NostrException;
 
 /**
  * @author eric
@@ -228,14 +229,12 @@ public abstract class Nostr {
 
     }
 
-    // Utils
-
-    /**
-     * @return
-     */
     protected static Client createClient() {
-
         return Client.getInstance();
     }
+
+	protected static Client createClient(Map<String, String> relays) {
+		return Client.getInstance(relays);
+	}
 
 }
