@@ -6,6 +6,7 @@ package nostr.api;
 
 import java.net.URL;
 import java.util.List;
+
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP25.ReactionEventFactory;
 import nostr.event.BaseTag;
@@ -76,7 +77,7 @@ public class NIP25 extends Nostr {
     public static void react(@NonNull GenericEvent event, @NonNull String reaction, URL url) {
         var reactionEvent = new ReactionEventFactory(event, reaction, url).create();
 
-        Nostr.sign(reactionEvent);
-        Nostr.send(reactionEvent);        
+		Nostr.getInstance().sign(reactionEvent);
+		Nostr.getInstance().send(reactionEvent);
     }
 }

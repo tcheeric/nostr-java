@@ -1,6 +1,24 @@
 package nostr.client;
 
-import lombok.Data;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.IEvent;
@@ -19,73 +37,56 @@ import nostr.ws.Connection;
 import nostr.ws.handler.spi.IRequestHandler;
 import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
-import java.io.IOException;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
-/**
- * @author squirrel
- */
 @Log
-@Data
 public class Client {
 
     private static Client INSTANCE;
 
-    private final List<Future<Relay>> futureRelays;
-    private final ThreadPoolExecutor threadPool;
-    private IRequestHandler requestHandler;
+	private final List<Future<Relay>> futureRelays = new ArrayList<>();
+	private final IRequestHandler requestHandler = new DefaultRequestHandler();
+//	TODO: remove getter
+	@Getter
+	private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
-    private Client() throws IOException {
-        this.futureRelays = new ArrayList<>();
-        this.requestHandler = new DefaultRequestHandler();
-        this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+	public Client() throws IOException {
         this.init();
     }
 
-    private Client(Map<String, String> relays) {
-        this.futureRelays = new ArrayList<>();
-        this.requestHandler = new DefaultRequestHandler();
-        this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+	public Client(Map<String, String> relays) {
         this.init(relays);
     }
 
     public static Client getInstance() {
         if (INSTANCE == null) {
-            try {
-                INSTANCE = new Client();
-
-                do {
-                    try {
-                        log.log(Level.INFO, "Waiting for relays' connections to open...");
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } while (INSTANCE.getThreadPool().getCompletedTaskCount() < (INSTANCE.getRelays().size() / 2));
-
-            } catch (IOException ex) {
-                log.log(Level.SEVERE, null, ex);
-                throw new RuntimeException(ex);
-            }
+			try {
+				INSTANCE = new Client();
+			} catch (IOException ex) {
+				log.log(Level.SEVERE, null, ex);
+				throw new RuntimeException(ex);
+			}
         }
 
-        return INSTANCE;
+		return INSTANCE.waitConnection();
     }
 
     public static Client getInstance(Map<String, String> relays) {
-        if (INSTANCE == null) {
-            INSTANCE = new Client(relays);
-        }
+		INSTANCE = (INSTANCE == null) ? new Client(relays) : INSTANCE;
 
-        return INSTANCE;
+		return INSTANCE.waitConnection();
     }
+
+	public Client waitConnection() {
+		do {
+			try {
+				log.log(Level.INFO, "Waiting for relays' connections to open...");
+				Thread.sleep(5000);
+			} catch (InterruptedException ex) {
+				throw new RuntimeException(ex);
+			}
+		} while (this.threadPool.getCompletedTaskCount() < (this.getRelays().size() / 2));
+
+		return this;
+	}
 
     public List<Relay> getRelays() {
         return futureRelays.parallelStream()
@@ -129,7 +130,7 @@ public class Client {
     }
 
     // TODO - Make private?
-    public void send(@NonNull BaseMessage message) {
+	public void send(@NonNull BaseMessage message) {
 
         log.log(Level.INFO, "Sending message {0}", message);
 

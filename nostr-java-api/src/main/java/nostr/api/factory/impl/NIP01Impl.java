@@ -38,7 +38,7 @@ import nostr.id.IIdentity;
  *
  * @author eric
  */
-public class NIP01 {
+public class NIP01Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

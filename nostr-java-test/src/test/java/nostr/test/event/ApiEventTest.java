@@ -1,10 +1,15 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -19,10 +24,9 @@ import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
+import nostr.event.impl.TextNoteEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -41,7 +45,9 @@ public class ApiEventTest {
         List<BaseTag> tags = new ArrayList<>();
         tags.add(recipient);
 
-        var instance = NIP01.createTextNoteEvent(tags, "Hello simplified nostr-java!");
+        var nip01 = new NIP01<TextNoteEvent>();
+		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
+				.getEvent();
         instance.update();
 
         Assertions.assertNotNull(instance.getId());
@@ -57,11 +63,13 @@ public class ApiEventTest {
     public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
-        var instance = NIP01.createTextNoteEvent("Hello simplified nostr-java!");
+        var nip01 = new NIP01<TextNoteEvent>();
+		var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!")
+        		.sign();
 
-        var signature = Nostr.sign(instance);
+        var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.send(instance);
+        instance.send();
     }
 
     @Test
@@ -71,9 +79,10 @@ public class ApiEventTest {
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
         var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        var signature = Nostr.sign(instance);
+        Nostr.getInstance().sign(instance);
+        var signature = instance.getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.send(instance);
+        Nostr.getInstance().send(instance);
     }
 
     @Test
@@ -84,7 +93,7 @@ public class ApiEventTest {
 
         var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
         NIP04.encrypt(Identity.getInstance(), instance);
-        Nostr.sign(instance);
+        Nostr.getInstance().sign(instance);
         var message = NIP04.decrypt(Identity.getInstance(), instance);
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
@@ -98,9 +107,10 @@ public class ApiEventTest {
 
         // Create and send the nostr event
         var instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        var signature = Nostr.sign(instance);
+        Nostr.getInstance().sign(instance);
+        var signature = instance.getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.send(instance);
+        Nostr.getInstance().send(instance);
 
         // Fetch the content and compare with the above original
         var content = instance.getContent();
@@ -118,16 +128,17 @@ public class ApiEventTest {
 
         // Create and send the nostr event
         var instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        var signature = Nostr.sign(instance);
+        Nostr.getInstance().sign(instance);
+        var signature = instance.getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.send(instance);
+        Nostr.getInstance().send(instance);
 
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
         instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        Nostr.sign(instance);
-        Nostr.send(instance);
+        Nostr.getInstance().sign(instance);
+        Nostr.getInstance().send(instance);
     }
 
     @Test
@@ -146,8 +157,8 @@ public class ApiEventTest {
         categories.add("Hommes");
 
         var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
-        Nostr.sign(instance);
-        Nostr.send(instance);
+        Nostr.getInstance().sign(instance);
+        Nostr.getInstance().send(instance);
     }
 
     @Test
@@ -166,14 +177,14 @@ public class ApiEventTest {
         categories.add("Hommes");
 
         var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
-        Nostr.sign(instance);
-        Nostr.send(instance);
+        Nostr.getInstance().sign(instance);
+        Nostr.getInstance().send(instance);
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
-        Nostr.sign(instance);
-        Nostr.send(instance);
+        Nostr.getInstance().sign(instance);
+        Nostr.getInstance().send(instance);
     }
 
     @Test

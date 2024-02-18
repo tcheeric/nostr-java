@@ -5,17 +5,18 @@
 package nostr.api;
 
 import java.util.List;
+
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP01.CloseMessageFactory;
-import nostr.api.factory.impl.NIP01.EoseMessageFactory;
-import nostr.api.factory.impl.NIP01.EventMessageFactory;
-import nostr.api.factory.impl.NIP01.EventTagFactory;
-import nostr.api.factory.impl.NIP01.FiltersFactory;
-import nostr.api.factory.impl.NIP01.MetadataEventFactory;
-import nostr.api.factory.impl.NIP01.NoticeMessageFactory;
-import nostr.api.factory.impl.NIP01.PubKeyTagFactory;
-import nostr.api.factory.impl.NIP01.ReqMessageFactory;
-import nostr.api.factory.impl.NIP01.TextNoteEventFactory;
+import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
+import nostr.api.factory.impl.NIP01Impl.FiltersFactory;
+import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
+import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
+import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -23,9 +24,8 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.Filters;
-import nostr.event.impl.MetadataEvent;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
-import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
@@ -45,7 +45,7 @@ import nostr.id.IIdentity;
  *
  * @author eric
  */
-public class NIP01 extends Nostr {
+public class NIP01<T extends GenericEvent> extends EventNostr<T> {
 
     /**
      * Create a NIP01 text note event without tags
@@ -53,12 +53,18 @@ public class NIP01 extends Nostr {
      * @param content the content of the note
      * @return the text note without tags
      */
-    public static TextNoteEvent createTextNoteEvent(@NonNull String content) {
-        return new TextNoteEventFactory(content).create();
+	public NIP01 createTextNoteEvent(@NonNull String content) {
+		var event = new TextNoteEventFactory(content).create();
+		this.setEvent((T) event);
+
+		return this;
     }
 
-    public static TextNoteEvent createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
-        return new TextNoteEventFactory(sender, content).create();
+	public NIP01 createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
+		var event = new TextNoteEventFactory(sender, content).create();
+		this.setEvent((T) event);
+
+		return this;
     }
 
     /**
@@ -68,26 +74,21 @@ public class NIP01 extends Nostr {
      * @param content the content of the note
      * @return a text note event
      */
-    public static TextNoteEvent createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-        return new TextNoteEventFactory(tags, content).create();
+	public NIP01 createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+    	var sender = getSender();
+		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(tags, content);
+		var event = factory.create();
+		setEvent((T) event);
+
+		return this;
     }
 
-    public static TextNoteEvent createTextNoteEvent(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
-        return new TextNoteEventFactory(sender, tags, content).create();
-    }
-
-    /**
-     * Create a NIP01 metadata event
-     *
-     * @param profile the associated profile
-     * @return a metadata event associated for the profile
-     */
-    public static MetadataEvent createMetadataEvent(@NonNull UserProfile profile) {
-        return new MetadataEventFactory(profile).create();
-    }
-
-    public static MetadataEvent createMetadataEvent(@NonNull IIdentity sender, @NonNull UserProfile profile) {
-        return new MetadataEventFactory(sender, profile).create();
+    public NIP01 createMetadataEvent(@NonNull UserProfile profile) {
+    	var sender = getSender();
+    	var event = (sender!=null) ? new MetadataEventFactory(sender, profile).create() : new MetadataEventFactory(profile).create();
+        
+        this.setEvent((T) event);
+        return this;
     }
 
     /**
