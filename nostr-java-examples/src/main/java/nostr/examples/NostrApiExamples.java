@@ -32,6 +32,7 @@ import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
+import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.MetadataEvent;
@@ -49,7 +50,7 @@ import nostr.util.NostrException;
 @Log
 public class NostrApiExamples {
 
-    private static final Identity RECEIVER = Identity.generateRandomIdentity();
+    private static final Identity RECIPIENT = Identity.generateRandomIdentity();
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
@@ -87,9 +88,9 @@ public class NostrApiExamples {
 				sendTextNoteEvent();
 			});
 
-//            executor.submit(() -> {
-//                sendEncryptedDirectMessage();
-//            });
+            executor.submit(() -> {
+                sendEncryptedDirectMessage();
+            });
 //
 //            executor.submit(() -> {
 //                mentionsEvent();
@@ -153,12 +154,11 @@ public class NostrApiExamples {
     private static void sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
 
-        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
+        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECIPIENT.getPublicKey()).build();
         List<BaseTag> tags = new ArrayList<>();
         tags.add(rcptTag);
 
-        var nip01 = new NIP01<TextNoteEvent>();
-        nip01.setSender(SENDER);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
         		.sign()
         		.send(RELAYS);
@@ -167,16 +167,18 @@ public class NostrApiExamples {
     private static void sendEncryptedDirectMessage() {
         logHeader("sendEncryptedDirectMessage");
 
-		var event = NIP04.createDirectMessageEvent(RECEIVER.getPublicKey(), "Hello Nakamoto!");
-		NIP04.encrypt(SENDER, event);
-		Nostr.getInstance().sign(SENDER, event).send(event);
+        var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
+        nip04.createDirectMessageEvent("Hello Nakamoto!")
+			.encrypt()
+			.sign()
+			.send();
     }
 
     private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
         List<PublicKey> publicKeys = new ArrayList<>();
-        publicKeys.add(RECEIVER.getPublicKey());
+        publicKeys.add(RECIPIENT.getPublicKey());
 
         var event = NIP08.createMentionsEvent(publicKeys, "Hello #[1]");
 		Nostr.getInstance().sign(SENDER, event).send(event);
@@ -185,8 +187,7 @@ public class NostrApiExamples {
     private static void deletionEvent() {
         logHeader("deletionEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>();
-        nip01.setSender(SENDER);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
         var event = nip01.createTextNoteEvent("Hello Astral, Please delete me!")
         		.sign()
         		.send(RELAYS);
@@ -201,8 +202,7 @@ public class NostrApiExamples {
     private static void metaDataEvent() {
         logHeader("metaDataEvent");
 
-        var nip01 = new NIP01<MetadataEvent>();
-        nip01.setSender(SENDER);
+        var nip01 = new NIP01<MetadataEvent>(SENDER);
         nip01.createMetadataEvent(PROFILE)
         		.sign()
         		.send(RELAYS);
@@ -218,8 +218,7 @@ public class NostrApiExamples {
     private static void reactionEvent() {
         logHeader("reactionEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>();
-        nip01.setSender(SENDER);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
         var event = nip01.createTextNoteEvent("Hello Astral, Please like me!")
         		.sign()
         		.send(RELAYS);
@@ -231,8 +230,7 @@ public class NostrApiExamples {
     private static void replaceableEvent() {
         logHeader("replaceableEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>();
-        nip01.setSender(SENDER);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
         var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!")
         		.sign()
         		.send(RELAYS);
@@ -325,7 +323,7 @@ public class NostrApiExamples {
     private static GenericEvent muteUser() {
         logHeader("muteUser");
 
-        GenericEvent event = NIP28.createMuteUserEvent(RECEIVER.getPublicKey(), "Posting dick pics");
+        GenericEvent event = NIP28.createMuteUserEvent(RECIPIENT.getPublicKey(), "Posting dick pics");
 
 		Nostr.getInstance().sign(SENDER, event).send(event);
 
@@ -335,10 +333,10 @@ public class NostrApiExamples {
     private static void logAccountsData() {
         String msg = "################################ ACCOUNTS BEGINNING ################################" +
                 '\n' + "*** RECEIVER ***" + '\n' +
-                '\n' + "* PrivateKey: " + RECEIVER.getPrivateKey().getBech32() +
-                '\n' + "* PrivateKey HEX: " + RECEIVER.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + RECEIVER.getPublicKey().getBech32() +
-                '\n' + "* PublicKey HEX: " + RECEIVER.getPublicKey().toString() +
+                '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + RECIPIENT.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + RECIPIENT.getPublicKey().toString() +
                 '\n' + '\n' + "*** SENDER ***" + '\n' +
                 '\n' + "* PrivateKey: " + SENDER.getPrivateKey().getBech32() +
                 '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +

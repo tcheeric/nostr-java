@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -20,6 +21,9 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 	@Getter
 	@Setter
 	private T event;
+	
+	@Getter
+	private PublicKey recipient;
 
 	public EventNostr sign() {
 		super.sign(getSender(), event);
@@ -41,6 +45,12 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 	
 	public EventNostr setSender(@NonNull Identity sender) {
 		super.setSender(sender);
+		
+		return this;
+	}
+	
+	public EventNostr setRecipient(@NonNull PublicKey recipient) {
+		this.recipient = recipient;
 		
 		return this;
 	}

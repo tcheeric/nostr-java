@@ -22,6 +22,7 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
+import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
@@ -45,7 +46,7 @@ public class ApiEventTest {
         List<BaseTag> tags = new ArrayList<>();
         tags.add(recipient);
 
-        var nip01 = new NIP01<TextNoteEvent>();
+        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
 		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
 				.getEvent();
         instance.update();
@@ -63,7 +64,7 @@ public class ApiEventTest {
     public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>();
+        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
 		var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!")
         		.sign();
 
@@ -78,11 +79,13 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        Nostr.getInstance().sign(instance);
-        var signature = instance.getSignature();
+        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+        		.sign();
+        
+        var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.getInstance().send(instance);
+        instance.send();
     }
 
     @Test
@@ -91,10 +94,11 @@ public class ApiEventTest {
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = NIP04.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        NIP04.encrypt(Identity.getInstance(), instance);
-        Nostr.getInstance().sign(instance);
-        var message = NIP04.decrypt(Identity.getInstance(), instance);
+        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+		        .encrypt()
+		        .sign();
+        var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }

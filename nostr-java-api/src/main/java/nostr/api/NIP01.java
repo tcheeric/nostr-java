@@ -40,12 +40,17 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
  * @author eric
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
+	
+	public NIP01(@NonNull Identity sender) {
+		setSender(sender);
+	}
 
     /**
      * Create a NIP01 text note event without tags
@@ -53,14 +58,14 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the content of the note
      * @return the text note without tags
      */
-	public NIP01 createTextNoteEvent(@NonNull String content) {
+	public NIP01<T> createTextNoteEvent(@NonNull String content) {
 		var event = new TextNoteEventFactory(content).create();
 		this.setEvent((T) event);
 
 		return this;
     }
 
-	public NIP01 createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
+	public NIP01<T> createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
 		var event = new TextNoteEventFactory(sender, content).create();
 		this.setEvent((T) event);
 
@@ -74,7 +79,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the content of the note
      * @return a text note event
      */
-	public NIP01 createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+	public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
     	var sender = getSender();
 		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(tags, content);
 		var event = factory.create();
@@ -83,7 +88,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 		return this;
     }
 
-    public NIP01 createMetadataEvent(@NonNull UserProfile profile) {
+    public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
     	var sender = getSender();
     	var event = (sender!=null) ? new MetadataEventFactory(sender, profile).create() : new MetadataEventFactory(profile).create();
         
