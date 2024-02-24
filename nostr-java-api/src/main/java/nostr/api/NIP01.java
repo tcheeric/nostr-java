@@ -23,8 +23,8 @@ import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
+import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
-import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
@@ -45,7 +45,7 @@ import nostr.id.IIdentity;
  *
  * @author eric
  */
-public class NIP01<T extends GenericEvent> extends EventNostr<T> {
+public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create a NIP01 text note event without tags
