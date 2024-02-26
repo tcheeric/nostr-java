@@ -6,6 +6,7 @@ package nostr.api.factory;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Data;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
@@ -59,6 +60,7 @@ public abstract class EventFactory<T extends IEvent> {
         this.tags.add(tag);
     }
 
+    @Deprecated(forRemoval = true)
     protected PublicKey getSender() {
         return this.identity.getPublicKey();
     }

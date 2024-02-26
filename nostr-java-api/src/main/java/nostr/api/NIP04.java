@@ -18,7 +18,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.api.factory.impl.NIP04.DirectMessageEventFactory;
+import nostr.api.factory.impl.NIP04Impl.DirectMessageEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.NIP04Event;
@@ -42,7 +42,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 	}
 
     public NIP04<T> createDirectMessageEvent(@NonNull String content) {
-        var event = new DirectMessageEventFactory(getRecipient(), content).create();
+        var event = new DirectMessageEventFactory(getSender(), getRecipient(), content).create();
 		this.setEvent((T) event);
         
         return this;

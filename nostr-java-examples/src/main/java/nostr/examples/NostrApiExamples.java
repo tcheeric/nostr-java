@@ -171,7 +171,7 @@ public class NostrApiExamples {
         nip04.createDirectMessageEvent("Hello Nakamoto!")
 			.encrypt()
 			.sign()
-			.send();
+			.send(RELAYS);
     }
 
     private static void mentionsEvent() {
