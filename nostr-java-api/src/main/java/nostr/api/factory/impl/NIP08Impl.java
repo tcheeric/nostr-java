@@ -17,7 +17,7 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP08 {
+public class NIP08Impl {
 
     public static class MentionsEventFactory extends EventFactory<MentionsEvent> {
 

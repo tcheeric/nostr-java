@@ -35,6 +35,7 @@ import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
+import nostr.event.impl.MentionsEvent;
 import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.KindList;
@@ -80,22 +81,22 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-			executor.submit(() -> {
-				metaDataEvent();
-			});
-
-			executor.submit(() -> {
-				sendTextNoteEvent();
-			});
-
-            executor.submit(() -> {
-                sendEncryptedDirectMessage();
-            });
+//			executor.submit(() -> {
+//				metaDataEvent();
+//			});
+//
+//			executor.submit(() -> {
+//				sendTextNoteEvent();
+//			});
 //
 //            executor.submit(() -> {
-//                mentionsEvent();
+//                sendEncryptedDirectMessage();
 //            });
-//
+
+            executor.submit(() -> {
+                mentionsEvent();
+            });
+
 //            executor.submit(() -> {
 //                deletionEvent();
 //            });
@@ -180,8 +181,10 @@ public class NostrApiExamples {
         List<PublicKey> publicKeys = new ArrayList<>();
         publicKeys.add(RECIPIENT.getPublicKey());
 
-        var event = NIP08.createMentionsEvent(publicKeys, "Hello #[1]");
-		Nostr.getInstance().sign(SENDER, event).send(event);
+        var nip08 = new NIP08<MentionsEvent>(SENDER);
+        nip08.createMentionsEvent(publicKeys, "Hello #[1]")
+			.sign()
+			.send(RELAYS);
     }
 
     private static void deletionEvent() {
