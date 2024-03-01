@@ -34,6 +34,7 @@ import nostr.util.NostrException;
  * @author eric
  */
 @Log
+@Deprecated(since = "NIP-44")
 public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 	
 	public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {

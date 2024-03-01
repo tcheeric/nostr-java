@@ -80,25 +80,25 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-//			executor.submit(() -> {
-//				metaDataEvent();
-//			});
-//
-//			executor.submit(() -> {
-//				sendTextNoteEvent();
-//			});
-//
+			executor.submit(() -> {
+				metaDataEvent();
+			});
+
+			executor.submit(() -> {
+				sendTextNoteEvent();
+			});
+
 //            executor.submit(() -> {
 //                sendEncryptedDirectMessage();
 //            });
 
-            executor.submit(() -> {
-                mentionsEvent();
-            });
-
 //            executor.submit(() -> {
-//                deletionEvent();
+//                mentionsEvent();
 //            });
+
+            executor.submit(() -> {
+                deletionEvent();
+            });
 //
 //            executor.submit(() -> {
 //                ephemerealEvent();
