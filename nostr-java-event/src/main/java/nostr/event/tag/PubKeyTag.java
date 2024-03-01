@@ -45,6 +45,10 @@ public class PubKeyTag extends BaseTag {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String petName;
 
+    public PubKeyTag(@NonNull PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
     public PubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl, String petName) {
         this.publicKey = publicKey;
         this.mainRelayUrl = mainRelayUrl;

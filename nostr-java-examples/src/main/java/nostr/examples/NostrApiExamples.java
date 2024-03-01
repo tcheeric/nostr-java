@@ -25,7 +25,6 @@ import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.Nostr;
 import nostr.base.ChannelProfile;
-import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -178,11 +177,10 @@ public class NostrApiExamples {
     private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
-        List<PublicKey> publicKeys = new ArrayList<>();
-        publicKeys.add(RECIPIENT.getPublicKey());
+        List<BaseTag> tags = List.of(new PubKeyTag(RECIPIENT.getPublicKey()));
 
         var nip08 = new NIP08<MentionsEvent>(SENDER);
-        nip08.createMentionsEvent(publicKeys, "Hello #[1]")
+        nip08.createMentionsEvent(tags, "Hello #[0]")
 			.sign()
 			.send(RELAYS);
     }
@@ -202,13 +200,15 @@ public class NostrApiExamples {
 		Nostr.getInstance().sign(delEvent).send(delEvent);
     }
 
-    private static void metaDataEvent() {
+    private static MetadataEvent metaDataEvent() {
         logHeader("metaDataEvent");
 
         var nip01 = new NIP01<MetadataEvent>(SENDER);
         nip01.createMetadataEvent(PROFILE)
         		.sign()
         		.send(RELAYS);
+        
+        return nip01.getEvent();
     }
 
     private static void ephemerealEvent() {

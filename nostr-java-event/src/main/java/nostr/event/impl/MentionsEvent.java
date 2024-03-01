@@ -1,10 +1,10 @@
 package nostr.event.impl;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
@@ -29,13 +29,12 @@ public final class MentionsEvent extends NIP08Event {
     public void update() {
         super.update();
 
-        int index = 0;
+        AtomicInteger counter = new AtomicInteger(0);
 
         // TODO - Refactor with the EntityAttributeUtil class
-        while (getTags().iterator().hasNext()) {
-            ITag tag = getTags().iterator().next();
-            String replacement = "#[" + index++ + "]";
+        getTags().forEach(tag -> {
+            String replacement = "#[" + counter.getAndIncrement() + "]";
             setContent(this.getContent().replace(((PubKeyTag) tag).getPublicKey().toString(), replacement));
-        }
+        });
     }
 }
