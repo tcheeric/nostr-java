@@ -66,7 +66,7 @@ public class NIP172 {
         tags.add(new nostr.api.factory.impl.NIP42.RelaysTagFactory(relays).create());
         tags.add(createBidTag(bidTagAmount, bidTagMaxPrice));
         tags.add(new nostr.api.factory.impl.NIP40.ExpirationTagFactory(expiration).create());
-        tags.add(new nostr.api.factory.impl.NIP33.IdentifierTagFactory(uniqueJobName).create());
+        tags.add(new nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory(uniqueJobName).create());
         serviceProviders.forEach(p -> tags.add(PubKeyTag.builder().publicKey(p).build()));
 
         PublicKey sender = Identity.getInstance().getPublicKey();

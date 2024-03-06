@@ -2,12 +2,13 @@ package nostr.event.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import nostr.base.PublicKey;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
+import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
+import nostr.event.NIP01Event;
 import nostr.event.tag.PubKeyTag;
 
 /**
@@ -16,8 +17,8 @@ import nostr.event.tag.PubKeyTag;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "Ephemeral Events", nip = 16)
-public class EphemeralEvent extends GenericEvent {
+@Event(name = "Ephemeral Events", nip = 1)
+public class EphemeralEvent extends NIP01Event {
 
     public EphemeralEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {
         super(pubKey, kind, tags, content);
@@ -31,6 +32,13 @@ public class EphemeralEvent extends GenericEvent {
         this(sender, kind, new ArrayList<>());
         this.addTag(PubKeyTag.builder().publicKey(recipient).build());
     }
-    
-    // TODO - Validate the kind.
+
+    @Override
+    protected void validate() {
+    	var n = getKind();
+        if (20000 <= n && n < 30000)
+            return;
+
+        throw new AssertionError("Invalid kind value. Must be between 20000 and 30000.", null);
+    }
 }

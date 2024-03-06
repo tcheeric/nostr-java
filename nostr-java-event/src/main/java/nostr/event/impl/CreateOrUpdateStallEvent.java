@@ -1,9 +1,11 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,10 +24,6 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Create or update a stall", nip = 15)
 public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
-
-    protected CreateOrUpdateStallEvent() {
-        super();
-    }
 
     public CreateOrUpdateStallEvent(PublicKey sender, List<BaseTag> tags, @NonNull Stall stall) {
         super(sender, 30017, tags, stall);

@@ -5,6 +5,7 @@
 package nostr.api.factory.impl;
 
 import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -18,10 +19,12 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP16 {
+@Deprecated(since = "NIP-01")
+public class NIP16Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
+    @Deprecated(since = "NIP-01")
     public static class ReplaceableEventFactory extends EventFactory<ReplaceableEvent> {
 
         private final Integer kind;
@@ -54,6 +57,7 @@ public class NIP16 {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
+    @Deprecated(since = "NIP-01")
     public static class EphemeralEventFactory extends EventFactory<EphemeralEvent> {
 
         private final Integer kind;

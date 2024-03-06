@@ -21,4 +21,8 @@ public abstract class NIP01Event extends GenericEvent {
 		super(pubKey, kind, tags, content);
 	}
 
+	public NIP01Event(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
+		super(sender, kind, tags, content);
+	}
+
 }

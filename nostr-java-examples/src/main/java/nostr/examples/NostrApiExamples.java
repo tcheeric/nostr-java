@@ -33,6 +33,7 @@ import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.DeletionEvent;
 import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.MentionsEvent;
@@ -97,13 +98,13 @@ public class NostrApiExamples {
 //                mentionsEvent();
 //            });
 
-            executor.submit(() -> {
-                deletionEvent();
-            });
-//
 //            executor.submit(() -> {
-//                ephemerealEvent();
+//                deletionEvent();
 //            });
+//
+            executor.submit(() -> {
+                ephemerealEvent();
+            });
 //
 //            executor.submit(() -> {
 //                reactionEvent();
@@ -210,10 +211,12 @@ public class NostrApiExamples {
     }
 
     private static void ephemerealEvent() {
-        logHeader("ephemerealEvent");
+        logHeader("ephemeralEvent");
 
-        var event = NIP16.createEphemeralEvent(Integer.SIZE, "An ephemereal event");
-		Nostr.getInstance().sign(SENDER, event).send(event);
+        var nip01 = new NIP01<EphemeralEvent>(SENDER);
+        nip01.createEphemeralEvent(21000, "An ephemeral event")
+			.sign()
+			.send(RELAYS);
     }
 
     private static void reactionEvent() {

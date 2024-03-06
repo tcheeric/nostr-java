@@ -7,14 +7,19 @@ package nostr.api;
 import java.util.List;
 
 import lombok.NonNull;
+import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
 import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
 import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
 import nostr.api.factory.impl.NIP01Impl.FiltersFactory;
+import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
 import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
 import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
+import nostr.api.factory.impl.NIP01Impl.ParameterizedReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
+import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
 import nostr.base.IEvent;
@@ -25,7 +30,6 @@ import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
-import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
@@ -95,6 +99,46 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         this.setEvent((T) event);
         return this;
     }
+
+    /**
+     * Create a replaceable event
+     * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
+     * @param content the content
+     * @return 
+     */
+    public NIP01<T> createReplaceableEvent(@NonNull Integer kind, String content) {
+    	var event = new ReplaceableEventFactory(getSender(), kind, content).create();
+        
+        this.setEvent((T) event);
+        return this;
+    }
+    
+    /**
+     * Create a replaceable event
+     * @param tags the note's tags
+     * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
+     * @param content the note's content
+     * @return 
+     */
+    public NIP01<T> createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
+    	var event = new ReplaceableEventFactory(getSender(), tags, kind, content).create();
+        
+        this.setEvent((T) event);
+        return this;
+    }
+
+    /**
+     * Create an ephemeral event
+     * @param kind the kind (20000 <= n < 30000)
+     * @param content the note's content
+     * @return 
+     */
+    public NIP01<T> createEphemeralEvent(@NonNull Integer kind, String content) {
+    	var event = new EphemeralEventFactory(getSender(), kind, content).create();   
+        
+        this.setEvent((T) event);
+        return this;     
+    }    
 
     /**
      * Create a NIP01 event tag
@@ -240,44 +284,54 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     }
 
     /**
-     *
+     * 
      * @param kind
      * @param comment
-     * @return
+     * @return 
      */
-    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
-        return NIP33.createParameterizedReplaceableEvent(kind, comment);
+    public NIP01<T> createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
+    	var event = new ParameterizedReplaceableEventFactory(getSender(), kind, comment).create();
+        
+        this.setEvent((T) event);
+        return this;
     }
-
+    
     /**
-     *
+     * 
      * @param tags
      * @param kind
      * @param comment
-     * @return
+     * @return 
      */
-    public static ParameterizedReplaceableEvent createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String comment) {
-        return NIP33.createParameterizedReplaceableEvent(tags, kind, comment);
+    public NIP01<T> createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String comment) {
+    	var event = new ParameterizedReplaceableEventFactory(getSender(), tags, kind, comment).create();
+        
+        this.setEvent((T) event);
+        return this;
     }
-
+    
     /**
-     *
+     * 
      * @param id
-     * @return
+     * @return 
      */
     public static IdentifierTag createIdentifierTag(@NonNull String id) {
-        return NIP33.createIdentifierTag(id);
+        return new IdentifierTagFactory(id).create();
     }
 
     /**
-     *
+     * 
      * @param kind
      * @param publicKey
      * @param idTag
      * @param relay
-     * @return
+     * @return 
      */
     public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, @NonNull IdentifierTag idTag, Relay relay) {
-        return NIP33.createAddressTag(kind, publicKey, idTag, relay);
-    }
+        var result = new AddressTagFactory(publicKey).create();
+        result.setIdentifierTag(idTag);
+        result.setKind(kind);
+        result.setRelay(relay);
+        return result;
+    }    
 }
