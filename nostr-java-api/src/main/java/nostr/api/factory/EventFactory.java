@@ -26,6 +26,10 @@ public abstract class EventFactory<T extends IEvent> {
     private final String content;
     private final List<BaseTag> tags;
 
+    public EventFactory(IIdentity identity) {
+        this(identity, new ArrayList<>(), null);
+    }
+
     protected EventFactory() {
         this.identity = Identity.getInstance();
         this.content = null;

@@ -83,8 +83,7 @@ public class Nostr {
     }
 
 	public Nostr sign(@NonNull ISignable signable) {
-        Identity identity = Identity.getInstance();
-		identity.sign(signable);
+		sender.sign(signable);
 
 		return this;
     }

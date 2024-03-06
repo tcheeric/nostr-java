@@ -5,6 +5,7 @@
 package nostr.api.factory.impl;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -76,7 +77,6 @@ public class NIP01Impl {
         private UserProfile profile;
 
         public MetadataEventFactory(@NonNull UserProfile profile) {
-            super(null);
             this.profile = profile;
         }
 

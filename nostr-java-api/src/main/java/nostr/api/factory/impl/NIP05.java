@@ -25,7 +25,6 @@ public class NIP05 {
         private final UserProfile profile;
 
         public InternetIdentifierMetadataEventFactory(@NonNull UserProfile profile) {
-            super(null);
             this.profile = profile;
         }
 

@@ -7,6 +7,7 @@ package nostr.api.factory.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,7 +38,6 @@ public class NIP42 {
         private final Relay relay;
 
         public ClientAuthenticationEventFactory(@NonNull String challenge, @NonNull Relay relay) {
-            super(null);
             this.challenge = challenge;
             this.relay = relay;
         }

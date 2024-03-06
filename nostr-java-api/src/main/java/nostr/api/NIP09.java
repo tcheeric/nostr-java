@@ -4,20 +4,24 @@
  */
 package nostr.api;
 
-import java.util.ArrayList;
 import java.util.List;
+
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP09.DeletionEventFactory;
+import nostr.api.factory.impl.NIP09Impl.DeletionEventFactory;
 import nostr.event.BaseTag;
-import nostr.event.impl.DeletionEvent;
-import nostr.event.impl.GenericEvent;
+import nostr.event.NIP09Event;
 import nostr.event.tag.EventTag;
+import nostr.id.Identity;
 
 /**
  *
  * @author eric
  */
-public class NIP09 extends Nostr {
+public class NIP09<T extends NIP09Event> extends EventNostr<T> {
+	
+	public NIP09(@NonNull Identity sender) {
+		setSender(sender);
+	}
 
     /**
      * Create a NIP09 Deletion Event
@@ -25,21 +29,25 @@ public class NIP09 extends Nostr {
      * @param tags list of event or address tags to be deleted
      * @return the deletion event
      */
-    public static DeletionEvent createDeletionEvent(@NonNull List<BaseTag> tags) {
-        return new DeletionEventFactory(tags).create();
+    public NIP09<T> createDeletionEvent(@NonNull List<BaseTag> tags) {
+    	var event = new DeletionEventFactory(getSender(), tags).create();
+		this.setEvent((T) event);
+
+		return this;
     }
 
     /**
      * Create a NIP09 Deletion Event
      *
-     * @param event the (single) event to delete
+     * @param idEvent the id of event to delete
      * @return the deletion event
      */
-    public static DeletionEvent createDeletionEvent(@NonNull GenericEvent event) {
-        EventTag tag = new EventTag(event.getId());
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(tag);
+    public NIP09<T> createDeletionEvent(@NonNull String idEvent) {
+        List<BaseTag> tags = List.of(new EventTag(idEvent));
 
-        return new DeletionEventFactory(tags).create();
+        var event = new DeletionEventFactory(tags).create();
+		this.setEvent((T) event);
+
+		return this;
     }
 }

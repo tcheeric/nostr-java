@@ -4,6 +4,8 @@
  */
 package nostr.api.factory.impl;
 
+import static nostr.util.NostrUtil.escapeJsonString;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -19,8 +21,6 @@ import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.MuteUserEvent;
 import nostr.id.Identity;
 
-import static nostr.util.NostrUtil.escapeJsonString;
-
 /**
  *
  * @author eric
@@ -34,7 +34,6 @@ public class NIP28 {
         private final ChannelProfile profile;
 
         public ChannelCreateEventFactory(@NonNull ChannelProfile profile) {
-            super(null);
             this.profile = profile;
         }
 
@@ -77,7 +76,6 @@ public class NIP28 {
         private final ChannelCreateEvent channelCreateEvent;
 
         public ChannelMetadataEventFactory(@NonNull ChannelCreateEvent channelCreateEvent, @NonNull ChannelProfile profile) {
-            super(null);
             this.channelCreateEvent = channelCreateEvent;
             this.profile = profile;
         }
@@ -102,7 +100,6 @@ public class NIP28 {
         private String reason;
 
         public HideMessageEventFactory(@NonNull ChannelMessageEvent channelMessageEvent, @NonNull String reason) {
-            super(null);
             this.channelMessageEvent = channelMessageEvent;
             this.reason = reason;
         }
@@ -137,7 +134,6 @@ public class NIP28 {
         private String reason;
 
         public MuteUserEventFactory(@NonNull PublicKey mutedUser, @NonNull String reason) {
-            super(null);
             this.mutedUser = mutedUser;
             this.reason = reason;
         }

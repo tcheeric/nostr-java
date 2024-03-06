@@ -31,6 +31,7 @@ import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
+import nostr.event.impl.DeletionEvent;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
@@ -80,13 +81,13 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-			executor.submit(() -> {
-				metaDataEvent();
-			});
-
-			executor.submit(() -> {
-				sendTextNoteEvent();
-			});
+//			executor.submit(() -> {
+//				metaDataEvent();
+//			});
+//
+//			executor.submit(() -> {
+//				sendTextNoteEvent();
+//			});
 
 //            executor.submit(() -> {
 //                sendEncryptedDirectMessage();
@@ -151,17 +152,17 @@ public class NostrApiExamples {
         }
     }
 
-    private static void sendTextNoteEvent() {
+    private static TextNoteEvent sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
 
-        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECIPIENT.getPublicKey()).build();
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(rcptTag);
+        List<BaseTag> tags = List.of(new PubKeyTag(RECIPIENT.getPublicKey()));
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
         		.sign()
         		.send(RELAYS);
+        
+        return nip01.getEvent();
     }
 
     private static void sendEncryptedDirectMessage() {
@@ -185,20 +186,17 @@ public class NostrApiExamples {
 			.send(RELAYS);
     }
 
-    private static void deletionEvent() {
-        logHeader("deletionEvent");
+	private static void deletionEvent() {
+		logHeader("deletionEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        var event = nip01.createTextNoteEvent("Hello Astral, Please delete me!")
-        		.sign()
-        		.send(RELAYS);
+		var event = sendTextNoteEvent();
+		List<BaseTag> tags = List.of(new EventTag(event.getId()));
 
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(EventTag.builder().idEvent(event.getId()).build());
-        var delEvent = NIP09.createDeletionEvent(tags);
-
-		Nostr.getInstance().sign(delEvent).send(delEvent);
-    }
+		var nip09 = new NIP09<DeletionEvent>(SENDER);
+		nip09.createDeletionEvent(tags)
+			.sign()
+			.send();
+	}
 
     private static MetadataEvent metaDataEvent() {
         logHeader("metaDataEvent");
