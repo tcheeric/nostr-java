@@ -63,7 +63,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return the text note without tags
      */
 	public NIP01<T> createTextNoteEvent(@NonNull String content) {
-		var event = new TextNoteEventFactory(content).create();
+		var event = new TextNoteEventFactory(getSender(), content).create();
 		this.setEvent((T) event);
 
 		return this;

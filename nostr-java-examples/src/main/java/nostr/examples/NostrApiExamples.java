@@ -38,6 +38,7 @@ import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.impl.MetadataEvent;
+import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.KindList;
 import nostr.event.tag.EventTag;
@@ -56,8 +57,8 @@ public class NostrApiExamples {
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
-	private final static Map<String, String> RELAYS = Map.of("brb", "brb.io", "damus", "relay.damus.io", "ZBD",
-			"nostr.zebedee.cloud", "taxi", "relay.taxi", "vision", "relay.nostr.vision");
+	private final static Map<String, String> RELAYS = Map.of("lol", "nos.lol", "damus", "relay.damus.io", "ZBD",
+			"nostr.zebedee.cloud", "taxi", "relay.taxi", "mom", "nostr.mom");
 
     static {
         final LogManager logManager = LogManager.getLogManager();
@@ -74,7 +75,7 @@ public class NostrApiExamples {
             throw new RuntimeException(e);
         }
     }
-
+    
     public static void main(String[] args) throws Exception {
         try {
             log.log(Level.FINE, "================= The Beginning");
@@ -82,9 +83,9 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-//			executor.submit(() -> {
-//				metaDataEvent();
-//			});
+			executor.submit(() -> {
+				metaDataEvent();
+			});
 //
 //			executor.submit(() -> {
 //				sendTextNoteEvent();
@@ -102,13 +103,13 @@ public class NostrApiExamples {
 //                deletionEvent();
 //            });
 //
-            executor.submit(() -> {
-                ephemerealEvent();
-            });
-//
 //            executor.submit(() -> {
-//                reactionEvent();
+//                ephemerealEvent();
 //            });
+//
+            executor.submit(() -> {
+                reactionEvent();
+            });
 //
 //            executor.submit(() -> {
 //                replaceableEvent();
@@ -226,9 +227,15 @@ public class NostrApiExamples {
         var event = nip01.createTextNoteEvent("Hello Astral, Please like me!")
         		.sign()
         		.send(RELAYS);
-
-        var reactionEvent = NIP25.createReactionEvent(event, Reaction.LIKE);
-		Nostr.getInstance().sign(reactionEvent).send(reactionEvent);
+        		
+        var nip25 = new NIP25<ReactionEvent>(RECIPIENT); 
+        nip25.createReactionEvent(event, Reaction.LIKE)
+        		.sign()
+        		.send(RELAYS);
+        
+        nip25.createReactionEvent(event, "💩")
+				.sign()
+				.send();
     }
 
     private static void replaceableEvent() {
