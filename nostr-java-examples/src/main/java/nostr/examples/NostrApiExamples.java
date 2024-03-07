@@ -278,7 +278,7 @@ public class NostrApiExamples {
             
             BaseTag tag = EventTag.builder()
                     .idEvent(channelCreateEvent.getId())
-                    .recommendedRelayUrl("localhost:8080")
+                    .recommendedRelayUrl("localhost:5555")
                     .build();
             
             var channel = new ChannelProfile("test change name", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");

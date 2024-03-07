@@ -1,5 +1,12 @@
 package nostr.crypto.schnorr;
 
+import nostr.crypto.Point;
+import nostr.util.NostrUtil;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECPoint;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -9,16 +16,39 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
+import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.EllipticCurve;
 import java.util.Arrays;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import lombok.extern.java.Log;
-import nostr.crypto.Point;
-import nostr.util.NostrUtil;
 
 public class Schnorr {
+
+    public static ECCurve getCurve() {
+        // Define the parameters of the elliptic curve
+        BigInteger p = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+        BigInteger a = BigInteger.ZERO;
+        BigInteger b = new BigInteger("7", 16);
+
+        return new ECCurve.Fp(p, a, b);
+    }
+
+    public static ECParameterSpec getEcSpec() {
+        // Define the parameters of the elliptic curve
+        BigInteger p = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+        BigInteger a = BigInteger.ZERO;
+        BigInteger b = new BigInteger("7", 16);
+        BigInteger n = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+        BigInteger h = BigInteger.ONE;
+
+        ECCurve curve = new ECCurve.Fp(p, a, b);
+        ECPoint g = curve.createPoint(
+                new BigInteger("55066263022277343669578718895168534326250603453777594175500187360389116729240"),
+                new BigInteger("32670510020758816978083085130507043184471273380659243275938904335757337482424")
+        );
+
+        return new ECParameterSpec(curve, g, n, h);
+    }
 
     /**
      * @param msg

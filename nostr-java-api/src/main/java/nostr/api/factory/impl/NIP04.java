@@ -12,6 +12,7 @@ import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.DirectMessageEvent;
+import nostr.id.IIdentity;
 import nostr.id.Identity;
 
 /**
@@ -36,12 +37,12 @@ public class NIP04 {
             this.recipient = recipient;
         }
 
-        public DirectMessageEventFactory(@NonNull Identity sender, @NonNull PublicKey recipient, @NonNull String content) {
+        public DirectMessageEventFactory(@NonNull IIdentity sender, @NonNull PublicKey recipient, @NonNull String content) {
             super(sender, content);
             this.recipient = recipient;
         }
 
-        public DirectMessageEventFactory(@NonNull Identity identity, @NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
+        public DirectMessageEventFactory(@NonNull IIdentity identity, @NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
             super(identity, content);
             this.recipient = recipient;
         }

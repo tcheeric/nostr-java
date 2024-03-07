@@ -1,4 +1,4 @@
-package nostr.test.id;
+package nostr.test.client;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

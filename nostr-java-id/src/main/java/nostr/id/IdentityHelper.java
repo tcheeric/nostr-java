@@ -31,6 +31,7 @@ import java.util.logging.Level;
 
 @AllArgsConstructor
 @Log
+@Deprecated(forRemoval = true)
 public class IdentityHelper {
 
     @NonNull
@@ -44,6 +45,7 @@ public class IdentityHelper {
         }
     }
 
+/*
     public void encryptDirectMessage(@NonNull DirectMessageEvent dmEvent) throws NostrException {
 
         ITag pkTag = dmEvent.getTags().get(0);
@@ -58,7 +60,9 @@ public class IdentityHelper {
             }
         }
     }
+*/
 
+/*
     public String encrypt(@NonNull String message, @NonNull PublicKey recipient) throws InvalidAlgorithmParameterException, NostrException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         return encryptMessage(this.identity.getPrivateKey().getRawData(), recipient.getRawData(), message);
     }
@@ -72,6 +76,7 @@ public class IdentityHelper {
             throw new NostrException(ex);
         }
     }
+*/
 
     public Signature sign(@NonNull ISignable signable) throws NostrException {
         if (signable instanceof GenericEvent genericEvent) {
@@ -114,6 +119,7 @@ public class IdentityHelper {
         return NostrUtil.createRandomByteArray(32);
     }
 
+/*
     private static String decryptMessage(SecretKeySpec sharedSecretKey, String encodedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
         final var parts = encodedMessage.split("\\?iv=");
@@ -172,4 +178,5 @@ public class IdentityHelper {
         BigInteger tweakVal = new BigInteger(1, NostrUtil.hexToBytes(privateKeyHex));
         return pubKeyPt.multiply(tweakVal).getEncoded(true);
     }
+*/
 }

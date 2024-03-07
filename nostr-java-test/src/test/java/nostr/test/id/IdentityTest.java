@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
  */
 public class IdentityTest {
 
-    //private final Identity identity;
-
     public IdentityTest() {
     }
 
@@ -45,6 +43,7 @@ public class IdentityTest {
     }
     
     
+/*
     @Test
     public void testDecryptMessage() {
         try {
@@ -66,5 +65,6 @@ public class IdentityTest {
             Assertions.fail(ex);
         }
     }
+*/
 
 }

@@ -20,8 +20,16 @@ import nostr.ws.handler.spi.IRequestHandler;
 import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
