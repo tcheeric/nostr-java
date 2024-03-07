@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +19,6 @@ import nostr.api.NIP04;
 import nostr.api.NIP05;
 import nostr.api.NIP08;
 import nostr.api.NIP09;
-import nostr.api.NIP16;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.Nostr;
@@ -107,13 +105,13 @@ public class NostrApiExamples {
 //                ephemerealEvent();
 //            });
 //
-            executor.submit(() -> {
-                reactionEvent();
-            });
-//
 //            executor.submit(() -> {
-//                replaceableEvent();
+//                reactionEvent();
 //            });
+//
+            executor.submit(() -> {
+                replaceableEvent();
+            });
 //
 //            executor.submit(() -> {
 //                internetIdMetadata();
@@ -246,10 +244,9 @@ public class NostrApiExamples {
         		.sign()
         		.send(RELAYS);
 
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(EventTag.builder().idEvent(event.getId()).build());
-        var replaceableEvent = NIP16.createReplaceableEvent(tags, 15_000, "New content");
-		Nostr.getInstance().sign(replaceableEvent).send(replaceableEvent);
+        nip01.createReplaceableEvent(List.of(new EventTag(event.getId())), 15_000, "New content")
+			.sign()
+			.send();
     }
 
     private static void internetIdMetadata() {
