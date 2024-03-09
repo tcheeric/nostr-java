@@ -23,6 +23,7 @@ import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.Nostr;
 import nostr.base.ChannelProfile;
+import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -34,6 +35,7 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
+import nostr.event.impl.InternetIdentifierMetadataEvent;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ReactionEvent;
@@ -81,9 +83,9 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-			executor.submit(() -> {
-				metaDataEvent();
-			});
+//			executor.submit(() -> {
+//				metaDataEvent();
+//			});
 //
 //			executor.submit(() -> {
 //				sendTextNoteEvent();
@@ -109,13 +111,13 @@ public class NostrApiExamples {
 //                reactionEvent();
 //            });
 //
-            executor.submit(() -> {
-                replaceableEvent();
-            });
-//
 //            executor.submit(() -> {
-//                internetIdMetadata();
+//                replaceableEvent();
 //            });
+//
+            executor.submit(() -> {
+                internetIdMetadata();
+            });
 //
 //            executor.submit(() -> {
 //                filters();
@@ -251,9 +253,16 @@ public class NostrApiExamples {
 
     private static void internetIdMetadata() {
         logHeader("internetIdMetadata");
+        var profile = UserProfile.builder()
+        		.name("Guilherme Gps")
+        		.publicKey(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144"))
+        		.nip05("me@guilhermegps.com.br")
+        		.build();
 
-        var event = NIP05.createInternetIdentifierMetadataEvent(PROFILE);
-		Nostr.getInstance().sign(SENDER, event).send(event);
+        var nip05 = new NIP05<InternetIdentifierMetadataEvent>(SENDER);
+        nip05.createInternetIdentifierMetadataEvent(profile)
+        	.sign()
+        	.send(RELAYS);
     }
 
     public static void filters() {
