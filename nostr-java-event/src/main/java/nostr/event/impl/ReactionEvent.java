@@ -12,10 +12,6 @@ import nostr.event.NIP25Event;
 import nostr.event.Reaction;
 import nostr.event.tag.EventTag;
 
-/**
- *
- * @author squirrel
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Reactions", nip = 25)
@@ -31,10 +27,11 @@ public class ReactionEvent extends NIP25Event {
         this.addTag(EventTag.builder().idEvent(event.getId()).build());
     }
 
-    public ReactionEvent(PublicKey pubKey, GenericEvent event, String content) {
-        super(pubKey, Kind.REACTION);
+    public ReactionEvent(PublicKey pubKey, GenericEvent event, List<BaseTag> tags, String content) {
+        super(pubKey, Kind.REACTION, tags);
         this.setContent(content);
-        this.addTag(EventTag.builder().idEvent(event.getId()).build());
+        if(event != null)
+        	this.addTag(EventTag.builder().idEvent(event.getId()).build());
     }
 
     public ReactionEvent(PublicKey pubKey, String idEvent, String content) {
@@ -42,16 +39,4 @@ public class ReactionEvent extends NIP25Event {
         this.setContent(content);
         this.addTag(EventTag.builder().idEvent(idEvent).build());
     }
-
-    public ReactionEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
-        super(pubKey, Kind.REACTION, tags);
-        this.setContent(content);
-    }
-
-//    private void addEmojiTag(String content, URL emoji, List<BaseTag> tags) {
-//        List<ElementAttribute> attributes = new ArrayList<>();
-//        attributes.add(ElementAttribute.builder().name("shortcode").nip(30).value(content).build());
-//        attributes.add(ElementAttribute.builder().name("url").nip(30).value(emoji.toString()).build());
-//        tags.add(new GenericTag("emoji", 30, attributes));
-//    }
 }

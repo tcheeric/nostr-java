@@ -71,11 +71,7 @@ public class NIP25Impl {
 
         @Override
         public ReactionEvent create() {
-            var reaction = getContent();
-
-            return event != null ? 
-                    new ReactionEvent(getSender(), event, reaction) : 
-                    new ReactionEvent(getSender(), getTags(), reaction);            
+            return new ReactionEvent(getSender(), event, getTags(), getContent());            
         }
     }
 
