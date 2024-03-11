@@ -5,6 +5,7 @@ module nostr.encryption.nip44 {
     requires nostr.encryption;
     requires nostr.crypto;
     requires nostr.util;
+    requires org.bouncycastle.provider;
 
     exports nostr.encryption.nip44;
 }

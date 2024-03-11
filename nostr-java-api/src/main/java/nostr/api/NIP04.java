@@ -27,6 +27,7 @@ import java.util.logging.Level;
  * @author eric
  */
 @Log
+// TODO - Add implicite message encryption. Like this, clients must not encrypt the message before sending it.
 public class NIP04 extends Nostr {
 
     /**
@@ -88,7 +89,6 @@ public class NIP04 extends Nostr {
     public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
-        //return new IdentityHelper(senderId).encrypt(message, recipient);
     }
 
     /**
@@ -103,7 +103,7 @@ public class NIP04 extends Nostr {
         return NIP04.decrypt(rcptId, (GenericEvent) dm);
     }
 
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) throws NostrException {
+    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -116,7 +116,6 @@ public class NIP04 extends Nostr {
         if (!rcptFlag) { // I am the message sender
             MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), pTag.getPublicKey().getRawData());
             return cipher.decrypt(event.getContent());
-            //return new IdentityHelper(rcptId).decryptMessage(event.getContent(), pTag.getPublicKey());
         }
 
         // I am the message recipient
@@ -124,13 +123,11 @@ public class NIP04 extends Nostr {
         log.log(Level.INFO, "The message is being decrypted for {0}", sender);
         MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
-        //return new IdentityHelper(rcptId).decryptMessage(event.getContent(), sender);
     }
 
     public static String decrypt(@NonNull IIdentity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher04(identity.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.decrypt(encryptedMessage);
-        //return new IdentityHelper(identity).decryptMessage(encryptedMessage, recipient);
     }
 
     private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {

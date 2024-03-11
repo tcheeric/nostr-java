@@ -1,7 +1,5 @@
 package nostr.event.impl;
 
-import java.util.logging.Level;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -10,7 +8,6 @@ import java.util.ArrayList;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
 import nostr.base.IEncoder;
 import nostr.base.UserProfile;
 import nostr.base.PublicKey;

@@ -1,8 +1,6 @@
 package nostr.crypto.nip04;
 
 import lombok.NonNull;
-import nostr.crypto.schnorr.Schnorr;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;

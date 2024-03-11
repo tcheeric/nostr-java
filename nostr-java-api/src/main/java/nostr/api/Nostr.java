@@ -28,7 +28,6 @@ import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.id.IIdentity;
 import nostr.id.Identity;
-import nostr.util.NostrException;
 
 /**
  * @author eric

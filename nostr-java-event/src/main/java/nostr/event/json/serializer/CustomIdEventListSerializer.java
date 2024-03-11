@@ -1,14 +1,12 @@
 package nostr.event.json.serializer;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-import lombok.extern.java.Log;
 import nostr.event.impl.GenericEvent;
 import nostr.event.list.EventList;
 

@@ -5,7 +5,6 @@ import java.util.List;
 import nostr.base.PublicKey;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;

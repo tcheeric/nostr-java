@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.event.BaseTag;

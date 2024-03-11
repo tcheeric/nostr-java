@@ -7,7 +7,6 @@ import nostr.base.PublicKey;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
 import nostr.event.util.Nip05Validator;

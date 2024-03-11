@@ -157,7 +157,7 @@ public abstract class AbstractBaseConfiguration {
         }
     }
 
-    private boolean loadFromConfigDir(String filename, File configFolder) throws IOException {
+    private boolean loadFromConfigDir(String filename, File configFolder) {
         log.log(Level.FINE, "Attempting to load configuration file {0} from {1}...", new Object[]{filename, configFolder});
 
         File file = new File(configFolder, filename.startsWith("/") ? filename.substring(1) : filename);

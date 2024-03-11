@@ -7,14 +7,17 @@ import nostr.crypto.nip44.EncryptedPayloads;
 import nostr.encryption.MessageCipher;
 import nostr.util.NostrUtil;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 @Data
 @AllArgsConstructor
 public class MessageCipher44 implements MessageCipher {
 
     private static final int NONCE_LENGTH = 32;
 
-    private final byte[] senderPrivateKey;
-    private final byte[] recipientPublicKey;
+    private final String senderPrivateKey;
+    private final String recipientPublicKey;
 
     @Override
     public String encrypt(@NonNull String message) {
@@ -37,8 +40,12 @@ public class MessageCipher44 implements MessageCipher {
         }
     }
 
-    private byte[] getConversationKey() throws Exception {
-        return EncryptedPayloads.getConversationKey(senderPrivateKey, recipientPublicKey);
+    private byte[] getConversationKey() {
+        try {
+            return EncryptedPayloads.getConversationKey(senderPrivateKey, "02" + recipientPublicKey);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private byte[] generateNonce() {

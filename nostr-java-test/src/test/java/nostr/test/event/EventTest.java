@@ -1,7 +1,6 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
 import nostr.base.ElementAttribute;
 
 import org.junit.jupiter.api.Assertions;

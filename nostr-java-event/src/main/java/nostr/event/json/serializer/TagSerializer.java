@@ -13,7 +13,6 @@ import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericTag;

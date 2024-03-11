@@ -7,15 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.api.factory.impl.NIP46.NostrConnectEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.NostrConnectEvent;
 import nostr.id.IIdentity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.logging.Level;
 
 public final class NIP46 extends Nostr {
 
@@ -46,6 +47,7 @@ public final class NIP46 extends Nostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class Request implements Serializable {
         private String initiator;
         private String token;
@@ -67,7 +69,7 @@ public final class NIP46 extends Nostr {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -85,6 +87,7 @@ public final class NIP46 extends Nostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class Response implements Serializable {
         private Long id;
         private String responseUuid;
@@ -101,7 +104,7 @@ public final class NIP46 extends Nostr {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -119,6 +122,7 @@ public final class NIP46 extends Nostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class Method implements Serializable {
         private Long id;
         private String name;
@@ -140,7 +144,7 @@ public final class NIP46 extends Nostr {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -158,6 +162,7 @@ public final class NIP46 extends Nostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class Session implements Serializable {
         private Long id;
         private String sessionId;
@@ -183,7 +188,7 @@ public final class NIP46 extends Nostr {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -201,6 +206,7 @@ public final class NIP46 extends Nostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class Parameter implements Serializable {
         private Long id;
         private String name;
@@ -213,8 +219,7 @@ public final class NIP46 extends Nostr {
                 ObjectMapper objectMapper = new ObjectMapper();
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
-                // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }

@@ -9,7 +9,6 @@ import nostr.event.Reaction;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;

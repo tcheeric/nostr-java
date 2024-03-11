@@ -5,28 +5,12 @@ import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.*;
 import nostr.crypto.schnorr.Schnorr;
-import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.DelegationTag;
-import nostr.event.tag.PubKeyTag;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
-import org.bouncycastle.math.ec.ECPoint;
-import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.logging.Level;
 
 @AllArgsConstructor
