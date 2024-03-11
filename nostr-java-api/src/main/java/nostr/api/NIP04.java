@@ -4,21 +4,6 @@
  */
 package nostr.api;
 
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.api.factory.impl.NIP04.DirectMessageEventFactory;
-import nostr.base.PublicKey;
-import nostr.event.BaseTag;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.GenericEvent;
-import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
-import nostr.id.IdentityHelper;
-import nostr.util.NostrException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -27,21 +12,41 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.logging.Level;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.api.factory.impl.NIP04Impl.DirectMessageEventFactory;
+import nostr.base.PublicKey;
+import nostr.event.BaseTag;
+import nostr.event.NIP04Event;
+import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.PubKeyTag;
+import nostr.id.IIdentity;
+import nostr.id.Identity;
+import nostr.id.IdentityHelper;
+import nostr.util.NostrException;
+
 /**
  * @author eric
  */
 @Log
-public class NIP04 extends Nostr {
+@Deprecated(since = "NIP-44")
+public class NIP04<T extends NIP04Event> extends EventNostr<T> {
+	
+	public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
+		setSender(sender);
+		setRecipient(recipient);
+	}
 
-    /**
-     * Create a NIP04 Encrypted Direct Message
-     *
-     * @param recipient the DM recipient
-     * @param content   the DM content in clear-text
-     * @return the DM event
-     */
-    public static DirectMessageEvent createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
-        return new DirectMessageEventFactory(recipient, content).create();
+    public NIP04<T> createDirectMessageEvent(@NonNull String content) {
+        var event = new DirectMessageEventFactory(getSender(), getRecipient(), content).create();
+		this.setEvent((T) event);
+        
+        return this;
     }
 
     /**
@@ -52,22 +57,21 @@ public class NIP04 extends Nostr {
      * @param content   the DM content
      * @return the DM event
      */
-    public static DirectMessageEvent createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-        return new DirectMessageEventFactory(tags, recipient, content).create();
+    public NIP04<T> createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
+    	var event =  new DirectMessageEventFactory(tags, recipient, content).create();
+		this.setEvent((T) event);
+        
+        return this;
     }
 
-    /**
-     * Encrypt a DM event
-     *
-     * @param senderId
-     * @param dm the DM event
-     */
-    public static void encrypt(@NonNull IIdentity senderId, @NonNull DirectMessageEvent dm) {
+    public NIP04<T> encrypt() {
         try {
-            new IdentityHelper(senderId).encryptDirectMessage(dm);
+            new IdentityHelper(getSender()).encryptDirectMessage((DirectMessageEvent) getEvent());
         } catch (NostrException ex) {
             throw new RuntimeException(ex);
         }
+        
+        return this;
     }
 
     public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {

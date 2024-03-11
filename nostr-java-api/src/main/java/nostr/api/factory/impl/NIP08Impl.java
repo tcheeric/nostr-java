@@ -17,7 +17,8 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP08 {
+@Deprecated(since = "NIP-27")
+public class NIP08Impl {
 
     public static class MentionsEventFactory extends EventFactory<MentionsEvent> {
 
@@ -37,7 +38,7 @@ public class NIP08 {
 
         @Override
         public MentionsEvent create() {
-            var event = new nostr.event.impl.MentionsEvent(getSender(), getTags(), getContent());
+            var event = new MentionsEvent(getSender(), getTags(), getContent());
             getTags().forEach(t -> event.addTag(t));
             return event;
         }

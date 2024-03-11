@@ -1,10 +1,12 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,9 +30,6 @@ import nostr.event.json.serializer.SpecSerializer;
 @Event(name = "", nip = 15)
 public abstract class NostrMarketplaceEvent extends ParameterizedReplaceableEvent {
 
-    protected NostrMarketplaceEvent() {
-        super();
-    }
     public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<BaseTag> tags, IContent content) {
         super(sender, kind, tags, content.toString());
     }

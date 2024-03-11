@@ -5,9 +5,10 @@
 package nostr.api;
 
 import java.util.List;
+
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP16.EphemeralEventFactory;
-import nostr.api.factory.impl.NIP16.ReplaceableEventFactory;
+import nostr.api.factory.impl.NIP16Impl.EphemeralEventFactory;
+import nostr.api.factory.impl.NIP16Impl.ReplaceableEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.ReplaceableEvent;
@@ -16,6 +17,7 @@ import nostr.event.impl.ReplaceableEvent;
  *
  * @author eric
  */
+@Deprecated(since = "NIP-01")
 public class NIP16 extends Nostr {
 
     /**

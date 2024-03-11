@@ -4,20 +4,25 @@
  */
 package nostr.api;
 
-import java.net.URL;
 import java.util.List;
+
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP25.ReactionEventFactory;
+import nostr.api.factory.impl.NIP25Impl.ReactionEventFactory;
 import nostr.event.BaseTag;
+import nostr.event.NIP25Event;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.ReactionEvent;
+import nostr.id.Identity;
 
 /**
  *
  * @author eric
  */
-public class NIP25 extends Nostr {
+public class NIP25<T extends NIP25Event> extends EventNostr<T> {
+	
+	public NIP25(@NonNull Identity sender) {
+		setSender(sender);
+	}
 
     /**
      * Create a Reaction event
@@ -25,46 +30,53 @@ public class NIP25 extends Nostr {
      * @param reaction
      * @return 
      */
-    public static ReactionEvent createReactionEvent(@NonNull GenericEvent event, @NonNull Reaction reaction) {
-        return new ReactionEventFactory(event, reaction).create();
+    public NIP25<T> createReactionEvent(@NonNull GenericEvent event, @NonNull Reaction reaction) {
+        var e = new ReactionEventFactory(getSender(), event, reaction).create();
+		this.setEvent((T) e);
+
+		return this;
     }
     
     /**
      * Create a NIP25 Reaction event to react to a specific event
      * @param event the related event to react to
-     * @param content MAY be an emoji, or NIP-30 custom emoji
-     * @param emoji the emoji image url
+     * @param content MAY be an emoji
      * @return 
      */
-    public static ReactionEvent createReactionEvent(@NonNull GenericEvent event, @NonNull String content, URL emoji) {
-        return new ReactionEventFactory(event, content, emoji).create();
+    public NIP25<T> createReactionEvent(@NonNull GenericEvent event, @NonNull String content) {
+    	var e = new ReactionEventFactory(getSender(), event, content).create();
+		this.setEvent((T) e);
+
+		return this;
     }
 
     /**
      * Create a NIP25 Reaction event to react to several event and/or pubkeys
      * @param tags the list of events or pubkeys to react to
-     * @param content MAY be an emoji, or NIP-30 custom emoji
-     * @param emoji the emoji image url
+     * @param content MAY be an emoji
      * @return 
      */
-    public static ReactionEvent createReactionEvent(@NonNull List<BaseTag> tags, @NonNull String content, URL emoji) {
-        return new ReactionEventFactory(tags, content, emoji).create();
+    public NIP25<T> createReactionEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+    	var e = new ReactionEventFactory(getSender(), tags, content).create();
+		this.setEvent((T) e);
+
+		return this;
     }
 
     /**
      * 
      * @param event
      */
-    public static void like(@NonNull GenericEvent event) {
-        react(event, Reaction.LIKE.getEmoji(), null);
+    public void like(@NonNull GenericEvent event) {
+        react(event, Reaction.LIKE.getEmoji());
     }
 
     /**
      * 
      * @param event
      */
-    public static void dislike(@NonNull GenericEvent event) {
-        react(event, Reaction.DISLIKE.getEmoji(), null);
+    public void dislike(@NonNull GenericEvent event) {
+        react(event, Reaction.DISLIKE.getEmoji());
     }
     
     /**
@@ -73,10 +85,10 @@ public class NIP25 extends Nostr {
      * @param reaction
      * @param url
      */
-    public static void react(@NonNull GenericEvent event, @NonNull String reaction, URL url) {
-        var reactionEvent = new ReactionEventFactory(event, reaction, url).create();
+    public void react(@NonNull GenericEvent event, @NonNull String reaction) {
+        var e = new ReactionEventFactory(getSender(), event, reaction).create();
 
-        Nostr.sign(reactionEvent);
-        Nostr.send(reactionEvent);        
+		this.setEvent((T) e);
+		this.sign().send();
     }
 }

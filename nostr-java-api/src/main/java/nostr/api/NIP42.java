@@ -5,6 +5,7 @@
 package nostr.api;
 
 import java.util.List;
+
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP42.ChallengeTagFactory;
 import nostr.api.factory.impl.NIP42.ClientAuthenticationEventFactory;
@@ -90,7 +91,7 @@ public class NIP42 extends Nostr {
      * @throws NostrException 
      */
     public static void auth(@NonNull String challenge, @NonNull Relay relay) throws NostrException {
-        Client client = Nostr.createClient();
+		Client client = Client.getInstance();
         client.auth(challenge, relay);
     }
 

@@ -6,6 +6,7 @@ package nostr.api.factory;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Data;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
@@ -25,6 +26,10 @@ public abstract class EventFactory<T extends IEvent> {
     private final String content;
     private final List<BaseTag> tags;
 
+    public EventFactory(IIdentity identity) {
+        this(identity, new ArrayList<>(), null);
+    }
+
     protected EventFactory() {
         this.identity = Identity.getInstance();
         this.content = null;
@@ -43,14 +48,14 @@ public abstract class EventFactory<T extends IEvent> {
         this.identity = Identity.getInstance();
     }
 
-    public EventFactory(IIdentity identity, String content) {
-        this(identity, new ArrayList<>(), content);
+    public EventFactory(IIdentity sender, String content) {
+        this(sender, new ArrayList<>(), content);
     }
 
-    public EventFactory(IIdentity identity, List<BaseTag> tags, String content) {
+    public EventFactory(IIdentity sender, List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
-        this.identity = identity;
+        this.identity = sender;
     }
 
     public abstract T create();

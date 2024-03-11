@@ -4,14 +4,15 @@ import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.ArrayList;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,6 +40,7 @@ import nostr.util.NostrUtil;
  *
  * @author squirrel
  */
+@Log
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
@@ -90,6 +92,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     private final List<ElementAttribute> attributes;
 
     public GenericEvent() {
+        this.attributes = new ArrayList<>();
+    }
+
+    public GenericEvent(@NonNull String id) {
+    	this.id = id;
         this.attributes = new ArrayList<>();
     }
 
@@ -161,6 +168,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
             this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
         } catch (NostrException | NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        } catch (AssertionError ex) {
+        	log.log(Level.WARNING, ex.getMessage());
             throw new RuntimeException(ex);
         }
     }

@@ -1,5 +1,8 @@
 package nostr.id;
 
+import java.io.IOException;
+import java.util.logging.Level;
+
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
@@ -12,9 +15,6 @@ import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.util.NostrException;
-
-import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * @author squirrel
@@ -73,8 +73,8 @@ public class Identity implements IIdentity {
     }
 
     /**
-     * @return A strong pseudo random Identity
-     */
+	 * @return A strong pseudo random identity
+	 */
     public static Identity generateRandomIdentity() {
         return new Identity(PrivateKey.generateRandomPrivKey());
     }

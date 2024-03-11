@@ -16,17 +16,13 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP05 {
+public class NIP05Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class InternetIdentifierMetadataEventFactory extends EventFactory<InternetIdentifierMetadataEvent> {
 
         private final UserProfile profile;
-
-        public InternetIdentifierMetadataEventFactory(@NonNull UserProfile profile) {
-            this.profile = profile;
-        }
 
         public InternetIdentifierMetadataEventFactory(@NonNull Identity sender, @NonNull UserProfile profile) {
             super(sender, null);

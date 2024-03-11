@@ -1,15 +1,17 @@
 package nostr.base;
 
 import java.net.URL;
-import nostr.crypto.bech32.Bech32;
-import nostr.crypto.bech32.Bech32Prefix;
-
 import java.util.logging.Level;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.java.Log;
+import nostr.crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrException;
 
 /**
@@ -19,6 +21,8 @@ import nostr.util.NostrException;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
+@RequiredArgsConstructor
 @Log
 public final class UserProfile extends Profile implements IBech32Encodable {
 
