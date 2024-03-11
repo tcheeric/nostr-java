@@ -1,13 +1,17 @@
 package nostr.base;
 
+import java.net.URL;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URL;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  *
@@ -15,6 +19,8 @@ import lombok.ToString;
  */
 @Data
 @EqualsAndHashCode
+@SuperBuilder
+@RequiredArgsConstructor
 @AllArgsConstructor
 public abstract class Profile {
 

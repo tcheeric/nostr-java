@@ -5,33 +5,47 @@
 package nostr.api;
 
 import java.util.List;
+
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP08.MentionsEventFactory;
-import nostr.base.PublicKey;
+import nostr.api.factory.impl.NIP08Impl.MentionsEventFactory;
+import nostr.event.BaseTag;
+import nostr.event.NIP08Event;
 import nostr.event.impl.MentionsEvent;
+import nostr.id.Identity;
 
 /**
  *
  * @author eric
  */
-public class NIP08 {
+@Deprecated(since = "NIP-27")
+public class NIP08 <T extends NIP08Event> extends EventNostr<T> {
+	
+	public NIP08(@NonNull Identity sender) {
+		setSender(sender);
+	}
+
+    /**
+     * Create a NIP08 mentions event 
+     * @param tags the referenced
+     * @param content the note's content containing the references to the public keys
+     * @return the mentions event
+     */
+    public NIP08<T> createMentionsEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+    	var event = new MentionsEvent(getSender().getPublicKey(), tags, content);
+    	this.setEvent((T) event);
+        
+        return this;
+    }
     
     /**
      * Create a NIP08 mentions event without pubkey tags
      * @param content the note's content 
      * @return the mentions event without pubkey tags
      */
-    public static MentionsEvent createMentionsEvent(@NonNull String content) {
-        return new MentionsEventFactory(content).create();
-    }
-
-    /**
-     * Create a NIP08 mentions event 
-     * @param publicKeys the referenced public keys
-     * @param content the note's content containing the references to the public keys
-     * @return the mentions event
-     */
-    public static MentionsEvent createMentionsEvent(@NonNull List<PublicKey> publicKeys, @NonNull String content) {
-        return new MentionsEventFactory(publicKeys, content).create();
+    public NIP08<T> createMentionsEvent(@NonNull String content) {
+    	var event = new MentionsEventFactory(content).create();
+    	this.setEvent((T) event);
+        
+        return this;
     }
 }

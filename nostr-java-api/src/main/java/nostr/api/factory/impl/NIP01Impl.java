@@ -5,6 +5,7 @@
 package nostr.api.factory.impl;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,11 +16,15 @@ import nostr.api.factory.EventFactory;
 import nostr.api.factory.MessageFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
+import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.MetadataEvent;
+import nostr.event.impl.ParameterizedReplaceableEvent;
+import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
@@ -30,15 +35,18 @@ import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
+import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
  * @author eric
  */
-public class NIP01 {
+public class NIP01Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -63,7 +71,7 @@ public class NIP01 {
 
         @Override
         public TextNoteEvent create() {
-            var event = new nostr.event.impl.TextNoteEvent(getSender(), getTags(), getContent());
+            var event = new TextNoteEvent(getSender(), getTags(), getContent());
             getTags().forEach(t -> event.addTag(t));
             return event;
         }
@@ -76,7 +84,6 @@ public class NIP01 {
         private UserProfile profile;
 
         public MetadataEventFactory(@NonNull UserProfile profile) {
-            super(null);
             this.profile = profile;
         }
 
@@ -177,6 +184,128 @@ public class NIP01 {
         @Override
         public ReqMessage create() {
             return new ReqMessage(subscriptionId, filters);
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class ReplaceableEventFactory extends EventFactory<ReplaceableEvent> {
+
+        private final Integer kind;
+
+        public ReplaceableEventFactory(@NonNull Integer kind, @NonNull String content) {
+            super(content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+            super(sender, content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(@NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
+            super(tags, content);
+            this.kind = kind;
+        }
+
+        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
+            super(sender, tags, content);
+            this.kind = kind;
+        }
+
+        @Override
+        public ReplaceableEvent create() {
+            return new ReplaceableEvent(getSender(), kind, getTags(), getContent());
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class EphemeralEventFactory extends EventFactory<EphemeralEvent> {
+
+        private final Integer kind;
+
+        public EphemeralEventFactory(@NonNull Integer kind, @NonNull String content) {
+            super(content);
+            this.kind = kind;
+        }
+
+        public EphemeralEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+            super(sender, content);
+            this.kind = kind;
+        }
+
+        @Override
+        public EphemeralEvent create() {
+            return new EphemeralEvent(getSender(), kind, getTags(), getContent());
+        }
+
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class ParameterizedReplaceableEventFactory extends EventFactory<ParameterizedReplaceableEvent> {
+
+        private final Integer kind;
+        
+        public ParameterizedReplaceableEventFactory(Integer kind, String comment) {
+            super(comment);
+            this.kind = kind;
+        }
+
+        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, Integer kind, String comment) {
+            super(sender, comment);
+            this.kind = kind;
+        }
+
+        public ParameterizedReplaceableEventFactory(@NonNull List<BaseTag> tags, Integer kind, String comment) {
+            super(tags, comment);
+            this.kind = kind;
+        }
+
+        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
+            super(sender, tags, comment);
+            this.kind = kind;
+        }
+
+        @Override
+        public ParameterizedReplaceableEvent create() {
+            return new ParameterizedReplaceableEvent(getSender(), kind, getTags(), getContent());
+        }        
+    }
+    
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class IdentifierTagFactory extends AbstractTagFactory<IdentifierTag> {
+
+        private final String id;
+
+        public IdentifierTagFactory(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public IdentifierTag create() {
+            return new IdentifierTag(id);
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class AddressTagFactory extends AbstractTagFactory<AddressTag> {
+
+        private Integer kind;
+        private final PublicKey publicKey;
+        private IdentifierTag identifierTag;
+        private Relay relay;
+
+        public AddressTagFactory(@NonNull PublicKey publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        @Override
+        public AddressTag create() {
+            return new AddressTag(kind, publicKey, identifierTag, relay);
         }
     }
 

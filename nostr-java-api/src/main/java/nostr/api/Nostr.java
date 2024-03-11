@@ -4,20 +4,21 @@
  */
 package nostr.api;
 
+import java.util.Map;
+
+import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.base.Relay;
-import nostr.base.Signature;
 import nostr.client.Client;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseMessageEncoder;
@@ -25,46 +26,69 @@ import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.id.IIdentity;
 import nostr.id.Identity;
-import nostr.util.NostrException;
 
 /**
  * @author eric
  */
-public abstract class Nostr {
+public class Nostr {
 
-    /**
-     * @param event
-     */
-    public static void send(@NonNull IEvent event) {
-        var client = createClient();
-        client.send(event);
+	private static Nostr INSTANCE;
+
+	private Client client;
+	@Getter
+	private Identity sender;
+
+	public static Nostr getInstance() {
+		return (INSTANCE == null) ? new Nostr() : INSTANCE;
+	}
+	
+	public Nostr setSender(@NonNull Identity sender) {
+		this.sender = sender;
+		
+		return this;
+	}
+
+	public Nostr setRelays(Map<String, String> relays) {
+		this.client = Client.getInstance(relays);
+
+		return this;
+	}
+
+	protected Client getClient() {
+		client = (client == null) ? Client.getInstance() : client;
+
+		return client;
+	}
+
+	public void send(@NonNull IEvent event) {
+		getClient().send(event);
     }
 
-    public static void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-        var client = createClient();
-        client.send(filters, subscriptionId);
+	public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
+		getClient().send(filters, subscriptionId);
     }
 
     /**
      * @param signable
      * @return
      */
+	public Nostr sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
+		identity.sign(signable);
 
-    public static Signature sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
-        return identity.sign(signable);
+		return this;
     }
 
-    public static Signature sign(@NonNull ISignable signable) {
-        Identity identity = Identity.getInstance();
-        return identity.sign(signable);
+	public Nostr sign(@NonNull ISignable signable) {
+		sender.sign(signable);
+
+		return this;
     }
 
-    /**
-     *
-     */
+
     public static class Json {
 
         // Events
@@ -227,15 +251,4 @@ public abstract class Nostr {
         }
 
     }
-
-    // Utils
-
-    /**
-     * @return
-     */
-    protected static Client createClient() {
-
-        return Client.getInstance();
-    }
-
 }

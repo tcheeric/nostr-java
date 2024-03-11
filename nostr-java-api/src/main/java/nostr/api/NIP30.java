@@ -4,24 +4,18 @@
  */
 package nostr.api;
 
-import java.net.URL;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP30.CustomEmojiTagFactory;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.EmojiTag;
 
-/**
- *
- * @author eric
- */
-public class NIP30 extends Nostr {
+public class NIP30 {
     
     /**
      * 
-     * @param emoji
-     * @param url
+     * @param shortcode
+     * @param imageUrl
      * @return 
      */
-    public static GenericTag createCustomEmojiTag(@NonNull String emoji, URL url) {
-        return new CustomEmojiTagFactory(emoji, url).create();
+    public static EmojiTag createCustomEmojiTag(@NonNull String shortcode, @NonNull String  imageUrl) {
+        return new EmojiTag(shortcode, imageUrl);
     }    
 }

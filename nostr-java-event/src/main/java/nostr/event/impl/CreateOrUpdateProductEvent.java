@@ -1,6 +1,7 @@
 package nostr.event.impl;
 
 import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -17,9 +18,6 @@ import nostr.event.BaseTag;
 @Event(name = "", nip = 15)
 public class CreateOrUpdateProductEvent extends NostrMarketplaceEvent {
 
-    private CreateOrUpdateProductEvent() {
-        super();
-    }
     public CreateOrUpdateProductEvent(PublicKey sender, List<BaseTag> tags, @NonNull Product product) {
         super(sender, 30018, tags, product);
     }

@@ -5,6 +5,7 @@
 package nostr.api.factory.impl;
 
 import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -18,7 +19,8 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP04 {
+@Deprecated(since = "NIP-44")
+public class NIP04Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

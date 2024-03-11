@@ -17,24 +17,24 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP09 {
+public class NIP09Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class DeletionEventFactory extends EventFactory<DeletionEvent> {
-
-        public DeletionEventFactory() {
-            super(null);
-        }
+    	
+    	public DeletionEventFactory(Identity sender) {
+    		super(sender);
+    	}
 
         public DeletionEventFactory(List<BaseTag> tags) {
             super(tags, null);
         }
 
-        @Deprecated
-        public DeletionEventFactory(Identity sender) {
-            super(sender, null);
+        public DeletionEventFactory(Identity sender, List<BaseTag> tags) {
+            super(sender, tags, null);
         }
+
 
         @Override
         public DeletionEvent create() {

@@ -7,20 +7,22 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP05;
 import nostr.api.NIP08;
 import nostr.api.NIP09;
-import nostr.api.NIP16;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
+import nostr.api.NIP30;
 import nostr.api.Nostr;
 import nostr.base.ChannelProfile;
 import nostr.base.PublicKey;
@@ -30,8 +32,16 @@ import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
+import nostr.event.impl.DeletionEvent;
+import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
+import nostr.event.impl.InternetIdentifierMetadataEvent;
+import nostr.event.impl.MentionsEvent;
+import nostr.event.impl.MetadataEvent;
+import nostr.event.impl.ReactionEvent;
+import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.KindList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
@@ -45,16 +55,18 @@ import nostr.util.NostrException;
 @Log
 public class NostrApiExamples {
 
-    private static final Identity RECEIVER = Identity.generateRandomIdentity();
+    private static final Identity RECIPIENT = Identity.generateRandomIdentity();
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
-    private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "erict875", "erict875@nostr-java.io", "It's me!", null);
+    private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
+	private final static Map<String, String> RELAYS = Map.of("lol", "nos.lol", "damus", "relay.damus.io", "ZBD",
+			"nostr.zebedee.cloud", "taxi", "relay.taxi", "mom", "nostr.mom");
 
     static {
         final LogManager logManager = LogManager.getLogManager();
         try (final InputStream is = NostrApiExamples.class
-                .getResourceAsStream("/logging.properties")) {
-            logManager.readConfiguration(is);
+				.getResourceAsStream("/logging.properties")) {
+			logManager.readConfiguration(is);
         } catch (IOException ex) {
             System.exit(-1000);
         }
@@ -65,7 +77,7 @@ public class NostrApiExamples {
             throw new RuntimeException(e);
         }
     }
-
+    
     public static void main(String[] args) throws Exception {
         try {
             log.log(Level.FINE, "================= The Beginning");
@@ -73,64 +85,78 @@ public class NostrApiExamples {
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
-            executor.submit(() -> {
-                sendTextNoteEvent();
-            });
+//			executor.submit(() -> {
+//	        	try {
+//					metaDataEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//			});
 
-            executor.submit(() -> {
-                sendEncryptedDirectMessage();
-            });
+//			executor.submit(() -> {
+//	        	try {
+//					sendTextNoteEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//			});
 
-            executor.submit(() -> {
-                mentionsEvent();
-            });
+//            executor.submit(() -> {
+//		    	try {
+//		            sendEncryptedDirectMessage();
+//		    	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//            });
 
-            executor.submit(() -> {
-                deletionEvent();
-            });
+//            executor.submit(() -> {
+//	        	try {
+//	                mentionsEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//            });
 
+//            executor.submit(() -> {
+//	        	try {
+//	                deletionEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//            });
+//
+//            executor.submit(() -> {
+//	    		try {
+//		            ephemerealEvent();
+//				} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//            });
+//
             executor.submit(() -> {
-                metaDataEvent();
+            	try {
+                	reactionEvent();
+            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
             });
-
-            executor.submit(() -> {
-                ephemerealEvent();
-            });
-
-            executor.submit(() -> {
-                reactionEvent();
-            });
-
-            executor.submit(() -> {
-                replaceableEvent();
-            });
-
-            executor.submit(() -> {
-                internetIdMetadata();
-            });
-
-            executor.submit(() -> {
-                filters();
-            });
-
-            executor.submit(() -> {
-                createChannel();
-            });
-            executor.submit(() -> {
-                updateChannelMetadata();
-            });
-
-            executor.submit(() -> {
-                sendChannelMessage();
-            });
-
-            executor.submit(() -> {
-                hideMessage();
-            });
-
-            executor.submit(() -> {
-                muteUser();
-            });
+//
+//            executor.submit(() -> {
+//                replaceableEvent();
+//            });
+//
+//            executor.submit(() -> {
+//                internetIdMetadata();
+//            });
+//
+//            executor.submit(() -> {
+//                filters();
+//            });
+//
+//            executor.submit(() -> {
+//                createChannel();
+//            });
+//            executor.submit(() -> {
+//                updateChannelMetadata();
+//            });
+//
+//            executor.submit(() -> {
+//                sendChannelMessage();
+//            });
+//
+//            executor.submit(() -> {
+//                hideMessage();
+//            });
+//
+//            executor.submit(() -> {
+//                muteUser();
+//            });
 
             stop(executor);
 
@@ -144,102 +170,110 @@ public class NostrApiExamples {
         }
     }
 
-    private static void sendTextNoteEvent() {
+    private static TextNoteEvent sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
 
-        PubKeyTag rcptTag = PubKeyTag.builder().publicKey(RECEIVER.getPublicKey()).build();
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(rcptTag);
+        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
-        var event = NIP01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!");
-        Nostr.sign(event);
-        Nostr.send(event);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
+        		.sign()
+        		.send(RELAYS);
+        
+        return nip01.getEvent();
     }
 
     private static void sendEncryptedDirectMessage() {
         logHeader("sendEncryptedDirectMessage");
 
-        var event2 = NIP04.createDirectMessageEvent(RECEIVER.getPublicKey(), "Hello Nakamoto!");
-        NIP04.encrypt(SENDER, event2);
-        Nostr.sign(event2);
-        Nostr.send(event2);
+        var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
+        nip04.createDirectMessageEvent("Hello Nakamoto!")
+			.encrypt()
+			.sign()
+			.send(RELAYS);
     }
 
     private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
-        List<PublicKey> publicKeys = new ArrayList<>();
-        publicKeys.add(RECEIVER.getPublicKey());
+        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
-        var event = NIP08.createMentionsEvent(publicKeys, "Hello #[1]");
-        Nostr.sign(event);
-        Nostr.send(event);
+        var nip08 = new NIP08<MentionsEvent>(SENDER);
+        nip08.createMentionsEvent(tags, "Hello #[0]")
+			.sign()
+			.send(RELAYS);
     }
 
-    private static void deletionEvent() {
-        logHeader("deletionEvent");
+	private static void deletionEvent() {
+		logHeader("deletionEvent");
 
-        var event = NIP01.createTextNoteEvent("Hello Astral, Please delete me!");
-        Nostr.sign(event);
-        Nostr.send(event);
+		var event = sendTextNoteEvent();
+		List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(EventTag.builder().idEvent(event.getId()).build());
-        var delEvent = NIP09.createDeletionEvent(tags);
+		var nip09 = new NIP09<DeletionEvent>(SENDER);
+		nip09.createDeletionEvent(tags)
+			.sign()
+			.send();
+	}
 
-        Nostr.sign(delEvent);
-        Nostr.send(delEvent);
-    }
-
-    private static void metaDataEvent() {
+    private static MetadataEvent metaDataEvent() {
         logHeader("metaDataEvent");
 
-        var event = NIP01.createMetadataEvent(PROFILE);
-        Nostr.sign(event);
-        Nostr.send(event);
+        var nip01 = new NIP01<MetadataEvent>(SENDER);
+        nip01.createMetadataEvent(PROFILE)
+        		.sign()
+        		.send(RELAYS);
+        
+        return nip01.getEvent();
     }
 
     private static void ephemerealEvent() {
-        logHeader("ephemerealEvent");
+        logHeader("ephemeralEvent");
 
-        var event = NIP16.createEphemeralEvent(Integer.SIZE, "An ephemereal event");
-        Nostr.sign(event);
-        Nostr.send(event);
-
+        var nip01 = new NIP01<EphemeralEvent>(SENDER);
+        nip01.createEphemeralEvent(21000, "An ephemeral event")
+			.sign()
+			.send(RELAYS);
     }
 
     private static void reactionEvent() {
         logHeader("reactionEvent");
 
-        var event = NIP01.createTextNoteEvent("Hello Astral, Please like me!");
-        Nostr.sign(event);
-        Nostr.send(event);
-
-        var reactionEvent = NIP25.createReactionEvent(event, Reaction.LIKE);
-        Nostr.sign(reactionEvent);
-        Nostr.send(reactionEvent);
+        List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createCustomEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:")
+        		.signAndSend(RELAYS);
+        		
+        var nip25 = new NIP25<ReactionEvent>(RECIPIENT); 
+        nip25.createReactionEvent(event, Reaction.LIKE).signAndSend(RELAYS);
+        nip25.createReactionEvent(event, "💩").signAndSend();
+//        Using Custom Emoji as reaction 
+        nip25.createReactionEvent(event, NIP30.createCustomEmojiTag("ablobcatrainbow", "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"))
+        	.signAndSend();
     }
 
     private static void replaceableEvent() {
         logHeader("replaceableEvent");
 
-        var event = NIP01.createTextNoteEvent("Hello Astral, Please replace me!");
-        Nostr.sign(event);
-        Nostr.send(event);
+        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!").signAndSend(RELAYS);
 
-        List<BaseTag> tags = new ArrayList<>();
-        tags.add(EventTag.builder().idEvent(event.getId()).build());
-        var replaceableEvent = NIP16.createReplaceableEvent(tags, 15_000, "New content");
-        Nostr.sign(replaceableEvent);
-        Nostr.send(replaceableEvent);
+        nip01.createReplaceableEvent(List.of(new EventTag(event.getId())), 15_000, "New content")
+			.signAndSend();
     }
 
     private static void internetIdMetadata() {
         logHeader("internetIdMetadata");
+        var profile = UserProfile.builder()
+        		.name("Guilherme Gps")
+        		.publicKey(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144"))
+        		.nip05("me@guilhermegps.com.br")
+        		.build();
 
-        var event = NIP05.createInternetIdentifierMetadataEvent(PROFILE);
-        Nostr.sign(event);
-        Nostr.send(event);
+        var nip05 = new NIP05<InternetIdentifierMetadataEvent>(SENDER);
+        nip05.createInternetIdentifierMetadataEvent(profile)
+        	.sign()
+        	.send(RELAYS);
     }
 
     public static void filters() {
@@ -251,7 +285,7 @@ public class NostrApiExamples {
 
         Filters filters = NIP01.createFilters(null, null, kindList, null, null, null, null, null, null);
         String subId = "subId" + System.currentTimeMillis();
-        Nostr.send(filters, subId);
+		Nostr.getInstance().send(filters, subId);
     }
 
     private static GenericEvent createChannel() {
@@ -261,8 +295,7 @@ public class NostrApiExamples {
             var channel = new ChannelProfile("JNostr Channel", "This is a channel to test NIP28 in nostr-java", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
             var event = NIP28.createChannelCreateEvent(channel);
             
-            Nostr.sign(event);
-            Nostr.send(event);
+			Nostr.getInstance().sign(SENDER, event).send(event);
             
             return event;
         } catch (MalformedURLException | URISyntaxException ex) {
@@ -285,8 +318,7 @@ public class NostrApiExamples {
             var event = NIP28.createChannelCreateEvent(channel);
             event.addTag(tag);
             
-            Nostr.sign(event);
-            Nostr.send(event);
+			Nostr.getInstance().sign(SENDER, event).send(event);
         } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
@@ -299,8 +331,7 @@ public class NostrApiExamples {
         var channelCreateEvent = createChannel();
 
         GenericEvent event = NIP28.createChannelMessageEvent((ChannelCreateEvent) channelCreateEvent, "Hello everybody!");
-        Nostr.sign(event);
-        Nostr.send(event);
+		Nostr.getInstance().sign(SENDER, event).send(event);
 
         return event;
     }
@@ -312,8 +343,7 @@ public class NostrApiExamples {
 
         GenericEvent event = NIP28.createHideMessageEvent((ChannelMessageEvent) channelMessageEvent, "Dick pic");
 
-        Nostr.sign(event);
-        Nostr.send(event);
+		Nostr.getInstance().sign(SENDER, event).send(event);
 
         return event;
     }
@@ -321,10 +351,9 @@ public class NostrApiExamples {
     private static GenericEvent muteUser() {
         logHeader("muteUser");
 
-        GenericEvent event = NIP28.createMuteUserEvent(RECEIVER.getPublicKey(), "Posting dick pics");
+        GenericEvent event = NIP28.createMuteUserEvent(RECIPIENT.getPublicKey(), "Posting dick pics");
 
-        Nostr.sign(event);
-        Nostr.send(event);
+		Nostr.getInstance().sign(SENDER, event).send(event);
 
         return event;
     }
@@ -332,10 +361,10 @@ public class NostrApiExamples {
     private static void logAccountsData() {
         String msg = "################################ ACCOUNTS BEGINNING ################################" +
                 '\n' + "*** RECEIVER ***" + '\n' +
-                '\n' + "* PrivateKey: " + RECEIVER.getPrivateKey().getBech32() +
-                '\n' + "* PrivateKey HEX: " + RECEIVER.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + RECEIVER.getPublicKey().getBech32() +
-                '\n' + "* PublicKey HEX: " + RECEIVER.getPublicKey().toString() +
+                '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey HEX: " + RECIPIENT.getPrivateKey().toString() +
+                '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().getBech32() +
+                '\n' + "* PublicKey HEX: " + RECIPIENT.getPublicKey().toString() +
                 '\n' + '\n' + "*** SENDER ***" + '\n' +
                 '\n' + "* PrivateKey: " + SENDER.getPrivateKey().getBech32() +
                 '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
