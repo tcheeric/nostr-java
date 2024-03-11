@@ -42,6 +42,16 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 
 		return send();
 	}
+
+	public T signAndSend() {
+		return (T) sign().send();
+	}
+
+	public T signAndSend(Map<String, String> relays) {
+		super.setRelays(relays);
+
+		return signAndSend();
+	}
 	
 	public EventNostr setSender(@NonNull Identity sender) {
 		super.setSender(sender);

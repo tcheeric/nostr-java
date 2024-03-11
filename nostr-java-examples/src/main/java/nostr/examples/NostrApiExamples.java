@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,7 @@ import nostr.api.NIP08;
 import nostr.api.NIP09;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
+import nostr.api.NIP30;
 import nostr.api.Nostr;
 import nostr.base.ChannelProfile;
 import nostr.base.PublicKey;
@@ -84,40 +86,54 @@ public class NostrApiExamples {
             ExecutorService executor = Executors.newFixedThreadPool(10);
 
 //			executor.submit(() -> {
-//				metaDataEvent();
+//	        	try {
+//					metaDataEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //			});
-//
+
 //			executor.submit(() -> {
-//				sendTextNoteEvent();
+//	        	try {
+//					sendTextNoteEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //			});
 
 //            executor.submit(() -> {
-//                sendEncryptedDirectMessage();
+//		    	try {
+//		            sendEncryptedDirectMessage();
+//		    	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 
 //            executor.submit(() -> {
-//                mentionsEvent();
+//	        	try {
+//	                mentionsEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 
 //            executor.submit(() -> {
-//                deletionEvent();
+//	        	try {
+//	                deletionEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
 //            executor.submit(() -> {
-//                ephemerealEvent();
+//	    		try {
+//		            ephemerealEvent();
+//				} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-//            executor.submit(() -> {
-//                reactionEvent();
-//            });
+            executor.submit(() -> {
+            	try {
+                	reactionEvent();
+            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+            });
 //
 //            executor.submit(() -> {
 //                replaceableEvent();
 //            });
 //
-            executor.submit(() -> {
-                internetIdMetadata();
-            });
+//            executor.submit(() -> {
+//                internetIdMetadata();
+//            });
 //
 //            executor.submit(() -> {
 //                filters();
@@ -157,7 +173,7 @@ public class NostrApiExamples {
     private static TextNoteEvent sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
 
-        List<BaseTag> tags = List.of(new PubKeyTag(RECIPIENT.getPublicKey()));
+        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
@@ -180,7 +196,7 @@ public class NostrApiExamples {
     private static void mentionsEvent() {
         logHeader("mentionsEvent");
 
-        List<BaseTag> tags = List.of(new PubKeyTag(RECIPIENT.getPublicKey()));
+        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
         var nip08 = new NIP08<MentionsEvent>(SENDER);
         nip08.createMentionsEvent(tags, "Hello #[0]")
@@ -192,7 +208,7 @@ public class NostrApiExamples {
 		logHeader("deletionEvent");
 
 		var event = sendTextNoteEvent();
-		List<BaseTag> tags = List.of(new EventTag(event.getId()));
+		List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
 		var nip09 = new NIP09<DeletionEvent>(SENDER);
 		nip09.createDeletionEvent(tags)
@@ -223,32 +239,27 @@ public class NostrApiExamples {
     private static void reactionEvent() {
         logHeader("reactionEvent");
 
+        List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createCustomEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        var event = nip01.createTextNoteEvent("Hello Astral, Please like me!")
-        		.sign()
-        		.send(RELAYS);
+        var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:")
+        		.signAndSend(RELAYS);
         		
         var nip25 = new NIP25<ReactionEvent>(RECIPIENT); 
-        nip25.createReactionEvent(event, Reaction.LIKE)
-        		.sign()
-        		.send(RELAYS);
-        
-        nip25.createReactionEvent(event, "💩")
-				.sign()
-				.send();
+        nip25.createReactionEvent(event, Reaction.LIKE).signAndSend(RELAYS);
+        nip25.createReactionEvent(event, "💩").signAndSend();
+//        Using Custom Emoji as reaction 
+        nip25.createReactionEvent(event, NIP30.createCustomEmojiTag("ablobcatrainbow", "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"))
+        	.signAndSend();
     }
 
     private static void replaceableEvent() {
         logHeader("replaceableEvent");
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!")
-        		.sign()
-        		.send(RELAYS);
+        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!").signAndSend(RELAYS);
 
         nip01.createReplaceableEvent(List.of(new EventTag(event.getId())), 15_000, "New content")
-			.sign()
-			.send();
+			.signAndSend();
     }
 
     private static void internetIdMetadata() {

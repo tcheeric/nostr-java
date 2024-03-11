@@ -150,7 +150,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void addTag(BaseTag tag) {
-
+    	if(tags==null) tags = new ArrayList<>();
+    	
         if (!tags.contains(tag)) {
             tag.setParent(this);
             tags.add(tag);

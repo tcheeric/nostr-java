@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.NonNull;
@@ -12,12 +13,9 @@ import nostr.event.BaseTag;
 import nostr.event.NIP25Event;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.EmojiTag;
 import nostr.id.Identity;
 
-/**
- *
- * @author eric
- */
 public class NIP25<T extends NIP25Event> extends EventNostr<T> {
 	
 	public NIP25(@NonNull Identity sender) {
@@ -49,6 +47,20 @@ public class NIP25<T extends NIP25Event> extends EventNostr<T> {
 
 		return this;
     }
+
+    /**
+     * Create a NIP25 Reaction event to react to a specific event
+     * @param event the related event to react to
+     * @param emojiTag MUST be an costum emoji (NIP30)
+     * @return 
+     */
+	public EventNostr<T> createReactionEvent(@NonNull GenericEvent event,@NonNull EmojiTag emojiTag) {
+		var content = String.format(":%s:", emojiTag.getShortcode());
+    	var e = new ReactionEventFactory(getSender(), new ArrayList<>(List.of(emojiTag)), event, content).create();
+		this.setEvent((T) e);
+
+		return this;
+	}
 
     /**
      * Create a NIP25 Reaction event to react to several event and/or pubkeys
