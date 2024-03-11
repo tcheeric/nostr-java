@@ -6,16 +6,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP46.NostrConnectEventFactory;
+import nostr.api.factory.impl.NIP28Impl;
+import nostr.api.factory.impl.NIP46Impl;
+import nostr.api.factory.impl.NIP46Impl.NostrConnectEventFactory;
 import nostr.base.PublicKey;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.NostrConnectEvent;
 import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public final class NIP46 extends Nostr {
+public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
+
+    public NIP46(@NonNull Identity sender) {
+        setSender(sender);
+    }
 
     /**
      * Create an app request for the signer
@@ -23,8 +31,12 @@ public final class NIP46 extends Nostr {
      * @param signer
      * @return
      */
-    public static NostrConnectEvent createRequestEvent(@NonNull NIP46.NIP46Request request, @NonNull IIdentity sender, @NonNull PublicKey signer) {
-        return new NostrConnectEventFactory(request, sender, signer).create();
+    public NIP46<T> createRequestEvent(@NonNull NIP46.NIP46Request request, @NonNull PublicKey signer) {
+        var factory = new NIP46Impl.NostrConnectEventFactory(getSender(), request, signer);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
 
     /**
@@ -32,8 +44,12 @@ public final class NIP46 extends Nostr {
      * @param app
      * @return
      */
-    public static NostrConnectEvent createResponseEvent(@NonNull NIP46.NIP46Response response, @NonNull IIdentity sender, @NonNull PublicKey app) {
-        return new NostrConnectEventFactory(response, sender, app).create();
+    public NIP46<T> createResponseEvent(@NonNull NIP46.NIP46Response response, @NonNull PublicKey app) {
+        var factory = new NIP46Impl.NostrConnectEventFactory(getSender(), response, app);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
 
     public interface NIP46ReqRes {

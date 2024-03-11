@@ -25,7 +25,7 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP15 {
+public class NIP15Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

@@ -19,7 +19,7 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP23 {
+public class NIP23Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

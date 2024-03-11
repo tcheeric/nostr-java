@@ -4,87 +4,94 @@
  */
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP15.CreateOrUpdateProductEventFactory;
-import nostr.api.factory.impl.NIP15.CreateOrUpdateStallEventFactory;
-import nostr.api.factory.impl.NIP15.CustomerOrderEventFactory;
-import nostr.api.factory.impl.NIP15.MerchantRequestPaymentEventFactory;
-import nostr.api.factory.impl.NIP15.VerifyPaymentOrShippedEventFactory;
+import nostr.api.factory.impl.NIP15Impl;
+import nostr.api.factory.impl.NIP15Impl.CreateOrUpdateProductEventFactory;
+import nostr.api.factory.impl.NIP15Impl.CreateOrUpdateStallEventFactory;
+import nostr.api.factory.impl.NIP15Impl.CustomerOrderEventFactory;
+import nostr.api.factory.impl.NIP15Impl.VerifyPaymentOrShippedEventFactory;
 import nostr.event.BaseTag;
-import nostr.event.impl.CreateOrUpdateProductEvent;
-import nostr.event.impl.CreateOrUpdateStallEvent;
+import nostr.event.impl.*;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
-import nostr.event.impl.CustomerOrderEvent;
 import nostr.event.impl.CustomerOrderEvent.Customer;
-import nostr.event.impl.MerchantRequestPaymentEvent;
 import nostr.event.impl.MerchantRequestPaymentEvent.Payment;
 import nostr.event.impl.NostrMarketplaceEvent.Product;
-import nostr.event.impl.VerifyPaymentOrShippedEvent;
 import nostr.event.impl.VerifyPaymentOrShippedEvent.PaymentShipmentStatus;
+import nostr.id.Identity;
+
+import java.util.List;
 
 /**
- *
  * @author eric
  */
-public class NIP15 extends Nostr {
+public class NIP15<T extends GenericEvent> extends EventNostr<T> {
+
+    public NIP15(@NonNull Identity sender) {
+        setSender(sender);
+    }
 
     /**
-     * 
      * @param customer
      * @param status
-     * @return 
+     * @return
      */
-    public static VerifyPaymentOrShippedEvent createVerifyPaymentOrShippedEvent(@NonNull Customer customer, @NonNull PaymentShipmentStatus status) {
-        return new VerifyPaymentOrShippedEventFactory(status, customer).create();
+    public NIP15<T> createVerifyPaymentOrShippedEvent(@NonNull Customer customer, @NonNull PaymentShipmentStatus status) {
+        var event = new NIP15Impl.VerifyPaymentOrShippedEventFactory(status, customer).create();
+        this.setEvent((T) event);
+
+        return this;
     }
-    
+
     /**
-     * 
-     * @param tags
-     * @param customer
-     * @param status
-     * @return 
-     */
-    public static VerifyPaymentOrShippedEvent createVerifyPaymentOrShippedEvent(@NonNull List<BaseTag> tags, @NonNull Customer customer, @NonNull PaymentShipmentStatus status) {
-        return new VerifyPaymentOrShippedEventFactory(tags, status, customer).create();
-    }
-    
-    /**
-     * 
      * @param payment
      * @param customer
-     * @return 
+     * @return
      */
-    public static MerchantRequestPaymentEvent createMerchantRequestPaymentEvent(@NonNull Payment payment, @NonNull Customer customer) {
-        return new MerchantRequestPaymentEventFactory(customer, payment).create();
+    public NIP15<T> createMerchantRequestPaymentEvent(@NonNull Payment payment, @NonNull Customer customer) {
+        var factory = new NIP15Impl.MerchantRequestPaymentEventFactory(getSender(), customer, payment);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
 
     /**
-     * 
+     *
      * @param customer
-     * @return 
+     * @return
      */
-    public static CustomerOrderEvent createCustomerOrderEvent(@NonNull Customer customer) {
-        return new CustomerOrderEventFactory(customer).create();
+    public NIP15<T> createCustomerOrderEvent(@NonNull Customer customer) {
+        var factory = new NIP15Impl.CustomerOrderEventFactory(getSender(), customer);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
-    
+
     /**
-     * 
+     *
      * @param stall
-     * @return 
+     * @return
      */
-    public static CreateOrUpdateStallEvent createCreateOrUpdateStallEvent(@NonNull Stall stall) {
-        return new CreateOrUpdateStallEventFactory(stall).create();
+    public NIP15<T> createCreateOrUpdateStallEvent(@NonNull Stall stall) {
+        var factory = new NIP15Impl.CreateOrUpdateStallEventFactory(getSender(), stall);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
-    
+
     /**
-     * 
+     *
      * @param product
      * @param categories
-     * @return 
+     * @return
      */
-    public static CreateOrUpdateProductEvent createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
-        return new CreateOrUpdateProductEventFactory(product, categories).create();
+    public NIP15<T> createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
+        var factory = new NIP15Impl.CreateOrUpdateProductEventFactory(getSender(), product, categories);
+        var event = factory.create();
+        setEvent((T) event);
+
+        return this;
     }
 }

@@ -25,7 +25,7 @@ import nostr.id.Identity;
  *
  * @author eric
  */
-public class NIP28 {
+public class NIP28Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -34,6 +34,11 @@ public class NIP28 {
         private final ChannelProfile profile;
 
         public ChannelCreateEventFactory(@NonNull ChannelProfile profile) {
+            this.profile = profile;
+        }
+
+        public ChannelCreateEventFactory(Identity sender, @NonNull ChannelProfile profile) {
+            super(sender, null);
             this.profile = profile;
         }
 

@@ -13,6 +13,7 @@ import nostr.event.BaseTag;
  * @author squirrel
  */
 @Event(name = "OpenTimestamps Attestations for Events")
+@Deprecated
 public class OtsEvent extends TextNoteEvent {
     
     public OtsEvent(PublicKey pubKey, List<BaseTag> tags, String content, String ots) {

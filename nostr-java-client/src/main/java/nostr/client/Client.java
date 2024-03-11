@@ -146,6 +146,7 @@ public class Client {
                 .forEach(fr -> {
                     try {
                         Relay r = fr.get();
+                        log.log(Level.INFO, "Sending message to relay {0}", r);
                         this.requestHandler.process(message, r);
                     } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
