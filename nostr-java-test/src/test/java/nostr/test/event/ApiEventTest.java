@@ -14,6 +14,7 @@ import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP32;
+import nostr.api.NIP44;
 import nostr.api.Nostr;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
@@ -89,6 +90,18 @@ public class ApiEventTest {
     }
 
     @Test
+    public void testNIP44SendDirectMessage() {
+        System.out.println("testNIP44SendDirectMessage");
+
+        PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
+
+        var instance = NIP44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
+        var signature = Nostr.sign(instance);
+        Assertions.assertNotNull(signature);
+        Nostr.send(instance);
+    }
+
+    @Test
     public void testNIP04EncryptDecrypt() throws NostrException {
         System.out.println("testNIP04EncryptDecrypt");
 
@@ -99,6 +112,19 @@ public class ApiEventTest {
 		        .encrypt()
 		        .sign();
         var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
+
+        Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
+    }
+
+    @Test
+    public void testNIP44EncryptDecrypt() throws NostrException {
+        System.out.println("testNIP44EncryptDecrypt");
+
+        var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
+
+        var instance = NIP44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
+        Nostr.sign(instance);
+        var message = NIP44.decrypt(Identity.getInstance(), instance);
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }

@@ -1,8 +1,6 @@
-package nostr.test.id;
+package nostr.test.client;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +10,6 @@ import nostr.event.message.EventMessage;
 import nostr.client.Client;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import nostr.util.NostrException;
 
 /**
  *

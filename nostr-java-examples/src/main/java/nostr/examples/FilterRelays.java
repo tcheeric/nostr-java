@@ -1,10 +1,12 @@
 package nostr.examples;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.ws.Connection;
 
@@ -12,6 +14,7 @@ import nostr.ws.Connection;
  * @author guilhermegps
  *
  */
+@Log
 public class FilterRelays {
 	
 	private final static Map<String, String> relaysURLs = Stream.of(new String[][] {
@@ -139,7 +142,7 @@ public class FilterRelays {
             var connection = new Connection(relay);
             connection.updateRelayMetadata();
         } catch (Exception ex) {
-            ex.printStackTrace();
+			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());
         }
         
         return relay;

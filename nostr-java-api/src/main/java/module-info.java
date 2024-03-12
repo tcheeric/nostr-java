@@ -9,6 +9,9 @@ module nostr.api {
     requires nostr.event;
     requires nostr.id;
     requires nostr.client;
+    requires nostr.encryption;
+    requires nostr.encryption.nip04;
+    requires nostr.encryption.nip44;
     
     requires com.fasterxml.jackson.databind;
     

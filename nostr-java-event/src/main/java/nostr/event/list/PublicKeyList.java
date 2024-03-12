@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 
 /**
