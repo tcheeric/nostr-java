@@ -13,7 +13,6 @@ import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
 import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
-import nostr.api.factory.impl.NIP01Impl.FiltersFactory;
 import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
 import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
 import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
@@ -213,18 +212,18 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param genericTagQueryList a generic tag query list
      * @return a filters object
      */
+    @Deprecated(forRemoval = true)
     public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQueryList genericTagQueryList) {
-        var factory = new FiltersFactory();
-        factory.setAuthors(authors);
-        factory.setEvents(events);
-        factory.setGenericTagQueryList(genericTagQueryList);
-        factory.setKinds(kinds);
-        factory.setLimit(limit);
-        factory.setReferencePubKeys(referencePubKeys);
-        factory.setReferencedEvents(referencedEvents);
-        factory.setSince(since);
-        factory.setUntil(until);
-        return factory.create();
+        return Filters.builder()
+        		.authors(authors)
+        		.events(events)
+        		.genericTagQueryList(genericTagQueryList)
+        		.kinds(kinds).limit(limit)
+        		.referencePubKeys(referencePubKeys)
+        		.referencedEvents(referencedEvents)
+        		.since(since)
+        		.until(until)
+        		.build();
     }
 
     /**

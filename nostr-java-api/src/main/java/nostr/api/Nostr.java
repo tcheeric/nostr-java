@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -62,6 +63,10 @@ public class Nostr {
 		client = (client == null) ? Client.getInstance() : client;
 
 		return client;
+	}
+	
+	public List<BaseMessage> responses(){
+		return getClient().getResponses();
 	}
 
 	public void send(@NonNull IEvent event) {

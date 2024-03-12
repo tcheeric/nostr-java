@@ -1,7 +1,7 @@
 package nostr.ws;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -27,10 +27,13 @@ import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.JettyUpgradeListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
+import nostr.event.BaseMessage;
 
 /**
  *
@@ -45,18 +48,20 @@ public class Connection {
 
     private final Relay relay;
     private HttpClient httpClient;
+    private List<BaseMessage> responses;
 
-    public Connection(@NonNull Relay relay) throws Exception {
+    public Connection(@NonNull Relay relay, @NonNull List<BaseMessage> responses) throws Exception {
         this.relay = relay;
+        this.responses = responses;
         this.connect();
-    }
+	}
 
-    public void stop() {
+	public void stop() {
         new Thread(() -> LifeCycle.stop(webSocketClient)).start();
     }
 
     private void connect() throws Exception {
-        ClientListenerEndPoint clientEndPoint = new ClientListenerEndPoint();
+        ClientListenerEndPoint clientEndPoint = new ClientListenerEndPoint(responses);
 
         if (relay.getURI().getScheme().equals("wss")) {
             SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();

@@ -15,6 +15,7 @@ import nostr.event.json.serializer.CustomBaseListSerializer;
  * @author squirrel
  * @param <T>
  */
+// TODO: Why are we using this instead of just use a regular java collection?
 @AllArgsConstructor
 @Data
 @JsonSerialize(using = CustomBaseListSerializer.class)
