@@ -12,9 +12,7 @@ import nostr.api.factory.EventFactory;
 import nostr.api.factory.TagFactory;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.impl.ClassifiedListingEventNick;
-import nostr.event.impl.GenericEventImpl;
-import nostr.event.impl.GenericEventNick;
+import nostr.event.impl.*;
 import nostr.id.Identity;
 
 import java.net.URL;

@@ -7,6 +7,7 @@ package nostr.api;
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP99.*;
 import nostr.event.BaseTag;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericEventNick;
 import nostr.event.impl.GenericTag;
 import nostr.id.Identity;
