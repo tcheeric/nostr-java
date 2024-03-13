@@ -1,7 +1,9 @@
 package nostr.examples;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -139,7 +141,7 @@ public class FilterRelays {
 
     private static Relay updateRelayMetadata(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay);
+            var connection = new Connection(relay, new ArrayList<>());
             connection.updateRelayMetadata();
         } catch (Exception ex) {
 			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());

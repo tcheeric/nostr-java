@@ -43,7 +43,10 @@ public class Client {
     private static Client INSTANCE;
 
 	private final List<Future<Relay>> futureRelays = new ArrayList<>();
-	private final IRequestHandler requestHandler = new DefaultRequestHandler();
+	@Getter
+    private final List<BaseMessage> responses = new ArrayList<>();
+	private final IRequestHandler requestHandler = new DefaultRequestHandler(responses);
+	
 //	TODO: remove getter
 	@Getter
 	private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
@@ -279,7 +282,7 @@ public class Client {
 
     private void updateRelayInformation(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay);
+            var connection = new Connection(relay, responses);
             connection.updateRelayMetadata();
         } catch (Exception ex) {
             log.log(Level.SEVERE, null, ex);

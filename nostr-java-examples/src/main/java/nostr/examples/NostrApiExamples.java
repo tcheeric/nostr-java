@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +33,7 @@ import nostr.event.Kind;
 import nostr.event.Reaction;
 import nostr.event.impl.*;
 import nostr.event.list.KindList;
+import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -117,16 +119,28 @@ public class NostrApiExamples {
             });
 //
 //            executor.submit(() -> {
-//                replaceableEvent();
+//            	try {
+//                	reactionEvent();
+//            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+//            });
+
+//            executor.submit(() -> {
+//	        	try {
+//	        		replaceableEvent();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
 //            executor.submit(() -> {
-//                internetIdMetadata();
+//	        	try {
+//	                internetIdMetadata();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-//            executor.submit(() -> {
-//                filters();
-//            });
+            executor.submit(() -> {
+            	try {
+            		filters();
+	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+            });
 //
 //            executor.submit(() -> {
 //                createChannel();
@@ -265,16 +279,25 @@ public class NostrApiExamples {
         	.send(RELAYS);
     }
 
-    public static void filters() {
+    public static void filters() throws InterruptedException {
         logHeader("filters");
 
-        KindList kindList = new KindList();
-        kindList.add(Kind.EPHEMEREAL_EVENT.getValue());
-        kindList.add(Kind.TEXT_NOTE.getValue());
+        var kinds = new KindList(List.of(Kind.EPHEMEREAL_EVENT.getValue(), Kind.TEXT_NOTE.getValue()));
+        var authors = new PublicKeyList(List.of(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")));
 
-        Filters filters = NIP01.createFilters(null, null, kindList, null, null, null, null, null, null);
-        String subId = "subId" + System.currentTimeMillis();
-		Nostr.getInstance().send(filters, subId);
+        var date = Calendar.getInstance();
+        var subId = "subId" + date.getTimeInMillis();
+        date.add(Calendar.DAY_OF_MONTH, -5);
+        Filters filters = Filters.builder()
+        		.authors(authors)
+        		.kinds(kinds)
+        		.since(date.getTimeInMillis()/1000)
+        		.build();
+        
+        var nip01 = NIP01.getInstance();
+        nip01.setRelays(RELAYS).send(filters, subId);
+        Thread.sleep(5000);        
+		nip01.responses();			
     }
 
     private static GenericEvent createChannel() {

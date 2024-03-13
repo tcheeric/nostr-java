@@ -3,6 +3,7 @@ package nostr.event.list;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Builder;
 import lombok.NonNull;
 import nostr.base.PublicKey;
@@ -18,7 +19,7 @@ public class PublicKeyList extends BaseList<PublicKey> {
         this(new ArrayList<>());
     }
 
-    private PublicKeyList(@NonNull List<PublicKey> list) {
-        super(list);
+    public PublicKeyList(@NonNull List<PublicKey> list) {
+        super(new ArrayList<>(list));
     }
 }

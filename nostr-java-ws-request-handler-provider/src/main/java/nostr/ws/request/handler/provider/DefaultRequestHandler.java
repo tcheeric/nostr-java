@@ -1,13 +1,14 @@
 package nostr.ws.request.handler.provider;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.base.annotation.DefaultHandler;
@@ -24,16 +25,20 @@ import nostr.ws.handler.spi.IRequestHandler;
  */
 @Log
 @Data
-@NoArgsConstructor
 @DefaultHandler
 public class DefaultRequestHandler implements IRequestHandler {
 
     private Connection connection;
+    private List<BaseMessage> responses;
+    
+    public DefaultRequestHandler(@NonNull List<BaseMessage> responses){
+    	this.responses = responses;
+    }
 
     @Override
     public void process(BaseMessage message, Relay relay) throws NostrException {
         try {
-            this.connection = new Connection(relay);
+            this.connection = new Connection(relay, responses);
             sendMessage(message);
         } catch (Exception ex) {
             throw new NostrException(ex);
