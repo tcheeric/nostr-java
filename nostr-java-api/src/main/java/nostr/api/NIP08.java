@@ -11,7 +11,7 @@ import nostr.api.factory.impl.NIP08Impl.MentionsEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP08Event;
 import nostr.event.impl.MentionsEvent;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 /**
  *
@@ -20,7 +20,7 @@ import nostr.id.Identity;
 @Deprecated(since = "NIP-27")
 public class NIP08 <T extends NIP08Event> extends EventNostr<T> {
 	
-	public NIP08(@NonNull Identity sender) {
+	public NIP08(@NonNull IIdentity sender) {
 		setSender(sender);
 	}
 

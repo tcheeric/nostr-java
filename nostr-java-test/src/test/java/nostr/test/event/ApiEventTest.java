@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import nostr.event.impl.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,18 +15,14 @@ import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP32;
-import nostr.api.Nostr;
+import nostr.api.NIP44;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
-import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
-import nostr.event.impl.TextNoteEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 
@@ -89,6 +86,19 @@ public class ApiEventTest {
     }
 
     @Test
+    public void testNIP44SendDirectMessage() {
+        System.out.println("testNIP44SendDirectMessage");
+
+        PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
+
+        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+
+        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        Assertions.assertNotNull(instance.getEvent().getSignature());
+        instance.send();
+    }
+
+    @Test
     public void testNIP04EncryptDecrypt() throws NostrException {
         System.out.println("testNIP04EncryptDecrypt");
 
@@ -104,20 +114,33 @@ public class ApiEventTest {
     }
 
     @Test
+    public void testNIP44EncryptDecrypt() {
+        System.out.println("testNIP44EncryptDecrypt");
+
+        var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
+
+        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+
+        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        var message = NIP44.decrypt(Identity.getInstance(), instance.getEvent());
+
+        Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
+    }
+
+    @Test
     public void testNIP15CreateStallEvent() throws JsonProcessingException {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
+        var nip15 = new NIP15<>(Identity.getInstance());
 
         // Create and send the nostr event
-        var instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        Nostr.getInstance().sign(instance);
-        var signature = instance.getSignature();
+        var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
+        var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.getInstance().send(instance);
 
         // Fetch the content and compare with the above original
-        var content = instance.getContent();
+        var content = instance.getEvent().getContent();
         ObjectMapper mapper = new ObjectMapper();
         var expected = mapper.readValue(content, Stall.class);
 
@@ -129,20 +152,18 @@ public class ApiEventTest {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
+        var nip15 = new NIP15<>(Identity.getInstance());
 
         // Create and send the nostr event
-        var instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        Nostr.getInstance().sign(instance);
-        var signature = instance.getSignature();
+        var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
+        var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        Nostr.getInstance().send(instance);
+        nip15.send();
 
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
-        instance = NIP15.createCreateOrUpdateStallEvent(stall);
-        Nostr.getInstance().sign(instance);
-        Nostr.getInstance().send(instance);
+        nip15.createCreateOrUpdateStallEvent(stall).sign().send();
     }
 
     @Test
@@ -152,6 +173,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
+        var nip15 = new NIP15<>(Identity.getInstance());
 
         // Create the product
         var product = createProduct(stall);
@@ -160,9 +182,7 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
-        Nostr.getInstance().sign(instance);
-        Nostr.getInstance().send(instance);
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
     }
 
     @Test
@@ -172,6 +192,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
+        var nip15 = new NIP15<>(Identity.getInstance());
 
         // Create the product
         var product = createProduct(stall);
@@ -180,15 +201,13 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var instance = NIP15.createCreateOrUpdateProductEvent(product, categories);
-        Nostr.getInstance().sign(instance);
-        Nostr.getInstance().send(instance);
+        var instance = nip15.createCreateOrUpdateProductEvent(product, categories);
+        nip15.sign().send();
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
-        Nostr.getInstance().sign(instance);
-        Nostr.getInstance().send(instance);
+        nip15.sign().send();
     }
 
     @Test

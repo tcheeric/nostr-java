@@ -5,7 +5,7 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP20.OkMessageFactory;
+import nostr.api.factory.impl.NIP20Impl.OkMessageFactory;
 import nostr.base.IEvent;
 import nostr.event.message.OkMessage;
 
@@ -13,7 +13,7 @@ import nostr.event.message.OkMessage;
  *
  * @author eric
  */
-public class NIP20 extends Nostr {
+public class NIP20 {
     
     /**
      * Create an OK message providing information about if an event was accepted or rejected.

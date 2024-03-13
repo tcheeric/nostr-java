@@ -149,6 +149,7 @@ public class Client {
                 .forEach(fr -> {
                     try {
                         Relay r = fr.get();
+                        log.log(Level.INFO, "Sending message to relay {0}", r);
                         this.requestHandler.process(message, r);
                     } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
@@ -156,7 +157,7 @@ public class Client {
                 });
     }
 
-    public void auth(Identity identity, String challenge) throws NostrException {
+    public void auth(Identity identity, String challenge) {
 
         log.log(Level.FINER, "Authenticating {0}", identity);
         List<Relay> relays = getRelayList();
@@ -171,7 +172,7 @@ public class Client {
         auth(Identity.getInstance(), challenge, relay);
     }
 
-    public void auth(Identity identity, String challenge, Relay relay) throws NostrException {
+    public void auth(Identity identity, String challenge, Relay relay) {
 
         log.log(Level.INFO, "Authenticating...");
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);

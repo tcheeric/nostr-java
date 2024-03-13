@@ -6,15 +6,16 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3.1</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-crypto</artifactId>
     <packaging>jar</packaging>
 
     <description>
-        A simple Java implementation (no external libs) of Sipa's Python reference implementation test vectors
-        for BIP340 Schnorr signatures for secp256k1. Inspired/Copied from:
+        A simple Java implementation (no external libs) of Sipa's Python reference implementation test vectors for BIP340 Schnorr signatures for secp256k1.
+
+        Sources:
         https://code.samourai.io/samouraidev/BIP340_Schnorr and
         https://github.com/unclebob/more-speech/tree/bdd2f32b37264f20bf6abb4887489e70d2b0fdf1
     </description>
@@ -25,15 +26,19 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-		</dependency>
-
         <!-- Project Dependencies -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-secp256k1</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

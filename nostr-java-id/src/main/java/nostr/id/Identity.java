@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
@@ -13,15 +14,17 @@ import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+import nostr.crypto.schnorr.Schnorr;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.util.NostrException;
 
 /**
  * @author squirrel
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Log
-public class Identity implements IIdentity {
+public class Identity extends AbstractBaseIdentity {
 
     private static Identity INSTANCE;
 
@@ -56,22 +59,6 @@ public class Identity implements IIdentity {
         return INSTANCE;
     }
 
-    public PublicKey getPublicKey() {
-        try {
-            return IdentityHelper.generatePublicKey(this.privateKey);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Signature sign(@NonNull ISignable signable) {
-        try {
-            return new IdentityHelper(this).sign(signable);
-        } catch (NostrException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
 	 * @return A strong pseudo random identity
 	 */
@@ -101,7 +88,8 @@ public class Identity implements IIdentity {
             if (pubKey == null || pubKey.trim().isEmpty()) {
                 log.log(Level.FINE, "Generating new public key...");
                 try {
-                    return IdentityHelper.generatePublicKey(getPrivateKey());
+                    var publicKey = Schnorr.genPubKey(getPrivateKey().getRawData());
+                    return new PublicKey(publicKey);
                 } catch (Exception ex) {
                     log.log(Level.SEVERE, null, ex);
                     throw new NostrException(ex);

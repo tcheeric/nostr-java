@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3.1</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
     <artifactId>nostr-java-api</artifactId>
     <packaging>jar</packaging>
@@ -37,6 +37,21 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-ws-handler-command-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-encryption</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-encryption-nip04</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-encryption-nip44</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

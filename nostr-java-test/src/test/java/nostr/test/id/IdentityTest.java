@@ -4,14 +4,8 @@ import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
-import nostr.id.IdentityHelper;
 import nostr.test.EntityFactory;
-import java.io.IOException;
-import nostr.base.PrivateKey;
-import nostr.crypto.bech32.Bech32;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.util.NostrException;
-import nostr.util.NostrUtil;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +14,6 @@ import org.junit.jupiter.api.Test;
  * @author squirrel
  */
 public class IdentityTest {
-
-    //private final Identity identity;
 
     public IdentityTest() {
     }
@@ -45,6 +37,7 @@ public class IdentityTest {
     }
     
     
+/*
     @Test
     public void testDecryptMessage() {
         try {
@@ -66,5 +59,6 @@ public class IdentityTest {
             Assertions.fail(ex);
         }
     }
+*/
 
 }

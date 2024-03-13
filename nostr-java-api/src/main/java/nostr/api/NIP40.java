@@ -5,19 +5,18 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP40.ExpirationTagFactory;
+import nostr.api.factory.impl.NIP40Impl.ExpirationTagFactory;
 import nostr.event.tag.ExpirationTag;
 
 /**
  *
  * @author eric
  */
-public class NIP40 extends Nostr {
+public class NIP40 {
 
     /**
      * 
      * @param expiration
-     * @return 
      */
     public static ExpirationTag createExpirationTag(@NonNull Integer expiration) {
         return new ExpirationTagFactory(expiration).create();
