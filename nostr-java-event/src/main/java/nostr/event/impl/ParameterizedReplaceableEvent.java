@@ -18,6 +18,9 @@ import nostr.event.NIP01Event;
 @Event(name = "Parameterized Replaceable Events", nip = 1)
 public class ParameterizedReplaceableEvent extends NIP01Event {
 
+    protected ParameterizedReplaceableEvent() {
+    }
+
     public ParameterizedReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
         super(sender, kind, tags, content);
     }

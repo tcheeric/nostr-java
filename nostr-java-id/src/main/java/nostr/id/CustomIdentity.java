@@ -1,6 +1,7 @@
 package nostr.id;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.ISignable;
@@ -11,9 +12,10 @@ import nostr.util.NostrException;
 
 import java.io.IOException;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @ToString
-public class CustomIdentity implements IIdentity {
+public class CustomIdentity extends AbstractBaseIdentity {
 
     @ToString.Exclude
     @NonNull
@@ -30,7 +32,7 @@ public class CustomIdentity implements IIdentity {
         try {
             var config = new CustomIdentityConfiguration(name);
             this.privateKey = config.getPrivateKey();
-            this.publicKey = new IdentityHelper(this).getPublicKey();
+            this.publicKey = getPublicKey();
         } catch (NostrException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -39,20 +41,6 @@ public class CustomIdentity implements IIdentity {
     @Override
     public PrivateKey getPrivateKey() {
         return this.privateKey;
-    }
-
-    @Override
-    public PublicKey getPublicKey() {
-        return this.publicKey;
-    }
-
-    @Override
-    public Signature sign(@NonNull ISignable signable) {
-        try {
-            return new IdentityHelper(this).sign(signable);
-        } catch (NostrException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     static class CustomIdentityConfiguration extends Identity.IdentityConfiguration {

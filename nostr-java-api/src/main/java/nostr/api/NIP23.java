@@ -12,7 +12,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 import java.net.URL;
 import java.util.List;
@@ -22,28 +22,16 @@ import java.util.List;
  */
 public class NIP23<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP23(@NonNull Identity sender) {
+    public NIP23(@NonNull IIdentity sender) {
         setSender(sender);
-    }
-
-    /**
-     * Create a Long-form Content event without tags
-     *
-     * @param content a text in Markdown syntax
-     * @return
-     */
-    public static GenericEvent creatLongFormContentEvent(@NonNull String content) {
-        return new LongFormContentEventFactory(content).create();
     }
 
     /**
      * Create a Long-form Content event with tags
      *
-     * @param tags    the note's tags
      * @param content a text in Markdown syntax
-     * @return
      */
-    public NIP23<T> creatLongFormContentEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+    public NIP23<T> creatLongFormContentEvent(@NonNull String content) {
         var factory = new NIP23Impl.LongFormContentEventFactory(getSender(), content);
         var event = factory.create();
         setEvent((T) event);
@@ -85,7 +73,6 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      * Create a title tag
      *
      * @param title the article title
-     * @return
      */
     public static GenericTag createTitleTag(@NonNull String title) {
         return new TitleTagFactory(title).create();
@@ -95,7 +82,6 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      * Create an image tag
      *
      * @param url a URL pointing to an image to be shown along with the title
-     * @return
      */
     public static GenericTag createImageTag(@NonNull URL url) {
         return new ImageTagFactory(url).create();
@@ -105,7 +91,6 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      * Create a summary tag
      *
      * @param summary the article summary
-     * @return
      */
     public static GenericTag createSummaryTag(@NonNull String summary) {
         return new SummaryTagFactory(summary).create();
@@ -115,7 +100,6 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      * Create a published_at tag
      *
      * @param date the timestamp in unix seconds (stringified) of the first time the article was published
-     * @return
      */
     public static GenericTag createPublishedAtTag(@NonNull Integer date) {
         return new PublishedAtTagFactory(date).create();

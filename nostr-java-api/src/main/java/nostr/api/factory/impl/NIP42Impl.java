@@ -22,7 +22,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.ClientAuthenticationEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.message.ClientAuthenticationMessage;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 /**
  *
@@ -42,7 +42,7 @@ public class NIP42Impl {
             this.relay = relay;
         }
 
-        public ClientAuthenticationEventFactory(@NonNull Identity sender, @NonNull String challenge, @NonNull Relay relay) {
+        public ClientAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, null);
             this.challenge = challenge;
             this.relay = relay;
@@ -54,7 +54,7 @@ public class NIP42Impl {
             this.relay = relay;
         }
 
-        public ClientAuthenticationEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
+        public ClientAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, tags, null);
             this.challenge = challenge;
             this.relay = relay;

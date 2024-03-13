@@ -29,7 +29,6 @@ import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  * @author eric
@@ -40,13 +39,13 @@ public class Nostr {
 
 	private Client client;
 	@Getter
-	private Identity sender;
+	private IIdentity sender;
 
 	public static Nostr getInstance() {
 		return (INSTANCE == null) ? new Nostr() : INSTANCE;
 	}
 	
-	public Nostr setSender(@NonNull Identity sender) {
+	public Nostr setSender(@NonNull IIdentity sender) {
 		this.sender = sender;
 		
 		return this;
@@ -74,7 +73,6 @@ public class Nostr {
 
     /**
      * @param signable
-     * @return
      */
 	public Nostr sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
 		identity.sign(signable);
@@ -95,7 +93,6 @@ public class Nostr {
 
         /**
          * @param event
-         * @return
          */
         public static String encode(@NonNull BaseEvent event) {
             return Nostr.Json.encode(event, null);
@@ -113,7 +110,6 @@ public class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static GenericEvent decodeEvent(@NonNull String json) {
             final var dec = new GenericEventDecoder(json);
@@ -125,7 +121,6 @@ public class Nostr {
         /**
          * @param message
          * @param relay
-         * @return
          */
         public static String encode(@NonNull BaseMessage message, Relay relay) {
             final var enc = new BaseMessageEncoder(message, relay);
@@ -134,7 +129,6 @@ public class Nostr {
 
         /**
          * @param message
-         * @return
          */
         public static String encode(@NonNull BaseMessage message) {
             return Nostr.Json.encode(message, null);
@@ -142,7 +136,6 @@ public class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static BaseMessage decodeMessage(@NonNull String json) {
             final var dec = new BaseMessageDecoder(json);
@@ -154,7 +147,6 @@ public class Nostr {
         /**
          * @param tag
          * @param relay
-         * @return
          */
         public static String encode(@NonNull BaseTag tag, Relay relay) {
             final var enc = new BaseTagEncoder(tag, relay);
@@ -163,7 +155,6 @@ public class Nostr {
 
         /**
          * @param tag
-         * @return
          */
         public static String encode(@NonNull BaseTag tag) {
             return Nostr.Json.encode(tag, null);
@@ -171,7 +162,6 @@ public class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static BaseTag decodeTag(@NonNull String json) {
             final var dec = new BaseTagDecoder(json);
@@ -183,7 +173,6 @@ public class Nostr {
         /**
          * @param filters
          * @param relay
-         * @return
          */
         public static String encode(@NonNull Filters filters, Relay relay) {
             final var enc = new FiltersEncoder(filters, relay);
@@ -192,7 +181,6 @@ public class Nostr {
 
         /**
          * @param filters
-         * @return
          */
         public static String encode(@NonNull Filters filters) {
             return Nostr.Json.encode(filters, null);
@@ -200,7 +188,6 @@ public class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static Filters decodeFilters(@NonNull String json) {
             final var dec = new FiltersDecoder(json);
@@ -212,7 +199,6 @@ public class Nostr {
         /**
          * @param gtq
          * @param relay
-         * @return
          */
         public static String encode(@NonNull GenericTagQuery gtq, Relay relay) {
             final var enc = new GenericTagQueryEncoder(gtq, relay);
@@ -221,7 +207,6 @@ public class Nostr {
 
         /**
          * @param gtq
-         * @return
          */
         public static String encode(@NonNull GenericTagQuery gtq) {
             return Nostr.Json.encode(gtq, null);
@@ -230,7 +215,6 @@ public class Nostr {
         /**
          * @param json
          * @param clazz
-         * @return
          */
         public static IElement decode(@NonNull String json, @NonNull Class clazz) {
             switch (clazz.getName()) {

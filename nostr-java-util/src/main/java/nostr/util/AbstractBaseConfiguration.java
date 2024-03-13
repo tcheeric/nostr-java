@@ -119,15 +119,11 @@ public abstract class AbstractBaseConfiguration {
 
     private void loadConfigFile(@NonNull String name, @NonNull String config) throws IOException {
         String configFile = switch (config) {
-            case CONFIG_TYPE_IDENTITY -> {
-                yield name.isEmpty() ?
-                        appConfig.getIdentityProperties() :
-                        appConfig.getIdentityFolderProperties() + "/" + name + ".properties";
-            }
-            case CONFIG_TYPE_RELAY -> {
-                // We assume the name is always empty!
-                yield appConfig.getRelaysProperties();
-            }
+            case CONFIG_TYPE_IDENTITY -> name.isEmpty() ?
+                    appConfig.getIdentityProperties() :
+                    appConfig.getIdentityFolderProperties() + "/" + name + ".properties";
+            case CONFIG_TYPE_RELAY -> // We assume the name is always empty!
+                    appConfig.getRelaysProperties();
             default -> throw new RuntimeException("Invalid configuration type");
         };
 

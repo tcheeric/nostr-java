@@ -20,7 +20,7 @@ import static nostr.util.NostrUtil.escapeJsonString;
  *
  * @author eric
  */
-public class NIP32 {
+public class NIP32Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

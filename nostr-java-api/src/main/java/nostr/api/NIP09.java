@@ -11,7 +11,7 @@ import nostr.api.factory.impl.NIP09Impl.DeletionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP09Event;
 import nostr.event.tag.EventTag;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 /**
  *
@@ -19,7 +19,7 @@ import nostr.id.Identity;
  */
 public class NIP09<T extends NIP09Event> extends EventNostr<T> {
 	
-	public NIP09(@NonNull Identity sender) {
+	public NIP09(@NonNull IIdentity sender) {
 		setSender(sender);
 	}
 

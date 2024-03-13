@@ -19,7 +19,7 @@ import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.VerifyPaymentOrShippedEvent;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 /**
  *
@@ -47,7 +47,7 @@ public class NIP15Impl {
         }
 
         @Deprecated
-        public VerifyPaymentOrShippedEventFactory(@NonNull Identity sender, @NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
+        public VerifyPaymentOrShippedEventFactory(@NonNull IIdentity sender, @NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
             super(sender, status.toString());
             this.status = status;
             this.customer = customer;
@@ -73,8 +73,7 @@ public class NIP15Impl {
             this.customer = customer;
         }
 
-        @Deprecated
-        public MerchantRequestPaymentEventFactory(@NonNull Identity sender, CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
+        public MerchantRequestPaymentEventFactory(@NonNull IIdentity sender, CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
             super(sender, payment.toString());
             this.payment = payment;
             this.customer = customer;
@@ -97,8 +96,7 @@ public class NIP15Impl {
             this.customer = customer;
         }
 
-        @Deprecated
-        public CustomerOrderEventFactory(Identity identity, @NonNull CustomerOrderEvent.Customer customer) {
+        public CustomerOrderEventFactory(IIdentity identity, @NonNull CustomerOrderEvent.Customer customer) {
             super(identity, customer.toString());
             this.customer = customer;
         }
@@ -121,8 +119,7 @@ public class NIP15Impl {
             this.stall = stall;
         }
 
-        @Deprecated
-        public CreateOrUpdateStallEventFactory(Identity identity, @NonNull CreateOrUpdateStallEvent.Stall stall) {
+        public CreateOrUpdateStallEventFactory(IIdentity identity, @NonNull CreateOrUpdateStallEvent.Stall stall) {
             super(identity, stall.toString());
             this.stall = stall;
         }
@@ -147,8 +144,7 @@ public class NIP15Impl {
             this.categories = categories;
         }
 
-        @Deprecated
-        public CreateOrUpdateProductEventFactory(Identity identity, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
+        public CreateOrUpdateProductEventFactory(IIdentity identity, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
             super(identity, product.toString());
             this.product = product;
             this.categories = categories;
@@ -166,11 +162,4 @@ public class NIP15Impl {
         }
 
     }
-
-    public static class Kinds {
-
-        public static final Integer KIND_SET_STALL = 30017;
-        public static final Integer KIND_SET_PRODUCT = 30018;
-    }
-
 }

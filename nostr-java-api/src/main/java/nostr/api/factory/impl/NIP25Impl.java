@@ -14,7 +14,7 @@ import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 /**
  *
@@ -39,7 +39,7 @@ public class NIP25Impl {
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull Identity sender, @NonNull GenericEvent event, Reaction reaction) {
+        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull GenericEvent event, Reaction reaction) {
             super(sender, reaction.getEmoji());
             this.event = event;
         }
@@ -49,12 +49,12 @@ public class NIP25Impl {
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
+        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
             super(sender, tags, reaction);
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull Identity sender, @NonNull GenericEvent event, String content) {
+        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull GenericEvent event, String content) {
             super(sender, content);
             this.event = event;
         }
@@ -64,14 +64,14 @@ public class NIP25Impl {
             this.event = null;
         }
 
-        public ReactionEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, String content) {
+        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, String content) {
             super(sender, tags, content);
             this.event = null;
         }
 
         @Override
         public ReactionEvent create() {
-            return new ReactionEvent(getSender(), event, getTags(), getContent());            
+            return new ReactionEvent(getSender(), event, getTags(), getContent());
         }
     }
 

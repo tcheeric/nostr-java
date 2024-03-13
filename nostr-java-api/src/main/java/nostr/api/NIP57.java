@@ -13,7 +13,7 @@ import nostr.base.Relay;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.EventTag;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +33,12 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     private static final String AMOUNT_TAG_NAME = "amount";
     private static final String ZAP_TAG_NAME = "zap";
 
-    public NIP57(@NonNull Identity sender) {
+    public NIP57(@NonNull IIdentity sender) {
         setSender(sender);
     }
 
     /**
      * @param content
-     * @return
      */
     public NIP57<T> createZapEvent(String content) {
         var factory = new GenericEventFactory(getSender(), ZAP_EVENT_KIND, content);
@@ -56,7 +55,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      * @param recipient
      * @param eventTag
      * @param content
-     * @return
      */
     public NIP57<T> createZapEvent(@NonNull Integer amount, @NonNull String lnurl, Relay relay, @NonNull PublicKey recipient, EventTag eventTag, String content) {
         var factory = new GenericEventFactory(getSender(), ZAP_EVENT_KIND, content);
@@ -72,7 +70,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
 
     /**
      *
-     * @return
      */
     public NIP57<T> createZapReceiptEvent() {
         var factory = new GenericEventFactory(getSender(), ZAP_RECEIPT_EVENT_KIND, "");
@@ -170,7 +167,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
 
     /**
      * @param preimage
-     * @return
      */
     public static GenericTag createPreImageTag(@NonNull String preimage) {
         return new TagFactory(PREIMAGE_TAG_NAME, 57, preimage).create();
@@ -178,7 +174,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
 
     /**
      * @param description
-     * @return
      */
     public static GenericTag createDescriptionTag(@NonNull String description) {
         return new TagFactory(DESCRIPTION_TAG_NAME, 57, description).create();
@@ -186,7 +181,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
 
     /**
      * @param amount
-     * @return
      */
     public static GenericTag createAmountTag(@NonNull Integer amount) {
         return new TagFactory(AMOUNT_TAG_NAME, 57, amount.toString()).create();
@@ -196,7 +190,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      * @param receiver
      * @param relay
      * @param weight
-     * @return
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay, Integer weight) {
         List<ElementAttribute> attributes = new ArrayList<>();
@@ -216,7 +209,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     /**
      * @param receiver
      * @param relay
-     * @return
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay) {
         return createZapTag(receiver, relay, null);

@@ -17,7 +17,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
 import nostr.event.message.ClientAuthenticationMessage;
-import nostr.id.IIdentity;
 import nostr.util.NostrException;
 
 /**
@@ -58,7 +57,6 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
     /**
      *
      * @param relay
-     * @return
      */
     public static GenericTag createRelayTag(@NonNull Relay relay) {
         return new RelaysTagFactory(relay).create();
@@ -67,7 +65,6 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
     /**
      *
      * @param challenge
-     * @return
      */
     public static GenericTag createChallengeTag(@NonNull String challenge) {
         return new ChallengeTagFactory(challenge).create();
@@ -76,7 +73,6 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
     /**
      *
      * @param event
-     * @return
      */
     public static ClientAuthenticationMessage createClientAuthenticationMessage(@NonNull ClientAuthenticationEvent event) {
         return new ClientAuthenticationMessageFactory(event).create();
@@ -85,7 +81,6 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
     /**
      *
      * @param challenge
-     * @return
      */
     public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
         return new RelayAuthenticationMessageFactory(challenge).create();

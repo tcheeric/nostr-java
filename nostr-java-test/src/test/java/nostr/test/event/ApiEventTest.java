@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import nostr.event.impl.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,18 +16,13 @@ import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP32;
 import nostr.api.NIP44;
-import nostr.api.Nostr;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
-import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
-import nostr.event.impl.TextNoteEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 
@@ -95,10 +91,11 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = NIP44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        var signature = Nostr.sign(instance);
-        Assertions.assertNotNull(signature);
-        Nostr.send(instance);
+        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+
+        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        Assertions.assertNotNull(instance.getEvent().getSignature());
+        instance.send();
     }
 
     @Test
@@ -117,14 +114,15 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP44EncryptDecrypt() throws NostrException {
+    public void testNIP44EncryptDecrypt() {
         System.out.println("testNIP44EncryptDecrypt");
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var instance = NIP44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...");
-        Nostr.sign(instance);
-        var message = NIP44.decrypt(Identity.getInstance(), instance);
+        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+
+        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        var message = NIP44.decrypt(Identity.getInstance(), instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }

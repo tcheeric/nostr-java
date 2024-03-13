@@ -6,22 +6,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP28Impl;
+import lombok.extern.java.Log;
 import nostr.api.factory.impl.NIP46Impl;
-import nostr.api.factory.impl.NIP46Impl.NostrConnectEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.NostrConnectEvent;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP46(@NonNull Identity sender) {
+    public NIP46(@NonNull IIdentity sender) {
         setSender(sender);
     }
 
@@ -59,6 +57,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class NIP46Request implements NIP46ReqRes {
         private String id;
         private String method;
@@ -76,7 +75,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -94,6 +93,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Log
     public static final class NIP46Response implements NIP46ReqRes {
         private String id;
         private String method;
@@ -112,7 +112,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
                 return objectMapper.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
-                ex.printStackTrace();
+                log.log(Level.WARNING, ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }

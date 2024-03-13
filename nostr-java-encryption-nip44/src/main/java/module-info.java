@@ -1,4 +1,5 @@
-module nostr.encryption.nip44 {
+module nostr.encryption.nip44dm {
+
     requires lombok;
     requires java.logging;
 

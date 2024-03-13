@@ -6,18 +6,13 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP15Impl;
-import nostr.api.factory.impl.NIP15Impl.CreateOrUpdateProductEventFactory;
-import nostr.api.factory.impl.NIP15Impl.CreateOrUpdateStallEventFactory;
-import nostr.api.factory.impl.NIP15Impl.CustomerOrderEventFactory;
-import nostr.api.factory.impl.NIP15Impl.VerifyPaymentOrShippedEventFactory;
-import nostr.event.BaseTag;
 import nostr.event.impl.*;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.CustomerOrderEvent.Customer;
 import nostr.event.impl.MerchantRequestPaymentEvent.Payment;
 import nostr.event.impl.NostrMarketplaceEvent.Product;
 import nostr.event.impl.VerifyPaymentOrShippedEvent.PaymentShipmentStatus;
-import nostr.id.Identity;
+import nostr.id.IIdentity;
 
 import java.util.List;
 
@@ -26,7 +21,7 @@ import java.util.List;
  */
 public class NIP15<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP15(@NonNull Identity sender) {
+    public NIP15(@NonNull IIdentity sender) {
         setSender(sender);
     }
 
@@ -45,7 +40,6 @@ public class NIP15<T extends GenericEvent> extends EventNostr<T> {
     /**
      * @param payment
      * @param customer
-     * @return
      */
     public NIP15<T> createMerchantRequestPaymentEvent(@NonNull Payment payment, @NonNull Customer customer) {
         var factory = new NIP15Impl.MerchantRequestPaymentEventFactory(getSender(), customer, payment);

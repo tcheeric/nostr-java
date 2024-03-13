@@ -11,7 +11,7 @@ import nostr.id.IIdentity;
 
 import java.util.List;
 
-public class NIP44 {
+public class NIP44Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)

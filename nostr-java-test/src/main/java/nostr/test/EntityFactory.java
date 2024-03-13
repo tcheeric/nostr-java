@@ -80,8 +80,8 @@ public class EntityFactory {
             StringBuilder sbContent = new StringBuilder(content);
 
             int len = tagList.size();
-            for (int i = 0; i < len; i++) {
-                sbContent.append(", ").append(((PubKeyTag) tagList.get(i)).getPublicKey().toString());
+            for (BaseTag baseTag : tagList) {
+                sbContent.append(", ").append(((PubKeyTag) baseTag).getPublicKey().toString());
 
             }
             MentionsEvent event = new MentionsEvent(publicKey, tagList, sbContent.toString());
@@ -116,11 +116,11 @@ public class EntityFactory {
             return new TextNoteEvent(publicKey, tagList, content);
         }
 
-        public static OtsEvent createOtsEvent(PublicKey publicKey) {
+        public static OtsEvent createOtsEvent(PublicKey publicKey, IEvent event) {
             List<BaseTag> tagList = new ArrayList<>();
-            final PubKeyTag pkTag = PubKeyTag.builder().publicKey(publicKey).petName("bob").build();
-            tagList.add(pkTag);
-            return new OtsEvent(publicKey, tagList, generateRamdomAlpha(32), generateRamdomAlpha(32));
+            final EventTag eventTag = EventTag.builder().idEvent(event.getId()).build();
+            tagList.add(eventTag);
+            return new OtsEvent(publicKey, tagList, generateRamdomAlpha(32));
         }
 
         public static GenericTag createGenericTag(PublicKey publicKey) {

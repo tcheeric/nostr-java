@@ -40,7 +40,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *
@@ -198,7 +197,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+        public ReplaceableEventFactory(@NonNull IIdentity sender, @NonNull Integer kind, @NonNull String content) {
             super(sender, content);
             this.kind = kind;
         }
@@ -208,7 +207,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
+        public ReplaceableEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
             super(sender, tags, content);
             this.kind = kind;
         }
@@ -230,7 +229,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public EphemeralEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+        public EphemeralEventFactory(@NonNull IIdentity sender, @NonNull Integer kind, @NonNull String content) {
             super(sender, content);
             this.kind = kind;
         }
@@ -253,7 +252,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, Integer kind, String comment) {
+        public ParameterizedReplaceableEventFactory(@NonNull IIdentity sender, Integer kind, String comment) {
             super(sender, comment);
             this.kind = kind;
         }
@@ -263,7 +262,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
+        public ParameterizedReplaceableEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
             super(sender, tags, comment);
             this.kind = kind;
         }

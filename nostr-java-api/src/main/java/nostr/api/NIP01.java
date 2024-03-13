@@ -44,7 +44,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *
@@ -52,7 +51,7 @@ import nostr.id.Identity;
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 	
-	public NIP01(@NonNull Identity sender) {
+	public NIP01(@NonNull IIdentity sender) {
 		setSender(sender);
 	}
 
@@ -104,7 +103,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * Create a replaceable event
      * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the content
-     * @return 
      */
     public NIP01<T> createReplaceableEvent(@NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), kind, content).create();
@@ -118,7 +116,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param tags the note's tags
      * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the note's content
-     * @return 
      */
     public NIP01<T> createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), tags, kind, content).create();
@@ -131,7 +128,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * Create an ephemeral event
      * @param kind the kind (20000 <= n < 30000)
      * @param content the note's content
-     * @return 
      */
     public NIP01<T> createEphemeralEvent(@NonNull Integer kind, String content) {
     	var event = new EphemeralEventFactory(getSender(), kind, content).create();   
@@ -285,9 +281,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * 
-     * @param kind
-     * @param comment
-     * @return 
+     * @param comment the event's comment
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
     	var event = new ParameterizedReplaceableEventFactory(getSender(), kind, comment).create();

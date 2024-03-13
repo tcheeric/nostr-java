@@ -13,7 +13,6 @@ public class NIP30 {
      * 
      * @param shortcode
      * @param imageUrl
-     * @return 
      */
     public static EmojiTag createCustomEmojiTag(@NonNull String shortcode, @NonNull String  imageUrl) {
         return new EmojiTag(shortcode, imageUrl);

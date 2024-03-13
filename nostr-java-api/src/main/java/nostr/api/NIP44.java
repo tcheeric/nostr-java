@@ -2,6 +2,7 @@ package nostr.api;
 
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nostr.api.factory.impl.NIP44Impl;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
@@ -10,9 +11,8 @@ import nostr.event.BaseTag;
 import nostr.event.impl.EncryptedPayloadEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.Identity;
 import nostr.id.IIdentity;
-import nostr.util.NostrException;
+import nostr.id.Identity;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,18 +20,11 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 @Log
-public class NIP44 extends Nostr {
+public class NIP44<T extends GenericEvent> extends EventNostr<T> {
 
-    /**
-     * Create a NIP44 Encrypted Payload
-     *
-     * @param recipient the EP recipient
-     * @param content   the EP content in clear-text
-     * @return the EP event
-     */
-    public static EncryptedPayloadEvent createDirectMessageEvent(@NonNull IIdentity sender, @NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(Identity.getInstance(), content, recipient);
-        return new nostr.api.factory.impl.NIP44.EncryptedPayloadEventFactory(sender, recipient, encryptedContent).create();
+    public NIP44(@NonNull IIdentity sender, @NonNull PublicKey recipient) {
+        setSender(sender);
+        setRecipient(recipient);
     }
 
     /**
@@ -41,9 +34,12 @@ public class NIP44 extends Nostr {
      * @param content   the EP content in clear-text
      * @return the EP event
      */
-    public static EncryptedPayloadEvent createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(Identity.getInstance(), content, recipient);
-        return new nostr.api.factory.impl.NIP44.EncryptedPayloadEventFactory(recipient, encryptedContent).create();
+    public NIP44<T> createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
+        var encryptedContent = encrypt(getSender(), content, recipient);
+        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), recipient, encryptedContent);
+        var event = factory.create();
+        setEvent((T) event);
+        return this;
     }
 
     /**
@@ -54,9 +50,12 @@ public class NIP44 extends Nostr {
      * @param content   the EP content
      * @return the EP event
      */
-    public static EncryptedPayloadEvent createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(Identity.getInstance(), content, recipient);
-        return new nostr.api.factory.impl.NIP44.EncryptedPayloadEventFactory(tags, recipient, encryptedContent).create();
+    public NIP44<T> createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
+        var encryptedContent = encrypt(getSender(), content, recipient);
+        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), tags, recipient, encryptedContent);
+        var event = factory.create();
+        setEvent((T) event);
+        return this;
     }
 
     /**
@@ -65,26 +64,18 @@ public class NIP44 extends Nostr {
      * @param senderId
      * @param ep       the EP event
      */
-    public static void encrypt(@NonNull IIdentity senderId, @NonNull EncryptedPayloadEvent ep) {
+    public static void encrypt(@NonNull Identity senderId, @NonNull EncryptedPayloadEvent ep) {
         encryptDirectMessage(senderId, ep);
     }
 
-    private static void encryptDirectMessage(@NonNull IIdentity senderId, @NonNull EncryptedPayloadEvent ep) {
-
-        ITag pkTag = ep.getTags().get(0);
-        if (pkTag instanceof PubKeyTag pubKeyTag) {
-            var rcptPublicKey = pubKeyTag.getPublicKey();
-            MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().toString(), rcptPublicKey.toString());
-            var encryptedContent = cipher.encrypt(ep.getContent());
-            ep.setContent(encryptedContent);
-        }
+    public NIP44<T> encrypt() {
+        encryptDirectMessage(getSender(), (EncryptedPayloadEvent) getEvent());
+        return this;
     }
-
 
     public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().toString(), recipient.toString());
         return cipher.encrypt(message);
-        //return new IdentityHelper(senderId).encrypt(message, recipient);
     }
 
     /**
@@ -96,6 +87,19 @@ public class NIP44 extends Nostr {
      */
     public static String decrypt(@NonNull IIdentity rcptId, @NonNull EncryptedPayloadEvent ep) {
         return NIP44.decrypt(rcptId, (GenericEvent) ep);
+    }
+
+    /**
+     * Decrypt an encrypted Payloads
+     *
+     * @param identity  the sender's identity
+     * @param encrypteEPessage  the encrypted message
+     * @param recipient the recipient's public key
+     * @return the ep content in clear-text
+     */
+    public static String decrypt(@NonNull IIdentity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {
+        MessageCipher cipher = new MessageCipher44(identity.getPrivateKey().toString(), recipient.toString());
+        return cipher.decrypt(encrypteEPessage);
     }
 
     public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) {
@@ -120,9 +124,15 @@ public class NIP44 extends Nostr {
         return cipher.decrypt(event.getContent());
     }
 
-    public static String decrypt(@NonNull IIdentity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {
-        MessageCipher cipher = new MessageCipher44(identity.getPrivateKey().toString(), recipient.toString());
-        return cipher.decrypt(encrypteEPessage);
+    private static void encryptDirectMessage(@NonNull IIdentity senderId, @NonNull EncryptedPayloadEvent ep) {
+
+        ITag pkTag = ep.getTags().get(0);
+        if (pkTag instanceof PubKeyTag pubKeyTag) {
+            var rcptPublicKey = pubKeyTag.getPublicKey();
+            MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().toString(), rcptPublicKey.toString());
+            var encryptedContent = cipher.encrypt(ep.getContent());
+            ep.setContent(encryptedContent);
+        }
     }
 
     private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {
