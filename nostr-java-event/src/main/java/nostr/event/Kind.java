@@ -14,9 +14,11 @@ import lombok.Getter;
 public enum Kind {
     SET_METADATA(0, "set_metadata"),
     TEXT_NOTE(1, "text_note"),
+    OTS_EVENT(1040, "ots_event"),
     RECOMMEND_SERVER(2, "recommend_server"),
     CONTACT_LIST(3, "contact_list"),
     ENCRYPTED_DIRECT_MESSAGE(4, "encrypted_direct_message"),
+    ENCRYPTED_PAYLOADS(44, "encrypted_payloads"),
     DELETION(5, "deletion"),
     REPOST(6,"repost"),
     REACTION(7, "reaction"),

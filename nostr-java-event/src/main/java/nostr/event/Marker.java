@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum Marker {
     ROOT("root"),
     REPLY("reply"),
-    MENTION("mention");
+    MENTION("mention"),
+    FORK("fork");
     
     private final String value;
 

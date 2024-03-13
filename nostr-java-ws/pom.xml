@@ -6,14 +6,14 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3.1</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-ws</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <jetty-websocket.version>11.0.13</jetty-websocket.version>
+        <jetty-version>11.0.13</jetty-version>
     </properties>
 
     <dependencies>
@@ -21,17 +21,22 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-jetty-client</artifactId>
-            <version>${jetty-websocket.version}</version>
+            <version>${jetty-version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
             <artifactId>http2-client</artifactId>
-            <version>${jetty-websocket.version}</version>
+            <version>${jetty-version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
             <artifactId>http2-http-client-transport</artifactId>
-            <version>${jetty-websocket.version}</version>
+            <version>${jetty-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-client</artifactId>
+            <version>${jetty-version}</version>
         </dependency>
 
         <!-- Project Dependencies -->

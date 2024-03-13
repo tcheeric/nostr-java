@@ -13,6 +13,7 @@ module nostr.ws {
     requires com.fasterxml.jackson.databind;
     requires nostr.ws.handler;
     requires nostr.util;
+    requires nostr.event;
     requires nostr.ws.response.handler.provider;
     requires java.logging;
     

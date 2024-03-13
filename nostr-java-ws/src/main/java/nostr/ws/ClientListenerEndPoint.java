@@ -1,14 +1,9 @@
 package nostr.ws;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.logging.Level;
 
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.base.Relay;
-import nostr.util.NostrException;
-import nostr.ws.handler.spi.IResponseHandler;
-import nostr.ws.response.handler.provider.ResponseHandlerImpl;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -16,6 +11,14 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.base.Relay;
+import nostr.event.BaseMessage;
+import nostr.util.NostrException;
+import nostr.ws.handler.spi.IResponseHandler;
+import nostr.ws.response.handler.provider.ResponseHandlerImpl;
 
 /**
  * @author squirrel
@@ -26,8 +29,8 @@ public class ClientListenerEndPoint {
 
     private final IResponseHandler responseHandler;
 
-    public ClientListenerEndPoint() {
-        this.responseHandler = new ResponseHandlerImpl();
+    public ClientListenerEndPoint(List<BaseMessage> responses) {
+        this.responseHandler = new ResponseHandlerImpl(responses);
     }
 
     @OnWebSocketConnect

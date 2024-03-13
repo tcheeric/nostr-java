@@ -9,7 +9,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.api.factory.AbstractTagFactory;
 import nostr.api.factory.EventFactory;
@@ -26,10 +25,6 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.EventList;
-import nostr.event.list.GenericTagQueryList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -40,7 +35,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *
@@ -134,26 +128,6 @@ public class NIP01Impl {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
     }
-    
-    @Data
-    @NoArgsConstructor
-    public static class FiltersFactory {
-
-        // Filters attributes
-        private EventList events;
-        private PublicKeyList authors;
-        private KindList kinds;
-        private EventList referencedEvents;
-        private PublicKeyList referencePubKeys;
-        private Long since;
-        private Long until;
-        private Integer limit;
-        private GenericTagQueryList genericTagQueryList;
-
-        public Filters create() {
-            return Filters.builder().authors(authors).events(events).genericTagQueryList(genericTagQueryList).kinds(kinds).limit(limit).referencePubKeys(referencePubKeys).referencedEvents(referencedEvents).since(since).until(until).build();
-        }
-    }
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -198,7 +172,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+        public ReplaceableEventFactory(@NonNull IIdentity sender, @NonNull Integer kind, @NonNull String content) {
             super(sender, content);
             this.kind = kind;
         }
@@ -208,7 +182,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
+        public ReplaceableEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull Integer kind, @NonNull String content) {
             super(sender, tags, content);
             this.kind = kind;
         }
@@ -230,7 +204,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public EphemeralEventFactory(@NonNull Identity sender, @NonNull Integer kind, @NonNull String content) {
+        public EphemeralEventFactory(@NonNull IIdentity sender, @NonNull Integer kind, @NonNull String content) {
             super(sender, content);
             this.kind = kind;
         }
@@ -253,7 +227,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, Integer kind, String comment) {
+        public ParameterizedReplaceableEventFactory(@NonNull IIdentity sender, Integer kind, String comment) {
             super(sender, comment);
             this.kind = kind;
         }
@@ -263,7 +237,7 @@ public class NIP01Impl {
             this.kind = kind;
         }
 
-        public ParameterizedReplaceableEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
+        public ParameterizedReplaceableEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, Integer kind, String comment) {
             super(sender, tags, comment);
             this.kind = kind;
         }

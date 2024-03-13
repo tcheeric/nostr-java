@@ -13,7 +13,6 @@ import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
 import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
-import nostr.api.factory.impl.NIP01Impl.FiltersFactory;
 import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
 import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
 import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
@@ -44,7 +43,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *
@@ -52,7 +50,7 @@ import nostr.id.Identity;
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 	
-	public NIP01(@NonNull Identity sender) {
+	public NIP01(@NonNull IIdentity sender) {
 		setSender(sender);
 	}
 
@@ -104,7 +102,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * Create a replaceable event
      * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the content
-     * @return 
      */
     public NIP01<T> createReplaceableEvent(@NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), kind, content).create();
@@ -118,7 +115,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param tags the note's tags
      * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the note's content
-     * @return 
      */
     public NIP01<T> createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), tags, kind, content).create();
@@ -131,7 +127,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * Create an ephemeral event
      * @param kind the kind (20000 <= n < 30000)
      * @param content the note's content
-     * @return 
      */
     public NIP01<T> createEphemeralEvent(@NonNull Integer kind, String content) {
     	var event = new EphemeralEventFactory(getSender(), kind, content).create();   
@@ -213,18 +208,18 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param genericTagQueryList a generic tag query list
      * @return a filters object
      */
+    @Deprecated(forRemoval = true)
     public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQueryList genericTagQueryList) {
-        var factory = new FiltersFactory();
-        factory.setAuthors(authors);
-        factory.setEvents(events);
-        factory.setGenericTagQueryList(genericTagQueryList);
-        factory.setKinds(kinds);
-        factory.setLimit(limit);
-        factory.setReferencePubKeys(referencePubKeys);
-        factory.setReferencedEvents(referencedEvents);
-        factory.setSince(since);
-        factory.setUntil(until);
-        return factory.create();
+        return Filters.builder()
+        		.authors(authors)
+        		.events(events)
+        		.genericTagQueryList(genericTagQueryList)
+        		.kinds(kinds).limit(limit)
+        		.referencePubKeys(referencePubKeys)
+        		.referencedEvents(referencedEvents)
+        		.since(since)
+        		.until(until)
+        		.build();
     }
 
     /**
@@ -285,9 +280,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * 
-     * @param kind
-     * @param comment
-     * @return 
+     * @param comment the event's comment
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
     	var event = new ParameterizedReplaceableEventFactory(getSender(), kind, comment).create();

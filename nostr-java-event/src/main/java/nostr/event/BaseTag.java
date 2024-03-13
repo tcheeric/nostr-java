@@ -9,13 +9,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.extern.java.Log;
 import nostr.base.IEvent;
 import nostr.base.ITag;
 import nostr.base.NipUtil;
