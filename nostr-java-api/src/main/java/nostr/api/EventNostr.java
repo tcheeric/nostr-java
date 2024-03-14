@@ -5,6 +5,7 @@
 package nostr.api;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * @author guilhermegps
  */
+@NoArgsConstructor
 public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 
     @Getter
@@ -26,6 +28,10 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 
     @Getter
     private PublicKey recipient;
+
+    public EventNostr(@NonNull Identity sender) {
+        super(sender);
+    }
 
     public EventNostr sign() {
         super.sign(getSender(), event);
@@ -72,12 +78,18 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
         return this;
     }
 
-    public static class Event<T extends GenericEvent> extends EventNostr<T> {
+    @NoArgsConstructor
+    public static class GenericEventNostr<T extends GenericEvent> extends EventNostr<T> {
+
+        public GenericEventNostr(@NonNull Identity sender) {
+            super.setSender(sender);
+        }
+
         /**
          * @param content
          * @return
          */
-        public Event createGenericEvent(@NonNull Integer kind, @NonNull String content) {
+        public GenericEventNostr createGenericEvent(@NonNull Integer kind, @NonNull String content) {
             var factory = new GenericEventFactory(getSender(), kind, content);
             var event = factory.create();
             setEvent((T) event);

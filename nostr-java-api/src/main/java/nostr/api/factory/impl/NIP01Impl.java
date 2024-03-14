@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,22 +17,15 @@ import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
-import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
-import nostr.event.impl.MetadataEvent;
-import nostr.event.impl.ParameterizedReplaceableEvent;
-import nostr.event.impl.ReplaceableEvent;
-import nostr.event.impl.TextNoteEvent;
-import nostr.event.message.CloseMessage;
-import nostr.event.message.EoseMessage;
-import nostr.event.message.EventMessage;
-import nostr.event.message.NoticeMessage;
-import nostr.event.message.ReqMessage;
+import nostr.event.impl.*;
+import nostr.event.message.*;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

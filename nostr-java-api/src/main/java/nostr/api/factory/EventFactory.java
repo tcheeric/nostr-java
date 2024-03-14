@@ -4,15 +4,15 @@
  */
 package nostr.api.factory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Data;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.id.IIdentity;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

@@ -21,7 +21,6 @@ public class CustomIdentity extends AbstractBaseIdentity {
     @NonNull
     private PrivateKey privateKey;
     private final String name;
-    private PublicKey publicKey;
 
     public CustomIdentity(@NonNull String name) {
         this.name = name;
@@ -32,7 +31,6 @@ public class CustomIdentity extends AbstractBaseIdentity {
         try {
             var config = new CustomIdentityConfiguration(name);
             this.privateKey = config.getPrivateKey();
-            this.publicKey = getPublicKey();
         } catch (NostrException | IOException e) {
             throw new RuntimeException(e);
         }

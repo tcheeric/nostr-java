@@ -4,7 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.net.URL;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -12,6 +11,8 @@ import nostr.api.factory.AbstractTagFactory;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.ReferenceTag;
+
+import java.net.URL;
 
 /**
  *

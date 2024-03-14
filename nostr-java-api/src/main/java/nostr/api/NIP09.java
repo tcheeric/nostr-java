@@ -4,14 +4,14 @@
  */
 package nostr.api;
 
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP09Impl.DeletionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP09Event;
 import nostr.event.tag.EventTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

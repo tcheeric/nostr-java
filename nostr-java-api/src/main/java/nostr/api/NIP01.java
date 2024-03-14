@@ -4,23 +4,8 @@
  */
 package nostr.api;
 
-import java.util.List;
-
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
-import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
-import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
-import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
-import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
-import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.ParameterizedReplaceableEventFactory;
-import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
-import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
-import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
+import nostr.api.factory.impl.NIP01Impl.*;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -33,16 +18,14 @@ import nostr.event.list.EventList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
-import nostr.event.message.CloseMessage;
-import nostr.event.message.EoseMessage;
-import nostr.event.message.EventMessage;
-import nostr.event.message.NoticeMessage;
-import nostr.event.message.ReqMessage;
+import nostr.event.message.*;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

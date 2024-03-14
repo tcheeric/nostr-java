@@ -31,10 +31,10 @@ public class MessageCipher44 implements MessageCipher {
     }
 
     @Override
-    public String decrypt(@NonNull String message) {
+    public String decrypt(@NonNull String payload) {
         try {
             byte[] convoKey = getConversationKey();
-            return EncryptedPayloads.decrypt(message, convoKey);
+            return EncryptedPayloads.decrypt(payload, convoKey);
         } catch (Exception e) {
             throw new RuntimeException("Decryption failed: " + e.getMessage(), e);
         }

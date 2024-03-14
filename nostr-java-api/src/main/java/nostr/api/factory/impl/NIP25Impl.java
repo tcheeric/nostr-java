@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -15,6 +13,8 @@ import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *
