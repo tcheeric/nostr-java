@@ -12,6 +12,7 @@ import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEventImpl;
@@ -56,7 +57,7 @@ public class NIP01Nick {
 
     @Override
     public TextNoteEventNick create() {
-      var event = new TextNoteEventNick(new GenericEventImpl(getSender()), getTags(), getContent());
+      var event = new TextNoteEventNick(new GenericEventImpl(getSender(), Kind.TEXT_NOTE, getTags(), getContent()));
       getTags().forEach(t -> event.addTag(t));
       return event;
     }

@@ -13,10 +13,8 @@ import java.util.List;
 @Event(name = "Text Note")
 public class TextNoteEventNick extends EventDecorator {
 
-  public TextNoteEventNick(GenericEventNick genericEvent, List<BaseTag> tags, String content) {
+  public TextNoteEventNick(GenericEventNick genericEvent) {
     super(genericEvent);
     setKind(Kind.TEXT_NOTE);
-    setTags(tags);
-    setContent(content);
   }
 }

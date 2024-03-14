@@ -106,7 +106,7 @@ public class EntityFactoryNick {
     public static TextNoteEventNick createTextNoteEvent(PublicKey publicKey, String content) {
       List<BaseTag> tagList = new ArrayList<>();
       tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("alice").build());
-      return new TextNoteEventNick(new GenericEventImpl(publicKey), tagList, content);
+      return new TextNoteEventNick(new GenericEventImpl(publicKey, Kind.TEXT_NOTE, tagList, content));
     }
 
 //    public static OtsEvent createOtsEvent(PublicKey publicKey) {
