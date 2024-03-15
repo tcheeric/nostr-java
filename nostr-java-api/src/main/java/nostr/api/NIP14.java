@@ -5,19 +5,18 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP14.SubjectTagFactory;
+import nostr.api.factory.impl.NIP14Impl.SubjectTagFactory;
 import nostr.event.tag.SubjectTag;
 
 /**
  *
  * @author eric
  */
-public class NIP14 extends Nostr {
+public class NIP14 {
 
     /**
      * Create a subject tag
      * @param subject the subject
-     * @return 
      */
     public static SubjectTag createSubjectTag(@NonNull String subject) {
         return new SubjectTagFactory(subject).create();

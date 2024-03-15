@@ -1,7 +1,6 @@
 package nostr.event.json.serializer;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEncoder;
 import nostr.event.list.GenericTagQueryList;

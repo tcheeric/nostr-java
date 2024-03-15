@@ -5,7 +5,7 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.3.1</version>
+    <version>0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -23,6 +23,9 @@
         <module>nostr-java-ws-response-handler-provider</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
+        <module>nostr-java-encryption</module>
+        <module>nostr-java-encryption-nip04</module>
+        <module>nostr-java-encryption-nip44</module>
     </modules>
 
     <properties>
@@ -33,7 +36,11 @@
 
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.24</lombok.version>
+
+        <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
+
+        <jackson-databind.version>2.14.1</jackson-databind.version>
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
@@ -43,6 +50,7 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+        <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -56,12 +64,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.14.1</version>
+                <version>${jackson-databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.70</version>
+                <version>${bcprov-jdk15on.version}</version>
             </dependency>
 
             <!-- Test Dependencies -->
@@ -87,7 +95,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.5.0</version>
+                    <version>${flatten-maven-plugin.version}</version>
                     <configuration>
                         <updatePomFile>true</updatePomFile>
                         <flattenMode>resolveCiFriendliesOnly</flattenMode>

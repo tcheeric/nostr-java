@@ -6,14 +6,14 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3.1</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-examples</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <exec.mainClass>com.tcheeric.nostr.examples.NostrExamples</exec.mainClass>
+        <exec.mainClass>nostr.examples.NostrApiExamples</exec.mainClass>
     </properties>
 
     <dependencies>

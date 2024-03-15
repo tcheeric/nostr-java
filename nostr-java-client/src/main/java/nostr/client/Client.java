@@ -43,7 +43,10 @@ public class Client {
     private static Client INSTANCE;
 
 	private final List<Future<Relay>> futureRelays = new ArrayList<>();
-	private final IRequestHandler requestHandler = new DefaultRequestHandler();
+	@Getter
+    private final List<BaseMessage> responses = new ArrayList<>();
+	private final IRequestHandler requestHandler = new DefaultRequestHandler(responses);
+	
 //	TODO: remove getter
 	@Getter
 	private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
@@ -146,6 +149,7 @@ public class Client {
                 .forEach(fr -> {
                     try {
                         Relay r = fr.get();
+                        log.log(Level.INFO, "Sending message to relay {0}", r);
                         this.requestHandler.process(message, r);
                     } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
@@ -153,7 +157,7 @@ public class Client {
                 });
     }
 
-    public void auth(Identity identity, String challenge) throws NostrException {
+    public void auth(Identity identity, String challenge) {
 
         log.log(Level.FINER, "Authenticating {0}", identity);
         List<Relay> relays = getRelayList();
@@ -168,7 +172,7 @@ public class Client {
         auth(Identity.getInstance(), challenge, relay);
     }
 
-    public void auth(Identity identity, String challenge, Relay relay) throws NostrException {
+    public void auth(Identity identity, String challenge, Relay relay) {
 
         log.log(Level.INFO, "Authenticating...");
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);
@@ -278,7 +282,7 @@ public class Client {
 
     private void updateRelayInformation(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay);
+            var connection = new Connection(relay, responses);
             connection.updateRelayMetadata();
         } catch (Exception ex) {
             log.log(Level.SEVERE, null, ex);

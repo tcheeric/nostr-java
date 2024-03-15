@@ -16,5 +16,5 @@ module nostr.ws.response.handler.provider {
     
     uses nostr.ws.handler.command.spi.ICommandHandler;
     
-    provides nostr.ws.handler.spi.IResponseHandler with nostr.ws.response.handler.provider.ResponseHandlerImpl;
+//    provides nostr.ws.handler.spi.IResponseHandler with nostr.ws.response.handler.provider.ResponseHandlerImpl;
 }

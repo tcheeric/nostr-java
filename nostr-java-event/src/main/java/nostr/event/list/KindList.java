@@ -18,7 +18,7 @@ public class KindList extends BaseList<Integer> {
         this(new ArrayList<>());
     }
 
-    private KindList(@NonNull List<Integer> list) {
-        super(list);
+    public KindList(@NonNull List<Integer> list) {
+        super(new ArrayList<>(list));
     }
 }

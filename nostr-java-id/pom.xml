@@ -6,14 +6,13 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.3.1</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-id</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <exec.mainClass>com.tcheeric.nostr.id.NostrId</exec.mainClass>
     </properties>
 
     <dependencies>

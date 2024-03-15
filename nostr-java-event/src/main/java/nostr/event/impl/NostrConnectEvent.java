@@ -2,7 +2,6 @@ package nostr.event.impl;
 
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.tag.PubKeyTag;

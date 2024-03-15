@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-import lombok.extern.java.Log;
 import nostr.base.IEncoder;
 import nostr.event.list.BaseList;
 
