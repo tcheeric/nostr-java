@@ -135,7 +135,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.INFO, "The message is being decrypted for {0}", sender);
+        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
         MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }

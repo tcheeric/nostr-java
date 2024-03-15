@@ -78,7 +78,7 @@ public class EncryptedPayloads {
         byte[] calculatedMac = hmac.doFinal();
 
         if (!MessageDigest.isEqual(calculatedMac, mac)) {
-            log.log(Level.INFO, "Calculated MAC = {0} --- Mac = {1}", new Object[]{Arrays.toString(calculatedMac), Arrays.toString(mac)});
+            log.log(Level.FINE, "Calculated MAC = {0} --- Mac = {1}", new Object[]{Arrays.toString(calculatedMac), Arrays.toString(mac)});
             throw new Exception("Invalid MAC");
         }
 

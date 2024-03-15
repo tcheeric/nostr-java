@@ -26,14 +26,14 @@ public class NIP46Impl {
             super(sender, NIP04.encrypt(sender, request.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();
-            log.log(Level.INFO, "NostrConnectEventFactory Sender: {0} - Request: {1}", new Object[]{senderPk, request});
+            log.log(Level.FINE, "NostrConnectEventFactory Sender: {0} - Request: {1}", new Object[]{senderPk, request});
         }
 
         public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46.Response response, @NonNull PublicKey recipient) {
             super(sender, NIP04.encrypt(sender, response.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();
-            log.log(Level.INFO, "NostrConnectEventFactory Sender: {0} - Response: {1}", new Object[]{senderPk, response});
+            log.log(Level.FINE, "NostrConnectEventFactory Sender: {0} - Response: {1}", new Object[]{senderPk, response});
         }
 
         public NostrConnectEvent create() {

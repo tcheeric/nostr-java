@@ -119,7 +119,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.INFO, "The message is being decrypted for {0}", sender);
+        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
         MessageCipher cipher = new MessageCipher44(rcptId.getPrivateKey().toString(), sender.toString());
         return cipher.decrypt(event.getContent());
     }
