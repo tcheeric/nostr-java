@@ -1,28 +1,45 @@
 package nostr.event.impl;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.annotation.Key;
+import nostr.event.BaseTag;
+import nostr.event.Kind;
+import nostr.event.NIP99Event;
 
 import java.util.List;
 
+@Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
-public class ClassifiedListingEventNick extends EventDecorator {
-  @NonNull
-  private final GenericEventNick genericEvent;
-  @NonNull
+public class ClassifiedListingEventNick extends NIP99Event {
+  @Key
+  @EqualsAndHashCode.Exclude
+  private final String summary;
+  @Key
+  @EqualsAndHashCode.Exclude
+  private final String location;
+  @Key
+  @EqualsAndHashCode.Exclude
+  @JsonProperty("price")
   private final List<String> price;
-  //  TODO: refactor below fields into GenericEventImpl for its builder
-  @NonNull
-  private final String content;
+  @Key
+  @EqualsAndHashCode.Exclude
+  private final String title;
+  @Key
+  @EqualsAndHashCode.Exclude
+  private final String currency;
 
-  @Builder
-  private ClassifiedListingEventNick(GenericEventNick genericEvent, String content, List<String> price) {
-    super(genericEvent);
-    this.genericEvent = genericEvent;
-    this.content = content;
+  public ClassifiedListingEventNick(PublicKey pubKey, List<BaseTag> tags, String content, String title, String summary, String location, @NonNull List<String> price, String currency) {
+    super(pubKey, Kind.CLASSIFIED_LISTING, tags, content);
+    this.title = title;
+    this.summary = summary;
+    this.location = location;
     this.price = price;
+    this.currency = currency;
   }
 }

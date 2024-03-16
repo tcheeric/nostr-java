@@ -5,68 +5,23 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP99.*;
+import nostr.api.factory.impl.NIP99Impl;
+import nostr.base.PublicKey;
 import nostr.event.BaseTag;
-import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericEventNick;
-import nostr.event.impl.GenericTag;
-import nostr.id.Identity;
+import nostr.event.NIP99Event;
+import nostr.id.IIdentity;
 
-import java.net.URL;
 import java.util.List;
 
-public class NIP99 extends Nostr {
-
-  /**
-   * Create a Classified Listingwithout tags
-   *
-   * @param content a text in Markdown syntax
-   * @return
-   */
-//  public static GenericEvent createClassifiedListing(@NonNull String content) {
-//    return new ClassifiedListingFactory(content).create();
-//  }
-  public static GenericEventNick createClassifiedListingEvent(@NonNull Identity sender, @NonNull String content, @NonNull List<BaseTag> price) {
-    return new ClassifiedListingEventFactory(sender, content, price).create();
+public class NIP99<T extends NIP99Event> extends EventNostr<T> {
+  public NIP99(@NonNull IIdentity sender) {
+    setSender(sender);
   }
 
-  /**
-   * Create a title tag
-   *
-   * @param title the article title
-   * @return
-   */
-  public static GenericTag createTitleTag(@NonNull String title) {
-    return new TitleTagFactory(title).create();
-  }
+  public NIP99<T> createClassifiedListingEvent(PublicKey pubKey, List<BaseTag> tags, String content, String title, String summary, String location, @NonNull List<String> price, String currency) {
+    var event = new NIP99Impl.ClassifiedListingEventFactory(getSender(), tags, content, title, summary, location, price, currency).create();
+    this.setEvent((T) event);
 
-  /**
-   * Create an image tag
-   *
-   * @param url a URL pointing to an image to be shown along with the title
-   * @return
-   */
-  public static GenericTag createImageTag(@NonNull URL url) {
-    return new ImageTagFactory(url).create();
-  }
-
-  /**
-   * Create a summary tag
-   *
-   * @param summary the article summary
-   * @return
-   */
-  public static GenericTag createSummaryTag(@NonNull String summary) {
-    return new SummaryTagFactory(summary).create();
-  }
-
-  /**
-   * Create a published_at tag
-   *
-   * @param date the timestamp in unix seconds (stringified) of the first time the article was published
-   * @return
-   */
-  public static GenericTag createPublishedAtTag(@NonNull Integer date) {
-    return new PublishedAtTagFactory(date).create();
+    return this;
   }
 }
