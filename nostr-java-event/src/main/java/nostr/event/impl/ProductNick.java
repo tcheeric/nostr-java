@@ -16,13 +16,13 @@ import java.util.UUID;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 @JsonSerialize(using = ProductSerializer.class)
-public class ProductNick extends AbstractEventContent<NostrMarketplaceEventNick> {
+public class ProductNick extends AbstractEventContent<NostrMarketplaceEvent> {
 
   @JsonProperty
   private final String id;
 
   @JsonProperty
-  private CreateOrUpdateStallEventNick.Stall stall;
+  private CreateOrUpdateStallEvent.Stall stall;
 
   @JsonProperty
   private String name;

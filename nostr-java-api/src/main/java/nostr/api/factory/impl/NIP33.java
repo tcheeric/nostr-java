@@ -12,8 +12,7 @@ import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.impl.*;
+import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
@@ -27,7 +26,7 @@ public class NIP33 {
 
   @Data
   @EqualsAndHashCode(callSuper = false)
-  public static class ParameterizedReplaceableEventFactory extends EventFactory<ParameterizedReplaceableEventNick> {
+  public static class ParameterizedReplaceableEventFactory extends EventFactory<ParameterizedReplaceableEvent> {
 
     private final Integer kind;
 
@@ -52,10 +51,8 @@ public class NIP33 {
     }
 
     @Override
-    public ParameterizedReplaceableEventNick create() {
-      return new ParameterizedReplaceableEventNick(
-          new ReplaceableEventNick(
-              new GenericEventImpl(getSender(), Kind.valueOf(kind), getTags(), getContent())));
+    public ParameterizedReplaceableEvent create() {
+      return new ParameterizedReplaceableEvent(getSender(), kind, getTags(), getContent());
     }
   }
 
