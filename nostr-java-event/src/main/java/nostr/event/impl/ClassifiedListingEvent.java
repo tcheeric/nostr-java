@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
-public class ClassifiedListingEventNick extends NIP99Event {
+public class ClassifiedListingEvent extends NIP99Event {
   @Key
   @EqualsAndHashCode.Exclude
   private final String summary;
@@ -34,7 +34,7 @@ public class ClassifiedListingEventNick extends NIP99Event {
   @EqualsAndHashCode.Exclude
   private final String currency;
 
-  public ClassifiedListingEventNick(PublicKey pubKey, List<BaseTag> tags, String content, String title, String summary, String location, @NonNull List<String> price, String currency) {
+  public ClassifiedListingEvent(PublicKey pubKey, List<BaseTag> tags, String content, String title, String summary, String location, @NonNull List<String> price, String currency) {
     super(pubKey, Kind.CLASSIFIED_LISTING, tags, content);
     this.title = title;
     this.summary = summary;

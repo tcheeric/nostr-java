@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListingEventNick;
+import nostr.event.impl.ClassifiedListingEvent;
 import nostr.id.IIdentity;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class NIP99Impl {
 
   @Data
   @EqualsAndHashCode(callSuper = false)
-  public static class ClassifiedListingEventFactory extends EventFactory<ClassifiedListingEventNick> {
+  public static class ClassifiedListingEventFactory extends EventFactory<ClassifiedListingEvent> {
     private String title;
     private String summary;
     private String location;
@@ -48,9 +48,9 @@ public class NIP99Impl {
     }
 
     @Override
-    public ClassifiedListingEventNick create() {
+    public ClassifiedListingEvent create() {
       List<String> price = List.of(new String[]{"price", "$666", "BTC"});
-      return new ClassifiedListingEventNick(getSender(), getTags(), getContent(), title, summary, location, price, currency);
+      return new ClassifiedListingEvent(getSender(), getTags(), getContent(), title, summary, location, price, currency);
     }
   }
 
