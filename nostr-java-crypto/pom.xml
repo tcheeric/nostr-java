@@ -36,10 +36,5 @@
             <artifactId>nostr-java-util</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-secp256k1</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>
