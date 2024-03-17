@@ -1,5 +1,41 @@
 package nostr.examples;
 
+import lombok.extern.java.Log;
+import nostr.api.NIP01;
+import nostr.api.NIP04;
+import nostr.api.NIP05;
+import nostr.api.NIP08;
+import nostr.api.NIP09;
+import nostr.api.NIP25;
+import nostr.api.NIP28;
+import nostr.api.NIP30;
+import nostr.base.ChannelProfile;
+import nostr.base.PublicKey;
+import nostr.base.UserProfile;
+import nostr.event.BaseTag;
+import nostr.event.Kind;
+import nostr.event.Reaction;
+import nostr.event.impl.ChannelCreateEvent;
+import nostr.event.impl.ChannelMessageEvent;
+import nostr.event.impl.DeletionEvent;
+import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.EphemeralEvent;
+import nostr.event.impl.Filters;
+import nostr.event.impl.GenericEvent;
+import nostr.event.impl.HideMessageEvent;
+import nostr.event.impl.InternetIdentifierMetadataEvent;
+import nostr.event.impl.MentionsEvent;
+import nostr.event.impl.MetadataEvent;
+import nostr.event.impl.MuteUserEvent;
+import nostr.event.impl.ReactionEvent;
+import nostr.event.impl.TextNoteEvent;
+import nostr.event.list.KindList;
+import nostr.event.list.PublicKeyList;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.PubKeyTag;
+import nostr.id.Identity;
+import nostr.util.NostrException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -14,30 +50,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-
-import lombok.extern.java.Log;
-import nostr.api.NIP01;
-import nostr.api.NIP04;
-import nostr.api.NIP05;
-import nostr.api.NIP08;
-import nostr.api.NIP09;
-import nostr.api.NIP25;
-import nostr.api.NIP28;
-import nostr.api.NIP30;
-import nostr.api.Nostr;
-import nostr.base.ChannelProfile;
-import nostr.base.PublicKey;
-import nostr.base.UserProfile;
-import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.Reaction;
-import nostr.event.impl.*;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.PubKeyTag;
-import nostr.id.Identity;
-import nostr.util.NostrException;
 
 /**
  *
@@ -191,7 +203,6 @@ public class NostrApiExamples {
 
         var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
-			.encrypt()
 			.sign()
 			.send(RELAYS);
     }

@@ -4,10 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +19,10 @@ import nostr.event.impl.ClientAuthenticationEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.id.IIdentity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *

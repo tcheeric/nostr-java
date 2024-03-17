@@ -6,9 +6,9 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP15Impl;
-import nostr.event.impl.*;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.CustomerOrderEvent.Customer;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.MerchantRequestPaymentEvent.Payment;
 import nostr.event.impl.NostrMarketplaceEvent.Product;
 import nostr.event.impl.VerifyPaymentOrShippedEvent.PaymentShipmentStatus;

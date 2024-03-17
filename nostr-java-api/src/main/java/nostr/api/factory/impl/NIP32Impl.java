@@ -6,14 +6,16 @@ package nostr.api.factory.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import static nostr.util.NostrUtil.escapeJsonString;
 
 /**

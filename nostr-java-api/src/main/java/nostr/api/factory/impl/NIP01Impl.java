@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,6 +33,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

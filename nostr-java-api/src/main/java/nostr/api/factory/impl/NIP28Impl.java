@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import static nostr.util.NostrUtil.escapeJsonString;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -20,6 +18,8 @@ import nostr.event.impl.ChannelMetadataEvent;
 import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.MuteUserEvent;
 import nostr.id.IIdentity;
+
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  *

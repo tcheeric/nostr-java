@@ -4,8 +4,6 @@
  */
 package nostr.api;
 
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
 import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
@@ -43,6 +41,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

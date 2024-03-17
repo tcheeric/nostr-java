@@ -4,15 +4,10 @@
  */
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP02Impl;
 import nostr.api.factory.impl.NIP03Impl;
-import nostr.api.factory.impl.NIP03Impl.OtsEventFactory;
 import nostr.base.IEvent;
-import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.OtsEvent;
 import nostr.id.IIdentity;
 
 /**

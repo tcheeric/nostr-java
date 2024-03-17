@@ -4,10 +4,8 @@
  */
 package nostr.api;
 
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
@@ -31,9 +29,13 @@ import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.id.IIdentity;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author eric
  */
+@NoArgsConstructor
 public class Nostr {
 
 	private static Nostr INSTANCE;
@@ -45,6 +47,14 @@ public class Nostr {
 	public static Nostr getInstance() {
 		return (INSTANCE == null) ? new Nostr() : INSTANCE;
 	}
+
+    public static Nostr getInstance(@NonNull IIdentity sender) {
+        return (INSTANCE == null) ? new Nostr(sender) : INSTANCE;
+    }
+
+    public Nostr(@NonNull IIdentity sender) {
+        this.sender = sender;
+    }
 	
 	public Nostr setSender(@NonNull IIdentity sender) {
 		this.sender = sender;
@@ -85,12 +95,13 @@ public class Nostr {
 		return this;
     }
 
+/*
 	public Nostr sign(@NonNull ISignable signable) {
 		sender.sign(signable);
 
 		return this;
     }
-
+*/
 
     public static class Json {
 

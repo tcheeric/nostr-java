@@ -4,12 +4,13 @@
  */
 package nostr.api.factory;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.impl.GenericTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

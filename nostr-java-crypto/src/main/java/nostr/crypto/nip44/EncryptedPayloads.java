@@ -1,5 +1,7 @@
 package nostr.crypto.nip44;
 
+import lombok.NonNull;
+import lombok.extern.java.Log;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -26,7 +28,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.logging.Level;
 
+@Log
 public class EncryptedPayloads {
 
     public static String encrypt(String plaintext, byte[] conversationKey, byte[] nonce) throws Exception {
@@ -74,6 +78,7 @@ public class EncryptedPayloads {
         byte[] calculatedMac = hmac.doFinal();
 
         if (!MessageDigest.isEqual(calculatedMac, mac)) {
+            log.log(Level.FINE, "Calculated MAC = {0} --- Mac = {1}", new Object[]{Arrays.toString(calculatedMac), Arrays.toString(mac)});
             throw new Exception("Invalid MAC");
         }
 
@@ -164,7 +169,7 @@ public class EncryptedPayloads {
         return new String(unpadded, StandardCharsets.UTF_8);
     }
 
-    private static byte[][] decodePayload(String payload) throws Exception {
+    private static byte[][] decodePayload(@NonNull String payload) throws Exception {
         int plen = payload.length();
         if (plen == 0 || payload.charAt(0) == '#') {
             throw new Exception("Unknown version");
@@ -218,7 +223,7 @@ public class EncryptedPayloads {
         }
 
         SecretKeyFactory skf = SecretKeyFactory.getInstance(Constants.KEY_DERIVATION_ALGORITHM);
-        KeySpec spec = new PBEKeySpec(new String(conversationKey, Constants.CHARACTER_ENCODING).toCharArray(), nonce, 65536, (Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH + Constants.HMAC_KEY_LENGTH) * 8);
+        KeySpec spec = new PBEKeySpec(new String(conversationKey, StandardCharsets.UTF_8).toCharArray(), nonce, 65536, (Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH + Constants.HMAC_KEY_LENGTH) * 8);
         byte[] keys = skf.generateSecret(spec).getEncoded();
 
         byte[] chachaKey = Arrays.copyOfRange(keys, 0, Constants.CHACHA_KEY_LENGTH);
@@ -246,7 +251,7 @@ public class EncryptedPayloads {
         private static final String ENCRYPTION_ALGORITHM = "ChaCha20";
         private static final String HMAC_ALGORITHM = "HmacSHA256";
         private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA256";
-        private static final String CHARACTER_ENCODING = StandardCharsets.UTF_8.name();
+        //private static final String CHARACTER_ENCODING = StandardCharsets.UTF_8.name();
         private static final int CONVERSATION_KEY_LENGTH = 32;
         private static final int NONCE_LENGTH = 32;
         private static final int HMAC_KEY_LENGTH = 32;

@@ -41,7 +41,8 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @param content the DM content in clear-text
      */
     public NIP04<T> createDirectMessageEvent(@NonNull String content) {
-        var event = new DirectMessageEventFactory(getSender(), getRecipient(), content).create();
+        var encryptedContent = encrypt(getSender(), content, getRecipient());
+        var event = new DirectMessageEventFactory(getSender(), getRecipient(), encryptedContent).create();
         this.setEvent((T) event);
 
         return this;
@@ -56,7 +57,8 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @return the DM event
      */
     public NIP04<T> createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-        var event = new DirectMessageEventFactory(tags, recipient, content).create();
+        var encryptedContent = encrypt(getSender(), content, recipient);
+        var event = new DirectMessageEventFactory(tags, recipient, encryptedContent).create();
         this.setEvent((T) event);
 
         return this;
@@ -66,7 +68,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * Encrypt the direct message
      * @return the current instance with an encrypted message
      */
-    public NIP04<T> encrypt() {
+    private NIP04<T> encrypt() {
         encryptDirectMessage(getSender(), (DirectMessageEvent) getEvent());
         return this;
     }
@@ -135,7 +137,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.INFO, "The message is being decrypted for {0}", sender);
+        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
         MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }

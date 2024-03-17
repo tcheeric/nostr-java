@@ -1,16 +1,7 @@
 package nostr.test.event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import nostr.event.impl.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -21,10 +12,21 @@ import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
+import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
+import nostr.event.impl.DirectMessageEvent;
+import nostr.event.impl.EncryptedPayloadEvent;
+import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
+import nostr.event.impl.TextNoteEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -106,7 +108,6 @@ public class ApiEventTest {
 
         var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-		        .encrypt()
 		        .sign();
         var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
 
