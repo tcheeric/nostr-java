@@ -203,7 +203,6 @@ public class NostrApiExamples {
 
         var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
-			.encrypt()
 			.sign()
 			.send(RELAYS);
     }

@@ -108,7 +108,6 @@ public class ApiEventTest {
 
         var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-		        .encrypt()
 		        .sign();
         var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
 
