@@ -86,6 +86,11 @@ public class Nostr {
 		getClient().send(filters, subscriptionId);
     }
 
+    public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+        setRelays(relays);
+        getClient().send(filters, subscriptionId);
+    }
+
     /**
      * @param signable
      */
@@ -94,14 +99,6 @@ public class Nostr {
 
 		return this;
     }
-
-/*
-	public Nostr sign(@NonNull ISignable signable) {
-		sender.sign(signable);
-
-		return this;
-    }
-*/
 
     public static class Json {
 
