@@ -28,7 +28,7 @@ logHeader("sendTextNoteEvent");
 ```
 
 ## Creating a custom Nostr Event and Tag
-We use the ```nostr.api.EventNostr.GenericEventNostr.createGenericEvent(@NonNull Integer kind, @NonNull String content)``` method to create a custom event. The example below creates a custom event with a custom tag, and sends it to relays.
+We use the ```nostr.api.EventNostr.GenericEventNostr.createGenericEvent(@NonNull Integer kind, @NonNull String content)``` method to create custom events, i.e. events not supported out-of-the-box by the nostr-java library. The example below re-creates the TextNoteEvent as a custom event, and a custom tag, then sends the event to relays.
 The alt-tag is created using the TagFactory class, which is a helper class for creating custom tags. The TagFactory class has a method for creating each type of tag. In the example below, we create a custom tag with a tag name of "alt", a tag kind of 31, and a tag content of "an alt text". ```["alt", 31, "an alt text"]```.
 
 ```java
