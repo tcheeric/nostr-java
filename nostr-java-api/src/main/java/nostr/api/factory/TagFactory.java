@@ -9,9 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.impl.GenericTag;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author eric
@@ -27,25 +24,19 @@ public class TagFactory extends AbstractTagFactory<GenericTag> {
     private final Integer nip;
     
     @NonNull
-    private final List<String> params;
+    private final String[] params;
 
     protected TagFactory() {
         this.code = "";
         this.nip = 0;
-        this.params = new ArrayList<>();
+        this.params = new String[0];
     }
 
-    public TagFactory(String code, Integer nip, String param) {
+    public TagFactory(String code, Integer nip, String... params) {
         this.code = code;
         this.nip = nip;
-        this.params = new ArrayList<>();
-        this.params.add(param);
-    }
-    
-    public TagFactory(String code, Integer nip, List<String> params) {
-        this.code = code;
-        this.nip = nip;
-        this.params = params;
+        this.params = new String[params.length];
+        System.arraycopy(params, 0, this.params, 0, params.length);
     }
     
     @Override

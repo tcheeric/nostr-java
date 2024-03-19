@@ -30,13 +30,12 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
     /**
      * Create a NIP44 Encrypted Payload
      *
-     * @param recipient the EP recipient
      * @param content   the EP content in clear-text
      * @return the EP event
      */
-    public NIP44<T> createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(getSender(), content, recipient);
-        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), recipient, encryptedContent);
+    public NIP44<T> createDirectMessageEvent(@NonNull String content) {
+        var encryptedContent = encrypt(getSender(), content, getRecipient());
+        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), getRecipient(), encryptedContent);
         var event = factory.create();
         setEvent((T) event);
         return this;

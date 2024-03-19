@@ -12,8 +12,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static nostr.util.NostrUtil.escapeJsonString;
@@ -60,15 +58,18 @@ public class NIP32Impl {
             this(nameSpace, value, null);
         }
 
-        public List<String> toParams() {
+        public String[] toParams() {
             try {
-                List<String> result = new ArrayList<>();
-                result.add(0, value);
-                result.add(1, nameSpace.getValue());
-
+                String[] result;
                 if (metadata != null) {
-                    final var jsonString = new ObjectMapper().writeValueAsString(metadata);
-                    result.add(2, escapeJsonString(jsonString));
+                    result = new String[3];
+                    result[0] =  value;
+                    result[1] = nameSpace.getValue();
+                    result[2] = escapeJsonString(new ObjectMapper().writeValueAsString(metadata));
+                } else {
+                    result = new String[2];
+                    result[0] =  value;
+                    result[1] = nameSpace.getValue();
                 }
 
                 return result;

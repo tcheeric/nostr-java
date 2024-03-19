@@ -95,7 +95,7 @@ public class ApiEventTest {
 
         var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
 
-        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
         instance.send();
     }
@@ -122,7 +122,7 @@ public class ApiEventTest {
 
         var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
 
-        var instance = nip44.createDirectMessageEvent(nostr_java, "Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+        var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         var message = NIP44.decrypt(Identity.getInstance(), instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
