@@ -101,7 +101,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP04EncryptDecrypt() throws NostrException {
+    public void testNIP04EncryptDecrypt() {
         System.out.println("testNIP04EncryptDecrypt");
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -202,8 +202,8 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var instance = nip15.createCreateOrUpdateProductEvent(product, categories);
-        nip15.sign().send();
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
+        //nip15.sign().send();
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");

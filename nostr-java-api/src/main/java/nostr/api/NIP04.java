@@ -91,9 +91,8 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @param rcptId
      * @param dm     the encrypted direct message
      * @return the DM content in clear-text
-     * @throws NostrException
      */
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull DirectMessageEvent dm) throws NostrException {
+    public static String decrypt(@NonNull IIdentity rcptId, @NonNull DirectMessageEvent dm) {
         return NIP04.decrypt(rcptId, (GenericEvent) dm);
     }
 

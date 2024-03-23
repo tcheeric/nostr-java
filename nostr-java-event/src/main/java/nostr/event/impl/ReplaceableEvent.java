@@ -15,7 +15,7 @@ import nostr.event.NIP01Event;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "Replaceable Events", nip = 1)
+@Event(name = "Replaceable Events")
 public class ReplaceableEvent extends NIP01Event {
 
     public ReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {

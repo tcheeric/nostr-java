@@ -1,5 +1,24 @@
 package nostr.client;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.base.IEvent;
+import nostr.base.Relay;
+import nostr.event.BaseMessage;
+import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.list.FiltersList;
+import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CloseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.ReqMessage;
+import nostr.id.Identity;
+import nostr.util.AbstractBaseConfiguration;
+import nostr.util.NostrException;
+import nostr.ws.Connection;
+import nostr.ws.handler.spi.IRequestHandler;
+import nostr.ws.request.handler.provider.DefaultRequestHandler;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -17,25 +36,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.base.IEvent;
-import nostr.base.Relay;
-import nostr.event.BaseMessage;
-import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.impl.Filters;
-import nostr.event.message.ClientAuthenticationMessage;
-import nostr.event.message.CloseMessage;
-import nostr.event.message.EventMessage;
-import nostr.event.message.ReqMessage;
-import nostr.id.Identity;
-import nostr.util.AbstractBaseConfiguration;
-import nostr.util.NostrException;
-import nostr.ws.Connection;
-import nostr.ws.handler.spi.IRequestHandler;
-import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
 @Log
 public class Client {
@@ -122,8 +122,8 @@ public class Client {
         send(message);
     }
 
-    public void send(@NonNull Filters filters, String subscriptionId) {
-        ReqMessage message = new ReqMessage(subscriptionId, filters);
+    public void send(@NonNull FiltersList filtersList, String subscriptionId) {
+        ReqMessage message = new ReqMessage(subscriptionId, filtersList);
         send(message);
     }
 
@@ -168,7 +168,7 @@ public class Client {
         this.send(authMsg);
     }
 
-    public void auth(String challenge, Relay relay) throws NostrException {
+    public void auth(String challenge, Relay relay) {
         auth(Identity.getInstance(), challenge, relay);
     }
 

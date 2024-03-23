@@ -19,14 +19,13 @@ import java.util.Map;
 /**
  * @author guilhermegps
  */
+@Getter
 @NoArgsConstructor
 public abstract class EventNostr<T extends GenericEvent> extends Nostr {
 
-    @Getter
     @Setter
     private T event;
 
-    @Getter
     private PublicKey recipient;
 
     public EventNostr(@NonNull Identity sender) {

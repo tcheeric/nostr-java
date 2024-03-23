@@ -47,13 +47,6 @@ public class NIP15Impl {
             this.customer = customer;
         }
 
-        @Deprecated
-        public VerifyPaymentOrShippedEventFactory(@NonNull IIdentity sender, @NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
-            super(sender, status.toString());
-            this.status = status;
-            this.customer = customer;
-        }
-
         @Override
         public VerifyPaymentOrShippedEvent create() {
             return new VerifyPaymentOrShippedEvent(getSender(), customer, status);

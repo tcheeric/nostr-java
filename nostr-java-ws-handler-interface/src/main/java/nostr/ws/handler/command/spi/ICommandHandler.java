@@ -4,11 +4,11 @@
  */
 package nostr.ws.handler.command.spi;
 
-import java.util.Arrays;
-import java.util.Optional;
 import nostr.base.IHandler;
 import nostr.base.Relay;
-import nostr.util.NostrException;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  *
@@ -24,7 +24,7 @@ public interface ICommandHandler extends IHandler {
 
     void onEvent(String jsonEvent, String subId, Relay relay);
 
-    void onAuth(String challenge, Relay relay) throws NostrException;
+    void onAuth(String challenge, Relay relay);
 
     enum Reason {
         UNDEFINED(""),

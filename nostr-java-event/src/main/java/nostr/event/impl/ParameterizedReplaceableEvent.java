@@ -15,7 +15,7 @@ import nostr.event.NIP01Event;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "Parameterized Replaceable Events", nip = 1)
+@Event(name = "Parameterized Replaceable Events")
 public class ParameterizedReplaceableEvent extends NIP01Event {
 
     protected ParameterizedReplaceableEvent() {

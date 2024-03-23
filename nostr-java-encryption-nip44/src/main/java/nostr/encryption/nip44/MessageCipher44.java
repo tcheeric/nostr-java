@@ -16,8 +16,8 @@ public class MessageCipher44 implements MessageCipher {
 
     private static final int NONCE_LENGTH = 32;
 
-    private final String senderPrivateKey;
-    private final String recipientPublicKey;
+    private final byte[] senderPrivateKey;
+    private final byte[] recipientPublicKey;
 
     @Override
     public String encrypt(@NonNull String message) {
@@ -42,7 +42,7 @@ public class MessageCipher44 implements MessageCipher {
 
     private byte[] getConversationKey() {
         try {
-            return EncryptedPayloads.getConversationKey(senderPrivateKey, "02" + recipientPublicKey);
+            return EncryptedPayloads.getConversationKey(NostrUtil.bytesToHex(senderPrivateKey), "02" + NostrUtil.bytesToHex(recipientPublicKey));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
         }
