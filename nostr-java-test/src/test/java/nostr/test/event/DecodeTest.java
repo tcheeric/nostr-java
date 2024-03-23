@@ -1,6 +1,7 @@
 package nostr.test.event;
 
 import nostr.base.PublicKey;
+import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.GenericEvent;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import nostr.event.BaseMessage;
 
 public class DecodeTest {
 

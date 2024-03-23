@@ -29,7 +29,7 @@ public abstract class BaseKey implements IKey {
     protected final Bech32Prefix prefix;
 
     @Override
-    public String getBech32() {
+    public String toBech32String() {
         try {
             return Bech32.toBech32(prefix, rawData);
         } catch (NostrException ex) {
@@ -37,9 +37,13 @@ public abstract class BaseKey implements IKey {
         }
     }
 
-    @JsonValue
     @Override
+    @JsonValue
     public String toString() {
+        return toHexString();
+    }
+
+    public String toHexString() {
         return NostrUtil.bytesToHex(rawData);
     }
 

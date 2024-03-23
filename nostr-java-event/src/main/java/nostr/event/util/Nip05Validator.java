@@ -1,5 +1,13 @@
 package nostr.event.util;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.java.Log;
+import nostr.base.PublicKey;
+import nostr.event.Nip05Content;
+import nostr.event.json.codec.Nip05ContentDecoder;
+import nostr.util.NostrException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,14 +17,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
-
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.java.Log;
-import nostr.base.PublicKey;
-import nostr.event.Nip05Content;
-import nostr.event.json.codec.Nip05ContentDecoder;
-import nostr.util.NostrException;
 
 /**
  *

@@ -17,7 +17,7 @@ import nostr.event.tag.PubKeyTag;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "Ephemeral Events", nip = 1)
+@Event(name = "Ephemeral Events")
 public class EphemeralEvent extends NIP01Event {
 
     public EphemeralEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {

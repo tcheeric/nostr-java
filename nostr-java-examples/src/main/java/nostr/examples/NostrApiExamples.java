@@ -151,7 +151,7 @@ public class NostrApiExamples {
             executor.submit(() -> {
             	try {
             		filters();
-	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
             });
 //
 //            executor.submit(() -> {
@@ -378,14 +378,14 @@ public class NostrApiExamples {
     private static void logAccountsData() {
         String msg = "################################ ACCOUNTS BEGINNING ################################" +
                 '\n' + "*** RECEIVER ***" + '\n' +
-                '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().toBech32String() +
                 '\n' + "* PrivateKey HEX: " + RECIPIENT.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().getBech32() +
+                '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().toBech32String() +
                 '\n' + "* PublicKey HEX: " + RECIPIENT.getPublicKey().toString() +
                 '\n' + '\n' + "*** SENDER ***" + '\n' +
-                '\n' + "* PrivateKey: " + SENDER.getPrivateKey().getBech32() +
+                '\n' + "* PrivateKey: " + SENDER.getPrivateKey().toBech32String() +
                 '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + SENDER.getPublicKey().getBech32() +
+                '\n' + "* PublicKey: " + SENDER.getPublicKey().toBech32String() +
                 '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
                 '\n' + '\n' + "################################ ACCOUNTS END ################################";
 

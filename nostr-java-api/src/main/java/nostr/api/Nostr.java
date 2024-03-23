@@ -24,9 +24,10 @@ import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
-import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.FiltersListEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
+import nostr.event.list.FiltersList;
 import nostr.id.IIdentity;
 
 import java.util.List;
@@ -83,12 +84,24 @@ public class Nostr {
     }
 
 	public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-		getClient().send(filters, subscriptionId);
+        FiltersList filtersList = new FiltersList();
+        filtersList.add(filters);
+		getClient().send(filtersList, subscriptionId);
+    }
+
+    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId) {
+        getClient().send(filtersList, subscriptionId);
     }
 
     public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+        FiltersList filtersList = new FiltersList();
+        filtersList.add(filters);
+        send(filtersList, subscriptionId, relays);
+    }
+
+    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
         setRelays(relays);
-        getClient().send(filters, subscriptionId);
+        getClient().send(filtersList, subscriptionId);
     }
 
     /**
@@ -184,19 +197,19 @@ public class Nostr {
         // Filters
 
         /**
-         * @param filters
+         * @param filtersList
          * @param relay
          */
-        public static String encode(@NonNull Filters filters, Relay relay) {
-            final var enc = new FiltersEncoder(filters, relay);
+        public static String encode(@NonNull FiltersList filtersList, Relay relay) {
+            final var enc = new FiltersListEncoder(filtersList, relay);
             return enc.encode();
         }
 
         /**
-         * @param filters
+         * @param filtersList
          */
-        public static String encode(@NonNull Filters filters) {
-            return Nostr.Json.encode(filters, null);
+        public static String encode(@NonNull FiltersList filtersList) {
+            return Nostr.Json.encode(filtersList, null);
         }
 
         /**
