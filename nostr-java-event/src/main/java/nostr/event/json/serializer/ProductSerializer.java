@@ -3,18 +3,18 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import nostr.event.impl.ProductNick;
-
 import java.io.IOException;
+import nostr.event.impl.NostrMarketplaceEvent.Product;
+import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 
 /**
  *
  * @author eric
  */
-public class ProductSerializer extends JsonSerializer<ProductNick> {
+public class ProductSerializer extends JsonSerializer<Product> {
 
     @Override
-    public void serialize(ProductNick product, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Product product, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", product.getId());
         jsonGenerator.writeStringField("stall_id", product.getStall().getId());
@@ -36,7 +36,7 @@ public class ProductSerializer extends JsonSerializer<ProductNick> {
         if (!product.getSpecs().isEmpty()) {
             jsonGenerator.writeFieldName("specs");
             jsonGenerator.writeStartArray();
-            for (ProductNick.Spec spec : product.getSpecs()) {
+            for (Spec spec : product.getSpecs()) {
                 jsonGenerator.writeStartArray();
                 jsonGenerator.writeString(spec.getKey());
                 jsonGenerator.writeString(spec.getValue());

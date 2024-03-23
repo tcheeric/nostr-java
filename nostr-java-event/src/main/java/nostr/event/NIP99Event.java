@@ -21,5 +21,4 @@ public abstract class NIP99Event extends GenericEvent {
   public NIP99Event(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
     super(sender, kind, tags, content);
   }
-
 }
