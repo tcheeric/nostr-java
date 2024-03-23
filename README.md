@@ -39,9 +39,12 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)
 
 We also provide the classes [GenericEvent](https://github.com/tcheeric/nostr-java/blob/main/nostr-java-event/src/main/java/nostr/event/impl/GenericEvent.java) and [GenericTag](https://github.com/tcheeric/nostr-java/blob/main/nostr-java-event/src/main/java/nostr/event/impl/GenericTag.java) for creating events and tags that are currently not supported out-of-the-box.
-See working example [here](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples)
+See a working example [here](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples)
 
 Additional reading:
 - [nostr-java-api](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-api)
 - [nostr-java-id](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-id)
 - [nostr-java-examples](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples)
+
+## Dev Discussion Group:
+- Nostr Public Channel: nostr:nevent1qqszqdmxg26sehmnyrcu2ler8azz6wyj6fh0qg3ad5fnnm6xfqqvhzcppamhxue69uhkummnw3ezumt0d5pzpl7nwh45p66gvet2q28dhjpcyh6clux4cjsm5gh7waza9pzjnmgglv06ew
