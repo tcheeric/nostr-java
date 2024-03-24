@@ -4,8 +4,6 @@
  */
 package nostr.api;
 
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
 import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
@@ -30,6 +28,7 @@ import nostr.event.Marker;
 import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
 import nostr.event.list.EventList;
+import nostr.event.list.FiltersList;
 import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
@@ -43,6 +42,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *
@@ -222,6 +223,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         		.build();
     }
 
+
     /**
      * Create an event message to send events requested by clients
      *
@@ -239,11 +241,11 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * Create a REQ message to request events and subscribe to new updates
      *
      * @param subscriptionId the subscription id
-     * @param filters the filters object
+     * @param filtersList the filters list
      * @return a REQ message
      */
-    public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull Filters filters) {
-        return new ReqMessageFactory(subscriptionId, filters).create();
+    public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull FiltersList filtersList) {
+        return new ReqMessageFactory(subscriptionId, filtersList).create();
     }
 
     /**

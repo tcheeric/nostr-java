@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -14,6 +12,8 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

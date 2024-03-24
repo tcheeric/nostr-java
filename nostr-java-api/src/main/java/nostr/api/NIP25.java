@@ -4,9 +4,6 @@
  */
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP25Impl.ReactionEventFactory;
 import nostr.event.BaseTag;
@@ -15,6 +12,9 @@ import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EmojiTag;
 import nostr.id.IIdentity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NIP25<T extends NIP25Event> extends EventNostr<T> {
 	

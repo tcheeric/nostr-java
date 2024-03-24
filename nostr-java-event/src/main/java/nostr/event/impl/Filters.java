@@ -6,9 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import nostr.base.annotation.Key;
 import nostr.event.BaseEvent;
 import nostr.event.json.deserializer.CustomGenericTagQueryListDeserializer;
@@ -26,6 +28,8 @@ import nostr.event.list.PublicKeyList;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Filters extends BaseEvent {
 
     @Key

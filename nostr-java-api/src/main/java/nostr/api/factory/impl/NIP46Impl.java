@@ -5,8 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.api.NIP04;
-import nostr.api.NIP46.NIP46Request;
-import nostr.api.NIP46.NIP46Response;
+import nostr.api.NIP46;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.NostrConnectEvent;
@@ -23,18 +22,18 @@ public class NIP46Impl {
 
         private PublicKey recipient;
 
-        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46Request request, @NonNull PublicKey recipient) {
+        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46.Request request, @NonNull PublicKey recipient) {
             super(sender, NIP04.encrypt(sender, request.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();
-            log.log(Level.INFO, "NostrConnectEventFactory Sender: {0} - Request: {1}", new Object[]{senderPk, request});
+            log.log(Level.FINE, "NostrConnectEventFactory Sender: {0} - Request: {1}", new Object[]{senderPk, request});
         }
 
-        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46Response response, @NonNull PublicKey recipient) {
+        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46.Response response, @NonNull PublicKey recipient) {
             super(sender, NIP04.encrypt(sender, response.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();
-            log.log(Level.INFO, "NostrConnectEventFactory Sender: {0} - Response: {1}", new Object[]{senderPk, response});
+            log.log(Level.FINE, "NostrConnectEventFactory Sender: {0} - Response: {1}", new Object[]{senderPk, response});
         }
 
         public NostrConnectEvent create() {

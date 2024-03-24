@@ -4,14 +4,14 @@
  */
 package nostr.api;
 
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP08Impl.MentionsEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP08Event;
 import nostr.event.impl.MentionsEvent;
 import nostr.id.IIdentity;
+
+import java.util.List;
 
 /**
  *

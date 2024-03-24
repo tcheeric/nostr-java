@@ -6,8 +6,10 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.impl.NIP23Impl;
-import nostr.api.factory.impl.NIP23Impl.*;
-import nostr.event.BaseTag;
+import nostr.api.factory.impl.NIP23Impl.ImageTagFactory;
+import nostr.api.factory.impl.NIP23Impl.PublishedAtTagFactory;
+import nostr.api.factory.impl.NIP23Impl.SummaryTagFactory;
+import nostr.api.factory.impl.NIP23Impl.TitleTagFactory;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.AddressTag;
@@ -15,7 +17,6 @@ import nostr.event.tag.EventTag;
 import nostr.id.IIdentity;
 
 import java.net.URL;
-import java.util.List;
 
 /**
  * @author eric

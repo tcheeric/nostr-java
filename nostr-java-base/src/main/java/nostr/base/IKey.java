@@ -11,5 +11,5 @@ public interface IKey extends Serializable {
 
     byte[] getRawData();
 
-    String getBech32();
+    String toBech32String();
 }

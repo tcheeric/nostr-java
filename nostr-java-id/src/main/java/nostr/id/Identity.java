@@ -1,22 +1,20 @@
 package nostr.id;
 
-import java.io.IOException;
-import java.util.logging.Level;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
-import nostr.base.Signature;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.util.AbstractBaseConfiguration;
 import nostr.util.NostrException;
+
+import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * @author squirrel
@@ -57,6 +55,10 @@ public class Identity extends AbstractBaseIdentity {
         }
 
         return INSTANCE;
+    }
+
+    public static Identity getInstance(@NonNull String privateKey) {
+        return getInstance(new PrivateKey(privateKey));
     }
 
     /**

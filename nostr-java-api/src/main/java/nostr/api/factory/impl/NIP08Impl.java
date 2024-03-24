@@ -4,14 +4,14 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
-
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  *

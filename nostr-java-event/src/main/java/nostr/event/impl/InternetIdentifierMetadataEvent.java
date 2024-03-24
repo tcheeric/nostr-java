@@ -59,7 +59,7 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
     
     @Data
     @AllArgsConstructor
-    public final class Nip05Obj{
+    public static final class Nip05Obj{
     	private String name;
     	private String nip05;
     }

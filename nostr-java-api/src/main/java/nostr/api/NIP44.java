@@ -30,13 +30,12 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
     /**
      * Create a NIP44 Encrypted Payload
      *
-     * @param recipient the EP recipient
      * @param content   the EP content in clear-text
      * @return the EP event
      */
-    public NIP44<T> createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(getSender(), content, recipient);
-        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), recipient, encryptedContent);
+    public NIP44<T> createDirectMessageEvent(@NonNull String content) {
+        var encryptedContent = encrypt(getSender(), content, getRecipient());
+        var factory = new NIP44Impl.EncryptedPayloadEventFactory(getSender(), getRecipient(), encryptedContent);
         var event = factory.create();
         setEvent((T) event);
         return this;
@@ -74,7 +73,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
     }
 
     public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
-        MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().toString(), recipient.toString());
+        MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
     }
 
@@ -98,7 +97,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
      * @return the ep content in clear-text
      */
     public static String decrypt(@NonNull IIdentity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {
-        MessageCipher cipher = new MessageCipher44(identity.getPrivateKey().toString(), recipient.toString());
+        MessageCipher cipher = new MessageCipher44(identity.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.decrypt(encrypteEPessage);
     }
 
@@ -113,14 +112,14 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
         boolean rcptFlag = amITheRecipient(rcptId, event);
 
         if (!rcptFlag) { // I am the message sender
-            MessageCipher cipher = new MessageCipher44(rcptId.getPrivateKey().toString(), pTag.getPublicKey().toString());
+            MessageCipher cipher = new MessageCipher44(rcptId.getPrivateKey().getRawData(), pTag.getPublicKey().getRawData());
             return cipher.decrypt(event.getContent());
         }
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.INFO, "The message is being decrypted for {0}", sender);
-        MessageCipher cipher = new MessageCipher44(rcptId.getPrivateKey().toString(), sender.toString());
+        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
+        MessageCipher cipher = new MessageCipher44(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }
 
@@ -129,7 +128,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
         ITag pkTag = ep.getTags().get(0);
         if (pkTag instanceof PubKeyTag pubKeyTag) {
             var rcptPublicKey = pubKeyTag.getPublicKey();
-            MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().toString(), rcptPublicKey.toString());
+            MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().getRawData(), rcptPublicKey.getRawData());
             var encryptedContent = cipher.encrypt(ep.getContent());
             ep.setContent(encryptedContent);
         }

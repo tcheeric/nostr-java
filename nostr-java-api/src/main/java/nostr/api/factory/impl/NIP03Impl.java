@@ -4,7 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -12,10 +11,8 @@ import nostr.api.NIP01;
 import nostr.api.NIP31;
 import nostr.api.factory.EventFactory;
 import nostr.base.IEvent;
-import nostr.event.BaseTag;
 import nostr.event.impl.OtsEvent;
 import nostr.id.IIdentity;
-import nostr.id.Identity;
 
 /**
  *

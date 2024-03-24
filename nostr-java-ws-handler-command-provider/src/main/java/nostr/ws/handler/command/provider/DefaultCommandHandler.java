@@ -44,7 +44,7 @@ public class DefaultCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public void onAuth(String challenge, Relay relay) throws NostrException {
+    public void onAuth(String challenge, Relay relay) {
         log.log(Level.FINE, "Command: {0} - Relay {1}", new Object[]{Command.AUTH, relay});
         
         var client = Client.getInstance();

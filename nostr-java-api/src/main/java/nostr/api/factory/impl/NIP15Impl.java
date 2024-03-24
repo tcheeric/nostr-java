@@ -4,8 +4,6 @@
  */
 package nostr.api.factory.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -20,6 +18,9 @@ import nostr.event.impl.VerifyPaymentOrShippedEvent;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.IIdentity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -42,13 +43,6 @@ public class NIP15Impl {
 
         public VerifyPaymentOrShippedEventFactory(@NonNull List<BaseTag> tags, VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
             super(tags, status.toString());
-            this.status = status;
-            this.customer = customer;
-        }
-
-        @Deprecated
-        public VerifyPaymentOrShippedEventFactory(@NonNull IIdentity sender, @NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
-            super(sender, status.toString());
             this.status = status;
             this.customer = customer;
         }

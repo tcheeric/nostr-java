@@ -1,14 +1,13 @@
 package nostr.event.list;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.INostrList;
 import nostr.event.json.serializer.CustomBaseListSerializer;
+
+import java.util.List;
 
 /**
  *
@@ -23,6 +22,10 @@ public abstract class BaseList<T> implements INostrList<T> {
 
     @NonNull
     private final List<T> list;
+
+    public BaseList(T... elements) {
+        this.list = List.of(elements);
+    }
 
     @Override
     public void add(@NonNull T elt) {
