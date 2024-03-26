@@ -35,7 +35,7 @@
         <maven.compiler.target>19</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
 
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
