@@ -21,6 +21,11 @@
 
         <!-- Project Dependencies -->
         <dependency>
+            <groupId>me.champeau.openbeans</groupId>
+            <artifactId>openbeans</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-base</artifactId>
             <version>${project.version}</version>
