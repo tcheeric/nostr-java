@@ -34,6 +34,8 @@
         <maven.compiler.source>19</maven.compiler.source>
         <maven.compiler.target>19</maven.compiler.target>
 
+        <openbeans.version>1.0.2</openbeans.version>
+
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.30</lombok.version>
 
