@@ -3,7 +3,6 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +11,7 @@ import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericMessage;
 import nostr.event.message.ClientAuthenticationMessage;
 import nostr.event.message.CloseMessage;
@@ -19,6 +19,8 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
+
+import java.util.List;
 
 /**
  * @author squirrel
@@ -45,18 +47,14 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
             } else if (message instanceof ReqMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
                 // Encode each filter individually and join them with a comma
-                ArrayNode filtersNode = JsonNodeFactory.instance.arrayNode();
-                msg.getFiltersList().getList().stream()
-                        .map(filter -> {
-                            try {
-                                return MAPPER.valueToTree(filter);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                        .map(n -> ((JsonNode) n))
-                        .forEach(filtersNode::add);
-                arrayNode.add(filtersNode);
+                List<Filters> filtersList = msg.getFiltersList().getList();
+                for (Filters filter : filtersList) {
+                    try {
+                        arrayNode.add(MAPPER.valueToTree(filter));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             } else if (message instanceof NoticeMessage msg) {
                 arrayNode.add(msg.getMessage());
             } else if (message instanceof CloseMessage msg) {
