@@ -14,6 +14,7 @@ module nostr.ws.request.handler.provider {
     requires nostr.ws.handler;
     
     exports nostr.ws.request.handler.provider;
-    
+    exports nostr.ws.request;
+
 //    provides nostr.ws.handler.spi.IRequestHandler with nostr.ws.request.handler.provider.DefaultRequestHandler;
 }

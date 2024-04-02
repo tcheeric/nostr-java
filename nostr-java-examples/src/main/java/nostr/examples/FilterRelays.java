@@ -1,5 +1,11 @@
 package nostr.examples;
 
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.base.Relay;
+import nostr.context.impl.DefaultRequestContext;
+import nostr.ws.Connection;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,11 +13,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.base.Relay;
-import nostr.ws.Connection;
 
 /**
  * @author guilhermegps
@@ -142,8 +143,11 @@ public class FilterRelays {
 
     private static Relay updateRelayMetadata(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay, new ArrayList<>());
-            connection.updateRelayMetadata();
+			var context = new DefaultRequestContext();
+			context.setRelays(Map.of(relay.getName(), relay.getHostname()));
+
+            var connection = new Connection(context, new ArrayList<>());
+            //connection.updateRelayMetadata(relay);
         } catch (Exception ex) {
 			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());
         }

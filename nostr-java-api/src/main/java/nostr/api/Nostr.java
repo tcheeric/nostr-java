@@ -13,6 +13,8 @@ import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.base.Relay;
 import nostr.client.Client;
+import nostr.context.RequestContext;
+import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -28,8 +30,12 @@ import nostr.event.json.codec.FiltersListEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.event.list.FiltersList;
+import nostr.event.message.EventMessage;
+import nostr.event.message.ReqMessage;
 import nostr.id.IIdentity;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,15 +45,18 @@ import java.util.Map;
 @NoArgsConstructor
 public class Nostr {
 
-	private static Nostr INSTANCE;
+    private static Nostr INSTANCE;
 
-	private Client client;
-	@Getter
-	private IIdentity sender;
+    private Client client;
+    @Getter
+    private IIdentity sender;
 
-	public static Nostr getInstance() {
-		return (INSTANCE == null) ? new Nostr() : INSTANCE;
-	}
+    @Getter
+    private Map<String, String> relays;
+
+    public static Nostr getInstance() {
+        return (INSTANCE == null) ? new Nostr() : INSTANCE;
+    }
 
     public static Nostr getInstance(@NonNull IIdentity sender) {
         return (INSTANCE == null) ? new Nostr(sender) : INSTANCE;
@@ -56,61 +65,91 @@ public class Nostr {
     public Nostr(@NonNull IIdentity sender) {
         this.sender = sender;
     }
-	
-	public Nostr setSender(@NonNull IIdentity sender) {
-		this.sender = sender;
-		
-		return this;
-	}
 
-	public Nostr setRelays(Map<String, String> relays) {
-		this.client = Client.getInstance(relays);
+    public Nostr setSender(@NonNull IIdentity sender) {
+        this.sender = sender;
 
-		return this;
-	}
-
-	protected Client getClient() {
-		client = (client == null) ? Client.getInstance() : client;
-
-		return client;
-	}
-	
-	public List<BaseMessage> responses(){
-		return getClient().getResponses();
-	}
-
-	public void send(@NonNull IEvent event) {
-		getClient().send(event);
+        return this;
     }
 
-	public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-        FiltersList filtersList = new FiltersList();
-        filtersList.add(filters);
-		getClient().send(filtersList, subscriptionId);
+    public Nostr setRelays(@NonNull Map<String, String> relays) {
+        this.relays = relays;
+
+        return this;
     }
 
-    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId) {
-        getClient().send(filtersList, subscriptionId);
+    public List<BaseMessage> responses() {
+        return responses(getRelays());
+    }
+
+    public List<BaseMessage> responses(Map<String, String> relays) {
+        var context = new DefaultRequestContext();
+        context.setPrivateKey(getSender().getPrivateKey().getRawData());
+        context.setRelays(relays);
+
+        return Client.getInstance(context).getResponses();
+    }
+
+    public void send(@NonNull IEvent event) {
+        send(event, getRelays());
+    }
+
+    public void send(@NonNull IEvent event, Map<String, String> relays) {
+        var context = new DefaultRequestContext();
+        context.setPrivateKey(getSender().getPrivateKey().getRawData());
+        context.setMessage(new EventMessage(event));
+        context.setRelays(relays);
+
+        send(context);
+    }
+
+
+    public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
+        send(filters, subscriptionId, getRelays());
     }
 
     public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
         FiltersList filtersList = new FiltersList();
         filtersList.add(filters);
+
         send(filtersList, subscriptionId, relays);
     }
 
+    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId) {
+        send(filtersList, subscriptionId, getRelays());
+    }
+
     public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
-        setRelays(relays);
-        getClient().send(filtersList, subscriptionId);
+
+        var context = new DefaultRequestContext();
+        context.setRelays(relays);
+        context.setMessage(new ReqMessage(subscriptionId, filtersList));
+        context.setPrivateKey(getSender().getPrivateKey().getRawData());
+
+
+        send(context);
+    }
+
+    public void send(@NonNull RequestContext context) {
+        if (context instanceof DefaultRequestContext defaultRequestContext) {
+            Client client = Client.getInstance(context);
+            client.send();
+        }
     }
 
     /**
      * @param signable
      */
-	public Nostr sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
-		identity.sign(signable);
+    public Nostr sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
+        identity.sign(signable);
 
-		return this;
+        return this;
+    }
+
+    private static Map<String, String> toMapRelays(List<Relay> relayList) throws IOException {
+        Map<String, String> relays = new HashMap<>();
+        relayList.forEach(r -> relays.put(r.getName(), r.getHostname()));
+        return relays;
     }
 
     public static class Json {

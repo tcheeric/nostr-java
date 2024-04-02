@@ -3,33 +3,18 @@ package nostr.client;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.base.IEvent;
 import nostr.base.Relay;
+import nostr.context.RequestContext;
+import nostr.context.impl.DefaultRequestContext;
+import nostr.controller.ApplicationController;
+import nostr.controller.app.ApplicationControllerImpl;
 import nostr.event.BaseMessage;
-import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.list.FiltersList;
-import nostr.event.message.ClientAuthenticationMessage;
-import nostr.event.message.CloseMessage;
-import nostr.event.message.EventMessage;
-import nostr.event.message.ReqMessage;
-import nostr.id.Identity;
-import nostr.util.AbstractBaseConfiguration;
-import nostr.util.NostrException;
+import nostr.util.NostrUtil;
 import nostr.ws.Connection;
-import nostr.ws.handler.spi.IRequestHandler;
-import nostr.ws.request.handler.provider.DefaultRequestHandler;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -42,54 +27,56 @@ public class Client {
 
     private static Client INSTANCE;
 
-	private final List<Future<Relay>> futureRelays = new ArrayList<>();
-	@Getter
+    private final List<Future<Relay>> futureRelays = new ArrayList<>();
+    @Getter
     private final List<BaseMessage> responses = new ArrayList<>();
-	private final IRequestHandler requestHandler = new DefaultRequestHandler(responses);
-	
-//	TODO: remove getter
-	@Getter
-	private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+    private final ApplicationController applicationController = new ApplicationControllerImpl();
 
-	public Client() throws IOException {
-        this.init();
-    }
+    private final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
-	public Client(Map<String, String> relays) {
-        this.init(relays);
-    }
+    private RequestContext context;
 
-    public static Client getInstance() {
-        if (INSTANCE == null) {
-			try {
-				INSTANCE = new Client();
-			} catch (IOException ex) {
-				log.log(Level.SEVERE, null, ex);
-				throw new RuntimeException(ex);
-			}
+    private Connection connection;
+
+    public Client(@NonNull RequestContext context) {
+        if (context instanceof DefaultRequestContext) {
+            this.context = context;
+            this.openRelays();
         }
-
-		return INSTANCE.waitConnection();
     }
 
-    public static Client getInstance(Map<String, String> relays) {
-		INSTANCE = (INSTANCE == null) ? new Client(relays) : INSTANCE;
+    public static Client getInstance(@NonNull RequestContext context) {
+        INSTANCE = (INSTANCE == null) ? new Client(context) : INSTANCE;
 
-		return INSTANCE.waitConnection();
+        return INSTANCE.waitConnection();
     }
 
-	public Client waitConnection() {
-		do {
-			try {
-				log.log(Level.INFO, "Waiting for relays' connections to open...");
-				Thread.sleep(5000);
-			} catch (InterruptedException ex) {
-				throw new RuntimeException(ex);
-			}
-		} while (this.threadPool.getCompletedTaskCount() < (this.getRelays().size() / 2));
+    public Client waitConnection() {
+        do {
+/*
+            try {
+*/
+                log.log(Level.INFO, "Waiting for relays' connections to open...");
+                //Thread.sleep(5000);
+/*
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+*/
+        } while (this.threadPool.getCompletedTaskCount() < (this.getRelays().size() / 2));
 
-		return this;
-	}
+        return this;
+    }
+
+    public Client connect(@NonNull RequestContext context) {
+        INSTANCE = new Client(context);
+        return waitConnection();
+    }
+
+    public void disconnect() {
+        this.threadPool.shutdown();
+        this.connection.stop();
+    }
 
     public List<Relay> getRelays() {
         return futureRelays.parallelStream()
@@ -112,29 +99,62 @@ public class Client {
                 }).collect(Collectors.toList());
     }
 
+    public void send() {
+        if (context instanceof DefaultRequestContext defaultRequestContext) {
+            BaseMessage message = defaultRequestContext.getMessage();
+
+            log.log(Level.INFO, "Sending message {0}", message);
+
+            futureRelays.parallelStream()
+                    .filter(fr -> {
+                        try {
+                            return fr.isDone() && fr.get().getSupportedNips().contains(message.getNip());
+                        } catch (InterruptedException | ExecutionException e) {
+                            log.log(Level.WARNING, null, e);
+                            return false;
+                        }
+                    })
+                    .forEach(fr -> {
+                        try {
+                            Relay r = fr.get();
+                            log.log(Level.INFO, "Sending message to relay {0}", r);
+                            this.applicationController.handleRequest(defaultRequestContext);
+                        } catch (InterruptedException | ExecutionException ex) {
+                            log.log(Level.SEVERE, null, ex);
+                        }
+                    });
+        }
+    }
+
+/*
     public void send(@NonNull IEvent event) {
         EventMessage message = new EventMessage(event);
-        send(message);
+        ((DefaultRequest) requestHandler).setMessage(message);
+        send();
     }
 
     public void send(@NonNull IEvent event, String subsciptionId) {
         EventMessage message = new EventMessage(event, subsciptionId);
-        send(message);
+        ((DefaultRequest) requestHandler).setMessage(message);
+        send();
     }
 
     public void send(@NonNull FiltersList filtersList, String subscriptionId) {
         ReqMessage message = new ReqMessage(subscriptionId, filtersList);
-        send(message);
+        ((DefaultRequest) requestHandler).setMessage(message);
+        send();
     }
 
     public void send(@NonNull String subscriptionId) {
         CloseMessage message = new CloseMessage(subscriptionId);
-        send(message);
+        ((DefaultRequest) requestHandler).setMessage(message);
+        send();
     }
 
     // TODO - Make private?
-	public void send(@NonNull BaseMessage message) {
+    public void send() {
 
+        BaseMessage message = ((DefaultRequest) requestHandler).getMessage();
         log.log(Level.INFO, "Sending message {0}", message);
 
         futureRelays.parallelStream()
@@ -150,7 +170,7 @@ public class Client {
                     try {
                         Relay r = fr.get();
                         log.log(Level.INFO, "Sending message to relay {0}", r);
-                        this.requestHandler.process(message, r);
+                        this.requestHandler.execute(r);
                     } catch (InterruptedException | ExecutionException | NostrException ex) {
                         log.log(Level.SEVERE, null, ex);
                     }
@@ -163,9 +183,10 @@ public class Client {
         List<Relay> relays = getRelayList();
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relays);
         BaseMessage authMsg = new ClientAuthenticationMessage(event);
+        ((DefaultRequest) requestHandler).setMessage(authMsg);
 
         identity.sign(event);
-        this.send(authMsg);
+        this.send();
     }
 
     public void auth(String challenge, Relay relay) {
@@ -177,17 +198,10 @@ public class Client {
         log.log(Level.INFO, "Authenticating...");
         var event = new ClientAuthenticationEvent(identity.getPublicKey(), challenge, relay);
         BaseMessage authMsg = new ClientAuthenticationMessage(event);
+        ((DefaultRequest) requestHandler).setMessage(authMsg);
 
         identity.sign(event);
-        this.send(authMsg);
-    }
-
-    public Relay getDefaultRelay() {
-        List<Relay> relays = getRelays();
-        if (!relays.isEmpty()) {
-            return relays.get(0);
-        }
-        throw new RuntimeException("No configured relay list found");
+        this.send();
     }
 
     private List<Relay> getRelayList() {
@@ -205,108 +219,30 @@ public class Client {
 
         return result;
     }
+*/
 
-    private Relay openRelay(@NonNull String name, @NonNull String hostname) {
-        var serverURI = serverURI(hostname);
-        var relay = Relay.fromString(serverURI.toString());
+    private void openRelays() {
+        DefaultRequestContext defaultRequestContext = (DefaultRequestContext) context;
+        Map<String, String> relayMap = defaultRequestContext.getRelays();
 
-        var rid = Relay.RelayInformationDocument.builder().name(name).build();
-        relay.setInformationDocument(rid);
-        updateRelayInformation(relay);
-
-        return relay;
-    }
-
-    public static URI serverURI(String hostname) {
-        try {
-            URL url = new URI("https://" + hostname).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.FINE, "Openning a secure connection to {0}", hostname);
-
-            openConnection.connect();
-            return new URI("wss://" + hostname);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS, trying with HTTP...", hostname));
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
-            throw new RuntimeException(e);
-        }
-
-        try {
-            URL url = new URI("http://" + hostname).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.FINE, "Opening an un-secure connection to {0}", hostname);
-
-            openConnection.connect();
-
-            return new URI("ws://" + hostname);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTP", hostname));
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
-            throw new RuntimeException(e);
-        }
-
-//    	TODO
-        throw new RuntimeException();
-    }
-
-    private void init(Map<String, String> mapRelays) {
-        mapRelays.entrySet().parallelStream().forEach(r -> {
-            Future<Relay> future = this.threadPool.submit(() -> this.openRelay(r.getKey(), r.getValue()));
-
+        relayMap.values().stream().map(r -> Relay.fromString(NostrUtil.serverURI(r).toString())).forEach(r -> {
+            Future<Relay> future = this.threadPool.submit(() -> {
+                this.connection = new Connection(this.context, responses);
+                return r;
+            });
             this.futureRelays.add(future);
         });
     }
 
-    private void init() throws IOException {
-        this.init(toMapRelays());
-    }
-
-    private Map<String, String> toMapRelays() throws IOException {
-        Map<String, String> relays = new HashMap<>();
-        List<Relay> relayList = new RelayConfiguration().getRelays();
-        relayList.forEach(r -> relays.put(r.getName(), r.getHostname()));
-        return relays;
-    }
-
-    private void updateRelayInformation(@NonNull Relay relay) {
+    private Relay updateRelayInformation(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay, responses);
-            connection.updateRelayMetadata();
+            var rid = Relay.RelayInformationDocument.builder().name(relay.getName()).build();
+            relay.setInformationDocument(rid);
+            var connection = new Connection(this.context, responses);
+            //connection.updateRelayMetadata(relay);
+            return relay;
         } catch (Exception ex) {
-            log.log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Log
-    static class RelayConfiguration extends AbstractBaseConfiguration {
-
-        RelayConfiguration() throws IOException {
-            super("", CONFIG_TYPE_RELAY);
-        }
-
-        List<Relay> getRelays() {
-            Set<Object> relays = this.properties.keySet();
-            List<Relay> result = new ArrayList<>();
-
-            relays.forEach(r -> {
-                var rid = Relay.RelayInformationDocument.builder().name(r.toString()).build();
-                var hostname = this.getProperty(r.toString());
-                var relay = new Relay(hostname, rid);
-                result.add(relay);
-            });
-            return result;
+            throw new RuntimeException(ex);
         }
     }
 }

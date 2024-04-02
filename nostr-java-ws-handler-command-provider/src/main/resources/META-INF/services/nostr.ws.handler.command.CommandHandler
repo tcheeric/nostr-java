@@ -1,0 +1,5 @@
+nostr.ws.handler.command.provider.EventCommandHandler
+nostr.ws.handler.command.provider.AuthCommandHandler
+nostr.ws.handler.command.provider.EoseCommandHandler
+nostr.ws.handler.command.provider.NoticeCommandHandler
+nostr.ws.handler.command.provider.OkCommandHandler

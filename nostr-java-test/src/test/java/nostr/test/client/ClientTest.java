@@ -1,15 +1,18 @@
 package nostr.test.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
+import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
+import nostr.client.Client;
+import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
-import nostr.client.Client;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -23,26 +26,17 @@ class ClientTest {
     @Test
     public void testSend() {
         System.out.println("testSend");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        Identity identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
+        PublicKey publicKey = identity.getPublicKey();
         BaseMessage msg = new EventMessage(EntityFactory.Events.createTextNoteEvent(publicKey));
-        Client.getInstance().send(msg);
+
+        var requestContext = new DefaultRequestContext();
+        requestContext.setMessage(msg);
+        requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
+        requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
+
+        Client.getInstance(requestContext).send();
+
         assertTrue(true);
     }
-
-//    @Test
-//    public void testSendFail() throws Exception {
-//        System.out.println("testSendFail");
-//        PublicKey publicKey = client.getIdentity().getProfile().getPublicKey();
-//        BaseMessage msg = EventMessage.builder().event(EntityFactory.Events.createTextNoteEvent(publicKey)).build();
-//        
-//        System.out.println("Sleeping for 33 seconds...");
-//        Thread.sleep(33000);
-//        
-//        IOException thrown = Assertions.assertThrows(IOException.class,
-//                () -> {
-//                    this.client.send(msg);
-//                }
-//        );
-//        assertNotNull(thrown);
-//    }
 }

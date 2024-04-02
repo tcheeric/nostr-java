@@ -39,8 +39,11 @@
             <artifactId>nostr-java-ws</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-controller-app</artifactId>
+            <version>0.4-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
-    <properties>
-        <exec.mainClass>nostr.client.NostrJavaClient</exec.mainClass>
-    </properties>
 </project>

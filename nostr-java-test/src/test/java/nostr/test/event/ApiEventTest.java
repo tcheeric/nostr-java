@@ -8,6 +8,7 @@ import nostr.api.NIP15;
 import nostr.api.NIP32;
 import nostr.api.NIP44;
 import nostr.base.ElementAttribute;
+import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
@@ -24,9 +25,13 @@ import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -35,6 +40,8 @@ import java.util.List;
 public class ApiEventTest {
 
     public static final String NOSTR_JAVA_PUBKEY = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
+
+    private static final Map<String, String> RELAYS = getRelays();
 
     @Test
     public void testNIP01CreateTextNoteEvent() throws NostrException {
@@ -69,7 +76,7 @@ public class ApiEventTest {
 
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.send();
+        instance.setRelays(RELAYS).send();
     }
 
     @Test
@@ -84,7 +91,7 @@ public class ApiEventTest {
         
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.send();
+        instance.setRelays(RELAYS).send();
     }
 
     @Test
@@ -97,7 +104,7 @@ public class ApiEventTest {
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
-        instance.send();
+        instance.setRelays(RELAYS).send();
     }
 
     @Test
@@ -133,7 +140,7 @@ public class ApiEventTest {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
@@ -153,18 +160,18 @@ public class ApiEventTest {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        nip15.send();
+        nip15.setRelays(RELAYS).send();
 
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
-        nip15.createCreateOrUpdateStallEvent(stall).sign().send();
+        nip15.createCreateOrUpdateStallEvent(stall).sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -174,7 +181,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);
@@ -183,7 +190,7 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -193,7 +200,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);
@@ -202,13 +209,13 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
         //nip15.sign().send();
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
-        nip15.sign().send();
+        nip15.sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -293,5 +300,24 @@ public class ApiEventTest {
         product.setStall(stall);
 
         return product;
+    }
+
+    private static Map<String, String> getRelays() {
+        Map<String, String> relays = new HashMap<>();
+        Properties properties = new Properties();
+        try {
+            InputStream is = ApiEventTest.class.getClassLoader().getResourceAsStream("relays.properties");
+            if (is != null) {
+                properties.load(is);
+                for (String key : properties.stringPropertyNames()) {
+                    relays.put(key, properties.getProperty(key));
+                }
+            } else {
+                throw new RuntimeException("Unable to find 'relays.properties' in the classpath");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return relays;
     }
 }

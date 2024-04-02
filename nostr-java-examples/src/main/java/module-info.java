@@ -10,6 +10,7 @@ module nostr.examples {
     requires nostr.id;
     requires org.bouncycastle.provider;
     requires java.logging;
-    
+    requires nostr.context.impl;
+
     exports nostr.examples;
 }

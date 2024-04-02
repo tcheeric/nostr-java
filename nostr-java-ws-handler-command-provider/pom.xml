@@ -27,6 +27,12 @@
             <artifactId>nostr-java-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-context</artifactId>
+            <version>0.4-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     
     <properties>

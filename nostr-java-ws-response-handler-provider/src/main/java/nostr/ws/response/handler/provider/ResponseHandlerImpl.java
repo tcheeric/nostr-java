@@ -3,11 +3,6 @@
  */
 package nostr.ws.response.handler.provider;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.ServiceLoader;
-import java.util.logging.Level;
-
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -26,7 +21,12 @@ import nostr.event.message.RelayAuthenticationMessage;
 import nostr.util.NostrException;
 import nostr.ws.handler.command.spi.ICommandHandler;
 import nostr.ws.handler.command.spi.ICommandHandler.Reason;
-import nostr.ws.handler.spi.IResponseHandler;
+import nostr.ws.handler.spi.Response;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
+import java.util.logging.Level;
 
 /**
  *
@@ -35,7 +35,7 @@ import nostr.ws.handler.spi.IResponseHandler;
 @Data
 @DefaultHandler
 @Log
-public class ResponseHandlerImpl implements IResponseHandler {
+public class ResponseHandlerImpl implements Response {
 
     private ICommandHandler commandHandler;
     @NonNull
@@ -72,7 +72,7 @@ public class ResponseHandlerImpl implements IResponseHandler {
     }
 
     @Override
-    public void process(String message, Relay relay) throws NostrException {
+    public void execute(String message, Relay relay) throws NostrException {
         log.log(Level.FINE, "Processing message: {0} from relay: {1}", new Object[]{message, relay});
 
         var oMsg = new BaseMessageDecoder(message).decode();
