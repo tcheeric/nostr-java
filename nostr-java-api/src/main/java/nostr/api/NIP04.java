@@ -17,7 +17,6 @@ import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.IIdentity;
-import nostr.util.NostrException;
 
 import java.util.List;
 import java.util.NoSuchElementException;

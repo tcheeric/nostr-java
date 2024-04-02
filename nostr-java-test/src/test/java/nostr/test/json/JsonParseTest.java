@@ -78,6 +78,13 @@ public class JsonParseTest {
 
         var jsonMessage = encoder.encode();
 
+        var jsonMsg = jsonMessage.substring(1, jsonMessage.length()-1);
+        var parts = jsonMsg.split(",");
+        Assertions.assertEquals("\"REQ\"", parts[0]);
+        Assertions.assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
+        Assertions.assertFalse(parts[2].startsWith("["));
+        Assertions.assertFalse(parts[parts.length-1].endsWith("]"));
+
         var message = new BaseMessageDecoder(jsonMessage).decode();
 
         Assertions.assertEquals(reqMessage, message);
