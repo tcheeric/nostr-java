@@ -29,7 +29,7 @@ import nostr.event.Marker;
 @Tag(code = "e", name = "event")
 @JsonPropertyOrder({"idEvent", "recommendedRelayUrl", "marker"})
 @NoArgsConstructor
-public class EventTag extends BaseTag {
+public class EventTag extends BaseTag implements ValueTag {
 
     @Key
     @JsonProperty("idEvent")
@@ -49,5 +49,10 @@ public class EventTag extends BaseTag {
         this.recommendedRelayUrl = null;
         this.idEvent = idEvent;
         this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
+    }
+
+    @Override
+    public String getValue() {
+        return idEvent;
     }
 }
