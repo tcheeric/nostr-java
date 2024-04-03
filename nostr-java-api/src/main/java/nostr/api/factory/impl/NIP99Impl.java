@@ -8,7 +8,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.event.tag.IdentifierTag;
-import nostr.event.tag.PriceTag;
 import nostr.id.IIdentity;
 
 import java.util.ArrayList;
@@ -21,17 +20,17 @@ public class NIP99Impl {
   @EqualsAndHashCode(callSuper = false)
   public static class ClassifiedListingEventFactory extends EventFactory<ClassifiedListingEvent> {
     private final ClassifiedListing classifiedListing;
-    private final List<BaseTag> price;
+    private final List<BaseTag> baseTags;
 
-    public ClassifiedListingEventFactory(@NonNull IIdentity sender, @NonNull ClassifiedListing classifiedListing, PriceTag priceTag) {
-      super(sender, classifiedListing.getTitle());
+    public ClassifiedListingEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
+      super(sender, content);
       this.classifiedListing = classifiedListing;
-      this.price = new ArrayList<>(List.of(priceTag));
+      this.baseTags = baseTags;
     }
 
     @Override
     public ClassifiedListingEvent create() {
-      var event = new ClassifiedListingEvent(getSender(), price, classifiedListing);
+      var event = new ClassifiedListingEvent(getSender(), getBaseTags(), getContent(), classifiedListing);
       event.addTag(new IdentifierTag(classifiedListing.getId()));
       return event;
     }

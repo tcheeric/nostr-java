@@ -22,16 +22,11 @@ import java.util.List;
 @Event(name = "ClassifiedListingEvent", nip = 99)
 public class ClassifiedListingEvent extends NIP99Event {
 
-  private final List<ClassifiedListing> classifiedListings;
+  private final ClassifiedListing classifiedListing;
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull IContent content, @NonNull ClassifiedListing... classifiedListings) {
-    super(sender, 30_402, baseTags, content.toString());
-    this.classifiedListings = List.of(classifiedListings);
-  }
-
-  public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull IContent content, @NonNull List<ClassifiedListing> classifiedListings) {
-    super(sender, 30_402, baseTags, content.toString());
-    this.classifiedListings = classifiedListings;
+  public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull ClassifiedListing classifiedListing) {
+    super(sender, 30_402, baseTags, content);
+    this.classifiedListing = classifiedListing;
   }
 
   @Data
@@ -39,7 +34,7 @@ public class ClassifiedListingEvent extends NIP99Event {
   @JsonSerialize(using = ClassifiedEventSerializer.class)
   public static class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
     @JsonProperty
-    private final String id;
+    private final String id = "REVISIT: CLASSIFIED EVENT using IDENTIFIER TAG thus id req'd as per code 'd' as per NIP-99 spec";
 
     @JsonProperty
     private String title;
@@ -57,9 +52,10 @@ public class ClassifiedListingEvent extends NIP99Event {
     @JsonProperty("price")
     private List<PriceTag> priceTags;
 
-    public ClassifiedListing() {
-      this.priceTags = new ArrayList<>();
-      this.id = "REVISIT: CLASSIFIED EVENT using IDENTIFIER TAG thus id req'd as per code 'd' as per NIP-99 spec";
+    public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull List<PriceTag> priceTags) {
+      this.title = title;
+      this.summary = summary;
+      this.priceTags = priceTags;
     }
   }
 }
