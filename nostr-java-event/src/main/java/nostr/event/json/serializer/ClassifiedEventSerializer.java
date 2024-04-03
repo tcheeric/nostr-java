@@ -19,9 +19,10 @@ public class ClassifiedEventSerializer extends JsonSerializer<ClassifiedListing>
   public void serialize(ClassifiedListing classifiedListing, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartObject();
     jsonGenerator.writeStringField("id", classifiedListing.getId());
+    jsonGenerator.writeStringField("title", classifiedListing.getTitle());
     jsonGenerator.writeStringField("summary", classifiedListing.getSummary());
+    jsonGenerator.writeNumberField("publishedAt", classifiedListing.getPublishedAt());
     jsonGenerator.writeStringField("location", classifiedListing.getLocation());
-    jsonGenerator.writeStringField("currency", classifiedListing.getCurrency());
     if (!classifiedListing.getPriceTags().isEmpty()) {
       jsonGenerator.writeFieldName("price");
       jsonGenerator.writeStartArray();
