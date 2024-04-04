@@ -55,7 +55,6 @@ public class CommandControllerImpl implements CommandController {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        return;
     }
 
     private void executeCommand(@NonNull DefaultCommandContext defaultCommandContext) {

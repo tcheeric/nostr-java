@@ -1,4 +1,5 @@
 module nostr.controller.command {
+    uses nostr.ws.handler.command.CommandHandler;
 
     requires static lombok;
 

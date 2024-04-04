@@ -62,7 +62,7 @@ public class ApplicationControllerImpl implements ApplicationController {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
             var relayMap = defaultRequestContext.getRelays();
             var relayList = toRelayList(relayMap);
-            relayList.stream().forEach(relay -> {
+            relayList.forEach(relay -> {
                 try {
                     this.connection = new Connection(relay, defaultRequestContext, new ArrayList<>());
                     //var message = defaultRequestContext.getMessage();

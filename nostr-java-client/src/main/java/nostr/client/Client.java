@@ -89,7 +89,7 @@ public class Client {
 
     public void disconnect() {
         this.threadPool.shutdown();
-        this.connections.stream().forEach(c -> c.stop(context));
+        this.connections.forEach(c -> c.stop(context));
     }
 
     public int getOpenSessionsCount() {
@@ -144,7 +144,7 @@ public class Client {
 
     public void send(@NonNull BaseMessage message, @NonNull Relay relay) {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
-            if (defaultRequestContext.getRelays().values().contains(relay.getHostname())) {
+            if (defaultRequestContext.getRelays().containsValue(relay.getHostname())) {
                 if (isConnected(relay)) {
                     log.log(Level.INFO, "Sending message to relay {0}", relay);
                     ApplicationController applicationController = new ApplicationControllerImpl(message);

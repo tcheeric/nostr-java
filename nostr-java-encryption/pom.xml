@@ -7,7 +7,6 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <groupId>nostr-java</groupId>
     <artifactId>nostr-java-encryption</artifactId>
     <packaging>jar</packaging>
 
