@@ -3,7 +3,6 @@ package nostr.ws.handler.command.provider;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-
 import nostr.base.Command;
 import nostr.base.PrivateKey;
 import nostr.base.annotation.DefaultHandler;
@@ -12,6 +11,7 @@ import nostr.context.CommandContext;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import nostr.ws.handler.command.CommandHandler;
@@ -30,25 +30,27 @@ public class AuthCommandHandler implements CommandHandler {
 
         if (context instanceof DefaultCommandContext defaultCommandContext) {
             var privateKey = defaultCommandContext.getPrivateKey();
-            var publicKey = Identity.getInstance(new PrivateKey(privateKey)).getPublicKey();
+            var identity = Identity.getInstance(new PrivateKey(privateKey));
+            var publicKey = identity.getPublicKey();
             var challenge = defaultCommandContext.getChallenge();
             var relay = defaultCommandContext.getRelay();
+            var relayHostname = relay.getHostname();
+            var relayPort = relay.getPort();
             var clientAuthenticationEvent = new ClientAuthenticationEvent(publicKey, challenge, relay);
+
+            identity.sign(clientAuthenticationEvent);
 
             var requestContext = new DefaultRequestContext();
             requestContext.setPrivateKey(privateKey);
             requestContext.setChallenge(challenge);
-            requestContext.setMessage(new EventMessage(clientAuthenticationEvent));
-
-            var relayName = defaultCommandContext.getRelay().getName();
-            var relayHostname = defaultCommandContext.getRelay().getHostname();
-            var relayPort = defaultCommandContext.getRelay().getPort();
-
             requestContext.setRelays(Map.of("relay", relayHostname + ":" + relayPort));
 
-            log.log(Level.INFO, "Sending authentication event to the relay. Context: {0}", requestContext);
-            Client client = new Client(requestContext);
-            client.send();
+            var encoder = new BaseEventEncoder(clientAuthenticationEvent);
+            var encodedEvent = encoder.encode();
+            log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedEvent, relay});
+
+            Client client = Client.getInstance(requestContext);
+            client.send(new EventMessage(clientAuthenticationEvent), relay);
         } else {
             throw new IllegalArgumentException("Invalid context type");
         }

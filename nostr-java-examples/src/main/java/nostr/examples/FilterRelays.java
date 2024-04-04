@@ -1,16 +1,11 @@
 package nostr.examples;
 
-import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
-import nostr.context.impl.DefaultRequestContext;
-import nostr.ws.Connection;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,7 +127,7 @@ public class FilterRelays {
 	
 	public static void main(String[] args) {
     	for (Map.Entry<String,String> r : relaysURLs.entrySet()) 
-    		relays.add(updateRelayMetadata(new Relay(r.getValue())));
+    		relays.add(new Relay(r.getValue()));
     	
 //    	Filter by NIPs supported
     	var relaysByNips = relays.stream().filter(r -> new HashSet<>(r.getSupportedNips()).contains(28))
@@ -141,12 +136,13 @@ public class FilterRelays {
     	System.out.println(relaysByNips.stream().map(Relay::getHostname).collect(Collectors.toList()));
 	}
 
+/*
     private static Relay updateRelayMetadata(@NonNull Relay relay) {
         try {
 			var context = new DefaultRequestContext();
 			context.setRelays(Map.of(relay.getName(), relay.getHostname()));
 
-            var connection = new Connection(context, new ArrayList<>());
+            var connection = new Connection(relay, context, new ArrayList<>());
             //connection.updateRelayMetadata(relay);
         } catch (Exception ex) {
 			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());
@@ -154,5 +150,6 @@ public class FilterRelays {
         
         return relay;
     }
+*/
 
 }

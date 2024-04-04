@@ -19,27 +19,20 @@ public class ClientAuthenticationEvent extends GenericEvent {
 
     public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull String challenge, @NonNull Relay relay) {
         super(pubKey, Kind.CLIENT_AUTH);
+        this.setNip(42);
 
+        // Challenge tag
         List<ElementAttribute> chAttributes = new ArrayList<>();
         var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
         chAttributes.add(attribute);
+        BaseTag challengeTag = new GenericTag("challenge", 42, chAttributes);
+        this.addTag(challengeTag);
 
-        this.setTags(new ArrayList<>());
-        BaseTag chTag = new GenericTag("auth", 42, chAttributes);
-
-        this.addTag(chTag);
-
+        // Relay tag
         final List<ElementAttribute> relayAttributes = new ArrayList<>();
-        final ElementAttribute relayAttribute = getRelayAttribute(relay);
+        final ElementAttribute relayAttribute = ElementAttribute.builder().nip(42).name("uri").value(relay.toString()).build();
         relayAttributes.add(relayAttribute);
         final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
         this.addTag(relayTag);
-
-        this.setNip(42);
     }
-
-    private static ElementAttribute getRelayAttribute(Relay relay) {
-        return ElementAttribute.builder().nip(42).name("uri").value(relay.getHostname()).build();
-    }
-
 }

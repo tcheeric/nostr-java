@@ -210,7 +210,6 @@ public class ApiEventTest {
         categories.add("Hommes");
 
         nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
-        //nip15.sign().send();
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");

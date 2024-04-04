@@ -4,13 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-
 import nostr.base.Relay;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseMessage;
-
-import nostr.util.NostrUtil;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.client.HttpRequest;
@@ -28,12 +25,12 @@ import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.JettyUpgradeListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -47,106 +44,98 @@ import java.util.logging.Level;
 @Data
 public class Connection {
 
-    private List<WebSocketClient> webSocketClients = new ArrayList<>();
+    private WebSocketClient webSocketClient;
     private Session session;
 
-    private final List<Relay> relayList;
+    private final Relay relay;
     private HttpClient httpClient;
     private List<BaseMessage> responses;
 
-    public Connection(@NonNull RequestContext context, @NonNull List<BaseMessage> responses) {
+    public Connection(@NonNull Relay relay, @NonNull RequestContext context, @NonNull List<BaseMessage> responses) {
         this.responses = responses;
-        this.relayList = new ArrayList<>();
+        this.relay = relay;
         this.connect(context);
     }
 
-    public void stop() {
-        webSocketClients.stream().forEach(webSocketClient -> {
-            try {
-                new Thread(() -> LifeCycle.stop(webSocketClient)).start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public void stop(@NonNull RequestContext context) {
+        log.log(Level.INFO, "Closing the session to {0}", relay.getHostname());
+        new Thread(() -> LifeCycle.stop(webSocketClient)).start();
+        ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
+        clientEndPoint.onClose(StatusCode.NORMAL, "Client closed", session);
     }
 
     public void connect(@NonNull RequestContext context) {
-        ClientListenerEndPoint clientEndPoint = new ClientListenerEndPoint(context);
+        log.log(Level.INFO, "Opening a session to {0}", relay.getHostname());
+
+        ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
 
         if (context instanceof DefaultRequestContext defaultRequestContext) {
-            defaultRequestContext.getRelays().values().stream().forEach(relay -> {
-                var serverURI = NostrUtil.serverURI(relay);
-                this.relayList.add(Relay.fromString(serverURI.toString()));
-            });
+            if (relay.getURI().getScheme().equals("wss")) {
+                SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
+                sslContextFactory.setIncludeProtocols("TLSv1.3");
+                ClientConnector clientConnector = new ClientConnector();
+                clientConnector.setSslContextFactory(sslContextFactory);
 
-            relayList.stream().forEach(relay -> {
-                if (relay.getURI().getScheme().equals("wss")) {
-                    SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
-                    sslContextFactory.setIncludeProtocols("TLSv1.3");
-                    ClientConnector clientConnector = new ClientConnector();
-                    clientConnector.setSslContextFactory(sslContextFactory);
+                ClientConnectionFactory.Info h1 = HttpClientConnectionFactory.HTTP11;
+                ClientConnectionFactory.Info h2 = new ClientConnectionFactoryOverHTTP2.HTTP2(new HTTP2Client(clientConnector));
 
-                    ClientConnectionFactory.Info h1 = HttpClientConnectionFactory.HTTP11;
-                    ClientConnectionFactory.Info h2 = new ClientConnectionFactoryOverHTTP2.HTTP2(new HTTP2Client(clientConnector));
+                // Create the HttpClientTransportDynamic, preferring h2 over h1.
+                HttpClientTransport transport = new HttpClientTransportDynamic(clientConnector, h1, h2);
+                httpClient = new HttpClient(transport);
+            } else if (relay.getURI().getScheme().equals("ws")) {
+                httpClient = new HttpClient();
+            } else {
+                throw new RuntimeException();
+            }
 
-                    // Create the HttpClientTransportDynamic, preferring h2 over h1.
-                    HttpClientTransport transport = new HttpClientTransportDynamic(clientConnector, h1, h2);
-                    httpClient = new HttpClient(transport);
-                } else if (relay.getURI().getScheme().equals("ws")) {
-                    httpClient = new HttpClient();
-                } else {
-                    throw new RuntimeException();
+            var webSocketClient = new WebSocketClient(httpClient);
+            try {
+                webSocketClient.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            // Create a custom HTTP request.
+            ClientUpgradeRequest customRequest = new ClientUpgradeRequest();
+            customRequest.setHeader(HttpHeader.UPGRADE.asString(), "h2c");
+            customRequest.setHeader(HttpHeader.CONNECTION.asString(), "Upgrade, HTTP2-Settings");
+
+            // The listener to inspect the HTTP response.
+            JettyUpgradeListener listener = new JettyUpgradeListener() {
+
+                @Override
+                public void onHandshakeRequest(HttpRequest request) {
+                    request.getHeaders().forEach((field)
+                            -> {
+                        log.log(Level.FINEST, "request header: {0}={1}", new Object[]{field.getName(), field.getValue()});
+                    });
                 }
 
-                var webSocketClient = new WebSocketClient(httpClient);
-                try {
-                    webSocketClient.start();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                @Override
+                public void onHandshakeResponse(HttpRequest request, HttpResponse response) {
+
+                    response.getHeaders().forEach((field)
+                            -> {
+                        log.log(Level.FINEST, "response header: {0}={1}", new Object[]{field.getName(), field.getValue()});
+                    });
                 }
+            };
 
-                // Create a custom HTTP request.
-                ClientUpgradeRequest customRequest = new ClientUpgradeRequest();
-                customRequest.setHeader(HttpHeader.UPGRADE.asString(), "h2c");
-                customRequest.setHeader(HttpHeader.CONNECTION.asString(), "Upgrade, HTTP2-Settings");
-
-                // The listener to inspect the HTTP response.
-                JettyUpgradeListener listener = new JettyUpgradeListener() {
-
-                    @Override
-                    public void onHandshakeRequest(HttpRequest request) {
-                        request.getHeaders().forEach((field)
-                                -> {
-                            log.log(Level.FINEST, "request header: {0}={1}", new Object[]{field.getName(), field.getValue()});
-                        });
-                    }
-
-                    @Override
-                    public void onHandshakeResponse(HttpRequest request, HttpResponse response) {
-
-                        response.getHeaders().forEach((field)
-                                -> {
-                            log.log(Level.FINEST, "response header: {0}={1}", new Object[]{field.getName(), field.getValue()});
-                        });
-                    }
-                };
-
-                CompletableFuture<Session> clientSessionPromise;
-                try {
-                    clientSessionPromise = webSocketClient.connect(clientEndPoint, relay.getURI(), customRequest, listener);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            CompletableFuture<Session> clientSessionPromise;
+            try {
+                clientSessionPromise = webSocketClient.connect(clientEndPoint, relay.getURI(), customRequest, listener);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
 
-                try {
-                    this.session = clientSessionPromise.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                this.session = clientSessionPromise.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
 
-                log.log(Level.INFO, "The session is now open to {0}", relay.getHostname());
-            });
+            log.log(Level.INFO, "The session is now open to {0}", relay.getHostname());
         }
     }
 

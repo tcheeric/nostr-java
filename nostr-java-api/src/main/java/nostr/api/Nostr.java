@@ -83,11 +83,21 @@ public class Nostr {
     }
 
     public List<BaseMessage> responses(Map<String, String> relays) {
+        if (client == null) {
+            throw new IllegalStateException("Client is not initialized");
+        }
         var context = new DefaultRequestContext();
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
         context.setRelays(relays);
 
-        return Client.getInstance(context).getResponses();
+        return this.client.getResponses();
+    }
+
+    public void close() {
+        if (client == null) {
+            throw new IllegalStateException("Client is not initialized");
+        }
+        this.client.disconnect();
     }
 
     public void send(@NonNull IEvent event) {
@@ -97,10 +107,9 @@ public class Nostr {
     public void send(@NonNull IEvent event, Map<String, String> relays) {
         var context = new DefaultRequestContext();
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
-        context.setMessage(new EventMessage(event));
         context.setRelays(relays);
 
-        send(context);
+        send(new EventMessage(event), context);
     }
 
 
@@ -123,17 +132,16 @@ public class Nostr {
 
         var context = new DefaultRequestContext();
         context.setRelays(relays);
-        context.setMessage(new ReqMessage(subscriptionId, filtersList));
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
+        var message = new ReqMessage(subscriptionId, filtersList);
 
-
-        send(context);
+        send(message, context);
     }
 
-    public void send(@NonNull RequestContext context) {
-        if (context instanceof DefaultRequestContext defaultRequestContext) {
-            Client client = Client.getInstance(context);
-            client.send();
+    public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+        if (context instanceof DefaultRequestContext) {
+            this.client = Client.getInstance(context);
+            client.send(message);
         }
     }
 

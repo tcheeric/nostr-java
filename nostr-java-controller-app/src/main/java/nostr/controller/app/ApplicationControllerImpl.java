@@ -7,6 +7,7 @@ import nostr.context.Context;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.controller.ApplicationController;
+import nostr.event.BaseMessage;
 import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
@@ -28,8 +29,11 @@ public class ApplicationControllerImpl implements ApplicationController {
     private Connection connection;
     private ExecutorService executorService;
 
-    public ApplicationControllerImpl() {
+    private final BaseMessage message;
+
+    public ApplicationControllerImpl(@NonNull BaseMessage message) {
         this.executorService = Executors.newSingleThreadExecutor();
+        this.message = message;
     }
 
     @Override
@@ -60,8 +64,8 @@ public class ApplicationControllerImpl implements ApplicationController {
             var relayList = toRelayList(relayMap);
             relayList.stream().forEach(relay -> {
                 try {
-                    this.connection = new Connection(defaultRequestContext, new ArrayList<>());
-                    var message = defaultRequestContext.getMessage();
+                    this.connection = new Connection(relay, defaultRequestContext, new ArrayList<>());
+                    //var message = defaultRequestContext.getMessage();
 
                     final Session session = this.connection.getSession();
                     if (session != null) {
