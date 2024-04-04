@@ -9,12 +9,11 @@ import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
-import nostr.event.IContent;
+import nostr.event.Kind;
 import nostr.event.NIP99Event;
 import nostr.event.json.serializer.ClassifiedEventSerializer;
 import nostr.event.tag.PriceTag;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -24,8 +23,12 @@ public class ClassifiedListingEvent extends NIP99Event {
 
   private final ClassifiedListing classifiedListing;
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull ClassifiedListing classifiedListing) {
-    super(sender, 30_402, baseTags, content);
+  public ClassifiedListingEvent(PublicKey sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListing);
+  }
+
+  public ClassifiedListingEvent(PublicKey sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+    super(sender, kind, baseTags, content);
     this.classifiedListing = classifiedListing;
   }
 

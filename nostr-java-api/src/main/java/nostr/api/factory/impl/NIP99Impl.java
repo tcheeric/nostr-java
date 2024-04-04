@@ -2,15 +2,13 @@ package nostr.api.factory.impl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
-import nostr.event.tag.IdentifierTag;
 import nostr.id.IIdentity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NIP99Impl {
@@ -20,23 +18,21 @@ public class NIP99Impl {
   @EqualsAndHashCode(callSuper = false)
   public static class ClassifiedListingEventFactory extends EventFactory<ClassifiedListingEvent> {
     private final ClassifiedListing classifiedListing;
-    private final List<BaseTag> baseTags;
+    private final Kind kind;
 
-    public ClassifiedListingEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
-      super(sender, content);
+    public ClassifiedListingEventFactory(IIdentity sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+      this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListing);
+    }
+
+    public ClassifiedListingEventFactory(IIdentity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+      super(sender, baseTags, content);
+      this.kind = kind;
       this.classifiedListing = classifiedListing;
-      this.baseTags = baseTags;
     }
 
     @Override
     public ClassifiedListingEvent create() {
-      var event = new ClassifiedListingEvent(getSender(), getBaseTags(), getContent(), classifiedListing);
-      event.addTag(new IdentifierTag(classifiedListing.getId()));
-      return event;
+      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListing);
     }
-  }
-
-  public static class Kinds {
-    public static final Integer CLASSIFIED_LISTING = 30_402;
   }
 }
