@@ -63,6 +63,7 @@ public class ClientListenerEndPoint {
     public void onConnect(@NonNull Session session) {
         session.setMaxTextMessageSize(16 * 1024);
         this.activeSessions.add(session);
+
         log.log(Level.INFO, "Connected to relay {0}", session.getRemoteAddress());
     }
 
@@ -72,12 +73,12 @@ public class ClientListenerEndPoint {
 
         disposeResources(session);
 
-        log.log(Level.WARNING, "Connection closed with parameters: Reason {0} - StatusCode: {1}", new Object[]{reason, statusCode});
+        log.log(Level.WARNING, "Connection closed with parameters: Reason {0} - StatusCode: {1} - Relay {2}", new Object[]{reason, statusCode, getRelay(session).toString()});
     }
 
     @OnWebSocketError
     public void onError(Throwable cause, Session session) {
-        log.log(Level.SEVERE, "An error has occurred: {0}", cause.getMessage());
+        log.log(Level.SEVERE, "An error has occurred: {0} (Relay: {1})", new Object[]{cause.getMessage(), getRelay(session).toString()});
 
         disposeResources(session);
 
@@ -92,7 +93,7 @@ public class ClientListenerEndPoint {
             return;
         }
 
-        log.log(Level.INFO, ">>> Received message: {0}", message);
+        log.log(Level.INFO, "Received message: {0} from relay {1}", new Object[]{message, getRelay(session).toString()});
 
         var msg = new BaseMessageDecoder(message).decode();
         final String strCommand = msg.getCommand();
@@ -127,6 +128,10 @@ public class ClientListenerEndPoint {
         }
     }
 
+    public Session getSession(@NonNull Relay relay) {
+        return this.activeSessions.stream().filter(s -> getRelay(s).equals(relay)).findFirst().orElse(null);
+    }
+
     private Relay getRelay(@NonNull Session session) {
         var remoteAddress = session.getRemoteAddress();
         var inetSocketAddress = (InetSocketAddress) remoteAddress;
@@ -144,6 +149,7 @@ public class ClientListenerEndPoint {
         log.log(Level.FINE, "disposeResources");
 
         this.activeSessions.remove(session);
+        log.log(Level.INFO, "Session removed: {0} -> {1} - Relay: {2}", new Object[]{session.getLocalAddress(), session.getRemoteAddress(), getRelay(session).toString()});
     }
 
     private CommandContext createCommandContext(@NonNull BaseMessage message, Session session) {
@@ -171,9 +177,6 @@ public class ClientListenerEndPoint {
             context.setEventId(jsonEvent);
 
         } else if (message instanceof RelayAuthenticationMessage authMessage) {
-
-            log.log(Level.INFO, "--- onAuth event. Message: {0}", authMessage);
-
             var challenge = authMessage.getChallenge();
 
             context.setChallenge(challenge);
@@ -199,5 +202,11 @@ public class ClientListenerEndPoint {
 
     private void savePNGImage(byte[] payload, int offset, int length) {
         log.log(Level.FINEST, "savePNGImage");
+    }
+
+    private void printSessions() {
+        log.log(Level.FINEST, "printStatus");
+        log.log(Level.INFO, "Active Sessions: {0}", this.activeSessions.size());
+        activeSessions.forEach(s -> log.log(Level.INFO, "\tSession: {1} -> {0} ({2})", new Object[]{s.getRemoteAddress(), s.getLocalAddress(),s.isOpen()}));
     }
 }

@@ -1,7 +1,6 @@
 package nostr.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
@@ -41,7 +40,6 @@ import java.util.logging.Level;
  * @author squirrel
  */
 @Log
-@Data
 public class Connection {
 
     private WebSocketClient webSocketClient;
@@ -59,17 +57,27 @@ public class Connection {
 
     public void stop(@NonNull RequestContext context) {
         log.log(Level.INFO, "Closing the session to {0}", relay.getHostname());
-        new Thread(() -> LifeCycle.stop(webSocketClient)).start();
         ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
+        if (!clientEndPoint.isConnected(relay)) {
+            log.log(Level.INFO, "The session is already closed to {0}", relay.getHostname());
+            return;
+        }
+        new Thread(() -> LifeCycle.stop(webSocketClient)).start();
         clientEndPoint.onClose(StatusCode.NORMAL, "Client closed", session);
     }
 
     public void connect(@NonNull RequestContext context) {
-        log.log(Level.INFO, "Opening a session to {0}", relay.getHostname());
-
         ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
 
-        if (context instanceof DefaultRequestContext defaultRequestContext) {
+        if (clientEndPoint.isConnected(relay)) {
+            log.log(Level.INFO, "The session is already open to {0}", relay.getHostname());
+            this.session = clientEndPoint.getSession(relay);
+            return;
+        }
+
+        log.log(Level.INFO, "Opening a session to {0}", relay.getHostname());
+
+        if (context instanceof DefaultRequestContext) {
             if (relay.getURI().getScheme().equals("wss")) {
                 SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
                 sslContextFactory.setIncludeProtocols("TLSv1.3");
