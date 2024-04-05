@@ -10,9 +10,9 @@ import nostr.client.Client;
 import nostr.context.CommandContext;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.context.impl.DefaultRequestContext;
-import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.json.codec.BaseEventEncoder;
-import nostr.event.message.EventMessage;
+import nostr.event.impl.CanonicalAuthenticationEvent;
+import nostr.event.json.codec.BaseMessageEncoder;
+import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.id.Identity;
 import nostr.ws.handler.command.CommandHandler;
 
@@ -36,21 +36,27 @@ public class AuthCommandHandler implements CommandHandler {
             var relay = defaultCommandContext.getRelay();
             var relayHostname = relay.getHostname();
             var relayPort = relay.getPort();
-            var clientAuthenticationEvent = new ClientAuthenticationEvent(publicKey, challenge, relay);
 
-            identity.sign(clientAuthenticationEvent);
+            // Create the event
+            var canonicalAuthenticationEvent = new CanonicalAuthenticationEvent(publicKey, challenge, relay);
 
+            // Sign the event
+            identity.sign(canonicalAuthenticationEvent);
+
+            // Create the request context
             var requestContext = new DefaultRequestContext();
             requestContext.setPrivateKey(privateKey);
             requestContext.setChallenge(challenge);
             requestContext.setRelays(Map.of("relay", relayHostname + ":" + relayPort));
 
-            var encoder = new BaseEventEncoder(clientAuthenticationEvent);
-            var encodedEvent = encoder.encode();
-            log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedEvent, relay});
+            var client = Client.getInstance(requestContext);
+            var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
+            var encoder = new BaseMessageEncoder(canonicalAuthenticationMessage);
+            var encodedMessage = encoder.encode();
+            log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
-            Client client = Client.getInstance(requestContext);
-            client.send(new EventMessage(clientAuthenticationEvent), relay);
+            // Publish the event to the relay
+            client.send(canonicalAuthenticationMessage, relay);
         } else {
             throw new IllegalArgumentException("Invalid context type");
         }
