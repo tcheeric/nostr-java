@@ -13,7 +13,7 @@ import nostr.event.impl.GenericEvent;
 @NoArgsConstructor
 public abstract class NIP01Event extends GenericEvent {
 	
-	public NIP01Event(PublicKey pubKey, Kind kind, ArrayList<BaseTag> tags) {
+	public NIP01Event(PublicKey pubKey, Kind kind, List<BaseTag> tags) {
 		super(pubKey, kind, tags);
 	}
 
