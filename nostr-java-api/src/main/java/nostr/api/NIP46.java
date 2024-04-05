@@ -61,18 +61,13 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
     @NoArgsConstructor
     @Log
     public static final class Request implements Serializable {
-        private String initiator;
-        private String token;
-        private LocalDateTime createdAt;
-        private String requestUuid;
-        @JsonIgnore
-        private Method method;
-        @JsonIgnore
-        private Session session;
-        private Set<Parameter> parameters = new LinkedHashSet<>();
+        private String id;
+        private String method;
+        // @JsonIgnore
+        private Set<String> params = new LinkedHashSet<>();
 
-        public void addParameter(Parameter parameter) {
-            this.parameters.add(parameter);
+        public void addParam(String param) {
+            this.params.add(param);
         }
 
         public String toString() {
@@ -104,10 +99,6 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
         private Long id;
         private String responseUuid;
         private String result;
-        @JsonIgnore
-        private Method method;
-        @JsonIgnore
-        private Session session;
         private LocalDateTime createdAt;
 
         public String toString() {
@@ -130,120 +121,4 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
             }
         }
     }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Log
-    public static final class Method implements Serializable {
-        private Long id;
-        private String name;
-        private String description;
-        private Set<Request> requests = new LinkedHashSet<>();
-        private Set<Response> responses = new LinkedHashSet<>();
-
-        public void addRequest(@NonNull Request request) {
-            this.requests.add(request);
-        }
-
-        public void addResponse(@NonNull Response response) {
-            this.responses.add(response);
-        }
-
-        public String toString() {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.writeValueAsString(this);
-            } catch (JsonProcessingException ex) {
-                // Handle the exception if needed
-                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
-                return "{}"; // Return an empty JSON object as a fallback
-            }
-        }
-
-        public static Method fromString(@NonNull String jsonString) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                return objectMapper.readValue(jsonString, Method.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Log
-    public static final class Session implements Serializable {
-        private Long id;
-        private String sessionId;
-        private String status;
-        private String app;
-        private String account;
-        private LocalDateTime createdAt;
-        private String token;
-        private Set<Request> requests = new LinkedHashSet<>();
-        private Set<Response> responses = new LinkedHashSet<>();
-
-        public void addRequest(@NonNull Request request) {
-            this.requests.add(request);
-        }
-
-        public void addResponse(@NonNull Response response) {
-            this.responses.add(response);
-        }
-
-        public String toString() {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.writeValueAsString(this);
-            } catch (JsonProcessingException ex) {
-                // Handle the exception if needed
-                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
-                return "{}"; // Return an empty JSON object as a fallback
-            }
-        }
-
-        public static Session fromString(@NonNull String jsonString) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                return objectMapper.readValue(jsonString, Session.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Log
-    public static final class Parameter implements Serializable {
-        private Long id;
-        private String name;
-        private String value;
-        @JsonIgnore
-        private Request request;
-
-        public String toString() {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.writeValueAsString(this);
-            } catch (JsonProcessingException ex) {
-                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
-                return "{}"; // Return an empty JSON object as a fallback
-            }
-        }
-
-        public static Parameter fromString(@NonNull String jsonString) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                return objectMapper.readValue(jsonString, Parameter.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
 }
