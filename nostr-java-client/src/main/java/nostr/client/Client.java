@@ -6,8 +6,8 @@ import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
-import nostr.controller.ApplicationController;
-import nostr.controller.app.ApplicationControllerImpl;
+import nostr.controller.ClientController;
+import nostr.controller.app.ClientControllerImpl;
 import nostr.event.BaseMessage;
 import nostr.util.NostrUtil;
 import nostr.ws.ClientListenerEndPoint;
@@ -144,12 +144,10 @@ public class Client {
 
     public void send(@NonNull BaseMessage message, @NonNull Relay relay) {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
-            if (defaultRequestContext.getRelays().containsValue(relay.getHostname())) {
-                if (isConnected(relay)) {
-                    log.log(Level.INFO, "Sending message to relay {0}", relay);
-                    ApplicationController applicationController = new ApplicationControllerImpl(message);
-                    applicationController.handleRequest(defaultRequestContext);
-                }
+            if (isConnected(relay)) {
+                log.log(Level.INFO, "Sending message to relay {0}", relay);
+                ClientController clientController = new ClientControllerImpl(message);
+                clientController.handleRequest(defaultRequestContext);
             }
         }
     }

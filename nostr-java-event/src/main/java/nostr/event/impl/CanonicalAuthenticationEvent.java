@@ -14,10 +14,10 @@ import java.util.List;
 /**
  * @author squirrel
  */
-@Event(name = "Authentication of clients to relays", nip = 42)
-public class ClientAuthenticationEvent extends GenericEvent {
+@Event(name = "Canonical authentication event", nip = 42)
+public class CanonicalAuthenticationEvent extends GenericEvent {
 
-    public ClientAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull String challenge, @NonNull Relay relay) {
+    public CanonicalAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull String challenge, @NonNull Relay relay) {
         super(pubKey, Kind.CLIENT_AUTH);
         this.setNip(42);
 

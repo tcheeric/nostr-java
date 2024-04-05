@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;
@@ -35,7 +34,7 @@ public class FiltersEncoder extends BaseEventEncoder {
     @Override
     protected String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree(getEvent());
+            JsonNode node = IEncoder.MAPPER.valueToTree(getEvent());
             ObjectNode objNode = (ObjectNode) node;
             var arrayNode = (ArrayNode) node.get("genericTagQueryList");
             if (arrayNode != null && !arrayNode.isNull()) {
@@ -49,7 +48,7 @@ public class FiltersEncoder extends BaseEventEncoder {
             }
             objNode.remove("genericTagQueryList");
 
-            return MAPPER.writeValueAsString(node);
+            return IEncoder.MAPPER.writeValueAsString(node);
         } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new NostrException(e);
         }

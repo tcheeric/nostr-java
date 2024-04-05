@@ -11,11 +11,11 @@ import nostr.api.factory.impl.NIP42Impl.ClientAuthenticationMessageFactory;
 import nostr.api.factory.impl.NIP42Impl.RelayAuthenticationMessageFactory;
 import nostr.api.factory.impl.NIP42Impl.RelaysTagFactory;
 import nostr.base.Relay;
-import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.impl.GenericTag;
-import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CanonicalAuthenticationMessage;
 
 /**
  *
@@ -29,8 +29,8 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      * @param relay
      * @return
      */
-    public NIP42<T> createClientAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
-        var factory = new NIP42Impl.ClientAuthenticationEventFactory(getSender(), challenge, relay);
+    public NIP42<T> createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
+        var factory = new NIP42Impl.CanonicalAuthenticationEventFactory(getSender(), challenge, relay);
         var event = factory.create();
         setEvent((T) event);
 
@@ -40,14 +40,14 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
 
     public NIP42<T> addRelayTag(@NonNull Relay relay) {
         var tag = createRelayTag(relay);
-        var event = (ClientAuthenticationEvent) getEvent();
+        var event = (CanonicalAuthenticationEvent) getEvent();
         event.addTag(tag);
         return this;
     }
 
     public NIP42<T> addChallengeTag(@NonNull String challenge) {
         var tag = createChallengeTag(challenge);
-        var event = (ClientAuthenticationEvent) getEvent();
+        var event = (CanonicalAuthenticationEvent) getEvent();
         event.addTag(tag);
         return this;
     }
@@ -72,7 +72,7 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param event
      */
-    public static ClientAuthenticationMessage createClientAuthenticationMessage(@NonNull ClientAuthenticationEvent event) {
+    public static CanonicalAuthenticationMessage createClientAuthenticationMessage(@NonNull CanonicalAuthenticationEvent event) {
         return new ClientAuthenticationMessageFactory(event).create();
     }
 

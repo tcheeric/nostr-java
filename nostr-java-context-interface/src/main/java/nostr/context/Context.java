@@ -4,7 +4,7 @@ public interface Context {
 
     void validate();
 
-    public enum Type {
+    enum Type {
         REQUEST,
         COMMAND
     }
