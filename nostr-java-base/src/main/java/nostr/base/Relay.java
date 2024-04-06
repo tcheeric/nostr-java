@@ -33,7 +33,6 @@ public class Relay {
 
     private String scheme;
 
-    @EqualsAndHashCode.Include
     private final String hostname;
 
     private int port;

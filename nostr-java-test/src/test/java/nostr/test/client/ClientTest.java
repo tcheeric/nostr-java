@@ -55,7 +55,7 @@ class ClientTest {
         requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
 
         Client client = Client.getInstance(requestContext);
-        Assertions.assertEquals(1, client.getOpenSessionsCount());
+        Assertions.assertEquals(2, client.getOpenSessionsCount());
         client.send(msg);
         client.disconnect();
 

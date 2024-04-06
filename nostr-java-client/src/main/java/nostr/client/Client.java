@@ -125,7 +125,7 @@ public class Client {
             futureRelays.parallelStream()
                     .filter(fr -> {
                         try {
-                            return fr.isDone() && /*fr.get().getSupportedNips().contains(message.getNip()) &&*/ isConnected(fr.get());
+                            return fr.isDone() && isConnected(fr.get());
                         } catch (InterruptedException | ExecutionException e) {
                             log.log(Level.WARNING, null, e);
                             return false;

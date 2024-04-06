@@ -56,7 +56,7 @@ public class Connection {
     }
 
     public void stop(@NonNull RequestContext context) {
-        log.log(Level.INFO, "Closing the session to {0}", relay.getHostname());
+        log.log(Level.INFO, "Closing the session to {0}", relay.toString());
         ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
         if (!clientEndPoint.isConnected(relay)) {
             log.log(Level.INFO, "The session is already closed to {0}", relay.getHostname());
