@@ -22,8 +22,6 @@ import java.util.logging.Level;
 @Log
 public class CommandControllerImpl implements CommandController {
 
-    //private ExecutorService executorService;
-
     @Getter
     private final String command;
 
@@ -32,7 +30,6 @@ public class CommandControllerImpl implements CommandController {
     private List<Response> responses;
 
     public CommandControllerImpl(@NonNull String command) {
-        //this.executorService = Executors.newSingleThreadExecutor();
         this.command = command;
         this.responses = new ArrayList<>();
     }
@@ -41,43 +38,11 @@ public class CommandControllerImpl implements CommandController {
     public void initialize() {
     }
 
-/*
-    @Override
-    public void handleRequest(Context requestContext) {
-        requestContext.validate();
-        try {
-            if (requestContext instanceof DefaultCommandContext defaultCommandContext) {
-                executorService.submit(() -> {
-                    executeCommand(defaultCommandContext);
-                    log.log(Level.INFO, "Done! Responses: {0}", this.responses);
-                });
-                log.log(Level.INFO, "Donex2! Responses: {0}", this.responses);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-*/
-
     @Override
     public void handleRequest(Context requestContext) {
         requestContext.validate();
             if (requestContext instanceof DefaultCommandContext defaultCommandContext) {
-
                 ThreadUtil.builder().wait(true).task(this).build().run(defaultCommandContext);
-
-/*
-                Future<?> future = executorService.submit(() -> {
-                    executeCommand(defaultCommandContext);
-                });
-
-                // Make the main thread wait for the task to complete
-                try {
-                    future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-*/
             }
     }
 
@@ -87,11 +52,6 @@ public class CommandControllerImpl implements CommandController {
             executeCommand(commandContext);
         }
         return null;
-    }
-
-    @Override
-    public String getName() {
-        return getClass().getSimpleName() + "[" + this.command + "]";
     }
 
     private void executeCommand(@NonNull DefaultCommandContext defaultCommandContext) {

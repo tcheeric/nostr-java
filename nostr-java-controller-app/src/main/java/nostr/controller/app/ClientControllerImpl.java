@@ -27,12 +27,10 @@ import java.util.logging.Level;
 public class ClientControllerImpl implements ClientController {
 
     private Connection connection;
-    //private ExecutorService executorService;
 
     private final BaseMessage message;
 
     public ClientControllerImpl(@NonNull BaseMessage message) {
-        //this.executorService = Executors.newSingleThreadExecutor();
         this.message = message;
     }
 
@@ -45,15 +43,6 @@ public class ClientControllerImpl implements ClientController {
         requestContext.validate();
         if (requestContext instanceof DefaultRequestContext defaultRequestContext) {
             ThreadUtil.builder().task(this).build().run(defaultRequestContext);
-/*
-                executorService.submit(() -> {
-                    try {
-                        sendMessage(defaultRequestContext);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-*/
         }
     }
 
@@ -68,11 +57,6 @@ public class ClientControllerImpl implements ClientController {
         }
 
         return null;
-    }
-
-    @Override
-    public String getName() {
-        return getClass().getSimpleName() + "[" + message.getCommand() + "]";
     }
 
     private void sendMessage(@NonNull RequestContext context) throws IOException {

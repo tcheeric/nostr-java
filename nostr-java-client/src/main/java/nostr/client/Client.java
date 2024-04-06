@@ -52,13 +52,11 @@ public class Client {
 
     public static Client getInstance(@NonNull RequestContext context) {
         INSTANCE = (INSTANCE == null) ? new Client(context) : INSTANCE;
-        //return INSTANCE.waitConnection();
         return INSTANCE;
     }
 
     public static Client getInstance() {
         INSTANCE = (INSTANCE == null) ? new Client() : INSTANCE;
-        //return INSTANCE.waitConnection();
         return INSTANCE;
     }
 
@@ -137,11 +135,6 @@ public class Client {
                     this.connections.add(new Connection(relay, defaultRequestContext/*, responses*/));
                 }
             }
-        }
-
-        @Override
-        public String getName() {
-            return null;
         }
     }
 }
