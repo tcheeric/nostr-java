@@ -1,4 +1,3 @@
-
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,20 +8,20 @@ import lombok.ToString;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
 
-/**
- *
- * @author squirrel
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class NoticeMessage extends BaseMessage {
+public class ClosedMessage extends BaseMessage {
+
+    @JsonProperty
+    private final String subscriptionId;
 
     @JsonProperty
     private final String message;
 
-    public NoticeMessage(@NonNull String message) {
-        super(Command.NOTICE.name());
+    public ClosedMessage(@NonNull String subId, @NonNull String message) {
+        super(Command.CLOSED.name());
+        this.subscriptionId = subId;
         this.message = message;
     }
 }

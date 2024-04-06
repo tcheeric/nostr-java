@@ -4,17 +4,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nostr.base.Relay;
 import nostr.context.CommandContext;
+import nostr.event.BaseMessage;
 
 @Data
 @NoArgsConstructor
 public class DefaultCommandContext implements CommandContext {
-    private String eventId;
-    private String message;
-    private boolean result;
-    private String jsonEvent;
+    private BaseMessage message;
     private String challenge;
     private Relay relay;
-    private String subscriptionId;
     private byte[] privateKey;
 
     @Override

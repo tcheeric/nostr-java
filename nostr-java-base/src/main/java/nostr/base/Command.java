@@ -13,6 +13,7 @@ public enum Command {
     EVENT,
     REQ,
     CLOSE,
+    CLOSED,
     NOTICE,
     EOSE,
     OK;

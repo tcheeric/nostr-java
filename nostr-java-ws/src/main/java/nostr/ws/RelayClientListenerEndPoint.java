@@ -11,14 +11,10 @@ import nostr.context.impl.DefaultCommandContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.controller.CommandController;
 import nostr.controller.command.CommandControllerImpl;
-import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
-import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.Response;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.message.EoseMessage;
-import nostr.event.message.EventMessage;
-import nostr.event.message.NoticeMessage;
-import nostr.event.message.OkMessage;
+import nostr.event.message.ClosedMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -30,9 +26,9 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -40,28 +36,33 @@ import java.util.logging.Level;
  */
 @WebSocket(idleTimeout = Integer.MAX_VALUE)
 @Log
-public class ClientListenerEndPoint {
+public class RelayClientListenerEndPoint {
 
-    private RequestContext context;
+    private RequestContext requestContext;
 
     @Getter
     private final List<Session> activeSessions;
 
-    private static ClientListenerEndPoint INSTANCE;
+    @Getter
+    private Set<Response> responses;
 
-    private ClientListenerEndPoint(@NonNull RequestContext context) {
-        this.context = context;
+    private static RelayClientListenerEndPoint INSTANCE;
+
+    public RelayClientListenerEndPoint(@NonNull RequestContext requestContext) {
+        this.requestContext = requestContext;
         this.activeSessions = new ArrayList<>();
+        this.responses = new HashSet<>();
     }
 
-    public static ClientListenerEndPoint getInstance(@NonNull RequestContext context) {
-        INSTANCE = INSTANCE == null ? new ClientListenerEndPoint(context) : INSTANCE;
+    public static RelayClientListenerEndPoint getInstance(@NonNull RequestContext context) {
+        INSTANCE = INSTANCE == null ? new RelayClientListenerEndPoint(context) : INSTANCE;
         return INSTANCE;
     }
 
     @OnWebSocketConnect
     public void onConnect(@NonNull Session session) {
         session.setMaxTextMessageSize(16 * 1024);
+        log.log(Level.INFO, "Add active session {0} -> {1}", new Object[]{session.getLocalAddress(), session.getRemoteAddress()});
         this.activeSessions.add(session);
 
         log.log(Level.INFO, "Connected to relay {0}", session.getRemoteAddress());
@@ -97,13 +98,15 @@ public class ClientListenerEndPoint {
 
         var msg = new BaseMessageDecoder(message).decode();
         final String strCommand = msg.getCommand();
+
+        log.log(Level.INFO, "Creating the command context with message {0} and session {1}", new Object[]{msg, session});
         Context context = createCommandContext(msg, session);
         CommandController commandController = new CommandControllerImpl(strCommand);
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            commandController.handleRequest(context);
-        });
+        commandController.handleRequest(context);
+        List<Response> responses = ((CommandControllerImpl) commandController).getResponses();
+        this.responses.addAll(responses);
+        log.info("Done! Responses: " + this.responses.size());
     }
 
     @OnWebSocketMessage
@@ -153,51 +156,28 @@ public class ClientListenerEndPoint {
     }
 
     private CommandContext createCommandContext(@NonNull BaseMessage message, Session session) {
-        var context = new DefaultCommandContext();
+        var commandContext = new DefaultCommandContext();
 
-        if (message instanceof OkMessage okMessage) {
-            String eventId = okMessage.getEventId();
-            boolean result = okMessage.getFlag();
-            String msg = okMessage.getMessage();
-
-            context.setMessage(msg);
-            context.setEventId(eventId);
-            context.setResult(result);
-
-        } else if (message instanceof NoticeMessage noticeMessage) {
-            String msg = noticeMessage.getMessage();
-
-            context.setMessage(msg);
-
-        } else if (message instanceof EventMessage eventMessage) {
-            var subId = eventMessage.getSubscriptionId();
-            var jsonEvent = new BaseEventEncoder((BaseEvent) eventMessage.getEvent()).encode();
-
-            context.setSubscriptionId(subId);
-            context.setEventId(jsonEvent);
-
-        } else if (message instanceof RelayAuthenticationMessage authMessage) {
-            var challenge = authMessage.getChallenge();
-
-            context.setChallenge(challenge);
-
-        } else if (message instanceof EoseMessage eoseMessage) {
-            var subId = eoseMessage.getSubscriptionId();
-
-            context.setSubscriptionId(subId);
-
-        } else {
-            throw new RuntimeException("Invalid relay message.");
-        }
+        // Pass on the message
+        commandContext.setMessage(message);
 
         // Pass on the private key
-        context.setPrivateKey(((DefaultRequestContext) this.context).getPrivateKey());
+        commandContext.setPrivateKey(((DefaultRequestContext) this.requestContext).getPrivateKey());
 
         // Pass on the first relay
-        //var relays = ((DefaultRequestContext) this.context).getRelays();
-        context.setRelay(getRelay(session));
+        var relay = getRelay(session);
+        commandContext.setRelay(relay);
 
-        return context;
+        // Set the challenge
+        if (message instanceof RelayAuthenticationMessage authMessage) {
+            ((DefaultRequestContext) this.requestContext).setChallenge(relay, authMessage.getChallenge());
+        }
+
+        if (message instanceof ClosedMessage closedMessage) {
+            commandContext.setChallenge(((DefaultRequestContext) this.requestContext).getChallenge(relay));
+        }
+
+        return commandContext;
     }
 
     private void savePNGImage(byte[] payload, int offset, int length) {
@@ -207,6 +187,6 @@ public class ClientListenerEndPoint {
     private void printSessions() {
         log.log(Level.FINEST, "printStatus");
         log.log(Level.INFO, "Active Sessions: {0}", this.activeSessions.size());
-        activeSessions.forEach(s -> log.log(Level.INFO, "\tSession: {1} -> {0} ({2})", new Object[]{s.getRemoteAddress(), s.getLocalAddress(),s.isOpen()}));
+        activeSessions.forEach(s -> log.log(Level.INFO, "\tSession: {1} -> {0} ({2})", new Object[]{s.getRemoteAddress(), s.getLocalAddress(), s.isOpen()}));
     }
 }

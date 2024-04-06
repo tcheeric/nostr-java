@@ -18,6 +18,7 @@ import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
+import nostr.event.Response;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -38,6 +39,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author eric
@@ -78,19 +81,12 @@ public class Nostr {
         return this;
     }
 
-    public List<BaseMessage> responses() {
-        return responses(getRelays());
-    }
-
-    public List<BaseMessage> responses(Map<String, String> relays) {
-        if (client == null) {
-            throw new IllegalStateException("Client is not initialized");
+    public Set<Response> responses() {
+        try {
+            return client.getResponsesAsync().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        var context = new DefaultRequestContext();
-        context.setPrivateKey(getSender().getPrivateKey().getRawData());
-        context.setRelays(relays);
-
-        return this.client.getResponses();
     }
 
     public void close() {

@@ -1,22 +1,19 @@
 package nostr.ws;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
-import nostr.event.BaseMessage;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.client.HttpResponse;
-import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
 import org.eclipse.jetty.client.http.HttpClientConnectionFactory;
-import org.eclipse.jetty.client.util.InputStreamResponseListener;
 import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http2.client.HTTP2Client;
 import org.eclipse.jetty.http2.client.http.ClientConnectionFactoryOverHTTP2;
 import org.eclipse.jetty.io.ClientConnectionFactory;
@@ -30,36 +27,42 @@ import org.eclipse.jetty.websocket.client.JettyUpgradeListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
  * @author squirrel
  */
 @Log
+@ToString
 public class Connection {
 
+    @ToString.Exclude
     private WebSocketClient webSocketClient;
+
+    @ToString.Exclude
     private Session session;
 
+    @Getter
+    @ToString.Include
     private final Relay relay;
-    private HttpClient httpClient;
-    private List<BaseMessage> responses;
 
-    public Connection(@NonNull Relay relay, @NonNull RequestContext context, @NonNull List<BaseMessage> responses) {
-        this.responses = responses;
+    @ToString.Exclude
+    private HttpClient httpClient;
+    //private List<Response> responses;
+
+    public Connection(@NonNull Relay relay, @NonNull RequestContext context/*, @NonNull List<Response> responses*/) {
+        //this.responses = responses;
         this.relay = relay;
         this.connect(context);
     }
 
     public void stop(@NonNull RequestContext context) {
         log.log(Level.INFO, "Closing the session to {0}", relay.toString());
-        ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
+        RelayClientListenerEndPoint clientEndPoint = RelayClientListenerEndPoint.getInstance(context);
         if (!clientEndPoint.isConnected(relay)) {
-            log.log(Level.INFO, "The session is already closed to {0}", relay.getHostname());
+            log.log(Level.INFO, "The session is already closed to {0}", relay.toString());
             return;
         }
         new Thread(() -> LifeCycle.stop(webSocketClient)).start();
@@ -67,10 +70,10 @@ public class Connection {
     }
 
     public void connect(@NonNull RequestContext context) {
-        ClientListenerEndPoint clientEndPoint = ClientListenerEndPoint.getInstance(context);
+        RelayClientListenerEndPoint clientEndPoint = RelayClientListenerEndPoint.getInstance(context);
 
         if (clientEndPoint.isConnected(relay)) {
-            log.log(Level.INFO, "The session is already open to {0}", relay.getHostname());
+            log.log(Level.INFO, "The session is already open to {0}. Aborting...", relay.toString());
             this.session = clientEndPoint.getSession(relay);
             return;
         }
@@ -143,36 +146,7 @@ public class Connection {
                 throw new RuntimeException(e);
             }
 
-            log.log(Level.INFO, "The session is now open to {0}", relay.getHostname());
+            log.log(Level.INFO, "The session {0} -> {1} is now open", new Object[]{relay, session.getRemoteAddress()});
         }
-    }
-
-    public void updateRelayMetadata(@NonNull Relay relay) {
-        try {
-            String strInfo = getRelayInformation(relay);
-            log.log(Level.FINE, "Relay information: {0}", strInfo);
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            var relayInfoDoc = objectMapper.readValue(strInfo, Relay.RelayInformationDocument.class);
-            relay.setInformationDocument(relayInfoDoc);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getRelayInformation(@NonNull Relay relay) throws Exception {
-        httpClient.start();
-
-        InputStreamResponseListener listener = new InputStreamResponseListener(); //Required for large responses only
-        httpClient.newRequest(relay.getURI()).method(HttpMethod.GET).headers(httpFields -> httpFields.add("Accept", "application/nostr+json")).send(listener);
-
-        Response response = listener.get(5, TimeUnit.SECONDS);
-
-        if (response.getStatus() == 200) {
-            final String relayInfo = new String(listener.getInputStream().readAllBytes());
-            return relayInfo;
-        }
-
-        throw new IOException("The request has failed with the response code: " + response.getStatus());
     }
 }

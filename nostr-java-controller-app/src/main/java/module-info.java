@@ -2,8 +2,8 @@ module nostr.controller.app {
     requires nostr.context;
     requires nostr.base;
     requires nostr.event;
-    requires nostr.ws;
     requires nostr.util;
+    requires nostr.ws;
     requires nostr.ws.handler;
 
     requires lombok;

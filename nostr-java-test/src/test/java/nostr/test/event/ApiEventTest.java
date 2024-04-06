@@ -77,6 +77,10 @@ public class ApiEventTest {
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
         instance.setRelays(RELAYS).send();
+
+        Assertions.assertNotNull(instance.responses());
+        Assertions.assertFalse(instance.responses().isEmpty());
+        //instance.responses().forEach(System.out::println);
     }
 
     @Test

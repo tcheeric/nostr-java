@@ -11,6 +11,7 @@ module nostr.controller.command {
     requires nostr.context.impl;
     requires nostr.base;
     requires nostr.ws.handler;
+    requires nostr.util;
 
     exports nostr.controller.command;
 }

@@ -35,6 +35,11 @@
         </dependency>
         <dependency>
             <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
             <artifactId>nostr-java-context</artifactId>
             <version>${project.version}</version>
         </dependency>

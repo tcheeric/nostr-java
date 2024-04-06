@@ -12,28 +12,27 @@ import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.util.NostrUtil;
-import nostr.ws.ClientListenerEndPoint;
+import nostr.util.thread.ThreadUtil;
 import nostr.ws.Connection;
+import nostr.ws.RelayClientListenerEndPoint;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 @Log
 public class ClientControllerImpl implements ClientController {
 
     private Connection connection;
-    private ExecutorService executorService;
+    //private ExecutorService executorService;
 
     private final BaseMessage message;
 
     public ClientControllerImpl(@NonNull BaseMessage message) {
-        this.executorService = Executors.newSingleThreadExecutor();
+        //this.executorService = Executors.newSingleThreadExecutor();
         this.message = message;
     }
 
@@ -44,8 +43,9 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void handleRequest(@NonNull Context requestContext) {
         requestContext.validate();
-        try {
-            if (requestContext instanceof DefaultRequestContext defaultRequestContext) {
+        if (requestContext instanceof DefaultRequestContext defaultRequestContext) {
+            ThreadUtil.builder().task(this).build().run(defaultRequestContext);
+/*
                 executorService.submit(() -> {
                     try {
                         sendMessage(defaultRequestContext);
@@ -53,10 +53,26 @@ public class ClientControllerImpl implements ClientController {
                         throw new RuntimeException(e);
                     }
                 });
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+*/
         }
+    }
+
+    @Override
+    public Object execute(@NonNull Context context) {
+        if (context instanceof DefaultRequestContext requestContext) {
+            try {
+                sendMessage(requestContext);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return getClass().getSimpleName() + "[" + message.getCommand() + "]";
     }
 
     private void sendMessage(@NonNull RequestContext context) throws IOException {
@@ -65,9 +81,9 @@ public class ClientControllerImpl implements ClientController {
             var relayList = toRelayList(relayMap);
             relayList.parallelStream().filter(relay -> filterAuthMessage(message, relay)).forEach(relay -> {
                 try {
-                    this.connection = new Connection(relay, defaultRequestContext, new ArrayList<>());
+                    this.connection = new Connection(relay, defaultRequestContext/*, new ArrayList<>()*/);
 
-                    var session = ClientListenerEndPoint.getInstance(context).getSession(relay);
+                    var session = RelayClientListenerEndPoint.getInstance(context).getSession(relay);
                     if (session != null) {
                         RemoteEndpoint remote = session.getRemote();
 
@@ -115,5 +131,4 @@ public class ClientControllerImpl implements ClientController {
         relaysMap.forEach((name, hostname) -> relays.add(Relay.fromString(NostrUtil.serverURI(hostname).toString())));
         return relays;
     }
-
 }

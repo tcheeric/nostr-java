@@ -8,7 +8,9 @@ import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -20,23 +22,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ClientTest {
 
+    private Client client;
+    private Identity identity;
+
     public ClientTest() {
+    }
+
+    @BeforeEach
+    public void init() {
+        identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
+        PublicKey publicKey = identity.getPublicKey();
+
+        var requestContext = new DefaultRequestContext();
+        requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
+        requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
+        client = Client.getInstance(requestContext);
+    }
+
+    @AfterEach
+    public void dispose() {
+        this.client.disconnect();
+        this.client = null;
+        this.identity = null;
     }
 
     @Test
     public void testSend() {
         System.out.println("testSend");
-        Identity identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
-        PublicKey publicKey = identity.getPublicKey();
-        var event = EntityFactory.Events.createTextNoteEvent(publicKey);
+        var event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
         identity.sign(event);
         BaseMessage msg = new EventMessage(event);
 
-        var requestContext = new DefaultRequestContext();
-        requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
-        requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
-
-        Client.getInstance(requestContext).send(msg);
+        client.send(msg);
 
         assertTrue(true);
     }
@@ -44,24 +61,17 @@ class ClientTest {
     @Test
     public void disconnect() {
         System.out.println("disconnect");
-        Identity identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
-        PublicKey publicKey = identity.getPublicKey();
-        var event = EntityFactory.Events.createTextNoteEvent(publicKey);
+        var event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
         identity.sign(event);
         BaseMessage msg = new EventMessage(event);
 
-        var requestContext = new DefaultRequestContext();
-        requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
-        requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
-
-        Client client = Client.getInstance(requestContext);
-        Assertions.assertEquals(2, client.getOpenSessionsCount());
+        Assertions.assertEquals(1, client.getOpenConnectionsCount());
         client.send(msg);
         client.disconnect();
 
-        Assertions.assertEquals(0, client.getOpenSessionsCount());
+        Assertions.assertEquals(0, client.getOpenConnectionsCount());
 
-        event = EntityFactory.Events.createTextNoteEvent(publicKey);
+        event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
         identity.sign(event);
         client.send(new EventMessage(event));
 

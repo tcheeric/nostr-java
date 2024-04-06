@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
-import static nostr.base.IEncoder.MAPPER;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
 import nostr.util.NostrException;
