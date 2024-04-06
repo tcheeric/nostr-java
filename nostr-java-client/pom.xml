@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
     <artifactId>nostr-java-client</artifactId>
     <packaging>jar</packaging>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>nostr-java</groupId>
             <artifactId>nostr-java-controller-app</artifactId>
-            <version>0.4-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
