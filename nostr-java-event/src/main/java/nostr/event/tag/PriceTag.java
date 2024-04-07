@@ -16,7 +16,6 @@ import nostr.event.json.serializer.PriceTagSerializer;
 @RequiredArgsConstructor
 @JsonSerialize(using = PriceTagSerializer.class)
 public class PriceTag extends BaseTag {
-  private final String price;
   private final String number;
   private final String currency;
   private final String frequency;
