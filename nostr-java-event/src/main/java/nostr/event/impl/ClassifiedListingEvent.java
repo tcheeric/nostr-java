@@ -37,8 +37,7 @@ public class ClassifiedListingEvent extends NIP99Event {
   @JsonSerialize(using = ClassifiedEventSerializer.class)
   public static class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
     @JsonProperty
-//    TODO:
-    private final String id = "REVISIT: CLASSIFIED EVENT using IDENTIFIER TAG thus id req'd as per code 'd' as per NIP-99 spec";
+    private String id;
 
     @JsonProperty
     private String title;
