@@ -28,12 +28,6 @@ public class ConnectionImpl implements Connection {
 
     private AtomicBoolean connected = new AtomicBoolean(false);
 
-/*
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private WebSocket webSocket;
-*/
-
     public ConnectionImpl(@NonNull Relay relay, @NonNull Context context) {
         this.relay = relay;
         this.context = context;
