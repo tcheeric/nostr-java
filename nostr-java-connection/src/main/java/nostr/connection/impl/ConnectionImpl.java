@@ -1,6 +1,7 @@
 package nostr.connection.impl;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
@@ -12,46 +13,69 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 @Log
-public class ConnectionImpl extends ConnectionListener implements Connection {
+public class ConnectionImpl implements Connection {
 
+    @Getter
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private final Relay relay;
+
+    private Context context;
+
+    private AtomicBoolean connected = new AtomicBoolean(false);
+
+/*
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private WebSocket webSocket;
+*/
 
     public ConnectionImpl(@NonNull Relay relay, @NonNull Context context) {
-        super(relay, context);
+        this.relay = relay;
+        this.context = context;
     }
 
     @Override
     public void connect() {
+        try {
+            var relay = getRelay();
 
-        var relay = getRelay();
+            if (isConnected()) {
+                log.log(Level.FINE, "Already connected to {0}. Do nothing...", relay);
+                return;
+            }
 
-        if (isConnected()) {
-            log.log(Level.FINE, "Already connected to {0}. Do nothing...", relay);
-            return;
+            log.log(Level.INFO, "+Connecting to {0}...", relay);
+            var client = HttpClient.newHttpClient();
+            var openListener = new WebsocketClientListeners().new OpenListener(relay);
+            var webSocket = client.newWebSocketBuilder()
+                    .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
+                    .buildAsync(URI.create(relay.getUri()), openListener)
+                    .join();
+        } finally {
+            connected.set(true);
         }
-
-        log.log(Level.INFO, "+Connecting to {0}...", relay);
-        HttpClient client = HttpClient.newHttpClient();
-
-        webSocket = client.newWebSocketBuilder()
-                .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
-                .buildAsync(URI.create(relay.getUri()), this)
-                .join();
     }
 
     @Override
     public boolean isConnected() {
-        return webSocket != null && (!this.webSocket.isOutputClosed() || !this.webSocket.isInputClosed());
+        return connected.get();
     }
 
     public void send(@NonNull String message) {
         if (isConnected()) {
             var relay = getRelay();
+            var client = HttpClient.newHttpClient();
+            var textListener = new WebsocketClientListeners().new TextListener(relay, context);
+            var webSocket = client.newWebSocketBuilder()
+                    .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
+                    .buildAsync(URI.create(relay.getUri()), textListener)
+                    .join();
+
             log.log(Level.INFO, "Sending message: {0} - Relay: {1}", new Object[]{message, relay});
             webSocket.sendText(message, true);
         }
@@ -59,10 +83,20 @@ public class ConnectionImpl extends ConnectionListener implements Connection {
 
     @Override
     public void disconnect() {
-        if (isConnected()) {
-            var relay = getRelay();
-            log.log(Level.INFO, "disconnecting from {0}", relay);
-            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "bye").join();
+        try {
+            if (isConnected()) {
+                var relay = getRelay();
+                log.log(Level.INFO, "disconnecting from {0}", relay);
+                var client = HttpClient.newHttpClient();
+                var closeListener = new WebsocketClientListeners().new CloseListener(relay);
+                var webSocket = client.newWebSocketBuilder()
+                        .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
+                        .buildAsync(URI.create(relay.getUri()), closeListener)
+                        .join();
+                webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "bye").join();
+            }
+        } finally {
+            connected.set(false);
         }
     }
 }

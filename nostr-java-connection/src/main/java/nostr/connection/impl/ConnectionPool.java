@@ -21,7 +21,7 @@ public class ConnectionPool {
 
     private final Set<Connection> connections = new HashSet<>();
 
-    private ConnectionPool(Context context) {
+    private ConnectionPool(@NonNull Context context) {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
             var relays = defaultRequestContext.getRelays();
             relays.values().stream().map(Relay::new).forEach(r -> addConnection(new ConnectionImpl(r, context)));
@@ -40,7 +40,7 @@ public class ConnectionPool {
         log.log(Level.INFO, "Connecting to relays");
         connections.forEach(Connection::connect);
 
-        // NOTE: Make sure you are waiting enough time for the websocket to connect and start sending data
+        // NOTE: Make sure you are waiting enough time for the websocket to connect and start sending data as seen here: https://www.reddit.com/r/learnjava/comments/b65sar/comment/es7etb3/
         for(;;) {}
     }
 
@@ -50,7 +50,7 @@ public class ConnectionPool {
         if (connection != null) {
             connection.connect();
 
-            // NOTE: Make sure you are waiting enough time for the websocket to connect and start sending data
+            // NOTE: Make sure you are waiting enough time for the websocket to connect and start sending data as seen here: https://www.reddit.com/r/learnjava/comments/b65sar/comment/es7etb3/
             for(;;) {}
         }
     }
