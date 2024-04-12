@@ -71,11 +71,11 @@ public class NIP42Impl {
     public static class RelaysTagFactory extends TagFactory {
 
         public RelaysTagFactory(List<Relay> relays) {
-            super("relay", 42, relays.stream().map(r -> r.getHostname()).collect(Collectors.joining(",")));
+            super("relay", 42, relays.stream().map(r -> r.getUri()).collect(Collectors.joining(",")));
         }
 
         public RelaysTagFactory(Relay relay) {
-            super("relay", 42, relay.getHostname());
+            super("relay", 42, relay.getUri());
         }
     }
 

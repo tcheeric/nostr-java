@@ -16,19 +16,17 @@
         <module>nostr-java-id</module>
         <module>nostr-java-test</module>
         <module>nostr-java-util</module>
-        <module>nostr-java-ws</module>
-        <module>nostr-java-ws-handler-interface</module>
-        <module>nostr-java-ws-handler-command-provider</module>
+        <module>nostr-java-connection</module>
+        <module>nostr-java-command-interface</module>
+        <module>nostr-java-command-provider</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
         <module>nostr-java-encryption</module>
         <module>nostr-java-encryption-nip04</module>
         <module>nostr-java-encryption-nip44</module>
-        <module>nostr-java-controller-app</module>
         <module>nostr-java-context</module>
         <module>nostr-java-context-interface</module>
-        <module>nostr-java-controller-interface</module>
-        <module>nostr-java-controller-command</module>
+        <module>nostr-java-controller</module>
     </modules>
 
     <properties>

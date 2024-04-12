@@ -23,31 +23,28 @@ public class ThreadUtil<T extends Task> {
     private final T task;
 
     @Builder.Default
-    private final boolean wait = false;
-
-    @Builder.Default
-    private final int timeout = TIMEOUT_SECONDS;
+    private final boolean blocking = false;
 
     public static final int TIMEOUT_SECONDS = 5;
 
     public void run(@NonNull Context context) {
-        log.log(Level.INFO, "Executing thread on {0}...", task);
+        log.log(Level.FINE, "Executing thread on {0}...", task);
         ExecutorService executor = newSingleThreadExecutor();
         Future<?> future = executor.submit(() -> {
             task.execute(context);
         });
 
-        if (wait) {
+        if (blocking) {
             try {
-                log.log(Level.INFO, "Waiting for thread to complete... ");
-                future.get(timeout, TimeUnit.SECONDS);
+                log.log(Level.FINE, "Waiting for thread to complete... ");
+                future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                log.log(Level.FINE, "Thread execution completed!");
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             } catch (TimeoutException e) {
                 log.log(Level.WARNING, "Timeout occurred while waiting for thread to complete! Aborting...");
                 throw new RuntimeException(e);
             }
-            log.log(Level.INFO, "Thread execution completed!");
         }
     }
 }

@@ -136,8 +136,7 @@ public class Nostr {
 
     public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
         if (context instanceof DefaultRequestContext) {
-            this.client = Client.getInstance(context);
-            client.send(message);
+            Client.getInstance().connect(context).send(message);
         }
     }
 
@@ -152,7 +151,7 @@ public class Nostr {
 
     private static Map<String, String> toMapRelays(List<Relay> relayList) throws IOException {
         Map<String, String> relays = new HashMap<>();
-        relayList.forEach(r -> relays.put(r.getName(), r.getHostname()));
+        relayList.forEach(r -> relays.put(r.getName(), r.getUri()));
         return relays;
     }
 

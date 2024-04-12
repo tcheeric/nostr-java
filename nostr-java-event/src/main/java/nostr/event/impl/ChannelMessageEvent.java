@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.ArrayList;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -8,6 +7,8 @@ import nostr.base.annotation.Event;
 import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.tag.EventTag;
+
+import java.util.ArrayList;
 
 /**
  * @author guilhermegps
@@ -25,7 +26,7 @@ public class ChannelMessageEvent extends GenericEvent {
         super(pubKey, Kind.CHANNEL_MESSAGE, new ArrayList<>(), content);
         final EventTag eventTag = EventTag.builder().idEvent(rootEvent.getId()).marker(Marker.ROOT).build();
         if (recommendedRelay != null) {
-            eventTag.setRecommendedRelayUrl((recommendedRelay.getHostname()));
+            eventTag.setRecommendedRelayUrl((recommendedRelay.getUri()));
         }
         this.addTag(eventTag);
     }
@@ -45,13 +46,13 @@ public class ChannelMessageEvent extends GenericEvent {
 
         final EventTag rootEventTag = EventTag.builder().idEvent(rootEvent.getId()).marker(Marker.ROOT).build();
         if (recommendedRelayRoot != null) {
-            rootEventTag.setRecommendedRelayUrl(recommendedRelayRoot.getHostname());
+            rootEventTag.setRecommendedRelayUrl(recommendedRelayRoot.getUri());
         }
         this.addTag(rootEventTag);
 
         final EventTag replyEventTag = EventTag.builder().idEvent(replyEvent.getId()).marker(Marker.REPLY).build();
         if (recommendedRelayReply != null) {
-            replyEventTag.setRecommendedRelayUrl(recommendedRelayReply.getHostname());
+            replyEventTag.setRecommendedRelayUrl(recommendedRelayReply.getUri());
         }
         this.addTag(replyEventTag);
     }

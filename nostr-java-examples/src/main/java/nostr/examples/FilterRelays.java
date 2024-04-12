@@ -133,7 +133,7 @@ public class FilterRelays {
     	var relaysByNips = relays.stream().filter(r -> new HashSet<>(r.getSupportedNips()).contains(28))
         		.toList();
     	
-    	System.out.println(relaysByNips.stream().map(Relay::getHostname).collect(Collectors.toList()));
+    	System.out.println(relaysByNips.stream().map(Relay::getUri).collect(Collectors.toList()));
 	}
 
 /*

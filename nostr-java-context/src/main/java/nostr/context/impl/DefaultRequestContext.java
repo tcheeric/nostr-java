@@ -27,7 +27,7 @@ public class DefaultRequestContext implements RequestContext {
     }
 
     public String getChallenge(String relay) {
-        return getChallenge(Relay.fromString(relay));
+        return getChallenge(new Relay(relay));
     }
 
     public void setChallenge(@NonNull Relay relay, @NonNull String challenge) {
@@ -35,6 +35,6 @@ public class DefaultRequestContext implements RequestContext {
     }
 
     public void setChallenge(String relay, String challenge) {
-        setChallenge(Relay.fromString(relay), challenge);
+        setChallenge(new Relay(relay), challenge);
     }
 }

@@ -33,8 +33,8 @@ class ClientTest {
 
         var requestContext = new DefaultRequestContext();
         requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
-        requestContext.setRelays(Map.of("My local test relay", "localhost:5555"));
-        client = Client.getInstance(requestContext);
+        requestContext.setRelays(Map.of("My local test relay", "127.0.0.1:5555"));
+        client = Client.getInstance().connect(requestContext);
     }
 
     @AfterEach
