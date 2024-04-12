@@ -26,10 +26,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 
+@Getter
 @Log
 public class WebsocketClientListeners {
 
-    @Getter
     private final Set<Response> responses = Collections.synchronizedSet(new HashSet<>());
 
     @AllArgsConstructor

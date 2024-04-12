@@ -11,7 +11,6 @@ import nostr.context.impl.DefaultRequestContext;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Getter
 @Log
@@ -73,11 +72,11 @@ public class ConnectionPool {
     }
 
     public boolean isConnectedTo(@NonNull Relay relay) {
-        return connections.stream().filter(connection -> connection.getRelay().equals(relay)).filter(Connection::isConnected).findFirst().isPresent();
+        return connections.stream().filter(connection -> connection.getRelay().equals(relay)).anyMatch(Connection::isConnected);
     }
 
     public int connectionCount() {
-        return connections.stream().filter(Connection::isConnected).collect(Collectors.toList()).size();
+        return (int) connections.stream().filter(Connection::isConnected).count();
     }
 
     public void send(@NonNull String message) {
