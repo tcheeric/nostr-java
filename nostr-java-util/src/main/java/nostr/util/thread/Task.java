@@ -5,5 +5,5 @@ import nostr.context.Context;
 
 public interface Task<T> {
 
-    public T execute(@NonNull Context context);
+    T execute(@NonNull Context context);
 }

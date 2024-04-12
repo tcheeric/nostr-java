@@ -16,5 +16,5 @@ public enum Command {
     CLOSED,
     NOTICE,
     EOSE,
-    OK;
+    OK
 }

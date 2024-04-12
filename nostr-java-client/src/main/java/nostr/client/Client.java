@@ -28,7 +28,7 @@ import java.util.logging.Level;
 @NoArgsConstructor
 public class Client {
 
-    private static ThreadLocal<Client> INSTANCE = new ThreadLocal<>();
+    private static final ThreadLocal<Client> INSTANCE = new ThreadLocal<>();
 
     @Getter
     private final List<BaseMessage> responses = new ArrayList<>();

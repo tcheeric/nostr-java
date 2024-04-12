@@ -13,12 +13,12 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+@Getter
 @Log
 public class ConnectionPool {
 
     private static final ThreadLocal<ConnectionPool> instance = new ThreadLocal<>();
 
-    @Getter
     private final Set<Connection> connections = new HashSet<>();
 
     private ConnectionPool(Context context) {

@@ -19,15 +19,14 @@ import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 
+@Getter
 @Log
 public class ApplicationControllerImpl implements ApplicationController {
 
-    @Getter
     private final String command;
 
     @NonNull
-    @Getter
-    private List<Response> responses;
+    private final List<Response> responses;
 
     public ApplicationControllerImpl(@NonNull String command) {
         this.command = command;
