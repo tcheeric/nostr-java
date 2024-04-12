@@ -4,8 +4,7 @@
 Introducing the nostr-java library, a solution written in java for generating, signing, and publishing nostr events to relays.
 
 ## Requirements
-- Java 19. (Java 21 is currently not supported, due to a conflict with lombok. See issue [#101](https://github.com/tcheeric/nostr-java/issues/101)
-- A Nostr relay to connect to. This is needed for the [unit tests](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-test). You can either run your own relay, or use a public one. To configure your test relay, update the [relays.properties](https://github.com/tcheeric/nostr-java/blob/main/nostr-java-test/src/test/resources/relays.properties) resource file in the test module.
+- A Nostr relay to connect to. This is needed for the [unit tests](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-test). I recommend running your own relay for this, instead of using a public one. To configure your test relay, update the [relays.properties](https://github.com/tcheeric/nostr-java/blob/main/nostr-java-test/src/test/resources/relays.properties) resource file in the test module.
 
 ## Building
 We use Maven to build the project. To build the project, run the following command in the root directory of the project:
