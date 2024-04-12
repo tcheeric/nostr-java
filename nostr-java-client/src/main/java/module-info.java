@@ -9,7 +9,6 @@ module nostr.client {
     requires nostr.context.impl;
     requires nostr.controller;
     requires nostr.id;
-    requires nostr.controller.app;
 
     requires org.bouncycastle.provider;
 
