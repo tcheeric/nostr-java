@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,18 +35,26 @@ class ClientTest {
         var requestContext = new DefaultRequestContext();
         requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
         requestContext.setRelays(Map.of("My local test relay", "127.0.0.1:5555"));
-        client = Client.getInstance().connect(requestContext);
+        try {
+            client = Client.getInstance().connect(requestContext);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @AfterEach
     public void dispose() {
-        this.client.disconnect();
+        try {
+            this.client.disconnect();
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
         this.client = null;
         this.identity = null;
     }
 
     @Test
-    public void testSend() {
+    public void testSend() throws TimeoutException {
         System.out.println("testSend");
         var event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
         identity.sign(event);

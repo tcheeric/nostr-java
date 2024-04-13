@@ -35,23 +35,33 @@ public class ConnectionImpl implements Connection {
 
     @Override
     public void connect() {
+        WebSocket webSocket = null;
         try {
             var relay = getRelay();
 
             if (isConnected()) {
-                log.log(Level.FINE, "Already connected to {0}. Do nothing...", relay);
+                log.log(Level.INFO, "Already connected to {0}. Do nothing...", relay);
                 return;
             }
 
             log.log(Level.INFO, "+Connecting to {0}...", relay);
             var client = HttpClient.newHttpClient();
             var openListener = new WebsocketClientListeners().new OpenListener(relay);
-            var webSocket = client.newWebSocketBuilder()
-                    .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
+            webSocket = client.newWebSocketBuilder()
+                    .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable and add to the context.
                     .buildAsync(URI.create(relay.getUri()), openListener)
                     .join();
+        } catch (Exception e) {
+            connected.set(false);
+            throw e;
         } finally {
-            connected.set(true);
+            if (!isConnected() && webSocket == null) {
+                connected.set(false);
+                throw new RuntimeException("Failed to connect to " + getRelay());
+            } else {
+                connected.set(true);
+                log.log(Level.INFO, "Connected to {0}", getRelay());
+            }
         }
     }
 

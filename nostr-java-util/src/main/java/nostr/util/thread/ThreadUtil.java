@@ -35,7 +35,7 @@ public class ThreadUtil<T extends Task> {
         this.timeoutSeconds = TIMEOUT_SECONDS;
     }
 
-    public void run(@NonNull Context context) {
+    public void run(@NonNull Context context) throws TimeoutException {
         log.log(Level.FINE, "Executing thread on {0}...", task);
         ExecutorService threadPool = Executors.newCachedThreadPool();
         Future<?> futureTask = threadPool.submit(() -> {
@@ -48,9 +48,6 @@ public class ThreadUtil<T extends Task> {
                 futureTask.get(timeoutSeconds, TimeUnit.SECONDS); // Wait for the thread to complete
                 log.log(Level.FINE, "Thread execution completed!");
             } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (TimeoutException e) {
-                log.log(Level.WARNING, "Timeout occurred while waiting for thread to complete! Aborting...");
                 throw new RuntimeException(e);
             } finally {
                 threadPool.shutdown();

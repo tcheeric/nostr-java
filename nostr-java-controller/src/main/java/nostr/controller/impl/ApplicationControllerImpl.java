@@ -6,17 +6,18 @@ import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.annotation.CustomHandler;
 import nostr.base.annotation.DefaultHandler;
+import nostr.command.CommandHandler;
 import nostr.context.Context;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.controller.ApplicationController;
 import nostr.event.Response;
 import nostr.util.thread.ThreadUtil;
-import nostr.command.CommandHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @Getter
@@ -40,14 +41,18 @@ public class ApplicationControllerImpl implements ApplicationController {
     @Override
     public void handleRequest(Context requestContext) {
         requestContext.validate();
-            if (requestContext instanceof DefaultCommandContext defaultCommandContext) {
+        if (requestContext instanceof DefaultCommandContext defaultCommandContext) {
+            try {
                 ThreadUtil.builder().blocking(true).task(this).build().run(defaultCommandContext);
+            } catch (TimeoutException e) {
+                throw new RuntimeException(e);
             }
+        }
     }
 
     @Override
     public Void execute(@NonNull Context context) {
-        if(context instanceof DefaultCommandContext commandContext) {
+        if (context instanceof DefaultCommandContext commandContext) {
             executeCommand(commandContext);
         }
         return null;

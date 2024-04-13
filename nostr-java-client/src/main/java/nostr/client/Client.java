@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @Log
@@ -44,16 +45,16 @@ public class Client {
         return INSTANCE.get();
     }
 
-    public Client connect(@NonNull RequestContext context) {
+    public Client connect(@NonNull RequestContext context) throws TimeoutException {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
             INSTANCE.get().context = context;
             connectionPool = ConnectionPool.getInstance(defaultRequestContext);
-            ThreadUtil.builder().blocking(false).task(new RelayConnectionTask(this.connectionPool)).build().run(context);
+            ThreadUtil.builder().blocking(true).task(new RelayConnectionTask(this.connectionPool)).build().run(context);
         }
         return this;
     }
 
-    public void disconnect() {
+    public void disconnect() throws TimeoutException {
         ThreadUtil.builder().blocking(true).task(new RelayDisconnectionTask(this.connectionPool)).build().run(this.context);
     }
 
@@ -65,7 +66,7 @@ public class Client {
         return null; //TODO
     }
 
-    public void send(@NonNull BaseMessage message) {
+    public void send(@NonNull BaseMessage message) throws TimeoutException {
         log.log(Level.INFO, "Sending message {0}...", message);
         ThreadUtil.builder().blocking(false).task(new SendMessageTask(message, this.connectionPool)).build().run(this.context);
     }

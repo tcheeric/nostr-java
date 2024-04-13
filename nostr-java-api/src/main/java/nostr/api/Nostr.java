@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author eric
@@ -93,7 +94,11 @@ public class Nostr {
         if (client == null) {
             throw new IllegalStateException("Client is not initialized");
         }
-        this.client.disconnect();
+        try {
+            this.client.disconnect();
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void send(@NonNull IEvent event) {
@@ -136,7 +141,11 @@ public class Nostr {
 
     public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
         if (context instanceof DefaultRequestContext) {
-            Client.getInstance().connect(context).send(message);
+            try {
+                Client.getInstance().connect(context).send(message);
+            } catch (TimeoutException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
