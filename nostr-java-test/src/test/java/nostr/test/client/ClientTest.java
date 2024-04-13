@@ -8,10 +8,14 @@ import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,26 +69,28 @@ class ClientTest {
         assertTrue(true);
     }
 
-    // FIXME!
-/*
     @Test
-    public void disconnect() {
+    public void disconnect() throws TimeoutException {
         System.out.println("disconnect");
-        var event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
-        identity.sign(event);
-        BaseMessage msg = new EventMessage(event);
 
-        Assertions.assertEquals(1, client.getOpenConnectionsCount());
-        client.send(msg);
+        var relayCount = getRelayCount();
+        Assertions.assertEquals(relayCount, client.getOpenConnectionsCount());
         client.disconnect();
 
         Assertions.assertEquals(0, client.getOpenConnectionsCount());
-
-        event = EntityFactory.Events.createTextNoteEvent(identity.getPublicKey());
-        identity.sign(event);
-        client.send(new EventMessage(event));
-
-        assertTrue(true);
     }
-*/
+
+    public int getRelayCount() {
+        Properties properties = new Properties();
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("relays.properties")) {
+            if (is != null) {
+                properties.load(is);
+            } else {
+                throw new IOException("Cannot find relays.properties on the classpath");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties.size();
+    }
 }
