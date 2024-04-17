@@ -1,5 +1,6 @@
 package nostr.event.list;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
@@ -24,6 +25,12 @@ public class GenericTagQueryList extends BaseList<GenericTagQuery> {
 
     private GenericTagQueryList(@NonNull List<GenericTagQuery> list) {
         super(list);
+    }
+
+    @Override
+    @JsonIgnore
+    public Integer getNip() {
+        return 1;
     }
 
 }

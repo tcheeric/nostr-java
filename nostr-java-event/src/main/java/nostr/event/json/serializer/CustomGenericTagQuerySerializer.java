@@ -1,20 +1,18 @@
 package nostr.event.json.serializer;
 
-import java.io.IOException;
-import java.io.Serial;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import nostr.base.GenericTagQuery;
 import nostr.base.IEncoder;
 
+import java.io.IOException;
+import java.io.Serial;
+
 /**
  * @author guilhermegps
- *
  */
 public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQuery> {
 
@@ -26,27 +24,15 @@ public class CustomGenericTagQuerySerializer extends StdSerializer<GenericTagQue
     }
 
     @Override
-    public void serialize(GenericTagQuery value, JsonGenerator gen, SerializerProvider serializers) {
-        try {
-            gen.writePOJO(toJson(value));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static JsonNode toJson(GenericTagQuery gtq) {
+    public void serialize(GenericTagQuery value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         var mapper = IEncoder.MAPPER;
-        try {
-            JsonNode node = mapper.valueToTree(gtq);
-            ObjectNode objNode = (ObjectNode) node;
-            objNode.set("#" + node.get("tagName").textValue(), node.get("value"));
-            objNode.remove("tagName");
-            objNode.remove("value");
+        JsonNode node = mapper.valueToTree(value);
+        ObjectNode objNode = (ObjectNode) node;
+        String attrName = "#" + value.getTagName();
+        objNode.set(attrName, node.get("value"));
+        objNode.remove("tagName");
+        objNode.remove("value");
 
-            return node;
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        }
+        gen.writeTree(objNode);
     }
-
 }

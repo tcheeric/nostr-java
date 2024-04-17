@@ -5,19 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import nostr.base.GenericTagQuery;
 import nostr.base.annotation.Key;
 import nostr.event.BaseEvent;
-import nostr.event.json.deserializer.CustomGenericTagQueryListDeserializer;
-import nostr.event.json.serializer.CustomGenericTagQueryListSerializer;
+import nostr.event.json.deserializer.CustomGenericTagQueryDeserializer;
+import nostr.event.json.serializer.CustomGenericTagQuerySerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
 import nostr.event.list.EventList;
-import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 
@@ -63,9 +62,9 @@ public class Filters extends BaseEvent {
     private Integer limit;
 
     @Key(nip = 12)
-    @JsonSerialize(using=CustomGenericTagQueryListSerializer.class)    
-    @JsonDeserialize(using=CustomGenericTagQueryListDeserializer.class)    
-    private GenericTagQueryList genericTagQueryList;
+    @JsonSerialize(using=CustomGenericTagQuerySerializer.class)
+    @JsonDeserialize(using=CustomGenericTagQueryDeserializer.class)
+    private GenericTagQuery genericTagQuery;
 
     @Override
     public String toBech32() {
@@ -81,6 +80,6 @@ public class Filters extends BaseEvent {
     @Override
     @JsonIgnore
     public String getId() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported.");
     }
 }
