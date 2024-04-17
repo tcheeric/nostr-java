@@ -48,9 +48,11 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
                 arrayNode.add(msg.getSubscriptionId());
                 // Encode each filter individually and join them with a comma
                 List<Filters> filtersList = msg.getFiltersList().getList();
-                for (Filters filter : filtersList) {
+                for (Filters f : filtersList) {
                     try {
-                        arrayNode.add(MAPPER.valueToTree(filter));
+                        FiltersEncoder filtersEncoder = new FiltersEncoder(f, relay);
+                        var filterNode = MAPPER.readTree(filtersEncoder.encode());
+                        arrayNode.add(filterNode);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

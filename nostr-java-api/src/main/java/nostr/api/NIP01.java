@@ -19,6 +19,7 @@ import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
+import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -29,7 +30,6 @@ import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
 import nostr.event.list.EventList;
 import nostr.event.list.FiltersList;
-import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.message.CloseMessage;
@@ -206,15 +206,15 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param until an integer unix timestamp in seconds, events must be older
      * than this to pass
      * @param limit maximum number of events to be returned in the initial query
-     * @param genericTagQueryList a generic tag query list
+     * @param genericTagQuery a generic tag query
      * @return a filters object
      */
     @Deprecated(forRemoval = true)
-    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQueryList genericTagQueryList) {
+    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQuery genericTagQuery) {
         return Filters.builder()
         		.authors(authors)
         		.events(events)
-        		.genericTagQueryList(genericTagQueryList)
+        		.genericTagQuery(genericTagQuery)
         		.kinds(kinds).limit(limit)
         		.referencePubKeys(referencePubKeys)
         		.referencedEvents(referencedEvents)
