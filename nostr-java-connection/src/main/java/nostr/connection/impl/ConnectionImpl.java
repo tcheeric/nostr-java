@@ -1,5 +1,12 @@
 package nostr.connection.impl;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.WebSocket;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -8,13 +15,6 @@ import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.connection.Connection;
 import nostr.context.Context;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.WebSocket;
-import java.time.Duration;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 
 @Log
 public class ConnectionImpl implements Connection {
@@ -71,18 +71,21 @@ public class ConnectionImpl implements Connection {
     }
 
     public void send(@NonNull String message) {
-        if (isConnected()) {
-            var relay = getRelay();
-            var client = HttpClient.newHttpClient();
-            var textListener = new WebsocketClientListeners().new TextListener(relay, context);
-            var webSocket = client.newWebSocketBuilder()
-                    .connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
-                    .buildAsync(URI.create(relay.getUri()), textListener)
-                    .join();
-
-            log.log(Level.INFO, "Sending message: {0} - Relay: {1}", new Object[]{message, relay});
-            webSocket.sendText(message, true);
+        if (!isConnected()) {
+        	log.log(Level.WARNING, "FAIL - Not properly connected with Relay: {0}", relay);
+        	return;
         }
+        
+        var relay = getRelay();
+        var client = HttpClient.newHttpClient();
+        var textListener = new WebsocketClientListeners().new TextListener(relay, context);
+        var webSocket = client.newWebSocketBuilder()
+        		.connectTimeout(Duration.ofMillis(1000)) // TODO - make this configurable
+        		.buildAsync(URI.create(relay.getUri()), textListener)
+        		.join();
+        
+        log.log(Level.INFO, "Sending message: {0} - Relay: {1}", new Object[]{message, relay});
+        webSocket.sendText(message, true);
     }
 
     @Override

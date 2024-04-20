@@ -1,5 +1,9 @@
 package nostr.connection.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -7,10 +11,6 @@ import nostr.base.Relay;
 import nostr.connection.Connection;
 import nostr.context.Context;
 import nostr.context.impl.DefaultRequestContext;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
 
 @Getter
 @Log
@@ -74,14 +74,14 @@ public class ConnectionPool {
     }
 
     public void send(@NonNull String message) {
-        log.log(Level.INFO, ">>> Sending {0} to {1} relay(s)...", new Object[]{message, connections.size()});
+        log.log(Level.INFO, ">>> Connection {0} relay(s)...", connections.size());
         connections.forEach(conn -> conn.send(message));
     }
 
     public void send(@NonNull String message, @NonNull Relay relay) {
-        log.log(Level.INFO, ">>> Sending {0} to {1}...", new Object[]{message, relay});
         Connection connection = getConnection(relay);
         if (connection != null) {
+        	log.log(Level.INFO, ">>> Trying to send {0} to {1}...", new Object[]{message, relay});
             connection.send(message);
         }
     }

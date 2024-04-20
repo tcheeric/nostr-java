@@ -1,11 +1,5 @@
 package nostr.util.thread;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.context.Context;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,6 +7,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.context.Context;
 
 @AllArgsConstructor
 @Builder
@@ -39,7 +39,11 @@ public class ThreadUtil<T extends Task> {
         log.log(Level.FINE, "Executing thread on {0}...", task);
         ExecutorService threadPool = Executors.newCachedThreadPool();
         Future<?> futureTask = threadPool.submit(() -> {
-            task.execute(context);
+            try {
+            	task.execute(context);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         if (blocking) {
