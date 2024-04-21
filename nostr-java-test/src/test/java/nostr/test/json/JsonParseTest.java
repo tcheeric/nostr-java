@@ -202,7 +202,7 @@ public class JsonParseTest {
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
         GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
+        genericTagQuery.setTagName('g');
         genericTagQuery.setValue(geohashList);
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
@@ -219,7 +219,7 @@ public class JsonParseTest {
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
         GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
+        genericTagQuery.setTagName('g');
         genericTagQuery.setValue(geohashList);
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
@@ -234,7 +234,7 @@ public class JsonParseTest {
         hashtagList.add("ethereum");
         hashtagList.add("dogecoin");
         genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("t");
+        genericTagQuery.setTagName('t');
 
         genericTagQuery.setValue(hashtagList);
         filters = Filters.builder().genericTagQuery(genericTagQuery).build();

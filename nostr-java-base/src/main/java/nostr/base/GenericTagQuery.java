@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GenericTagQuery implements IElement {
     
-    private String tagName;
+    private Character tagName;
     private List<String> value;
 
     @Override

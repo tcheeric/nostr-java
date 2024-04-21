@@ -28,7 +28,7 @@ public class CustomGenericTagQueryDeserializer extends JsonDeserializer<GenericT
             String tagName = field.getKey();
             JsonNode valuesNode = field.getValue();
             List<String> values = objectMapper.convertValue(valuesNode, ArrayList.class);
-            genericTagQuery.setTagName(tagName); // Assuming tagName is always a single character preceded by '#'
+            genericTagQuery.setTagName(tagName.charAt(0)); // Assuming tagName is always a single character preceded by '#'
             genericTagQuery.setValue(values);
         }
 

@@ -164,7 +164,7 @@ public class EntityFactory {
             list.add(v1);
             
             var result = new GenericTagQuery();
-            result.setTagName(c.toString());
+            result.setTagName(c);
             result.setValue(list);
             return result;
         }
