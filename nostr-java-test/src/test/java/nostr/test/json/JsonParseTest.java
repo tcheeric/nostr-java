@@ -212,8 +212,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() {
-        System.out.println("testFiltersEncoder");
+    public void testReqMessageSerializer() throws NostrException {
+        System.out.println("testReqMessageSerializer");
 
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
@@ -228,5 +228,32 @@ public class JsonParseTest {
         String jsonMessage = encoder.encode();
 
         assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+
+        List<String> hashtagList = new ArrayList<>();
+        hashtagList.add("bitcoin");
+        hashtagList.add("ethereum");
+        hashtagList.add("dogecoin");
+        genericTagQuery = new GenericTagQuery();
+        genericTagQuery.setTagName("t");
+
+        genericTagQuery.setValue(hashtagList);
+        filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+
+        reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(filters));
+        encoder = new BaseMessageEncoder(reqMessage);
+        jsonMessage = encoder.encode();
+
+        assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#t\":[\"bitcoin\",\"ethereum\",\"dogecoin\"]}]", jsonMessage);
+
+        var rawPubKey = Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data;
+        var filters1 = Filters.builder().authors(new PublicKeyList(new PublicKey(rawPubKey))).build();
+        reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(filters, filters1));
+        assertEquals(2, reqMessage.getFiltersList().size());
+
+        encoder = new BaseMessageEncoder(reqMessage);
+        jsonMessage = encoder.encode();
+
+        assertEquals("181f161a0c180506171201070014180e100a1a0a0e1c090a191715021c0c0e1c01090b0f111704150b0b0000131b1e190f120300", new PublicKey(rawPubKey).toString());
+        assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#t\":[\"bitcoin\",\"ethereum\",\"dogecoin\"]},{\"authors\":[\"181f161a0c180506171201070014180e100a1a0a0e1c090a191715021c0c0e1c01090b0f111704150b0b0000131b1e190f120300\"]}]", jsonMessage);
     }
 }
