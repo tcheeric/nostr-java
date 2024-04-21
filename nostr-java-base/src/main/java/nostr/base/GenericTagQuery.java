@@ -1,9 +1,11 @@
 
 package nostr.base;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  *
@@ -17,7 +19,8 @@ public class GenericTagQuery implements IElement {
     private List<String> value;
 
     @Override
+    @JsonIgnore
     public Integer getNip() {
         return 1;
-    }        
+    }
 }
