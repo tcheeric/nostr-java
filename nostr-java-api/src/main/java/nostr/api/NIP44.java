@@ -58,7 +58,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
     }
 
     /**
-     * Encrypt a Encrypted Payload event
+     * Encrypt an Encrypted Payload event
      *
      * @param senderId
      * @param ep       the EP event

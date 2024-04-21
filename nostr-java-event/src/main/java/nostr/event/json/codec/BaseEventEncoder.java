@@ -1,9 +1,6 @@
 package nostr.event.json.codec;
 
-import java.lang.reflect.Field;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IEncoder;
@@ -12,6 +9,8 @@ import nostr.base.Relay;
 import nostr.event.BaseEvent;
 import nostr.util.NostrException;
 import nostr.util.UnsupportedNIPException;
+
+import java.lang.reflect.Field;
 
 /**
  * @author guilhermegps
@@ -56,7 +55,7 @@ public class BaseEventEncoder implements IEncoder<BaseEvent> {
 
     protected String toJson() throws NostrException {
         try {
-            return MAPPER.writeValueAsString(event);
+            return IEncoder.MAPPER.writeValueAsString(event);
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }

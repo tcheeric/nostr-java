@@ -32,7 +32,7 @@ public class FiltersEncoder extends BaseEventEncoder {
     @Override
     protected String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree(getEvent());
+            JsonNode node = IEncoder.MAPPER.valueToTree(getEvent());
             ObjectNode objNode = (ObjectNode) node;
             //var arrayNode = (ArrayNode) node.get("genericTagQuery");
             if (objNode != null && !objNode.isNull()) {

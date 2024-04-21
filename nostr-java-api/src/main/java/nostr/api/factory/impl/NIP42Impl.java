@@ -15,9 +15,9 @@ import nostr.base.Command;
 import nostr.base.ElementAttribute;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.id.IIdentity;
 
 import java.util.ArrayList;
@@ -32,37 +32,37 @@ public class NIP42Impl {
 
     @Data
     @EqualsAndHashCode(callSuper = false)
-    public static class ClientAuthenticationEventFactory extends EventFactory<ClientAuthenticationEvent> {
+    public static class CanonicalAuthenticationEventFactory extends EventFactory<CanonicalAuthenticationEvent> {
 
         private final String challenge;
         private final Relay relay;
 
-        public ClientAuthenticationEventFactory(@NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(@NonNull String challenge, @NonNull Relay relay) {
             this.challenge = challenge;
             this.relay = relay;
         }
 
-        public ClientAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, null);
             this.challenge = challenge;
             this.relay = relay;
         }
 
-        public ClientAuthenticationEventFactory(List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
             super(tags, null);
             this.challenge = challenge;
             this.relay = relay;
         }
 
-        public ClientAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, tags, null);
             this.challenge = challenge;
             this.relay = relay;
         }
 
         @Override
-        public ClientAuthenticationEvent create() {
-            return new ClientAuthenticationEvent(getSender(), challenge, relay);
+        public CanonicalAuthenticationEvent create() {
+            return new CanonicalAuthenticationEvent(getSender(), challenge, relay);
         }
     }
 
@@ -71,11 +71,11 @@ public class NIP42Impl {
     public static class RelaysTagFactory extends TagFactory {
 
         public RelaysTagFactory(List<Relay> relays) {
-            super("relays", 42, relays.stream().map(r -> r.getHostname()).collect(Collectors.joining(",")));
+            super("relay", 42, relays.stream().map(r -> r.getUri()).collect(Collectors.joining(",")));
         }
 
         public RelaysTagFactory(Relay relay) {
-            super("relays", 42, relay.getHostname());
+            super("relay", 42, relay.getUri());
         }
     }
 
@@ -108,14 +108,14 @@ public class NIP42Impl {
     @Data
     @EqualsAndHashCode(callSuper = false)
     @AllArgsConstructor
-    public static class ClientAuthenticationMessageFactory extends MessageFactory<ClientAuthenticationMessage> {
+    public static class ClientAuthenticationMessageFactory extends MessageFactory<CanonicalAuthenticationMessage> {
 
         @NonNull
-        private final ClientAuthenticationEvent event;
+        private final CanonicalAuthenticationEvent event;
 
         @Override
-        public ClientAuthenticationMessage create() {
-            return new ClientAuthenticationMessage(event);
+        public CanonicalAuthenticationMessage create() {
+            return new CanonicalAuthenticationMessage(event);
         }
     }
 

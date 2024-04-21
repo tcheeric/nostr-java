@@ -24,7 +24,7 @@ import java.util.logging.Level;
 @Log
 public class Identity extends AbstractBaseIdentity {
 
-    private static Identity INSTANCE;
+    private static final ThreadLocal<Identity> INSTANCE = new ThreadLocal<>();
 
     @ToString.Exclude
     private final PrivateKey privateKey;
@@ -38,23 +38,23 @@ public class Identity extends AbstractBaseIdentity {
     }
 
     public static Identity getInstance() {
-        if (INSTANCE == null) {
+        if (INSTANCE.get() == null) {
             try {
-                INSTANCE = new Identity();
+                INSTANCE.set(new Identity());
             } catch (IOException | NostrException ex) {
                 throw new RuntimeException(ex);
             }
         }
 
-        return INSTANCE;
+        return INSTANCE.get();
     }
 
     public static Identity getInstance(@NonNull PrivateKey privateKey) {
-        if (INSTANCE == null) {
-            INSTANCE = new Identity(privateKey);
+        if (INSTANCE.get() == null) {
+            INSTANCE.set(new Identity(privateKey));
         }
 
-        return INSTANCE;
+        return INSTANCE.get();
     }
 
     public static Identity getInstance(@NonNull String privateKey) {

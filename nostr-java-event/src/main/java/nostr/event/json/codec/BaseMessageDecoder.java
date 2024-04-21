@@ -9,12 +9,12 @@ import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
-import nostr.event.impl.ClientAuthenticationEvent;
+import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.list.FiltersList;
 import nostr.event.message.BaseAuthMessage;
-import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -53,9 +53,9 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                     final BaseAuthMessage authMsg;
                     // Client Auth
                     if (arg instanceof Map map) {
-                        var event = mapper.convertValue(map, new TypeReference<ClientAuthenticationEvent>() {
+                        var event = mapper.convertValue(map, new TypeReference<CanonicalAuthenticationEvent>() {
                         });
-                        authMsg = new ClientAuthenticationMessage(event);
+                        authMsg = new CanonicalAuthenticationMessage(event);
                     } else {
                         // Relay Auth                        
                         final var challenge = arg.toString();

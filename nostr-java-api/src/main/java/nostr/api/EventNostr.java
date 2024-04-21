@@ -39,29 +39,31 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
     }
 
     public T send() {
-        super.send(this.event);
+        return this.send(getRelays());
+    }
+
+    public T send(Map<String, String> relays) {
+        super.send(this.event, relays);
 
         return this.event;
     }
 
-    public T send(Map<String, String> relays) {
-        super.setRelays(relays);
-
-        return send();
-    }
-
     public T signAndSend() {
-        return (T) sign().send();
+        return this.signAndSend(getRelays());
     }
 
     public T signAndSend(Map<String, String> relays) {
-        super.setRelays(relays);
-
-        return signAndSend();
+        return (T) sign().send(relays);
     }
 
     public EventNostr setSender(@NonNull Identity sender) {
         super.setSender(sender);
+
+        return this;
+    }
+
+    public EventNostr setRelays(@NonNull Map<String, String> relays) {
+        super.setRelays(relays);
 
         return this;
     }

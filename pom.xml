@@ -5,7 +5,7 @@
 
     <groupId>nostr-java</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -16,16 +16,17 @@
         <module>nostr-java-id</module>
         <module>nostr-java-test</module>
         <module>nostr-java-util</module>
-        <module>nostr-java-ws</module>
-        <module>nostr-java-ws-handler-interface</module>
-        <module>nostr-java-ws-handler-command-provider</module>
-        <module>nostr-java-ws-request-handler-provider</module>
-        <module>nostr-java-ws-response-handler-provider</module>
+        <module>nostr-java-connection</module>
+        <module>nostr-java-command-interface</module>
+        <module>nostr-java-command-provider</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
         <module>nostr-java-encryption</module>
         <module>nostr-java-encryption-nip04</module>
         <module>nostr-java-encryption-nip44</module>
+        <module>nostr-java-context</module>
+        <module>nostr-java-context-interface</module>
+        <module>nostr-java-controller</module>
     </modules>
 
     <properties>
@@ -68,8 +69,8 @@
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>${bcprov-jdk15on.version}</version>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bcprov-jdk18on.version}</version>
             </dependency>
 
             <!-- Test Dependencies -->
