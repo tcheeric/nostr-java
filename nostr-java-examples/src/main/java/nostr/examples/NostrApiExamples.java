@@ -1,5 +1,20 @@
 package nostr.examples;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -35,21 +50,6 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 /**
  *
@@ -94,11 +94,11 @@ public class NostrApiExamples {
 //	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //			});
 
-//			executor.submit(() -> {
-//	        	try {
-//					sendTextNoteEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//			});
+			executor.submit(() -> {
+	        	try {
+					sendTextNoteEvent();
+	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
+			});
 
 //            executor.submit(() -> {
 //		    	try {
@@ -124,11 +124,11 @@ public class NostrApiExamples {
 //				} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-            executor.submit(() -> {
-            	try {
-                	reactionEvent();
-            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-            });
+//            executor.submit(() -> {
+//            	try {
+//                	reactionEvent();
+//            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+//            });
 //
 //            executor.submit(() -> {
 //            	try {
@@ -148,11 +148,11 @@ public class NostrApiExamples {
 //	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-            executor.submit(() -> {
-            	try {
-            		filters();
-	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-            });
+//            executor.submit(() -> {
+//            	try {
+//            		filters();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+//            });
 //
 //            executor.submit(() -> {
 //                createChannel();
