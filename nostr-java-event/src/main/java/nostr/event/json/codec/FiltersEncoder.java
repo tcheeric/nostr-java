@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;

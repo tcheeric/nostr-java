@@ -1,5 +1,11 @@
 package nostr.util.thread;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nostr.context.Context;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -7,12 +13,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import nostr.context.Context;
 
 @AllArgsConstructor
 @Builder
@@ -40,9 +40,9 @@ public class ThreadUtil<T extends Task> {
         ExecutorService threadPool = Executors.newCachedThreadPool();
         Future<?> futureTask = threadPool.submit(() -> {
             try {
-            	task.execute(context);
+                task.execute(context);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.log(Level.WARNING, "Failed to execute task: {0}", e.getMessage());
             }
         });
 
@@ -52,6 +52,7 @@ public class ThreadUtil<T extends Task> {
                 futureTask.get(timeoutSeconds, TimeUnit.SECONDS); // Wait for the thread to complete
                 log.log(Level.FINE, "Thread execution completed!");
             } catch (InterruptedException | ExecutionException e) {
+                log.log(Level.WARNING, "Failed to execute task: {0}", e.getMessage());
                 throw new RuntimeException(e);
             } finally {
                 threadPool.shutdown();

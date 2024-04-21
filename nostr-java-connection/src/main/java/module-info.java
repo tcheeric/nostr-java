@@ -18,4 +18,5 @@ module nostr.connection {
 
     exports nostr.connection;
     exports nostr.connection.impl;
+    exports nostr.connection.impl.listeners;
 }
