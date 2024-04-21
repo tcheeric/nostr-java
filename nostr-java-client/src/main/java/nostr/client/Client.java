@@ -67,7 +67,7 @@ public class Client {
     }
 
     public void send(@NonNull BaseMessage message) throws TimeoutException {
-        log.log(Level.INFO, "Sending message {0}...", message);
+        log.log(Level.INFO, "Requesting to send the message {0}...", message);
         ThreadUtil.builder().blocking(false).task(new SendMessageTask(message, this.connectionPool)).build().run(this.context);
     }
 
