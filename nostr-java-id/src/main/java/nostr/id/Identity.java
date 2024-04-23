@@ -24,8 +24,6 @@ import java.util.logging.Level;
 @Log
 public class Identity extends AbstractBaseIdentity {
 
-    private static final ThreadLocal<Identity> INSTANCE = new ThreadLocal<>();
-
     @ToString.Exclude
     private final PrivateKey privateKey;
 
@@ -33,37 +31,36 @@ public class Identity extends AbstractBaseIdentity {
         this.privateKey = new IdentityConfiguration("").getPrivateKey();
     }
 
-    public Identity(@NonNull PrivateKey privateKey) {
+    private Identity(@NonNull PrivateKey privateKey) {
         this.privateKey = privateKey;
     }
 
-    public static Identity getInstance() {
-        if (INSTANCE.get() == null) {
+    private static class Holder {
+        private static final Identity INSTANCE;
+        static {
             try {
-                INSTANCE.set(new Identity());
+                INSTANCE = new Identity();
             } catch (IOException | NostrException ex) {
                 throw new RuntimeException(ex);
             }
         }
+    }
 
-        return INSTANCE.get();
+    public static Identity getInstance() {
+        return Holder.INSTANCE;
     }
 
     public static Identity getInstance(@NonNull PrivateKey privateKey) {
-        if (INSTANCE.get() == null) {
-            INSTANCE.set(new Identity(privateKey));
-        }
-
-        return INSTANCE.get();
+        return new Identity(privateKey);
     }
 
     public static Identity getInstance(@NonNull String privateKey) {
-        return getInstance(new PrivateKey(privateKey));
+        return new Identity(new PrivateKey(privateKey));
     }
 
     /**
-	 * @return A strong pseudo random identity
-	 */
+     * @return A strong pseudo random identity
+     */
     public static Identity generateRandomIdentity() {
         return new Identity(PrivateKey.generateRandomPrivKey());
     }

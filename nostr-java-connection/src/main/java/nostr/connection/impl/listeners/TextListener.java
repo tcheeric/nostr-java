@@ -13,15 +13,11 @@ import nostr.context.impl.DefaultCommandContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.controller.impl.ApplicationControllerImpl;
 import nostr.event.BaseMessage;
-import nostr.event.Response;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.ClosedMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 
 import java.net.http.WebSocket;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
@@ -36,8 +32,6 @@ public class TextListener implements WebSocket.Listener {
     private final Relay relay;
 
     private Context context;
-
-    private final Set<Response> responses = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     public CompletionStage<Void> onText(WebSocket webSocket, CharSequence data, boolean last) {
@@ -54,7 +48,6 @@ public class TextListener implements WebSocket.Listener {
         String message = data.toString();
 
         var msg = new BaseMessageDecoder(message).decode();
-        responses.add(Response.builder().message(msg).relay(relay).build());
         final String strCommand = msg.getCommand();
 
         log.log(Level.INFO, "Creating the command context with message {0}", new Object[]{msg});
@@ -62,8 +55,6 @@ public class TextListener implements WebSocket.Listener {
         var applicationController = new ApplicationControllerImpl(strCommand);
 
         applicationController.handleRequest(commandContext);
-        //List<Response> responses = applicationController.getResponses();
-        //this.responses.addAll(responses);
     }
 
     private CommandContext createCommandContext(@NonNull BaseMessage message) {
@@ -80,10 +71,11 @@ public class TextListener implements WebSocket.Listener {
 
         // Set the challenge
         if (message instanceof RelayAuthenticationMessage authMessage) {
-            ((DefaultRequestContext) this.context).setChallenge(relay, authMessage.getChallenge());
+            log.log(Level.INFO, "Setting the challenge {0} for the relay {1}", new Object[]{authMessage.getChallenge(), relay});
+            commandContext.setChallenge(authMessage.getChallenge());
         }
 
-        if (message instanceof ClosedMessage closedMessage) {
+        if (message instanceof ClosedMessage) {
             commandContext.setChallenge(((DefaultRequestContext) this.context).getChallenge(relay));
         }
 

@@ -1,4 +1,5 @@
 import nostr.command.provider.AuthCommandHandler;
+import nostr.command.provider.ClosedCommandHandler;
 import nostr.command.provider.EoseCommandHandler;
 import nostr.command.provider.EventCommandHandler;
 import nostr.command.provider.NoticeCommandHandler;
@@ -21,5 +22,11 @@ module nostr.command.provider {
 
     exports nostr.command.provider;
 
-    provides CommandHandler with OkCommandHandler, NoticeCommandHandler, EoseCommandHandler, AuthCommandHandler, EventCommandHandler;
+    provides CommandHandler with
+            OkCommandHandler,
+            NoticeCommandHandler,
+            EoseCommandHandler,
+            AuthCommandHandler,
+            EventCommandHandler,
+            ClosedCommandHandler;
 }

@@ -1,9 +1,5 @@
 package nostr.connection.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -12,27 +8,31 @@ import nostr.connection.Connection;
 import nostr.context.Context;
 import nostr.context.impl.DefaultRequestContext;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+
 @Getter
 @Log
 public class ConnectionPool {
 
-    private static final ThreadLocal<ConnectionPool> instance = new ThreadLocal<>();
+    private static class Holder {
+        private static final ConnectionPool INSTANCE = new ConnectionPool();
+    }
 
-    private final Set<Connection> connections = new HashSet<>();
+    private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
 
-    private ConnectionPool(@NonNull Context context) {
-        if (context instanceof DefaultRequestContext defaultRequestContext) {
-            var relays = defaultRequestContext.getRelays();
-            relays.values().stream().map(Relay::new).forEach(r -> addConnection(new ConnectionImpl(r, context)));
-        }
+    private ConnectionPool() {
+        // private constructor to prevent instantiation
     }
 
     public static ConnectionPool getInstance(@NonNull Context context) {
-        if (instance.get() == null) {
-            instance.set(new ConnectionPool(context));
+        if (Holder.INSTANCE.connections.isEmpty() && context instanceof DefaultRequestContext defaultRequestContext) {
+            var relays = defaultRequestContext.getRelays();
+            relays.values().stream().map(Relay::new).forEach(r -> Holder.INSTANCE.addConnection(new ConnectionImpl(r, context)));
         }
-        return instance.get();
-
+        return Holder.INSTANCE;
     }
 
     public void connect() {
@@ -79,9 +79,9 @@ public class ConnectionPool {
     }
 
     public void send(@NonNull String message, @NonNull Relay relay) {
-        Connection connection = getConnection(relay);
+        var connection = getConnection(relay);
         if (connection != null) {
-        	log.log(Level.INFO, ">>> Trying to send {0} to {1}...", new Object[]{message, relay});
+            log.log(Level.INFO, ">>> Trying to send {0} to {1}...", new Object[]{message, relay});
             connection.send(message);
         }
     }

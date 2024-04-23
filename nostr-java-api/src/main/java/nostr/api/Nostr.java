@@ -18,7 +18,6 @@ import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Response;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -39,8 +38,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -80,14 +77,6 @@ public class Nostr {
         this.relays = relays;
 
         return this;
-    }
-
-    public Set<Response> responses() {
-        try {
-            return client.getResponsesAsync().get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void close() {

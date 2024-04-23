@@ -44,10 +44,6 @@ public class ConnectionImpl implements Connection {
     @Override
     public void connect() {
         var relay = getRelay();
-        var openListener = new OpenListener(relay);
-        var textListener = new TextListener(relay, context);
-        var closeListener = new CloseListener(relay);
-        var errorListener = new ErrorListener(relay);
 
         try {
             if (isConnected()) {
@@ -57,7 +53,7 @@ public class ConnectionImpl implements Connection {
 
             log.log(Level.INFO, "+Connecting to {0}...", relay);
             var client = HttpClient.newHttpClient();
-            var compositeListener = new CompositeListener(Arrays.asList(openListener, textListener, closeListener, errorListener));
+            var compositeListener = new CompositeListener(Arrays.asList(new OpenListener(relay), new TextListener(relay, context), new CloseListener(relay), new ErrorListener(relay)));
 
             webSocket = client.newWebSocketBuilder()
                     .connectTimeout(Duration.ofMillis(10000)) // TODO - make this configurable and add to the context.

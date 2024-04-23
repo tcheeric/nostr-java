@@ -1,14 +1,6 @@
 package nostr.client;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -18,36 +10,34 @@ import nostr.context.Context;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseMessage;
-import nostr.event.Response;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.util.thread.Task;
 import nostr.util.thread.ThreadUtil;
 
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+
 @Log
 @NoArgsConstructor
 public class Client {
 
-    private static final ThreadLocal<Client> INSTANCE = new ThreadLocal<>();
-
-    @Getter
-    private final List<BaseMessage> responses = new ArrayList<>();
+    private static class Holder {
+        private static final Client INSTANCE = new Client();
+    }
 
     private RequestContext context;
 
     private ConnectionPool connectionPool;
 
     public static Client getInstance() {
-        if (INSTANCE.get() == null) {
-            INSTANCE.set(new Client());
-        }
-        return INSTANCE.get();
+        return Holder.INSTANCE;
     }
 
     public Client connect(@NonNull RequestContext context) throws TimeoutException {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
-            INSTANCE.get().context = context;
+            Holder.INSTANCE.context = context;
             connectionPool = ConnectionPool.getInstance(defaultRequestContext);
             ThreadUtil.builder().blocking(true).task(new RelayConnectionTask(this.connectionPool)).build().run(context);
         }
@@ -60,10 +50,6 @@ public class Client {
 
     public int getOpenConnectionsCount() {
         return connectionPool.connectionCount();
-    }
-
-    public CompletableFuture<Set<Response>> getResponsesAsync() {
-        return null; //TODO
     }
 
     public void send(@NonNull BaseMessage message) throws TimeoutException {

@@ -3,3 +3,4 @@ nostr.command.provider.AuthCommandHandler
 nostr.command.provider.EoseCommandHandler
 nostr.command.provider.NoticeCommandHandler
 nostr.command.provider.OkCommandHandler
+nostr.command.provider.ClosedCommandHandler

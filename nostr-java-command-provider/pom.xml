@@ -23,10 +23,15 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>nostr-java</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-context</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-command-interface</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     
