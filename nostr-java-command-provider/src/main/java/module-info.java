@@ -10,8 +10,6 @@ module nostr.command.provider {
     requires static lombok;
     requires java.logging;
 
-    requires nostr.controller;
-    requires nostr.util;
     requires nostr.base;
     requires nostr.id;
     requires nostr.client;

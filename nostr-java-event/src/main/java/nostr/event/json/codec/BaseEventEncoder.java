@@ -36,7 +36,9 @@ public class BaseEventEncoder implements IEncoder<BaseEvent> {
     public String encode() {
         if (!nipEventSupport()) {
             try {
-                throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
+                if (relay != null) {
+                    throw new UnsupportedNIPException("NIP is not supported by relay: \"" + relay.getName() + "\"  - List of supported NIP(s): " + relay.printSupportedNips());
+                }
             } catch (UnsupportedNIPException ex) {
                 throw new RuntimeException(ex);
             }

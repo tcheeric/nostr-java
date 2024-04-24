@@ -11,7 +11,6 @@ import nostr.context.impl.DefaultRequestContext;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @Getter
@@ -39,14 +38,11 @@ public class ConnectionPool {
     public void connect() {
         log.log(Level.INFO, "Connecting to relays");
         connections.forEach(c -> {
-            try {
-                c.connect();
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
+            c.connect();
         });
     }
 
+/*
     public void connect(@NonNull Relay relay) throws TimeoutException {
         log.log(Level.INFO, "Connecting to {0}...", relay);
         var connection = getConnection(relay);
@@ -56,15 +52,12 @@ public class ConnectionPool {
             log.log(Level.WARNING, "Already connected to {0}. Ignoring...", relay);
         }
     }
+*/
 
     public void disconnect() {
         log.log(Level.INFO, "Disconnecting from relays");
         connections.forEach(connection -> {
-            try {
-                connection.disconnect();
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
+            connection.disconnect();
         });
     }
 
@@ -72,18 +65,14 @@ public class ConnectionPool {
         log.log(Level.INFO, "Disconnecting from {0}...", relay);
         var connection = getConnection(relay);
         if (connection != null) {
-            try {
-                connection.disconnect();
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
+            connection.disconnect();
         } else {
             log.log(Level.WARNING, "No connection found for {0}. Ignoring...", relay);
         }
     }
 
     public Connection getConnection(@NonNull Relay relay) {
-        return connections.stream().filter(c -> c.getRelay().getUri().toLowerCase().equals(relay.getUri().toLowerCase())).findFirst().orElse(null);
+        return connections.stream().filter(c -> c.getRelay().getUri().equalsIgnoreCase(relay.getUri())).findFirst().orElse(null);
     }
 
     public boolean isConnectedTo(@NonNull Relay relay) {
@@ -97,11 +86,7 @@ public class ConnectionPool {
     public void send(@NonNull String message) {
         log.log(Level.INFO, ">>> Connectied to {0} relay(s)...", connections.size());
         connections.forEach(conn -> {
-            try {
-                conn.send(message);
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
+            conn.send(message);
         });
     }
 
@@ -110,11 +95,7 @@ public class ConnectionPool {
         var connection = getConnection(relay);
         if (connection != null) {
             log.log(Level.INFO, ">>> Trying to send {0} to {1}...", new Object[]{message, relay});
-            try {
-                connection.send(message);
-            } catch (TimeoutException e) {
-                throw new RuntimeException(e);
-            }
+            connection.send(message);
         }
         else {
             log.log(Level.WARNING, ">>> No connection found for {0}", relay);

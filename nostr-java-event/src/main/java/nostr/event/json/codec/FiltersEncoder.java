@@ -56,6 +56,7 @@ public class FiltersEncoder extends BaseEventEncoder {
                             });
                 }
             }
+            assert objNode != null;
             objNode.remove("genericTagQuery");
 
             return MAPPER.writeValueAsString(objNode);

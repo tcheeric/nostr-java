@@ -10,11 +10,11 @@ import nostr.base.Relay;
 import java.net.http.WebSocket;
 import java.util.logging.Level;
 
+@Getter
 @Log
 @AllArgsConstructor
 public class ErrorListener implements WebSocket.Listener {
 
-    @Getter
     @EqualsAndHashCode.Include
     @ToString.Include
     private final Relay relay;

@@ -147,7 +147,7 @@ public class Nostr {
         return this;
     }
 
-    private static Map<String, String> toMapRelays(List<Relay> relayList) throws IOException {
+    private static Map<String, String> toMapRelays(List<Relay> relayList) {
         Map<String, String> relays = new HashMap<>();
         relayList.forEach(r -> relays.put(r.getName(), r.getUri()));
         return relays;

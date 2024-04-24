@@ -36,11 +36,11 @@ public class ConnectionImpl implements Connection {
     @ToString.Include
     private final Relay relay;
 
-    private Context context;
+    private final Context context;
 
     private WebSocket webSocket = null;
 
-    private AtomicBoolean connected = new AtomicBoolean(false);
+    private final AtomicBoolean connected = new AtomicBoolean(false);
 
     public ConnectionImpl(@NonNull Relay relay, @NonNull Context context) {
         this.relay = relay;

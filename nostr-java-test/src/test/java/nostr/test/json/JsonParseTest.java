@@ -172,7 +172,7 @@ public class JsonParseTest {
         final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
         var tag = new BaseTagDecoder(jsonString).decode();
 
-        Assertions.assertTrue(tag instanceof PubKeyTag);
+        Assertions.assertInstanceOf(PubKeyTag.class, tag);
 
         PubKeyTag pTag = (PubKeyTag) tag;
         assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
@@ -188,7 +188,7 @@ public class JsonParseTest {
         final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
         var tag = new BaseTagDecoder(jsonString).decode();
 
-        Assertions.assertTrue(tag instanceof GenericTag);
+        Assertions.assertInstanceOf(GenericTag.class, tag);
 
         GenericTag gTag = (GenericTag) tag;
         assertEquals("gt", gTag.getCode());

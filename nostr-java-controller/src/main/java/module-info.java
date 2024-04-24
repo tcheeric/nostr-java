@@ -8,7 +8,6 @@ module nostr.controller {
     requires java.logging;
 
     requires nostr.context;
-    requires nostr.event;
     requires nostr.context.impl;
     requires nostr.base;
     requires nostr.util;

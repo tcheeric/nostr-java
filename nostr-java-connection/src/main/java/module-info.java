@@ -1,6 +1,5 @@
 
 module nostr.connection {
-    requires com.fasterxml.jackson.databind;
 
     requires static lombok;
 
@@ -9,8 +8,6 @@ module nostr.connection {
     requires java.logging;
 
     requires nostr.base;
-    requires nostr.command.handler;
-    requires nostr.util;
     requires nostr.event;
     requires nostr.controller;
     requires nostr.context;

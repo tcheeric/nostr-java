@@ -37,7 +37,6 @@ public class ThreadUtil<T extends Task> {
 
     public ThreadUtil(@NonNull T task) {
         this.task = task;
-        this.timeoutSeconds = TIMEOUT_SECONDS;
     }
 
     public void run(@NonNull Context context) throws TimeoutException {
