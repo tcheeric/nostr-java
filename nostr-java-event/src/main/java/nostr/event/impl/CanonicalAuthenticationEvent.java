@@ -30,7 +30,7 @@ public class CanonicalAuthenticationEvent extends GenericEvent {
 
         // Relay tag
         final List<ElementAttribute> relayAttributes = new ArrayList<>();
-        final ElementAttribute relayAttribute = ElementAttribute.builder().nip(42).name("uri").value(relay.toString()).build();
+        final ElementAttribute relayAttribute = ElementAttribute.builder().nip(42).name("uri").value(relay.getUri()).build();
         relayAttributes.add(relayAttribute);
         final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
         this.addTag(relayTag);

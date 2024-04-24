@@ -2,13 +2,15 @@ package nostr.connection;
 
 import nostr.base.Relay;
 
+import java.util.concurrent.TimeoutException;
+
 public interface Connection {
 
-    void send(String message);
+    void send(String message) throws TimeoutException;
 
-    void connect();
+    void connect() throws TimeoutException;
 
-    void disconnect();
+    void disconnect() throws TimeoutException;
 
     Relay getRelay();
 

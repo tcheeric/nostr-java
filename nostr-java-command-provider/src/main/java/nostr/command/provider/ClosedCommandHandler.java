@@ -15,6 +15,7 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.ClosedMessage;
 import nostr.id.Identity;
 
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.CLOSED)
@@ -53,7 +54,11 @@ public class ClosedCommandHandler implements CommandHandler {
                     log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
                     // Publish the event to the relay
-                    client.send(canonicalAuthenticationMessage, relay);
+                    try {
+                        client.send(canonicalAuthenticationMessage);
+                    } catch (TimeoutException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         } else {

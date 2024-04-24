@@ -39,7 +39,7 @@ public class Client {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
             Holder.INSTANCE.context = context;
             connectionPool = ConnectionPool.getInstance(defaultRequestContext);
-            ThreadUtil.builder().blocking(true).task(new RelayConnectionTask(this.connectionPool)).build().run(context);
+            ThreadUtil.builder().blocking(true).lock(true).task(new RelayConnectionTask(this.connectionPool)).build().run(context);
         }
         return this;
     }
@@ -54,13 +54,15 @@ public class Client {
 
     public void send(@NonNull BaseMessage message) throws TimeoutException {
         log.log(Level.INFO, "Requesting to send the message {0}...", message);
-        ThreadUtil.builder().blocking(false).task(new SendMessageTask(message, this.connectionPool)).build().run(this.context);
+        ThreadUtil.builder().blocking(false).lock(true).task(new SendMessageTask(message, this.connectionPool)).build().run(this.context);
     }
 
+/*
     public void send(@NonNull BaseMessage message, @NonNull Relay relay) {
         var encoder = new BaseMessageEncoder(message);
         this.connectionPool.send(encoder.encode(), relay);
     }
+*/
 
     boolean isConnected(@NonNull Relay relay) {
         return this.connectionPool.isConnectedTo(relay);
@@ -105,6 +107,7 @@ public class Client {
                 var relayTag = event.getTags().stream().filter(t -> t.getCode().equalsIgnoreCase("relay")).findFirst();
                 if (relayTag.isPresent()) {
                     var relayTagValue = ((GenericTag) relayTag.get()).getAttributes().get(0).getValue().toString();
+                    log.log(Level.INFO, "**** Relay found in CanonicalAuthenticationMessage: {0}", relayTagValue);
                     var r = new Relay(relayTagValue);
                     connectionPool.send(new BaseMessageEncoder(canonicalAuthenticationMessage).encode(), r);
                 } else {

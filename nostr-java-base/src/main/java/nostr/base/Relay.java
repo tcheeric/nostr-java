@@ -24,6 +24,8 @@ import java.util.List;
 @Log
 public class Relay {
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private String uri;
 
     @ToString.Exclude

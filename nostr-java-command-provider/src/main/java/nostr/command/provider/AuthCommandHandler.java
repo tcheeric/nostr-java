@@ -16,6 +16,7 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.id.Identity;
 
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.AUTH)
@@ -25,6 +26,7 @@ public class AuthCommandHandler implements CommandHandler {
 
     @Override
     public void handle(@NonNull CommandContext context) {
+
         log.log(Level.INFO, "onAuth event - {0}", context);
 
         if (context instanceof DefaultCommandContext defaultCommandContext) {
@@ -52,11 +54,14 @@ public class AuthCommandHandler implements CommandHandler {
                 log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
                 // Publish the event to the relay
-                client.send(canonicalAuthenticationMessage, relay);
+                try {
+                    client.send(canonicalAuthenticationMessage);
+                } catch (TimeoutException e) {
+                    throw new RuntimeException(e);
+                }
             }
         } else {
             throw new IllegalArgumentException("Invalid context type");
         }
-
     }
 }

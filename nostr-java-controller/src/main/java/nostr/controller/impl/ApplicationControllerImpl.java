@@ -15,7 +15,6 @@ import nostr.util.thread.ThreadUtil;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
 
 @Getter
 @Log
@@ -57,9 +56,6 @@ public class ApplicationControllerImpl implements ApplicationController {
 
         log.info("Executing command: " + this.command);
         commandHandler.handle(defaultCommandContext);
-
-        log.log(Level.INFO, "Command executed successfully. Adding response to the controller...");
-        var message = defaultCommandContext.getMessage();
     }
 
     private static CommandHandler getCommandHandler(@NonNull String command) {

@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 @AllArgsConstructor
@@ -27,11 +28,15 @@ public class ThreadUtil<T extends Task> {
     @Builder.Default
     private boolean blocking = false;
 
+    @Builder.Default
+    private boolean lock = false;
+
     public static final int TIMEOUT_SECONDS = 5;
+
+    public static final ReentrantLock LOCK = new ReentrantLock();
 
     public ThreadUtil(@NonNull T task) {
         this.task = task;
-        this.blocking = false;
         this.timeoutSeconds = TIMEOUT_SECONDS;
     }
 
@@ -39,10 +44,17 @@ public class ThreadUtil<T extends Task> {
         log.log(Level.FINE, "Executing thread on {0}...", task);
         ExecutorService threadPool = Executors.newCachedThreadPool();
         Future<?> futureTask = threadPool.submit(() -> {
+            if (lock) {
+                LOCK.lock();
+            }
             try {
                 task.execute(context);
             } catch (Exception e) {
                 log.log(Level.WARNING, "Failed to execute task: {0}", e.getMessage());
+            } finally {
+                if (lock) {
+                    LOCK.unlock();
+                }
             }
         });
 

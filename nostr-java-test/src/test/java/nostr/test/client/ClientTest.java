@@ -7,7 +7,6 @@ import nostr.event.BaseMessage;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,12 +32,12 @@ class ClientTest {
 
     @BeforeEach
     public void init() {
+        System.out.println("init");
         identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
-        //PublicKey publicKey = identity.getPublicKey();
 
         var requestContext = new DefaultRequestContext();
         requestContext.setPrivateKey(identity.getPrivateKey().getRawData());
-        requestContext.setRelays(Map.of("My local test relay", "127.0.0.1:5555"));
+        requestContext.setRelays(Map.of("My local test relay", "ws://localhost:5555"));
         try {
             client = Client.getInstance().connect(requestContext);
         } catch (TimeoutException e) {
@@ -46,8 +45,9 @@ class ClientTest {
         }
     }
 
-    @AfterEach
+    //@AfterEach
     public void dispose() {
+        System.out.println("dispose");
         try {
             this.client.disconnect();
         } catch (TimeoutException e) {
@@ -80,7 +80,25 @@ class ClientTest {
         Assertions.assertEquals(0, client.getOpenConnectionsCount());
     }
 
-    public int getRelayCount() {
+/*
+    @Test
+    public void testNip42() throws TimeoutException {
+        System.out.println("testNip42");
+
+        var rcpt = Identity.generateRandomIdentity().getPublicKey();
+        var sender = identity.getPublicKey();
+        var event = EntityFactory.Events.createDirectMessageEvent(sender, rcpt, "Hello, World!");
+        identity.sign(event);
+        BaseMessage msg = new EventMessage(event);
+        client.send(msg);
+
+        var filters = Filters.builder().kinds(new KindList(4)).authors(new PublicKeyList(sender)).build();
+        msg = new ReqMessage("testNip42_" + sender.toString(), filters);
+        client.send(msg);
+    }
+*/
+
+    private int getRelayCount() {
         Properties properties = new Properties();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("relays.properties")) {
             if (is != null) {

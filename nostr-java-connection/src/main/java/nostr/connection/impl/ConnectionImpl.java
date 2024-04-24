@@ -19,11 +19,17 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 @Log
 public class ConnectionImpl implements Connection {
+
+    @Getter
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private final String id = UUID.randomUUID().toString();
 
     @Getter
     @EqualsAndHashCode.Include
