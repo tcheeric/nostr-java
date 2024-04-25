@@ -3,8 +3,9 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import nostr.event.tag.AddressTag;
+
+import java.io.IOException;
 
 /**
  *
@@ -23,7 +24,7 @@ public class AddressTagSerializer extends JsonSerializer<AddressTag> {
         }
         
         if (value.getRelay() != null) {
-            jsonGenerator.writeString("," + value.getRelay().getHostname());
+            jsonGenerator.writeString("," + value.getRelay().getUri());
         }
         jsonGenerator.writeEndArray();
     }

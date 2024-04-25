@@ -5,102 +5,105 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
-import nostr.crypto.bech32.Bech32;
-import nostr.crypto.bech32.Bech32Prefix;
+import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
-import nostr.util.AbstractBaseConfiguration;
-import nostr.util.NostrException;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.DelegationTag;
+import nostr.util.NostrUtil;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 /**
  * @author squirrel
  */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
 @Log
-public class Identity extends AbstractBaseIdentity {
-
-    private static Identity INSTANCE;
+public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
 
-    private Identity() throws IOException, NostrException {
-        this.privateKey = new IdentityConfiguration("").getPrivateKey();
-    }
-
-    public Identity(@NonNull PrivateKey privateKey) {
+    private Identity(@NonNull PrivateKey privateKey) {
         this.privateKey = privateKey;
     }
 
-    public static Identity getInstance() {
-        if (INSTANCE == null) {
-            try {
-                INSTANCE = new Identity();
-            } catch (IOException | NostrException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        return INSTANCE;
-    }
-
+    @Deprecated(forRemoval = true)
     public static Identity getInstance(@NonNull PrivateKey privateKey) {
-        if (INSTANCE == null) {
-            INSTANCE = new Identity(privateKey);
-        }
-
-        return INSTANCE;
+        return new Identity(privateKey);
     }
 
+    public static Identity create(@NonNull PrivateKey privateKey) {
+        return new Identity(privateKey);
+    }
+
+    @Deprecated(forRemoval = true)
     public static Identity getInstance(@NonNull String privateKey) {
-        return getInstance(new PrivateKey(privateKey));
+        return new Identity(new PrivateKey(privateKey));
+    }
+
+    public static Identity create(@NonNull String privateKey) {
+        return new Identity(new PrivateKey(privateKey));
     }
 
     /**
-	 * @return A strong pseudo random identity
-	 */
+     * @return A strong pseudo random identity
+     */
     public static Identity generateRandomIdentity() {
         return new Identity(PrivateKey.generateRandomPrivKey());
     }
 
-    @Log
-    static class IdentityConfiguration extends AbstractBaseConfiguration {
-
-        IdentityConfiguration(@NonNull String name) throws IOException {
-            super(name, CONFIG_TYPE_IDENTITY);
+    public PublicKey getPublicKey() {
+        try {
+            return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
 
-        PrivateKey getPrivateKey() throws NostrException {
-            String privKey = getProperty("privateKey");
-
-            if (privKey == null) {
-                throw new RuntimeException("Missing private key. Aborting....");
+    public Signature sign(@NonNull ISignable signable)  {
+        if (signable instanceof GenericEvent genericEvent) {
+            try {
+                return signEvent(genericEvent);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
-            String hex = privKey.startsWith(Bech32Prefix.NSEC.getCode()) ? Bech32.fromBech32(privKey) : privKey;
-            return new PrivateKey(hex);
-        }
-
-        PublicKey getPublicKey() throws NostrException {
-            String pubKey = getProperty("publicKey");
-            if (pubKey == null || pubKey.trim().isEmpty()) {
-                log.log(Level.FINE, "Generating new public key...");
-                try {
-                    var publicKey = Schnorr.genPubKey(getPrivateKey().getRawData());
-                    return new PublicKey(publicKey);
-                } catch (Exception ex) {
-                    log.log(Level.SEVERE, null, ex);
-                    throw new NostrException(ex);
-                }
-            } else {
-                String hex = pubKey.startsWith(Bech32Prefix.NPUB.getCode()) ? Bech32.fromBech32(pubKey) : pubKey;
-                return new PublicKey(hex);
+        } else if (signable instanceof DelegationTag delegationTag) {
+            try {
+                return signDelegationTag(delegationTag);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
         }
+        throw new RuntimeException();
+    }
+
+    private Signature signEvent(@NonNull GenericEvent event) throws Exception {
+        event.update();
+        log.log(Level.FINER, "Serialized event: {0}", new String(event.get_serializedEvent()));
+        final var signedHashedSerializedEvent = Schnorr.sign(NostrUtil.sha256(event.get_serializedEvent()), this.getPrivateKey().getRawData(), generateAuxRand());
+        final Signature signature = new Signature();
+        signature.setRawData(signedHashedSerializedEvent);
+        signature.setPubKey(getPublicKey());
+        event.setSignature(signature);
+        return signature;
+    }
+
+    private Signature signDelegationTag(@NonNull DelegationTag delegationTag) throws Exception {
+        final var signedHashedToken = Schnorr.sign(NostrUtil.sha256(delegationTag.getToken().getBytes(StandardCharsets.UTF_8)), this.getPrivateKey().getRawData(), generateAuxRand());
+        final Signature signature = new Signature();
+        signature.setRawData(signedHashedToken);
+        signature.setPubKey(getPublicKey());
+        delegationTag.setSignature(signature);
+        return signature;
+    }
+
+    private byte[] generateAuxRand() {
+        return NostrUtil.createRandomByteArray(32);
     }
 
 }

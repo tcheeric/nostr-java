@@ -1,19 +1,10 @@
 package nostr.event.impl;
 
-import java.beans.Transient;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -35,6 +26,14 @@ import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
+
+import java.beans.Transient;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  *
@@ -93,30 +92,31 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public GenericEvent() {
         this.attributes = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
     public GenericEvent(@NonNull String id) {
+        this();
     	this.id = id;
-        this.attributes = new ArrayList<>();
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
-        this(pubKey, kind, new ArrayList<>(), null);
+        this(pubKey, kind, new ArrayList<>(), "");
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind) {
-        this(pubKey, kind, new ArrayList<>(), null);
+        this(pubKey, kind, new ArrayList<>(), "");
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags) {
-        this(pubKey, kind, tags, null);
+        this(pubKey, kind, tags, "");
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, @NonNull String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;

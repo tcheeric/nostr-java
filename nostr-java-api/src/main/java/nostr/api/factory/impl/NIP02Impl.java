@@ -10,7 +10,7 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.ContactListEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -24,19 +24,11 @@ public class NIP02Impl {
     @EqualsAndHashCode(callSuper = false)
     public static class ContactListEventFactory extends EventFactory<ContactListEvent> {
 
-        public ContactListEventFactory(String content) {
-            super(content);
-        }
-
-        public ContactListEventFactory(@NonNull IIdentity sender, @NonNull String content) {
+        public ContactListEventFactory(@NonNull Identity sender, @NonNull String content) {
             super(sender, content);
         }
 
-        public ContactListEventFactory(@NonNull List<BaseTag> tags, @NonNull  String content) {
-            super(tags, content);
-        }
-
-        public ContactListEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+        public ContactListEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
             super(sender, tags, content);
         }
 

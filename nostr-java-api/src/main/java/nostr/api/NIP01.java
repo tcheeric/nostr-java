@@ -41,7 +41,7 @@ import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 	
-	public NIP01(@NonNull IIdentity sender) {
+	public NIP01(@NonNull Identity sender) {
 		setSender(sender);
 	}
 
@@ -68,7 +68,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 		return this;
     }
 
-	public NIP01<T> createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
+	public NIP01<T> createTextNoteEvent(@NonNull Identity sender, @NonNull String content) {
 		var event = new TextNoteEventFactory(sender, content).create();
 		this.setEvent((T) event);
 
@@ -84,7 +84,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      */
 	public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
     	var sender = getSender();
-		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(tags, content);
+		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(sender, tags, content);
 		var event = factory.create();
 		setEvent((T) event);
 

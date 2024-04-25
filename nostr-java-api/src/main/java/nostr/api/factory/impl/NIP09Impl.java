@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.DeletionEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -23,15 +23,11 @@ public class NIP09Impl {
     @EqualsAndHashCode(callSuper = false)
     public static class DeletionEventFactory extends EventFactory<DeletionEvent> {
     	
-    	public DeletionEventFactory(IIdentity sender) {
+    	public DeletionEventFactory(Identity sender) {
     		super(sender);
     	}
 
-        public DeletionEventFactory(List<BaseTag> tags) {
-            super(tags, null);
-        }
-
-        public DeletionEventFactory(IIdentity sender, List<BaseTag> tags) {
+        public DeletionEventFactory(Identity sender, List<BaseTag> tags) {
             super(sender, tags, null);
         }
 

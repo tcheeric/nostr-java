@@ -10,7 +10,7 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.UserProfile;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
@@ -24,7 +24,7 @@ public class NIP05Impl {
 
         private final UserProfile profile;
 
-        public InternetIdentifierMetadataEventFactory(@NonNull IIdentity sender, @NonNull UserProfile profile) {
+        public InternetIdentifierMetadataEventFactory(@NonNull Identity sender, @NonNull UserProfile profile) {
             super(sender, null);
             this.profile = profile;
         }

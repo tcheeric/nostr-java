@@ -8,7 +8,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP03Impl;
 import nostr.base.IEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
@@ -16,7 +16,7 @@ import nostr.id.IIdentity;
  */
 public class NIP03<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP03(@NonNull IIdentity sender) {
+    public NIP03(@NonNull Identity sender) {
         setSender(sender);
     }
 

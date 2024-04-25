@@ -14,7 +14,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.net.URL;
 
@@ -23,7 +23,7 @@ import java.net.URL;
  */
 public class NIP23<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP23(@NonNull IIdentity sender) {
+    public NIP23(@NonNull Identity sender) {
         setSender(sender);
     }
 

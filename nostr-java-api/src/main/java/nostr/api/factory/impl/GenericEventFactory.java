@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.impl.GenericEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -13,13 +13,8 @@ public class GenericEventFactory extends EventFactory<GenericEvent> {
 
     private Integer kind;
 
-    public GenericEventFactory(IIdentity sender, @NonNull Integer kind, @NonNull String content) {
+    public GenericEventFactory(Identity sender, @NonNull Integer kind, @NonNull String content) {
         super(sender, content);
-        this.kind = kind;
-    }
-
-    public GenericEventFactory(@NonNull Integer kind, @NonNull String content) {
-        super(content);
         this.kind = kind;
     }
 

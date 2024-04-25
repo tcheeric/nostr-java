@@ -94,11 +94,11 @@ public class NostrApiExamples {
 //	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //			});
 
-//			executor.submit(() -> {
-//	        	try {
-//					sendTextNoteEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//			});
+			executor.submit(() -> {
+	        	try {
+					sendTextNoteEvent();
+	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+            });
 
 //            executor.submit(() -> {
 //		    	try {
@@ -124,11 +124,11 @@ public class NostrApiExamples {
 //				} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-            executor.submit(() -> {
-            	try {
-                	reactionEvent();
-            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-            });
+//            executor.submit(() -> {
+//            	try {
+//                	reactionEvent();
+//            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+//            });
 //
 //            executor.submit(() -> {
 //            	try {
@@ -148,11 +148,11 @@ public class NostrApiExamples {
 //	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //            });
 //
-            executor.submit(() -> {
-            	try {
-            		filters();
-	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-            });
+//            executor.submit(() -> {
+//            	try {
+//            		filters();
+//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+//            });
 //
 //            executor.submit(() -> {
 //                createChannel();
@@ -308,7 +308,6 @@ public class NostrApiExamples {
         var nip01 = NIP01.getInstance();
         nip01.setRelays(RELAYS).send(filters, subId);
         Thread.sleep(5000);        
-		nip01.responses();			
     }
 
     private static GenericEvent createChannel() {

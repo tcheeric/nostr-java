@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
-import static nostr.base.IEncoder.MAPPER;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
 import nostr.util.NostrException;
@@ -40,17 +39,17 @@ public class OstEventEncoder implements IEncoder<OtsEvent> {
 
     private String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree(event);
+            JsonNode node = IEncoder.MAPPER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
             event.getAttributes().parallelStream()
                     .map(ElementAttribute::getValue)
                     .forEach(ev -> {
                         var expression = (HashMap<String, String>) ev;
 
-                        objNode.set("ots", MAPPER.valueToTree(expression.get("ots")));
+                        objNode.set("ots", IEncoder.MAPPER.valueToTree(expression.get("ots")));
                     });
 
-            return MAPPER.writeValueAsString(node);
+            return IEncoder.MAPPER.writeValueAsString(node);
         } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new NostrException(e);
         }

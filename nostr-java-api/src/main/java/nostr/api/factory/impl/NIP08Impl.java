@@ -22,15 +22,6 @@ public class NIP08Impl {
 
     public static class MentionsEventFactory extends EventFactory<MentionsEvent> {
 
-        public MentionsEventFactory(String content) {
-            super(content);
-        }
-
-        public MentionsEventFactory(@NonNull List<PublicKey> publicKeys, @NonNull String content) {
-            super(content);
-            publicKeys.forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));
-        }
-
         public MentionsEventFactory(@NonNull Identity sender, @NonNull List<PublicKey> publicKeys, @NonNull String content) {
             super(sender, content);
             publicKeys.forEach(pk -> getTags().add(PubKeyTag.builder().publicKey(pk).build()));

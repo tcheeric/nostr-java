@@ -11,8 +11,7 @@ import nostr.event.impl.CustomerOrderEvent.Customer;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.MerchantRequestPaymentEvent.Payment;
 import nostr.event.impl.NostrMarketplaceEvent.Product;
-import nostr.event.impl.VerifyPaymentOrShippedEvent.PaymentShipmentStatus;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -21,20 +20,8 @@ import java.util.List;
  */
 public class NIP15<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP15(@NonNull IIdentity sender) {
+    public NIP15(@NonNull Identity sender) {
         setSender(sender);
-    }
-
-    /**
-     * @param customer
-     * @param status
-     * @return
-     */
-    public NIP15<T> createVerifyPaymentOrShippedEvent(@NonNull Customer customer, @NonNull PaymentShipmentStatus status) {
-        var event = new NIP15Impl.VerifyPaymentOrShippedEventFactory(status, customer).create();
-        this.setEvent((T) event);
-
-        return this;
     }
 
     /**
