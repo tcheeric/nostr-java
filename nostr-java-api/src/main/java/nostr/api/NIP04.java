@@ -11,14 +11,12 @@ import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
 import nostr.encryption.nip04.MessageCipher04;
-import nostr.event.BaseTag;
 import nostr.event.NIP04Event;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -30,7 +28,7 @@ import java.util.logging.Level;
 @Deprecated(since = "NIP-44")
 public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
-    public NIP04(@NonNull IIdentity sender, @NonNull PublicKey recipient) {
+    public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
         setSender(sender);
         setRecipient(recipient);
     }
@@ -42,22 +40,6 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
     public NIP04<T> createDirectMessageEvent(@NonNull String content) {
         var encryptedContent = encrypt(getSender(), content, getRecipient());
         var event = new DirectMessageEventFactory(getSender(), getRecipient(), encryptedContent).create();
-        this.setEvent((T) event);
-
-        return this;
-    }
-
-    /**
-     * Create a NIP04 Encrypted Direct Message
-     *
-     * @param tags      additional note's tags
-     * @param recipient the DM recipient
-     * @param content   the DM content
-     * @return the DM event
-     */
-    public NIP04<T> createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-        var encryptedContent = encrypt(getSender(), content, recipient);
-        var event = new DirectMessageEventFactory(tags, recipient, encryptedContent).create();
         this.setEvent((T) event);
 
         return this;
@@ -79,7 +61,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @param recipient the recipient public key
      * @return the encrypted message
      */
-    public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
+    public static String encrypt(@NonNull Identity senderId, @NonNull String message, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
     }
@@ -91,7 +73,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @param dm     the encrypted direct message
      * @return the DM content in clear-text
      */
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull DirectMessageEvent dm) {
+    public static String decrypt(@NonNull Identity rcptId, @NonNull DirectMessageEvent dm) {
         return NIP04.decrypt(rcptId, (GenericEvent) dm);
     }
 
@@ -102,12 +84,12 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
      * @param recipient the recipient public key
      * @return the DM content in clear-text
      */
-    public static String decrypt(@NonNull IIdentity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
+    public static String decrypt(@NonNull Identity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher04(identity.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.decrypt(encryptedMessage);
     }
 
-    private static void encryptDirectMessage(@NonNull IIdentity senderId, @NonNull DirectMessageEvent directMessageEvent) {
+    private static void encryptDirectMessage(@NonNull Identity senderId, @NonNull DirectMessageEvent directMessageEvent) {
 
         ITag pkTag = directMessageEvent.getTags().get(0);
         if (pkTag instanceof PubKeyTag pubKeyTag) {
@@ -118,7 +100,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
         }
     }
 
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) {
+    public static String decrypt(@NonNull Identity rcptId, @NonNull GenericEvent event) {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -140,7 +122,7 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
         return cipher.decrypt(event.getContent());
     }
 
-    private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {
+    private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
         var pTag = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))

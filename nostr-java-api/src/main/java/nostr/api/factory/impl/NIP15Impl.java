@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
-import nostr.event.BaseTag;
 import nostr.event.impl.CreateOrUpdateProductEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CustomerOrderEvent;
@@ -17,7 +16,7 @@ import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.VerifyPaymentOrShippedEvent;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +34,6 @@ public class NIP15Impl {
         private final CustomerOrderEvent.Customer customer;
         private final VerifyPaymentOrShippedEvent.PaymentShipmentStatus status;
 
-        public VerifyPaymentOrShippedEventFactory(@NonNull VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
-            super(status.toString());
-            this.status = status;
-            this.customer = customer;
-        }
-
-        public VerifyPaymentOrShippedEventFactory(@NonNull List<BaseTag> tags, VerifyPaymentOrShippedEvent.PaymentShipmentStatus status, @NonNull CustomerOrderEvent.Customer customer) {
-            super(tags, status.toString());
-            this.status = status;
-            this.customer = customer;
-        }
-
         @Override
         public VerifyPaymentOrShippedEvent create() {
             return new VerifyPaymentOrShippedEvent(getSender(), customer, status);
@@ -61,13 +48,7 @@ public class NIP15Impl {
         private final MerchantRequestPaymentEvent.Payment payment;
         private final CustomerOrderEvent.Customer customer;
 
-        public MerchantRequestPaymentEventFactory(@NonNull CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
-            super(payment.toString());
-            this.payment = payment;
-            this.customer = customer;
-        }
-
-        public MerchantRequestPaymentEventFactory(@NonNull IIdentity sender, CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
+        public MerchantRequestPaymentEventFactory(@NonNull Identity sender, CustomerOrderEvent.Customer customer, @NonNull MerchantRequestPaymentEvent.Payment payment) {
             super(sender, payment.toString());
             this.payment = payment;
             this.customer = customer;
@@ -85,12 +66,7 @@ public class NIP15Impl {
 
         private final CustomerOrderEvent.Customer customer;
 
-        public CustomerOrderEventFactory(@NonNull CustomerOrderEvent.Customer customer) {
-            super(customer.toString());
-            this.customer = customer;
-        }
-
-        public CustomerOrderEventFactory(IIdentity identity, @NonNull CustomerOrderEvent.Customer customer) {
+        public CustomerOrderEventFactory(Identity identity, @NonNull CustomerOrderEvent.Customer customer) {
             super(identity, customer.toString());
             this.customer = customer;
         }
@@ -108,12 +84,7 @@ public class NIP15Impl {
 
         private final CreateOrUpdateStallEvent.Stall stall;
 
-        public CreateOrUpdateStallEventFactory(@NonNull CreateOrUpdateStallEvent.Stall stall) {
-            super(stall.toString());
-            this.stall = stall;
-        }
-
-        public CreateOrUpdateStallEventFactory(IIdentity identity, @NonNull CreateOrUpdateStallEvent.Stall stall) {
+        public CreateOrUpdateStallEventFactory(Identity identity, @NonNull CreateOrUpdateStallEvent.Stall stall) {
             super(identity, stall.toString());
             this.stall = stall;
         }
@@ -132,13 +103,7 @@ public class NIP15Impl {
         private final NostrMarketplaceEvent.Product product;
         private final List<String> categories;
 
-        public CreateOrUpdateProductEventFactory(@NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
-            super(product.toString());
-            this.product = product;
-            this.categories = categories;
-        }
-
-        public CreateOrUpdateProductEventFactory(IIdentity identity, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
+        public CreateOrUpdateProductEventFactory(Identity identity, @NonNull NostrMarketplaceEvent.Product product, List<String> categories) {
             super(identity, product.toString());
             this.product = product;
             this.categories = categories;

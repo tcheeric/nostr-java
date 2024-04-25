@@ -33,7 +33,7 @@ class ClientTest {
     @BeforeEach
     public void init() {
         System.out.println("init");
-        identity = Identity.getInstance(PrivateKey.generateRandomPrivKey());
+        identity = Identity.create(PrivateKey.generateRandomPrivKey());
 
         var requestContext = new DefaultRequestContext();
         requestContext.setPrivateKey(identity.getPrivateKey().getRawData());

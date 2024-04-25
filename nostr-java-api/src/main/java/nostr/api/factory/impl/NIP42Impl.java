@@ -18,7 +18,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericMessage;
 import nostr.event.message.CanonicalAuthenticationMessage;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,19 +42,13 @@ public class NIP42Impl {
             this.relay = relay;
         }
 
-        public CanonicalAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(@NonNull Identity sender, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, null);
             this.challenge = challenge;
             this.relay = relay;
         }
 
-        public CanonicalAuthenticationEventFactory(List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
-            super(tags, null);
-            this.challenge = challenge;
-            this.relay = relay;
-        }
-
-        public CanonicalAuthenticationEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
+        public CanonicalAuthenticationEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull String challenge, @NonNull Relay relay) {
             super(sender, tags, null);
             this.challenge = challenge;
             this.relay = relay;

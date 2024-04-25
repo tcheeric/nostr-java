@@ -93,9 +93,7 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                 case "REQ" -> {
                     var len = msgArr.length - 2;
                     var filtersArr = new Object[len];
-                    for (int i = 0; i < len; i++) {
-                        filtersArr[i] = msgArr[i + 2];
-                    }
+                    System.arraycopy(msgArr, 2, filtersArr, 0, len);
                     var filtersList = mapper.convertValue(filtersArr, new TypeReference<FiltersList>() {
                     });
                     message = new ReqMessage(arg.toString(), filtersList);

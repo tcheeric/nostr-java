@@ -11,7 +11,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.EncryptedPayloadEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.logging.Level;
 @Log
 public class NIP44<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP44(@NonNull IIdentity sender, @NonNull PublicKey recipient) {
+    public NIP44(@NonNull Identity sender, @NonNull PublicKey recipient) {
         setSender(sender);
         setRecipient(recipient);
     }
@@ -72,7 +71,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
         return this;
     }
 
-    public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
+    public static String encrypt(@NonNull Identity senderId, @NonNull String message, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher44(senderId.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
     }
@@ -84,7 +83,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
      * @param ep     the encrypted Payloads
      * @return the ep content in clear-text
      */
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull EncryptedPayloadEvent ep) {
+    public static String decrypt(@NonNull Identity rcptId, @NonNull EncryptedPayloadEvent ep) {
         return NIP44.decrypt(rcptId, (GenericEvent) ep);
     }
 
@@ -96,12 +95,12 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
      * @param recipient the recipient's public key
      * @return the ep content in clear-text
      */
-    public static String decrypt(@NonNull IIdentity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {
+    public static String decrypt(@NonNull Identity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher44(identity.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.decrypt(encrypteEPessage);
     }
 
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) {
+    public static String decrypt(@NonNull Identity rcptId, @NonNull GenericEvent event) {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -123,7 +122,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
         return cipher.decrypt(event.getContent());
     }
 
-    private static void encryptDirectMessage(@NonNull IIdentity senderId, @NonNull EncryptedPayloadEvent ep) {
+    private static void encryptDirectMessage(@NonNull Identity senderId, @NonNull EncryptedPayloadEvent ep) {
 
         ITag pkTag = ep.getTags().get(0);
         if (pkTag instanceof PubKeyTag pubKeyTag) {
@@ -134,7 +133,7 @@ public class NIP44<T extends GenericEvent> extends EventNostr<T> {
         }
     }
 
-    private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {
+    private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
         var pTag = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))

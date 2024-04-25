@@ -97,8 +97,8 @@ public class NostrApiExamples {
 			executor.submit(() -> {
 	        	try {
 					sendTextNoteEvent();
-	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-			});
+	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+            });
 
 //            executor.submit(() -> {
 //		    	try {

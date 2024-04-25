@@ -8,8 +8,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP09Impl.DeletionEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP09Event;
-import nostr.event.tag.EventTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ import java.util.List;
  */
 public class NIP09<T extends NIP09Event> extends EventNostr<T> {
 	
-	public NIP09(@NonNull IIdentity sender) {
+	public NIP09(@NonNull Identity sender) {
 		setSender(sender);
 	}
 
@@ -31,21 +30,6 @@ public class NIP09<T extends NIP09Event> extends EventNostr<T> {
      */
     public NIP09<T> createDeletionEvent(@NonNull List<BaseTag> tags) {
     	var event = new DeletionEventFactory(getSender(), tags).create();
-		this.setEvent((T) event);
-
-		return this;
-    }
-
-    /**
-     * Create a NIP09 Deletion Event
-     *
-     * @param idEvent the id of event to delete
-     * @return the deletion event
-     */
-    public NIP09<T> createDeletionEvent(@NonNull String idEvent) {
-        List<BaseTag> tags = List.of(new EventTag(idEvent));
-
-        var event = new DeletionEventFactory(tags).create();
 		this.setEvent((T) event);
 
 		return this;

@@ -8,7 +8,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP05Impl.InternetIdentifierMetadataEventFactory;
 import nostr.base.UserProfile;
 import nostr.event.NIP05Event;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
@@ -16,7 +16,7 @@ import nostr.id.IIdentity;
  */
 public class NIP05<T extends NIP05Event> extends EventNostr<T> {
 	
-	public NIP05(@NonNull IIdentity sender) {
+	public NIP05(@NonNull Identity sender) {
 		setSender(sender);
 	}
  

@@ -32,9 +32,8 @@ import nostr.event.json.codec.GenericTagQueryEncoder;
 import nostr.event.list.FiltersList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class Nostr {
 
     private Client client;
     @Getter
-    private IIdentity sender;
+    private Identity sender;
 
     @Getter
     private Map<String, String> relays;
@@ -59,15 +58,15 @@ public class Nostr {
         return (INSTANCE == null) ? new Nostr() : INSTANCE;
     }
 
-    public static Nostr getInstance(@NonNull IIdentity sender) {
+    public static Nostr getInstance(@NonNull Identity sender) {
         return (INSTANCE == null) ? new Nostr(sender) : INSTANCE;
     }
 
-    public Nostr(@NonNull IIdentity sender) {
+    public Nostr(@NonNull Identity sender) {
         this.sender = sender;
     }
 
-    public Nostr setSender(@NonNull IIdentity sender) {
+    public Nostr setSender(@NonNull Identity sender) {
         this.sender = sender;
 
         return this;
@@ -141,7 +140,7 @@ public class Nostr {
     /**
      * @param signable
      */
-    public Nostr sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
+    public Nostr sign(@NonNull Identity identity, @NonNull ISignable signable) {
         identity.sign(signable);
 
         return this;

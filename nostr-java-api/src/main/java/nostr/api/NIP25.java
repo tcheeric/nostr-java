@@ -11,14 +11,14 @@ import nostr.event.NIP25Event;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EmojiTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NIP25<T extends NIP25Event> extends EventNostr<T> {
 	
-	public NIP25(@NonNull IIdentity sender) {
+	public NIP25(@NonNull Identity sender) {
 		setSender(sender);
 	}
 

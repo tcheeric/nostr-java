@@ -51,8 +51,8 @@ public class ApiEventTest {
         var recipient = NIP01.createPubKeyTag(publicKey);
         List<BaseTag> tags = new ArrayList<>();
         tags.add(recipient);
-
-        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
+        Identity identity = Identity.generateRandomIdentity();
+        var nip01 = new NIP01<TextNoteEvent>(identity);
 		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
 				.getEvent();
         instance.update();
@@ -70,7 +70,8 @@ public class ApiEventTest {
     public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
+        Identity identity = Identity.generateRandomIdentity();
+        var nip01 = new NIP01<TextNoteEvent>(identity);
 		var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!")
         		.sign();
 
@@ -88,8 +89,8 @@ public class ApiEventTest {
         System.out.println("testNIP04SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
-
-        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
         		.sign();
         
@@ -104,7 +105,8 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
@@ -116,11 +118,12 @@ public class ApiEventTest {
         System.out.println("testNIP04EncryptDecrypt");
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
-
-        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
 		        .sign();
-        var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
+
+        var message = NIP04.decrypt(identity, instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
@@ -131,10 +134,11 @@ public class ApiEventTest {
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
-        var message = NIP44.decrypt(Identity.getInstance(), instance.getEvent());
+        var message = NIP44.decrypt(identity, instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
@@ -144,7 +148,7 @@ public class ApiEventTest {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
@@ -164,7 +168,7 @@ public class ApiEventTest {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
@@ -185,7 +189,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);
@@ -204,7 +208,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance(PrivateKey.generateRandomPrivKey()));
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);

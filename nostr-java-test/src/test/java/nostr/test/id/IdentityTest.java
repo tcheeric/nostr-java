@@ -21,18 +21,20 @@ public class IdentityTest {
     @Test
     public void testSignEvent() {
         System.out.println("testSignEvent");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey publicKey = identity.getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
-        Identity.getInstance().sign(instance);
+        identity.sign(instance);
         Assertions.assertNotNull(instance.getSignature());
     }
 
     @Test
     public void testSignDelegationTag() {
         System.out.println("testSignDelegationTag");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey publicKey = identity.getPublicKey();
         DelegationTag delegationTag = new DelegationTag(publicKey, null);
-        Identity.getInstance().sign(delegationTag);
+        identity.sign(delegationTag);
         Assertions.assertNotNull(delegationTag.getSignature());
     }
     

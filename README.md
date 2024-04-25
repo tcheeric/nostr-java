@@ -32,6 +32,7 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-30](https://github.com/nostr-protocol/nips/blob/master/30.md)
 - [NIP-32](https://github.com/nostr-protocol/nips/blob/master/32.md)
 - [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md)
+- [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md)
 - [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md)
 - [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md)
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)

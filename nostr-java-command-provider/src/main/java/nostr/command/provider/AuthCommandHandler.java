@@ -36,7 +36,7 @@ public class AuthCommandHandler implements CommandHandler {
                 log.log(Level.INFO, "Authentication required on relay {0}", defaultCommandContext.getRelay());
 
                 var privateKey = defaultCommandContext.getPrivateKey();
-                var identity = Identity.getInstance(new PrivateKey(privateKey));
+                var identity = Identity.create(new PrivateKey(privateKey));
                 var publicKey = identity.getPublicKey();
                 var challenge = defaultCommandContext.getChallenge();
                 var relay = defaultCommandContext.getRelay();
