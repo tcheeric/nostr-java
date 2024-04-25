@@ -27,6 +27,7 @@ public class Identity extends AbstractBaseIdentity {
     @ToString.Exclude
     private final PrivateKey privateKey;
 
+    @Deprecated
     private Identity() throws IOException, NostrException {
         this.privateKey = new IdentityConfiguration("").getPrivateKey();
     }
@@ -46,6 +47,7 @@ public class Identity extends AbstractBaseIdentity {
         }
     }
 
+    @Deprecated
     public static Identity getInstance() {
         return Holder.INSTANCE;
     }
@@ -66,6 +68,7 @@ public class Identity extends AbstractBaseIdentity {
     }
 
     @Log
+    @Deprecated
     static class IdentityConfiguration extends AbstractBaseConfiguration {
 
         IdentityConfiguration(@NonNull String name) throws IOException {

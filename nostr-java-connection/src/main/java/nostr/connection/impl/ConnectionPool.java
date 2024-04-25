@@ -42,18 +42,6 @@ public class ConnectionPool {
         });
     }
 
-/*
-    public void connect(@NonNull Relay relay) throws TimeoutException {
-        log.log(Level.INFO, "Connecting to {0}...", relay);
-        var connection = getConnection(relay);
-        if (connection == null) {
-            connection.connect();
-        } else {
-            log.log(Level.WARNING, "Already connected to {0}. Ignoring...", relay);
-        }
-    }
-*/
-
     public void disconnect() {
         log.log(Level.INFO, "Disconnecting from relays");
         connections.forEach(connection -> {
@@ -84,21 +72,21 @@ public class ConnectionPool {
     }
 
     public void send(@NonNull String message) {
-        log.log(Level.INFO, ">>> Connectied to {0} relay(s)...", connections.size());
+        log.log(Level.FINER, "Connectied to {0} relay(s)...", connections.size());
         connections.forEach(conn -> {
             conn.send(message);
         });
     }
 
     public void send(@NonNull String message, @NonNull Relay relay) {
-        log.log(Level.INFO, ">>> ConnectionPool.send({0}, {1}) / {2} connection(s)", new Object[]{message, relay, connections.size()});
+        log.log(Level.FINER, "ConnectionPool.send({0}, {1}) / {2} connection(s)", new Object[]{message, relay, connections.size()});
         var connection = getConnection(relay);
         if (connection != null) {
-            log.log(Level.INFO, ">>> Trying to send {0} to {1}...", new Object[]{message, relay});
+            log.log(Level.FINE, "Trying to send {0} to {1}...", new Object[]{message, relay});
             connection.send(message);
         }
         else {
-            log.log(Level.WARNING, ">>> No connection found for {0}", relay);
+            log.log(Level.WARNING, "No connection found for {0}", relay);
         }
     }
 

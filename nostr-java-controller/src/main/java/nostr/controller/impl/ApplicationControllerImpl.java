@@ -54,7 +54,7 @@ public class ApplicationControllerImpl implements ApplicationController {
 
         var commandHandler = getCommandHandler(this.command);
 
-        log.info("Executing command: " + this.command);
+        log.fine("Executing command: " + this.command);
         commandHandler.handle(defaultCommandContext);
     }
 

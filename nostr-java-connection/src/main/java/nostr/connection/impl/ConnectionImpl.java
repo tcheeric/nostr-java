@@ -53,11 +53,11 @@ public class ConnectionImpl implements Connection {
 
         try {
             if (isConnected()) {
-                log.log(Level.INFO, "Already connected to {0}. Do nothing...", relay);
+                log.log(Level.FINE, "Already connected to {0}. Do nothing...", relay);
                 return;
             }
 
-            log.log(Level.INFO, "+Connecting to {0}...", relay);
+            log.log(Level.INFO, "Connecting to {0}...", relay);
             var client = HttpClient.newHttpClient();
             var compositeListener = new CompositeListener(Arrays.asList(new OpenListener(relay), new TextListener(relay, context), new CloseListener(relay), new ErrorListener(relay)));
 

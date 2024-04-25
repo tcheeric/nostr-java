@@ -14,7 +14,6 @@ import java.util.Map;
 public class DefaultRequestContext implements RequestContext {
     private byte[] privateKey;
     private String subscriptionId;
-    //private String challenge;
     private Map<String, String> relays;
     private Map<Relay, String> challenges = new HashMap<>();
 

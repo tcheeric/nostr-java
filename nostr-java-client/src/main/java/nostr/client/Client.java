@@ -53,16 +53,9 @@ public class Client {
     }
 
     public void send(@NonNull BaseMessage message) throws TimeoutException {
-        log.log(Level.INFO, "Requesting to send the message {0}...", message);
+        log.log(Level.FINE, "Requesting to send the message {0}...", message);
         ThreadUtil.builder().blocking(false).lock(true).task(new SendMessageTask(message, this.connectionPool)).build().run(this.context);
     }
-
-/*
-    public void send(@NonNull BaseMessage message, @NonNull Relay relay) {
-        var encoder = new BaseMessageEncoder(message);
-        this.connectionPool.send(encoder.encode(), relay);
-    }
-*/
 
     boolean isConnected(@NonNull Relay relay) {
         return this.connectionPool.isConnectedTo(relay);
@@ -102,19 +95,19 @@ public class Client {
         public Void execute(@NonNull Context context) {
             //  Only send AUTH messages to the relay mentioned in the tag https://github.com/tcheeric/nostr-java/issues/129
             if (message instanceof CanonicalAuthenticationMessage canonicalAuthenticationMessage) {
-                log.log(Level.INFO, ">>> Authentication message {0}...", canonicalAuthenticationMessage);
+                log.log(Level.FINE, ">>> Authentication message {0}...", canonicalAuthenticationMessage);
                 var event = canonicalAuthenticationMessage.getEvent();
                 var relayTag = event.getTags().stream().filter(t -> t.getCode().equalsIgnoreCase("relay")).findFirst();
                 if (relayTag.isPresent()) {
                     var relayTagValue = ((GenericTag) relayTag.get()).getAttributes().get(0).getValue().toString();
-                    log.log(Level.INFO, "**** Relay found in CanonicalAuthenticationMessage: {0}", relayTagValue);
+                    log.log(Level.FINEST, "**** Relay found in CanonicalAuthenticationMessage: {0}", relayTagValue);
                     var r = new Relay(relayTagValue);
                     connectionPool.send(new BaseMessageEncoder(canonicalAuthenticationMessage).encode(), r);
                 } else {
                     log.log(Level.SEVERE, "Relay tag not found in CanonicalAuthenticationMessage. Ignoring...");
                 }
             } else {
-                log.log(Level.INFO, "+++ message {0}...", message);
+                log.log(Level.FINER, "+++ message {0}...", message);
                 connectionPool.send(new BaseMessageEncoder(message).encode());
             }
             return null;

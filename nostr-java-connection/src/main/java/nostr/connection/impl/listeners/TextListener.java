@@ -50,7 +50,7 @@ public class TextListener implements WebSocket.Listener {
         var msg = new BaseMessageDecoder(message).decode();
         final String strCommand = msg.getCommand();
 
-        log.log(Level.INFO, "Creating the command context with message {0}", new Object[]{msg});
+        log.log(Level.FINE, "Creating the command context with message {0}", new Object[]{msg});
         Context commandContext = createCommandContext(msg);
         var applicationController = new ApplicationControllerImpl(strCommand);
 
@@ -71,7 +71,7 @@ public class TextListener implements WebSocket.Listener {
 
         // Set the challenge
         if (message instanceof RelayAuthenticationMessage authMessage) {
-            log.log(Level.INFO, "Setting the challenge {0} for the relay {1}", new Object[]{authMessage.getChallenge(), relay});
+            log.log(Level.FINE, "Setting the challenge {0} for the relay {1}", new Object[]{authMessage.getChallenge(), relay});
             commandContext.setChallenge(authMessage.getChallenge());
         }
 

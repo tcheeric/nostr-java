@@ -1,22 +1,22 @@
 package nostr.util;
 
+import lombok.Data;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import java.util.Properties;
 import java.util.logging.Level;
-
-import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.java.Log;
 
 /**
  * @author squirrel
  */
 @Data
 @Log
+@Deprecated
 public abstract class AbstractBaseConfiguration {
 
     protected final Properties properties = new Properties();

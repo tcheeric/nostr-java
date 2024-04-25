@@ -12,6 +12,7 @@ import java.io.IOException;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ToString
+@Deprecated
 public class CustomIdentity extends AbstractBaseIdentity {
 
     @ToString.Exclude
@@ -38,6 +39,7 @@ public class CustomIdentity extends AbstractBaseIdentity {
         return this.privateKey;
     }
 
+    @Deprecated
     static class CustomIdentityConfiguration extends Identity.IdentityConfiguration {
 
         CustomIdentityConfiguration(@NonNull String name) throws IOException {

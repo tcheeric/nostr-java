@@ -33,7 +33,7 @@ public class ClosedCommandHandler implements CommandHandler {
 
             if (message instanceof ClosedMessage closedMessage) {
                 if (closedMessage.getMessage().startsWith("auth-required:")) {
-                    log.log(Level.WARNING, "Authentication required on relay {0}", defaultCommandContext.getRelay());
+                    log.log(Level.INFO, "Authentication required on relay {0}", defaultCommandContext.getRelay());
 
                     var privateKey = defaultCommandContext.getPrivateKey();
                     var identity = Identity.getInstance(new PrivateKey(privateKey));

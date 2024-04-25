@@ -33,7 +33,7 @@ public class AuthCommandHandler implements CommandHandler {
             var message = defaultCommandContext.getMessage();
 
             if (message instanceof RelayAuthenticationMessage) {
-                log.log(Level.WARNING, "Authentication required on relay {0}", defaultCommandContext.getRelay());
+                log.log(Level.INFO, "Authentication required on relay {0}", defaultCommandContext.getRelay());
 
                 var privateKey = defaultCommandContext.getPrivateKey();
                 var identity = Identity.getInstance(new PrivateKey(privateKey));

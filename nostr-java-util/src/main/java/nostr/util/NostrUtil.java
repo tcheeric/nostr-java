@@ -1,27 +1,17 @@
 package nostr.util;
 
-import lombok.extern.java.Log;
-
-import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 /**
  *
  * @author squirrel
  */
-@Log
 public class NostrUtil {
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
@@ -114,48 +104,4 @@ public class NostrUtil {
                 .replace("\\r", "\r")
                 .replace("\\t", "\t");
     }
-
-    public static URI serverURI(String hostname) {
-        try {
-            URL url = new URI("https://" + hostname).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.FINE, "Openning a secure connection to {0}", hostname);
-
-            openConnection.connect();
-            return new URI("wss://" + hostname);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTPS, trying with HTTP...", hostname));
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
-            throw new RuntimeException(e);
-        }
-
-        try {
-            URL url = new URI("http://" + hostname).toURL();
-
-            URLConnection openConnection = url.openConnection();
-
-            log.log(Level.FINE, "Opening an un-secure connection to {0}", hostname);
-
-            openConnection.connect();
-
-            return new URI("ws://" + hostname);
-        } catch (MalformedURLException e) {
-            log.log(Level.WARNING, null, e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            log.log(Level.WARNING, String.format("It wasn't possible to connect to server %s using HTTP", hostname));
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Invalid URI: %s", hostname), e);
-            throw new RuntimeException(e);
-        }
-
-        throw new RuntimeException();
-    }
-
 }
