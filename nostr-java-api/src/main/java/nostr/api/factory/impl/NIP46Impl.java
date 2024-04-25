@@ -9,7 +9,7 @@ import nostr.api.NIP46;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.impl.NostrConnectEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.logging.Level;
 
@@ -22,14 +22,14 @@ public class NIP46Impl {
 
         private PublicKey recipient;
 
-        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46.Request request, @NonNull PublicKey recipient) {
+        public NostrConnectEventFactory(@NonNull Identity sender, @NonNull NIP46.Request request, @NonNull PublicKey recipient) {
             super(sender, NIP04.encrypt(sender, request.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();
             log.log(Level.FINE, "NostrConnectEventFactory Sender: {0} - Request: {1}", new Object[]{senderPk, request});
         }
 
-        public NostrConnectEventFactory(@NonNull IIdentity sender, @NonNull NIP46.Response response, @NonNull PublicKey recipient) {
+        public NostrConnectEventFactory(@NonNull Identity sender, @NonNull NIP46.Response response, @NonNull PublicKey recipient) {
             super(sender, NIP04.encrypt(sender, response.toString(), recipient));
             this.recipient = recipient;
             var senderPk = getIdentity().getPublicKey();

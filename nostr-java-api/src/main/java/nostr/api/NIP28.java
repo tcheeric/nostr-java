@@ -12,14 +12,14 @@ import nostr.base.Relay;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  * @author eric
  */
 public class NIP28<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP28(@NonNull IIdentity sender) {
+    public NIP28(@NonNull Identity sender) {
         setSender(sender);
     }
 

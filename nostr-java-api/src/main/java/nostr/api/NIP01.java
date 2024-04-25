@@ -19,6 +19,7 @@ import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
+import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -29,7 +30,6 @@ import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
 import nostr.event.list.EventList;
 import nostr.event.list.FiltersList;
-import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.message.CloseMessage;
@@ -41,7 +41,7 @@ import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 	
-	public NIP01(@NonNull IIdentity sender) {
+	public NIP01(@NonNull Identity sender) {
 		setSender(sender);
 	}
 
@@ -68,7 +68,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 		return this;
     }
 
-	public NIP01<T> createTextNoteEvent(@NonNull IIdentity sender, @NonNull String content) {
+	public NIP01<T> createTextNoteEvent(@NonNull Identity sender, @NonNull String content) {
 		var event = new TextNoteEventFactory(sender, content).create();
 		this.setEvent((T) event);
 
@@ -84,7 +84,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      */
 	public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
     	var sender = getSender();
-		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(tags, content);
+		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(sender, tags, content);
 		var event = factory.create();
 		setEvent((T) event);
 
@@ -206,15 +206,15 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param until an integer unix timestamp in seconds, events must be older
      * than this to pass
      * @param limit maximum number of events to be returned in the initial query
-     * @param genericTagQueryList a generic tag query list
+     * @param genericTagQuery a generic tag query
      * @return a filters object
      */
     @Deprecated(forRemoval = true)
-    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQueryList genericTagQueryList) {
+    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQuery genericTagQuery) {
         return Filters.builder()
         		.authors(authors)
         		.events(events)
-        		.genericTagQueryList(genericTagQueryList)
+        		.genericTagQuery(genericTagQuery)
         		.kinds(kinds).limit(limit)
         		.referencePubKeys(referencePubKeys)
         		.referencedEvents(referencedEvents)

@@ -9,5 +9,5 @@ module nostr.base {
     requires java.logging;
     
     exports nostr.base;
-    exports nostr.base.annotation;    
+    exports nostr.base.annotation;
 }

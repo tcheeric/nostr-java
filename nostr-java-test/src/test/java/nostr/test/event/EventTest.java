@@ -34,7 +34,7 @@ public class EventTest {
     @Test
     public void testCreateTextNoteEvent() throws NostrException {
         System.out.println("testCreateTextNoteEvent");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
         instance.update();
         Assertions.assertNotNull(instance.getId());
@@ -48,7 +48,7 @@ public class EventTest {
     @Test
     public void testCreateGenericTag() throws JsonProcessingException {
         System.out.println("testCreateGenericTag");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
         Relay relay = new Relay("wss://secret.relay.com");

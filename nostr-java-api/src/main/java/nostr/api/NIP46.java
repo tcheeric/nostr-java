@@ -11,7 +11,7 @@ import lombok.extern.java.Log;
 import nostr.api.factory.impl.NIP46Impl;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ import java.util.logging.Level;
 
 public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
 
-    public NIP46(@NonNull IIdentity sender) {
+    public NIP46(@NonNull Identity sender) {
         setSender(sender);
     }
 

@@ -12,7 +12,7 @@ import nostr.event.BaseTag;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -29,42 +29,22 @@ public class NIP25Impl {
 
         public final GenericEvent event;
 
-        public ReactionEventFactory(@NonNull GenericEvent event, Reaction reaction) {
-            super(reaction.getEmoji());
-            this.event = event;
-        }
-
-        public ReactionEventFactory(@NonNull GenericEvent event, String reaction) {
-            super(reaction);
-            this.event = event;
-        }
-
-        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull GenericEvent event, Reaction reaction) {
+        public ReactionEventFactory(@NonNull Identity sender, @NonNull GenericEvent event, Reaction reaction) {
             super(sender, reaction.getEmoji());
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
-            super(tags, reaction);
-            this.event = event;
-        }
-
-        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
+        public ReactionEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, @NonNull GenericEvent event, String reaction) {
             super(sender, tags, reaction);
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull GenericEvent event, String content) {
+        public ReactionEventFactory(@NonNull Identity sender, @NonNull GenericEvent event, String content) {
             super(sender, content);
             this.event = event;
         }
 
-        public ReactionEventFactory(@NonNull List<BaseTag> tags, String content) {
-            super(tags, content);
-            this.event = null;
-        }
-
-        public ReactionEventFactory(@NonNull IIdentity sender, @NonNull List<BaseTag> tags, String content) {
+        public ReactionEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> tags, String content) {
             super(sender, tags, content);
             this.event = null;
         }

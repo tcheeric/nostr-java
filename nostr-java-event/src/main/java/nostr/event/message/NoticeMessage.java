@@ -4,6 +4,7 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
@@ -20,7 +21,7 @@ public class NoticeMessage extends BaseMessage {
     @JsonProperty
     private final String message;
 
-    public NoticeMessage(String message) {
+    public NoticeMessage(@NonNull String message) {
         super(Command.NOTICE.name());
         this.message = message;
     }

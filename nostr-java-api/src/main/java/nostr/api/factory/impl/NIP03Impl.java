@@ -12,7 +12,7 @@ import nostr.api.NIP31;
 import nostr.api.factory.EventFactory;
 import nostr.base.IEvent;
 import nostr.event.impl.OtsEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 /**
  *
@@ -24,7 +24,7 @@ public class NIP03Impl {
     @EqualsAndHashCode(callSuper = false)
     public static class OtsEventFactory extends EventFactory<OtsEvent> {
 
-        public OtsEventFactory(@NonNull IIdentity sender,  @NonNull IEvent refEvent, @NonNull String content, @NonNull String alt) {
+        public OtsEventFactory(@NonNull Identity sender, @NonNull IEvent refEvent, @NonNull String content, @NonNull String alt) {
             super(sender, content);
             this.addTag(NIP31.createAltTag(alt));
             this.addTag(NIP01.createEventTag(refEvent.getId()));

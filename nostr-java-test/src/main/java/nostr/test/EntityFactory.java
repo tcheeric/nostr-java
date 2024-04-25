@@ -1,18 +1,11 @@
 package nostr.test;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
-import nostr.base.UserProfile;
 import nostr.base.PublicKey;
+import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
@@ -29,11 +22,17 @@ import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.list.EventList;
-import nostr.event.list.GenericTagQueryList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -150,10 +149,7 @@ public class EntityFactory {
             EventList refEvents = new EventList();
             refEvents.add(createTextNoteEvent(publicKey));
 
-            GenericTagQueryList gtqList = new GenericTagQueryList();
-            gtqList.add(createGenericTagQuery());
-
-            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQueryList(gtqList).build();
+            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(createGenericTagQuery()).build();
         }
 
         public static GenericTagQuery createGenericTagQuery() {
@@ -168,7 +164,7 @@ public class EntityFactory {
             list.add(v1);
             
             var result = new GenericTagQuery();
-            result.setTagName(c);
+            result.setTagName(c.toString());
             result.setValue(list);
             return result;
         }

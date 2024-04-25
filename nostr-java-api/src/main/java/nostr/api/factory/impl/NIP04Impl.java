@@ -11,7 +11,7 @@ import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.DirectMessageEvent;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -28,22 +28,12 @@ public class NIP04Impl {
 
         private final PublicKey recipient;
 
-        public DirectMessageEventFactory(@NonNull PublicKey recipient, @NonNull String content) {
-            super(content);
-            this.recipient = recipient;
-        }
-
-        public DirectMessageEventFactory(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-            super(content);
-            this.recipient = recipient;
-        }
-
-        public DirectMessageEventFactory(@NonNull IIdentity sender, @NonNull PublicKey recipient, @NonNull String content) {
+        public DirectMessageEventFactory(@NonNull Identity sender, @NonNull PublicKey recipient, @NonNull String content) {
             super(sender, content);
             this.recipient = recipient;
         }
 
-        public DirectMessageEventFactory(@NonNull IIdentity identity, @NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
+        public DirectMessageEventFactory(@NonNull Identity identity, @NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
             super(identity, content);
             this.recipient = recipient;
         }

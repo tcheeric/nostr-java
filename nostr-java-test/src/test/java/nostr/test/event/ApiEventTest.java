@@ -8,6 +8,7 @@ import nostr.api.NIP15;
 import nostr.api.NIP32;
 import nostr.api.NIP44;
 import nostr.base.ElementAttribute;
+import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
@@ -24,9 +25,13 @@ import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -36,6 +41,8 @@ public class ApiEventTest {
 
     public static final String NOSTR_JAVA_PUBKEY = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
 
+    private static final Map<String, String> RELAYS = getRelays();
+
     @Test
     public void testNIP01CreateTextNoteEvent() throws NostrException {
         System.out.println("testNIP01CreateTextNoteEvent");
@@ -44,8 +51,8 @@ public class ApiEventTest {
         var recipient = NIP01.createPubKeyTag(publicKey);
         List<BaseTag> tags = new ArrayList<>();
         tags.add(recipient);
-
-        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
+        Identity identity = Identity.generateRandomIdentity();
+        var nip01 = new NIP01<TextNoteEvent>(identity);
 		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
 				.getEvent();
         instance.update();
@@ -63,13 +70,18 @@ public class ApiEventTest {
     public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>(Identity.getInstance());
+        Identity identity = Identity.generateRandomIdentity();
+        var nip01 = new NIP01<TextNoteEvent>(identity);
 		var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!")
         		.sign();
 
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.send();
+        instance.setRelays(RELAYS).send();
+
+        //Assertions.assertNotNull(instance.responses());
+        //Assertions.assertFalse(instance.responses().isEmpty());
+        //instance.responses().forEach(System.out::println);
     }
 
     @Test
@@ -77,14 +89,14 @@ public class ApiEventTest {
         System.out.println("testNIP04SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
-
-        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
         		.sign();
         
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.send();
+        instance.setRelays(RELAYS).send();
     }
 
     @Test
@@ -93,11 +105,12 @@ public class ApiEventTest {
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
-        instance.send();
+        instance.setRelays(RELAYS).send();
     }
 
     @Test
@@ -105,11 +118,12 @@ public class ApiEventTest {
         System.out.println("testNIP04EncryptDecrypt");
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
-
-        var nip04 = new NIP04<DirectMessageEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
 		        .sign();
-        var message = NIP04.decrypt(Identity.getInstance(), instance.getEvent());
+
+        var message = NIP04.decrypt(identity, instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
@@ -120,10 +134,11 @@ public class ApiEventTest {
 
         var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
 
-        var nip44 = new NIP44<EncryptedPayloadEvent>(Identity.getInstance(), nostr_java);
+        Identity identity = Identity.generateRandomIdentity();
+        var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
-        var message = NIP44.decrypt(Identity.getInstance(), instance.getEvent());
+        var message = NIP44.decrypt(identity, instance.getEvent());
 
         Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
@@ -133,7 +148,7 @@ public class ApiEventTest {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
@@ -153,18 +168,18 @@ public class ApiEventTest {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        nip15.send();
+        nip15.setRelays(RELAYS).send();
 
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
-        nip15.createCreateOrUpdateStallEvent(stall).sign().send();
+        nip15.createCreateOrUpdateStallEvent(stall).sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -174,7 +189,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);
@@ -183,7 +198,7 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -193,7 +208,7 @@ public class ApiEventTest {
 
         // Create the stall object
         var stall = createStall();
-        var nip15 = new NIP15<>(Identity.getInstance());
+        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         // Create the product
         var product = createProduct(stall);
@@ -202,13 +217,12 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().send();
-        //nip15.sign().send();
+        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
-        nip15.sign().send();
+        nip15.sign().setRelays(RELAYS).send();
     }
 
     @Test
@@ -293,5 +307,24 @@ public class ApiEventTest {
         product.setStall(stall);
 
         return product;
+    }
+
+    private static Map<String, String> getRelays() {
+        Map<String, String> relays = new HashMap<>();
+        Properties properties = new Properties();
+        try {
+            InputStream is = ApiEventTest.class.getClassLoader().getResourceAsStream("relays.properties");
+            if (is != null) {
+                properties.load(is);
+                for (String key : properties.stringPropertyNames()) {
+                    relays.put(key, properties.getProperty(key));
+                }
+            } else {
+                throw new RuntimeException("Unable to find 'relays.properties' in the classpath");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return relays;
     }
 }

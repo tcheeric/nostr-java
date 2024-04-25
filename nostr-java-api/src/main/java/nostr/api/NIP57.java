@@ -13,7 +13,7 @@ import nostr.base.Relay;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.EventTag;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     private static final String AMOUNT_TAG_NAME = "amount";
     private static final String ZAP_TAG_NAME = "zap";
 
-    public NIP57(@NonNull IIdentity sender) {
+    public NIP57(@NonNull Identity sender) {
         setSender(sender);
     }
 
@@ -194,7 +194,7 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull Relay relay, Integer weight) {
         List<ElementAttribute> attributes = new ArrayList<>();
         var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
-        var relayAttr = new ElementAttribute("relay", relay.getHostname(), 57);
+        var relayAttr = new ElementAttribute("relay", relay.getUri(), 57);
         if (weight != null) {
             var weightAttr = new ElementAttribute("weight", weight, 57);
             attributes.add(weightAttr);

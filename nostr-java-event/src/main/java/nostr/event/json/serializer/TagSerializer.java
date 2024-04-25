@@ -1,21 +1,20 @@
 package nostr.event.json.serializer;
 
-import java.io.IOException;
-import java.io.Serial;
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import nostr.base.ElementAttribute;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericTag;
 import nostr.util.NostrException;
+
+import java.io.IOException;
+import java.io.Serial;
+import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * @author guilhermegps
@@ -35,7 +34,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
         try {
             // -- Create the node
             final ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            List<Field> fields = value.getSupportedFields(null);
+            List<Field> fields = value.getSupportedFields();
 
             // Populate the node with the fields data
             fields.forEach((Field f) -> {

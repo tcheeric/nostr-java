@@ -118,9 +118,8 @@ public class EncryptedPayloads {
         char[] sharedXChars = new String(sharedX, StandardCharsets.UTF_8).toCharArray();
         PBEKeySpec keySpec = new PBEKeySpec(sharedXChars, "nip44-v2".getBytes(), 65536, 256);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        byte[] key = factory.generateSecret(keySpec).getEncoded();
 
-        return key;
+        return factory.generateSecret(keySpec).getEncoded();
     }
 
     public static byte[] hexStringToByteArray(String s) {
