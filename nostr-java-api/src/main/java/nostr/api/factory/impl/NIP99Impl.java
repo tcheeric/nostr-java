@@ -7,7 +7,7 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
-import nostr.id.IIdentity;
+import nostr.id.Identity;
 
 import java.util.List;
 
@@ -20,11 +20,11 @@ public class NIP99Impl {
     private final ClassifiedListing classifiedListing;
     private final Kind kind;
 
-    public ClassifiedListingEventFactory(IIdentity sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+    public ClassifiedListingEventFactory(Identity sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
       this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListing);
     }
 
-    public ClassifiedListingEventFactory(IIdentity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+    public ClassifiedListingEventFactory(Identity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
       super(sender, baseTags, content);
       this.kind = kind;
       this.classifiedListing = classifiedListing;
