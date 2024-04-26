@@ -72,7 +72,7 @@ public class ConnectionPool {
     }
 
     public void send(@NonNull String message) {
-        log.log(Level.FINER, "Connectied to {0} relay(s)...", connections.size());
+        log.log(Level.FINER, "Connected to {0} relay(s)...", connections.size());
         connections.forEach(conn -> {
             conn.send(message);
         });
