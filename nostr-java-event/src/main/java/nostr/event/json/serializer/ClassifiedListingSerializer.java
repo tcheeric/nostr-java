@@ -7,10 +7,10 @@ import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 
 import java.io.IOException;
 
-public class ClassifiedEventSerializer extends JsonSerializer<ClassifiedListing> {
-  PriceTagSerializer priceTagSerializer;
+public class ClassifiedListingSerializer extends JsonSerializer<ClassifiedListing> {
+  private final PriceTagSerializer priceTagSerializer;
 
-  public ClassifiedEventSerializer() {
+  public ClassifiedListingSerializer() {
     this.priceTagSerializer = new PriceTagSerializer();
   }
 

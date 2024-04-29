@@ -9,6 +9,8 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.PriceTagSerializer;
 
+import java.math.BigDecimal;
+
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -16,7 +18,7 @@ import nostr.event.json.serializer.PriceTagSerializer;
 @RequiredArgsConstructor
 @JsonSerialize(using = PriceTagSerializer.class)
 public class PriceTag extends BaseTag {
-  private final String number;
+  private final BigDecimal number;
   private final String currency;
   private final String frequency;
 }

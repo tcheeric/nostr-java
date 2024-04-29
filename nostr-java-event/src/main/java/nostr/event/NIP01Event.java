@@ -1,6 +1,5 @@
 package nostr.event;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.NoArgsConstructor;

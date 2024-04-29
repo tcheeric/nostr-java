@@ -11,7 +11,7 @@ import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP99Event;
-import nostr.event.json.serializer.ClassifiedEventSerializer;
+import nostr.event.json.serializer.ClassifiedListingSerializer;
 import nostr.event.tag.PriceTag;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class ClassifiedListingEvent extends NIP99Event {
 
   @Data
   @EqualsAndHashCode(callSuper = false)
-  @JsonSerialize(using = ClassifiedEventSerializer.class)
+  @JsonSerialize(using = ClassifiedListingSerializer.class)
   public static class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
     @JsonProperty
     private String id;

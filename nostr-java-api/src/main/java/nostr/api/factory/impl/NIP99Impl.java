@@ -12,7 +12,6 @@ import nostr.id.Identity;
 import java.util.List;
 
 public class NIP99Impl {
-  public static final int NIP99 = 99;
 
   @Data
   @EqualsAndHashCode(callSuper = false)
