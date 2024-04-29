@@ -29,7 +29,7 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "p")
 @NoArgsConstructor
-public class PubKeyTag extends BaseTag implements ValueTag {
+public class PubKeyTag extends BaseTag {
 
     @Key
     @JsonProperty("publicKey")
@@ -53,9 +53,5 @@ public class PubKeyTag extends BaseTag implements ValueTag {
         this.publicKey = publicKey;
         this.mainRelayUrl = mainRelayUrl;
         this.petName = petName;
-    }
-    @Override
-    public String getValue() {
-        return publicKey.toString();
     }
 }
