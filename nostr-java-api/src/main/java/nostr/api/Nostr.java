@@ -15,6 +15,7 @@ import nostr.base.Relay;
 import nostr.client.Client;
 import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
+import nostr.crypto.schnorr.Schnorr;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -33,6 +34,7 @@ import nostr.event.list.FiltersList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
+import nostr.util.NostrUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -144,6 +146,21 @@ public class Nostr {
         identity.sign(signable);
 
         return this;
+    }
+
+    public boolean verify(@NonNull GenericEvent event) {
+        if (!event.isSigned()) {
+            throw new IllegalStateException("The event is not signed");
+        }
+
+        var signature = event.getSignature();
+
+        try {
+            var message = NostrUtil.sha256(event.get_serializedEvent());
+            return Schnorr.verify(message, event.getPubKey().getRawData(), signature.getRawData());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Map<String, String> toMapRelays(List<Relay> relayList) {
