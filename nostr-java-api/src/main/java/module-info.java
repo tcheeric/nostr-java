@@ -14,6 +14,7 @@ module nostr.api {
     
     requires lombok;
     requires java.logging;
+    requires nostr.crypto;
 
     exports nostr.api;
 }

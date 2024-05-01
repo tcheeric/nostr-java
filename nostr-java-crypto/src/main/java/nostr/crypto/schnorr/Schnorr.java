@@ -1,5 +1,9 @@
 package nostr.crypto.schnorr;
 
+import nostr.crypto.Point;
+import nostr.util.NostrUtil;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -11,11 +15,6 @@ import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import nostr.crypto.Point;
-import nostr.util.NostrUtil;
 
 public class Schnorr {
 
@@ -86,9 +85,11 @@ public class Schnorr {
      * @throws Exception
      */
     public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws Exception {
+
         if (msg.length != 32) {
             throw new Exception("The message must be a 32-byte array.");
         }
+
         if (pubkey.length != 32) {
             throw new Exception("The public key must be a 32-byte array.");
         }
