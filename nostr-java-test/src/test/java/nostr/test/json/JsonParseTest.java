@@ -2,32 +2,104 @@ package nostr.test.json;
 
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
+import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
+import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.GenericTagDecoder;
+import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.json.codec.BaseTagDecoder;
+import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.GenericTagDecoder;
+import nostr.event.list.EventList;
+import nostr.event.list.FiltersList;
+import nostr.event.list.KindList;
+import nostr.event.list.PublicKeyList;
 import nostr.event.message.EventMessage;
+import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
- *
  * @author eric
  */
 public class JsonParseTest {
 
     @Test
-    public void testBaseMessageDecoder() {
-        System.out.println("testBaseMessageDecoder");
+    public void testBaseReqMessageDecoder() {
+        System.out.println("testBaseReqMessageDecoder");
+
+        final String parseTarget =
+                "[\"REQ\", " +
+                        "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+                        "{\"kinds\": [1], " +
+                        "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
+                        "\"#e\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+        final var message = new BaseMessageDecoder(parseTarget).decode();
+
+        assertEquals(Command.REQ.toString(), message.getCommand());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
+        assertEquals(1, ((ReqMessage) message).getFiltersList().size());
+
+        var filters = ((ReqMessage) message).getFiltersList().getList().get(0);
+
+        assertEquals(1, filters.getKinds().size());
+        assertEquals(1, filters.getKinds().getList().get(0).intValue());
+
+        assertEquals(1, filters.getAuthors().size());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().getList().get(0).toBech32String());
+
+        assertEquals(1, filters.getReferencedEvents().size());
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", filters.getReferencedEvents().getList().get(0).getId());
+    }
+
+    @Test
+    public void testBaseReqMessageEncoder() {
+        System.out.println("testBaseReqMessageEncoder");
+
+        final var filtersList = new FiltersList();
+        var publicKey = Identity.generateRandomIdentity().getPublicKey();
+        filtersList.add(Filters.builder().authors(new PublicKeyList(publicKey)).kinds(new KindList(3,5)).build());
+        filtersList.add(Filters.builder().kinds(new KindList(0,1)).build());
+        filtersList.add(Filters.builder().referencedEvents(new EventList(new BaseEvent.ProxyEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))).build());
+
+        final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
+
+        BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
+
+        var jsonMessage = encoder.encode();
+
+        var jsonMsg = jsonMessage.substring(1, jsonMessage.length()-1);
+        var parts = jsonMsg.split(",");
+        Assertions.assertEquals("\"REQ\"", parts[0]);
+        Assertions.assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
+        Assertions.assertFalse(parts[2].startsWith("["));
+        Assertions.assertFalse(parts[parts.length-1].endsWith("]"));
+
+        var message = new BaseMessageDecoder(jsonMessage).decode();
+
+        assertEquals(reqMessage, message);
+    }
+
+    @Test
+    public void testBaseEventMessageDecoder() {
+        System.out.println("testBaseEventMessageDecoder");
 
         final String parseTarget
                 = "[\"EVENT\","
@@ -44,18 +116,18 @@ public class JsonParseTest {
 
         final var message = new BaseMessageDecoder(parseTarget).decode();
 
-        Assertions.assertEquals(Command.EVENT.toString(), message.getCommand());
+        assertEquals(Command.EVENT.toString(), message.getCommand());
 
         final var event = (GenericEvent) (((EventMessage) message).getEvent());
-        Assertions.assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((EventMessage) message).getSubscriptionId());
-        Assertions.assertEquals(1, event.getKind().intValue());
-        Assertions.assertEquals(1686199583, event.getCreatedAt().longValue());
-        Assertions.assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((EventMessage) message).getSubscriptionId());
+        assertEquals(1, event.getKind().intValue());
+        assertEquals(1686199583, event.getCreatedAt().longValue());
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());
     }
 
     @Test
-    public void testBaseMessageMarkerDecoder() {
-        System.out.println("testBaseMessageMarkerDecoder");
+    public void testBaseEventMessageMarkerDecoder() {
+        System.out.println("testBaseEventMessageMarkerDecoder");
 
         String json = "["
                 + "\"EVENT\","
@@ -81,7 +153,7 @@ public class JsonParseTest {
         for (BaseTag t : tags) {
             if (t.getCode().equalsIgnoreCase("e")) {
                 EventTag et = (EventTag) t;
-                Assertions.assertEquals(Marker.ROOT, et.getMarker());
+                assertEquals(Marker.ROOT, et.getMarker());
             }
         }
     }
@@ -93,10 +165,10 @@ public class JsonParseTest {
 
         var tag = new GenericTagDecoder(jsonString).decode();
 
-        Assertions.assertEquals("saturn", tag.getCode());
-        Assertions.assertEquals(2, tag.getAttributes().size());
-        Assertions.assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
-        Assertions.assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue().toString()));
+        assertEquals("saturn", tag.getCode());
+        assertEquals(2, tag.getAttributes().size());
+        assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
+        assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue().toString()));
     }
 
     @Test
@@ -110,9 +182,9 @@ public class JsonParseTest {
         Assertions.assertTrue(tag instanceof PubKeyTag);
 
         PubKeyTag pTag = (PubKeyTag) tag;
-        Assertions.assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
-        Assertions.assertEquals(npubHex, pTag.getPublicKey().toString());
-        Assertions.assertEquals("alice", pTag.getPetName());
+        assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
+        assertEquals(npubHex, pTag.getPublicKey().toString());
+        assertEquals("alice", pTag.getPetName());
     }
 
     @Test
@@ -126,6 +198,42 @@ public class JsonParseTest {
         Assertions.assertTrue(tag instanceof GenericTag);
 
         GenericTag gTag = (GenericTag) tag;
-        Assertions.assertEquals("gt", gTag.getCode());
+        assertEquals("gt", gTag.getCode());
+    }
+
+    @Test
+    public void testFiltersEncoder() {
+        System.out.println("testFiltersEncoder");
+
+        String new_geohash = "2vghde";
+        List<String> geohashList = new ArrayList<>();
+        geohashList.add(new_geohash);
+        GenericTagQuery genericTagQuery = new GenericTagQuery();
+        genericTagQuery.setTagName("g");
+        genericTagQuery.setValue(geohashList);
+        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+
+        FiltersEncoder encoder = new FiltersEncoder(filters);
+        String jsonMessage = encoder.encode();
+        assertEquals("{\"#g\":[\"2vghde\"]}", jsonMessage);
+    }
+
+    @Test
+    public void testReqMessageSerializer() {
+        System.out.println("testFiltersEncoder");
+
+        String new_geohash = "2vghde";
+        List<String> geohashList = new ArrayList<>();
+        geohashList.add(new_geohash);
+        GenericTagQuery genericTagQuery = new GenericTagQuery();
+        genericTagQuery.setTagName("g");
+        genericTagQuery.setValue(geohashList);
+        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+
+        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(filters));
+        BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
+        String jsonMessage = encoder.encode();
+
+        assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
     }
 }

@@ -4,74 +4,177 @@
  */
 package nostr.api;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
 import nostr.base.IElement;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.base.Relay;
-import nostr.base.Signature;
 import nostr.client.Client;
+import nostr.context.RequestContext;
+import nostr.context.impl.DefaultRequestContext;
+import nostr.crypto.schnorr.Schnorr;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
-import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.FiltersListEncoder;
+import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
-import nostr.id.IIdentity;
+import nostr.event.list.FiltersList;
+import nostr.event.message.EventMessage;
+import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
-import nostr.util.NostrException;
+import nostr.util.NostrUtil;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author eric
  */
-public abstract class Nostr {
+@NoArgsConstructor
+public class Nostr {
 
-    /**
-     * @param event
-     */
-    public static void send(@NonNull IEvent event) {
-        var client = createClient();
-        client.send(event);
+    private static Nostr INSTANCE;
+
+    private Client client;
+    @Getter
+    private Identity sender;
+
+    @Getter
+    private Map<String, String> relays;
+
+    public static Nostr getInstance() {
+        return (INSTANCE == null) ? new Nostr() : INSTANCE;
     }
 
-    public static void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-        var client = createClient();
-        client.send(filters, subscriptionId);
+    public static Nostr getInstance(@NonNull Identity sender) {
+        return (INSTANCE == null) ? new Nostr(sender) : INSTANCE;
+    }
+
+    public Nostr(@NonNull Identity sender) {
+        this.sender = sender;
+    }
+
+    public Nostr setSender(@NonNull Identity sender) {
+        this.sender = sender;
+
+        return this;
+    }
+
+    public Nostr setRelays(@NonNull Map<String, String> relays) {
+        this.relays = relays;
+
+        return this;
+    }
+
+    public void close() {
+        if (client == null) {
+            throw new IllegalStateException("Client is not initialized");
+        }
+        try {
+            this.client.disconnect();
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void send(@NonNull IEvent event) {
+        send(event, getRelays());
+    }
+
+    public void send(@NonNull IEvent event, Map<String, String> relays) {
+        var context = new DefaultRequestContext();
+        context.setPrivateKey(getSender().getPrivateKey().getRawData());
+        context.setRelays(relays);
+
+        send(new EventMessage(event), context);
+    }
+
+
+    public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
+        send(filters, subscriptionId, getRelays());
+    }
+
+    public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+        FiltersList filtersList = new FiltersList();
+        filtersList.add(filters);
+
+        send(filtersList, subscriptionId, relays);
+    }
+
+    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId) {
+        send(filtersList, subscriptionId, getRelays());
+    }
+
+    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+
+        var context = new DefaultRequestContext();
+        context.setRelays(relays);
+        context.setPrivateKey(getSender().getPrivateKey().getRawData());
+        var message = new ReqMessage(subscriptionId, filtersList);
+
+        send(message, context);
+    }
+
+    public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+        if (context instanceof DefaultRequestContext) {
+            try {
+                Client.getInstance().connect(context).send(message);
+            } catch (TimeoutException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
      * @param signable
-     * @return
      */
+    public Nostr sign(@NonNull Identity identity, @NonNull ISignable signable) {
+        identity.sign(signable);
 
-    public static Signature sign(@NonNull IIdentity identity, @NonNull ISignable signable) {
-        return identity.sign(signable);
+        return this;
     }
 
-    public static Signature sign(@NonNull ISignable signable) {
-        Identity identity = Identity.getInstance();
-        return identity.sign(signable);
+    public boolean verify(@NonNull GenericEvent event) {
+        if (!event.isSigned()) {
+            throw new IllegalStateException("The event is not signed");
+        }
+
+        var signature = event.getSignature();
+
+        try {
+            var message = NostrUtil.sha256(event.get_serializedEvent());
+            return Schnorr.verify(message, event.getPubKey().getRawData(), signature.getRawData());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /**
-     *
-     */
+    private static Map<String, String> toMapRelays(List<Relay> relayList) {
+        Map<String, String> relays = new HashMap<>();
+        relayList.forEach(r -> relays.put(r.getName(), r.getUri()));
+        return relays;
+    }
+
     public static class Json {
 
         // Events
 
         /**
          * @param event
-         * @return
          */
         public static String encode(@NonNull BaseEvent event) {
             return Nostr.Json.encode(event, null);
@@ -89,7 +192,6 @@ public abstract class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static GenericEvent decodeEvent(@NonNull String json) {
             final var dec = new GenericEventDecoder(json);
@@ -101,7 +203,6 @@ public abstract class Nostr {
         /**
          * @param message
          * @param relay
-         * @return
          */
         public static String encode(@NonNull BaseMessage message, Relay relay) {
             final var enc = new BaseMessageEncoder(message, relay);
@@ -110,7 +211,6 @@ public abstract class Nostr {
 
         /**
          * @param message
-         * @return
          */
         public static String encode(@NonNull BaseMessage message) {
             return Nostr.Json.encode(message, null);
@@ -118,7 +218,6 @@ public abstract class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static BaseMessage decodeMessage(@NonNull String json) {
             final var dec = new BaseMessageDecoder(json);
@@ -130,7 +229,6 @@ public abstract class Nostr {
         /**
          * @param tag
          * @param relay
-         * @return
          */
         public static String encode(@NonNull BaseTag tag, Relay relay) {
             final var enc = new BaseTagEncoder(tag, relay);
@@ -139,7 +237,6 @@ public abstract class Nostr {
 
         /**
          * @param tag
-         * @return
          */
         public static String encode(@NonNull BaseTag tag) {
             return Nostr.Json.encode(tag, null);
@@ -147,7 +244,6 @@ public abstract class Nostr {
 
         /**
          * @param json
-         * @return
          */
         public static BaseTag decodeTag(@NonNull String json) {
             final var dec = new BaseTagDecoder(json);
@@ -157,26 +253,23 @@ public abstract class Nostr {
         // Filters
 
         /**
-         * @param filters
+         * @param filtersList
          * @param relay
-         * @return
          */
-        public static String encode(@NonNull Filters filters, Relay relay) {
-            final var enc = new FiltersEncoder(filters, relay);
+        public static String encode(@NonNull FiltersList filtersList, Relay relay) {
+            final var enc = new FiltersListEncoder(filtersList, relay);
             return enc.encode();
         }
 
         /**
-         * @param filters
-         * @return
+         * @param filtersList
          */
-        public static String encode(@NonNull Filters filters) {
-            return Nostr.Json.encode(filters, null);
+        public static String encode(@NonNull FiltersList filtersList) {
+            return Nostr.Json.encode(filtersList, null);
         }
 
         /**
          * @param json
-         * @return
          */
         public static Filters decodeFilters(@NonNull String json) {
             final var dec = new FiltersDecoder(json);
@@ -188,7 +281,6 @@ public abstract class Nostr {
         /**
          * @param gtq
          * @param relay
-         * @return
          */
         public static String encode(@NonNull GenericTagQuery gtq, Relay relay) {
             final var enc = new GenericTagQueryEncoder(gtq, relay);
@@ -197,7 +289,6 @@ public abstract class Nostr {
 
         /**
          * @param gtq
-         * @return
          */
         public static String encode(@NonNull GenericTagQuery gtq) {
             return Nostr.Json.encode(gtq, null);
@@ -206,7 +297,6 @@ public abstract class Nostr {
         /**
          * @param json
          * @param clazz
-         * @return
          */
         public static IElement decode(@NonNull String json, @NonNull Class clazz) {
             switch (clazz.getName()) {
@@ -227,15 +317,4 @@ public abstract class Nostr {
         }
 
     }
-
-    // Utils
-
-    /**
-     * @return
-     */
-    protected static Client createClient() {
-
-        return Client.getInstance();
-    }
-
 }

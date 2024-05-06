@@ -4,18 +4,17 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
-import nostr.event.impl.ClientAuthenticationEvent;
-import nostr.event.impl.Filters;
+import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
+import nostr.event.list.FiltersList;
 import nostr.event.message.BaseAuthMessage;
-import nostr.event.message.ClientAuthenticationMessage;
+import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -24,8 +23,9 @@ import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 
+import java.util.Map;
+
 /**
- *
  * @author eric
  */
 @Data
@@ -53,9 +53,9 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                     final BaseAuthMessage authMsg;
                     // Client Auth
                     if (arg instanceof Map map) {
-                        var event = mapper.convertValue(map, new TypeReference<ClientAuthenticationEvent>() {
+                        var event = mapper.convertValue(map, new TypeReference<CanonicalAuthenticationEvent>() {
                         });
-                        authMsg = new ClientAuthenticationMessage(event);
+                        authMsg = new CanonicalAuthenticationMessage(event);
                     } else {
                         // Relay Auth                        
                         final var challenge = arg.toString();
@@ -63,10 +63,8 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                     }
                     message = authMsg;
                 }
-                case "CLOSE" ->
-                    message = new CloseMessage(arg.toString());
-                case "EOSE" ->
-                    message = new EoseMessage(arg.toString());
+                case "CLOSE" -> message = new CloseMessage(arg.toString());
+                case "EOSE" -> message = new EoseMessage(arg.toString());
                 case "EVENT" -> {
                     if (msgArr.length == 2 && arg instanceof Map map) {
                         var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {
@@ -83,8 +81,7 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                         throw new AssertionError("Invalid argument: " + arg);
                     }
                 }
-                case "NOTICE" ->
-                    message = new NoticeMessage(arg.toString());
+                case "NOTICE" -> message = new NoticeMessage(arg.toString());
                 case "OK" -> {
                     if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
                         String msgArg = msgArr[3].toString();
@@ -93,19 +90,16 @@ public class BaseMessageDecoder implements IDecoder<BaseMessage> {
                         throw new AssertionError("Invalid argument: " + msgArr[2]);
                     }
                 }
-                // TODO - Cater for more than one filters. Create issue in Github
                 case "REQ" -> {
-                    if (arg instanceof Map map) {
-                        var filters = mapper.convertValue(map, new TypeReference<Filters>() {
-                        });
-                        message = new ReqMessage(arg.toString(), filters);
-                    } else {
-                        throw new AssertionError("Invalid argument: " + msgArr[2]);
-                    }
+                    var len = msgArr.length - 2;
+                    var filtersArr = new Object[len];
+                    System.arraycopy(msgArr, 2, filtersArr, 0, len);
+                    var filtersList = mapper.convertValue(filtersArr, new TypeReference<FiltersList>() {
+                    });
+                    message = new ReqMessage(arg.toString(), filtersList);
                 }
                 default -> {
-                    //throw new AssertionError("Invalid command " + strCmd);
-                    // NOTE: Only String attribute suppoeted. It would be impossible to guess the object's type
+                    // NOTE: Only String attribute supported. It would be impossible to guess the object's type
                     GenericMessage gm = new GenericMessage(strCmd);
                     for (int i = 1; i < msgArr.length; i++) {
                         if (msgArr[i] instanceof String) {

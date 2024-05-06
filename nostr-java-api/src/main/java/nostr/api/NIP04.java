@@ -6,23 +6,17 @@ package nostr.api;
 
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.api.factory.impl.NIP04.DirectMessageEventFactory;
+import nostr.api.factory.impl.NIP04Impl.DirectMessageEventFactory;
+import nostr.base.ITag;
 import nostr.base.PublicKey;
-import nostr.event.BaseTag;
+import nostr.encryption.MessageCipher;
+import nostr.encryption.nip04.MessageCipher04;
+import nostr.event.NIP04Event;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
-import nostr.id.IIdentity;
-import nostr.id.IdentityHelper;
-import nostr.util.NostrException;
+import nostr.id.Identity;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -31,67 +25,82 @@ import java.util.logging.Level;
  * @author eric
  */
 @Log
-public class NIP04 extends Nostr {
+@Deprecated(since = "NIP-44")
+public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
-    /**
-     * Create a NIP04 Encrypted Direct Message
-     *
-     * @param recipient the DM recipient
-     * @param content   the DM content in clear-text
-     * @return the DM event
-     */
-    public static DirectMessageEvent createDirectMessageEvent(@NonNull PublicKey recipient, @NonNull String content) {
-        return new DirectMessageEventFactory(recipient, content).create();
+    public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
+        setSender(sender);
+        setRecipient(recipient);
     }
 
     /**
      * Create a NIP04 Encrypted Direct Message
-     *
-     * @param tags      additional note's tags
-     * @param recipient the DM recipient
-     * @param content   the DM content
-     * @return the DM event
+     * @param content the DM content in clear-text
      */
-    public static DirectMessageEvent createDirectMessageEvent(@NonNull List<BaseTag> tags, @NonNull PublicKey recipient, @NonNull String content) {
-        return new DirectMessageEventFactory(tags, recipient, content).create();
+    public NIP04<T> createDirectMessageEvent(@NonNull String content) {
+        var encryptedContent = encrypt(getSender(), content, getRecipient());
+        var event = new DirectMessageEventFactory(getSender(), getRecipient(), encryptedContent).create();
+        this.setEvent((T) event);
+
+        return this;
     }
 
     /**
-     * Encrypt a DM event
-     *
-     * @param senderId
-     * @param dm the DM event
+     * Encrypt the direct message
+     * @return the current instance with an encrypted message
      */
-    public static void encrypt(@NonNull IIdentity senderId, @NonNull DirectMessageEvent dm) {
-        try {
-            new IdentityHelper(senderId).encryptDirectMessage(dm);
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
-        }
+    private NIP04<T> encrypt() {
+        encryptDirectMessage(getSender(), (DirectMessageEvent) getEvent());
+        return this;
     }
 
-    public static String encrypt(@NonNull IIdentity senderId, @NonNull String message, @NonNull PublicKey recipient) {
-        try {
-            return new IdentityHelper(senderId).encrypt(message, recipient);
-        } catch (NostrException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException |
-                 IllegalBlockSizeException | NoSuchPaddingException | InvalidAlgorithmParameterException ex) {
-            throw new RuntimeException(ex);
-        }
+    /**
+     *
+     * @param senderId the sender identity
+     * @param message the message to be encrypted
+     * @param recipient the recipient public key
+     * @return the encrypted message
+     */
+    public static String encrypt(@NonNull Identity senderId, @NonNull String message, @NonNull PublicKey recipient) {
+        MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), recipient.getRawData());
+        return cipher.encrypt(message);
     }
 
     /**
      * Decrypt an encrypted direct message
      *
      * @param rcptId
-     * @param dm the encrypted direct message
+     * @param dm     the encrypted direct message
      * @return the DM content in clear-text
-     * @throws NostrException
      */
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull DirectMessageEvent dm) throws NostrException {
+    public static String decrypt(@NonNull Identity rcptId, @NonNull DirectMessageEvent dm) {
         return NIP04.decrypt(rcptId, (GenericEvent) dm);
     }
 
-    public static String decrypt(@NonNull IIdentity rcptId, @NonNull GenericEvent event) throws NostrException {
+    /**
+     * Decrypt an encrypted direct message
+     * @param identity the sender identity
+     * @param encryptedMessage the encrypted message
+     * @param recipient the recipient public key
+     * @return the DM content in clear-text
+     */
+    public static String decrypt(@NonNull Identity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
+        MessageCipher cipher = new MessageCipher04(identity.getPrivateKey().getRawData(), recipient.getRawData());
+        return cipher.decrypt(encryptedMessage);
+    }
+
+    private static void encryptDirectMessage(@NonNull Identity senderId, @NonNull DirectMessageEvent directMessageEvent) {
+
+        ITag pkTag = directMessageEvent.getTags().get(0);
+        if (pkTag instanceof PubKeyTag pubKeyTag) {
+            var rcptPublicKey = pubKeyTag.getPublicKey();
+            MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), rcptPublicKey.getRawData());
+            var encryptedContent = cipher.encrypt(directMessageEvent.getContent());
+            directMessageEvent.setContent(encryptedContent);
+        }
+    }
+
+    public static String decrypt(@NonNull Identity rcptId, @NonNull GenericEvent event) {
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -102,26 +111,18 @@ public class NIP04 extends Nostr {
         boolean rcptFlag = amITheRecipient(rcptId, event);
 
         if (!rcptFlag) { // I am the message sender
-            log.log(Level.INFO, "I am NOT the recipient of {0}", event);
-            log.log(Level.INFO, "The message is being decrypted for {0}", pTag.getPublicKey());
-            return new IdentityHelper(rcptId).decryptMessage(event.getContent(), pTag.getPublicKey());
+            MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), pTag.getPublicKey().getRawData());
+            return cipher.decrypt(event.getContent());
         }
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.INFO, "The message is being decrypted for {0}", sender);
-        return new IdentityHelper(rcptId).decryptMessage(event.getContent(), sender);
+        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
+        MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
+        return cipher.decrypt(event.getContent());
     }
 
-    public static String decrypt(@NonNull IIdentity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
-        try {
-            return new IdentityHelper(identity).decryptMessage(encryptedMessage, recipient);
-        } catch (NostrException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static boolean amITheRecipient(@NonNull IIdentity recipient, @NonNull GenericEvent event) {
+    private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
         var pTag = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))

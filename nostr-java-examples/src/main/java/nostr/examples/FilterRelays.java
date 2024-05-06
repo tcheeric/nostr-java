@@ -1,17 +1,19 @@
 package nostr.examples;
 
-import java.util.*;
+import lombok.extern.java.Log;
+import nostr.base.Relay;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import lombok.NonNull;
-import nostr.base.Relay;
-import nostr.ws.Connection;
 
 /**
  * @author guilhermegps
  *
  */
+@Log
 public class FilterRelays {
 	
 	private final static Map<String, String> relaysURLs = Stream.of(new String[][] {
@@ -125,24 +127,29 @@ public class FilterRelays {
 	
 	public static void main(String[] args) {
     	for (Map.Entry<String,String> r : relaysURLs.entrySet()) 
-    		relays.add(updateRelayMetadata(new Relay(r.getValue())));
+    		relays.add(new Relay(r.getValue()));
     	
 //    	Filter by NIPs supported
     	var relaysByNips = relays.stream().filter(r -> new HashSet<>(r.getSupportedNips()).contains(28))
         		.toList();
     	
-    	System.out.println(relaysByNips.stream().map(Relay::getHostname).collect(Collectors.toList()));
+    	System.out.println(relaysByNips.stream().map(Relay::getUri).collect(Collectors.toList()));
 	}
 
+/*
     private static Relay updateRelayMetadata(@NonNull Relay relay) {
         try {
-            var connection = new Connection(relay);
-            connection.updateRelayMetadata();
+			var context = new DefaultRequestContext();
+			context.setRelays(Map.of(relay.getName(), relay.getHostname()));
+
+            var connection = new Connection(relay, context, new ArrayList<>());
+            //connection.updateRelayMetadata(relay);
         } catch (Exception ex) {
-            ex.printStackTrace();
+			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());
         }
         
         return relay;
     }
+*/
 
 }

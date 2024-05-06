@@ -4,24 +4,24 @@
  */
 package nostr.api;
 
-import java.util.Map;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP32.Label;
-import nostr.api.factory.impl.NIP32.LabelTagFactory;
-import nostr.api.factory.impl.NIP32.NameSpace;
-import nostr.api.factory.impl.NIP32.NamespaceTagFactory;
+import nostr.api.factory.impl.NIP32Impl.Label;
+import nostr.api.factory.impl.NIP32Impl.LabelTagFactory;
+import nostr.api.factory.impl.NIP32Impl.NameSpace;
+import nostr.api.factory.impl.NIP32Impl.NamespaceTagFactory;
 import nostr.event.impl.GenericTag;
+
+import java.util.Map;
 
 /**
  *
  * @author eric
  */
-public class NIP32 extends Nostr {
+public class NIP32 {
     
     /**
      * 
      * @param namespace the namespace
-     * @return 
      */
     public static GenericTag createNameSpaceTag(@NonNull String namespace) {
         return new NamespaceTagFactory(new NameSpace(namespace)).create();
@@ -32,7 +32,6 @@ public class NIP32 extends Nostr {
      * @param namespace the label's namespace
      * @param label the label value
      * @param metadata optional metadata
-     * @return 
      */
     public static GenericTag createLabelTag(@NonNull String namespace, @NonNull String label, Map<String, Object> metadata) {
         return new LabelTagFactory(new Label(new NameSpace(namespace), label, metadata)).create();
@@ -42,7 +41,6 @@ public class NIP32 extends Nostr {
      * 
      * @param namespace the label's namespace
      * @param label the label value
-     * @return 
      */
     public static GenericTag createLabelTag(@NonNull String namespace, @NonNull String label) {
         return createLabelTag(namespace, label, null);

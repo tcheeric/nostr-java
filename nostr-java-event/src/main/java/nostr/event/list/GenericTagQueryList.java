@@ -1,11 +1,12 @@
 package nostr.event.list;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -18,8 +19,18 @@ public class GenericTagQueryList extends BaseList<GenericTagQuery> {
         this(new ArrayList<>());
     }
 
+    public GenericTagQueryList(GenericTagQuery... queries) {
+        super(queries);
+    }
+
     private GenericTagQueryList(@NonNull List<GenericTagQuery> list) {
         super(list);
+    }
+
+    @Override
+    @JsonIgnore
+    public Integer getNip() {
+        return 1;
     }
 
 }

@@ -104,5 +104,4 @@ public class NostrUtil {
                 .replace("\\r", "\r")
                 .replace("\\t", "\t");
     }
-
 }

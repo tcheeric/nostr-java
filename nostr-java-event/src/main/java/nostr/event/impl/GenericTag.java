@@ -1,19 +1,15 @@
 package nostr.event.impl;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
-
 import lombok.AllArgsConstructor;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author squirrel
@@ -44,11 +40,11 @@ public class GenericTag extends BaseTag implements IGenericElement {
         this.attributes.add(attribute);
     }
 
-    public static GenericTag create(String code, Integer nip, List<String> params) {
+    public static GenericTag create(String code, Integer nip, String... params) {
         List<ElementAttribute> attributes = new ArrayList<>();
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < params.length; i++) {
             String name = "param" + i;
-            var p = params.get(i);
+            var p = params[i];
             attributes.add(i, ElementAttribute.builder().name(name).value(p).build());
         }
         return new GenericTag(code, nip, attributes);

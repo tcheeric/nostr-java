@@ -1,18 +1,10 @@
 package nostr.event.impl;
 
-import java.beans.Transient;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.ArrayList;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -35,10 +27,19 @@ import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
+import java.beans.Transient;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+
 /**
  *
  * @author squirrel
  */
+@Log
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement {
@@ -91,25 +92,31 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public GenericEvent() {
         this.attributes = new ArrayList<>();
+        this.tags = new ArrayList<>();
+    }
+
+    public GenericEvent(@NonNull String id) {
+        this();
+    	this.id = id;
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
-        this(pubKey, kind, new ArrayList<>(), null);
+        this(pubKey, kind, new ArrayList<>(), "");
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind) {
-        this(pubKey, kind, new ArrayList<>(), null);
+        this(pubKey, kind, new ArrayList<>(), "");
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags) {
-        this(pubKey, kind, tags, null);
+        this(pubKey, kind, tags, "");
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags, @NonNull String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
-    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, String content) {
+    public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags, @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = kind;
         this.tags = tags;
@@ -143,7 +150,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void addTag(BaseTag tag) {
-
+    	if(tags==null) tags = new ArrayList<>();
+    	
         if (!tags.contains(tag)) {
             tag.setParent(this);
             tags.add(tag);
@@ -161,6 +169,9 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
             this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
         } catch (NostrException | NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        } catch (AssertionError ex) {
+        	log.log(Level.WARNING, ex.getMessage());
             throw new RuntimeException(ex);
         }
     }

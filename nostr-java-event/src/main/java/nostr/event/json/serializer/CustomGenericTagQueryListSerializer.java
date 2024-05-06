@@ -1,19 +1,15 @@
 package nostr.event.json.serializer;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEncoder;
 import nostr.event.list.GenericTagQueryList;
+
+import java.io.IOException;
 
 /**
  * @author guilhermegps
@@ -22,15 +18,13 @@ import nostr.event.list.GenericTagQueryList;
 public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericTagQueryList> {
 
     @Override
-    public void serialize(GenericTagQueryList value, JsonGenerator gen, SerializerProvider serializers) {
-        try {
-            var list = value.getList().parallelStream().map(gtq -> toJson(gtq))
-                    .collect(Collectors.toList());
-
-            gen.writePOJO(list);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public void serialize(GenericTagQueryList value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeStartObject();
+        for (GenericTagQuery gtq : value.getList()) {
+            JsonNode node = toJson(gtq);
+            gen.writeObjectField(node.fieldNames().next(), node.get(node.fieldNames().next()));
         }
+        gen.writeEndObject();
     }
 
     private JsonNode toJson(GenericTagQuery gtq) {
@@ -41,8 +35,9 @@ public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericT
             objNode.set("#" + node.get("tagName").textValue(), node.get("value"));
             objNode.remove("tagName");
             objNode.remove("value");
+            objNode.remove("nip");
 
-            return node;
+            return node.get("genericTagQueryList").get(0);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         }

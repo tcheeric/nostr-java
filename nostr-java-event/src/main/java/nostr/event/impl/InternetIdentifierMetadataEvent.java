@@ -1,18 +1,21 @@
 package nostr.event.impl;
 
+import static nostr.util.NostrUtil.escapeJsonString;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nostr.event.Kind;
-import nostr.base.PublicKey;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
+import nostr.event.Kind;
+import nostr.event.NIP05Event;
 import nostr.event.util.Nip05Validator;
 import nostr.util.NostrException;
-import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  *
@@ -21,7 +24,7 @@ import static nostr.util.NostrUtil.escapeJsonString;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Internet Identifier Metadata Event", nip = 5)
-public final class InternetIdentifierMetadataEvent extends GenericEvent {
+public final class InternetIdentifierMetadataEvent extends NIP05Event {
 
     public InternetIdentifierMetadataEvent(PublicKey pubKey, @NonNull UserProfile profile) {
         super(pubKey, Kind.SET_METADATA);
@@ -31,7 +34,7 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
     private void init(UserProfile profile) {
         try {
             // NIP-05 validator
-            Nip05Validator.builder().nip05(profile.getName()).publicKey(getPubKey()).build().validate();
+            Nip05Validator.builder().nip05(profile.getNip05()).publicKey(profile.getPublicKey()).build().validate();
 
             setContent(profile);
         } catch (NostrException ex) {
@@ -43,7 +46,7 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String jsonString = objectMapper.writeValueAsString(profile);
+            String jsonString = objectMapper.writeValueAsString(new Nip05Obj(profile.getName(), profile.getNip05()));
 
             // Escape the JSON string
             String escapedJsonString = escapeJsonString(jsonString);
@@ -52,5 +55,12 @@ public final class InternetIdentifierMetadataEvent extends GenericEvent {
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    @Data
+    @AllArgsConstructor
+    public static final class Nip05Obj{
+    	private String name;
+    	private String nip05;
     }
 }

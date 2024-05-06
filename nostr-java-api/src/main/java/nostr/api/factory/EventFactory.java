@@ -4,14 +4,14 @@
  */
 package nostr.api.factory;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
-import nostr.id.IIdentity;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -21,36 +21,28 @@ import nostr.id.Identity;
 @Data
 public abstract class EventFactory<T extends IEvent> {
 
-    private final IIdentity identity;
+    private final Identity identity;
     private final String content;
     private final List<BaseTag> tags;
 
+    public EventFactory(Identity identity) {
+        this(identity, new ArrayList<>(), null);
+    }
+
     protected EventFactory() {
-        this.identity = Identity.getInstance();
+        this.identity = null;
         this.content = null;
         this.tags = new ArrayList<>();
     }
 
-    public EventFactory(String content) {
-        this.content = content;
-        this.tags = new ArrayList<>();
-        this.identity = Identity.getInstance();
+    public EventFactory(Identity sender, String content) {
+        this(sender, new ArrayList<>(), content);
     }
 
-    public EventFactory(List<BaseTag> tags, String content) {
+    public EventFactory(Identity sender, List<BaseTag> tags, String content) {
         this.content = content;
         this.tags = tags;
-        this.identity = Identity.getInstance();
-    }
-
-    public EventFactory(IIdentity identity, String content) {
-        this(identity, new ArrayList<>(), content);
-    }
-
-    public EventFactory(IIdentity identity, List<BaseTag> tags, String content) {
-        this.content = content;
-        this.tags = tags;
-        this.identity = identity;
+        this.identity = sender;
     }
 
     public abstract T create();

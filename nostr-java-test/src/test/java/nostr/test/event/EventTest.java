@@ -1,7 +1,6 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
 import nostr.base.ElementAttribute;
 
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +34,7 @@ public class EventTest {
     @Test
     public void testCreateTextNoteEvent() throws NostrException {
         System.out.println("testCreateTextNoteEvent");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
         instance.update();
         Assertions.assertNotNull(instance.getId());
@@ -49,7 +48,7 @@ public class EventTest {
     @Test
     public void testCreateGenericTag() throws JsonProcessingException {
         System.out.println("testCreateGenericTag");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
         Relay relay = new Relay("wss://secret.relay.com");
@@ -134,7 +133,7 @@ public class EventTest {
     public void testNip05Validator() {
         System.out.println("testNip05Validator");
         try {
-            var nip05 = "erict875@getalby.com";
+            var nip05 = "nostr-java@nostr.band";
             var publicKey = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub126klq89p42wk78p4j5ur8wlxmxdqepdh8tez9e4axpd4run5nahsmff27j")));
 
             var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();

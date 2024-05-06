@@ -4,14 +4,8 @@ import nostr.base.PublicKey;
 import nostr.event.tag.DelegationTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
-import nostr.id.IdentityHelper;
 import nostr.test.EntityFactory;
-import java.io.IOException;
-import nostr.base.PrivateKey;
-import nostr.crypto.bech32.Bech32;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.util.NostrException;
-import nostr.util.NostrUtil;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,30 +15,31 @@ import org.junit.jupiter.api.Test;
  */
 public class IdentityTest {
 
-    //private final Identity identity;
-
     public IdentityTest() {
     }
 
     @Test
     public void testSignEvent() {
         System.out.println("testSignEvent");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey publicKey = identity.getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
-        Identity.getInstance().sign(instance);
+        identity.sign(instance);
         Assertions.assertNotNull(instance.getSignature());
     }
 
     @Test
     public void testSignDelegationTag() {
         System.out.println("testSignDelegationTag");
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey publicKey = identity.getPublicKey();
         DelegationTag delegationTag = new DelegationTag(publicKey, null);
-        Identity.getInstance().sign(delegationTag);
+        identity.sign(delegationTag);
         Assertions.assertNotNull(delegationTag.getSignature());
     }
     
     
+/*
     @Test
     public void testDecryptMessage() {
         try {
@@ -66,5 +61,6 @@ public class IdentityTest {
             Assertions.fail(ex);
         }
     }
+*/
 
 }

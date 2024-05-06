@@ -4,25 +4,25 @@
  */
 package nostr.api;
 
-import java.net.URL;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP12.GeohashTagFactory;
-import nostr.api.factory.impl.NIP12.HashtagTagFactory;
-import nostr.api.factory.impl.NIP12.ReferenceTagFactory;
+import nostr.api.factory.impl.NIP12Impl.GeohashTagFactory;
+import nostr.api.factory.impl.NIP12Impl.HashtagTagFactory;
+import nostr.api.factory.impl.NIP12Impl.ReferenceTagFactory;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.ReferenceTag;
+
+import java.net.URL;
 
 /**
  *
  * @author eric
  */
-public class NIP12 extends Nostr {
+public class NIP12 {
 
     /**
      * Create a hashtag tag
      * @param hashtag the hashtag
-     * @return 
      */
     public static HashtagTag createHashtagTag(@NonNull String hashtag) {
         return new HashtagTagFactory(hashtag).create();
@@ -31,7 +31,6 @@ public class NIP12 extends Nostr {
     /**
      * Create an URL tag
      * @param url the reference
-     * @return 
      */
     public static ReferenceTag createReferenceTag(@NonNull URL url) {
         return new ReferenceTagFactory(url).create();
@@ -40,7 +39,6 @@ public class NIP12 extends Nostr {
     /**
      * Create a Geo tag 
      * @param location the geohash
-     * @return 
      */
     public static GeohashTag createGeohashTag(@NonNull String location) {
         return new GeohashTagFactory(location).create();

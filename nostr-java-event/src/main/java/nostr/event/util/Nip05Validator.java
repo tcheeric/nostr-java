@@ -1,5 +1,13 @@
 package nostr.event.util;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.java.Log;
+import nostr.base.PublicKey;
+import nostr.event.Nip05Content;
+import nostr.event.json.codec.Nip05ContentDecoder;
+import nostr.util.NostrException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,13 +17,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.java.Log;
-import nostr.base.PublicKey;
-import nostr.event.Nip05Content;
-import nostr.event.json.codec.Nip05ContentDecoder;
-import nostr.util.NostrException;
 
 /**
  *
@@ -33,8 +34,9 @@ public class Nip05Validator {
 
     public void validate() throws NostrException {
         if (this.nip05 != null) {
-            var localPart = nip05.split("@")[0];
-            var domain = nip05.split("@")[1];
+        	var splited = nip05.split("@");
+            var localPart = splited[0];
+            var domain = splited[1];
 
             if (!localPart.matches(LOCAL_PART_PATTERN)) {
                 throw new NostrException("Invalid <local-part> syntax in nip05 attribute.");
@@ -45,6 +47,7 @@ public class Nip05Validator {
                 log.log(Level.FINE, "Validating {0}@{1}", new Object[]{localPart, domain});
                 validatePublicKey(domain, localPart);
             } catch (IOException | URISyntaxException ex) {
+            	log.log(Level.SEVERE, ex.getMessage());
                 throw new NostrException(ex);
             }
         }

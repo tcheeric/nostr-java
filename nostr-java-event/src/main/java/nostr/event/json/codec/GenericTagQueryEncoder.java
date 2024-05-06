@@ -2,13 +2,11 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.IEncoder;
-import static nostr.base.IEncoder.MAPPER;
-import nostr.base.Relay;
 import nostr.base.GenericTagQuery;
+import nostr.base.IEncoder;
+import nostr.base.Relay;
 
 /**
  * @author guilhermegps
@@ -29,7 +27,7 @@ public class GenericTagQueryEncoder implements IEncoder<GenericTagQuery> {
     @Override
     public String encode() {
         try {
-            return MAPPER.writeValueAsString(genericTagQuery);
+            return IEncoder.MAPPER.writeValueAsString(genericTagQuery);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -1,25 +1,32 @@
 
 package nostr.event.list;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import nostr.base.PublicKey;
+import nostr.event.json.deserializer.CustomPublicKeyListDeserializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author squirrel
  */
 @Builder
+@JsonDeserialize(using = CustomPublicKeyListDeserializer.class)
 public class PublicKeyList extends BaseList<PublicKey> {
 
     public PublicKeyList() {
         this(new ArrayList<>());
     }
 
-    private PublicKeyList(@NonNull List<PublicKey> list) {
-        super(list);
+    public PublicKeyList(PublicKey... publicKeys) {
+        super(publicKeys);
+    }
+
+    public PublicKeyList(@NonNull List<PublicKey> list) {
+        super(new ArrayList<>(list));
     }
 }
