@@ -4,7 +4,7 @@
     <parent>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.6</version>
+        <version>0.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-encryption-nip04</artifactId>
@@ -19,12 +19,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>nostr-java</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-encryption</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>nostr-java</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-crypto</artifactId>
             <version>${project.version}</version>
         </dependency>
