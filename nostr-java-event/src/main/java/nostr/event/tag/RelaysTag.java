@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-import nostr.event.json.serializer.PriceTagSerializer;
+import nostr.event.json.serializer.RelaysTagSerializer;
 
 import java.util.List;
 
@@ -14,11 +15,11 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "relays", nip = 57)
-@JsonSerialize(using = PriceTagSerializer.class)
+@JsonSerialize(using = RelaysTagSerializer.class)
 public class RelaysTag extends BaseTag {
-  private final List<String> relayUris;
+  private final List<String> relayUrls;
 
-  public RelaysTag(List<String> relayUris) {
-    this.relayUris = relayUris;
+  public RelaysTag(@NonNull List<String> relayUrls) {
+    this.relayUrls = relayUrls;
   }
 }

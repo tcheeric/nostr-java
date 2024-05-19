@@ -22,7 +22,6 @@ public class ClassifiedListingSerializer extends JsonSerializer<ClassifiedListin
     jsonGenerator.writeStringField("summary", classifiedListing.getSummary());
     jsonGenerator.writeNumberField("publishedAt", classifiedListing.getPublishedAt());
     jsonGenerator.writeStringField("location", classifiedListing.getLocation());
-    jsonGenerator.writeFieldName("price");
     priceTagSerializer.serialize(classifiedListing.getPriceTags(), jsonGenerator, serializerProvider);
     jsonGenerator.writeEndObject();
   }
