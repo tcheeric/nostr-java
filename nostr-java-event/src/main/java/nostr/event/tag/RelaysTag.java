@@ -22,4 +22,8 @@ public class RelaysTag extends BaseTag {
   public RelaysTag(@NonNull List<String> relayUrls) {
     this.relayUrls = relayUrls;
   }
+
+  public RelaysTag(@NonNull String... relayUrls) {
+    this(List.of(relayUrls));
+  }
 }
