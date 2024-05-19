@@ -50,7 +50,7 @@ import java.util.List;
  * @author eric
  */
 public class NIP01<T extends NIP01Event> extends EventNostr<T> {
-
+	
 	public NIP01(@NonNull Identity sender) {
 		setSender(sender);
 	}
@@ -82,18 +82,15 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the content of the note
      * @return a text note event
      */
-	public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-    var sender = getSender();
-		var event = new TextNoteEventFactory(sender, tags, content).create();
-		setEvent((T) event);
-
-		return this;
+    public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+      setEvent((T) new TextNoteEventFactory(getSender(), tags, content).create());
+      return this;
     }
 
     public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
     	var sender = getSender();
     	var event = (sender!=null) ? new MetadataEventFactory(sender, profile).create() : new MetadataEventFactory(profile).create();
-
+        
         this.setEvent((T) event);
         return this;
     }
@@ -105,11 +102,11 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      */
     public NIP01<T> createReplaceableEvent(@NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), kind, content).create();
-
+        
         this.setEvent((T) event);
         return this;
     }
-
+    
     /**
      * Create a replaceable event
      * @param tags the note's tags
@@ -118,7 +115,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      */
     public NIP01<T> createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
     	var event = new ReplaceableEventFactory(getSender(), tags, kind, content).create();
-
+        
         this.setEvent((T) event);
         return this;
     }
@@ -129,11 +126,11 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the note's content
      */
     public NIP01<T> createEphemeralEvent(@NonNull Integer kind, String content) {
-    	var event = new EphemeralEventFactory(getSender(), kind, content).create();
-
+    	var event = new EphemeralEventFactory(getSender(), kind, content).create();   
+        
         this.setEvent((T) event);
-        return this;
-    }
+        return this;     
+    }    
 
     /**
      * Create a NIP01 event tag
@@ -280,46 +277,46 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     }
 
     /**
-     *
+     * 
      * @param comment the event's comment
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
     	var event = new ParameterizedReplaceableEventFactory(getSender(), kind, comment).create();
-
+        
         this.setEvent((T) event);
         return this;
     }
-
+    
     /**
-     *
+     * 
      * @param tags
      * @param kind
      * @param comment
-     * @return
+     * @return 
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String comment) {
     	var event = new ParameterizedReplaceableEventFactory(getSender(), tags, kind, comment).create();
-
+        
         this.setEvent((T) event);
         return this;
     }
-
+    
     /**
-     *
+     * 
      * @param id
-     * @return
+     * @return 
      */
     public static IdentifierTag createIdentifierTag(@NonNull String id) {
         return new IdentifierTagFactory(id).create();
     }
 
     /**
-     *
+     * 
      * @param kind
      * @param publicKey
      * @param idTag
      * @param relay
-     * @return
+     * @return 
      */
     public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, @NonNull IdentifierTag idTag, Relay relay) {
         var result = new AddressTagFactory(publicKey).create();
@@ -327,5 +324,5 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         result.setKind(kind);
         result.setRelay(relay);
         return result;
-    }
+    }    
 }
