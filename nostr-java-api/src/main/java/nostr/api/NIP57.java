@@ -160,13 +160,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
   }
 
   /**
-   * @param relayUrl
-   */
-  public static GenericTag createRelaysTag(@NonNull String relayUrl) {
-    return new TagFactory(RELAYS_TAG_NAME, 57, relayUrl).create();
-  }
-
-  /**
    * @param receiver
    * @param relays
    * @param weight
