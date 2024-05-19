@@ -11,10 +11,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.ZapRequestEvent.ZapRequest;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.RelaysTag;
+import nostr.event.tag.*;
 import nostr.id.Identity;
 
 import java.util.ArrayList;
@@ -49,18 +46,14 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, List.of(relaysTags));
   }
 
-  /**
-   * @param zapEvent
-   * @param bolt11
-   * @param preimage
-   * @param zapRequestPubKeyTag
-   * @param zapRequestEventTag
-   * @return
-   */
-  public NIP57<T> createZapReceiptEvent(@NonNull GenericEvent zapEvent, List<BaseTag> baseTags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
+  public NIP57<T> createZapReceiptEvent(@NonNull PubKeyTag zapRequestPubKeyTag, List<BaseTag> baseTags, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
       @NonNull String descriptionSha256, @NonNull String preimage) {
     setEvent((T) new ZapReceiptEventFactory(getSender(), baseTags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, bolt11, descriptionSha256, preimage).create());
     return this;
+  }
+
+  public NIP57<T> createZapReceiptEvent(@NonNull String zapRequestPubKeyTag, List<BaseTag> baseTags, String zapRequestEventTag, String zapRequestAddressTag, String zapRequestIdentifier, String zapRequestRelayUri, String bolt11, String descriptionSha256, String preimage) {
+    return createZapReceiptEvent(new PubKeyTag(new PublicKey(zapRequestPubKeyTag)), baseTags, new EventTag(zapRequestEventTag), new AddressTag(null, new PublicKey(zapRequestAddressTag), new IdentifierTag(zapRequestIdentifier), new Relay(zapRequestRelayUri)), bolt11, descriptionSha256, preimage);
   }
 
   public NIP57<T> addLnurlTag(@NonNull String lnurl) {
