@@ -27,7 +27,6 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
   private static final String DESCRIPTION_TAG_NAME = "description";
   private static final String AMOUNT_TAG_NAME = "amount";
   private static final String ZAP_TAG_NAME = "zap";
-  private static final String RELAYS_TAG_NAME = "relays";
 
   public NIP57(@NonNull Identity sender) {
     setSender(sender);
@@ -52,8 +51,8 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     return this;
   }
 
-  public NIP57<T> createZapReceiptEvent(@NonNull String zapRequestPubKeyTag, List<BaseTag> baseTags, String zapRequestEventTag, String zapRequestAddressTag, String zapRequestIdentifier, String zapRequestRelayUri, String bolt11, String descriptionSha256, String preimage) {
-    return createZapReceiptEvent(new PubKeyTag(new PublicKey(zapRequestPubKeyTag)), baseTags, new EventTag(zapRequestEventTag), new AddressTag(null, new PublicKey(zapRequestAddressTag), new IdentifierTag(zapRequestIdentifier), new Relay(zapRequestRelayUri)), bolt11, descriptionSha256, preimage);
+  public NIP57<T> createZapReceiptEvent(@NonNull String zapRequestPubKeyTag, List<BaseTag> baseTags, String zapRequestEventTag, String zapReceiptAddressTag, String zapReceiptIdentifier, String zapReceiptRelayUri, String bolt11, String descriptionSha256, String preimage) {
+    return createZapReceiptEvent(new PubKeyTag(new PublicKey(zapRequestPubKeyTag)), baseTags, new EventTag(zapRequestEventTag), new AddressTag(null, new PublicKey(zapReceiptAddressTag), new IdentifierTag(zapReceiptIdentifier), new Relay(zapReceiptRelayUri)), bolt11, descriptionSha256, preimage);
   }
 
   public NIP57<T> addLnurlTag(@NonNull String lnurl) {

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class NIP57ImplTest {
   @Test
-  void testNIP57CreateZapRequestEventFactories() {
+  void testNIP57CreateZapRequestEventFactory() {
     System.out.println("testNIP57CreateZapRequestEventFactories");
 
     Identity sender = Identity.generateRandomIdentity();

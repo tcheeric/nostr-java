@@ -51,25 +51,25 @@ public class NIP57Impl {
   public static class ZapReceiptEventFactory extends EventFactory<ZapReceiptEvent> {
     private final ZapReceipt zapReceipt;
     private final PubKeyTag zapRequestPubKeyTag;
-    private final EventTag zapRequestEventTag;
+    private final EventTag zapReceiptEventTag;
     private final AddressTag zapRequestAddressTag;
 
-    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, ZapReceipt zapReceipt) {
-      super(sender, tags, "");
+    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapReceiptEventTag, AddressTag zapReceiptAddressTag, ZapReceipt zapReceipt) {
+      super(sender, tags, null);
       this.zapReceipt = zapReceipt;
       this.zapRequestPubKeyTag = zapRequestPubKeyTag;
-      this.zapRequestEventTag = zapRequestEventTag;
-      this.zapRequestAddressTag = zapRequestAddressTag;
+      this.zapReceiptEventTag = zapReceiptEventTag;
+      this.zapRequestAddressTag = zapReceiptAddressTag;
     }
 
-    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
+    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapReceiptEventTag, AddressTag zapReceiptAddressTag, @NonNull String bolt11,
         @NonNull String descriptionSha256, @NonNull String preimage) {
-      this(sender, tags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, new ZapReceipt(bolt11, descriptionSha256, preimage));
+      this(sender, tags, zapRequestPubKeyTag, zapReceiptEventTag, zapReceiptAddressTag, new ZapReceipt(bolt11, descriptionSha256, preimage));
     }
 
     @Override
     public ZapReceiptEvent create() {
-      return new ZapReceiptEvent(getSender(), zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, zapReceipt);
+      return new ZapReceiptEvent(getSender(), zapRequestPubKeyTag, zapReceiptEventTag, zapRequestAddressTag, zapReceipt);
     }
   }
 }
