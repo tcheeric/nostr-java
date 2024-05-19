@@ -2,24 +2,16 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nostr.api.NIP01;
-import nostr.api.NIP04;
-import nostr.api.NIP15;
-import nostr.api.NIP32;
-import nostr.api.NIP44;
+import nostr.api.*;
 import nostr.base.ElementAttribute;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
-import nostr.event.impl.CreateOrUpdateStallEvent;
+import nostr.event.impl.*;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.EncryptedPayloadEvent;
-import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
-import nostr.event.impl.TextNoteEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
@@ -264,6 +256,42 @@ public class ApiEventTest {
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
+    }
+
+    @Test
+    void testNIP57CreateZapRequestEvent() throws NostrException {
+        System.out.println("testNIP57CreateZapRequestEvent");
+
+        Identity sender = Identity.generateRandomIdentity();
+        List<BaseTag> baseTags = new ArrayList<BaseTag>();
+        PublicKey recipient = Identity.generateRandomIdentity().getPublicKey();
+        var nip57 = new NIP57<ZapRequestEvent>(sender);
+        final String ZAP_REQUEST_CONTENT = "zap request content";
+        final Long AMOUNT = 1232456L;
+        final String LNURL = "lnUrl";
+        final String RELAYS_TAG = "relaystag";
+        ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG)
+            .getEvent();
+        instance.update();
+
+        Assertions.assertNotNull(instance.getId());
+        Assertions.assertNotNull(instance.getCreatedAt());
+        Assertions.assertNotNull(instance.getContent());
+        Assertions.assertNull(instance.getSignature());
+
+        Assertions.assertNotNull(instance.getZapRequest());
+        Assertions.assertNotNull(instance.getZapRequest().getRelaysTag());
+        Assertions.assertNotNull(instance.getZapRequest().getAmount());
+        Assertions.assertNotNull(instance.getZapRequest().getLnUrl());
+
+        Assertions.assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
+        Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelayUrls().contains(RELAYS_TAG));
+        Assertions.assertEquals(AMOUNT, instance.getZapRequest().getAmount());
+        Assertions.assertEquals(LNURL, instance.getZapRequest().getLnUrl());
+
+        final String bech32 = instance.toBech32();
+        Assertions.assertNotNull(bech32);
+        Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
     }
 
     private Stall createStall() {

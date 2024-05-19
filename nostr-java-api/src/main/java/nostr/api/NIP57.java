@@ -2,9 +2,8 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
-import nostr.api.factory.impl.NIP57Impl;
-import nostr.api.factory.impl.NIP57Impl.ZapRequestEventFactory;
 import nostr.api.factory.impl.NIP57Impl.ZapReceiptEventFactory;
+import nostr.api.factory.impl.NIP57Impl.ZapRequestEventFactory;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -42,12 +41,12 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     return this;
   }
 
-  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
-    return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, List.of(relaysTags));
-  }
-
   public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relaysTags) {
     return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl));
+  }
+
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
+    return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, List.of(relaysTags));
   }
 
   /**
