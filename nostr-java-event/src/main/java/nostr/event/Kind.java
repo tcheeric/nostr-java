@@ -28,7 +28,7 @@ public enum Kind {
     HIDE_MESSAGE(43, "hide_message"),
     MUTE_USER(44, "mute_user"),
     ZAP_REQUEST(9734, "zap_request"),
-    ZAP_RESPONSE(9735, "zap_response"),
+    ZAP_RECEIPT(9735, "zap_receipt"),
     REPLACEABLE_EVENT(10_000, "replaceable_event"),
     EPHEMEREAL_EVENT(20_000, "ephemereal_event"),
     CLIENT_AUTH(22_242, "authentication_of_clients_to_relays"),

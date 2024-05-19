@@ -12,7 +12,6 @@ import nostr.base.annotation.Event;
 import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.NIP57Event;
 import nostr.event.json.serializer.ZapRequestSerializer;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
@@ -22,7 +21,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapRequestEvent", nip = 57)
-public class ZapRequestEvent extends NIP57Event {
+public class ZapRequestEvent extends GenericEvent {
   private final ZapRequest zapRequest;
 
   public ZapRequestEvent(@NonNull PublicKey pubKey, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {

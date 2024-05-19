@@ -2,32 +2,29 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
-import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.factory.impl.NIP57Impl;
 import nostr.api.factory.impl.NIP57Impl.ZapRequestEventFactory;
+import nostr.api.factory.impl.NIP57Impl.ZapReceiptEventFactory;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.NIP57Event;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.ZapRequestEvent.ZapRequest;
+import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @author eric
  */
-public class NIP57<T extends NIP57Event> extends EventNostr<T> {
-
-
-  private static final int ZAP_REQUEST_EVENT_KIND = 9734;
-  private static final int ZAP_RECEIPT_EVENT_KIND = 9735;
+public class NIP57<T extends GenericEvent> extends EventNostr<T> {
   private static final String LNURL_TAG_NAME = "lnurl";
   private static final String BOLT11_TAG_NAME = "bolt11";
   private static final String PREIMAGE_TAG_NAME = "preimage";
@@ -53,32 +50,18 @@ public class NIP57<T extends NIP57Event> extends EventNostr<T> {
     return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl));
   }
 
-  public NIP57<T> createZapReceiptEvent() {
-    var factory = new GenericEventFactory(getSender(), ZAP_RECEIPT_EVENT_KIND, "");
-    var event = factory.create();
-    setEvent((T) event);
-
-    return this;
-  }
-
   /**
    * @param zapEvent
    * @param bolt11
    * @param preimage
-   * @param recipient
-   * @param eventTag
+   * @param zapRequestPubKeyTag
+   * @param zapRequestEventTag
    * @return
    */
-  public NIP57<T> createZapReceiptEvent(@NonNull GenericEvent zapEvent, @NonNull String bolt11, @NonNull String preimage, @NonNull PublicKey recipient, @NonNull EventTag eventTag) {
-    var factory = new GenericEventFactory(getSender(), ZAP_RECEIPT_EVENT_KIND, "");
-    var event = factory.create();
-    setEvent((T) event);
-
-    return this.addBolt11Tag(bolt11)
-        .addDescriptionTag(Nostr.Json.encode(zapEvent))
-        .addPreImageTag(preimage)
-        .addRecipientTag(recipient)
-        .addEventTag(eventTag);
+  public NIP57<T> createZapReceiptEvent(@NonNull GenericEvent zapEvent, List<BaseTag> baseTags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
+      @NonNull String descriptionSha256, @NonNull String preimage) {
+    setEvent((T) new ZapReceiptEventFactory(getSender(), baseTags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, bolt11, descriptionSha256, preimage).create());
+    return this;
   }
 
   public NIP57<T> addLnurlTag(@NonNull String lnurl) {

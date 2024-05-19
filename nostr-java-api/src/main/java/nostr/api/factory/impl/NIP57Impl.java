@@ -10,8 +10,13 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
+import nostr.event.impl.ZapReceiptEvent;
+import nostr.event.impl.ZapReceiptEvent.ZapReceipt;
 import nostr.event.impl.ZapRequestEvent;
 import nostr.event.impl.ZapRequestEvent.ZapRequest;
+import nostr.event.tag.AddressTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 
@@ -45,18 +50,30 @@ public class NIP57Impl {
     }
   }
 
-//  @Data
-//  @EqualsAndHashCode(callSuper = false)
-//  public static class ZapResponseEventFactory extends EventFactory<ZapRequestEvent> {
-//    public ZapResponseEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull String content) {
-//      super(sender, tags, content);
-//    }
-//
-//    @Override
-//    public ZapResponseEvent create() {
-//      var event = new ZapRequestEvent(getSender(), getTags(), getContent());
-//      getTags().forEach(event::addTag);
-//      return event;
-//    }
-//  }
+  @Data
+  @EqualsAndHashCode(callSuper = false)
+  public static class ZapReceiptEventFactory extends EventFactory<ZapReceiptEvent> {
+    private final ZapReceipt zapReceipt;
+    private final PubKeyTag zapRequestPubKeyTag;
+    private final EventTag zapRequestEventTag;
+    private final AddressTag zapRequestAddressTag;
+
+    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, ZapReceipt zapReceipt) {
+      super(sender, tags, "");
+      this.zapReceipt = zapReceipt;
+      this.zapRequestPubKeyTag = zapRequestPubKeyTag;
+      this.zapRequestEventTag = zapRequestEventTag;
+      this.zapRequestAddressTag = zapRequestAddressTag;
+    }
+
+    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
+        @NonNull String descriptionSha256, @NonNull String preimage) {
+      this(sender, tags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, new ZapReceipt(bolt11, descriptionSha256, preimage));
+    }
+
+    @Override
+    public ZapReceiptEvent create() {
+      return new ZapReceiptEvent(getSender(), zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, zapReceipt);
+    }
+  }
 }
