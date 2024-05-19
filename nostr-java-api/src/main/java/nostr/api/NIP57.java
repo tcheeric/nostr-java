@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
 import lombok.NonNull;
@@ -22,6 +18,7 @@ import nostr.id.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author eric
@@ -43,21 +40,19 @@ public class NIP57<T extends NIP57Event> extends EventNostr<T> {
     setSender(sender);
   }
 
-  /**
-   * @param content
-   */
-  public NIP57<T> createZapRequestEvent(@NonNull List<BaseTag> baseTags, String content, @NonNull ZapRequest zapRequest) {
-    setEvent((T) new ZapRequestEventFactory(getSender(), baseTags, content, zapRequest).create());
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull ZapRequest zapRequest) {
+    setEvent((T) new ZapRequestEventFactory(getSender(), recipientPubKey, baseTags, content, zapRequest).create());
     return this;
   }
 
-  public NIP57<T> createZapRequestEvent(List<BaseTag> baseTags, @NonNull String content, @NonNull Integer amount, @NonNull String lnurl, @NonNull PublicKey recipient, @NonNull RelaysTag relays) {
-    return createZapRequestEvent(baseTags, content, new ZapRequest(relays, amount, lnurl, recipient));
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
+    return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, List.of(relaysTags));
   }
 
-  /**
-   *
-   */
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relaysTags) {
+    return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl));
+  }
+
   public NIP57<T> createZapReceiptEvent() {
     var factory = new GenericEventFactory(getSender(), ZAP_RECEIPT_EVENT_KIND, "");
     var event = factory.create();
@@ -131,14 +126,17 @@ public class NIP57<T extends NIP57Event> extends EventNostr<T> {
     return this;
   }
 
-  public NIP57<T> addRelayTag(@NonNull Relay relay) {
-    getEvent().addTag(NIP42.createRelayTag(relay));
+  public NIP57<T> addRelaysTag(@NonNull RelaysTag relaysTag) {
+    getEvent().addTag(relaysTag);
     return this;
   }
 
-  public NIP57<T> addRelayTags(@NonNull List<Relay> relays) {
-    relays.forEach(this::addRelayTag);
-    return this;
+  public NIP57<T> addRelaysTags(@NonNull List<String> relaysTags) {
+    return addRelaysTag(new RelaysTag(relaysTags));
+  }
+
+  public NIP57<T> addRelaysTag(@NonNull String... relaysTags) {
+    return addRelaysTags(List.of(relaysTags));
   }
 
   /**
@@ -179,10 +177,10 @@ public class NIP57<T extends NIP57Event> extends EventNostr<T> {
   }
 
   /**
-   * @param relayUri
+   * @param relayUrl
    */
-  public static GenericTag createRelaysTag(@NonNull String relayUri) {
-    return new TagFactory(RELAYS_TAG_NAME, 57, relayUri).create();
+  public static GenericTag createRelaysTag(@NonNull String relayUrl) {
+    return new TagFactory(RELAYS_TAG_NAME, 57, relayUrl).create();
   }
 
   /**
