@@ -62,13 +62,13 @@ public class ZapReceiptEvent extends GenericEvent {
     private String bolt11;
 
     @JsonProperty
-    private String descriptionSha256; // must match bolt11 invoice hash
+    private String descriptionSha256;
 
     @JsonProperty
     private String preimage;
 
     public ZapReceipt(@NonNull String bolt11, @NonNull String descriptionSha256, String preimage) {
-      this.descriptionSha256 = descriptionSha256; //      TODO: check hash match
+      this.descriptionSha256 = descriptionSha256;
       this.bolt11 = bolt11;
       this.preimage = preimage;
     }

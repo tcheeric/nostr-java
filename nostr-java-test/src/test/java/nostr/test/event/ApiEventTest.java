@@ -271,8 +271,7 @@ public class ApiEventTest {
         final Long AMOUNT = 1232456L;
         final String LNURL = "lnUrl";
         final String RELAYS_TAG = "relaystag";
-        ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG)
-            .getEvent();
+        ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
         instance.update();
 
         Assertions.assertNotNull(instance.getId());
