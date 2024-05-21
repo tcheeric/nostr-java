@@ -37,8 +37,16 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     return this;
   }
 
-  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relaysTags) {
-    return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl));
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTags) {
+    return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(relaysTags, amount, lnUrl));
+  }
+
+  public NIP57<T> createZapRequestEventFromList(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
+    return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relays), amount, lnUrl));
+  }
+
+  public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relays) {
+    return createZapRequestEventFromList(recipientPubKey, baseTags, content, amount, lnUrl, relays.stream().map(Relay::new).toList());
   }
 
   public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
@@ -105,12 +113,16 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     return this;
   }
 
-  public NIP57<T> addRelaysTags(@NonNull List<String> relaysTags) {
-    return addRelaysTag(new RelaysTag(relaysTags));
+  public NIP57<T> addRelaysList(@NonNull List<Relay> relays) {
+    return addRelaysTag(new RelaysTag(relays));
   }
 
-  public NIP57<T> addRelaysTag(@NonNull String... relaysTags) {
-    return addRelaysTags(List.of(relaysTags));
+  public NIP57<T> addRelays(@NonNull List<String> relays) {
+    return addRelaysList(relays.stream().map(Relay::new).toList());
+  }
+
+  public NIP57<T> addRelays(@NonNull String... relays) {
+    return addRelays(List.of(relays));
   }
 
   /**

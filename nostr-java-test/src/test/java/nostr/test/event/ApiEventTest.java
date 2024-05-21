@@ -2,7 +2,6 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.NonNull;
 import nostr.api.*;
 import nostr.base.ElementAttribute;
 import nostr.base.PrivateKey;
@@ -285,7 +284,7 @@ public class ApiEventTest {
         Assertions.assertNotNull(instance.getZapRequest().getLnUrl());
 
         Assertions.assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
-        Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelayUrls().contains(RELAYS_TAG));
+        Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
         Assertions.assertEquals(AMOUNT, instance.getZapRequest().getAmount());
         Assertions.assertEquals(LNURL, instance.getZapRequest().getLnUrl());
 

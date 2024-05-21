@@ -35,14 +35,11 @@ public class ZapReceiptEvent extends GenericEvent {
     this.zapReceipt = zapReceipt;
   }
 
-  public ZapReceiptEvent(@NonNull PublicKey pubKey, @NonNull String zapRequestPubKeyTag, String zapRequestEventTag,
-      AddressTag zapRequestAddressTag, @NonNull ZapReceipt zapReceipt) {
+  public ZapReceiptEvent(@NonNull PublicKey pubKey, @NonNull String zapRequestPubKeyTag, String zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull ZapReceipt zapReceipt) {
     this(pubKey, new PubKeyTag(new PublicKey(zapRequestPubKeyTag)), new EventTag(zapRequestEventTag), zapRequestAddressTag, zapReceipt);
   }
 
-  public ZapReceiptEvent(@NonNull PublicKey pubKey, @NonNull String zapRequestPubKeyTag, String zapRequestEventTag,
-      String zapRequestAddressTag, String zapRequestIdentifier, String zapRequestRelayUri, @NonNull String bolt11,
-      @NonNull String descriptionSha256, @NonNull String preimage) {
+  public ZapReceiptEvent(@NonNull PublicKey pubKey, @NonNull String zapRequestPubKeyTag, String zapRequestEventTag, String zapRequestAddressTag, String zapRequestIdentifier, String zapRequestRelayUri, @NonNull String bolt11, @NonNull String descriptionSha256, @NonNull String preimage) {
     this(pubKey, zapRequestPubKeyTag, zapRequestEventTag,
         new AddressTag(null,
             new PublicKey(zapRequestAddressTag),

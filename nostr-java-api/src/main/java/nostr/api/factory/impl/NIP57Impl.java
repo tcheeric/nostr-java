@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapReceiptEvent.ZapReceipt;
@@ -17,6 +18,7 @@ import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class NIP57Impl {
 
@@ -32,12 +34,16 @@ public class NIP57Impl {
       this.recipientKey = recipientPubKey;
     }
 
-    public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relaysTags) {
-      this(sender, recipientPubKey, tags, content, new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl));
+    public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
+      this(sender, recipientPubKey, tags, content, new ZapRequest(relaysTag, amount, lnUrl));
+    }
+
+    public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
+      this(sender, recipientPubKey, tags, content, new ZapRequest(new RelaysTag(relays), amount, lnUrl));
     }
 
     public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
-      this(sender, recipientPubKey, tags, content, amount, lnUrl, List.of(relaysTags));
+      this(sender, recipientPubKey, tags, content, amount, lnUrl, Stream.of(relaysTags).map(Relay::new).toList());
     }
 
     @Override
@@ -62,8 +68,7 @@ public class NIP57Impl {
       this.zapRequestAddressTag = zapReceiptAddressTag;
     }
 
-    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapReceiptEventTag, AddressTag zapReceiptAddressTag, @NonNull String bolt11,
-        @NonNull String descriptionSha256, @NonNull String preimage) {
+    public ZapReceiptEventFactory(@NonNull Identity sender, List<BaseTag> tags, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapReceiptEventTag, AddressTag zapReceiptAddressTag, @NonNull String bolt11, @NonNull String descriptionSha256, @NonNull String preimage) {
       this(sender, tags, zapRequestPubKeyTag, zapReceiptEventTag, zapReceiptAddressTag, new ZapReceipt(bolt11, descriptionSha256, preimage));
     }
 

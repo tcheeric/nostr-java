@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.base.annotation.Event;
 import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
@@ -16,6 +17,7 @@ import nostr.event.json.serializer.ZapRequestSerializer;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -30,14 +32,18 @@ public class ZapRequestEvent extends GenericEvent {
     this.zapRequest = zapRequest;
   }
 
-  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relaysTags) {
+  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
     super(new PublicKey(pubKey), Kind.ZAP_REQUEST, tags, content);
     super.addTag(new PubKeyTag(new PublicKey(recipientPubKey)));
-    this.zapRequest = new ZapRequest(new RelaysTag(relaysTags), amount, lnUrl);
+    this.zapRequest = new ZapRequest(relaysTag, amount, lnUrl);
   }
 
-  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
-    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, List.of(relaysTags));
+  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
+    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(relays));
+  }
+
+  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {
+    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(Arrays.stream(relays).map(Relay::new).toList()));
   }
 
   @Data
