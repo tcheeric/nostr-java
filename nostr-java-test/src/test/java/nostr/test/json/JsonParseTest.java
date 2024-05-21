@@ -14,11 +14,7 @@ import nostr.event.Marker;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.BaseMessageEncoder;
-import nostr.event.json.codec.BaseTagDecoder;
-import nostr.event.json.codec.FiltersEncoder;
-import nostr.event.json.codec.GenericTagDecoder;
+import nostr.event.json.codec.*;
 import nostr.event.list.EventList;
 import nostr.event.list.FiltersList;
 import nostr.event.list.KindList;
@@ -177,7 +173,7 @@ public class JsonParseTest {
 
     @Test
     public void testPriceTagDeserializer() throws JsonProcessingException {
-        System.out.println("testPriceTagDecoder");
+        System.out.println("testPriceTagDeserializer");
         BigDecimal bigDecimal = BigDecimal.valueOf(11111L);
         String currency = "BTC";
         String frequency = "1";
@@ -192,6 +188,24 @@ public class JsonParseTest {
         assertEquals(bigDecimal.toString(), ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
         assertEquals(currency, ((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue());
         assertEquals(frequency, ((ElementAttribute) (tag.getAttributes().toArray())[2]).getValue());
+    }
+
+    @Test
+    public void testPriceTagSerializer() throws JsonProcessingException {
+        System.out.println("testPriceTagSerializer");
+        BigDecimal bigDecimal = BigDecimal.valueOf(11111L);
+        String currency = "BTC";
+        String frequency = "1";
+        PriceTag priceTag = new PriceTag(bigDecimal, currency, frequency);
+
+        GenericTag tag = new GenericTagEncoder(priceTag).getTag();
+        Assertions.assertInstanceOf(PriceTag.class, tag);
+
+        PriceTag encodedPriceTag = (PriceTag)tag;
+        assertEquals("price", encodedPriceTag.getCode());
+        assertEquals(bigDecimal, encodedPriceTag.getNumber());
+        assertEquals(currency, encodedPriceTag.getCurrency());
+        assertEquals(frequency, encodedPriceTag.getFrequency());
     }
 
     @Test
