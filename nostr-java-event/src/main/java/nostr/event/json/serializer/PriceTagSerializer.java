@@ -12,7 +12,7 @@ public class PriceTagSerializer extends JsonSerializer<PriceTag> {
   @Override
   public void serialize(PriceTag priceTag, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartArray();
-    jsonGenerator.writeFieldName("price");
+    jsonGenerator.writeString("price");
     jsonGenerator.writeNumber(priceTag.getNumber());
     jsonGenerator.writeString(priceTag.getCurrency());
     jsonGenerator.writeString(priceTag.getFrequency());

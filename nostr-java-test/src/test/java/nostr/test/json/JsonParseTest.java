@@ -1,5 +1,7 @@
 package nostr.test.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
@@ -24,12 +26,14 @@ import nostr.event.list.PublicKeyList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,6 +173,25 @@ public class JsonParseTest {
         assertEquals(2, tag.getAttributes().size());
         assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
         assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue().toString()));
+    }
+
+    @Test
+    public void testPriceTagDeserializer() throws JsonProcessingException {
+        System.out.println("testPriceTagDecoder");
+        BigDecimal bigDecimal = BigDecimal.valueOf(11111L);
+        String currency = "BTC";
+        String frequency = "1";
+        PriceTag priceTag = new PriceTag(bigDecimal, currency, frequency);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(priceTag);
+        var tag = new GenericTagDecoder(json).decode();
+
+        assertEquals("price", tag.getCode());
+        assertEquals(3, tag.getAttributes().size());
+        assertEquals(bigDecimal.toString(), ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
+        assertEquals(currency, ((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue());
+        assertEquals(frequency, ((ElementAttribute) (tag.getAttributes().toArray())[2]).getValue());
     }
 
     @Test
