@@ -39,7 +39,7 @@ public class NIP57Impl {
     }
 
     public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
-      this(sender, recipientPubKey, tags, content, new ZapRequest(new RelaysTag(relays), amount, lnUrl));
+      this(sender, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(relays));
     }
 
     public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {

@@ -43,7 +43,7 @@ public class ZapRequestEvent extends GenericEvent {
   }
 
   public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {
-    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(Arrays.stream(relays).map(Relay::new).toList()));
+    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, Arrays.stream(relays).map(Relay::new).toList());
   }
 
   @Data

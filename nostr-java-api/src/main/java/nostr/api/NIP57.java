@@ -42,7 +42,7 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
   }
 
   public NIP57<T> createZapRequestEventFromList(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
-    return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(new RelaysTag(relays), amount, lnUrl));
+    return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, new RelaysTag(relays));
   }
 
   public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relays) {
