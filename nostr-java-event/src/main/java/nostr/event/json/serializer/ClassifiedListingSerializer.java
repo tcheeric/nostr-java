@@ -18,9 +18,6 @@ public class ClassifiedListingSerializer extends JsonSerializer<ClassifiedListin
   public void serialize(ClassifiedListing classifiedListing, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartArray();
 
-    jsonGenerator.writeString("tags");
-    jsonGenerator.writeStartArray();
-
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("title");
     jsonGenerator.writeString(classifiedListing.getTitle());
@@ -43,7 +40,6 @@ public class ClassifiedListingSerializer extends JsonSerializer<ClassifiedListin
 
     priceTagSerializer.serialize(classifiedListing.getPriceTag(), jsonGenerator, serializerProvider);
 
-    jsonGenerator.writeEndArray();
     jsonGenerator.writeEndArray();
   }
 }
