@@ -16,13 +16,34 @@ public class ClassifiedListingSerializer extends JsonSerializer<ClassifiedListin
 
   @Override
   public void serialize(ClassifiedListing classifiedListing, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-    jsonGenerator.writeStartObject();
-    jsonGenerator.writeStringField("id", classifiedListing.getId());
-    jsonGenerator.writeStringField("title", classifiedListing.getTitle());
-    jsonGenerator.writeStringField("summary", classifiedListing.getSummary());
-    jsonGenerator.writeNumberField("publishedAt", classifiedListing.getPublishedAt());
-    jsonGenerator.writeStringField("location", classifiedListing.getLocation());
-    priceTagSerializer.serialize(classifiedListing.getPriceTags(), jsonGenerator, serializerProvider);
-    jsonGenerator.writeEndObject();
+    jsonGenerator.writeStartArray();
+
+    jsonGenerator.writeString("tags");
+    jsonGenerator.writeStartArray();
+
+    jsonGenerator.writeStartArray();
+    jsonGenerator.writeString("title");
+    jsonGenerator.writeString(classifiedListing.getTitle());
+    jsonGenerator.writeEndArray();
+
+    jsonGenerator.writeStartArray();
+    jsonGenerator.writeString("summary");
+    jsonGenerator.writeString(classifiedListing.getSummary());
+    jsonGenerator.writeEndArray();
+
+    jsonGenerator.writeStartArray();
+    jsonGenerator.writeString("published_at");
+    jsonGenerator.writeString(String.valueOf(classifiedListing.getPublishedAt()));
+    jsonGenerator.writeEndArray();
+
+    jsonGenerator.writeStartArray();
+    jsonGenerator.writeString("location");
+    jsonGenerator.writeString(classifiedListing.getLocation());
+    jsonGenerator.writeEndArray();
+
+    priceTagSerializer.serialize(classifiedListing.getPriceTag(), jsonGenerator, serializerProvider);
+
+    jsonGenerator.writeEndArray();
+    jsonGenerator.writeEndArray();
   }
 }

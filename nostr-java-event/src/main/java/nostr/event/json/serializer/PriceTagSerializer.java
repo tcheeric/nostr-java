@@ -13,7 +13,7 @@ public class PriceTagSerializer extends JsonSerializer<PriceTag> {
   public void serialize(PriceTag priceTag, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("price");
-    jsonGenerator.writeNumber(priceTag.getNumber());
+    jsonGenerator.writeString(String.valueOf(priceTag.getNumber()));
     jsonGenerator.writeString(priceTag.getCurrency());
     jsonGenerator.writeString(priceTag.getFrequency());
     jsonGenerator.writeEndArray();

@@ -11,6 +11,8 @@ import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
+import nostr.event.impl.ClassifiedListingEvent;
+import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
@@ -207,6 +209,39 @@ public class JsonParseTest {
         assertEquals(currency, encodedPriceTag.getCurrency());
         assertEquals(frequency, encodedPriceTag.getFrequency());
     }
+
+    @Test
+    public void testClassifiedListingSerializer() throws NostrException, JsonProcessingException {
+        System.out.println("testClassifiedListingSerializer");
+        PublicKey sender = Identity.generateRandomIdentity().getPublicKey();
+
+        String title = "classified listing title";
+        String summary = "classified listing summary";
+        Long publishedAt = 1687765220L;
+        String location = "classified listing location";
+
+        BigDecimal bigDecimal = BigDecimal.valueOf(11111L);
+        String currency = "BTC";
+        String frequency = "1";
+
+        ClassifiedListing classifiedListing = new ClassifiedListing(title, summary, new PriceTag(bigDecimal, currency, frequency));
+        classifiedListing.setPublishedAt(publishedAt);
+        classifiedListing.setLocation(location);
+
+        ClassifiedListingEvent classifiedListingEvent = new ClassifiedListingEvent(sender, new ArrayList<BaseTag>(), "classified listing event content", classifiedListing);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(classifiedListingEvent);
+        System.out.println("manual json:");
+        System.out.println(json);
+
+//        ClassifiedListing encodedPriceTag = (ClassifiedListing)genericEventDecoder;
+//        assertEquals("price", encodedPriceTag.getCode());
+//        assertEquals(bigDecimal, encodedPriceTag.getNumber());
+//        assertEquals(currency, encodedPriceTag.getCurrency());
+//        assertEquals(frequency, encodedPriceTag.getFrequency());
+    }
+
 
     @Test
     public void testDeserializeTag() throws NostrException {

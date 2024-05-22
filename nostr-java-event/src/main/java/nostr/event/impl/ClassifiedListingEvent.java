@@ -20,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
 public class ClassifiedListingEvent extends NIP99Event {
-
+  @JsonProperty
   private final ClassifiedListing classifiedListing;
 
   public ClassifiedListingEvent(PublicKey sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
@@ -53,12 +53,12 @@ public class ClassifiedListingEvent extends NIP99Event {
     private String location;
 
     @JsonProperty("price")
-    private PriceTag priceTags;
+    private PriceTag priceTag;
 
-    public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTags) {
+    public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
       this.title = title;
       this.summary = summary;
-      this.priceTags = priceTags;
+      this.priceTag = priceTag;
     }
   }
 }
