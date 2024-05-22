@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.event.impl.ZapReceiptEvent.ZapReceipt;
+import nostr.event.tag.ZapReceipt;
 
 import java.io.IOException;
 

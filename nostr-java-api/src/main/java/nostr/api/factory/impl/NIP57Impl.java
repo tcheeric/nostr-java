@@ -8,13 +8,8 @@ import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.ZapReceiptEvent;
-import nostr.event.impl.ZapReceiptEvent.ZapReceipt;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.event.impl.ZapRequestEvent.ZapRequest;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.RelaysTag;
+import nostr.event.tag.*;
 import nostr.id.Identity;
 
 import java.util.List;

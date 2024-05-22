@@ -1,22 +1,14 @@
 
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractEventContent;
 import nostr.event.Kind;
-import nostr.event.json.serializer.ZapReceiptSerializer;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.IdentifierTag;
-import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.*;
 
 import java.util.Optional;
 
@@ -46,32 +38,5 @@ public class ZapReceiptEvent extends GenericEvent {
             new IdentifierTag(zapRequestIdentifier),
             new Relay(zapRequestRelayUri)),
         new ZapReceipt(bolt11, descriptionSha256, preimage));
-  }
-
-  @Data
-  @EqualsAndHashCode(callSuper = false)
-  @JsonSerialize(using = ZapReceiptSerializer.class)
-  public static class ZapReceipt extends AbstractEventContent<ZapReceiptEvent> {
-    @JsonProperty
-    private String id;
-
-    @JsonProperty
-    private String bolt11;
-
-    @JsonProperty
-    private String descriptionSha256;
-
-    @JsonProperty
-    private String preimage;
-
-    public ZapReceipt(@NonNull String bolt11, @NonNull String descriptionSha256, String preimage) {
-      this.descriptionSha256 = descriptionSha256;
-      this.bolt11 = bolt11;
-      this.preimage = preimage;
-    }
-
-    public ZapReceipt(@NonNull String bolt11, @NonNull String descriptionSha256) {
-      this(bolt11, descriptionSha256, null);
-    }
   }
 }

@@ -1,21 +1,17 @@
 
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.json.serializer.ZapRequestSerializer;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
+import nostr.event.tag.ZapRequest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,26 +42,4 @@ public class ZapRequestEvent extends GenericEvent {
     this(pubKey, recipientPubKey, tags, content, amount, lnUrl, Arrays.stream(relays).map(Relay::new).toList());
   }
 
-  @Data
-  @EqualsAndHashCode(callSuper = false)
-  @JsonSerialize(using = ZapRequestSerializer.class)
-  public static class ZapRequest extends AbstractEventContent<ZapRequestEvent> {
-    @JsonProperty
-    private String id;
-
-    @JsonProperty("relays")
-    private RelaysTag relaysTag;
-
-    @JsonProperty
-    private Long amount;
-
-    @JsonProperty("lnurl")
-    private String lnUrl;
-
-    public ZapRequest(@NonNull RelaysTag relaysTag, @NonNull Long amount, @NonNull String lnUrl) {
-      this.relaysTag = relaysTag;
-      this.amount = amount;
-      this.lnUrl = lnUrl;
-    }
-  }
 }

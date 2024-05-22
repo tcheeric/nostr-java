@@ -3,11 +3,11 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import nostr.event.tag.ClassifiedListingTag;
+import nostr.event.tag.ClassifiedListing;
 
 import java.io.IOException;
 
-public class ClassifiedListingTagSerializer extends JsonSerializer<ClassifiedListingTag> {
+public class ClassifiedListingTagSerializer extends JsonSerializer<ClassifiedListing> {
   private final PriceTagSerializer priceTagSerializer;
 
   public ClassifiedListingTagSerializer() {
@@ -15,28 +15,28 @@ public class ClassifiedListingTagSerializer extends JsonSerializer<ClassifiedLis
   }
 
   @Override
-  public void serialize(ClassifiedListingTag classifiedListingTag, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+  public void serialize(ClassifiedListing classifiedListing, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartArray();
 
     jsonGenerator.writeString("title");
-    jsonGenerator.writeString(classifiedListingTag.getTitle());
+    jsonGenerator.writeString(classifiedListing.getTitle());
     jsonGenerator.writeEndArray();
 
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("summary");
-    jsonGenerator.writeString(classifiedListingTag.getSummary());
+    jsonGenerator.writeString(classifiedListing.getSummary());
     jsonGenerator.writeEndArray();
 
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("published_at");
-    jsonGenerator.writeString(String.valueOf(classifiedListingTag.getPublishedAt()));
+    jsonGenerator.writeString(String.valueOf(classifiedListing.getPublishedAt()));
     jsonGenerator.writeEndArray();
 
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("location");
-    jsonGenerator.writeString(classifiedListingTag.getLocation());
+    jsonGenerator.writeString(classifiedListing.getLocation());
     jsonGenerator.writeEndArray();
 
-    priceTagSerializer.serialize(classifiedListingTag.getPriceTag(), jsonGenerator, serializerProvider);
+    priceTagSerializer.serialize(classifiedListing.getPriceTag(), jsonGenerator, serializerProvider);
   }
 }
