@@ -22,24 +22,23 @@ import java.util.List;
 public class ZapRequestEvent extends GenericEvent {
   private final ZapRequest zapRequest;
 
-  public ZapRequestEvent(@NonNull PublicKey pubKey, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {
-    super(pubKey, Kind.ZAP_REQUEST, tags, content);
+  public ZapRequestEvent(@NonNull PublicKey senderPubKey, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {
+    super(senderPubKey, Kind.ZAP_REQUEST, tags, content);
     super.addTag(new PubKeyTag(recipientPubKey));
     this.zapRequest = zapRequest;
   }
 
-  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
-    super(new PublicKey(pubKey), Kind.ZAP_REQUEST, tags, content);
+  public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
+    super(new PublicKey(senderPubKey), Kind.ZAP_REQUEST, tags, content);
     super.addTag(new PubKeyTag(new PublicKey(recipientPubKey)));
     this.zapRequest = new ZapRequest(relaysTag, amount, lnUrl);
   }
 
-  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
-    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(relays));
+  public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
+    this(senderPubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(relays));
   }
 
-  public ZapRequestEvent(@NonNull String pubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {
-    this(pubKey, recipientPubKey, tags, content, amount, lnUrl, Arrays.stream(relays).map(Relay::new).toList());
+  public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {
+    this(senderPubKey, recipientPubKey, tags, content, amount, lnUrl, Arrays.stream(relays).map(Relay::new).toList());
   }
-
 }
