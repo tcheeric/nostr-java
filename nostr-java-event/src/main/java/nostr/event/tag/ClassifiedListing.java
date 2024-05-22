@@ -2,21 +2,21 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import nostr.base.annotation.Key;
-import nostr.base.annotation.Tag;
-import nostr.event.impl.GenericTag;
+import nostr.event.AbstractEventContent;
+import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.json.serializer.ClassifiedListingTagSerializer;
 
-@Setter
-@Getter
-@EqualsAndHashCode(callSuper = true)
-@Tag(code = "tags", nip = 99)
+@Data
+@EqualsAndHashCode(callSuper = false)
 @JsonSerialize(using = ClassifiedListingTagSerializer.class)
-public class ClassifiedListingTag extends GenericTag {
+public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
+  @JsonProperty
+  private String id;
+
   @Key
   @JsonProperty
   private String title;
@@ -38,8 +38,7 @@ public class ClassifiedListingTag extends GenericTag {
   @JsonProperty("price")
   private PriceTag priceTag;
 
-  public ClassifiedListingTag(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
-    super("tags", 99);
+  public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
     this.title = title;
     this.summary = summary;
     this.priceTag = priceTag;
