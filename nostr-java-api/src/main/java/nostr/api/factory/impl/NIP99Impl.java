@@ -6,7 +6,7 @@ import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
+import nostr.event.tag.ClassifiedListingTag;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -16,22 +16,22 @@ public class NIP99Impl {
   @Data
   @EqualsAndHashCode(callSuper = false)
   public static class ClassifiedListingEventFactory extends EventFactory<ClassifiedListingEvent> {
-    private final ClassifiedListing classifiedListing;
+    private final ClassifiedListingTag classifiedListingTag;
     private final Kind kind;
 
-    public ClassifiedListingEventFactory(Identity sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
-      this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListing);
+    public ClassifiedListingEventFactory(Identity sender, List<BaseTag> baseTags, String content, ClassifiedListingTag classifiedListingTag) {
+      this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListingTag);
     }
 
-    public ClassifiedListingEventFactory(Identity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
+    public ClassifiedListingEventFactory(Identity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListingTag classifiedListingTag) {
       super(sender, baseTags, content);
       this.kind = kind;
-      this.classifiedListing = classifiedListing;
+      this.classifiedListingTag = classifiedListingTag;
     }
 
     @Override
     public ClassifiedListingEvent create() {
-      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListing);
+      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListingTag);
     }
   }
 }
