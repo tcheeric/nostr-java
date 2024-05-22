@@ -1,0 +1,33 @@
+EventMessage(super=BaseMessage(command=EVENT), 
+event=GenericEvent(
+	id=b6995c2b3d5559b0b8f50926cedabef03f624d4976edaacd6fa6298f13c3da7b, 
+	pubKey=cccd79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984, 
+	createdAt=1716416734781, 
+	kind=30402, 
+	
+	tags=[SubjectTag
+					(subject=subject A), 
+				GenericTag
+					(code=title, nip=null, attributes=[ElementAttribute(name=param0, value=4444444444, nip=null)]), 
+				GenericTag
+					(code=summary, nip=null, attributes=[ElementAttribute(name=param0, value=3333333333, nip=null)]), 
+				GenericTag
+					(code=location, nip=null, attributes=[ElementAttribute(name=param0, value=peroulades, nip=null)]), 
+				GenericTag
+					(code=price, nip=null, attributes=[ElementAttribute(name=param0, value=666.66, nip=null), 
+																							ElementAttribute(name=param1, value=BTC, nip=null), 
+																							ElementAttribute(name=param2, value=1, nip=null)]), 
+				EventTag
+					(idEvent=494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346, recommendedRelayUrl=null, marker=null), 
+				PubKeyTag
+					(publicKey=2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984, mainRelayUrl=null, petName=null), 
+				GenericTag
+					(code=t, nip=null, attributes=[ElementAttribute(name=param0, value=hash-tag-1111, nip=null)]), 
+				GenericTag
+					(code=g, nip=null, attributes=[ElementAttribute(name=param0, value=geo-tag-1, nip=null)])], 
+content=2222222222, 
+signature=null, 
+_serializedEvent=null, 
+nip=null, 
+attributes=[]), 
+subscriptionId=4)

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.base.annotation.Key;
 import nostr.event.AbstractEventContent;
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.json.serializer.ClassifiedListingTagSerializer;
@@ -17,24 +16,19 @@ public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEve
   @JsonProperty
   private String id;
 
-  @Key
   @JsonProperty
   private String title;
 
-  @Key
   @JsonProperty
   private String summary;
 
-  @Key
   @JsonProperty("published_at")
   @EqualsAndHashCode.Exclude
   private Long publishedAt;
 
-  @Key
   @JsonProperty
   private String location;
 
-  @Key
   @JsonProperty("price")
   private PriceTag priceTag;
 
