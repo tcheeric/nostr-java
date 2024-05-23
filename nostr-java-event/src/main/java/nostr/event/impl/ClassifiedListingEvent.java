@@ -7,7 +7,6 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP99Event;
-import nostr.event.tag.ClassifiedListing;
 
 import java.util.List;
 

@@ -10,7 +10,7 @@ import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.tag.ZapRequest;
+import nostr.event.impl.ZapRequest;
 import nostr.event.tag.*;
 import nostr.id.Identity;
 

@@ -6,7 +6,7 @@ import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.tag.ClassifiedListing;
+import nostr.event.impl.ClassifiedListing;
 import nostr.id.Identity;
 
 import java.util.List;

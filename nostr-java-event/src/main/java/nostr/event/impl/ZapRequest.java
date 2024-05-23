@@ -1,4 +1,4 @@
-package nostr.event.tag;
+package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.AbstractEventContent;
-import nostr.event.impl.ZapRequestEvent;
 import nostr.event.json.serializer.ZapRequestSerializer;
+import nostr.event.tag.RelaysTag;
 
 @Data
 @EqualsAndHashCode(callSuper = false)

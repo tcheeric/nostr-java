@@ -11,7 +11,6 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
-import nostr.event.tag.ZapRequest;
 
 import java.util.Arrays;
 import java.util.List;

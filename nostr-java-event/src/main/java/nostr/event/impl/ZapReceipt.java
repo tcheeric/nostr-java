@@ -1,4 +1,4 @@
-package nostr.event.tag;
+package nostr.event.impl;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.AbstractEventContent;
-import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.json.serializer.ZapReceiptSerializer;
 
 @Data

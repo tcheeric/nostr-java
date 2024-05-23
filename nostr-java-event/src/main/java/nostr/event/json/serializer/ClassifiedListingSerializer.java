@@ -3,7 +3,7 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import nostr.event.tag.ClassifiedListing;
+import nostr.event.impl.ClassifiedListing;
 
 import java.io.IOException;
 
