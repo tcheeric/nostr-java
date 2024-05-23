@@ -4,7 +4,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.NIP99Impl.ClassifiedListingEventFactory;
 import nostr.event.BaseTag;
 import nostr.event.NIP99Event;
-import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
+import nostr.event.impl.ClassifiedListing;
 import nostr.id.Identity;
 
 import java.util.List;

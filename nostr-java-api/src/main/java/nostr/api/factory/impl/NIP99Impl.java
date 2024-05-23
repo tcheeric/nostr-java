@@ -5,8 +5,8 @@ import lombok.EqualsAndHashCode;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
+import nostr.event.impl.ClassifiedListing;
 import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class NIP99Impl {
 
     @Override
     public ClassifiedListingEvent create() {
-      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListing);
+      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent());
     }
   }
 }
