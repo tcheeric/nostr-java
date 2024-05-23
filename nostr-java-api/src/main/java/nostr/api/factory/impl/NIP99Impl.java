@@ -32,7 +32,7 @@ public class NIP99Impl {
 
     @Override
     public ClassifiedListingEvent create() {
-      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListing);
+      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent());
     }
   }
 }
