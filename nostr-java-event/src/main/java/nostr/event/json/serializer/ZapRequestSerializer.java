@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.NonNull;
-import nostr.event.tag.ZapRequest;
+import nostr.event.impl.ZapRequest;
 
 import java.io.IOException;
 
