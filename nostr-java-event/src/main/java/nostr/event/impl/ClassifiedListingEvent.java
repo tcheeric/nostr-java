@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
@@ -16,7 +15,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
 public class ClassifiedListingEvent extends NIP99Event {
-  @JsonProperty
   private final ClassifiedListing classifiedListing;
 
   public ClassifiedListingEvent(PublicKey sender, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {

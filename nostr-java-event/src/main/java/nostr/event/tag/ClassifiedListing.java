@@ -7,11 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.AbstractEventContent;
 import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.json.serializer.ClassifiedListingTagSerializer;
+import nostr.event.json.serializer.ClassifiedListingSerializer;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@JsonSerialize(using = ClassifiedListingTagSerializer.class)
+@JsonSerialize(using = ClassifiedListingSerializer.class)
 public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
   @JsonProperty
   private String id;
