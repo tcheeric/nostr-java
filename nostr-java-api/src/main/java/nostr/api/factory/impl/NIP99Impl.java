@@ -24,14 +24,14 @@ public class NIP99Impl {
     }
 
     public ClassifiedListingEventFactory(Identity sender, Kind kind, List<BaseTag> baseTags, String content, ClassifiedListing classifiedListing) {
-      super(sender, baseTags, content);
+      super(sender, baseTags.stream().toList(), content);
       this.kind = kind;
       this.classifiedListing = classifiedListing;
     }
 
     @Override
     public ClassifiedListingEvent create() {
-      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent());
+      return new ClassifiedListingEvent(getSender(), getKind(), getTags(), getContent(), classifiedListing);
     }
   }
 }
