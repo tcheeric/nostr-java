@@ -41,11 +41,7 @@ public abstract class NIP99Event extends GenericEvent {
   private void addNonDuplicateTag(String code, ClassifiedListing classifiedListing, List<BaseTag> baseTags) {
     Optional<String> obj = fxnMap.get(code).apply(classifiedListing);
     if (obj.isPresent() && (baseTags.stream().noneMatch(tag -> code.equals(tag.getCode())))) {
-      super.addTag(createTag(code, obj.get()));
+      super.addTag(GenericTag.create(code, 99, obj.get()));
     }
-  }
-
-  private static GenericTag createTag(String code, String value) {
-    return GenericTag.create(code, 99, value);
   }
 }
