@@ -8,7 +8,8 @@ import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.event.Response;
 
-import java.net.http.WebSocket;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +19,7 @@ import java.util.logging.Level;
 
 @AllArgsConstructor
 @Log
-public class CloseListener implements WebSocket.Listener {
+public class CloseListener extends WebSocketListener {
 
     @Getter
     @EqualsAndHashCode.Include
@@ -28,9 +29,14 @@ public class CloseListener implements WebSocket.Listener {
     private final Set<Response> responses = Collections.synchronizedSet(new HashSet<>());
 
     @Override
-    public CompletionStage<Void> onClose(WebSocket webSocket, int statusCode, String reason) {
+    public void onClosed(WebSocket webSocket, int statusCode, String reason) {
         log.log(Level.INFO, "WebSocket connection to {0} closed: {1}, {2}", new Object[]{relay, statusCode, reason});
         responses.clear();
-        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public void onClosing(WebSocket webSocket, int statusCode, String reason) {
+        log.log(Level.INFO, "WebSocket connection to {0} closing: {1}, {2}", new Object[]{relay, statusCode, reason});
+        responses.clear();
     }
 }

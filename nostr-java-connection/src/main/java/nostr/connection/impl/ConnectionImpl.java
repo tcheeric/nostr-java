@@ -15,8 +15,10 @@ import nostr.connection.impl.listeners.TextListener;
 import nostr.context.Context;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.WebSocket;
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocket;
+import okhttp3.Request;
+import okhttp3.HttpUrl;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.UUID;
@@ -57,14 +59,12 @@ public class ConnectionImpl implements Connection {
                 return;
             }
 
-            log.log(Level.INFO, "Connecting to {0}...", relay);
-            var client = HttpClient.newHttpClient();
+            log.log(Level.INFO, "Connecting to {0}... httpUrl = {1}", new Object[]{relay, HttpUrl.parse(relay.getHttpUri())});
+            var client = new OkHttpClient();
             var compositeListener = new CompositeListener(Arrays.asList(new OpenListener(relay), new TextListener(relay, context), new CloseListener(relay), new ErrorListener(relay)));
-
-            webSocket = client.newWebSocketBuilder()
-                    .connectTimeout(Duration.ofMillis(10000)) // TODO - make this configurable and add to the context.
-                    .buildAsync(URI.create(relay.getUri()), compositeListener)
-                    .join();
+            
+            webSocket = client.newWebSocket((new Request.Builder()).url(HttpUrl.parse(relay.getHttpUri())).build(), compositeListener);
+            //.connectTimeout(Duration.ofMillis(10000)) // TODO - make this configurable and add to the context.
 
             connected.set(true);
 
@@ -80,6 +80,7 @@ public class ConnectionImpl implements Connection {
         return connected.get() && webSocket != null;
     }
 
+    @Override
     public void send(@NonNull String message) {
         if (!isConnected()) {
             log.log(Level.WARNING, "FAIL - Not properly connected with Relay: {0}", relay);
@@ -87,14 +88,15 @@ public class ConnectionImpl implements Connection {
         }
 
         log.log(Level.INFO, "Sending message: {0} - Relay: {1}", new Object[]{message, relay});
-        webSocket.sendText(message, true);
+        webSocket.send(message);
     }
 
     @Override
     public void disconnect() {
         if (isConnected()) {
             log.log(Level.INFO, "Disconnecting from {0}", relay);
-            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "bye").join();
+            // NORMAL_CLOSURE is 1000
+            webSocket.close(1000, "bye"); // TODO check return result of close
         }
         connected.set(false);
     }
