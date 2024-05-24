@@ -35,6 +35,7 @@ public abstract class NIP99Event extends GenericEvent {
     fxnMap.put("location", locationFunction);
 
     fxnMap.forEach((attribute, classifiedListingStringFunction) -> extracted(baseTags, classifiedListing, attribute));
+    baseTags.forEach(super::addTag);
   }
 
   private static void extracted(List<BaseTag> baseTags, ClassifiedListing classifiedListing, String attribute) {
@@ -42,7 +43,6 @@ public abstract class NIP99Event extends GenericEvent {
       baseTags.add(createTag(attribute, classifiedListing.getSummary()));
     }
   }
-
 
   private static GenericTag createTag(String code, String value) {
     return GenericTag.create(code, 99, value);

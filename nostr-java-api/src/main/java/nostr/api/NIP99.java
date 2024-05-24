@@ -15,8 +15,7 @@ public class NIP99<T extends NIP99Event> extends EventNostr<T> {
   }
 
   public NIP99<T> createClassifiedListingEvent(@NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull ClassifiedListing classifiedListing) {
-    var event = new ClassifiedListingEventFactory(getSender(), baseTags, content, classifiedListing).create();
-    setEvent((T) event);
+    setEvent((T) new ClassifiedListingEventFactory(getSender(), baseTags, content, classifiedListing).create());
     return this;
   }
 }
