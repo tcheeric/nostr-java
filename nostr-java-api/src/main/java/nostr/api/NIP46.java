@@ -96,10 +96,9 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
     @NoArgsConstructor
     @Log
     public static final class Response implements Serializable {
-        private Long id;
-        private String responseUuid;
+        private String id;
+        private String error;
         private String result;
-        private LocalDateTime createdAt;
 
         public String toString() {
             try {
