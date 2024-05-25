@@ -2,8 +2,8 @@ package nostr.test.event;
 
 import nostr.api.NIP99;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
 import nostr.event.impl.ClassifiedListingEvent;
+import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;

@@ -6,8 +6,8 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.impl.ClassifiedListing;
 import nostr.event.impl.ClassifiedListingEvent;
+import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.id.Identity;
 
 import java.util.List;
