@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author squirrel
  */
 class ClientTest {
-    /*
 
     private Client client;
     private Identity identity;
@@ -81,6 +80,7 @@ class ClientTest {
         Assertions.assertEquals(0, client.getOpenConnectionsCount());
     }
 
+/*
     @Test
     public void testNip42() throws TimeoutException {
         System.out.println("testNip42");
@@ -96,6 +96,7 @@ class ClientTest {
         msg = new ReqMessage("testNip42_" + sender.toString(), filters);
         client.send(msg);
     }
+*/
 
     private int getRelayCount() {
         Properties properties = new Properties();
@@ -110,5 +111,4 @@ class ClientTest {
         }
         return properties.size();
     }
-    */
 }
