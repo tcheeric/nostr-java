@@ -1,25 +1,26 @@
 package nostr.event.tag;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
+import nostr.event.json.serializer.PriceTagSerializer;
 
 import java.math.BigDecimal;
 
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Tag(code = "price", nip = 99)
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 @JsonPropertyOrder({"number", "currency", "frequency"})
+@JsonSerialize(using = PriceTagSerializer.class)
 public class PriceTag extends BaseTag {
-  @JsonProperty
-  private BigDecimal number;
-  @JsonProperty
-  private String currency;
-  @JsonProperty
-  private String frequency;
+  private final BigDecimal number;
+  private final String currency;
+  private final String frequency;
 }
