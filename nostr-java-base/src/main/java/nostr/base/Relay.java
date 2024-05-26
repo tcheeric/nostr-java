@@ -13,6 +13,7 @@ import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.RuntimeException;
 
 /**
  * @author squirrel
@@ -26,7 +27,11 @@ public class Relay {
 
     @EqualsAndHashCode.Include
     @ToString.Include
-    private String uri;
+    private String scheme;
+
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private String host;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -34,6 +39,16 @@ public class Relay {
 
     public Relay(@NonNull String uri) {
         this(uri, new RelayInformationDocument());
+    }
+
+    public Relay(@NonNull String uri, RelayInformationDocument doc) {
+        this.informationDocument = doc;
+        String[] s = uri.split("://", 2);
+        if (s.length != 2) {
+            throw new RuntimeException("uri must contain scheme and host, passed in uri: \"" + uri + "\"");
+        }
+        this.scheme = s[0];
+        this.host = s[1];
     }
 
     // Helper method
@@ -68,6 +83,16 @@ public class Relay {
     // Helper method
     public String getName() {
         return this.getInformationDocument().getName();
+    }
+
+    // Helper method
+    public String getUri() {
+        return this.scheme + "://" + this.host;
+    }
+
+    // Helper method
+    public String getHttpUri() {
+        return this.scheme.replaceFirst("ws", "http") + "://" + this.host;
     }
 
 

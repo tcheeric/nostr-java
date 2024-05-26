@@ -17,14 +17,14 @@ import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.ClosedMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 
-import java.net.http.WebSocket;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import okhttp3.WebSocketListener;
+import okhttp3.WebSocket;
+import okio.ByteString;
 import java.util.logging.Level;
 
 @AllArgsConstructor
 @Log
-public class TextListener implements WebSocket.Listener {
+public class TextListener extends WebSocketListener {
 
     @Getter
     @EqualsAndHashCode.Include
@@ -34,18 +34,21 @@ public class TextListener implements WebSocket.Listener {
     private Context context;
 
     @Override
-    public CompletionStage<Void> onText(WebSocket webSocket, CharSequence data, boolean last) {
-
-        webSocket.request(1L);
-
-        log.log(Level.INFO, "WebSocket received: {0} - Relay: {1}", new Object[]{data, relay});
-        return CompletableFuture.completedFuture(data)
-                .thenAccept(o -> handleReceivedText(o));
+    public void onMessage(WebSocket webSocket, String message) {
+        // nocheckin
+        log.log(Level.INFO, "WebSocket received: " + message + " - Relay: {0}", new Object[]{relay});
+        handleReceivedText(message);
     }
 
-    private void handleReceivedText(@NonNull CharSequence data) {
-        log.log(Level.INFO, "Received message {0} from {1}", new Object[]{data, relay});
-        String message = data.toString();
+    @Override
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
+        String message = bytes.toString();
+        log.log(Level.INFO, "WebSocket received: {0} - Relay: {1}", new Object[]{message, relay});
+        handleReceivedText(message);
+    }
+
+    private void handleReceivedText(@NonNull String message) {
+        log.log(Level.INFO, "Received message {0} from {1}", new Object[]{message, relay});
 
         var msg = new BaseMessageDecoder(message).decode();
         final String strCommand = msg.getCommand();

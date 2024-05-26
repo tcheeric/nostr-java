@@ -3,7 +3,8 @@ module nostr.connection {
 
     requires static lombok;
 
-    requires java.net.http;
+    requires okio;
+    requires okhttp3;
 
     requires java.logging;
 

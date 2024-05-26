@@ -1,65 +1,48 @@
 package nostr.connection.impl.listeners;
 
-import java.net.http.WebSocket;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okhttp3.Response;
+import okio.ByteString;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class CompositeListener implements WebSocket.Listener {
-    private final List<WebSocket.Listener> listeners;
+public class CompositeListener extends WebSocketListener {
+    private final List<WebSocketListener> listeners;
 
-    public CompositeListener(List<WebSocket.Listener> listeners) {
+    public CompositeListener(List<WebSocketListener> listeners) {
         this.listeners = listeners;
     }
 
     @Override
-    public void onOpen(WebSocket webSocket) {
-        listeners.forEach(listener -> listener.onOpen(webSocket));
+    public void onOpen(WebSocket webSocket, Response response) {
+        listeners.forEach(listener -> listener.onOpen(webSocket, response));
     }
 
     @Override
-    public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-        return CompletableFuture.allOf(listeners.stream()
-                .map(listener -> {
-                    CompletionStage<?> stage = listener.onText(webSocket, data, last);
-                    return stage != null ? stage : CompletableFuture.completedFuture(null);
-                })
-                .toArray(CompletableFuture[]::new));
+    public void onMessage(WebSocket webSocket, String data) {
+        listeners.forEach(listener -> listener.onMessage(webSocket, data));
     }
 
     @Override
-    public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-        return CompletableFuture.allOf(listeners.stream()
-                .map(listener -> {
-                    CompletionStage<?> stage = listener.onPing(webSocket, message);
-                    return stage != null ? stage : CompletableFuture.completedFuture(null);
-                })
-                .toArray(CompletableFuture[]::new));
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
+        listeners.forEach(listener -> listener.onMessage(webSocket, bytes));
     }
 
     @Override
-    public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-        return CompletableFuture.allOf(listeners.stream()
-                .map(listener -> {
-                    CompletionStage<?> stage = listener.onPong(webSocket, message);
-                    return stage != null ? stage : CompletableFuture.completedFuture(null);
-                })
-                .toArray(CompletableFuture[]::new));
+    public void onClosing(WebSocket webSocket, int statusCode, String reason) {
+        listeners.forEach(listener -> listener.onClosing(webSocket, statusCode, reason));
     }
 
     @Override
-    public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-        return CompletableFuture.allOf(listeners.stream()
-                .map(listener -> {
-                    CompletionStage<?> stage = listener.onClose(webSocket, statusCode, reason);
-                    return stage != null ? stage : CompletableFuture.completedFuture(null);
-                })
-                .toArray(CompletableFuture[]::new));
+    public void onClosed(WebSocket webSocket, int statusCode, String reason) {
+        listeners.forEach(listener -> listener.onClosed(webSocket, statusCode, reason));
     }
 
     @Override
-    public void onError(WebSocket webSocket, Throwable error) {
-        listeners.forEach(listener -> listener.onError(webSocket, error));
+    public void onFailure(WebSocket webSocket, Throwable error, Response response) {
+        listeners.forEach(listener -> listener.onFailure(webSocket, error, response));
     }
 }
