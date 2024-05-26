@@ -41,7 +41,7 @@
         <lombok.version>1.18.30</lombok.version>
 
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-        <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
 
         <jackson-databind.version>2.14.1</jackson-databind.version>
 
