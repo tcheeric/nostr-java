@@ -11,7 +11,10 @@ import nostr.event.impl.ZapReceipt;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequest;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.event.tag.*;
+import nostr.event.tag.AddressTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -23,12 +26,12 @@ public class NIP57Impl {
   @EqualsAndHashCode(callSuper = false)
   public static class ZapRequestEventFactory extends EventFactory<ZapRequestEvent> {
     private final ZapRequest zapRequest;
-    private final PublicKey recipientKey;
+    private final PubKeyTag recipientKey;
 
     public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {
       super(sender, tags, content);
       this.zapRequest = zapRequest;
-      this.recipientKey = recipientPubKey;
+      this.recipientKey = new PubKeyTag(recipientPubKey);
     }
 
     public ZapRequestEventFactory(@NonNull Identity sender, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {

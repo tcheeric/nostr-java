@@ -1,6 +1,7 @@
 
 package nostr.event.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,22 +20,21 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapRequestEvent", nip = 57)
 public class ZapRequestEvent extends GenericEvent {
+  @JsonIgnore
   private final ZapRequest zapRequest;
 
-  public ZapRequestEvent(@NonNull PublicKey senderPubKey, @NonNull PublicKey recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {
+  public ZapRequestEvent(@NonNull PublicKey senderPubKey, @NonNull PubKeyTag recipientPubKey, List<BaseTag> tags, String content, @NonNull ZapRequest zapRequest) {
     super(senderPubKey, Kind.ZAP_REQUEST, tags, content);
-    super.addTag(new PubKeyTag(recipientPubKey));
+    super.addTag(recipientPubKey);
     this.zapRequest = zapRequest;
   }
 
-  public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
-    super(new PublicKey(senderPubKey), Kind.ZAP_REQUEST, tags, content);
-    super.addTag(new PubKeyTag(new PublicKey(recipientPubKey)));
-    this.zapRequest = new ZapRequest(relaysTag, amount, lnUrl);
+  public ZapRequestEvent(@NonNull String senderPubKey, @NonNull PubKeyTag recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTag) {
+    this(new PublicKey(senderPubKey), recipientPubKey, tags, content, new ZapRequest(relaysTag, amount, lnUrl));
   }
 
   public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
-    this(senderPubKey, recipientPubKey, tags, content, amount, lnUrl, new RelaysTag(relays));
+    this(senderPubKey, new PubKeyTag(new PublicKey(recipientPubKey)), tags, content, amount, lnUrl, new RelaysTag(relays));
   }
 
   public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {

@@ -1,6 +1,7 @@
 
 package nostr.event.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapReceiptEvent", nip = 57)
 public class ZapReceiptEvent extends GenericEvent {
+  @JsonIgnore
   private final ZapReceipt zapReceipt;
 
   public ZapReceiptEvent(@NonNull PublicKey pubKey, @NonNull PubKeyTag zapRequestPubKeyTag, EventTag zapRequestEventTag,
