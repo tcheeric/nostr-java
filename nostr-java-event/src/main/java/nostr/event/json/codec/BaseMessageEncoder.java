@@ -17,6 +17,7 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
+import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 
@@ -59,6 +60,10 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
                 }
             } else if (message instanceof NoticeMessage msg) {
                 arrayNode.add(msg.getMessage());
+            } else if (message instanceof OkMessage msg) {
+                arrayNode.add(msg.getEventId());
+                arrayNode.add(msg.getFlag());
+                arrayNode.add(msg.getMessage());
             } else if (message instanceof CloseMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
             } else if (message instanceof CanonicalAuthenticationMessage msg) {
@@ -67,7 +72,6 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
             } else if (message instanceof RelayAuthenticationMessage msg) {
                 arrayNode.add(msg.getChallenge());
             } else if (message instanceof GenericMessage msg) {
-                arrayNode.add(msg.getCommand());
                 msg.getAttributes().stream().map(a -> a.getValue()).forEach(v -> arrayNode.add(v.toString()));
             } else {
                 throw new RuntimeException(String.format("Invalid message type %s", message));
