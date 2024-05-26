@@ -82,13 +82,9 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the content of the note
      * @return a text note event
      */
-	public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-    	var sender = getSender();
-		var factory = (sender!=null) ? new TextNoteEventFactory(sender, tags, content) : new TextNoteEventFactory(sender, tags, content);
-		var event = factory.create();
-		setEvent((T) event);
-
-		return this;
+    public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+      setEvent((T) new TextNoteEventFactory(getSender(), tags, content).create());
+      return this;
     }
 
     public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
