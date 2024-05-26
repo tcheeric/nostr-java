@@ -15,8 +15,8 @@ import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.TagSerializer;
 import nostr.util.NostrException;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import com.googlecode.openbeans.IntrospectionException;
+import com.googlecode.openbeans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
