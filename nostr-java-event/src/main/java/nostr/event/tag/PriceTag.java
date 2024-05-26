@@ -17,12 +17,13 @@ import java.math.BigDecimal;
 @Tag(code = "price", nip = 99)
 @RequiredArgsConstructor
 @JsonPropertyOrder({"number", "currency", "frequency"})
-//@JsonSerialize(using = PriceTagSerializer.class)
 public class PriceTag extends BaseTag {
   @JsonProperty
   private final BigDecimal number;
+
   @JsonProperty
   private final String currency;
+
   @JsonProperty
   private final String frequency;
 }

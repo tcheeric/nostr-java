@@ -13,17 +13,23 @@ import nostr.event.tag.PriceTag;
 public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
   @JsonIgnore
   private String id;
+
   @JsonProperty
   private String title;
+
   @JsonProperty
   private String summary;
+
   @JsonProperty("published_at")
   @EqualsAndHashCode.Exclude
   private Long publishedAt;
+
   @JsonProperty
   private String location;
+
   @JsonProperty("price")
   private PriceTag priceTag;
+
   public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
     this.title = title;
     this.summary = summary;
