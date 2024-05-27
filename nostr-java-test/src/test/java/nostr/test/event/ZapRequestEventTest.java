@@ -19,7 +19,7 @@ class ZapRequestEventTest {
     final String ZAP_REQUEST_CONTENT = "zap request content";
     final Long AMOUNT = 1232456L;
     final String LNURL = "lnUrl";
-    final String RELAYS_TAG = "relaystag";
+    final String RELAYS_TAG = "ws://localhost:5555";
     ZapRequestEvent instance = new ZapRequestEvent(sender, recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG);
 
     Assertions.assertNotNull(instance.getTags());
