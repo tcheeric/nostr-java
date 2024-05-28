@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  *
  * @author squirrel
- * @param <IElement>
+ * @param <T>
  */
-public interface IEncoder<IElement> {
+public interface IEncoder<T extends IElement> {
     ObjectMapper MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     
     String encode();
