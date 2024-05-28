@@ -22,7 +22,7 @@ class ZapReceiptEventTest {
     String zapRequestEventTag = Identity.generateRandomIdentity().getPublicKey().toString();
     String zapRequestAddressTag = Identity.generateRandomIdentity().getPublicKey().toString();
     final String ZAP_RECEIPT_IDENTIFIER = "ipsum";
-    final String ZAP_RECEIPT_RELAY_URI = "requestRelayUrl";
+    final String ZAP_RECEIPT_RELAY_URI = "ws://localhost:5555";
     final String BOLT_11 = "bolt11";
     final String DESCRIPTION_SHA256 = "descriptionSha256";
     final String PRE_IMAGE = "preimage";

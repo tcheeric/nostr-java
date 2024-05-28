@@ -280,7 +280,7 @@ public class ApiEventTest {
         final String ZAP_REQUEST_CONTENT = "zap request content";
         final Long AMOUNT = 1232456L;
         final String LNURL = "lnUrl";
-        final String RELAYS_TAG = "relaystag";
+        final String RELAYS_TAG = "ws://localhost:5555";
         ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
         instance.update();
 
@@ -314,7 +314,7 @@ public class ApiEventTest {
         String zapRequestEventTag = Identity.generateRandomIdentity().getPublicKey().toString();
         String zapRequestAddressTag = Identity.generateRandomIdentity().getPublicKey().toString();
         final String ZAP_RECEIPT_IDENTIFIER = "ipsum";
-        final String ZAP_RECEIPT_RELAY_URI = "requestRelayUrl";
+        final String ZAP_RECEIPT_RELAY_URI = "ws://localhost:5555";
         final String BOLT_11 = "bolt11";
         final String DESCRIPTION_SHA256 = "descriptionSha256";
         final String PRE_IMAGE = "preimage";
