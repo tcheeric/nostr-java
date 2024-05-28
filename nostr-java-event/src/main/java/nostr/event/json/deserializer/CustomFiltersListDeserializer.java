@@ -6,21 +6,27 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import nostr.event.impl.Filters;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.list.FiltersList;
 
 import java.io.IOException;
 import java.util.Iterator;
 
-public class CustomFiltersListDeserializer extends JsonDeserializer<FiltersList> {
+public class CustomFiltersListDeserializer<T extends FiltersList<U>, U extends Filters> extends JsonDeserializer<T> {
+    private final Class<U> clazz;
 
-    @Override
-    public FiltersList deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+    public CustomFiltersListDeserializer(Class<U> clazz) {
+        this.clazz = clazz;
+    }
+
+  @Override
+    public T deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         JsonNode node = jsonParser.readValueAsTree();
         return parseJson(node.toString());
     }
 
-    public static FiltersList parseJson(@NonNull String jsonString) throws IOException {
+    public T parseJson(@NonNull String jsonString) throws IOException {
         if (!jsonString.startsWith("[")) {
             jsonString = "[" + jsonString.trim();
         }
@@ -28,17 +34,17 @@ public class CustomFiltersListDeserializer extends JsonDeserializer<FiltersList>
             jsonString = jsonString + "]";
         }
 
-        FiltersList filtersList = new FiltersList();
+        FiltersList<U> filtersList = new FiltersList<>(clazz);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(jsonString);
         Iterator<JsonNode> elementsIterator = rootNode.elements();
         while (elementsIterator.hasNext()) {
             JsonNode element = elementsIterator.next();
             String strFilters = element.toString();
-            FiltersDecoder decoder = new FiltersDecoder(strFilters);
-            filtersList.add(decoder.decode());
+            FiltersDecoder<U> decoder = new FiltersDecoder<>(strFilters);
+            filtersList.add(decoder.decode(clazz));
         }
 
-        return filtersList;
+        return (T) filtersList;
     }
 }

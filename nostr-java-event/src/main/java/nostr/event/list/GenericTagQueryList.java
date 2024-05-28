@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.NonNull;
 import nostr.base.GenericTagQuery;
+import nostr.base.INostrList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,21 +14,22 @@ import java.util.List;
  * @author squirrel
  */
 @Builder
-public class GenericTagQueryList extends BaseList<GenericTagQuery> {
+public class GenericTagQueryList<T extends GenericTagQuery> extends INostrList<T> {
+    private final Class<T> clazz;
 
-    public GenericTagQueryList() {
-        this(new ArrayList<>());
+    public GenericTagQueryList(Class<T> clazz) {
+        this(new ArrayList<>(), clazz);
     }
 
-    public GenericTagQueryList(GenericTagQuery... queries) {
-        super(queries);
+    public GenericTagQueryList(Class<T> clazz, T... queries) {
+        this(List.of(queries), clazz);
     }
 
-    private GenericTagQueryList(@NonNull List<GenericTagQuery> list) {
-        super(list);
+    private GenericTagQueryList(@NonNull List<T> list, Class<T> clazz) {
+        super.addAll(list);
+        this.clazz = clazz;
     }
 
-    @Override
     @JsonIgnore
     public Integer getNip() {
         return 1;

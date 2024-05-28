@@ -15,19 +15,18 @@ import java.util.List;
  * @author squirrel
  */
 @Builder
-// TODO - public class EventList extends BaseList<? extends GenericEvent>
 @JsonDeserialize(using = CustomEventListDeserializer.class)
-public class EventList extends BaseList<GenericEvent> {
+public class EventList<T extends GenericEvent> extends BaseList<T> {
 
     public EventList() {
         this(new ArrayList<>());
     }
 
-    public EventList(GenericEvent... events) {
-        super(events);
+    public EventList(T... events) {
+        this(List.of(events));
     }
 
-    public EventList(@NonNull List<GenericEvent> list) {
+    public EventList(@NonNull List<T> list) {
         super(list);
     }
 }

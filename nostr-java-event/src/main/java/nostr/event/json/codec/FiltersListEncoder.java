@@ -3,43 +3,31 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nostr.base.Relay;
-import nostr.event.BaseEvent;
+import nostr.base.IEncoder;
+import nostr.event.impl.Filters;
 import nostr.event.list.FiltersList;
 import nostr.util.NostrException;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class FiltersListEncoder extends BaseEventEncoder {
+public class FiltersListEncoder<T extends Filters> implements IEncoder {
 
-    private final FiltersList filtersList;
-    private boolean arrayFlag;
+    private final FiltersList<T> filtersList;
 
-    public FiltersListEncoder(FiltersList filtersList, Relay relay) {
-        super(null, relay);
+    public FiltersListEncoder(FiltersList<T> filtersList) {
         this.filtersList = filtersList;
-        this.arrayFlag = false;
-    }
-
-    public FiltersListEncoder(FiltersList filtersList) {
-        super(null);
-        this.filtersList = filtersList;
-        this.arrayFlag = false;
     }
 
     @Override
-    public BaseEvent getEvent() {
-        throw new UnsupportedOperationException("Not supported.");
-    }
-
-    @Override
-    protected String toJson() throws NostrException {
-        if (arrayFlag) {
-            return toJsonArray();
-        } else {
-            return toJsonCommaSeparated();
+    public String encode() {
+        try {
+            return toJson();
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
         }
+    }
+
+    protected String toJson() throws NostrException {
+        return toJsonCommaSeparated();
     }
 
     private String toJsonArray() throws NostrException {

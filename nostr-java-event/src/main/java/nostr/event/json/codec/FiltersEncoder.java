@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.Relay;
+import nostr.base.IEncoder;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;
 
@@ -19,40 +19,36 @@ import java.util.stream.StreamSupport;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FiltersEncoder extends BaseEventEncoder {
+public class FiltersEncoder<T extends Filters> implements IEncoder {
+    private final T filters;
 
-    public FiltersEncoder(Filters filters, Relay relay) {
-        super(filters, relay);
+    public FiltersEncoder(T filters) {
+        this.filters = filters;
     }
 
-    public FiltersEncoder(Filters filters) {
-        super(filters);
-    }
-
-    @Override
     protected String toJson() throws NostrException {
         try {
-            JsonNode node = MAPPER.valueToTree(getEvent());
+            JsonNode node = MAPPER.valueToTree(filters);
             ObjectNode objNode = (ObjectNode) node;
             //var arrayNode = (ArrayNode) node.get("genericTagQuery");
             if (objNode != null && !objNode.isNull()) {
                 for (JsonNode jn : objNode) {
                     StreamSupport.stream(
-                                    Spliterators.spliteratorUnknownSize(jn.fields(), Spliterator.ORDERED), false)
-                            .forEach(f -> {
-                                if ("genericTagQuery".equals(f.getKey())) {
-                                    var mapper = new ObjectMapper();
-                                    try {
-                                        mapper.readTree(f.getValue().toString())
-                                                .fields()
-                                                .forEachRemaining(g -> objNode.set(g.getKey(), g.getValue()));
-                                    } catch (JsonProcessingException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                } else {
-                                    objNode.set(f.getKey(), f.getValue());
+                            Spliterators.spliteratorUnknownSize(jn.fields(), Spliterator.ORDERED), false)
+                        .forEach(f -> {
+                            if ("genericTagQuery".equals(f.getKey())) {
+                                var mapper = new ObjectMapper();
+                                try {
+                                    mapper.readTree(f.getValue().toString())
+                                        .fields()
+                                        .forEachRemaining(g -> objNode.set(g.getKey(), g.getValue()));
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException(e);
                                 }
-                            });
+                            } else {
+                                objNode.set(f.getKey(), f.getValue());
+                            }
+                        });
                 }
             }
             objNode.remove("genericTagQuery");
@@ -63,4 +59,12 @@ public class FiltersEncoder extends BaseEventEncoder {
         }
     }
 
+    @Override
+    public String encode() {
+        try {
+            return toJson();
+        } catch (NostrException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

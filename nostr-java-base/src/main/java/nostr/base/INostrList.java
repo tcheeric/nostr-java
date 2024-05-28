@@ -1,6 +1,7 @@
 
 package nostr.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,13 +9,21 @@ import java.util.List;
  * @author squirrel
  * @param <T>
  */
-public interface INostrList<T> extends IElement {
+public abstract class INostrList<T> extends ArrayList<T> {
 
-    void add(T elt);
+    public boolean add(T... elt) {
+        return this.addAll(List.of(elt));
+    }
 
-    void addAll(INostrList<T> list);
+    public boolean addAll(List<T> list) {
+        return super.addAll(list);
+    }
 
-    List<T> getList();
+    public List<T> getList() {
+        return super.stream().toList();
+    }
     
-    int size();
+    public int size() {
+        return super.size();
+    }
 }
