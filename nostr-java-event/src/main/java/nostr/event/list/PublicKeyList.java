@@ -4,7 +4,7 @@ package nostr.event.list;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.NonNull;
-import nostr.base.INostrList;
+import nostr.base.FNostrList;
 import nostr.base.PublicKey;
 import nostr.event.json.deserializer.CustomPublicKeyListDeserializer;
 
@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Builder
 @JsonDeserialize(using = CustomPublicKeyListDeserializer.class)
-public class PublicKeyList<T extends PublicKey> extends INostrList<T> {
+public class PublicKeyList<T extends PublicKey> extends FNostrList<T> {
     private final Class<T> clazz;
 
     public PublicKeyList() {

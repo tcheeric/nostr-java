@@ -2,8 +2,8 @@ package nostr.event.list;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.NonNull;
+import nostr.base.FNostrList;
 import nostr.base.GenericTagQuery;
-import nostr.base.INostrList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author squirrel
  */
-public class GenericTagQueryList<T extends GenericTagQuery> extends INostrList<T> {
+public class GenericTagQueryList<T extends GenericTagQuery> extends FNostrList<T> {
     private final Class<T> clazz;
 
     public GenericTagQueryList() {

@@ -4,7 +4,7 @@ package nostr.event.list;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.NonNull;
-import nostr.base.INostrList;
+import nostr.base.FNostrList;
 import nostr.event.impl.Filters;
 import nostr.event.json.deserializer.CustomFiltersListDeserializer;
 
@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Builder
 @JsonDeserialize(using = CustomFiltersListDeserializer.class)
-public class FiltersList<T extends Filters> extends INostrList<T> {
+public class FiltersList<T extends Filters> extends FNostrList<T> {
     private final Class<T> clazz;
 
     public FiltersList() {

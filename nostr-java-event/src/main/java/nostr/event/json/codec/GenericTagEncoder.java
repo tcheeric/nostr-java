@@ -13,7 +13,7 @@ import nostr.event.impl.GenericTag;
  */
 @Data
 @AllArgsConstructor
-public class GenericTagEncoder implements IEncoder<GenericTag> {
+public class GenericTagEncoder<T extends GenericTag> implements IEncoder<T> {
 
     private final GenericTag tag;
     private final Relay relay;

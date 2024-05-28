@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-public class BaseMessageEncoder implements IEncoder<BaseMessage> {
+public class BaseMessageEncoder<T extends BaseMessage> implements IEncoder<T> {
 
     private final BaseMessage message;
     private final Relay relay;
@@ -43,7 +43,7 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
         try {
             arrayNode.add(message.getCommand());
             if (message instanceof EventMessage msg) {
-                JsonNode tree = IEncoder.MAPPER.readTree(new BaseEventEncoder((BaseEvent) msg.getEvent()).encode());
+                JsonNode tree = IEncoder.MAPPER.readTree(new BaseEventEncoder<>((BaseEvent) msg.getEvent()).encode());
                 arrayNode.add(tree);
             } else if (message instanceof ReqMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
@@ -51,7 +51,7 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
                 List<Filters> filtersList = msg.getFiltersList().getList();
                 for (Filters f : filtersList) {
                     try {
-                        FiltersEncoder filtersEncoder = new FiltersEncoder(f);
+                        FiltersEncoder<Filters> filtersEncoder = new FiltersEncoder<>(f);
                         var filterNode = MAPPER.readTree(filtersEncoder.encode());
                         arrayNode.add(filterNode);
                     } catch (Exception e) {
@@ -67,7 +67,7 @@ public class BaseMessageEncoder implements IEncoder<BaseMessage> {
             } else if (message instanceof CloseMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
             } else if (message instanceof CanonicalAuthenticationMessage msg) {
-                JsonNode tree = IEncoder.MAPPER.readTree(new BaseEventEncoder(msg.getEvent()).encode());
+                JsonNode tree = IEncoder.MAPPER.readTree(new BaseEventEncoder<>(msg.getEvent()).encode());
                 arrayNode.add(tree);
             } else if (message instanceof RelayAuthenticationMessage msg) {
                 arrayNode.add(msg.getChallenge());

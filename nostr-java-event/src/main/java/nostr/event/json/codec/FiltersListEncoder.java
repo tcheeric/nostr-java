@@ -3,13 +3,13 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import nostr.base.IEncoder;
+import nostr.base.FEncoder;
 import nostr.event.impl.Filters;
 import nostr.event.list.FiltersList;
 import nostr.util.NostrException;
 
 @Data
-public class FiltersListEncoder<T extends Filters> implements IEncoder {
+public class FiltersListEncoder<T extends Filters> implements FEncoder<T> {
 
     private final FiltersList<T> filtersList;
 

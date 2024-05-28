@@ -12,13 +12,13 @@ import java.util.Objects;
 /**
  * @author guilhermegps
  */
-public class CustomIdEventListSerializer<T extends GenericEvent> extends JsonSerializer<EventList<T>> {
+public class CustomIdEventListSerializer<T extends EventList<U>, U extends GenericEvent> extends JsonSerializer<T> {
 
   @Override
-  public void serialize(EventList<T> value, JsonGenerator gen, SerializerProvider serializers) {
+  public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
     try {
 
-      var list = value.getList().stream().filter(Objects::nonNull).map(T::getId).toList();
+      var list = value.getList().stream().filter(Objects::nonNull).map(U::getId).toList();
 
       gen.writePOJO(list);
     } catch (IOException e) {

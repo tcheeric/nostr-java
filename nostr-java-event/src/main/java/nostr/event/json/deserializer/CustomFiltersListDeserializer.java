@@ -16,10 +16,6 @@ import java.util.Iterator;
 public class CustomFiltersListDeserializer<T extends FiltersList<U>, U extends Filters> extends JsonDeserializer<T> {
     private final Class<U> clazz;
 
-    public CustomFiltersListDeserializer(Class<U> customDeserializerClass) {
-        this.clazz = customDeserializerClass;
-    }
-
     public CustomFiltersListDeserializer() {
         this.clazz = (Class<U>) Filters.class;
     }
