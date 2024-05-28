@@ -61,13 +61,13 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        var filters = ((ReqMessage<?>) message).getFiltersList().getList().get(0);
+        var filters = ((ReqMessage<Filters>) message).getFiltersList().getList().get(0);
 
         assertEquals(1, filters.getKinds().size());
         assertEquals(1, filters.getKinds().getList().get(0));
 
         assertEquals(1, filters.getAuthors().size());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((PublicKey)filters.getAuthors().getList().get(0)).toBech32String());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((PublicKey) filters.getAuthors().getList().get(0)).toBech32String());
 
         assertEquals(1, filters.getReferencedEvents().size());
         assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", ((EventList<GenericEvent>)filters.getReferencedEvents()).getList().get(0).getId());
@@ -77,7 +77,7 @@ public class JsonParseTest {
     public void testBaseReqMessageEncoder() {
         System.out.println("testBaseReqMessageEncoder");
 
-        final var filtersList = new FiltersList(Filters.class);
+        final var filtersList = new FiltersList();
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
         filtersList.add(Filters.builder().authors(new PublicKeyList(publicKey)).kinds(new KindList(3, 5)).build());
         filtersList.add(Filters.builder().kinds(new KindList(0, 1)).build());

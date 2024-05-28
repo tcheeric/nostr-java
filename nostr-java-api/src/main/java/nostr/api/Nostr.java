@@ -109,7 +109,7 @@ public class Nostr {
     }
 
     public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
-        FiltersList filtersList = new FiltersList(Filters.class);
+        FiltersList filtersList = new FiltersList();
         filtersList.add(filters);
 
         send(filtersList, subscriptionId, relays);
