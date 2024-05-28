@@ -14,18 +14,19 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import nostr.base.IEncoder;
+import nostr.event.BaseEvent;
 import nostr.event.list.BaseList;
 
 /**
  * @author guilhermegps
  *
  */
-public class CustomBaseListSerializer extends JsonSerializer<BaseList> {
+public class CustomBaseListSerializer<T extends BaseList<U>, U extends BaseEvent> extends JsonSerializer<T> {
 
     @Override
-    public void serialize(BaseList value, JsonGenerator gen, SerializerProvider serializers) {
+    public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
         try {
-            var list = value.getList().parallelStream().map(obj -> toJson(obj))
+            var list = value.getList().parallelStream().map(this::toJson)
                     .collect(Collectors.toList());
 
             gen.writePOJO(list);

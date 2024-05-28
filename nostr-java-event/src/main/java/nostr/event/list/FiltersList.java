@@ -20,12 +20,20 @@ import java.util.List;
 public class FiltersList<T extends Filters> extends INostrList<T> {
     private final Class<T> clazz;
 
+    public FiltersList() {
+        this(new ArrayList<>());
+    }
+
     public FiltersList(Class<T> clazz) {
         this(new ArrayList<>(), clazz);
     }
 
-    public FiltersList(Class<T> clazz, T... filters) {
-        this(List.of(filters), clazz);
+    public FiltersList(T... filters) {
+        this(List.of(filters));
+    }
+
+    public FiltersList(@NonNull List<T> list) {
+        this(list, (Class<T>) Filters.class);
     }
 
     public FiltersList(@NonNull List<T> list, Class<T> clazz) {

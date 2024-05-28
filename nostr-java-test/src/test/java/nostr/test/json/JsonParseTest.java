@@ -61,16 +61,16 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        Filters filters = ((ReqMessage<?>) message).getFiltersList().getList().get(0);
+        var filters = ((ReqMessage<?>) message).getFiltersList().getList().get(0);
 
         assertEquals(1, filters.getKinds().size());
         assertEquals(1, filters.getKinds().getList().get(0));
 
         assertEquals(1, filters.getAuthors().size());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().getList().get(0));
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((PublicKey)filters.getAuthors().getList().get(0)).toBech32String());
 
         assertEquals(1, filters.getReferencedEvents().size());
-        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", filters.getReferencedEvents().getList().get(0));
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", ((EventList<GenericEvent>)filters.getReferencedEvents()).getList().get(0).getId());
     }
 
     @Test
@@ -287,7 +287,7 @@ public class JsonParseTest {
         genericTagQuery.setValue(geohashList);
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
-        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(Filters.class, filters));
+        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(filters));
         BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
         String jsonMessage = encoder.encode();
 

@@ -25,16 +25,17 @@ public class ReqMessage<T extends Filters> extends BaseMessage {
     @JsonProperty
     private final FiltersList<T> filtersList;
 
-    public ReqMessage(String subscriptionId, T filters, Class<T> clazz) {
+    public ReqMessage(String subscriptionId, T filters) {
         super(Command.REQ.name());
         this.subscriptionId = subscriptionId;
-        this.filtersList = new FiltersList<>(clazz);
+        this.filtersList = new FiltersList<>((Class<T>) Filters.class);
         this.filtersList.add(filters);
     }
 
-    public ReqMessage(String subscriptionId, FiltersList<T> filtersList) {
+    public ReqMessage(String subscriptionId, FiltersList<T> incomingFiltersList) {
         super(Command.REQ.name());
         this.subscriptionId = subscriptionId;
-        this.filtersList = filtersList;
+        this.filtersList = new FiltersList<>((Class<T>) Filters.class);
+        this.filtersList.addAll(incomingFiltersList);
     }
 }

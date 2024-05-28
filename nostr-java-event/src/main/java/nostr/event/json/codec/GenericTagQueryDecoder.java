@@ -1,6 +1,5 @@
 package nostr.event.json.codec;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.FDecoder;
 import nostr.base.GenericTagQuery;
@@ -9,14 +8,18 @@ import nostr.base.GenericTagQuery;
  *
  * @author eric
  */
-@AllArgsConstructor
 @Data
 public class GenericTagQueryDecoder<T extends GenericTagQuery> implements FDecoder<T> {
-
+    private final Class<T> clazz;
     private final String json;
-    
+
+    public GenericTagQueryDecoder(String json) {
+        this.clazz = (Class<T>) GenericTagQuery.class;
+        this.json = json;
+    }
+
     @Override
-    public T decode(Class<T> clazz) {
+    public T decode() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

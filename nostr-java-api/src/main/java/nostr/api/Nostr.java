@@ -273,7 +273,7 @@ public class Nostr {
          */
         public static Filters decodeFilters(@NonNull String json) {
             final var dec = new FiltersDecoder(json);
-            return dec.decode(Filters.class);
+            return dec.decode();
         }
 
         // Generic Tag Queries

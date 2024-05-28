@@ -16,8 +16,12 @@ import java.util.Iterator;
 public class CustomFiltersListDeserializer<T extends FiltersList<U>, U extends Filters> extends JsonDeserializer<T> {
     private final Class<U> clazz;
 
-    public CustomFiltersListDeserializer(Class<U> clazz) {
-        this.clazz = clazz;
+    public CustomFiltersListDeserializer(Class<U> customDeserializerClass) {
+        this.clazz = customDeserializerClass;
+    }
+
+    public CustomFiltersListDeserializer() {
+        this.clazz = (Class<U>) Filters.class;
     }
 
   @Override
@@ -42,7 +46,7 @@ public class CustomFiltersListDeserializer<T extends FiltersList<U>, U extends F
             JsonNode element = elementsIterator.next();
             String strFilters = element.toString();
             FiltersDecoder<U> decoder = new FiltersDecoder<>(strFilters);
-            filtersList.add(decoder.decode(clazz));
+            filtersList.add(decoder.decode());
         }
 
         return (T) filtersList;
