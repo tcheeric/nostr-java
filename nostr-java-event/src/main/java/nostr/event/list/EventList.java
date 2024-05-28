@@ -27,7 +27,7 @@ public class EventList extends BaseList<GenericEvent> {
         super(events);
     }
 
-    private EventList(@NonNull List<GenericEvent> list) {
+    public EventList(@NonNull List<GenericEvent> list) {
         super(list);
     }
 }
