@@ -51,7 +51,7 @@ public class BaseMessageEncoder<T extends BaseMessage> implements IEncoder<T> {
                 List<Filters> filtersList = msg.getFiltersList().getList();
                 for (Filters f : filtersList) {
                     try {
-                        FiltersEncoder<Filters> filtersEncoder = new FiltersEncoder<>(f);
+                        FiltersEncoder filtersEncoder = new FiltersEncoder(f);
                         var filterNode = MAPPER.readTree(filtersEncoder.encode());
                         arrayNode.add(filterNode);
                     } catch (Exception e) {

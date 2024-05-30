@@ -3,7 +3,6 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
-import nostr.base.FDecoder;
 import nostr.event.impl.Filters;
 
 /**
@@ -11,17 +10,17 @@ import nostr.event.impl.Filters;
  * @author eric
  */
 @Data
-public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
-    private final Class<T> clazz;
+public class FiltersDecoder implements FDecoder<Filters> {
+    private final Class<Filters> clazz;
     private final String jsonString;
 
     public FiltersDecoder(String jsonString) {
-        this.clazz = (Class<T>) Filters.class;
+        this.clazz = Filters.class;
         this.jsonString = jsonString;
     }
 
     @Override
-    public T decode()  {
+    public Filters decode()  {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonString, clazz);
@@ -29,5 +28,4 @@ public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
             throw new RuntimeException(ex);
         }
     }
-
 }

@@ -9,11 +9,11 @@ import nostr.event.list.FiltersList;
 import nostr.util.NostrException;
 
 @Data
-public class FiltersListEncoder<T extends Filters> implements FEncoder<T> {
+public class FiltersListEncoder implements FEncoder<Filters> {
 
-    private final FiltersList<T> filtersList;
+    private final FiltersList filtersList;
 
-    public FiltersListEncoder(FiltersList<T> filtersList) {
+    public FiltersListEncoder(FiltersList filtersList) {
         this.filtersList = filtersList;
     }
 

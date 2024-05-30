@@ -61,7 +61,7 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        var filters = ((ReqMessage<Filters>) message).getFiltersList().getList().get(0);
+        var filters = ((ReqMessage) message).getFiltersList().getList().get(0);
 
         assertEquals(1, filters.getKinds().size());
         assertEquals(1, filters.getKinds().getList().get(0));
