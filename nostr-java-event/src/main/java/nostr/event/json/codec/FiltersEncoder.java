@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.FEncoder;
-import nostr.base.IEncoder;
 import nostr.event.impl.Filters;
 import nostr.util.NostrException;
 
@@ -20,10 +19,10 @@ import java.util.stream.StreamSupport;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FiltersEncoder<T extends Filters> implements FEncoder<T> {
-    private final T filters;
+public class FiltersEncoder implements FEncoder<Filters> {
+    private final Filters filters;
 
-    public FiltersEncoder(T filters) {
+    public FiltersEncoder(Filters filters) {
         this.filters = filters;
     }
 

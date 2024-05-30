@@ -17,25 +17,25 @@ import nostr.event.list.FiltersList;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class ReqMessage<T extends Filters> extends BaseMessage {
+public class ReqMessage extends BaseMessage {
 
     @JsonProperty
     private final String subscriptionId;
     
     @JsonProperty
-    private final FiltersList<T> filtersList;
+    private final FiltersList filtersList;
 
-    public ReqMessage(String subscriptionId, T filters) {
+    public ReqMessage(String subscriptionId, Filters filters) {
         super(Command.REQ.name());
         this.subscriptionId = subscriptionId;
-        this.filtersList = new FiltersList<>((Class<T>) Filters.class);
+        this.filtersList = new FiltersList();
         this.filtersList.add(filters);
     }
 
-    public ReqMessage(String subscriptionId, FiltersList<T> incomingFiltersList) {
+    public ReqMessage(String subscriptionId, FiltersList incomingFiltersList) {
         super(Command.REQ.name());
         this.subscriptionId = subscriptionId;
-        this.filtersList = new FiltersList<>((Class<T>) Filters.class);
+        this.filtersList = new FiltersList();
         this.filtersList.addAll(incomingFiltersList);
     }
 }

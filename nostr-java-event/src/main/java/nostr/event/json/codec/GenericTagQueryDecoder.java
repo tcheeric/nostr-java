@@ -1,7 +1,6 @@
 package nostr.event.json.codec;
 
 import lombok.Data;
-import nostr.base.FDecoder;
 import nostr.base.GenericTagQuery;
 
 /**

@@ -8,17 +8,17 @@ import nostr.event.list.KindList;
 
 import java.io.IOException;
 
-public class CustomKindListDeserializer<T extends KindList<Integer>> extends JsonDeserializer<T> {
+public class CustomKindListDeserializer extends JsonDeserializer<KindList> {
 
     @Override
-    public T deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-        KindList<Integer> kindList = new KindList<>();
+    public KindList deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+        KindList kindList = new KindList();
         JsonNode node = jsonParser.readValueAsTree();
         if (node.isArray()) {
             for (JsonNode n : node) {
                 kindList.add(Integer.decode(n.asText()));
             }
         }
-        return (T) kindList;
+        return kindList;
     }
 }

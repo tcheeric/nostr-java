@@ -13,9 +13,8 @@ import java.util.List;
 /**
  *
  * @author squirrel
- * @param <T>
+ * @param <T extends BaseEvent>
  */
-// TODO: Why are we using this instead of just use a regular java collection?
 @Data
 @JsonSerialize(using = CustomBaseListSerializer.class)
 public abstract class BaseList<T extends BaseEvent> extends INostrList<T> implements IElement {

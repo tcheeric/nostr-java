@@ -10,7 +10,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import nostr.base.GenericTagQuery;
+import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
+import nostr.event.Kind;
 import nostr.event.json.deserializer.CustomGenericTagQueryDeserializer;
 import nostr.event.json.serializer.CustomGenericTagQuerySerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
@@ -32,11 +34,11 @@ public class Filters {
     @Key
     @JsonProperty("ids")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList events;
+    private EventList<GenericEvent> events;
 
     @Key
     @JsonProperty("authors")
-    private PublicKeyList authors;
+    private PublicKeyList<PublicKey> authors;
 
     @Key
     private KindList kinds;
@@ -44,11 +46,11 @@ public class Filters {
     @Key
     @JsonProperty("#e")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList referencedEvents;
+    private EventList<GenericEvent> referencedEvents;
 
     @Key
     @JsonProperty("#p")
-    private PublicKeyList referencePubKeys;
+    private PublicKeyList<PublicKey> referencePubKeys;
 
     @Key
     private Long since;

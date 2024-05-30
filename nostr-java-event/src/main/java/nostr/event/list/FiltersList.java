@@ -8,36 +8,25 @@ import nostr.base.FNostrList;
 import nostr.event.impl.Filters;
 import nostr.event.json.deserializer.CustomFiltersListDeserializer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author squirrel
  */
 @Builder
 @JsonDeserialize(using = CustomFiltersListDeserializer.class)
-public class FiltersList<T extends Filters> extends FNostrList<T> {
-    private final Class<T> clazz;
+public class FiltersList extends FNostrList<Filters> {
 
-    public FiltersList() {
-        this(new ArrayList<>());
-    }
+  public FiltersList() {
+      super();
+  }
 
-    public FiltersList(Class<T> clazz) {
-        this(new ArrayList<>(), clazz);
-    }
+  public FiltersList(Filters... filters) {
+      this(List.of(filters));
+  }
 
-    public FiltersList(T... filters) {
-        this(List.of(filters));
-    }
-
-    public FiltersList(@NonNull List<T> list) {
-        this(list, (Class<T>) Filters.class);
-    }
-
-    public FiltersList(@NonNull List<T> list, Class<T> clazz) {
-        super.addAll(list);
-        this.clazz = clazz;
-    }
+  public FiltersList(@NonNull List<Filters> list) {
+      super();
+      addAll(list);
+  }
 }

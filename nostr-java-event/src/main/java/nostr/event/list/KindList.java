@@ -7,21 +7,16 @@ import lombok.NonNull;
 import nostr.base.FNostrList;
 import nostr.event.json.deserializer.CustomKindListDeserializer;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
- *
  * @author squirrel
  */
 @Builder
 @JsonDeserialize(using = CustomKindListDeserializer.class)
-public class KindList<Integer> extends FNostrList<Integer> {
-
+public class KindList extends FNostrList<Integer> {
     public KindList() {
-        this(new ArrayList<>());
+        super();
     }
 
     public KindList(Integer... kinds) {
@@ -30,9 +25,5 @@ public class KindList<Integer> extends FNostrList<Integer> {
 
     public KindList(@NonNull List<Integer> list) {
         super.addAll(list);
-    }
-    @Override
-    public boolean add(Integer[] elt) {
-        return super.addAll(Stream.of(elt).filter(Objects::nonNull).toList());
     }
 }
