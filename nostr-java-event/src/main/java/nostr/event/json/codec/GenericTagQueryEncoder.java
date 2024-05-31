@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import nostr.base.FEncoder;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEncoder;
 import nostr.base.Relay;
@@ -15,7 +16,7 @@ import nostr.base.Relay;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class GenericTagQueryEncoder implements IEncoder<GenericTagQuery> {
+public class GenericTagQueryEncoder<T extends GenericTagQuery> implements FEncoder<T> {
 
     private final GenericTagQuery genericTagQuery;
     private final Relay relay;
@@ -27,7 +28,7 @@ public class GenericTagQueryEncoder implements IEncoder<GenericTagQuery> {
     @Override
     public String encode() {
         try {
-            return IEncoder.MAPPER.writeValueAsString(genericTagQuery);
+            return FEncoder.MAPPER.writeValueAsString(genericTagQuery);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

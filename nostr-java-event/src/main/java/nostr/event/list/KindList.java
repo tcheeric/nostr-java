@@ -4,28 +4,26 @@ package nostr.event.list;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.NonNull;
+import nostr.base.FNostrList;
 import nostr.event.json.deserializer.CustomKindListDeserializer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author squirrel
  */
 @Builder
 @JsonDeserialize(using = CustomKindListDeserializer.class)
-public class KindList extends BaseList<Integer> {
-
+public class KindList extends FNostrList<Integer> {
     public KindList() {
-        this(new ArrayList<>());
+        super();
     }
 
     public KindList(Integer... kinds) {
-        super(kinds);
+        this(List.of(kinds));
     }
 
     public KindList(@NonNull List<Integer> list) {
-        super(new ArrayList<>(list));
+        super.addAll(list);
     }
 }

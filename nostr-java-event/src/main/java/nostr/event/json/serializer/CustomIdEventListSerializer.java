@@ -1,30 +1,29 @@
 package nostr.event.json.serializer;
 
-import java.io.IOException;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import nostr.event.impl.GenericEvent;
 import nostr.event.list.EventList;
 
+import java.io.IOException;
+import java.util.Objects;
+
 /**
  * @author guilhermegps
- *
  */
-public class CustomIdEventListSerializer extends JsonSerializer<EventList> {
+public class CustomIdEventListSerializer<T extends EventList<U>, U extends GenericEvent> extends JsonSerializer<T> {
 
-    @Override
-    public void serialize(EventList value, JsonGenerator gen, SerializerProvider serializers) {
-        try {
-            var list = value.getList().parallelStream().map(GenericEvent::getId).collect(Collectors.toList());
+  @Override
+  public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
+    try {
 
-            gen.writePOJO(list);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+      var list = value.getList().stream().filter(Objects::nonNull).map(U::getId).toList();
+
+      gen.writePOJO(list);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
 }

@@ -1,10 +1,11 @@
 package nostr.event.list;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import nostr.base.IElement;
 import nostr.base.INostrList;
+import nostr.event.BaseEvent;
 import nostr.event.json.serializer.CustomBaseListSerializer;
 
 import java.util.List;
@@ -12,35 +13,34 @@ import java.util.List;
 /**
  *
  * @author squirrel
- * @param <T>
+ * @param <T extends BaseEvent>
  */
-// TODO: Why are we using this instead of just use a regular java collection?
-@AllArgsConstructor
 @Data
 @JsonSerialize(using = CustomBaseListSerializer.class)
-public abstract class BaseList<T> implements INostrList<T> {
+public abstract class BaseList<T extends BaseEvent> extends INostrList<T> implements IElement {
 
     @NonNull
     private final List<T> list;
 
     public BaseList(T... elements) {
-        this.list = List.of(elements);
+        this(List.of(elements));
+    }
+
+    public BaseList(List<T> elements) {
+        this.list = elements;
     }
 
     @Override
-    public void add(@NonNull T elt) {
+    public boolean add(@NonNull T elt) {
         if (!list.contains(elt)) {
             this.list.add(elt);
         }
+        return false;
     }
 
     @Override
-    public void addAll(@NonNull INostrList<T> aList) {
-        this.list.addAll(aList.getList());
-    }
-
-    public void addAll(@NonNull List<T> aList) {
-        this.list.addAll(aList);
+    public boolean addAll(@NonNull List<T> aList) {
+        return this.list.addAll(aList);
     }
 
     @Override

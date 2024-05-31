@@ -9,18 +9,23 @@ import nostr.event.list.PublicKeyList;
 
 import java.io.IOException;
 
-public class CustomPublicKeyListDeserializer extends JsonDeserializer<PublicKeyList> {
+public class CustomPublicKeyListDeserializer<T extends PublicKeyList<U>, U extends PublicKey> extends JsonDeserializer<T> {
+    private final Class<U> clazz;
+
+    public CustomPublicKeyListDeserializer() {
+        this.clazz = (Class<U>) PublicKey.class;
+    }
 
     @Override
-    public PublicKeyList deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        PublicKeyList publicKeyList = new PublicKeyList();
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        PublicKeyList<U> publicKeyList = new PublicKeyList<>(clazz);
         JsonNode node = p.readValueAsTree();
         if (node.isArray()) {
             for (JsonNode n : node) {
                 String hex = n.asText();
-                publicKeyList.add(new PublicKey(hex));
+                publicKeyList.add((U) new PublicKey(hex));
             }
         }
-        return publicKeyList;
+        return (T) publicKeyList;
     }
 }
