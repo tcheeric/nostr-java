@@ -1,23 +1,19 @@
 package nostr.event;
 
+import lombok.Getter;
 import nostr.base.IElement;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
 
 /**
  *
  * @author squirrel
  */
-@Data
-@AllArgsConstructor
-@ToString
+@Getter
 public abstract class BaseMessage implements IElement {
 
     private final String command;
 
-    protected BaseMessage() {
-        this.command = null;
+    protected BaseMessage(String command) {
+        this.command = command;
     }
 
     @Override

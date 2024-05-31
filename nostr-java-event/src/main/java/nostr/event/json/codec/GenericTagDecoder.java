@@ -6,20 +6,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.impl.GenericTag;
 
 @Data
-@AllArgsConstructor
-public class GenericTagDecoder implements IDecoder<GenericTag> {
+public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
+    private final Class<T> clazz;
     private final String json;
 
+    public GenericTagDecoder(String json) {
+        this.clazz = (Class<T>) GenericTag.class;
+        this.json = json;
+    }
+
     @Override
-    public GenericTag decode() {
+    public T decode() {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String[] jsonElements = objectMapper.readValue(this.json, String[].class);
@@ -34,7 +38,7 @@ public class GenericTagDecoder implements IDecoder<GenericTag> {
                 }
             }
 
-            return new GenericTag(code, null, attributes);
+            return (T) new GenericTag(code, null, attributes);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }

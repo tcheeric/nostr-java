@@ -2,23 +2,24 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import nostr.event.AbstractEventContent;
 import nostr.event.tag.PriceTag;
 
-@Data
-@EqualsAndHashCode(callSuper = false)
+@Setter
+@Getter
 public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
   @JsonIgnore
   private String id;
 
   @JsonProperty
-  private String title;
+  private final String title;
 
   @JsonProperty
-  private String summary;
+  private final String summary;
 
   @JsonProperty("published_at")
   @EqualsAndHashCode.Exclude
@@ -28,7 +29,7 @@ public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEve
   private String location;
 
   @JsonProperty("price")
-  private PriceTag priceTag;
+  private final PriceTag priceTag;
 
   public ClassifiedListing(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
     this.title = title;

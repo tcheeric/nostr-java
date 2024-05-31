@@ -1,7 +1,6 @@
 
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -11,8 +10,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import nostr.base.GenericTagQuery;
+import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
-import nostr.event.BaseEvent;
+import nostr.event.Kind;
 import nostr.event.json.deserializer.CustomGenericTagQueryDeserializer;
 import nostr.event.json.serializer.CustomGenericTagQuerySerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
@@ -29,16 +29,16 @@ import nostr.event.list.PublicKeyList;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Filters extends BaseEvent {
+public class Filters {
 
     @Key
     @JsonProperty("ids")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList events;
+    private EventList<GenericEvent> events;
 
     @Key
     @JsonProperty("authors")
-    private PublicKeyList authors;
+    private PublicKeyList<PublicKey> authors;
 
     @Key
     private KindList kinds;
@@ -46,11 +46,11 @@ public class Filters extends BaseEvent {
     @Key
     @JsonProperty("#e")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList referencedEvents;
+    private EventList<GenericEvent> referencedEvents;
 
     @Key
     @JsonProperty("#p")
-    private PublicKeyList referencePubKeys;
+    private PublicKeyList<PublicKey> referencePubKeys;
 
     @Key
     private Long since;
@@ -65,21 +65,4 @@ public class Filters extends BaseEvent {
     @JsonSerialize(using=CustomGenericTagQuerySerializer.class)
     @JsonDeserialize(using=CustomGenericTagQueryDeserializer.class)
     private GenericTagQuery genericTagQuery;
-
-    @Override
-    public String toBech32() {
-        throw new UnsupportedOperationException("This operation is not supported.");
-    }
-
-    @JsonIgnore
-    @Override
-    public Integer getNip() {
-        return 1;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getId() {
-        throw new UnsupportedOperationException("Not supported.");
-    }
 }

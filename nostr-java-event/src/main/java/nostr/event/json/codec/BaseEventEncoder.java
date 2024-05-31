@@ -1,10 +1,8 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.IEncoder;
-import nostr.base.Relay;
 import nostr.event.BaseEvent;
 import nostr.util.NostrException;
 
@@ -12,20 +10,13 @@ import nostr.util.NostrException;
  * @author guilhermegps
  *
  */
-@AllArgsConstructor
 @Data
-public class BaseEventEncoder implements IEncoder<BaseEvent> {
+public class BaseEventEncoder<T extends BaseEvent> implements IEncoder<T> {
 
-    private final BaseEvent event;
-    private final Relay relay;
+    private final T event;
 
-    protected BaseEventEncoder() {
-        this.event = null;
-        this.relay = null;
-    }
-    
-    public BaseEventEncoder(BaseEvent event) {
-        this(event, null);
+    public BaseEventEncoder(T event) {
+        this.event = event;
     }
 
     @Override

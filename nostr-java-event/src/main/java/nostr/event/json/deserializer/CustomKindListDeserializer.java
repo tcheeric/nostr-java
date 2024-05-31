@@ -9,6 +9,7 @@ import nostr.event.list.KindList;
 import java.io.IOException;
 
 public class CustomKindListDeserializer extends JsonDeserializer<KindList> {
+
     @Override
     public KindList deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         KindList kindList = new KindList();

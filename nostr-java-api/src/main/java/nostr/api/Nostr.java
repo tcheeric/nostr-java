@@ -186,7 +186,7 @@ public class Nostr {
          * @return
          */
         public static String encode(@NonNull BaseEvent event, Relay relay) {
-            final var enc = new BaseEventEncoder(event, relay);
+            final var enc = new BaseEventEncoder(event);
             return enc.encode();
         }
 
@@ -257,7 +257,7 @@ public class Nostr {
          * @param relay
          */
         public static String encode(@NonNull FiltersList filtersList, Relay relay) {
-            final var enc = new FiltersListEncoder(filtersList, relay);
+            final var enc = new FiltersListEncoder(filtersList);
             return enc.encode();
         }
 
@@ -309,6 +309,12 @@ public class Nostr {
                 case "nostr.event.BaseTag.class" -> {
                     return decodeTag(json);
                 }
+                default -> throw new AssertionError();
+            }
+        }
+
+        public static Filters decodeFilters(@NonNull String json, @NonNull Class clazz) {
+            switch (clazz.getName()) {
                 case "nostr.event.Filters.class" -> {
                     return decodeFilters(json);
                 }

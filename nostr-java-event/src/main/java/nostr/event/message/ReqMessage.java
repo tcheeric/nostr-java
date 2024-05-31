@@ -32,9 +32,10 @@ public class ReqMessage extends BaseMessage {
         this.filtersList.add(filters);
     }
 
-    public ReqMessage(String subscriptionId, FiltersList filtersList) {
+    public ReqMessage(String subscriptionId, FiltersList incomingFiltersList) {
         super(Command.REQ.name());
         this.subscriptionId = subscriptionId;
-        this.filtersList = filtersList;
+        this.filtersList = new FiltersList();
+        this.filtersList.addAll(incomingFiltersList);
     }
 }

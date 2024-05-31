@@ -13,12 +13,11 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class GenericTagQuery implements IElement {
+public class GenericTagQuery {
     
     private String tagName;
     private List<String> value;
 
-    @Override
     @JsonIgnore
     public Integer getNip() {
         return 1;

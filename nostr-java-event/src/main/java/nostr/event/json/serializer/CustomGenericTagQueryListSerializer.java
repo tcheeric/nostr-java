@@ -15,12 +15,12 @@ import java.io.IOException;
  * @author guilhermegps
  *
  */
-public class CustomGenericTagQueryListSerializer extends JsonSerializer<GenericTagQueryList> {
+public class CustomGenericTagQueryListSerializer<T extends GenericTagQueryList<U>, U extends GenericTagQuery> extends JsonSerializer<T> {
 
     @Override
-    public void serialize(GenericTagQueryList value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        for (GenericTagQuery gtq : value.getList()) {
+        for (U gtq : value.getList()) {
             JsonNode node = toJson(gtq);
             gen.writeObjectField(node.fieldNames().next(), node.get(node.fieldNames().next()));
         }

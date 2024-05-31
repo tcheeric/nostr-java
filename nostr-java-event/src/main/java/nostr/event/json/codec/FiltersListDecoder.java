@@ -2,22 +2,23 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import nostr.base.IDecoder;
-import nostr.event.list.FiltersList;
+import nostr.event.impl.Filters;
 
 @Data
-@AllArgsConstructor
-public class FiltersListDecoder implements IDecoder<FiltersList> {
-
+public class FiltersListDecoder implements FDecoder<Filters> {
+    private final Class<Filters> clazz;
     private final String jsonString;
 
-    @Override
-    public FiltersList decode() {
+    public FiltersListDecoder(String jsonString) {
+        this.clazz = Filters.class;
+        this.jsonString = jsonString;
+    }
+
+    public Filters decode() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonString, FiltersList.class);
+            return mapper.readValue(jsonString, clazz);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }
