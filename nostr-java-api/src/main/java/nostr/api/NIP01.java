@@ -19,7 +19,6 @@ import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
-import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -27,11 +26,7 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
-import nostr.event.impl.Filters;
-import nostr.event.list.EventList;
 import nostr.event.list.FiltersList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -185,40 +180,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         result.setPetName(petName);
         return result;
     }
-
-    /**
-     * Create a NIP01 filters object (all parameters are optional)
-     *
-     * @param events a list of event
-     * @param authors a list of pubkeys or prefixes, the pubkey of an event must
-     * be one of these
-     * @param kinds a list of a kind numbers
-     * @param referencedEvents a list of event ids that are referenced in an "e"
-     * tag
-     * @param referencePubKeys a list of pubkeys that are referenced in a "p"
-     * tag
-     * @param since an integer unix timestamp in seconds, events must be newer
-     * than this to pass
-     * @param until an integer unix timestamp in seconds, events must be older
-     * than this to pass
-     * @param limit maximum number of events to be returned in the initial query
-     * @param genericTagQuery a generic tag query
-     * @return a filters object
-     */
-    @Deprecated(forRemoval = true)
-    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQuery genericTagQuery) {
-        return Filters.builder()
-        		.authors(authors)
-        		.events(events)
-        		.genericTagQuery(genericTagQuery)
-        		.kinds(kinds).limit(limit)
-        		.referencePubKeys(referencePubKeys)
-        		.referencedEvents(referencedEvents)
-        		.since(since)
-        		.until(until)
-        		.build();
-    }
-
 
     /**
      * Create an event message to send events requested by clients
