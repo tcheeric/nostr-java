@@ -13,13 +13,11 @@ import nostr.connection.impl.listeners.ErrorListener;
 import nostr.connection.impl.listeners.OpenListener;
 import nostr.connection.impl.listeners.TextListener;
 import nostr.context.Context;
-
-import java.net.URI;
-import okhttp3.OkHttpClient;
-import okhttp3.WebSocket;
-import okhttp3.Request;
 import okhttp3.HttpUrl;
-import java.time.Duration;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
+
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
