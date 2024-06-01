@@ -7,20 +7,20 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEncoder;
-import nostr.event.list.GenericTagQueryList;
 
+import java.util.List;
 import java.io.IOException;
 
 /**
  * @author guilhermegps
  *
  */
-public class CustomGenericTagQueryListSerializer<T extends GenericTagQueryList<U>, U extends GenericTagQuery> extends JsonSerializer<T> {
+public class CustomGenericTagQueryListSerializer<T extends List<U>, U extends GenericTagQuery> extends JsonSerializer<T> {
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        for (U gtq : value.getList()) {
+        for (U gtq : value) {
             JsonNode node = toJson(gtq);
             gen.writeObjectField(node.fieldNames().next(), node.get(node.fieldNames().next()));
         }

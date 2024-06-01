@@ -29,8 +29,6 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.MuteUserEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
