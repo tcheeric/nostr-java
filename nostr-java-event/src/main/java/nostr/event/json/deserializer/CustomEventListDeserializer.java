@@ -4,22 +4,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.NoArgsConstructor;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.GenericEventDecoder;
-import nostr.event.list.EventList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 
-public class CustomEventListDeserializer<T extends EventList<U>, U extends GenericEvent> extends JsonDeserializer<T> {
-    private final Class<U> clazz;
-
-    public CustomEventListDeserializer() {
-        this.clazz = (Class<U>) GenericEvent.class;
-    }
+@NoArgsConstructor
+public class CustomEventListDeserializer<T extends List<U>, U extends GenericEvent> extends JsonDeserializer<T> {
 
     @Override
     public T deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-        EventList<U> eventList = new EventList<>(clazz);
+        List<U> eventList = new ArrayList<>();
         JsonNode node = jsonParser.readValueAsTree();
         if (node.isArray()) {
             for (JsonNode n : node) {

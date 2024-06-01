@@ -21,9 +21,6 @@ import nostr.event.impl.OtsEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.EventList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 
@@ -162,7 +159,7 @@ public class EntityFactory {
             list.add(v3);
             list.add(v2);
             list.add(v1);
-            
+
             var result = new GenericTagQuery();
             result.setTagName(c.toString());
             result.setValue(list);
@@ -196,10 +193,10 @@ public class EntityFactory {
     private static String generateRandom(int leftLimit, int rightLimit, int len) {
 
         return new Random().ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(len)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+            .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+            .limit(len)
+            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
     }
 
 }
