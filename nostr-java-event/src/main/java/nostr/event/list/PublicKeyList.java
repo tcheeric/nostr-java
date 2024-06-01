@@ -2,42 +2,24 @@
 package nostr.event.list;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
 import lombok.NonNull;
 import nostr.base.FNostrList;
 import nostr.base.PublicKey;
 import nostr.event.json.deserializer.CustomPublicKeyListDeserializer;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author squirrel
- */
-@Builder
 @JsonDeserialize(using = CustomPublicKeyListDeserializer.class)
-public class PublicKeyList<T extends PublicKey> extends FNostrList<T> {
-    private final Class<T> clazz;
-
+public class PublicKeyList extends FNostrList<PublicKey> {
     public PublicKeyList() {
-        this(new ArrayList<>());
+        super();
     }
 
-    public PublicKeyList(Class<T> clazz) {
-        this(new ArrayList<>(), clazz);
+    public PublicKeyList(PublicKey publicKey) {
+        this(List.of(publicKey));
     }
 
-    public PublicKeyList(T... publicKeys) {
-        this(List.of(publicKeys));
-    }
-
-    public PublicKeyList(@NonNull List<T> list) {
-        this(list, (Class<T>) PublicKey.class);
-    }
-
-    public PublicKeyList(@NonNull List<T> list, Class<T> clazz) {
+    public PublicKeyList(@NonNull List<PublicKey> list) {
         super.addAll(list);
-        this.clazz = clazz;
     }
 }

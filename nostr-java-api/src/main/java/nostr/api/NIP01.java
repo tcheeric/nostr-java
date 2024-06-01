@@ -25,11 +25,12 @@ import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
 import nostr.event.impl.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.list.EventList;
-import nostr.event.list.FiltersList;
 import nostr.event.list.KindList;
 import nostr.event.list.PublicKeyList;
 import nostr.event.message.CloseMessage;
@@ -206,7 +207,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return a filters object
      */
     @Deprecated(forRemoval = true)
-    public static Filters createFilters(EventList events, PublicKeyList authors, KindList kinds, EventList referencedEvents, PublicKeyList referencePubKeys, Long since, Long until, Integer limit, GenericTagQuery genericTagQuery) {
+    public static Filters createFilters(List<GenericEvent> events, List<PublicKey> authors, List<Kind> kinds, List<GenericEvent> referencedEvents, List<PublicKey> referencePubKeys, Long since, Long until, Integer limit, GenericTagQuery genericTagQuery) {
         return Filters.builder()
         		.authors(authors)
         		.events(events)
@@ -240,7 +241,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param filtersList the filters list
      * @return a REQ message
      */
-    public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull FiltersList filtersList) {
+    public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull List<Filters> filtersList) {
         return new ReqMessageFactory(subscriptionId, filtersList).create();
     }
 

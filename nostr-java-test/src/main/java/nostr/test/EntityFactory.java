@@ -61,7 +61,7 @@ public class EntityFactory {
             return event;
         }
 
-        public static Filters createFilters(PublicKeyList authors, KindList kindList, Long since) {
+        public static Filters createFilters(List<PublicKey> authors, List<Kind> kindList, Long since) {
             return Filters.builder().authors(authors).kinds(kindList).since(since).build();
         }
 
@@ -142,11 +142,11 @@ public class EntityFactory {
         }
 
         public static Filters createFilters(PublicKey publicKey) {
-            EventList eventList = new EventList();
+            List<GenericEvent> eventList = new ArrayList<>();
             eventList.add(createTextNoteEvent(publicKey));
             eventList.add(createEphemeralEvent(publicKey));
 
-            EventList refEvents = new EventList();
+            List<GenericEvent> refEvents = new ArrayList<>();
             refEvents.add(createTextNoteEvent(publicKey));
 
             return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(createGenericTagQuery()).build();

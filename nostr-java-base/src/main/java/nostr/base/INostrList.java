@@ -10,6 +10,10 @@ import java.util.List;
  */
 public abstract class INostrList<T extends IElement> extends ArrayList<T> {
 
+    public INostrList() {
+        super();
+    }
+
     public boolean add(T... elt) {
         return this.addAll(List.of(elt));
     }

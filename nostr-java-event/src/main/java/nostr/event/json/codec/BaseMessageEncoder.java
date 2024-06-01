@@ -48,7 +48,7 @@ public class BaseMessageEncoder<T extends BaseMessage> implements IEncoder<T> {
             } else if (message instanceof ReqMessage msg) {
                 arrayNode.add(msg.getSubscriptionId());
                 // Encode each filter individually and join them with a comma
-                List<Filters> filtersList = msg.getFiltersList().getList();
+                List<Filters> filtersList = msg.getFiltersList();
                 for (Filters f : filtersList) {
                     try {
                         FiltersEncoder filtersEncoder = new FiltersEncoder(f);

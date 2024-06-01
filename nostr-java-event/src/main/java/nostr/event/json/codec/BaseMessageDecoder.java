@@ -4,15 +4,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
 import nostr.event.impl.CanonicalAuthenticationEvent;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.event.list.FiltersList;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
@@ -22,6 +21,7 @@ import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,7 +97,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
                     var len = msgArr.length - 2;
                     var filtersArr = new Object[len];
                     System.arraycopy(msgArr, 2, filtersArr, 0, len);
-                    var filtersList = mapper.convertValue(filtersArr, new TypeReference<FiltersList>() {
+                    var filtersList = mapper.convertValue(filtersArr, new TypeReference<List<Filters>>() {
                     });
                     message = (T) new ReqMessage(arg.toString(), filtersList);
                 }

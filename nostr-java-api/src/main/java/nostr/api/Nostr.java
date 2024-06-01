@@ -30,12 +30,12 @@ import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersListEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagQueryEncoder;
-import nostr.event.list.FiltersList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,17 +109,17 @@ public class Nostr {
     }
 
     public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
-        FiltersList filtersList = new FiltersList();
+        List<Filters> filtersList = new ArrayList<>();
         filtersList.add(filters);
 
         send(filtersList, subscriptionId, relays);
     }
 
-    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId) {
+    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
         send(filtersList, subscriptionId, getRelays());
     }
 
-    public void send(@NonNull FiltersList filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
 
         var context = new DefaultRequestContext();
         context.setRelays(relays);
@@ -256,7 +256,7 @@ public class Nostr {
          * @param filtersList
          * @param relay
          */
-        public static String encode(@NonNull FiltersList filtersList, Relay relay) {
+        public static String encode(@NonNull List<Filters> filtersList, Relay relay) {
             final var enc = new FiltersListEncoder(filtersList);
             return enc.encode();
         }
@@ -264,7 +264,7 @@ public class Nostr {
         /**
          * @param filtersList
          */
-        public static String encode(@NonNull FiltersList filtersList) {
+        public static String encode(@NonNull List<Filters> filtersList) {
             return Nostr.Json.encode(filtersList, null);
         }
 
