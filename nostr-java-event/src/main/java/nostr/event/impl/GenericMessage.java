@@ -3,6 +3,7 @@ package nostr.event.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.ElementAttribute;
 import nostr.base.IElement;
@@ -52,5 +53,15 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         getArrayNode().add(getCommand());
         getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> getArrayNode().add(v.toString()));
         return IEncoder.MAPPER.writeValueAsString(getArrayNode());
+    }
+
+    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
+        GenericMessage gm = new GenericMessage(msgArr[0].toString());
+        for (int i = 1; i < msgArr.length; i++) {
+            if (msgArr[i] instanceof String) {
+                gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+            }
+        }
+        return (T) gm;
     }
 }

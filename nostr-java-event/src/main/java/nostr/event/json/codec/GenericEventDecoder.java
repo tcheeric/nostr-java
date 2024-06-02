@@ -15,14 +15,12 @@ import nostr.event.impl.GenericEvent;
 public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> {
 
     private final Class<T> clazz;
-    private final String jsonEvent;
 
-    public GenericEventDecoder(String jsonEvent) {
+    public GenericEventDecoder() {
         this.clazz = (Class<T>) GenericEvent.class;
-        this.jsonEvent = jsonEvent;
     }
     @Override
-    public T decode() {
+    public T decode(String jsonEvent) {
         try {
             var mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);

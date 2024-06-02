@@ -3,6 +3,7 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.base.IEncoder;
@@ -40,5 +41,14 @@ public class OkMessage extends BaseMessage {
                 .add(getEventId())
                 .add(getFlag())
                 .add(getMessage()));
+    }
+
+    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
+        if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
+            String msgArg = msgArr[3].toString();
+            return (T) new OkMessage(msgArr[1].toString(), duplicate, msgArg);
+        } else {
+            throw new AssertionError("Invalid argument: " + msgArr[2]);
+        }
     }
 }

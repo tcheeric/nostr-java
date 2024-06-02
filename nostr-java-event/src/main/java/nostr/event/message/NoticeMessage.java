@@ -32,4 +32,8 @@ public class NoticeMessage extends BaseMessage {
                 .add(getCommand())
                 .add(getMessage()));
     }
+
+    public static <T extends BaseMessage> T decode(@NonNull Object arg) {
+        return (T) new NoticeMessage(arg.toString());
+    }
 }

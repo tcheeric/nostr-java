@@ -194,8 +194,7 @@ public class Nostr {
          * @param json
          */
         public static GenericEvent decodeEvent(@NonNull String json) {
-            final var dec = new GenericEventDecoder(json);
-            return dec.decode();
+            return new GenericEventDecoder<>().decode(json);
         }
 
         // Messages
@@ -219,8 +218,7 @@ public class Nostr {
          * @param json
          */
         public static BaseMessage decodeMessage(@NonNull String json) {
-            final var dec = new BaseMessageDecoder(json);
-            return dec.decode();
+            return new BaseMessageDecoder().decode(json);
         }
 
         // Tags
@@ -245,8 +243,7 @@ public class Nostr {
          * @param json
          */
         public static BaseTag decodeTag(@NonNull String json) {
-            final var dec = new BaseTagDecoder(json);
-            return dec.decode();
+            return new BaseTagDecoder<>().decode(json);
         }
 
         // Filters

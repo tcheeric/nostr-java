@@ -36,8 +36,7 @@ public class DecodeTest {
                 + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
                 + "}]";
 
-        BaseMessageDecoder decoder = new BaseMessageDecoder(json);
-        BaseMessage message = decoder.decode();
+        BaseMessage message = new BaseMessageDecoder<>().decode(json);
 
         Assertions.assertEquals("EVENT", message.getCommand());
         EventMessage eventMessage = (EventMessage) message;

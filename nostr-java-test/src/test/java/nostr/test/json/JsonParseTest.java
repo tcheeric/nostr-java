@@ -42,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JsonParseTest {
 
     @Test
-    public void testBaseReqMessageDecoder() {
-        System.out.println("testBaseReqMessageDecoder");
+    public void testBaseMessageDecoder() {
+        System.out.println("testBaseMessageDecoder");
 
         final String parseTarget =
             "[\"REQ\", " +
@@ -52,7 +52,7 @@ public class JsonParseTest {
                 "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
                 "\"#e\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
 
-        final var message = new BaseMessageDecoder(parseTarget).decode();
+        final var message = new BaseMessageDecoder<>().decode(parseTarget);
 
         assertEquals(Command.REQ.toString(), message.getCommand());
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
@@ -71,8 +71,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseReqMessageEncoder() throws JsonProcessingException {
-        System.out.println("testBaseReqMessageEncoder");
+    public void testBaseReqMessageDecoder() throws JsonProcessingException {
+        System.out.println("testBaseReqMessageDecoder");
 
         final var filtersList = new ArrayList<Filters>();
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
@@ -92,7 +92,7 @@ public class JsonParseTest {
         Assertions.assertFalse(parts[2].startsWith("["));
         Assertions.assertFalse(parts[parts.length - 1].endsWith("]"));
 
-        var message = new BaseMessageDecoder(jsonMessage).decode();
+        var message = new BaseMessageDecoder<>().decode(jsonMessage);
 
         assertEquals(reqMessage, message);
     }
@@ -114,7 +114,7 @@ public class JsonParseTest {
             + "\"tags\":[]"
             + "}]";
 
-        final var message = new BaseMessageDecoder(parseTarget).decode();
+        final var message = new BaseMessageDecoder<>().decode(parseTarget);
 
         assertEquals(Command.EVENT.toString(), message.getCommand());
 
@@ -145,8 +145,7 @@ public class JsonParseTest {
             + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
             + "}]";
 
-        BaseMessageDecoder decoder = new BaseMessageDecoder(json);
-        BaseMessage message = decoder.decode();
+        BaseMessage message = new BaseMessageDecoder<>().decode(json);
 
         final var event = (GenericEvent) (((EventMessage) message).getEvent());
         var tags = event.getTags();
@@ -163,7 +162,7 @@ public class JsonParseTest {
         System.out.println("testGenericTagDecoder");
         final String jsonString = "[\"saturn\", \"jetpack\", false]";
 
-        var tag = new GenericTagDecoder(jsonString).decode();
+        var tag = new GenericTagDecoder<>().decode(jsonString);
 
         assertEquals("saturn", tag.getCode());
         assertEquals(2, tag.getAttributes().size());
@@ -190,7 +189,7 @@ public class JsonParseTest {
             + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
             + "}]";
 
-        GenericEvent event = new GenericEventDecoder<>(classifiedListingEventJson).decode();
+        GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
         EventMessage message = NIP01.createEventMessage(event, "1");
         assertEquals(1, message.getNip());
         assertEquals("{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content ipsum\",\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\",\"created_at\":1687765220,\"tags\":[[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],[\"title\",\"title ipsum\"],[\"summary\",\"summary ipsum\"],[\"published_at\",\"1687765220\"],[\"location\",\"location ipsum\"],[\"price\",\"11111\",\"BTC\",\"1\"]],\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\"}", new BaseEventEncoder<>((BaseEvent) message.getEvent()).encode());
@@ -231,7 +230,7 @@ public class JsonParseTest {
 
         String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
         final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder(jsonString).decode();
+        var tag = new BaseTagDecoder<>().decode(jsonString);
 
         Assertions.assertTrue(tag instanceof PubKeyTag);
 
@@ -247,7 +246,7 @@ public class JsonParseTest {
 
         String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
         final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder(jsonString).decode();
+        var tag = new BaseTagDecoder<>().decode(jsonString);
 
         Assertions.assertTrue(tag instanceof GenericTag);
 

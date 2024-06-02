@@ -3,9 +3,11 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.base.IEncoder;
+import nostr.event.BaseMessage;
 
 /**
  *
@@ -29,5 +31,9 @@ public class RelayAuthenticationMessage extends BaseAuthMessage {
             getArrayNode()
                 .add(getCommand())
                 .add(getChallenge()));
+    }
+
+    public static <T extends BaseMessage> T decode(@NonNull Object arg) {
+        return (T) new RelayAuthenticationMessage(arg.toString());
     }
 }

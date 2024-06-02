@@ -2,8 +2,11 @@ package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.Command;
 import nostr.base.IEncoder;
@@ -56,5 +59,14 @@ public class ReqMessage extends BaseMessage {
             }
         }
         return IEncoder.MAPPER.writeValueAsString(getArrayNode());
+    }
+
+    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {
+        var len = msgArr.length - 2;
+        var filtersArr = new Object[len];
+        System.arraycopy(msgArr, 2, filtersArr, 0, len);
+        var filtersList = mapper.convertValue(filtersArr, new TypeReference<List<Filters>>() {
+        });
+        return  (T) new ReqMessage(msgArr[1].toString(), filtersList);
     }
 }
