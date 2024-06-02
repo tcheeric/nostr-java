@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 import nostr.event.Nip05Content;
-import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.Nip05ContentDecoder;
 import nostr.util.NostrException;
 
