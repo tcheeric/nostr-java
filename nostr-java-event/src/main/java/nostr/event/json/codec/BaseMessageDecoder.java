@@ -9,6 +9,7 @@ import nostr.event.BaseMessage;
 import nostr.event.impl.GenericMessage;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
+import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.OkMessage;
@@ -36,14 +37,15 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         final Object arg = msgArr[1];
 
         return switch (strCmd) {
-            case "NOTICE" -> NoticeMessage.decode(arg);
-            case "OK" -> OkMessage.decode(msgArr);
-            case "REQ" -> ReqMessage.decode(msgArr, mapper);
-            case "EVENT" -> EventMessage.decode(msgArr, mapper);
-            case "CLOSE" -> CloseMessage.decode(arg);
             case "AUTH" -> arg instanceof Map map ?
                 CanonicalAuthenticationMessage.decode(map, mapper) :
                 RelayAuthenticationMessage.decode(arg);
+            case "CLOSE" -> CloseMessage.decode(arg);
+            case "EOSE" -> EoseMessage.decode(arg);
+            case "EVENT" -> EventMessage.decode(msgArr, mapper);
+            case "NOTICE" -> NoticeMessage.decode(arg);
+            case "OK" -> OkMessage.decode(msgArr);
+            case "REQ" -> ReqMessage.decode(msgArr, mapper);
             default -> GenericMessage.decode(msgArr);
         };
     }
