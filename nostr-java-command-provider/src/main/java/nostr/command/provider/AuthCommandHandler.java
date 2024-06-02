@@ -1,8 +1,8 @@
 package nostr.command.provider;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.PrivateKey;
@@ -16,7 +16,6 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.id.Identity;
 
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.AUTH)
@@ -24,6 +23,7 @@ import java.util.logging.Level;
 @Log
 public class AuthCommandHandler implements CommandHandler {
 
+    @SneakyThrows
     @Override
     public void handle(@NonNull CommandContext context) {
 
@@ -49,15 +49,11 @@ public class AuthCommandHandler implements CommandHandler {
 
                 var client = Client.getInstance();
                 var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
-                try {
-                    var encodedMessage = canonicalAuthenticationMessage.encode();
-                    log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
+                var encodedMessage = canonicalAuthenticationMessage.encode();
+                log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
-                    // Publish the event to the relay
-                    client.send(canonicalAuthenticationMessage);
-                } catch (TimeoutException | JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                // Publish the event to the relay
+                client.send(canonicalAuthenticationMessage);
             }
         } else {
             throw new IllegalArgumentException("Invalid context type");

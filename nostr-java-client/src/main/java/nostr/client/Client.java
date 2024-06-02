@@ -3,6 +3,7 @@ package nostr.client;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.connection.impl.ConnectionPool;
@@ -90,6 +91,7 @@ public class Client {
         private final BaseMessage message;
         private final ConnectionPool connectionPool;
 
+        @SneakyThrows
         @Override
         public Void execute(@NonNull Context context) {
             //  Only send AUTH messages to the relay mentioned in the tag https://github.com/tcheeric/nostr-java/issues/129

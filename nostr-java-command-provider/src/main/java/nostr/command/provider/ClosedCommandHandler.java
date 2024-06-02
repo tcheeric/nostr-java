@@ -1,7 +1,7 @@
 package nostr.command.provider;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.PrivateKey;
@@ -15,7 +15,6 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.ClosedMessage;
 import nostr.id.Identity;
 
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.CLOSED)
@@ -23,6 +22,7 @@ import java.util.logging.Level;
 @Log
 public class ClosedCommandHandler implements CommandHandler {
 
+    @SneakyThrows
     @Override
     public void handle(CommandContext context) {
 
@@ -49,15 +49,11 @@ public class ClosedCommandHandler implements CommandHandler {
 
                     var client = Client.getInstance(); // No need to pass the request context here. The client will use the default one
                     var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
-                    try {
-                        var encodedMessage = canonicalAuthenticationMessage.encode();
-                        log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
+                    var encodedMessage = canonicalAuthenticationMessage.encode();
+                    log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
-                        // Publish the event to the relay
-                        client.send(canonicalAuthenticationMessage);
-                    } catch (TimeoutException | JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
+                    // Publish the event to the relay
+                    client.send(canonicalAuthenticationMessage);
                 }
             }
         } else {
