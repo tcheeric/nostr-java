@@ -8,8 +8,10 @@ import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
+import nostr.event.BaseEvent.ProxyEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
@@ -21,10 +23,6 @@ import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagDecoder;
-import nostr.event.list.EventList;
-import nostr.event.list.FiltersList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
@@ -61,27 +59,28 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        var filters = ((ReqMessage) message).getFiltersList().getList().get(0);
+        var filters = ((ReqMessage) message).getFiltersList().get(0);
 
         assertEquals(1, filters.getKinds().size());
-        assertEquals(1, filters.getKinds().getList().get(0));
+        assertEquals(Kind.TEXT_NOTE, filters.getKinds().get(0));
 
         assertEquals(1, filters.getAuthors().size());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((PublicKey) filters.getAuthors().getList().get(0)).toBech32String());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().get(0).toBech32String());
 
         assertEquals(1, filters.getReferencedEvents().size());
-        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", ((EventList<GenericEvent>)filters.getReferencedEvents()).getList().get(0).getId());
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", (filters.getReferencedEvents().get(0).getId()));
     }
 
     @Test
     public void testBaseReqMessageEncoder() {
         System.out.println("testBaseReqMessageEncoder");
 
-        final var filtersList = new FiltersList();
+        final var filtersList = new ArrayList<Filters>();
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
-        filtersList.add(Filters.builder().authors(new PublicKeyList(publicKey)).kinds(new KindList(3, 5)).build());
-        filtersList.add(Filters.builder().kinds(new KindList(0, 1)).build());
-        filtersList.add(Filters.builder().referencedEvents(new EventList(new BaseEvent.ProxyEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))).build());
+        filtersList.add(Filters.builder().authors(new ArrayList<>(List.of(publicKey))).kinds(new ArrayList<>(List.of(Kind.CONTACT_LIST, Kind.DELETION))).build());
+        filtersList.add(Filters.builder().kinds(new ArrayList<>(List.of(Kind.SET_METADATA, Kind.TEXT_NOTE))).build());
+
+        filtersList.add(Filters.builder().referencedEvents(new ArrayList<>(List.of(new ProxyEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")))).build());
 
         final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
 
@@ -288,7 +287,7 @@ public class JsonParseTest {
         genericTagQuery.setValue(geohashList);
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
-        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new FiltersList(filters));
+        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
         BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
         String jsonMessage = encoder.encode();
 

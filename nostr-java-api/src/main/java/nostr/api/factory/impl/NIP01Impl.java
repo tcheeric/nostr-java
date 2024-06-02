@@ -18,11 +18,11 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.EphemeralEvent;
+import nostr.event.impl.Filters;
 import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.FiltersList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -144,7 +144,7 @@ public class NIP01Impl {
     public static class ReqMessageFactory extends MessageFactory<ReqMessage> {
 
         private final String subscriptionId;
-        private final FiltersList filtersList;
+        private final List<Filters> filtersList;
 
         @Override
         public ReqMessage create() {

@@ -1,33 +1,30 @@
 package nostr.event.json.serializer;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import nostr.base.IEncoder;
 import nostr.event.BaseEvent;
-import nostr.event.list.BaseList;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 /**
  * @author guilhermegps
  *
  */
-public class CustomBaseListSerializer<T extends BaseList<U>, U extends BaseEvent> extends JsonSerializer<T> {
+public class CustomBaseListSerializer<T extends List<U>, U extends BaseEvent> extends JsonSerializer<T> {
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
         try {
-            var list = value.getList().parallelStream().map(this::toJson)
-                    .collect(Collectors.toList());
+            var list = value.parallelStream().map(this::toJson).toList();
 
             gen.writePOJO(list);
         } catch (IOException e) {
@@ -45,8 +42,7 @@ public class CustomBaseListSerializer<T extends BaseList<U>, U extends BaseEvent
 
                 var list = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(fields, Spliterator.ORDERED), false)
-                        .map(f -> f.getValue().asText().toLowerCase())
-                        .collect(Collectors.toList());
+                    .map(f -> f.getValue().asText().toLowerCase()).toList();
 
                 return mapper.valueToTree(list);
             }

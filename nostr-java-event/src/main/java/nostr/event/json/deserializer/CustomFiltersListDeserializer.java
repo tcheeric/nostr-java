@@ -7,21 +7,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import nostr.event.impl.Filters;
 import nostr.event.json.codec.FiltersDecoder;
-import nostr.event.list.FiltersList;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @NoArgsConstructor
-public class CustomFiltersListDeserializer extends JsonDeserializer<FiltersList> {
+public class CustomFiltersListDeserializer extends JsonDeserializer<List<Filters>> {
     @Override
-    public FiltersList deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+    public List<Filters> deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         JsonNode node = jsonParser.readValueAsTree();
         return parseJson(node.toString());
     }
 
-    public FiltersList parseJson(@NonNull String jsonString) throws IOException {
+    public List<Filters> parseJson(@NonNull String jsonString) throws IOException {
         if (!jsonString.startsWith("[")) {
             jsonString = "[" + jsonString.trim();
         }
@@ -29,7 +31,7 @@ public class CustomFiltersListDeserializer extends JsonDeserializer<FiltersList>
             jsonString = jsonString + "]";
         }
 
-        FiltersList filtersList = new FiltersList();
+        List<Filters> filtersList = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(jsonString);
         Iterator<JsonNode> elementsIterator = rootNode.elements();

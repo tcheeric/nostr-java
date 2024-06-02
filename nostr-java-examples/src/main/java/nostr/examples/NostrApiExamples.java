@@ -29,8 +29,6 @@ import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.MuteUserEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -293,8 +291,8 @@ public class NostrApiExamples {
     public static void filters() throws InterruptedException {
         logHeader("filters");
 
-        var kinds = new KindList(List.of(Kind.EPHEMEREAL_EVENT.getValue(), Kind.TEXT_NOTE.getValue()));
-        var authors = new PublicKeyList(List.of(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")));
+        var kinds = List.of(Kind.EPHEMEREAL_EVENT, Kind.TEXT_NOTE);
+        var authors = new ArrayList<>(List.of(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")));
 
         var date = Calendar.getInstance();
         var subId = "subId" + date.getTimeInMillis();
