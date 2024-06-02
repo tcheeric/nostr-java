@@ -1,7 +1,5 @@
 package nostr.base;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 /**
  *
  * @author eric
@@ -9,6 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  */
 public interface IDecoder<T extends IElement> {
 
-    T decode(String str) throws JsonProcessingException;
+    T decode(String str);
 
 }

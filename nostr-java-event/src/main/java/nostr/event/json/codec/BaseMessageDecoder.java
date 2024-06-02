@@ -2,7 +2,7 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
@@ -20,7 +20,6 @@ import java.util.Map;
 /**
  * @author eric
  */
-@Data
 public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     private final ObjectMapper mapper;
 
@@ -31,7 +30,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
 
     @SneakyThrows
     @Override
-    public T decode(String jsonString) {
+    public T decode(@NonNull String jsonString) {
         Object[] msgArr = mapper.readValue(jsonString, Object[].class);
         final String strCmd = msgArr[0].toString();
         final Object arg = msgArr[1];

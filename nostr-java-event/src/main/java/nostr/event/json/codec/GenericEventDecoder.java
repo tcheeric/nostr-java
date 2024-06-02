@@ -19,6 +19,7 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
     public GenericEventDecoder() {
         this.clazz = (Class<T>) GenericEvent.class;
     }
+
     @Override
     public T decode(String jsonEvent) {
         try {
