@@ -1,4 +1,3 @@
-
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +10,7 @@ import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.json.codec.BaseEventEncoder;
 
 /**
+ *
  * @author eric
  */
 @Setter

@@ -1,12 +1,5 @@
 package nostr.event.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import nostr.base.IEncoder;
-import nostr.event.BaseEvent;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +7,13 @@ import java.util.Map.Entry;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import nostr.base.IEncoder;
+import nostr.event.BaseEvent;
 
 /**
  * @author guilhermegps

@@ -45,7 +45,6 @@ public class ReqMessage extends BaseMessage {
         getArrayNode()
             .add(getCommand())
             .add(getSubscriptionId());
-        // Encode each filter individually and join them with a comma
         List<Filters> localFiltersList = getFiltersList();
         for (Filters f : localFiltersList) {
             try {
