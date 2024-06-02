@@ -15,7 +15,8 @@ import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.UserProfile;
-import nostr.event.BaseTag;
+import nostr.event
+    .BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.Filters;
@@ -118,24 +119,6 @@ public class NIP01Impl {
         public PubKeyTag create() {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    public static class EventMessageFactory extends MessageFactory<EventMessage> {
-
-        private final IEvent event;
-        private String subscriptionId;
-
-        public EventMessageFactory(@NonNull IEvent event) {
-            this.event = event;
-        }
-
-        @Override
-        public EventMessage create() {
-            return new EventMessage(event, subscriptionId);
-        }
-
     }
 
     @Data
@@ -273,19 +256,6 @@ public class NIP01Impl {
         @Override
         public EoseMessage create() {
             return new EoseMessage(subscriptionId);
-        }
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor
-    public static class NoticeMessageFactory extends MessageFactory<NoticeMessage> {
-
-        private final String message;
-
-        @Override
-        public NoticeMessage create() {
-            return new NoticeMessage(message);
         }
     }
 

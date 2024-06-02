@@ -17,8 +17,9 @@ module nostr.command.provider {
     requires nostr.context;
     requires nostr.context.impl;
     requires nostr.command.handler;
+  requires com.fasterxml.jackson.core;
 
-    exports nostr.command.provider;
+  exports nostr.command.provider;
 
     provides CommandHandler with
             OkCommandHandler,
