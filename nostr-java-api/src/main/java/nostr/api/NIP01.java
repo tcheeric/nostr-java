@@ -9,11 +9,9 @@ import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
 import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
-import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
 import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
 import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
-import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.ParameterizedReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
@@ -226,9 +224,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
    * @return an event message
    */
   public static EventMessage createEventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
-    var result = new EventMessageFactory(event).create();
-    result.setSubscriptionId(subscriptionId);
-    return result;
+    return new EventMessage(event, subscriptionId);
   }
 
   /**
@@ -271,7 +267,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
    * @return a NOTICE message
    */
   public static NoticeMessage createNoticeMessage(@NonNull String message) {
-    return new NoticeMessageFactory(message).create();
+    return new NoticeMessage(message);
   }
 
   /**

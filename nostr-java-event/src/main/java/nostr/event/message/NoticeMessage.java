@@ -1,21 +1,20 @@
-
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
+import lombok.Setter;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 
 /**
  *
  * @author squirrel
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@ToString(callSuper = true)
+@Setter
+@Getter
 public class NoticeMessage extends BaseMessage {
 
     @JsonProperty
@@ -24,5 +23,13 @@ public class NoticeMessage extends BaseMessage {
     public NoticeMessage(@NonNull String message) {
         super(Command.NOTICE.name());
         this.message = message;
+    }
+
+    @Override
+    public String encode() throws JsonProcessingException {
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(getMessage()));
     }
 }

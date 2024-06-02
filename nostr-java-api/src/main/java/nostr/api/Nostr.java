@@ -4,6 +4,7 @@
  */
 package nostr.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -23,7 +24,6 @@ import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.FiltersDecoder;
@@ -204,15 +204,14 @@ public class Nostr {
          * @param message
          * @param relay
          */
-        public static String encode(@NonNull BaseMessage message, Relay relay) {
-            final var enc = new BaseMessageEncoder(message, relay);
-            return enc.encode();
+        public static String encode(@NonNull BaseMessage message, Relay relay) throws JsonProcessingException {
+            return message.encode();
         }
 
         /**
          * @param message
          */
-        public static String encode(@NonNull BaseMessage message) {
+        public static String encode(@NonNull BaseMessage message) throws JsonProcessingException {
             return Nostr.Json.encode(message, null);
         }
 

@@ -1,18 +1,18 @@
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
+import lombok.Setter;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 
 /**
  *
  * @author eric
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@ToString(callSuper = true)
+@Setter
+@Getter
 public class RelayAuthenticationMessage extends BaseAuthMessage {
 
     @JsonProperty
@@ -23,4 +23,11 @@ public class RelayAuthenticationMessage extends BaseAuthMessage {
         this.challenge = challenge;
     }
 
+    @Override
+    public String encode() throws JsonProcessingException {
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(getChallenge()));
+    }
 }

@@ -1,24 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
+import lombok.Setter;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 
 /**
  *
  * @author squirrel
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@ToString(callSuper = true)
+@Setter
+@Getter
 public class CloseMessage extends BaseMessage {
 
     @JsonProperty
@@ -31,5 +26,13 @@ public class CloseMessage extends BaseMessage {
     public CloseMessage(String subscriptionId) {
         super(Command.CLOSE.name());
         this.subscriptionId = subscriptionId;
+    }
+
+    @Override
+    public String encode() throws JsonProcessingException {
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(getSubscriptionId()));
     }
 }

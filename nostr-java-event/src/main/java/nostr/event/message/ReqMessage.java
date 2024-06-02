@@ -1,13 +1,15 @@
-
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 import nostr.event.impl.Filters;
+import nostr.event.json.codec.FiltersEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +30,7 @@ public class ReqMessage extends BaseMessage {
     private final List<Filters> filtersList;
 
     public ReqMessage(String subscriptionId, Filters filters) {
-        super(Command.REQ.name());
-        this.subscriptionId = subscriptionId;
-        this.filtersList = new ArrayList<>();
-        this.filtersList.add(filters);
+        this(subscriptionId, List.of(filters));
     }
 
     public ReqMessage(String subscriptionId, List<Filters> incomingFiltersList) {
@@ -39,5 +38,24 @@ public class ReqMessage extends BaseMessage {
         this.subscriptionId = subscriptionId;
         this.filtersList = new ArrayList<>();
         this.filtersList.addAll(incomingFiltersList);
+    }
+
+    @Override
+    public String encode() throws JsonProcessingException {
+        getArrayNode()
+            .add(getCommand())
+            .add(getSubscriptionId());
+        // Encode each filter individually and join them with a comma
+        List<Filters> localFiltersList = getFiltersList();
+        for (Filters f : localFiltersList) {
+            try {
+                FiltersEncoder filtersEncoder = new FiltersEncoder(f);
+                var filterNode = IEncoder.MAPPER.readTree(filtersEncoder.encode());
+                getArrayNode().add(filterNode);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return IEncoder.MAPPER.writeValueAsString(getArrayNode());
     }
 }

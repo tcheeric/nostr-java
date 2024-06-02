@@ -18,7 +18,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.json.codec.BaseTagDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
@@ -72,7 +71,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseReqMessageEncoder() {
+    public void testBaseReqMessageEncoder() throws JsonProcessingException {
         System.out.println("testBaseReqMessageEncoder");
 
         final var filtersList = new ArrayList<Filters>();
@@ -84,9 +83,7 @@ public class JsonParseTest {
 
         final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
 
-        BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
-
-        var jsonMessage = encoder.encode();
+        var jsonMessage = reqMessage.encode();
 
         var jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
         var parts = jsonMsg.split(",");
@@ -276,7 +273,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() {
+    public void testReqMessageSerializer() throws JsonProcessingException {
         System.out.println("testFiltersEncoder");
 
         String new_geohash = "2vghde";
@@ -288,8 +285,7 @@ public class JsonParseTest {
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
         ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
-        BaseMessageEncoder encoder = new BaseMessageEncoder(reqMessage);
-        String jsonMessage = encoder.encode();
+        String jsonMessage = reqMessage.encode();
 
         assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
     }

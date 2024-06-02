@@ -1,28 +1,27 @@
-
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
+import lombok.Setter;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 
 /**
  *
  * @author squirrel
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@ToString
+@Setter
+@Getter
 public class OkMessage extends BaseMessage {
 
     @JsonProperty
     private final String eventId;
-    
+
     @JsonProperty
     private final Boolean flag;
-    
+
     @JsonProperty
     private final String message;
 
@@ -32,6 +31,14 @@ public class OkMessage extends BaseMessage {
         this.flag = flag;
         this.message = message;
     }
-    
-    
+
+    @Override
+    public String encode() throws JsonProcessingException {
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(getEventId())
+                .add(getFlag())
+                .add(getMessage()));
+    }
 }
