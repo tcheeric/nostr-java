@@ -61,7 +61,7 @@ public class NIP01Impl {
             return event;
         }
     }
-    
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class MetadataEventFactory extends EventFactory<MetadataEvent> {
@@ -80,7 +80,7 @@ public class NIP01Impl {
         @Override
         public MetadataEvent create() {
             return new MetadataEvent(getSender(), profile);
-        }        
+        }
     }
 
     @Data
@@ -90,7 +90,7 @@ public class NIP01Impl {
         private final String relateEventId;
         private String recommendedRelayUrl;
         private Marker marker;
-        
+
         public EventTagFactory(@NonNull String relateEventId) {
             this.relateEventId = relateEventId;
         }
@@ -211,9 +211,9 @@ public class NIP01Impl {
         @Override
         public ParameterizedReplaceableEvent create() {
             return new ParameterizedReplaceableEvent(getSender(), kind, getTags(), getContent());
-        }        
+        }
     }
-    
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class IdentifierTagFactory extends AbstractTagFactory<IdentifierTag> {

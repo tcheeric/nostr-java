@@ -13,6 +13,7 @@ module nostr.connection {
     requires nostr.controller;
     requires nostr.context;
     requires nostr.context.impl;
+    requires org.bouncycastle.provider;
 
     exports nostr.connection;
     exports nostr.connection.impl;

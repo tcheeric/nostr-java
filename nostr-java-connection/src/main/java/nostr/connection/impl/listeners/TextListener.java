@@ -20,6 +20,7 @@ import nostr.event.message.RelayAuthenticationMessage;
 import okhttp3.WebSocketListener;
 import okhttp3.WebSocket;
 import okio.ByteString;
+
 import java.util.logging.Level;
 
 @AllArgsConstructor
@@ -50,7 +51,7 @@ public class TextListener extends WebSocketListener {
     private void handleReceivedText(@NonNull String message) {
         log.log(Level.INFO, "Received message {0} from {1}", new Object[]{message, relay});
 
-        var msg = new BaseMessageDecoder(message).decode();
+        var msg = new BaseMessageDecoder<>().decode(message);
         final String strCommand = msg.getCommand();
 
         log.log(Level.FINE, "Creating the command context with message {0}", new Object[]{msg});

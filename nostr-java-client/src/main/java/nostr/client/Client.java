@@ -3,6 +3,7 @@ package nostr.client;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Relay;
 import nostr.connection.impl.ConnectionPool;
@@ -11,7 +12,6 @@ import nostr.context.RequestContext;
 import nostr.context.impl.DefaultRequestContext;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.util.thread.Task;
 import nostr.util.thread.ThreadUtil;
@@ -91,6 +91,7 @@ public class Client {
         private final BaseMessage message;
         private final ConnectionPool connectionPool;
 
+        @SneakyThrows
         @Override
         public Void execute(@NonNull Context context) {
             //  Only send AUTH messages to the relay mentioned in the tag https://github.com/tcheeric/nostr-java/issues/129
@@ -102,13 +103,13 @@ public class Client {
                     var relayTagValue = ((GenericTag) relayTag.get()).getAttributes().get(0).getValue().toString();
                     log.log(Level.FINEST, "**** Relay found in CanonicalAuthenticationMessage: {0}", relayTagValue);
                     var r = new Relay(relayTagValue);
-                    connectionPool.send(new BaseMessageEncoder(canonicalAuthenticationMessage).encode(), r);
+                    connectionPool.send(canonicalAuthenticationMessage.encode(), r);
                 } else {
                     log.log(Level.SEVERE, "Relay tag not found in CanonicalAuthenticationMessage. Ignoring...");
                 }
             } else {
                 log.log(Level.FINER, "+++ message {0}...", message);
-                connectionPool.send(new BaseMessageEncoder(message).encode());
+                connectionPool.send(message.encode());
             }
             return null;
         }

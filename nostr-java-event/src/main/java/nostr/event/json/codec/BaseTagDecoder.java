@@ -14,15 +14,13 @@ import nostr.event.BaseTag;
 public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
 
     private final Class<T> clazz;
-    private final String jsonString;
 
-    public BaseTagDecoder(String jsonString) {
+    public BaseTagDecoder() {
         this.clazz = (Class<T>) BaseTag.class;
-        this.jsonString = jsonString;
     }
 
     @Override
-    public T decode() {
+    public T decode(String jsonString) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(jsonString, clazz);

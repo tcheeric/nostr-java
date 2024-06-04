@@ -1,6 +1,7 @@
 package nostr.command.provider;
 
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.PrivateKey;
@@ -10,12 +11,10 @@ import nostr.command.CommandHandler;
 import nostr.context.CommandContext;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.event.impl.CanonicalAuthenticationEvent;
-import nostr.event.json.codec.BaseMessageEncoder;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.ClosedMessage;
 import nostr.id.Identity;
 
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.CLOSED)
@@ -23,6 +22,7 @@ import java.util.logging.Level;
 @Log
 public class ClosedCommandHandler implements CommandHandler {
 
+    @SneakyThrows
     @Override
     public void handle(CommandContext context) {
 
@@ -49,16 +49,11 @@ public class ClosedCommandHandler implements CommandHandler {
 
                     var client = Client.getInstance(); // No need to pass the request context here. The client will use the default one
                     var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
-                    var encoder = new BaseMessageEncoder(canonicalAuthenticationMessage);
-                    var encodedMessage = encoder.encode();
+                    var encodedMessage = canonicalAuthenticationMessage.encode();
                     log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
                     // Publish the event to the relay
-                    try {
-                        client.send(canonicalAuthenticationMessage);
-                    } catch (TimeoutException e) {
-                        throw new RuntimeException(e);
-                    }
+                    client.send(canonicalAuthenticationMessage);
                 }
             }
         } else {

@@ -21,8 +21,7 @@ public class CustomEventListDeserializer<T extends List<U>, U extends GenericEve
         JsonNode node = jsonParser.readValueAsTree();
         if (node.isArray()) {
             for (JsonNode n : node) {
-                GenericEventDecoder<U> decoder = new GenericEventDecoder<>(n.toString());
-                eventList.add(decoder.decode());
+                eventList.add(new GenericEventDecoder<U>().decode(n.toString()));
             }
         }
         return (T) eventList;

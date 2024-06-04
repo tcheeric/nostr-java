@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 import nostr.event.Nip05Content;
-import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.Nip05ContentDecoder;
 import nostr.util.NostrException;
 
@@ -89,7 +87,7 @@ public class Nip05Validator {
 
     private String getPublicKey(StringBuilder content, String localPart) {
 
-        Nip05Content nip05Content = new Nip05ContentDecoder(content.toString()).decode();
+        Nip05Content nip05Content = new Nip05ContentDecoder<>().decode(content.toString());
 
         // Access the decoded data
         Map<String, String> names = nip05Content.getNames();

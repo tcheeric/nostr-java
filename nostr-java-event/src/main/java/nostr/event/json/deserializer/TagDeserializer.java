@@ -96,8 +96,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                     return (T) tag;
                 }
                 default -> {
-                    var tag = new GenericTagDecoder(node.toString()).decode();
-                    return (T) tag;
+                    return (T) new GenericTagDecoder<>().decode(node.toString());
                 }
 
             }
