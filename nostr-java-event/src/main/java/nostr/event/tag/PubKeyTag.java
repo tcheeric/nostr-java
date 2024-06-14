@@ -8,7 +8,7 @@ package nostr.event.tag;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,5 +53,26 @@ public class PubKeyTag extends BaseTag {
         this.publicKey = publicKey;
         this.mainRelayUrl = mainRelayUrl;
         this.petName = petName;
+    }
+
+    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+        PubKeyTag tag = new PubKeyTag();
+
+        final JsonNode nodePubKey = node.get(1);
+        if (nodePubKey != null) {
+            tag.setPublicKey(new PublicKey(nodePubKey.asText()));
+        }
+
+        final JsonNode nodeMainUrl = node.get(2);
+        if (nodeMainUrl != null) {
+            tag.setMainRelayUrl(nodeMainUrl.asText());
+        }
+
+        final JsonNode nodePetName = node.get(3);
+        if (nodePetName != null) {
+            tag.setPetName(nodePetName.asText());
+        }
+
+        return (T) tag;
     }
 }

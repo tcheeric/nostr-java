@@ -25,12 +25,14 @@ import nostr.event.json.codec.GenericTagDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,7 +194,8 @@ public class JsonParseTest {
         GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
         EventMessage message = NIP01.createEventMessage(event, "1");
         assertEquals(1, message.getNip());
-        assertEquals("{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content ipsum\",\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\",\"created_at\":1687765220,\"tags\":[[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],[\"title\",\"title ipsum\"],[\"summary\",\"summary ipsum\"],[\"published_at\",\"1687765220\"],[\"location\",\"location ipsum\"],[\"price\",\"11111\",\"BTC\",\"1\"]],\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\"}", new BaseEventEncoder<>((BaseEvent) message.getEvent()).encode());
+        String encoded = new BaseEventEncoder<>((BaseEvent) message.getEvent()).encode();
+        assertEquals("{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content ipsum\",\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\",\"created_at\":1687765220,\"tags\":[[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],[\"title\",\"title ipsum\"],[\"summary\",\"summary ipsum\"],[\"published_at\",\"1687765220\"],[\"location\",\"location ipsum\"],[\"price\",\"11111\",\"BTC\",\"1\"]],\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\"}", encoded);
 
         assertEquals("28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a", event.getId());
         assertEquals(30402, event.getKind());
@@ -201,15 +204,27 @@ public class JsonParseTest {
         assertEquals(1687765220L, event.getCreatedAt());
         assertEquals("86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546", event.getSignature().toString());
 
+        assertEquals(new BigDecimal("11111"), event.getTags().stream().filter(baseTag ->
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getNumber).findFirst().orElseThrow());
+
+        assertEquals("BTC", event.getTags().stream().filter(baseTag ->
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getCurrency).findFirst().orElseThrow());
+
+        assertEquals("1", event.getTags().stream().filter(baseTag ->
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getFrequency).findFirst().orElseThrow());
+
         List<GenericTag> genericTags = event.getTags().stream()
             .filter(GenericTag.class::isInstance)
             .map(GenericTag.class::cast).toList();
-
-        List<ElementAttribute> price = genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("price")).map(GenericTag::getAttributes).toList().get(0);
-        assertEquals("11111", price.get(0).getValue());
-        assertEquals("BTC", price.get(1).getValue());
-        assertEquals("1", price.get(2).getValue());
 
         assertEquals("title ipsum", genericTags.stream()
             .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
