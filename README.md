@@ -19,7 +19,6 @@ To use the library in your project, add the following dependency to your pom.xml
 
 I recommend having a look at:
   - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-  - [nostr-client](https://github.com/tcheeric/nostr-client/) project
   - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
 for simple examples on how to use the library.
