@@ -14,17 +14,15 @@ import nostr.event.Nip05Content;
 public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> {
 
     private final Class<T> clazz;
-    private final String jsonContent;
 
-    public Nip05ContentDecoder(String jsonContent) {
+    public Nip05ContentDecoder() {
         this.clazz = (Class<T>) Nip05Content.class;
-        this.jsonContent = jsonContent;
     }
 
     @Override
-    public T decode() {
+    public T decode(String jsonContent) {
         try {
-            return new ObjectMapper().readValue(this.jsonContent, clazz);
+            return new ObjectMapper().readValue(jsonContent, clazz);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }

@@ -21,9 +21,6 @@ import nostr.event.impl.OtsEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.EventList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 
@@ -61,7 +58,7 @@ public class EntityFactory {
             return event;
         }
 
-        public static Filters createFilters(PublicKeyList authors, KindList kindList, Long since) {
+        public static Filters createFilters(List<PublicKey> authors, List<Kind> kindList, Long since) {
             return Filters.builder().authors(authors).kinds(kindList).since(since).build();
         }
 
@@ -142,11 +139,11 @@ public class EntityFactory {
         }
 
         public static Filters createFilters(PublicKey publicKey) {
-            EventList eventList = new EventList();
+            List<GenericEvent> eventList = new ArrayList<>();
             eventList.add(createTextNoteEvent(publicKey));
             eventList.add(createEphemeralEvent(publicKey));
 
-            EventList refEvents = new EventList();
+            List<GenericEvent> refEvents = new ArrayList<>();
             refEvents.add(createTextNoteEvent(publicKey));
 
             return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(createGenericTagQuery()).build();
@@ -162,7 +159,7 @@ public class EntityFactory {
             list.add(v3);
             list.add(v2);
             list.add(v1);
-            
+
             var result = new GenericTagQuery();
             result.setTagName(c.toString());
             result.setValue(list);
@@ -196,10 +193,10 @@ public class EntityFactory {
     private static String generateRandom(int leftLimit, int rightLimit, int len) {
 
         return new Random().ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(len)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+            .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+            .limit(len)
+            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
     }
 
 }

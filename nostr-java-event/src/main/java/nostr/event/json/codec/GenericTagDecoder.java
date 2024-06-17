@@ -15,18 +15,16 @@ import nostr.event.impl.GenericTag;
 public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
     private final Class<T> clazz;
-    private final String json;
 
-    public GenericTagDecoder(String json) {
+    public GenericTagDecoder() {
         this.clazz = (Class<T>) GenericTag.class;
-        this.json = json;
     }
 
     @Override
-    public T decode() {
+    public T decode(String json) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String[] jsonElements = objectMapper.readValue(this.json, String[].class);
+            String[] jsonElements = objectMapper.readValue(json, String[].class);
 
             String code = jsonElements[0];
 

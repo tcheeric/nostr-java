@@ -18,11 +18,11 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.EphemeralEvent;
+import nostr.event.impl.Filters;
 import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.ParameterizedReplaceableEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.event.list.FiltersList;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -61,7 +61,7 @@ public class NIP01Impl {
             return event;
         }
     }
-    
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class MetadataEventFactory extends EventFactory<MetadataEvent> {
@@ -80,7 +80,7 @@ public class NIP01Impl {
         @Override
         public MetadataEvent create() {
             return new MetadataEvent(getSender(), profile);
-        }        
+        }
     }
 
     @Data
@@ -90,7 +90,7 @@ public class NIP01Impl {
         private final String relateEventId;
         private String recommendedRelayUrl;
         private Marker marker;
-        
+
         public EventTagFactory(@NonNull String relateEventId) {
             this.relateEventId = relateEventId;
         }
@@ -144,7 +144,7 @@ public class NIP01Impl {
     public static class ReqMessageFactory extends MessageFactory<ReqMessage> {
 
         private final String subscriptionId;
-        private final FiltersList filtersList;
+        private final List<Filters> filtersList;
 
         @Override
         public ReqMessage create() {
@@ -211,9 +211,9 @@ public class NIP01Impl {
         @Override
         public ParameterizedReplaceableEvent create() {
             return new ParameterizedReplaceableEvent(getSender(), kind, getTags(), getContent());
-        }        
+        }
     }
-    
+
     @Data
     @EqualsAndHashCode(callSuper = false)
     public static class IdentifierTagFactory extends AbstractTagFactory<IdentifierTag> {

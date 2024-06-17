@@ -16,9 +16,8 @@ import nostr.event.Kind;
 import nostr.event.json.deserializer.CustomGenericTagQueryDeserializer;
 import nostr.event.json.serializer.CustomGenericTagQuerySerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
-import nostr.event.list.EventList;
-import nostr.event.list.KindList;
-import nostr.event.list.PublicKeyList;
+
+import java.util.List;
 
 /**
  *
@@ -34,23 +33,23 @@ public class Filters {
     @Key
     @JsonProperty("ids")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList<GenericEvent> events;
+    private List<GenericEvent> events;
 
     @Key
     @JsonProperty("authors")
-    private PublicKeyList<PublicKey> authors;
+    private List<PublicKey> authors;
 
     @Key
-    private KindList kinds;
+    private List<Kind> kinds;
 
     @Key
     @JsonProperty("#e")
     @JsonSerialize(using=CustomIdEventListSerializer.class)
-    private EventList<GenericEvent> referencedEvents;
+    private List<GenericEvent> referencedEvents;
 
     @Key
     @JsonProperty("#p")
-    private PublicKeyList<PublicKey> referencePubKeys;
+    private List<PublicKey> referencePubKeys;
 
     @Key
     private Long since;

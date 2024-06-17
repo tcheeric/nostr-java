@@ -1,16 +1,16 @@
 package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
+import lombok.Setter;
 import nostr.base.Command;
+import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 
-@Data
-@EqualsAndHashCode(callSuper = false)
-@ToString(callSuper = true)
+@Setter
+@Getter
 public class ClosedMessage extends BaseMessage {
 
     @JsonProperty
@@ -23,5 +23,13 @@ public class ClosedMessage extends BaseMessage {
         super(Command.CLOSED.name());
         this.subscriptionId = subId;
         this.message = message;
+    }
+
+    @Override
+    public String encode() throws JsonProcessingException {
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(getSubscriptionId()));
     }
 }

@@ -14,7 +14,7 @@ public class RelaysTagSerializer extends JsonSerializer<RelaysTag> {
   @Override
   public void serialize(@NonNull RelaysTag relaysTag, @NonNull JsonGenerator jsonGenerator, @NonNull SerializerProvider serializerProvider) throws IOException {
     jsonGenerator.writeStartArray();
-    jsonGenerator.writeFieldName("relays");
+    jsonGenerator.writeString("relays");
     relaysTag.getRelays().forEach(json -> writeString(jsonGenerator, json.getUri()));
     jsonGenerator.writeEndArray();
   }
