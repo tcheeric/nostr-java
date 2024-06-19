@@ -31,6 +31,6 @@ public class RelaysTag extends BaseTag {
   }
 
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-    return (T) new RelaysTag(Optional.of(node).stream().map(jsonNode -> new Relay(jsonNode.asText())).toList());
+    return (T) new RelaysTag(Optional.of(node).stream().map(jsonNode -> new Relay(jsonNode.get(1).asText())).toList());
   }
 }
