@@ -18,9 +18,8 @@ To use the library in your project, add the following dependency to your pom.xml
 ```
 
 I recommend having a look at:
-- [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-- [nostr-client](https://github.com/tcheeric/nostr-client/) project
-- [SuperConductor](https://github.com/avlo/superconductor) nostr relay
+  - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
+  - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
 for simple examples on how to use the library.
 
@@ -47,6 +46,7 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md)
 - [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md)
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)
+- [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md)
 
 ## Dev Discussion Group:
 - Nostr Public Channel: nostr:nevent1qqszqdmxg26sehmnyrcu2ler8azz6wyj6fh0qg3ad5fnnm6xfqqvhzcppamhxue69uhkummnw3ezumt0d5pzpl7nwh45p66gvet2q28dhjpcyh6clux4cjsm5gh7waza9pzjnmgglv06ew
