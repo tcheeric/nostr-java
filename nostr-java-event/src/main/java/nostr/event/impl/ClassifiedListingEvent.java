@@ -36,4 +36,13 @@ public class ClassifiedListingEvent extends NIP99Event {
   public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull String title, @NonNull String summary, @NonNull BigDecimal number, @NonNull String currency, @NonNull String frequency) {
     this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, new ClassifiedListing(title, summary, new PriceTag(number, currency, frequency)));
   }
+
+  @Override
+  protected void validate() {
+    var n = getKind();
+    if (30402 <= n && n <= 30403)
+      return;
+
+    throw new AssertionError(String.format("Invalid kind value [%s]. Classified Listing must be either 30402 or 30403", n), null);
+  }
 }
