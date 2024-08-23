@@ -127,8 +127,9 @@ public class NIP01Impl {
         private final IEvent event;
         private String subscriptionId;
 
-        public EventMessageFactory(@NonNull IEvent event) {
-            this.event = event;
+        public EventMessageFactory(@NonNull IEvent event, @NonNull String subscriptionId) {
+          this.event = event;
+          this.subscriptionId = subscriptionId;
         }
 
         @Override
