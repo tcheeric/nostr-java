@@ -7,6 +7,7 @@ import nostr.event.Kind;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericTag;
+import nostr.event.message.EventMessage;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -29,7 +30,7 @@ class CalendarTimeBasedEventTest {
   public static final PublicKey senderPubkey = new PublicKey(Identity.generateRandomIdentity().getPublicKey().toString());
   public static final String CALENDAR_TIME_BASED_EVENT_TITLE = "Calendar Time-Based Event title";
   public static final String CALENDAR_TIME_BASED_EVENT_CONTENT = "calendar listing content";
-  public static final IdentifierTag identifierTag = new IdentifierTag("UUID-CalendarTimeBasedEventTest");
+  public static final IdentifierTag identifierTag = new IdentifierTag("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUID-CalendarTimeBasedEventTest");
   public static final Long START = 1716513986268L;
 
   // optional fields
@@ -55,6 +56,7 @@ class CalendarTimeBasedEventTest {
   public static final String LOCATION_CODE = "location";
 
   private CalendarTimeBasedEvent instance;
+  private GenericTag startTzidGenericTag;
 
   @BeforeAll
   void setup() {
@@ -67,7 +69,8 @@ class CalendarTimeBasedEventTest {
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);
-    tags.add(GenericTag.create(START_TZID_CODE, 52, CALENDAR_TIME_BASED_EVENT_START_TZID));
+    startTzidGenericTag = GenericTag.create(START_TZID_CODE, 52, CALENDAR_TIME_BASED_EVENT_START_TZID);
+    tags.add(startTzidGenericTag);
     Long l = START + 100L;
     tags.add(GenericTag.create(END_CODE, 52, l.toString()));
 
@@ -82,7 +85,7 @@ class CalendarTimeBasedEventTest {
   @Test
   void testConstructCalendarTimeBasedEvent() throws JsonProcessingException {
     System.out.println("testConstructCalendarTimeBasedEvent");
-    assertEquals(9, instance.getTags().size());
+    assertEquals(13, instance.getTags().size());
     assertEquals(CALENDAR_TIME_BASED_EVENT_CONTENT, instance.getContent());
     assertEquals(Kind.CALENDAR_TIME_BASED_EVENT.getValue(), instance.getKind().intValue());
     assertEquals(senderPubkey.toString(), instance.getPubKey().toString());
@@ -91,8 +94,9 @@ class CalendarTimeBasedEventTest {
     assertEquals(CALENDAR_TIME_BASED_EVENT_CONTENT, instance.getContent());
     assertTrue(instance.getTags().contains(P_1_TAG));
     assertTrue(instance.getTags().contains(P_2_TAG));
-    assertEquals(identifierTag, instance.getCalendarContent().getIdentifierTag());
-    assertEquals(START, instance.getCalendarContent().getStart());
-    assertEquals(CALENDAR_TIME_BASED_EVENT_TITLE, instance.getCalendarContent().getTitle());
+    assertTrue(instance.getTags().contains(identifierTag));
+    assertTrue(instance.getTags().contains(GenericTag.create("start", 52, START.toString())));
+    assertTrue(instance.getTags().contains(startTzidGenericTag));
+    assertTrue(instance.getTags().contains(GenericTag.create("title", 52, CALENDAR_TIME_BASED_EVENT_TITLE)));
   }
 }

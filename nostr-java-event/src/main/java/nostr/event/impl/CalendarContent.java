@@ -1,12 +1,13 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import nostr.event.AbstractEventContent;
-import nostr.event.NIP52Event;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -17,12 +18,13 @@ import java.util.List;
 
 @Setter
 @Getter
-public class CalendarContent extends AbstractEventContent<NIP52Event> {
+// TODO: possibly remove below, need to check encode/decode / serialization/deserialization first
+@JsonInclude(Include.NON_NULL)
+public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent> {
   @JsonIgnore
   private String id;
 
-  // below fields required
-  @JsonProperty("d")
+  //  @JsonProperty
   private final IdentifierTag identifierTag;
 
   @JsonProperty
@@ -50,19 +52,19 @@ public class CalendarContent extends AbstractEventContent<NIP52Event> {
   @JsonProperty
   private String location;
 
-  @JsonProperty("g")
+  //  @JsonProperty("g")
   private GeohashTag geohashTag;
 
-  @JsonProperty("p")
+  //  @JsonProperty("p")
   private List<PubKeyTag> participantPubKeys;
 
   @JsonProperty("l")
   private List<String> labels;
 
-  @JsonProperty("t")
+  //  @JsonProperty("t")
   private List<HashtagTag> hashtagTags;
 
-  @JsonProperty("r")
+  //  @JsonProperty("r")
   private List<ReferenceTag> referenceTags;
 
   public CalendarContent(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {

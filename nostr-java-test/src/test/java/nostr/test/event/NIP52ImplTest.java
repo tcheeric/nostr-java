@@ -1,10 +1,13 @@
 package nostr.test.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CalendarTimeBasedEvent;
+import nostr.event.impl.GenericTag;
+import nostr.event.message.EventMessage;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -19,7 +22,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,26 +66,23 @@ class NIP52ImplTest {
   }
 
   @Test
-  void testNIP52CreateTimeBasedCalendarCalendarEventWithAllOptionalParameters() {
+  void testNIP52CreateTimeBasedCalendarCalendarEventWithAllOptionalParameters() throws JsonProcessingException {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(SUBJECT_TAG);
     CalendarTimeBasedEvent calendarTimeBasedEvent = calendarTimeBasedEventNIP52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
     calendarTimeBasedEvent.update();
 
     assertNotNull(calendarTimeBasedEvent.getId());
-    assertNull(calendarTimeBasedEvent.getCalendarContent().getId());
     assertTrue(calendarTimeBasedEvent.getTags().contains(SUBJECT_TAG));
-    assertEquals(TIME_BASED_TITLE, calendarTimeBasedEvent.getCalendarContent().getTitle());
-    assertEquals(CALENDAR_TIME_BASED_EVENT_SUMMARY, calendarTimeBasedEvent.getCalendarContent().getSummary());
-    assertEquals(START, calendarTimeBasedEvent.getCalendarContent().getStart());
-    List<PubKeyTag> participantPubKeys = calendarTimeBasedEvent.getCalendarContent().getParticipantPubKeys();
-    assertEquals(2, participantPubKeys.size());
-    assertTrue(participantPubKeys.contains(P_1_TAG));
-    assertTrue(participantPubKeys.contains(P_2_TAG));
-    assertEquals(G_TAG, calendarTimeBasedEvent.getCalendarContent().getGeohashTag());
-    assertTrue(calendarTimeBasedEvent.getCalendarContent().getHashtagTags().contains(T_TAG));
-    assertEquals(identifierTag, calendarTimeBasedEvent.getCalendarContent().getIdentifierTag());
-    assertEquals(CALENDAR_TIME_BASED_EVENT_LOCATION, calendarTimeBasedEvent.getCalendarContent().getLocation());
+    assertTrue(calendarTimeBasedEvent.getTags().contains(containsGeneric("title", TIME_BASED_TITLE)));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(containsGeneric("summary", CALENDAR_TIME_BASED_EVENT_SUMMARY)));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(containsGeneric("start", START.toString())));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(P_1_TAG));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(P_2_TAG));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(G_TAG));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(T_TAG));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(identifierTag));
+    assertTrue(calendarTimeBasedEvent.getTags().contains(containsGeneric("location", CALENDAR_TIME_BASED_EVENT_LOCATION)));
 
     CalendarContent calendarContent = new CalendarContent(
         identifierTag,
@@ -95,7 +94,6 @@ class NIP52ImplTest {
     calendarTimeBasedEvent.update();
 
     assertEquals(calendarTimeBasedEvent, instance2);
-    assertEquals(calendarTimeBasedEvent.getCalendarContent(), instance2.getCalendarContent());
   }
 
   @Test
@@ -103,5 +101,9 @@ class NIP52ImplTest {
     System.out.println("testNIP99CreateClassifiedListingEventNullParameters");
     assertThrows(NullPointerException.class, () -> new CalendarContent(TIME_BASED_TITLE, null, START));
     assertThrows(NullPointerException.class, () -> new CalendarContent(TIME_BASED_TITLE, TIME_BASED_TITLE, null));
+  }
+
+  private GenericTag containsGeneric(String key, String value) {
+    return GenericTag.create(key, 52, value);
   }
 }
