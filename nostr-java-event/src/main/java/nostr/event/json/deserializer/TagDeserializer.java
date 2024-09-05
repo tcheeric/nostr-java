@@ -9,6 +9,7 @@ import nostr.event.json.codec.GenericTagDecoder;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
+import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
@@ -31,6 +32,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
         } else // Perform custom deserialization logic based on the concrete class
         {
             return switch (code) {
+                case "d" -> IdentifierTag.deserialize(node);
                 case "e" -> EventTag.deserialize(node);
                 case "g" -> GeohashTag.deserialize(node);
                 case "p" -> PubKeyTag.deserialize(node);
