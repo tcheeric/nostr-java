@@ -342,7 +342,7 @@ public class ApiEventTest {
         Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
     }
 
-    private Stall createStall() {
+    public static Stall createStall() {
 
         // Create the county list
         List<String> countries = new ArrayList<>();
@@ -366,7 +366,7 @@ public class ApiEventTest {
         return stall;
     }
 
-    private NostrMarketplaceEvent.Product createProduct(Stall stall) {
+    public static NostrMarketplaceEvent.Product createProduct(Stall stall) {
 
         // Create the product
         var product = new NostrMarketplaceEvent.Product();
@@ -385,7 +385,7 @@ public class ApiEventTest {
         return product;
     }
 
-    private static Map<String, String> getRelays() {
+    public static Map<String, String> getRelays() {
         Map<String, String> relays = new HashMap<>();
         Properties properties = new Properties();
         try {

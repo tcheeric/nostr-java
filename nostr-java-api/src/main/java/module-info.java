@@ -15,6 +15,8 @@ module nostr.api {
     requires lombok;
     requires java.logging;
     requires nostr.crypto;
+    requires spring.websocket;
+    requires reactor.core;
 
-    exports nostr.api;
+  exports nostr.api;
 }

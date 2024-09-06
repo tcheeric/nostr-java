@@ -32,6 +32,7 @@ public enum Kind {
     REPLACEABLE_EVENT(10_000, "replaceable_event"),
     EPHEMEREAL_EVENT(20_000, "ephemereal_event"),
     CLIENT_AUTH(22_242, "authentication_of_clients_to_relays"),
+    PRODUCT_CREATE_OR_UPDATE(30_018, "create_or_update_product"),
     CLASSIFIED_LISTING(30_402, "classified_listing_active"),
     CLASSIFIED_LISTING_INACTIVE(30_403, "classified_listing_inactive"),
     CLASSIFIED_LISTING_DRAFT(30_403, "classified_listing_draft"),
