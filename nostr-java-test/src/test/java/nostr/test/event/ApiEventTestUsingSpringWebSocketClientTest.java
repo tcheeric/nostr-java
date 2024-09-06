@@ -10,10 +10,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +21,18 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApiEventUsingSpringWebSocketClientTest implements Subscriber<String> {
-  private final String relayUri = "ws://localhost:5555";
+  private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
   private Subscription subscription;
   private String relayResponse = null;
 
   public ApiEventUsingSpringWebSocketClientTest() {
-    springWebSocketClient = new SpringWebSocketClient(relayUri);
+    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 
   @Test
-  void testNIP15CreateProductEvent() throws JsonProcessingException {
-    System.out.println("testNIP15CreateProductEvent");
+  void testNIP15SendProductEventUsingSpringWebSocketClient() throws JsonProcessingException {
+    System.out.println("testNIP15SendProductEventUsingSpringWebSocketClient");
     var product = createProduct(createStall());
 
     List<String> categories = new ArrayList<>();

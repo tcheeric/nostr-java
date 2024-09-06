@@ -26,6 +26,7 @@ public abstract class NIP52Event extends GenericEvent {
 
   private void appendTags() {
     addStandardTag(calendarContent.getIdentifierTag());
+    addGenericTag("id", calendarContent.getId());
     addGenericTag("title", calendarContent.getTitle());
     addGenericTag("start", calendarContent.getStart());
     addGenericTag("end", calendarContent.getEnd());

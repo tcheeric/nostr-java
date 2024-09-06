@@ -16,7 +16,7 @@ public class ReferenceTagSerializer extends JsonSerializer<ReferenceTag> {
     public void serialize(ReferenceTag refTag, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeString("r");
-        jsonGenerator.writeString(refTag.getUrl().toString());
+        jsonGenerator.writeString(refTag.getUri().toString());
         jsonGenerator.writeEndArray();
     }
     

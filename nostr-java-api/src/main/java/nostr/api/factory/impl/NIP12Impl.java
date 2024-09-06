@@ -12,7 +12,7 @@ import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.ReferenceTag;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  *
@@ -40,9 +40,9 @@ public class NIP12Impl {
     @EqualsAndHashCode(callSuper = false)
     public static class ReferenceTagFactory extends AbstractTagFactory<ReferenceTag> {
 
-        private final URL url;
+        private final URI url;
 
-        public ReferenceTagFactory(@NonNull URL url) {
+        public ReferenceTagFactory(@NonNull URI url) {
             this.url = url;
         }
 
