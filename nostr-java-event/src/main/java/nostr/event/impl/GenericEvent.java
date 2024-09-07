@@ -2,12 +2,17 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
@@ -22,6 +27,7 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
+import nostr.event.NIP52Event;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
@@ -39,6 +45,15 @@ import java.util.logging.Level;
  *
  * @author squirrel
  */
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = NIP52Event.class),
+})
+@Jacksonized
+@SuperBuilder
+@JsonTypeName("GenericEvent")
+@JsonPOJOBuilder(withPrefix="")
+
 @Log
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -97,7 +112,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public GenericEvent(@NonNull String id) {
         this();
-    	this.id = id;
+        this.id = id;
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
@@ -150,8 +165,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void addTag(BaseTag tag) {
-    	if(tags==null) tags = new ArrayList<>();
-    	
+        if(tags==null) tags = new ArrayList<>();
+
         if (!tags.contains(tag)) {
             tag.setParent(this);
             tags.add(tag);
@@ -171,7 +186,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         } catch (NostrException | NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         } catch (AssertionError ex) {
-        	log.log(Level.WARNING, ex.getMessage());
+            log.log(Level.WARNING, ex.getMessage());
             throw new RuntimeException(ex);
         }
     }

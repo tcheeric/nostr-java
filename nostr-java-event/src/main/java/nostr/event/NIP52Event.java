@@ -1,29 +1,39 @@
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 import nostr.base.PublicKey;
 import nostr.event.impl.CalendarContent;
+import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
 import java.util.List;
 import java.util.Optional;
 
-@NoArgsConstructor
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = CalendarTimeBasedEvent.class),
+})
+@SuperBuilder
+@JsonPOJOBuilder(withPrefix = "")
+
 @EqualsAndHashCode(callSuper = false)
 public abstract class NIP52Event extends GenericEvent {
   //  @JsonProperty
   private CalendarContent calendarContent;
 
   public NIP52Event(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarContent calendarContent) {
-    super(pubKey, kind, baseTags, content);
+    super(pubKey, kind.getValue(), baseTags, content);
     this.calendarContent = calendarContent;
     appendTags();
   }
 
-  private void appendTags() {
+  public void appendTags() {
     addStandardTag(calendarContent.getIdentifierTag());
     addGenericTag("id", calendarContent.getId());
     addGenericTag("title", calendarContent.getTitle());
