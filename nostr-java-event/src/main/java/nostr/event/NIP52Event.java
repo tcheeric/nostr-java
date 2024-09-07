@@ -1,7 +1,6 @@
 package nostr.event;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -13,6 +12,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @JsonSubTypes({
@@ -24,7 +24,6 @@ import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 public abstract class NIP52Event extends GenericEvent {
-  //  @JsonProperty
   private CalendarContent calendarContent;
 
   public NIP52Event(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarContent calendarContent) {
@@ -34,6 +33,10 @@ public abstract class NIP52Event extends GenericEvent {
   }
 
   public void appendTags() {
+//    deserialization from event JSON to CalendarContent not necessary
+    if (Objects.isNull(calendarContent)) return;
+//    but still could use cleaner/non-hack/non-null-check solution, so TODO
+
     addStandardTag(calendarContent.getIdentifierTag());
     addGenericTag("id", calendarContent.getId());
     addGenericTag("title", calendarContent.getTitle());
@@ -68,6 +71,8 @@ public abstract class NIP52Event extends GenericEvent {
     Optional.ofNullable(tag).ifPresent(tagList -> addGenericTag(label, tagList));
   }
 
+// TODO: keep below as potential/future reference for tags mapping alternative to appendTags() method
+//  current state is insufficient solu'n since i couldn't properly get root JsonNode to add the tags
   //  @JsonValue
 //  public String json() throws JsonProcessingException {
 //    JsonNode calendarNode = new ObjectMapper().valueToTree(calendarContent);

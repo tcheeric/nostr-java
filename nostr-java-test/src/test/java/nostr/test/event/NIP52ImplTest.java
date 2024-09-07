@@ -30,7 +30,7 @@ class NIP52ImplTest {
   public static final Long START = 1716513986268L;
   public static CalendarContent timeBasedCalendarContent;
   public static Identity timeBasedSender;
-  public static NIP52<CalendarTimeBasedEvent> calendarTimeBasedEventNIP52;
+  public static NIP52<CalendarTimeBasedEvent> nip52;
   public static final String CALENDAR_TIME_BASED_EVENT_LOCATION = "Calendar Time-Based Event location";
 
   // optional fields
@@ -64,14 +64,14 @@ class NIP52ImplTest {
     timeBasedCalendarContent.setSummary(CALENDAR_TIME_BASED_EVENT_SUMMARY);
     timeBasedCalendarContent.setLocation(CALENDAR_TIME_BASED_EVENT_LOCATION);
     timeBasedSender = Identity.generateRandomIdentity();
-    calendarTimeBasedEventNIP52 = new NIP52<>(timeBasedSender);
+    nip52 = new NIP52<>(timeBasedSender);
   }
 
   @Test
   void testNIP52CreateTimeBasedCalendarCalendarEventWithAllOptionalParameters() {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(SUBJECT_TAG);
-    CalendarTimeBasedEvent calendarTimeBasedEvent = calendarTimeBasedEventNIP52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
+    CalendarTimeBasedEvent calendarTimeBasedEvent = nip52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
     calendarTimeBasedEvent.update();
 
     assertNotNull(calendarTimeBasedEvent.getId());
@@ -93,7 +93,7 @@ class NIP52ImplTest {
         .build();
 
     calendarContent.setLocation(CALENDAR_TIME_BASED_EVENT_LOCATION);
-    CalendarTimeBasedEvent instance2 = calendarTimeBasedEventNIP52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
+    CalendarTimeBasedEvent instance2 = nip52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
     calendarTimeBasedEvent.update();
 
     assertEquals(calendarTimeBasedEvent, instance2);

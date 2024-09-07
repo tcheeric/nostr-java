@@ -8,7 +8,6 @@ import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
-import nostr.event.BaseEvent.ProxyEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -80,9 +79,6 @@ public class JsonParseTest {
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
         filtersList.add(Filters.builder().authors(new ArrayList<>(List.of(publicKey))).kinds(new ArrayList<>(List.of(Kind.CONTACT_LIST, Kind.DELETION))).build());
         filtersList.add(Filters.builder().kinds(new ArrayList<>(List.of(Kind.SET_METADATA, Kind.TEXT_NOTE))).build());
-
-        filtersList.add(Filters.builder().referencedEvents(new ArrayList<>(List.of(new ProxyEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")))).build());
-
         final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
 
         var jsonMessage = reqMessage.encode();

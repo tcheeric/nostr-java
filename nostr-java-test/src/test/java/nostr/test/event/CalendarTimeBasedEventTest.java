@@ -93,7 +93,6 @@ class CalendarTimeBasedEventTest {
     instance = builder.build();
 
     instance.setId(ID);
-    instance.appendTags();
     instance.setSignature(Identity.generateRandomIdentity().sign(instance));
   }
 
