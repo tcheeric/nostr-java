@@ -7,7 +7,6 @@ import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,17 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP99ImplTest {
-  public final static String CONTENT = "ClassifiedListingEvent unit test content";
-  public final static String UNIT_TEST_TITLE = "unit test title";
-  public final static String UNIT_TEST_SUMMARY = "unit test summary";
-  public final static String CURRENCY = "BTC";
-  public final static String MONTH = "MONTH";
-  public final static String LOCATION = "pangea";
-  public final static PriceTag PRICE_TAG = new PriceTag(BigDecimal.valueOf(11111), CURRENCY, MONTH);
-  public final static Long PUBLISHED_AT = 1716513986268L;
+  public static final String CONTENT = "ClassifiedListingEvent unit test content";
+  public static final String UNIT_TEST_TITLE = "unit test title";
+  public static final String UNIT_TEST_SUMMARY = "unit test summary";
+  public static final String CURRENCY = "BTC";
+  public static final String MONTH = "MONTH";
+  public static final String LOCATION = "pangea";
+  public static final PriceTag PRICE_TAG = new PriceTag(BigDecimal.valueOf(11111), CURRENCY, MONTH);
+  public static final Long PUBLISHED_AT = 1716513986268L;
   static ClassifiedListing classifiedListing;
   static Identity sender;
   static NIP99<ClassifiedListingEvent> nip99;

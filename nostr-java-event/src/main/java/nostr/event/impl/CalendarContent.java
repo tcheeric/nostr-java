@@ -1,12 +1,10 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.Setter;
 import nostr.event.AbstractEventContent;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -16,66 +14,67 @@ import nostr.event.tag.ReferenceTag;
 
 import java.util.List;
 
-@Setter
-@Getter
-// TODO: possibly remove below, need to check encode/decode / serialization/deserialization first
-@JsonInclude(Include.NON_NULL)
+@Data
+@Builder
+@JsonDeserialize(builder = CalendarContent.CalendarContentBuilder.class)
+@EqualsAndHashCode(callSuper = false)
 public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent> {
-  @JsonIgnore
-  private String id;
+  //@JsonProperty
+  private final String id;
 
-  //  @JsonProperty
   private final IdentifierTag identifierTag;
 
-  @JsonProperty
+  //@JsonProperty
   private final String title;
 
-  @JsonProperty
+  //@JsonProperty
   private final Long start;
 
   // below fields optional
-  @JsonProperty
+  //@JsonProperty
   private Long end;
 
-  @JsonProperty("start_tzid")
+  //@JsonProperty("start_tzid")
   private String startTzid;
 
-  @JsonProperty("end_tzid")
+  //@JsonProperty("end_tzid")
   private String endTzid;
 
-  @JsonProperty
+  //@JsonProperty
   private String summary;
 
-  @JsonProperty
+  //@JsonProperty
   private String image;
 
-  @JsonProperty
+  //@JsonProperty
   private String location;
 
-  //  @JsonProperty("g")
   private GeohashTag geohashTag;
 
-  //  @JsonProperty("p")
   private List<PubKeyTag> participantPubKeys;
 
-  @JsonProperty("l")
+  //@JsonProperty("l")
   private List<String> labels;
 
-  //  @JsonProperty("t")
   private List<HashtagTag> hashtagTags;
 
-  //  @JsonProperty("r")
   private List<ReferenceTag> referenceTags;
 
-  public CalendarContent(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
-    this.identifierTag = identifierTag;
-    this.title = title;
-    this.start = start;
+  public static CalendarContentBuilder builder(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
+    return new CalendarContentBuilder()
+        .identifierTag(identifierTag)
+        .title(title)
+        .start(start);
   }
-
-  public CalendarContent(@NonNull String uuid, @NonNull String title, @NonNull Long start) {
-    this.identifierTag = new IdentifierTag(uuid);
-    this.title = title;
-    this.start = start;
-  }
+//  public CalendarContent(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
+//    this.identifierTag = identifierTag;
+//    this.title = title;
+//    this.start = start;
+//  }
+//
+//  public CalendarContent(@NonNull String uuid, @NonNull String title, @NonNull Long start) {
+//    this.identifierTag = new IdentifierTag(uuid);
+//    this.title = title;
+//    this.start = start;
+//  }
 }

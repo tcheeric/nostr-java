@@ -24,7 +24,12 @@ public class NIP52Impl {
 
     @Override
     public CalendarTimeBasedEvent create() {
-      return new CalendarTimeBasedEvent(getSender(), getTags(), getContent(), calendarContent);
+      return CalendarTimeBasedEvent.builder()
+          .sender(getSender())
+          .baseTags(getTags())
+          .content(getContent())
+          .calendarContent(calendarContent)
+          .build();
     }
   }
 }

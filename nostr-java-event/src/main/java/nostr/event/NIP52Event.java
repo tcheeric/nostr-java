@@ -1,11 +1,8 @@
 package nostr.event;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.base.PublicKey;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.GenericEvent;
@@ -14,9 +11,11 @@ import nostr.event.impl.GenericTag;
 import java.util.List;
 import java.util.Optional;
 
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public abstract class NIP52Event extends GenericEvent {
-  @JsonIgnore
-  private final CalendarContent calendarContent;
+  //  @JsonProperty
+  private CalendarContent calendarContent;
 
   public NIP52Event(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarContent calendarContent) {
     super(pubKey, kind, baseTags, content);

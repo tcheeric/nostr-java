@@ -20,13 +20,13 @@ import static nostr.test.event.ApiEventTest.createStall;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiEventUsingSpringWebSocketClientTest implements Subscriber<String> {
+class ApiEventTestUsingSpringWebSocketClientTest implements Subscriber<String> {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
   private Subscription subscription;
   private String relayResponse = null;
 
-  public ApiEventUsingSpringWebSocketClientTest() {
+  public ApiEventTestUsingSpringWebSocketClientTest() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 

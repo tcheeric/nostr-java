@@ -1,13 +1,11 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.message.EventMessage;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -22,7 +20,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP52ImplTest {
@@ -51,7 +48,12 @@ class NIP52ImplTest {
 
   @BeforeAll
   static void setup() {
-    timeBasedCalendarContent = new CalendarContent(identifierTag, TIME_BASED_TITLE, START);
+    timeBasedCalendarContent = CalendarContent.builder(
+            identifierTag,
+            TIME_BASED_TITLE,
+            START)
+        .build();
+
     timeBasedCalendarContent.setParticipantPubKeys(List.of(P_1_TAG, P_2_TAG));
     timeBasedCalendarContent.setGeohashTag(G_TAG);
     timeBasedCalendarContent.setHashtagTags(List.of(T_TAG));
@@ -66,7 +68,7 @@ class NIP52ImplTest {
   }
 
   @Test
-  void testNIP52CreateTimeBasedCalendarCalendarEventWithAllOptionalParameters() throws JsonProcessingException {
+  void testNIP52CreateTimeBasedCalendarCalendarEventWithAllOptionalParameters() {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(SUBJECT_TAG);
     CalendarTimeBasedEvent calendarTimeBasedEvent = calendarTimeBasedEventNIP52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
@@ -84,23 +86,17 @@ class NIP52ImplTest {
     assertTrue(calendarTimeBasedEvent.getTags().contains(identifierTag));
     assertTrue(calendarTimeBasedEvent.getTags().contains(containsGeneric("location", CALENDAR_TIME_BASED_EVENT_LOCATION)));
 
-    CalendarContent calendarContent = new CalendarContent(
-        identifierTag,
-        TIME_BASED_TITLE,
-        START
-    );
+    CalendarContent calendarContent = CalendarContent.builder(
+            identifierTag,
+            TIME_BASED_TITLE,
+            START)
+        .build();
+
     calendarContent.setLocation(CALENDAR_TIME_BASED_EVENT_LOCATION);
     CalendarTimeBasedEvent instance2 = calendarTimeBasedEventNIP52.createCalendarTimeBasedEvent(tags, TIME_BASED_EVENT_CONTENT, timeBasedCalendarContent).getEvent();
     calendarTimeBasedEvent.update();
 
     assertEquals(calendarTimeBasedEvent, instance2);
-  }
-
-  @Test
-  void testNIP99CreateClassifiedListingEventNullParameters() {
-    System.out.println("testNIP99CreateClassifiedListingEventNullParameters");
-    assertThrows(NullPointerException.class, () -> new CalendarContent(TIME_BASED_TITLE, null, START));
-    assertThrows(NullPointerException.class, () -> new CalendarContent(TIME_BASED_TITLE, TIME_BASED_TITLE, null));
   }
 
   private GenericTag containsGeneric(String key, String value) {
