@@ -7,6 +7,7 @@ import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP32;
 import nostr.api.NIP44;
+import nostr.api.NIP52;
 import nostr.api.NIP57;
 import nostr.base.ElementAttribute;
 import nostr.base.PrivateKey;
@@ -14,15 +15,19 @@ import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
+import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EncryptedPayloadEvent;
+import nostr.event.impl.GenericEvent;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
+import nostr.event.tag.IdentifierTag;
+import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Assertions;
@@ -287,6 +292,34 @@ public class ApiEventTest {
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
+    }
+
+    @Test
+    public void testNIP52CalendarTimeBasedEventEvent() {
+        System.out.println("testNIP52CalendarTimeBasedEventEvent");
+
+        CalendarContent calendarContent = CalendarContent.builder(
+            new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
+            "Calendar Time-Based Event title",
+            1716513986268L).build();
+
+        calendarContent.setStartTzid("1687765220");
+        calendarContent.setEndTzid("1687765230");
+
+        calendarContent.setLabels(List.of("english", "mycenaean greek"));
+
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
+        "ws://localhost:5555",
+            "ISSUER"));
+        tags.add(new PubKeyTag(new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
+            "",
+            "COUNTERPARTY"));
+
+        var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
+        nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign().setRelays(RELAYS).send();
+        await().until(() -> Objects.nonNull(nip52.getRelayResponse()));
+        nip52.close();
     }
 
     @Test
