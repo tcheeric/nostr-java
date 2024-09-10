@@ -1,28 +1,18 @@
 package nostr.event;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.experimental.SuperBuilder;
 import nostr.base.PublicKey;
 import nostr.event.impl.CalendarContent;
-import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-@JsonSubTypes({
-    @JsonSubTypes.Type(
-        value = CalendarTimeBasedEvent.class),
-})
-@SuperBuilder
-@JsonPOJOBuilder(withPrefix = "")
-
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 public abstract class NIP52Event extends GenericEvent {
   private CalendarContent calendarContent;
 
@@ -32,13 +22,8 @@ public abstract class NIP52Event extends GenericEvent {
     appendTags();
   }
 
-  public void appendTags() {
-//    deserialization from event JSON to CalendarContent not necessary
-    if (Objects.isNull(calendarContent)) return;
-//    but still could use cleaner/non-hack/non-null-check solution, so TODO
-
+  private void appendTags() {
     addStandardTag(calendarContent.getIdentifierTag());
-    addGenericTag("id", calendarContent.getId());
     addGenericTag("title", calendarContent.getTitle());
     addGenericTag("start", calendarContent.getStart());
     addGenericTag("end", calendarContent.getEnd());
@@ -70,36 +55,4 @@ public abstract class NIP52Event extends GenericEvent {
   private void addStringListTag(String label, List<String> tag) {
     Optional.ofNullable(tag).ifPresent(tagList -> addGenericTag(label, tagList));
   }
-
-// TODO: keep below as potential/future reference for tags mapping alternative to appendTags() method
-//  current state is insufficient solu'n since i couldn't properly get root JsonNode to add the tags
-  //  @JsonValue
-//  public String json() throws JsonProcessingException {
-//    JsonNode calendarNode = new ObjectMapper().valueToTree(calendarContent);
-//    ArrayNode tags = new ObjectMapper().valueToTree(getTags());
-//    calendarNode.fields().forEachRemaining(cal -> {
-//      ArrayNode newArray = new ObjectMapper().createArrayNode();
-//      newArray.add(cal.getKey());
-//      newArray.add(cal.getValue());
-//      tags.add(newArray);
-//    });
-//    return new ObjectMapper().writeValueAsString(tags);
-//  }
-
-//  @SneakyThrows
-//  @Override
-//  public String toString() {
-//    ArrayNode root = new ObjectMapper().valueToTree(this);
-//    JsonNode rootNode = new ObjectMapper().valueToTree(this);
-//
-//    JsonNode calendarNode = new ObjectMapper().valueToTree(calendarContent);
-//    ArrayNode tags = new ObjectMapper().valueToTree(getTags());
-//    calendarNode.fields().forEachRemaining(cal -> {
-//      ArrayNode newArray = new ObjectMapper().createArrayNode();
-//      newArray.add(cal.getKey());
-//      newArray.add(cal.getValue());
-//      tags.add(newArray);
-//    });
-//    return new ObjectMapper().writeValueAsString(tags);
-//  }
 }

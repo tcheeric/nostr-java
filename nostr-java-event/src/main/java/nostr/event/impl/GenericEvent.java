@@ -2,17 +2,12 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.experimental.SuperBuilder;
-import lombok.extern.jackson.Jacksonized;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
@@ -27,7 +22,6 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.NIP52Event;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
@@ -45,15 +39,6 @@ import java.util.logging.Level;
  *
  * @author squirrel
  */
-@JsonSubTypes({
-    @JsonSubTypes.Type(
-        value = NIP52Event.class),
-})
-@Jacksonized
-@SuperBuilder
-@JsonTypeName("GenericEvent")
-@JsonPOJOBuilder(withPrefix="")
-
 @Log
 @Data
 @EqualsAndHashCode(callSuper = false)
