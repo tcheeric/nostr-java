@@ -32,7 +32,7 @@ class ApiEventTestUsingSpringWebSocketClientTest implements Subscriber<String> {
 
   @Test
   void testNIP15SendProductEventUsingSpringWebSocketClient() throws JsonProcessingException {
-    System.out.println("testNIP15SendProductEventUsingSpringWebSocketClient");
+    System.out.println("testNIP15CreateProductEventUsingSpringWebSocketClient");
     var product = createProduct(createStall());
 
     List<String> categories = new ArrayList<>();

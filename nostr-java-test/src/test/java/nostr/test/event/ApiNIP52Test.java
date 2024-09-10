@@ -82,10 +82,6 @@ class ApiNIP52Test implements Subscriber<String> {
   }
 
   private CalendarContent createCalendarContent() {
-//    return new CalendarContent(
-//        new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
-//        "Calendar Time-Based Event title",
-//        1716513986268L);
     return CalendarContent.builder(
         new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
         "Calendar Time-Based Event title",

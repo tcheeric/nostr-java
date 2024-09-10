@@ -9,13 +9,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class WebSocketClient {
-  private final String relayUrl;
   private final WebSocketHandler webSocketHandler;
 
   public WebSocketClient(@NonNull WebSocketHandler webSocketHandler, @NonNull String relayUrl) {
-    this.relayUrl = relayUrl;
     this.webSocketHandler = webSocketHandler;
-    this.webSocketHandler.connect(new ReactorNettyWebSocketClient(), getURI());
+    this.webSocketHandler.connect(new ReactorNettyWebSocketClient(), getURI(relayUrl));
   }
 
   Flux<String> sendMessageMono(@NonNull String message) {
@@ -37,7 +35,7 @@ public class WebSocketClient {
     return stringFlux;
   }
 
-  private URI getURI() {
+  private URI getURI(@NonNull String relayUrl) {
     try {
       return new URI(relayUrl);
     } catch (URISyntaxException e) {

@@ -17,6 +17,8 @@ module nostr.api {
     requires nostr.crypto;
     requires spring.websocket;
     requires reactor.core;
+    requires org.reactivestreams;
+    requires annotations;
 
   exports nostr.api;
 }

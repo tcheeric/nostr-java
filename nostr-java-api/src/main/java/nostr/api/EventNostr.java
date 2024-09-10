@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Getter
 @NoArgsConstructor
-public abstract class EventNostr<T extends GenericEvent> extends Nostr {
+public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebSocketClient {
 
     @Setter
     private T event;

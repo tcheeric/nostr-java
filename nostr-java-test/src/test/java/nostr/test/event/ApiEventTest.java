@@ -34,7 +34,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  *
@@ -75,12 +78,14 @@ public class ApiEventTest {
 
         Identity identity = Identity.generateRandomIdentity();
         var nip01 = new NIP01<TextNoteEvent>(identity);
-		var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!")
-        		.sign();
+		    var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
 
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
         instance.setRelays(RELAYS).send();
+
+        await().until(() -> Objects.nonNull(nip01.getRelayResponse()));
+        nip01.close();
 
         //Assertions.assertNotNull(instance.responses());
         //Assertions.assertFalse(instance.responses().isEmpty());
@@ -100,6 +105,9 @@ public class ApiEventTest {
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
         instance.setRelays(RELAYS).send();
+
+        await().until(() -> Objects.nonNull(nip04.getRelayResponse()));
+        nip04.close();
     }
 
     @Test
@@ -114,6 +122,9 @@ public class ApiEventTest {
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
         instance.setRelays(RELAYS).send();
+
+        await().until(() -> Objects.nonNull(nip44.getRelayResponse()));
+        nip44.close();
     }
 
     @Test
@@ -179,10 +190,14 @@ public class ApiEventTest {
         Assertions.assertNotNull(signature);
         nip15.setRelays(RELAYS).send();
 
+        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
+
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
         nip15.createCreateOrUpdateStallEvent(stall).sign().setRelays(RELAYS).send();
+        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
+        nip15.close();
     }
 
     @Test
@@ -202,6 +217,8 @@ public class ApiEventTest {
         categories.add("Hommes");
 
         nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
+        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
+        nip15.close();
     }
 
     @Test
@@ -221,11 +238,14 @@ public class ApiEventTest {
         categories.add("Hommes");
 
         nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
+        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
         nip15.sign().setRelays(RELAYS).send();
+        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
+        nip15.close();
     }
 
     @Test
