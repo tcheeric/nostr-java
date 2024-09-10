@@ -20,5 +20,5 @@ module nostr.api {
     requires org.reactivestreams;
     requires annotations;
 
-  exports nostr.api;
+    exports nostr.api;
 }

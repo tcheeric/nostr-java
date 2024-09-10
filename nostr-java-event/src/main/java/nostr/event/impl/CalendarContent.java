@@ -22,42 +22,25 @@ public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent
   //@JsonProperty
   private final String id;
 
+  // below fields mandatory
   private final IdentifierTag identifierTag;
-
-  //@JsonProperty
   private final String title;
-
-  //@JsonProperty
   private final Long start;
 
   // below fields optional
-  //@JsonProperty
   private Long end;
-
   //@JsonProperty("start_tzid")
   private String startTzid;
-
   //@JsonProperty("end_tzid")
   private String endTzid;
-
-  //@JsonProperty
   private String summary;
-
-  //@JsonProperty
   private String image;
-
-  //@JsonProperty
   private String location;
-
   private GeohashTag geohashTag;
-
   private List<PubKeyTag> participantPubKeys;
-
   //@JsonProperty("l")
   private List<String> labels;
-
   private List<HashtagTag> hashtagTags;
-
   private List<ReferenceTag> referenceTags;
 
   public static CalendarContentBuilder builder(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
@@ -66,15 +49,4 @@ public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent
         .title(title)
         .start(start);
   }
-//  public CalendarContent(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
-//    this.identifierTag = identifierTag;
-//    this.title = title;
-//    this.start = start;
-//  }
-//
-//  public CalendarContent(@NonNull String uuid, @NonNull String title, @NonNull Long start) {
-//    this.identifierTag = new IdentifierTag(uuid);
-//    this.title = title;
-//    this.start = start;
-//  }
 }
