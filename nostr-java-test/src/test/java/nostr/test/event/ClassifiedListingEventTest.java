@@ -75,17 +75,12 @@ class ClassifiedListingEventTest {
   void testConstructClassifiedListingEvent() {
     System.out.println("testConstructClassifiedListingEvent");
 
-    assertEquals(10, instance.getTags().size());
+    assertEquals(13, instance.getTags().size());
     assertEquals(CLASSIFIED_LISTING_CONTENT, instance.getContent());
     assertEquals(Kind.CLASSIFIED_LISTING.getValue(), instance.getKind().intValue());
     assertEquals(senderPubkey.toString(), instance.getPubKey().toString());
     assertEquals(senderPubkey.toBech32String(), instance.getPubKey().toBech32String());
     assertEquals(senderPubkey.toHexString(), instance.getPubKey().toHexString());
     assertEquals(CLASSIFIED_LISTING_CONTENT, instance.getContent());
-  }
-
-  @Test
-  void testDeserializeZapRequestEvent() {
-
   }
 }

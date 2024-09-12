@@ -14,20 +14,24 @@ import nostr.event.impl.GenericEvent;
 @Data
 public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> {
 
-    private final Class<T> clazz;
+  private final Class<T> clazz;
 
-    public GenericEventDecoder() {
-        this.clazz = (Class<T>) GenericEvent.class;
-    }
+  public GenericEventDecoder() {
+    this.clazz = (Class<T>) GenericEvent.class;
+  }
 
-    @Override
-    public T decode(String jsonEvent) {
-        try {
-            var mapper = new ObjectMapper();
-            mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-            return mapper.readValue(jsonEvent, clazz);
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException(ex);
-        }
+  public GenericEventDecoder(Class<T> clazz) {
+    this.clazz = clazz;
+  }
+
+  @Override
+  public T decode(String jsonEvent) {
+    try {
+      var mapper = new ObjectMapper();
+      mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+      return mapper.readValue(jsonEvent, clazz);
+    } catch (JsonProcessingException ex) {
+      throw new RuntimeException(ex);
     }
+  }
 }

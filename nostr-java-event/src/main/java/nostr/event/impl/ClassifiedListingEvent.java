@@ -1,5 +1,12 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -8,14 +15,17 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP99Event;
+import nostr.event.impl.ClassifiedListingEvent.ClassifiedListingEventDeserializer;
 import nostr.event.tag.PriceTag;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
 @NoArgsConstructor
+@JsonDeserialize(using = ClassifiedListingEventDeserializer.class)
 public class ClassifiedListingEvent extends NIP99Event {
   private ClassifiedListing classifiedListing;
 
@@ -52,5 +62,24 @@ public class ClassifiedListingEvent extends NIP99Event {
     addGenericTag("published_at", getNip(), classifiedListing.getPublishedAt());
     addGenericTag("location", getNip(), classifiedListing.getLocation());
     addStandardTag(classifiedListing.getPriceTag());
+  }
+
+  public static class ClassifiedListingEventDeserializer extends StdDeserializer<ClassifiedListingEvent> {
+    public ClassifiedListingEventDeserializer() {
+      super(ClassifiedListingEvent.class);
+    }
+
+    @Override
+    public ClassifiedListingEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+      JsonNode calendarNode = jsonParser.getCodec().readTree(jsonParser);
+      ArrayNode tags = (ArrayNode) calendarNode.get("tags");
+      calendarNode.fields().forEachRemaining(cal -> {
+        ArrayNode newArray = new ObjectMapper().createArrayNode();
+        newArray.add(cal.getKey());
+        newArray.add(cal.getValue());
+        tags.add(newArray);
+      });
+      return null;
+    }
   }
 }
