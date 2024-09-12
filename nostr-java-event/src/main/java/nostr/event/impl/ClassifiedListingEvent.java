@@ -1,8 +1,7 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
@@ -14,15 +13,16 @@ import nostr.event.tag.PriceTag;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
+@NoArgsConstructor
 public class ClassifiedListingEvent extends NIP99Event {
-  @JsonIgnore
-  private final ClassifiedListing classifiedListing;
+  private ClassifiedListing classifiedListing;
+
   public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull Kind kind, List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
     super(sender, kind, baseTags, content);
     this.classifiedListing = classifiedListing;
+    mapCustomTags();
   }
 
   public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
@@ -30,11 +30,11 @@ public class ClassifiedListingEvent extends NIP99Event {
   }
 
   public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
-    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, new ClassifiedListing(title, summary, priceTag));
+    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, ClassifiedListing.builder(title, summary, priceTag).build());
   }
 
   public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull String title, @NonNull String summary, @NonNull BigDecimal number, @NonNull String currency, @NonNull String frequency) {
-    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, new ClassifiedListing(title, summary, new PriceTag(number, currency, frequency)));
+    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, ClassifiedListing.builder(title, summary, new PriceTag(number, currency, frequency)).build());
   }
 
   @Override
@@ -44,5 +44,13 @@ public class ClassifiedListingEvent extends NIP99Event {
       return;
 
     throw new AssertionError(String.format("Invalid kind value [%s]. Classified Listing must be either 30402 or 30403", n), null);
+  }
+
+  private void mapCustomTags() {
+    addGenericTag("title", getNip(), classifiedListing.getTitle());
+    addGenericTag("summary", getNip(), classifiedListing.getSummary());
+    addGenericTag("published_at", getNip(), classifiedListing.getPublishedAt());
+    addGenericTag("location", getNip(), classifiedListing.getLocation());
+    addStandardTag(classifiedListing.getPriceTag());
   }
 }
