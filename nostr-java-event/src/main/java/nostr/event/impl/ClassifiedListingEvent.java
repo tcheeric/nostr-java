@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
@@ -20,11 +19,13 @@ import nostr.event.tag.PriceTag;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.StreamSupport;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
-@NoArgsConstructor
 @JsonDeserialize(using = ClassifiedListingEventDeserializer.class)
 public class ClassifiedListingEvent extends NIP99Event {
   private ClassifiedListing classifiedListing;
@@ -71,15 +72,56 @@ public class ClassifiedListingEvent extends NIP99Event {
 
     @Override
     public ClassifiedListingEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-      JsonNode calendarNode = jsonParser.getCodec().readTree(jsonParser);
-      ArrayNode tags = (ArrayNode) calendarNode.get("tags");
-      calendarNode.fields().forEachRemaining(cal -> {
-        ArrayNode newArray = new ObjectMapper().createArrayNode();
-        newArray.add(cal.getKey());
-        newArray.add(cal.getValue());
-        tags.add(newArray);
-      });
-      return null;
+      JsonNode classifiedListingEventNode = jsonParser.getCodec().readTree(jsonParser);
+      ArrayNode tags = (ArrayNode) classifiedListingEventNode.get("tags");
+
+      List<BaseTag> baseTags = StreamSupport.stream(
+              tags.spliterator(), false).toList().stream()
+          .map(
+              JsonNode::elements)
+          .map(element ->
+              new ObjectMapper().convertValue(element, BaseTag.class)).toList();
+
+      List<GenericTag> genericTags = baseTags.stream()
+          .filter(GenericTag.class::isInstance)
+          .map(GenericTag.class::cast)
+          .toList();
+
+      PriceTag priceTag = getBaseTagCastFromString(baseTags, PriceTag.class);
+      ClassifiedListing classifiedListing = ClassifiedListing.builder(
+              getTagValueFromString(genericTags, "title"),
+              getTagValueFromString(genericTags, "summary"),
+              priceTag)
+          .build();
+
+      Map<String, String> generalMap = new HashMap<>();
+      classifiedListingEventNode.fields().forEachRemaining(generalTag ->
+          generalMap.put(
+              generalTag.getKey(),
+              generalTag.getValue().asText()));
+
+      ClassifiedListingEvent classifiedListingEvent = new ClassifiedListingEvent(
+          new PublicKey(generalMap.get("pubkey")),
+          Kind.valueOf(Integer.parseInt(generalMap.get("kind"))),
+          // TODO: baseTags below need already-added items from classifiedListing to be removed
+          baseTags,
+          generalMap.get("content"),
+          classifiedListing
+      );
+      classifiedListingEvent.setId(generalMap.get("id"));
+      classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
+
+      return classifiedListingEvent;
+    }
+
+    private String getTagValueFromString(List<GenericTag> genericTags, String code) {
+      return genericTags.stream()
+          .filter(tag -> tag.getCode().equalsIgnoreCase(code))
+          .findFirst().get().getAttributes().get(0).getValue().toString();
+    }
+
+    private <T extends BaseTag> T getBaseTagCastFromString(List<BaseTag> baseTags, Class<T> type) {
+      return baseTags.stream().filter(type::isInstance).map(type::cast).findFirst().get();
     }
   }
 }
