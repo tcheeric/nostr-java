@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.Data;
@@ -37,7 +36,6 @@ public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent
   private String location;
   private GeohashTag geohashTag;
   private List<PubKeyTag> participantPubKeys;
-  @JsonProperty("l")
   private List<String> labels;
   private List<HashtagTag> hashtagTags;
   private List<ReferenceTag> referenceTags;
