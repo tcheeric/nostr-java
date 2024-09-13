@@ -20,7 +20,6 @@ import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EncryptedPayloadEvent;
-import nostr.event.impl.GenericEvent;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
@@ -65,8 +64,8 @@ public class ApiEventTest {
         tags.add(recipient);
         Identity identity = Identity.generateRandomIdentity();
         var nip01 = new NIP01<TextNoteEvent>(identity);
-		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
-				.getEvent();
+        var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
+            .getEvent();
         instance.update();
 
         Assertions.assertNotNull(instance.getId());
@@ -84,7 +83,7 @@ public class ApiEventTest {
 
         Identity identity = Identity.generateRandomIdentity();
         var nip01 = new NIP01<TextNoteEvent>(identity);
-		    var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
+        var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
 
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
@@ -104,8 +103,8 @@ public class ApiEventTest {
         Identity identity = Identity.generateRandomIdentity();
         var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-        		.sign();
-        
+            .sign();
+
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
         instance.setRelays(RELAYS).send();
@@ -143,7 +142,7 @@ public class ApiEventTest {
         Identity identity = Identity.generateRandomIdentity();
         var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-		        .sign();
+            .sign();
 
         var message = NIP04.decrypt(identity, instance.getEvent());
 
@@ -266,23 +265,23 @@ public class ApiEventTest {
 
     @Test
     public void testNIP32CreateNameSpace() {
-        
+
         System.out.println("testNIP32CreateNameSpace");
-        
+
         var langNS = NIP32.createNameSpaceTag("Languages");
-        
+
         Assertions.assertEquals("L", langNS.getCode());
         Assertions.assertEquals(1, langNS.getAttributes().size());
         Assertions.assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
     }
-    
+
     @Test
     public void testNIP32CreateLabel1() {
 
         System.out.println("testNIP32CreateLabel1");
-                
+
         var label = NIP32.createLabelTag("Languages", "english");
-        
+
         Assertions.assertEquals("l", label.getCode());
         Assertions.assertEquals(2, label.getAttributes().size());
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
@@ -293,11 +292,11 @@ public class ApiEventTest {
     public void testNIP32CreateLabel2() {
 
         System.out.println("testNIP32CreateLabel2");
-                
+
         var metadata = new HashMap<String, Object>();
         metadata.put("article", "the");
         var label = NIP32.createLabelTag("Languages", "english", metadata);
-        
+
         Assertions.assertEquals("l", label.getCode());
         Assertions.assertEquals(3, label.getAttributes().size());
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
@@ -321,7 +320,7 @@ public class ApiEventTest {
 
         List<BaseTag> tags = new ArrayList<>();
         tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
-        "ws://localhost:5555",
+            "ws://localhost:5555",
             "ISSUER"));
         tags.add(new PubKeyTag(new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
             "",
