@@ -29,16 +29,13 @@ public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent
 
   // below fields optional
   private Long end;
-  //@JsonProperty("start_tzid")
   private String startTzid;
-  //@JsonProperty("end_tzid")
   private String endTzid;
   private String summary;
   private String image;
   private String location;
   private GeohashTag geohashTag;
   private List<PubKeyTag> participantPubKeys;
-  //@JsonProperty("l")
   private List<String> labels;
   private List<HashtagTag> hashtagTags;
   private List<ReferenceTag> referenceTags;
