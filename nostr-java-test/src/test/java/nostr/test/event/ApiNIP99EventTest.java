@@ -37,13 +37,13 @@ import static nostr.test.event.ClassifiedListingEventTest.T_TAG;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiNIP99Test implements Subscriber<String> {
+class ApiNIP99EventTest implements Subscriber<String> {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
   private Subscription subscription;
   private String relayResponse = null;
 
-  public ApiNIP99Test() {
+  public ApiNIP99EventTest() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 
@@ -87,7 +87,6 @@ class ApiNIP99Test implements Subscriber<String> {
 
   @Override
   public void onNext(String s) {
-    subscription.request(1);
     relayResponse = s;
   }
 
