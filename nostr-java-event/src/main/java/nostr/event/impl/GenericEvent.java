@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -216,4 +217,19 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         }
     }
 
+    protected <T extends BaseTag> void addStandardTag(List<T> tag) {
+        Optional.ofNullable(tag).ifPresent(tagList -> tagList.forEach(this::addStandardTag));
+    }
+
+    protected void addStandardTag(BaseTag tag) {
+        Optional.ofNullable(tag).ifPresent(this::addTag);
+    }
+
+    protected void addGenericTag(String key, Integer nip, Object value) {
+        Optional.ofNullable(value).ifPresent(s -> addTag(GenericTag.create(key, nip, s.toString())));
+    }
+
+    protected void addStringListTag(String label, Integer nip, List<String> tag) {
+        Optional.ofNullable(tag).ifPresent(tagList -> addGenericTag(label, nip, tagList));
+    }
 }

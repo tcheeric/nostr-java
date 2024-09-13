@@ -16,8 +16,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP99ImplTest {
   public static final String CONTENT = "ClassifiedListingEvent unit test content";
@@ -34,11 +34,11 @@ class NIP99ImplTest {
 
   @BeforeAll
   static void setup() {
-    classifiedListing = new ClassifiedListing(
-        UNIT_TEST_TITLE,
-        UNIT_TEST_SUMMARY,
-        PRICE_TAG
-    );
+    classifiedListing = ClassifiedListing.builder(
+            UNIT_TEST_TITLE,
+            UNIT_TEST_SUMMARY,
+            PRICE_TAG)
+        .build();
     classifiedListing.setLocation(LOCATION);
     classifiedListing.setPublishedAt(PUBLISHED_AT);
     sender = Identity.generateRandomIdentity();
@@ -54,25 +54,23 @@ class NIP99ImplTest {
     instance.update();
 
     assertNotNull(instance.getId());
-    assertNull(instance.getClassifiedListing().getId());
-    assertEquals(UNIT_TEST_TITLE, instance.getClassifiedListing().getTitle());
-    assertEquals(UNIT_TEST_SUMMARY, instance.getClassifiedListing().getSummary());
-    assertEquals(PUBLISHED_AT, instance.getClassifiedListing().getPublishedAt());
-    assertEquals(LOCATION, instance.getClassifiedListing().getLocation());
-    assertEquals(PRICE_TAG, instance.getClassifiedListing().getPriceTag());
+    assertTrue(instance.getTags().contains(containsGeneric("title", UNIT_TEST_TITLE)));
+    assertTrue(instance.getTags().contains(containsGeneric("summary", UNIT_TEST_SUMMARY)));
+    assertTrue(instance.getTags().contains(containsGeneric("published_at", PUBLISHED_AT.toString())));
+    assertTrue(instance.getTags().contains(containsGeneric("location", LOCATION)));
+    assertTrue(instance.getTags().contains(PRICE_TAG));
 
-    ClassifiedListing classifiedListing2 = new ClassifiedListing(
-        UNIT_TEST_TITLE,
-        UNIT_TEST_SUMMARY,
-        PRICE_TAG
-    );
+    ClassifiedListing classifiedListing2 = ClassifiedListing.builder(
+            UNIT_TEST_TITLE,
+            UNIT_TEST_SUMMARY,
+            PRICE_TAG)
+        .build();
     classifiedListing2.setLocation(LOCATION);
     classifiedListing2.setPublishedAt(PUBLISHED_AT);
     ClassifiedListingEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
     instance.update();
 
     assertEquals(instance, instance2);
-    assertEquals(instance.getClassifiedListing(), instance2.getClassifiedListing());
   }
 
   @Test
@@ -103,15 +101,19 @@ class NIP99ImplTest {
     instance.update();
 
     assertNotNull(instance.getId());
-    assertEquals(LOCATION, instance.getClassifiedListing().getLocation());
-    assertEquals(PUBLISHED_AT, instance.getClassifiedListing().getPublishedAt());
+    assertTrue(instance.getTags().contains(containsGeneric("location", LOCATION)));
+    assertTrue(instance.getTags().contains(containsGeneric("published_at", PUBLISHED_AT.toString())));
   }
 
   @Test
   void testNIP99CreateClassifiedListingEventNullParameters() {
     System.out.println("testNIP99CreateClassifiedListingEventNullParameters");
-    assertThrows(NullPointerException.class, () -> new ClassifiedListing(null, UNIT_TEST_SUMMARY, PRICE_TAG));
-    assertThrows(NullPointerException.class, () -> new ClassifiedListing(UNIT_TEST_TITLE, null, PRICE_TAG));
-    assertThrows(NullPointerException.class, () -> new ClassifiedListing(UNIT_TEST_TITLE, UNIT_TEST_SUMMARY, null));
+    assertThrows(NullPointerException.class, () -> ClassifiedListing.builder(null, UNIT_TEST_SUMMARY, PRICE_TAG).build());
+    assertThrows(NullPointerException.class, () -> ClassifiedListing.builder(UNIT_TEST_TITLE, null, PRICE_TAG).build());
+    assertThrows(NullPointerException.class, () -> ClassifiedListing.builder(UNIT_TEST_TITLE, UNIT_TEST_SUMMARY, null).build());
+  }
+
+  private GenericTag containsGeneric(String key, String value) {
+    return GenericTag.create(key, 99, value);
   }
 }
