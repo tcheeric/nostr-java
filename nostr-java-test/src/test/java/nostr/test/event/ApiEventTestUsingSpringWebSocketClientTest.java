@@ -8,23 +8,17 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static nostr.test.event.ApiEventTest.createProduct;
 import static nostr.test.event.ApiEventTest.createStall;
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiEventTestUsingSpringWebSocketClientTest implements Subscriber<String> {
+class ApiEventTestUsingSpringWebSocketClientTest {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
-  private Subscription subscription;
-  private String relayResponse = null;
 
   public ApiEventTestUsingSpringWebSocketClientTest() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
@@ -44,30 +38,11 @@ class ApiEventTestUsingSpringWebSocketClientTest implements Subscriber<String> {
     GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
     EventMessage message = new EventMessage(event, event.getId());
 
-    springWebSocketClient.send(message).subscribeWith(this);
-    await().until(() -> Objects.nonNull(relayResponse));
-    assertEquals(expectedResponseJson(event.getId()), relayResponse);
+    assertEquals(
+        expectedResponseJson(event.getId()),
+        springWebSocketClient.send(message).stream().findFirst().get());
+
     springWebSocketClient.closeSocket();
-  }
-
-  @Override
-  public void onSubscribe(Subscription subscription) {
-    this.subscription = subscription;
-    subscription.request(1);
-  }
-
-  @Override
-  public void onNext(String s) {
-    subscription.request(1);
-    relayResponse = s;
-  }
-
-  @Override
-  public void onError(Throwable throwable) {
-  }
-
-  @Override
-  public void onComplete() {
   }
 
   private String expectedResponseJson(String sha256) {

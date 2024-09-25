@@ -69,10 +69,6 @@ public class Nostr implements NostrIF {
     }
 
     @Override
-    public String getRelayResponse() {
-        return "NO-OP";
-    }
-    @Override
     public NostrIF setSender(@NonNull Identity sender) {
         this.sender = sender;
 
@@ -99,51 +95,51 @@ public class Nostr implements NostrIF {
     }
 
     @Override
-    public void send(@NonNull IEvent event) {
-        send(event, getRelays());
+    public List<String> send(@NonNull IEvent event) {
+        return send(event, getRelays());
     }
 
     @Override
-    public void send(@NonNull IEvent event, Map<String, String> relays) {
+    public List<String> send(@NonNull IEvent event, Map<String, String> relays) {
         var context = new DefaultRequestContext();
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
         context.setRelays(relays);
 
-        send(new EventMessage(event), context);
+        return send(new EventMessage(event), context);
     }
 
 
     @Override
-    public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-        send(filters, subscriptionId, getRelays());
+    public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId) {
+        return send(filters, subscriptionId, getRelays());
     }
 
     @Override
-    public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
         List<Filters> filtersList = new ArrayList<>();
         filtersList.add(filters);
 
-        send(filtersList, subscriptionId, relays);
+        return send(filtersList, subscriptionId, relays);
     }
 
     @Override
-    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-        send(filtersList, subscriptionId, getRelays());
+    public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+        return send(filtersList, subscriptionId, getRelays());
     }
 
     @Override
-    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
 
         var context = new DefaultRequestContext();
         context.setRelays(relays);
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
         var message = new ReqMessage(subscriptionId, filtersList);
 
-        send(message, context);
+        return send(message, context);
     }
 
     @Override
-    public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+    public List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context) {
         if (context instanceof DefaultRequestContext) {
             try {
                 Client.getInstance().connect(context).send(message);
@@ -151,6 +147,7 @@ public class Nostr implements NostrIF {
                 throw new RuntimeException(e);
             }
         }
+        return List.of();
     }
 
     /**

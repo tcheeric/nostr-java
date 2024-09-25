@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
@@ -28,6 +30,8 @@ import java.util.stream.StreamSupport;
 @Event(name = "ClassifiedListingEvent", nip = 99)
 @JsonDeserialize(using = ClassifiedListingEventDeserializer.class)
 public class ClassifiedListingEvent extends NIP99Event {
+  @Getter
+  @JsonIgnore
   private ClassifiedListing classifiedListing;
 
   public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull Kind kind, List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
