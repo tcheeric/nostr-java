@@ -9,13 +9,13 @@ import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public interface NostrIF {
   NostrIF setSender(@NonNull Identity sender);
   NostrIF setRelays(@NonNull Map<String, String> relays);
-  void close();
   List<String> send(@NonNull IEvent event);
   List<String> send(@NonNull IEvent event, Map<String, String> relays);
   List<String> send(@NonNull Filters filters, @NonNull String subscriptionId);
@@ -27,4 +27,5 @@ public interface NostrIF {
   boolean verify(@NonNull GenericEvent event);
   Identity getSender();
   Map<String, String> getRelays();
+  void close() throws IOException;
 }

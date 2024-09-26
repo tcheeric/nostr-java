@@ -77,7 +77,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() {
+    public void testNIP01SendTextNoteEvent() throws IOException {
         System.out.println("testNIP01SendTextNoteEvent");
 
         Identity identity = Identity.generateRandomIdentity();
@@ -89,12 +89,12 @@ public class ApiEventTest {
         assertEquals(
             nip01.getEvent().getId(),
             instance.setRelays(RELAYS).send().getEventId());
-        nip01.close();
 
+        nip01.close();
     }
 
     @Test
-    public void testNIP04SendDirectMessage() {
+    public void testNIP04SendDirectMessage() throws IOException {
         System.out.println("testNIP04SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -112,7 +112,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP44SendDirectMessage() {
+    public void testNIP44SendDirectMessage() throws IOException {
         System.out.println("testNIP44SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -179,7 +179,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateStallEvent() {
+    public void testNIP15UpdateStallEvent() throws IOException {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
@@ -207,7 +207,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15CreateProductEvent() {
+    public void testNIP15CreateProductEvent() throws IOException {
 
         System.out.println("testNIP15CreateProductEvent");
 
@@ -231,7 +231,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateProductEvent() {
+    public void testNIP15UpdateProductEvent() throws IOException {
 
         System.out.println("testNIP15UpdateProductEvent");
 
@@ -304,7 +304,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP52CalendarTimeBasedEventEvent() {
+    public void testNIP52CalendarTimeBasedEventEvent() throws IOException {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
         CalendarContent calendarContent = CalendarContent.builder(

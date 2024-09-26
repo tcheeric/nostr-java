@@ -17,6 +17,7 @@ import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,8 +78,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public void close() {
-    clients.forEach(SpringWebSocketClient::closeSocket);
+  public void close() throws IOException {
+    for (SpringWebSocketClient client : clients) {
+      client.closeSocket();
+    }
   }
 
   @Override

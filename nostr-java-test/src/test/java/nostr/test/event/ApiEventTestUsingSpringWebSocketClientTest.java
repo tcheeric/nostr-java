@@ -9,6 +9,7 @@ import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ class ApiEventTestUsingSpringWebSocketClientTest {
   }
 
   @Test
-  void testNIP15SendProductEventUsingSpringWebSocketClient() throws JsonProcessingException {
+  void testNIP15SendProductEventUsingSpringWebSocketClient() throws IOException {
     System.out.println("testNIP15CreateProductEventUsingSpringWebSocketClient");
     var product = createProduct(createStall());
 

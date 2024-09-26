@@ -8,4 +8,5 @@ import java.util.List;
 public interface WebSocketClient {
   <T extends BaseMessage> List<String> send(T eventMessage) throws IOException;
   List<String> send(String json) throws IOException;
+  void closeSocket() throws IOException;
 }

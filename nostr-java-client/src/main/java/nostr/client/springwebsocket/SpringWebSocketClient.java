@@ -28,12 +28,8 @@ public class SpringWebSocketClient {
     return webSocketClient.send(json);
   }
 
-  public void close(@NonNull String subscriptionId) {
-//    return webSocketClient.disconnect(subscriptionId);
-  }
-
-  public void closeSocket() {
-//    webSocketClient.closeSocket();
+  public void closeSocket() throws IOException {
+    webSocketClient.closeSocket();
   }
 }
 

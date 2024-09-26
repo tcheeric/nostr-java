@@ -13,6 +13,7 @@ import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ class ApiNIP99EventTest {
   }
 
   @Test
-  void testNIP99ClassifiedListingEvent() throws JsonProcessingException {
+  void testNIP99ClassifiedListingEvent() throws IOException {
     System.out.println("testNIP99ClassifiedListingEvent");
 
     List<BaseTag> tags = new ArrayList<>();
