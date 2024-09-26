@@ -15,8 +15,8 @@ import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.TagSerializer;
 import nostr.util.NostrException;
 
-import com.googlecode.openbeans.IntrospectionException;
-import com.googlecode.openbeans.PropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -57,7 +57,8 @@ public abstract class BaseTag implements ITag {
         try {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
             return f != null ? f.toString() : null;
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException |
+                 IntrospectionException ex) {
             throw new NostrException(ex);
         }
     }
