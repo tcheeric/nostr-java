@@ -1,6 +1,5 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.api.NIP52;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -20,11 +19,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiNIP52Test {
+class ApiNIP52EventTest {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP52Test() {
+  public ApiNIP52EventTest() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 
@@ -35,10 +34,10 @@ class ApiNIP52Test {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
         null,
-        "ISSUER"));
+        "PAYER"));
     tags.add(new PubKeyTag(new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
         null,
-        "COUNTERPARTY"));
+        "PAYEE"));
 
     var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 

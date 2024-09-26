@@ -25,8 +25,8 @@ public class CalendarContentDecodeTest {
             [ "image", "http://www.imm.org/Images/fineMotionS.jpg" ],
             [ "location", "calendar content location" ],
             [ "g", "calendar content geo-tag-1" ],
-            [ "p", "444d79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984" ],
-            [ "p", "555d79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984" ],
+            [ "p", "444d79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984", "ws://localhost:5555", "PAYER" ],
+            [ "p", "555d79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984", "ws://localhost:5555", "PAYEE" ],
             [ "l", "calendar content label 1 of 2", "calendar content label 2 of 2" ],
             [ "t", "calendar content hash-tag-1111" ],
             [ "r", "http://www.imm.org/" ]

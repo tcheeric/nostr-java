@@ -81,9 +81,5 @@ public class CalendarTimeBasedEvent extends NIP52Event {
           .filter(tag -> tag.getCode().equalsIgnoreCase(code))
           .findFirst().get().getAttributes().get(0).getValue().toString();
     }
-
-    private <T extends BaseTag> T getBaseTagCastFromString(List<BaseTag> baseTags, Class<T> type) {
-      return baseTags.stream().filter(type::isInstance).map(type::cast).findFirst().get();
-    }
   }
 }
