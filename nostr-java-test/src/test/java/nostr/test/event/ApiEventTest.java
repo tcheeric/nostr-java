@@ -26,7 +26,6 @@ import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.event.message.OkMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -40,10 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -470,9 +467,5 @@ public class ApiEventTest {
             e.printStackTrace();
         }
         return relays;
-    }
-
-    private String expectedResponseJson(String sha256) {
-        return "[\"OK\",\"" + sha256 + "\",true,\"success: request processed\"]";
     }
 }
