@@ -13,17 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public interface NostrIF {
-  String getRelayResponse();
   NostrIF setSender(@NonNull Identity sender);
   NostrIF setRelays(@NonNull Map<String, String> relays);
   void close();
-  void send(@NonNull IEvent event);
-  void send(@NonNull IEvent event, Map<String, String> relays);
-  void send(@NonNull Filters filters, @NonNull String subscriptionId);
-  void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays);
-  void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId);
-  void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays);
-  void send(@NonNull BaseMessage message, @NonNull RequestContext context);
+  List<String> send(@NonNull IEvent event);
+  List<String> send(@NonNull IEvent event, Map<String, String> relays);
+  List<String> send(@NonNull Filters filters, @NonNull String subscriptionId);
+  List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays);
+  List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId);
+  List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays);
+  List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context);
   NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable);
   boolean verify(@NonNull GenericEvent event);
   Identity getSender();

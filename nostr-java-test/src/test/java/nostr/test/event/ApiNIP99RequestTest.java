@@ -1,6 +1,5 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -21,14 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApiNIP99RequestTest implements Subscriber<String> {
@@ -70,7 +68,7 @@ class ApiNIP99RequestTest implements Subscriber<String> {
 
   @Order(1)
   @Test
-  void testNIP99ClassifiedListingPreRequest() throws JsonProcessingException {
+  void testNIP99ClassifiedListingPreRequest() throws IOException {
     System.out.println("testNIP99ClassifiedListingEvent");
 
     List<BaseTag> tags = new ArrayList<>();
@@ -96,24 +94,22 @@ class ApiNIP99RequestTest implements Subscriber<String> {
     eventCreatedAt = event.getCreatedAt();
     signature = event.getSignature().toString();
     eventPubKey = event.getPubKey().toString();
-    EventMessage message = new EventMessage(event, eventId);
+    EventMessage eventMessage = new EventMessage(event, eventId);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
-    springWebSocketEventClient.send(message).subscribeWith(this);
-    await().until(() -> Objects.nonNull(relayEventResponse));
+    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
     assertEquals(
         removeWhiteSpace(expectedEventResponseJson(event.getId())),
-        removeWhiteSpace(relayEventResponse)
+        removeWhiteSpace(eventResponse)
     );
     springWebSocketEventClient.closeSocket();
 
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
-    springWebSocketRequestClient.send(reqJson).subscribeWith(this);
-    await().until(() -> Objects.nonNull(relayEventResponse));
+    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().get();
     assertEquals(
         removeWhiteSpace(expectedRequestResponseJson()),
-        removeWhiteSpace(relayEventResponse)
+        removeWhiteSpace(reqResponse)
     );
     springWebSocketRequestClient.closeSocket();
   }

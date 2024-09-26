@@ -12,6 +12,8 @@ import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.message.OkMessage;
 import nostr.id.Identity;
 
 import java.util.Map;
@@ -38,22 +40,24 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         return this;
     }
 
-    public T send() {
+    public OkMessage send() {
         return this.send(getRelays());
     }
 
-    public T send(Map<String, String> relays) {
-        super.send(this.event, relays);
+    public OkMessage send(Map<String, String> relays) {
+        return super.send(this.event, relays)
+            .stream()
+            .map(baseMessage -> new BaseMessageDecoder<OkMessage>().decode(baseMessage))
+            .findFirst().get();
 
-        return this.event;
     }
 
-    public T signAndSend() {
+    public OkMessage signAndSend() {
         return this.signAndSend(getRelays());
     }
 
-    public T signAndSend(Map<String, String> relays) {
-        return (T) sign().send(relays);
+    public OkMessage signAndSend(Map<String, String> relays) {
+        return sign().send(relays);
     }
 
     public EventNostr setSender(@NonNull Identity sender) {

@@ -1,6 +1,8 @@
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
@@ -12,6 +14,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public abstract class NIP52Event extends GenericEvent {
+  @Getter
+  @JsonIgnore
   private CalendarContent calendarContent;
 
   public NIP52Event(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarContent calendarContent) {

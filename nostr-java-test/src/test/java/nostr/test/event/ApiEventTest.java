@@ -2,6 +2,7 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -25,6 +26,7 @@ import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
+import nostr.event.message.OkMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -64,8 +66,8 @@ public class ApiEventTest {
         tags.add(recipient);
         Identity identity = Identity.generateRandomIdentity();
         var nip01 = new NIP01<TextNoteEvent>(identity);
-		var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
-				.getEvent();
+        var instance = nip01.createTextNoteEvent(tags, "Hello simplified nostr-java!")
+            .getEvent();
         instance.update();
 
         Assertions.assertNotNull(instance.getId());
@@ -83,16 +85,15 @@ public class ApiEventTest {
 
         Identity identity = Identity.generateRandomIdentity();
         var nip01 = new NIP01<TextNoteEvent>(identity);
-		    var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
+        var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
 
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.setRelays(RELAYS).send();
-
-        await().until(() -> Objects.nonNull(nip01.getRelayResponse()));
+        assertEquals(
+            nip01.getEvent().getId(),
+            instance.setRelays(RELAYS).send().getEventId());
         nip01.close();
 
-        assertEquals(expectedResponseJson(nip01.getEvent().getId()), nip01.getRelayResponse());
     }
 
     @Test
@@ -103,16 +104,14 @@ public class ApiEventTest {
         Identity identity = Identity.generateRandomIdentity();
         var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-        		.sign();
-        
+            .sign();
+
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        instance.setRelays(RELAYS).send();
-
-        await().until(() -> Objects.nonNull(nip04.getRelayResponse()));
+        assertEquals(
+            nip04.getEvent().getId(),
+            instance.setRelays(RELAYS).send().getEventId());
         nip04.close();
-
-        assertEquals(expectedResponseJson(nip04.getEvent().getId()), nip04.getRelayResponse());
     }
 
     @Test
@@ -126,12 +125,10 @@ public class ApiEventTest {
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         Assertions.assertNotNull(instance.getEvent().getSignature());
-        instance.setRelays(RELAYS).send();
-
-        await().until(() -> Objects.nonNull(nip44.getRelayResponse()));
+        assertEquals(
+            nip44.getEvent().getId(),
+            instance.setRelays(RELAYS).send().getEventId());
         nip44.close();
-
-        assertEquals(expectedResponseJson(nip44.getEvent().getId()), nip44.getRelayResponse());
     }
 
     @Test
@@ -142,7 +139,7 @@ public class ApiEventTest {
         Identity identity = Identity.generateRandomIdentity();
         var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
         var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-		        .sign();
+            .sign();
 
         var message = NIP04.decrypt(identity, instance.getEvent());
 
@@ -195,19 +192,21 @@ public class ApiEventTest {
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
         var signature = instance.getEvent().getSignature();
         Assertions.assertNotNull(signature);
-        nip15.setRelays(RELAYS).send();
 
-        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
-        assertEquals(expectedResponseJson(nip15.getEvent().getId()), nip15.getRelayResponse());
+        assertEquals(
+            nip15.getEvent().getId(),
+            nip15.setRelays(RELAYS).send().getEventId());
 
         // Update the shipping
         var shipping = stall.getShipping();
         shipping.setCost(20.00f);
-        nip15.createCreateOrUpdateStallEvent(stall).sign().setRelays(RELAYS).send();
-        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
-        nip15.close();
 
-        assertEquals(expectedResponseJson(nip15.getEvent().getId()), nip15.getRelayResponse());
+        EventNostr event = nip15.createCreateOrUpdateStallEvent(stall).sign();
+        assertEquals(
+            event.getEvent().getId(),
+            event.setRelays(RELAYS).send().getEventId());
+
+        nip15.close();
     }
 
     @Test
@@ -226,11 +225,12 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
-        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
-        nip15.close();
+        EventNostr event = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
+        assertEquals(
+            event.getEvent().getId(),
+            event.setRelays(RELAYS).send().getEventId());
 
-        assertEquals(expectedResponseJson(nip15.getEvent().getId()), nip15.getRelayResponse());
+        nip15.close();
     }
 
     @Test
@@ -249,39 +249,41 @@ public class ApiEventTest {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        nip15.createCreateOrUpdateProductEvent(product, categories).sign().setRelays(RELAYS).send();
-        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
-        assertEquals(expectedResponseJson(nip15.getEvent().getId()), nip15.getRelayResponse());
+        EventNostr event1 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
+        assertEquals(
+            event1.getEvent().getId(),
+            event1.setRelays(RELAYS).send().getEventId());
 
         product.setDescription("Un nouveau bijou en or");
         categories.add("bagues");
 
-        nip15.sign().setRelays(RELAYS).send();
-        await().until(() -> Objects.nonNull(nip15.getRelayResponse()));
-        nip15.close();
+        EventNostr event2 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
+        assertEquals(
+            event2.getEvent().getId(),
+            event2.setRelays(RELAYS).send().getEventId());
 
-        assertEquals(expectedResponseJson(nip15.getEvent().getId()), nip15.getRelayResponse());
+        nip15.close();
     }
 
     @Test
     public void testNIP32CreateNameSpace() {
-        
+
         System.out.println("testNIP32CreateNameSpace");
-        
+
         var langNS = NIP32.createNameSpaceTag("Languages");
-        
+
         Assertions.assertEquals("L", langNS.getCode());
         Assertions.assertEquals(1, langNS.getAttributes().size());
         Assertions.assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
     }
-    
+
     @Test
     public void testNIP32CreateLabel1() {
 
         System.out.println("testNIP32CreateLabel1");
-                
+
         var label = NIP32.createLabelTag("Languages", "english");
-        
+
         Assertions.assertEquals("l", label.getCode());
         Assertions.assertEquals(2, label.getAttributes().size());
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
@@ -292,11 +294,11 @@ public class ApiEventTest {
     public void testNIP32CreateLabel2() {
 
         System.out.println("testNIP32CreateLabel2");
-                
+
         var metadata = new HashMap<String, Object>();
         metadata.put("article", "the");
         var label = NIP32.createLabelTag("Languages", "english", metadata);
-        
+
         Assertions.assertEquals("l", label.getCode());
         Assertions.assertEquals(3, label.getAttributes().size());
         Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
@@ -320,18 +322,19 @@ public class ApiEventTest {
 
         List<BaseTag> tags = new ArrayList<>();
         tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
-        "ws://localhost:5555",
+            "ws://localhost:5555",
             "ISSUER"));
         tags.add(new PubKeyTag(new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
             "",
             "COUNTERPARTY"));
 
         var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
-        nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign().setRelays(RELAYS).send();
-        await().until(() -> Objects.nonNull(nip52.getRelayResponse()));
-        nip52.close();
+        EventNostr event = nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign();
+        assertEquals(
+            event.getEvent().getId(),
+            event.setRelays(RELAYS).send().getEventId());
 
-        assertEquals(expectedResponseJson(nip52.getEvent().getId()), nip52.getRelayResponse());
+        nip52.close();
     }
 
     @Test

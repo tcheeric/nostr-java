@@ -16,8 +16,6 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,15 +24,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-public class NostrSpringWebSocketClient implements NostrIF, Subscriber<String> {
+public class NostrSpringWebSocketClient implements NostrIF {
 
   private static NostrSpringWebSocketClient INSTANCE;
 
   private List<SpringWebSocketClient> clients = new ArrayList<>();
-  private Subscription subscription;
-
-  @Getter
-  private String relayResponse = null;
 
   @Getter
   private Identity sender;
@@ -73,8 +67,13 @@ public class NostrSpringWebSocketClient implements NostrIF, Subscriber<String> {
                 .map(SpringWebSocketClient::getRelayUrl)
                 .noneMatch(
                     relay::equals))
-        .forEach(relay -> clients.add(new SpringWebSocketClient(relay)));
+        .forEach(this::addClient);
     return this;
+  }
+
+  @SneakyThrows
+  private void addClient(String relay) {
+    clients.add(new SpringWebSocketClient(relay));
   }
 
   @Override
@@ -83,47 +82,48 @@ public class NostrSpringWebSocketClient implements NostrIF, Subscriber<String> {
   }
 
   @Override
-  public void send(@NonNull IEvent event) {
+  public List<String> send(@NonNull IEvent event) {
     EventMessage message = new EventMessage(event, event.getId());
-    clients.forEach(client -> send(client, message));
+    return clients.stream().flatMap(client -> send(client, message).stream()).toList();
+  }
+
+
+  @Override
+  public List<String> send(@NonNull IEvent event, Map<String, String> relays) {
+    setRelays(relays);
+    return send(event);
+  }
+
+  @Override
+  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId) {
+    ReqMessage reqMessage = new ReqMessage(subscriptionId, filters);
+    return clients.stream().flatMap(client -> send(client, reqMessage).stream()).toList();
+  }
+
+  @Override
+  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    setRelays(relays);
+    return send(filters, subscriptionId);
+  }
+
+  @Override
+  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+    return filtersList.stream().flatMap(filters -> send(filters, subscriptionId).stream()).toList();
+  }
+
+  @Override
+  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    return filtersList.stream().flatMap(filters -> send(filters, subscriptionId, relays).stream()).toList();
   }
 
   @SneakyThrows
-  private NostrSpringWebSocketClient send(SpringWebSocketClient client, BaseMessage message) {
-    return client.send(message).subscribeWith(this);
+  private List<String> send(SpringWebSocketClient client, BaseMessage message) {
+    return client.send(message);
   }
 
   @Override
-  public void send(@NonNull IEvent event, Map<String, String> relays) {
-    setRelays(relays);
-    send(event);
-  }
-
-  @Override
-  public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-    ReqMessage reqMessage = new ReqMessage(subscriptionId, filters);
-    clients.forEach(client -> send(client, reqMessage));
-  }
-
-  @Override
-  public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
-    setRelays(relays);
-    send(filters, subscriptionId);
-  }
-
-  @Override
-  public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-    filtersList.forEach(filters -> send(filters, subscriptionId));
-  }
-
-  @Override
-  public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
-    filtersList.forEach(filters -> send(filters, subscriptionId, relays));
-  }
-
-  @Override
-  public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
-    // NO-OP
+  public List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+    return List.of();
   }
 
   @Override
@@ -152,25 +152,5 @@ public class NostrSpringWebSocketClient implements NostrIF, Subscriber<String> {
   public Map<String, String> getRelays() {
     return clients.stream()
         .collect(Collectors.toMap(SpringWebSocketClient::getRelayUrl, SpringWebSocketClient::getRelayUrl, (prev, next) -> next, HashMap::new));
-  }
-
-  @Override
-  public void onSubscribe(Subscription subscription) {
-    this.subscription = subscription;
-    subscription.request(1);
-  }
-
-  @Override
-  public void onNext(String s) {
-    subscription.request(1);
-    relayResponse = s;
-  }
-
-  @Override
-  public void onError(Throwable throwable) {
-  }
-
-  @Override
-  public void onComplete() {
   }
 }
