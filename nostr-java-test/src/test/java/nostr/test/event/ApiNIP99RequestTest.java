@@ -17,8 +17,6 @@ import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,12 +27,10 @@ import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiNIP99RequestTest implements Subscriber<String> {
+class ApiNIP99RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String RELAY_URI = "ws://localhost:5555";
   private static final String SUBSCRIBER_ID = "ApiNIP99RequestTest-subscriber_001";
-  private Subscription subscription;
-  private String relayEventResponse = null;
 
   public static final String ID = "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07";
   public static final String KIND = "30402";
@@ -112,28 +108,6 @@ class ApiNIP99RequestTest implements Subscriber<String> {
         removeWhiteSpace(reqResponse)
     );
     springWebSocketRequestClient.closeSocket();
-  }
-
-
-  @Override
-  public void onSubscribe(Subscription subscription) {
-    relayEventResponse = null;
-    this.subscription = subscription;
-    subscription.request(10);
-  }
-
-  @Override
-  public void onNext(String s) {
-    subscription.request(10);
-    relayEventResponse = s;
-  }
-
-  @Override
-  public void onError(Throwable throwable) {
-  }
-
-  @Override
-  public void onComplete() {
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

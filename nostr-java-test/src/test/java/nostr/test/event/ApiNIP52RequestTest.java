@@ -14,11 +14,9 @@ import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
-import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
@@ -28,7 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ApiNIP52RequestTest implements Subscriber<String> {
+class ApiNIP52RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String RELAY_URI = "ws://localhost:5555";
   private static final String SUBSCRIBER_ID = "ApiNIP52RequestTest-subscriber_001";
@@ -128,28 +126,6 @@ class ApiNIP52RequestTest implements Subscriber<String> {
         removeWhiteSpace(reqResponse)
     );
     springWebSocketRequestClient.closeSocket();
-  }
-
-
-  @Override
-  public void onSubscribe(Subscription subscription) {
-    relayEventResponse = null;
-    this.subscription = subscription;
-    subscription.request(10);
-  }
-
-  @Override
-  public void onNext(String s) {
-    subscription.request(10);
-    relayEventResponse = s;
-  }
-
-  @Override
-  public void onError(Throwable throwable) {
-  }
-
-  @Override
-  public void onComplete() {
   }
 
   private String expectedEventResponseJson(String subscriptionId) {
