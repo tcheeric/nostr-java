@@ -57,8 +57,7 @@ public abstract class BaseTag implements ITag {
         try {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
             return f != null ? f.toString() : null;
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException |
-                 IntrospectionException ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
             throw new NostrException(ex);
         }
     }

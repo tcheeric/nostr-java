@@ -9,7 +9,7 @@ module nostr.event {
     requires nostr.util;
     requires java.logging;
     requires java.desktop;
-    
+
     exports nostr.event;
     exports nostr.event.impl;
     exports nostr.event.message;
