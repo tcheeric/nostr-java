@@ -107,7 +107,6 @@ public class ClassifiedListingEvent extends NIP99Event {
       ClassifiedListingEvent classifiedListingEvent = new ClassifiedListingEvent(
           new PublicKey(generalMap.get("pubkey")),
           Kind.valueOf(Integer.parseInt(generalMap.get("kind"))),
-          // TODO: baseTags below need already-added items from classifiedListing to be removed
           baseTags,
           generalMap.get("content"),
           classifiedListing

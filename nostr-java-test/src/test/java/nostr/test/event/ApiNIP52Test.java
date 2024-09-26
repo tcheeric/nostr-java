@@ -14,6 +14,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ class ApiNIP52Test {
   }
 
   @Test
-  void testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient() throws JsonProcessingException {
+  void testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient() throws IOException {
     System.out.println("testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient");
 
     List<BaseTag> tags = new ArrayList<>();

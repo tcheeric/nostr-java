@@ -52,4 +52,9 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     completed = false;
     return eventList;
   }
+
+  @Override
+  public void closeSocket() throws IOException {
+    clientSession.close();
+  }
 }

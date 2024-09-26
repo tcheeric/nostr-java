@@ -253,11 +253,11 @@ public class NostrApiExamples {
 
         List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createCustomEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        NIP01<TextNoteEvent> event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:");
+        var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:");
         event.signAndSend(RELAYS);
 
         var nip25 = new NIP25<ReactionEvent>(RECIPIENT);
-        NIP25<ReactionEvent> reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
+        var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
         reactionEvent.signAndSend(RELAYS);
         nip25.createReactionEvent(event.getEvent(), "💩").signAndSend();
 //        Using Custom Emoji as reaction 
@@ -273,7 +273,7 @@ public class NostrApiExamples {
         logHeader("replaceableEvent");
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        NIP01<TextNoteEvent> event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
+        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
         event.signAndSend(RELAYS);
 
         nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), 15_000, "New content").signAndSend();

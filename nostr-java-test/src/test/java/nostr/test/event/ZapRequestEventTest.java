@@ -19,6 +19,7 @@ import org.junit.jupiter.api.TestInstance;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ZapRequestEventTest {
@@ -30,11 +31,11 @@ class ZapRequestEventTest {
   public static final PubKeyTag P_TAG = new PubKeyTag(new PublicKey(PTAG_HEX));
   public static final EventTag E_TAG = new EventTag(ETAG_HEX);
 
-  public final static String ZAP_REQUEST_CONTENT = "zap request content";
-  public final static String SUBJECT = "Zap Request Subject";
-  public final static Long AMOUNT = 1232456L;
+  public static final String ZAP_REQUEST_CONTENT = "zap request content";
+  public static final String SUBJECT = "Zap Request Subject";
+  public static final Long AMOUNT = 1232456L;
   public static final String LNURL = "lnurl1dp68gurn8ghj7ar0wfsj6er9wchxuemjda4ju6t09ashq6f0w4ek2u30d3h82unv8a6xzeead3hkw6twye4nz0fcxgmnsef3vy6rsefkx93nyd338ycnvdeex9jxzcnzxeskvdekxq6rswr9x3nrqvfexvex2vf3vejnwvp4x3nr2wfhx56x2vmyv5mx2udztdn";
-  public final static RelaysTag RELAYS_TAG = new RelaysTag(new Relay("ws://localhost:5555"));
+  public static final RelaysTag relaysTag = new RelaysTag(new Relay("ws://localhost:5555"));
 
   public static final SubjectTag SUBJECT_TAG = new SubjectTag(SUBJECT);
   public static final GeohashTag G_TAG = new GeohashTag("Zap Request Test Geohash Tag");
@@ -50,8 +51,8 @@ class ZapRequestEventTest {
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);
-    tags.add(RELAYS_TAG);
-    instance = new ZapRequestEvent(sender, recipient, tags, ZAP_REQUEST_CONTENT, new ZapRequest(RELAYS_TAG, AMOUNT, LNURL));
+    tags.add(relaysTag);
+    instance = new ZapRequestEvent(sender, recipient, tags, ZAP_REQUEST_CONTENT, new ZapRequest(relaysTag, AMOUNT, LNURL));
     instance.setSignature(Identity.generateRandomIdentity().sign(instance));
   }
 
@@ -63,14 +64,9 @@ class ZapRequestEventTest {
     Assertions.assertNotNull(instance.getContent());
     Assertions.assertNotNull(instance.getZapRequest());
 
-//    Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
+    Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(relaysTag.getRelays().stream().map(Relay::getUri).collect(Collectors.joining()))));
     Assertions.assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
     Assertions.assertEquals(LNURL, instance.getZapRequest().getLnUrl());
     Assertions.assertEquals(AMOUNT, instance.getZapRequest().getAmount());
-  }
-
-  @Test
-  void testDeserializeZapRequestEvent() {
-
   }
 }

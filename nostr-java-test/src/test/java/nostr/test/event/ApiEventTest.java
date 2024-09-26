@@ -26,7 +26,6 @@ import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.event.message.OkMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -40,10 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -80,7 +77,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() {
+    public void testNIP01SendTextNoteEvent() throws IOException {
         System.out.println("testNIP01SendTextNoteEvent");
 
         Identity identity = Identity.generateRandomIdentity();
@@ -92,12 +89,12 @@ public class ApiEventTest {
         assertEquals(
             nip01.getEvent().getId(),
             instance.setRelays(RELAYS).send().getEventId());
-        nip01.close();
 
+        nip01.close();
     }
 
     @Test
-    public void testNIP04SendDirectMessage() {
+    public void testNIP04SendDirectMessage() throws IOException {
         System.out.println("testNIP04SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -115,7 +112,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP44SendDirectMessage() {
+    public void testNIP44SendDirectMessage() throws IOException {
         System.out.println("testNIP44SendDirectMessage");
 
         PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
@@ -182,7 +179,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateStallEvent() {
+    public void testNIP15UpdateStallEvent() throws IOException {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
@@ -210,7 +207,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15CreateProductEvent() {
+    public void testNIP15CreateProductEvent() throws IOException {
 
         System.out.println("testNIP15CreateProductEvent");
 
@@ -234,7 +231,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP15UpdateProductEvent() {
+    public void testNIP15UpdateProductEvent() throws IOException {
 
         System.out.println("testNIP15UpdateProductEvent");
 
@@ -307,7 +304,7 @@ public class ApiEventTest {
     }
 
     @Test
-    public void testNIP52CalendarTimeBasedEventEvent() {
+    public void testNIP52CalendarTimeBasedEventEvent() throws IOException {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
         CalendarContent calendarContent = CalendarContent.builder(
@@ -470,9 +467,5 @@ public class ApiEventTest {
             e.printStackTrace();
         }
         return relays;
-    }
-
-    private String expectedResponseJson(String sha256) {
-        return "[\"OK\",\"" + sha256 + "\",true,\"success: request processed\"]";
     }
 }
