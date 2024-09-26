@@ -1,5 +1,6 @@
 package nostr.test.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -15,6 +16,7 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +27,7 @@ import java.util.List;
 
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP99RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
@@ -94,19 +96,24 @@ class ApiNIP99RequestTest {
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
-    assertEquals(
-        removeWhiteSpace(expectedEventResponseJson(event.getId())),
-        removeWhiteSpace(eventResponse)
-    );
+
+    ObjectMapper mapper = new ObjectMapper();
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedEventResponseJson(event.getId())),
+            mapper.readTree(eventResponse)));
+
     springWebSocketEventClient.closeSocket();
 
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().get();
-    assertEquals(
-        removeWhiteSpace(expectedRequestResponseJson()),
-        removeWhiteSpace(reqResponse)
-    );
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedRequestResponseJson()),
+            mapper.readTree(reqResponse)));
+
     springWebSocketRequestClient.closeSocket();
   }
 
@@ -140,9 +147,5 @@ class ApiNIP99RequestTest {
             "          ],\n" +
             "          \"sig\": \"" + signature + "\"\n" +
             "        }]";
-  }
-
-  private String removeWhiteSpace(String input) {
-    return input.replaceAll("\\s+", "");
   }
 }

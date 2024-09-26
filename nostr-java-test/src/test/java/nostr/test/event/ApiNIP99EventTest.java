@@ -1,6 +1,6 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP99;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -11,6 +11,7 @@ import nostr.event.impl.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ import static nostr.test.event.ClassifiedListingEventTest.SUBJECT_TAG;
 import static nostr.test.event.ClassifiedListingEventTest.SUMMARY_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.TITLE_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.T_TAG;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP99EventTest {
   private static final String RELAY_URI = "ws://localhost:5555";
@@ -67,9 +68,11 @@ class ApiNIP99EventTest {
     GenericEvent event = nip99.createClassifiedListingEvent(tags, CLASSIFIED_LISTING_CONTENT, classifiedListing).sign().getEvent();
     EventMessage message = new EventMessage(event, event.getId());
 
-    assertEquals(
-        expectedResponseJson(event.getId()),
-        springWebSocketClient.send(message).stream().findFirst().get());
+    ObjectMapper mapper = new ObjectMapper();
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedResponseJson(event.getId())),
+            mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get())));
 
     springWebSocketClient.closeSocket();
   }

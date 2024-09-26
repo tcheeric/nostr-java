@@ -1,5 +1,6 @@
 package nostr.test.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -15,24 +16,22 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP52RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String RELAY_URI = "ws://localhost:5555";
   private static final String SUBSCRIBER_ID = "ApiNIP52RequestTest-subscriber_001";
   private static final String UUID_CALENDAR_TIME_BASED_EVENT_TEST = "UUID-CalendarTimeBasedEventTest";
-  private Subscription subscription;
-  private String relayEventResponse = null;
 
   public static final String ID = "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07";
   public static final String KIND = "31923";
@@ -40,6 +39,7 @@ class ApiNIP52RequestTest {
   public static final String PUB_KEY = "cccd79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984";
   public static final String CREATED_AT = "1726114798510";
   public static final String START = "1726114798610";
+  public static final String END = "1726114798710";
 
   public static final String START_TZID = "America/Costa_Rica";
   public static final String END_TZID = "America/Costa_Rica";
@@ -71,6 +71,7 @@ class ApiNIP52RequestTest {
   public static final String SUMMARY_CODE = "summary";
   public static final String LABEL_CODE = "l";
   public static final String LOCATION_CODE = "location";
+  public static final String END_CODE = "end";
 
   public String eventId;
   public String eventPubKey;
@@ -91,6 +92,7 @@ class ApiNIP52RequestTest {
     tags.add(GenericTag.create(LABEL_CODE, 52, LABEL_1));
     tags.add(GenericTag.create(LABEL_CODE, 52, LABEL_2));
     tags.add(GenericTag.create(LOCATION_CODE, 52, LOCATION));
+    tags.add(GenericTag.create(END_CODE, 52, END));
     tags.add(G_TAG);
     tags.add(T_TAG);
     tags.add(R_TAG);
@@ -112,19 +114,24 @@ class ApiNIP52RequestTest {
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
-    assertEquals(
-        removeWhiteSpace(expectedEventResponseJson(event.getId())),
-        removeWhiteSpace(eventResponse)
-    );
+
+    ObjectMapper mapper = new ObjectMapper();
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedEventResponseJson(event.getId())),
+            mapper.readTree(eventResponse)));
+
     springWebSocketEventClient.closeSocket();
 
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().get();
-    assertEquals(
-        removeWhiteSpace(expectedRequestResponseJson()),
-        removeWhiteSpace(reqResponse)
-    );
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedRequestResponseJson()),
+            mapper.readTree(reqResponse)));
+
     springWebSocketRequestClient.closeSocket();
   }
 
@@ -159,13 +166,10 @@ class ApiNIP52RequestTest {
             "            [ \"location\", \"" + LOCATION + "\" ],\n" +
             "            [ \"r\", \"" + URI.create(RELAY_URI) + "\" ],\n" +
             "            [ \"title\", \"" + TITLE + "\" ],\n" +
-            "            [ \"start\", \"" + START + "\" ]\n" +
+            "            [ \"start\", \"" + START + "\" ],\n" +
+            "            [ \"end\", \"" + END + "\" ]\n" +
             "          ],\n" +
             "          \"sig\": \"" + signature + "\"\n" +
             "        }]";
-  }
-
-  private String removeWhiteSpace(String input) {
-    return input.replaceAll("\\s+", "");
   }
 }
