@@ -226,9 +226,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return an event message
      */
     public static EventMessage createEventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
-        var result = new EventMessageFactory(event).create();
-        result.setSubscriptionId(subscriptionId);
-        return result;
+        return new EventMessageFactory(event, subscriptionId).create();
     }
 
     /**

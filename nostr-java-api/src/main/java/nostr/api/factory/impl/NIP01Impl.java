@@ -11,6 +11,7 @@ import lombok.NonNull;
 import nostr.api.factory.AbstractTagFactory;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.MessageFactory;
+import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.UserProfile;
@@ -24,6 +25,8 @@ import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
@@ -115,6 +118,24 @@ public class NIP01Impl {
         public PubKeyTag create() {
             return new PubKeyTag(publicKey, mainRelayUrl, petName);
         }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    public static class EventMessageFactory extends MessageFactory<EventMessage> {
+
+        private final IEvent event;
+        private String subscriptionId;
+
+        public EventMessageFactory(@NonNull IEvent event) {
+            this.event = event;
+        }
+
+        @Override
+        public EventMessage create() {
+            return new EventMessage(event, subscriptionId);
+        }
+
     }
 
     @Data
@@ -252,6 +273,19 @@ public class NIP01Impl {
         @Override
         public EoseMessage create() {
             return new EoseMessage(subscriptionId);
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    public static class NoticeMessageFactory extends MessageFactory<NoticeMessage> {
+
+        private final String message;
+
+        @Override
+        public NoticeMessage create() {
+            return new NoticeMessage(message);
         }
     }
 

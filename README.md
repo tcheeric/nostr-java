@@ -8,13 +8,52 @@ Introducing the nostr-java library, a solution written in java for generating, s
 - Java 19+
 
 ## Usage
-To use the library in your project, add the following dependency to your pom.xml file:
+To use the library in your project, add the following dependency to your pom.xml file.
+
+Define the value for the most recent version available:
 ```xml
-<dependency>
-    <groupId>com.github.tcheeric.nostr-java</groupId>
-    <artifactId>nostr-java-api</artifactId>
-    <version>${nostr.java.version}</version>
-</dependency>
+    <properties>
+        <nostr-java.version>0.6.1-SNAPSHOT</nostr-java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+```
+
+Add Jitpack to the repositories:
+```xml
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+```
+
+Finally add the dependencies:
+```xml
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-api</artifactId>
+            <version>${nostr-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-event</artifactId>
+            <version>${nostr-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-id</artifactId>
+            <version>${nostr-java.version}</version>
+        </dependency>
+```
+
+
+After this is possible to use the library. For example:
+```java
+        Identity RECIPIENT = Identity.generateRandomIdentity();
+        
+        System.out.println("NSEC: " + RECIPIENT.getPrivateKey().toBech32String());
+        System.out.println("NPUB: " + RECIPIENT.getPublicKey().toBech32String());
 ```
 
 I recommend having a look at:
