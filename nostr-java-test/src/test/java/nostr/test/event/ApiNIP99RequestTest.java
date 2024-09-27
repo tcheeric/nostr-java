@@ -107,14 +107,13 @@ class ApiNIP99RequestTest {
 
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
-    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().get();
+    List<String> reqResponse = springWebSocketRequestClient.send(reqJson).stream().toList();
+    springWebSocketRequestClient.closeSocket();
 
     assertTrue(
         ComparatorWithoutOrder.isEquivalentJson(
             mapper.readTree(expectedRequestResponseJson()),
-            mapper.readTree(reqResponse)));
-
-    springWebSocketRequestClient.closeSocket();
+            mapper.readTree(reqResponse.getFirst())));
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

@@ -1,5 +1,6 @@
 package nostr.test.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP52;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -7,10 +8,12 @@ import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP52EventTest {
   private static final String RELAY_URI = "ws://localhost:5555";
@@ -44,9 +48,12 @@ class ApiNIP52EventTest {
     GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, "content", createCalendarContent()).sign().getEvent();
     EventMessage message = new EventMessage(event, event.getId());
 
-    assertEquals(
-        expectedResponseJson(event.getId()),
-        springWebSocketClient.send(message).stream().findFirst().get());
+    ObjectMapper mapper = new ObjectMapper();
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedResponseJson(event.getId())),
+            mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get())));
 
     springWebSocketClient.closeSocket();
   }

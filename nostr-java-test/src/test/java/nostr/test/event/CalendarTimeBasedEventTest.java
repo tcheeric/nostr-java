@@ -18,6 +18,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -27,7 +28,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CalendarTimeBasedEventTest {
@@ -95,18 +96,28 @@ class CalendarTimeBasedEventTest {
   }
 
   @Test
-  void testCalendarTimeBasedEventEncoding() {
-    assertEquals(
-        new BaseEventEncoder<>(instance).encode(),
-        expectedEncodedJson);
+  void testCalendarTimeBasedEventEncoding() throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper();
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(new BaseEventEncoder<>(instance).encode()),
+            mapper.readTree(expectedEncodedJson)));
   }
 
   @Test
   void testCalendarTimeBasedEventDecoding() throws JsonProcessingException {
-    assertEquals(
-        new BaseEventEncoder<>(
-            new ObjectMapper().readValue(
-                expectedEncodedJson, GenericEvent.class)).encode(),
-        new BaseEventEncoder<>(instance).encode());
+    ObjectMapper mapper = new ObjectMapper();
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(
+                new BaseEventEncoder<>(
+                    new ObjectMapper()
+                        .readValue(
+                            expectedEncodedJson,
+                            GenericEvent.class))
+                    .encode()),
+            mapper.readTree(new BaseEventEncoder<>(instance).encode())));
   }
 }

@@ -1,12 +1,13 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
+import nostr.test.util.ComparatorWithoutOrder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.List;
 
 import static nostr.test.event.ApiEventTest.createProduct;
 import static nostr.test.event.ApiEventTest.createStall;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiEventTestUsingSpringWebSocketClientTest {
   private static final String RELAY_URI = "ws://localhost:5555";
@@ -39,9 +40,12 @@ class ApiEventTestUsingSpringWebSocketClientTest {
     GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
     EventMessage message = new EventMessage(event, event.getId());
 
-    assertEquals(
-        expectedResponseJson(event.getId()),
-        springWebSocketClient.send(message).stream().findFirst().get());
+    ObjectMapper mapper = new ObjectMapper();
+
+    assertTrue(
+        ComparatorWithoutOrder.isEquivalentJson(
+            mapper.readTree(expectedResponseJson(event.getId())),
+            mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get())));
 
     springWebSocketClient.closeSocket();
   }
