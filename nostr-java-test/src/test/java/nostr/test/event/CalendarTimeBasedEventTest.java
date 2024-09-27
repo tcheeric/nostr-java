@@ -18,7 +18,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
-import nostr.test.util.ComparatorWithoutOrder;
+import nostr.test.util.JsonComparator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -100,7 +100,7 @@ class CalendarTimeBasedEventTest {
     ObjectMapper mapper = new ObjectMapper();
 
     assertTrue(
-        ComparatorWithoutOrder.isEquivalentJson(
+        JsonComparator.isEquivalentJson(
             mapper.readTree(new BaseEventEncoder<>(instance).encode()),
             mapper.readTree(expectedEncodedJson)));
   }
@@ -110,7 +110,7 @@ class CalendarTimeBasedEventTest {
     ObjectMapper mapper = new ObjectMapper();
 
     assertTrue(
-        ComparatorWithoutOrder.isEquivalentJson(
+        JsonComparator.isEquivalentJson(
             mapper.readTree(
                 new BaseEventEncoder<>(
                     new ObjectMapper()

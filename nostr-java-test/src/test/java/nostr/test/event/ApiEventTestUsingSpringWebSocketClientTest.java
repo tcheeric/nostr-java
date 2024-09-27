@@ -7,7 +7,7 @@ import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
-import nostr.test.util.ComparatorWithoutOrder;
+import nostr.test.util.JsonComparator;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ class ApiEventTestUsingSpringWebSocketClientTest {
     ObjectMapper mapper = new ObjectMapper();
 
     assertTrue(
-        ComparatorWithoutOrder.isEquivalentJson(
+        JsonComparator.isEquivalentJson(
             mapper.readTree(expectedResponseJson(event.getId())),
             mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get())));
 

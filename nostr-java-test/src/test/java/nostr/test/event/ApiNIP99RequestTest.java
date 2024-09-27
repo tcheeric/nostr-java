@@ -16,7 +16,7 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
-import nostr.test.util.ComparatorWithoutOrder;
+import nostr.test.util.JsonComparator;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -99,7 +99,7 @@ class ApiNIP99RequestTest {
 
     ObjectMapper mapper = new ObjectMapper();
     assertTrue(
-        ComparatorWithoutOrder.isEquivalentJson(
+        JsonComparator.isEquivalentJson(
             mapper.readTree(expectedEventResponseJson(event.getId())),
             mapper.readTree(eventResponse)));
 
@@ -111,7 +111,7 @@ class ApiNIP99RequestTest {
     springWebSocketRequestClient.closeSocket();
 
     assertTrue(
-        ComparatorWithoutOrder.isEquivalentJson(
+        JsonComparator.isEquivalentJson(
             mapper.readTree(expectedRequestResponseJson()),
             mapper.readTree(reqResponse.getFirst())));
   }
