@@ -6,8 +6,12 @@ import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
+import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
+import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -24,6 +28,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -131,8 +136,28 @@ class ApiNIP52RequestTest {
         JsonComparator.isEquivalentJson(
             mapper.readTree(expectedRequestResponseJson()),
             mapper.readTree(reqResponse)));
-
     springWebSocketRequestClient.closeSocket();
+
+    CalendarTimeBasedEvent calendarTimeBasedEvent = mapJsonToEvent(List.of(expectedRequestResponseJson()), CalendarTimeBasedEvent.class);
+    System.out.println(calendarTimeBasedEvent);
+    String encode = new BaseEventEncoder<>(calendarTimeBasedEvent).encode();
+    System.out.println("111111111111111111111");
+    System.out.println("111111111111111111111");
+    System.out.println(mapper.readTree(encode).toPrettyString());
+    System.out.println("111111111111111111111");
+    System.out.println("111111111111111111111");
+  }
+
+  private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
+    Optional<T> first = reqResponse
+        .stream()
+        .map(baseMessage -> new BaseMessageDecoder<EventMessage>().decode(baseMessage))
+        .map(eventMessage -> ((GenericEvent) eventMessage.getEvent()))
+        .map(event -> new BaseEventEncoder<>(event).encode())
+        .map(encode -> new GenericEventDecoder<>(clazz).decode(encode))
+        .findFirst();
+    T t = first.get();
+    return t;
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

@@ -5,9 +5,14 @@ import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
+import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.ClassifiedListing;
+import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
+import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -24,6 +29,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
@@ -110,10 +116,32 @@ class ApiNIP99RequestTest {
     List<String> reqResponse = springWebSocketRequestClient.send(reqJson).stream().toList();
     springWebSocketRequestClient.closeSocket();
 
+    ClassifiedListingEvent classifiedListingEvent = mapJsonToEvent(List.of(expectedRequestResponseJson()), ClassifiedListingEvent.class);
+
     assertTrue(
         JsonComparator.isEquivalentJson(
             mapper.readTree(expectedRequestResponseJson()),
             mapper.readTree(reqResponse.getFirst())));
+    System.out.println(classifiedListingEvent);
+
+    String encode = new BaseEventEncoder<>(classifiedListingEvent).encode();
+    System.out.println("111111111111111111111");
+    System.out.println("111111111111111111111");
+    System.out.println(mapper.readTree(encode).toPrettyString());
+    System.out.println("111111111111111111111");
+    System.out.println("111111111111111111111");
+  }
+
+  private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
+    Optional<T> first = reqResponse
+        .stream()
+        .map(baseMessage -> new BaseMessageDecoder<EventMessage>().decode(baseMessage))
+        .map(eventMessage -> ((GenericEvent) eventMessage.getEvent()))
+        .map(event -> new BaseEventEncoder<>(event).encode())
+        .map(encode -> new GenericEventDecoder<>(clazz).decode(encode))
+        .findFirst();
+    T t = first.get();
+    return t;
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

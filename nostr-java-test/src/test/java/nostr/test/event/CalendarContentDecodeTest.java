@@ -51,13 +51,56 @@ public class CalendarContentDecodeTest {
         }
       """;
 
+  String problematicBarchettaJson = """
+      {
+        "id": "a21f990312c06e063af233935a1b7021e2824cedd0c5a46e160acb182e07637c",
+        "kind": 31923,
+        "content": "CALENDAR-EVENT CONTENT",
+        "pubkey": "111df01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f",
+        "created_at": 1727482684,
+        "tags": [
+          [
+            "d",
+            "UUID-NEEDS-COMPLETION-001"
+          ],
+          [
+            "end",
+            "1727482683878"
+          ],
+          [
+            "title",
+            "1111111"
+          ],
+          [
+            "start",
+            "1727482683878"
+          ]
+        ],
+        "sig": "c326e782307d740416bf5cb8c9635f7d1b93dec75e61b1ad8d7214a4b61d724230c9f3adb71dfc054b1f77c1ad3b73a2a7802205c64928cf0bbbcfbaf60e8552"
+      }
+      """;
+
   @Test
   void testCalendarContentMinimalJsonDecoding() {
-    assertDoesNotThrow(() -> new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson));
+    assertDoesNotThrow(() -> {
+      CalendarTimeBasedEvent decode = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson);
+      return decode;
+    });
   }
 
   @Test
   void testCalendarContentFullJsonDecoding() {
-    assertDoesNotThrow(() -> new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
+    assertDoesNotThrow(() -> {
+      CalendarTimeBasedEvent decode = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson);
+      return decode;
+    });
+  }
+
+  @Test
+  void testCalendarContentProblemBarchettaJsonDecoding() {
+    assertDoesNotThrow(() -> {
+      CalendarTimeBasedEvent decoded = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson);
+      return decoded;
+    });
   }
 }

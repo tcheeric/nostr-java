@@ -113,8 +113,7 @@ class CalendarTimeBasedEventTest {
         JsonComparator.isEquivalentJson(
             mapper.readTree(
                 new BaseEventEncoder<>(
-                    new ObjectMapper()
-                        .readValue(
+                    mapper.readValue(
                             expectedEncodedJson,
                             GenericEvent.class))
                     .encode()),
