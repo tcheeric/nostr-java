@@ -13,8 +13,6 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Marker;
-import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.impl.ClassifiedListingEvent.ClassifiedListing;
 import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
@@ -50,7 +48,7 @@ public class JsonParseTest {
         System.out.println("testBaseMessageDecoder");
 
         final String parseTarget =
-            "[\"REQ\", " +
+                "[\"REQ\", " +
                 "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
                 "{\"kinds\": [1], " +
                 "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
@@ -106,17 +104,17 @@ public class JsonParseTest {
         System.out.println("testBaseEventMessageDecoder");
 
         final String parseTarget
-            = "[\"EVENT\","
-            + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
-            + "{"
-            + "\"content\":\"直んないわ。まあええか\","
-            + "\"created_at\":1686199583,"
-            + "\"id\":\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\","
-            + "\"kind\":1,"
-            + "\"pubkey\":\"8c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\","
-            + "\"sig\":\"9584afd231c52fcbcec6ce668a2cc4b6dc9b4d9da20510dcb9005c6844679b4844edb7a2e1e0591958b0295241567c774dbf7d39a73932877542de1a5f963f4b\","
-            + "\"tags\":[]"
-            + "}]";
+                = "[\"EVENT\","
+                  + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
+                  + "{"
+                  + "\"content\":\"直んないわ。まあええか\","
+                  + "\"created_at\":1686199583,"
+                  + "\"id\":\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\","
+                  + "\"kind\":1,"
+                  + "\"pubkey\":\"8c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\","
+                  + "\"sig\":\"9584afd231c52fcbcec6ce668a2cc4b6dc9b4d9da20510dcb9005c6844679b4844edb7a2e1e0591958b0295241567c774dbf7d39a73932877542de1a5f963f4b\","
+                  + "\"tags\":[]"
+                  + "}]";
 
         final var message = new BaseMessageDecoder<>().decode(parseTarget);
 
@@ -134,20 +132,20 @@ public class JsonParseTest {
         System.out.println("testBaseEventMessageMarkerDecoder");
 
         String json = "["
-            + "\"EVENT\","
-            + "\"temp20230627\","
-            + "{"
-            + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
-            + "\"kind\":1,"
-            + "\"pubkey\":\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\","
-            + "\"created_at\":1687765220,"
-            + "\"content\":\"手順書が間違ってたら作業者は無理だな\","
-            + "\"tags\":["
-            + "[\"e\",\"494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346\",\"\",\"root\"],"
-            + "[\"p\",\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\"]"
-            + "],"
-            + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
-            + "}]";
+                      + "\"EVENT\","
+                      + "\"temp20230627\","
+                      + "{"
+                      + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
+                      + "\"kind\":1,"
+                      + "\"pubkey\":\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\","
+                      + "\"created_at\":1687765220,"
+                      + "\"content\":\"手順書が間違ってたら作業者は無理だな\","
+                      + "\"tags\":["
+                      + "[\"e\",\"494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346\",\"\",\"root\"],"
+                      + "[\"p\",\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\"]"
+                      + "],"
+                      + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
+                      + "}]";
 
         BaseMessage message = new BaseMessageDecoder<>().decode(json);
 
@@ -178,20 +176,20 @@ public class JsonParseTest {
     public void testClassifiedListingTagSerializer() throws NostrException, JsonProcessingException {
         System.out.println("testClassifiedListingSerializer");
         var classifiedListingEventJson = "{"
-            + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
-            + "\"kind\":30402,"
-            + "\"content\":\"content ipsum\","
-            + "\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\","
-            + "\"created_at\":1687765220,"
-            + "\"tags\":["
-            + "[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],"
-            + "[\"title\",\"title ipsum\"],"
-            + "[\"summary\",\"summary ipsum\"],"
-            + "[\"published_at\",\"1687765220\"],"
-            + "[\"location\",\"location ipsum\"],"
-            + "[\"price\",\"11111\",\"BTC\",\"1\"]],"
-            + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
-            + "}]";
+                                         + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
+                                         + "\"kind\":30402,"
+                                         + "\"content\":\"content ipsum\","
+                                         + "\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\","
+                                         + "\"created_at\":1687765220,"
+                                         + "\"tags\":["
+                                         + "[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],"
+                                         + "[\"title\",\"title ipsum\"],"
+                                         + "[\"summary\",\"summary ipsum\"],"
+                                         + "[\"published_at\",\"1687765220\"],"
+                                         + "[\"location\",\"location ipsum\"],"
+                                         + "[\"price\",\"11111\",\"BTC\",\"1\"]],"
+                                         + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
+                                         + "}]";
 
         GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
         EventMessage message = NIP01.createEventMessage(event, "1");
@@ -207,72 +205,39 @@ public class JsonParseTest {
         assertEquals("86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546", event.getSignature().toString());
 
         assertEquals(new BigDecimal("11111"), event.getTags().stream().filter(baseTag ->
-                baseTag.getCode().equalsIgnoreCase("price"))
-            .filter(PriceTag.class::isInstance)
-            .map(PriceTag.class::cast)
-            .map(PriceTag::getNumber).findFirst().orElseThrow());
+                        baseTag.getCode().equalsIgnoreCase("price"))
+                .filter(PriceTag.class::isInstance)
+                .map(PriceTag.class::cast)
+                .map(PriceTag::getNumber).findFirst().orElseThrow());
 
         assertEquals("BTC", event.getTags().stream().filter(baseTag ->
-                baseTag.getCode().equalsIgnoreCase("price"))
-            .filter(PriceTag.class::isInstance)
-            .map(PriceTag.class::cast)
-            .map(PriceTag::getCurrency).findFirst().orElseThrow());
+                        baseTag.getCode().equalsIgnoreCase("price"))
+                .filter(PriceTag.class::isInstance)
+                .map(PriceTag.class::cast)
+                .map(PriceTag::getCurrency).findFirst().orElseThrow());
 
         assertEquals("1", event.getTags().stream().filter(baseTag ->
-                baseTag.getCode().equalsIgnoreCase("price"))
-            .filter(PriceTag.class::isInstance)
-            .map(PriceTag.class::cast)
-            .map(PriceTag::getFrequency).findFirst().orElseThrow());
+                        baseTag.getCode().equalsIgnoreCase("price"))
+                .filter(PriceTag.class::isInstance)
+                .map(PriceTag.class::cast)
+                .map(PriceTag::getFrequency).findFirst().orElseThrow());
 
         List<GenericTag> genericTags = event.getTags().stream()
-            .filter(GenericTag.class::isInstance)
-            .map(GenericTag.class::cast).toList();
+                .filter(GenericTag.class::isInstance)
+                .map(GenericTag.class::cast).toList();
 
         assertEquals("title ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+                .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("summary ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+                .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("1687765220", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+                .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("location ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+                .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
     }
-
-    @Test
-    public void testClassifiedListingSerializer() throws NostrException, JsonProcessingException {
-        System.out.println("testClassifiedListingSerializer");
-        PublicKey sender = Identity.generateRandomIdentity().getPublicKey();
-
-        String title = "classified listing title";
-        String summary = "classified listing summary";
-        Long publishedAt = 1687765220L;
-        String location = "classified listing location";
-
-        BigDecimal bigDecimal = BigDecimal.valueOf(11111L);
-        String currency = "BTC";
-        String frequency = "1";
-
-        ClassifiedListing classifiedListing = new ClassifiedListing(title, summary, new PriceTag(bigDecimal, currency, frequency));
-        classifiedListing.setPublishedAt(publishedAt);
-        classifiedListing.setLocation(location);
-
-        ClassifiedListingEvent classifiedListingEvent = new ClassifiedListingEvent(sender, new ArrayList<BaseTag>(), "classified listing event content", classifiedListing);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(classifiedListingEvent);
-        System.out.println("manual json:");
-        System.out.println(json);
-
-//        ClassifiedListing encodedPriceTag = (ClassifiedListing)genericEventDecoder;
-//        assertEquals("price", encodedPriceTag.getCode());
-//        assertEquals(bigDecimal, encodedPriceTag.getNumber());
-//        assertEquals(currency, encodedPriceTag.getCurrency());
-//        assertEquals(frequency, encodedPriceTag.getFrequency());
-    }
-
 
     @Test
     public void testDeserializeTag() throws NostrException {
