@@ -1,16 +1,11 @@
 package nostr.test.event;
 
 import nostr.base.PublicKey;
-import nostr.event.BaseTag;
-import nostr.event.impl.GenericTag;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.tag.AddressTag;
-import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 class ZapReceiptEventTest {
   @Test

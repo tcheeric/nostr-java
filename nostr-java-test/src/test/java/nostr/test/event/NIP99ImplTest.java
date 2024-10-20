@@ -7,7 +7,6 @@ import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP99ImplTest {
   public final static String CONTENT = "ClassifiedListingEvent unit test content";

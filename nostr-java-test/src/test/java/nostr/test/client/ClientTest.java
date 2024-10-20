@@ -1,24 +1,5 @@
 package nostr.test.client;
 
-import nostr.base.PrivateKey;
-import nostr.client.Client;
-import nostr.context.impl.DefaultRequestContext;
-import nostr.event.BaseMessage;
-import nostr.event.message.EventMessage;
-import nostr.id.Identity;
-import nostr.test.EntityFactory;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeoutException;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * @author squirrel
  */

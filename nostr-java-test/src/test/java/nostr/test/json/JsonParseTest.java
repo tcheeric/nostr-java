@@ -90,7 +90,7 @@ public class JsonParseTest {
         var jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
         var parts = jsonMsg.split(",");
         Assertions.assertEquals("\"REQ\"", parts[0]);
-        Assertions.assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
+        Assertions.assertEquals("\"" + publicKey + "\"", parts[1]);
         Assertions.assertFalse(parts[2].startsWith("["));
         Assertions.assertFalse(parts[parts.length - 1].endsWith("]"));
 
@@ -173,7 +173,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testClassifiedListingTagSerializer() throws NostrException, JsonProcessingException {
+    public void testClassifiedListingTagSerializer() {
         System.out.println("testClassifiedListingSerializer");
         var classifiedListingEventJson = "{"
                                          + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
