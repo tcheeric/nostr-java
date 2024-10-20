@@ -1,7 +1,7 @@
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -39,8 +39,10 @@ public enum Kind {
 
     @JsonValue
     private final int value;
+
     private final String name;
 
+    @JsonCreator
     public static Kind valueOf(int value) {
         for (Kind k : values()) {
             if (k.getValue() == value) {
