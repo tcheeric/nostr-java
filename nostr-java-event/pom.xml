@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>xyz.nostrj</groupId>
+        <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.2</version>
     </parent>
 
     <artifactId>nostr-java-event</artifactId>

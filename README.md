@@ -5,15 +5,15 @@ Introducing the nostr-java library, a solution written in java for generating, s
 
 ## Requirements
 - Maven
-- Java 19+
+- Java 22+
 
 ## Usage
 To use the library in your project, add the following dependency to your pom.xml file.
 
-Define the value for the most recent version available:
+Add the properties:
 ```xml
     <properties>
-        <nostr-java.version>0.6.1-SNAPSHOT</nostr-java.version>
+        <nostr-java.version>0.6.2</nostr-java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 ```
@@ -28,7 +28,7 @@ Add Jitpack to the repositories:
     </repositories>
 ```
 
-Finally add the dependencies:
+And finally add the dependencies:
 ```xml
         <dependency>
             <groupId>nostr-java</groupId>
@@ -47,20 +47,12 @@ Finally add the dependencies:
         </dependency>
 ```
 
-
-After this is possible to use the library. For example:
-```java
-        Identity RECIPIENT = Identity.generateRandomIdentity();
-        
-        System.out.println("NSEC: " + RECIPIENT.getPrivateKey().toBech32String());
-        System.out.println("NPUB: " + RECIPIENT.getPublicKey().toBech32String());
-```
-
-I recommend having a look at:
+## Examples
+I recommend having a look at these repositories/module for examples:
   - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
+  - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
   - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
-for simple examples on how to use the library.
 
 ## Supported NIPs
 The following NIPs are supported by the API out-of-the-box:
@@ -86,6 +78,3 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md)
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)
 - [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md)
-
-## Dev Discussion Group:
-- Nostr Public Channel: nostr:nevent1qqszqdmxg26sehmnyrcu2ler8azz6wyj6fh0qg3ad5fnnm6xfqqvhzcppamhxue69uhkummnw3ezumt0d5pzpl7nwh45p66gvet2q28dhjpcyh6clux4cjsm5gh7waza9pzjnmgglv06ew
