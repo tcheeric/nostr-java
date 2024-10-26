@@ -1,16 +1,15 @@
 # nostr-java
 [![](https://jitpack.io/v/tcheeric/nostr-java.svg)](https://jitpack.io/#tcheeric/nostr-java)
 
-Introducing the nostr-java library, a solution written in java for generating, signing, and publishing nostr events to relays.
+Nostr-java is a library for generating, signing, and publishing nostr events to relays.
 
 ## Requirements
 - Maven
 - Java 22+
 
 ## Usage
-To use the library in your project, add the following dependency to your pom.xml file.
+To use it in your project, add the following to your pom.xml file.
 
-Add the properties:
 ```xml
     <properties>
         <nostr-java.version>0.6.2</nostr-java.version>
@@ -18,7 +17,6 @@ Add the properties:
     </properties>
 ```
 
-Add Jitpack to the repositories:
 ```xml
     <repositories>
         <repository>
@@ -28,23 +26,14 @@ Add Jitpack to the repositories:
     </repositories>
 ```
 
-And finally add the dependencies:
 ```xml
-        <dependency>
+    <dependencies>
+         <dependency>
             <groupId>nostr-java</groupId>
             <artifactId>nostr-java-api</artifactId>
             <version>${nostr-java.version}</version>
         </dependency>
-        <dependency>
-            <groupId>nostr-java</groupId>
-            <artifactId>nostr-java-event</artifactId>
-            <version>${nostr-java.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>nostr-java</groupId>
-            <artifactId>nostr-java-id</artifactId>
-            <version>${nostr-java.version}</version>
-        </dependency>
+    </dependencies>
 ```
 
 ## Examples
