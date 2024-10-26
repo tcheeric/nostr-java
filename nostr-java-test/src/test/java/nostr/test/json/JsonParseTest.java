@@ -1,6 +1,6 @@
 package nostr.test.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
@@ -28,27 +28,29 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author eric
  */
+@Log
 public class JsonParseTest {
 
     @Test
     public void testBaseMessageDecoder() {
-        System.out.println("testBaseMessageDecoder");
+        log.info("testBaseMessageDecoder");
 
         final String parseTarget =
-                "[\"REQ\", " +
+            "[\"REQ\", " +
                 "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
                 "{\"kinds\": [1], " +
                 "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
@@ -73,8 +75,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseReqMessageDecoder() throws JsonProcessingException {
-        System.out.println("testBaseReqMessageDecoder");
+    public void testBaseReqMessageDecoder() {
+        log.info("testBaseReqMessageDecoder");
 
         final var filtersList = new ArrayList<Filters>();
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
@@ -85,36 +87,38 @@ public class JsonParseTest {
 
         final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
 
-        var jsonMessage = reqMessage.encode();
+        assertDoesNotThrow(() -> {
+            String jsonMessage = reqMessage.encode();
 
-        var jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
-        var parts = jsonMsg.split(",");
-        Assertions.assertEquals("\"REQ\"", parts[0]);
-        Assertions.assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
-        Assertions.assertFalse(parts[2].startsWith("["));
-        Assertions.assertFalse(parts[parts.length - 1].endsWith("]"));
+            String jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
+            String[] parts = jsonMsg.split(",");
+            assertEquals("\"REQ\"", parts[0]);
+            assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
+            assertFalse(parts[2].startsWith("["));
+            assertFalse(parts[parts.length - 1].endsWith("]"));
 
-        var message = new BaseMessageDecoder<>().decode(jsonMessage);
+            BaseMessage message = new BaseMessageDecoder<>().decode(jsonMessage);
 
-        assertEquals(reqMessage, message);
+            assertEquals(reqMessage, message);
+        });
     }
 
     @Test
     public void testBaseEventMessageDecoder() {
-        System.out.println("testBaseEventMessageDecoder");
+        log.info("testBaseEventMessageDecoder");
 
         final String parseTarget
-                = "[\"EVENT\","
-                  + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
-                  + "{"
-                  + "\"content\":\"直んないわ。まあええか\","
-                  + "\"created_at\":1686199583,"
-                  + "\"id\":\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\","
-                  + "\"kind\":1,"
-                  + "\"pubkey\":\"8c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\","
-                  + "\"sig\":\"9584afd231c52fcbcec6ce668a2cc4b6dc9b4d9da20510dcb9005c6844679b4844edb7a2e1e0591958b0295241567c774dbf7d39a73932877542de1a5f963f4b\","
-                  + "\"tags\":[]"
-                  + "}]";
+            = "[\"EVENT\","
+            + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
+            + "{"
+            + "\"content\":\"直んないわ。まあええか\","
+            + "\"created_at\":1686199583,"
+            + "\"id\":\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\","
+            + "\"kind\":1,"
+            + "\"pubkey\":\"8c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\","
+            + "\"sig\":\"9584afd231c52fcbcec6ce668a2cc4b6dc9b4d9da20510dcb9005c6844679b4844edb7a2e1e0591958b0295241567c774dbf7d39a73932877542de1a5f963f4b\","
+            + "\"tags\":[]"
+            + "}]";
 
         final var message = new BaseMessageDecoder<>().decode(parseTarget);
 
@@ -129,23 +133,23 @@ public class JsonParseTest {
 
     @Test
     public void testBaseEventMessageMarkerDecoder() {
-        System.out.println("testBaseEventMessageMarkerDecoder");
+        log.info("testBaseEventMessageMarkerDecoder");
 
-        String json = "["
-                      + "\"EVENT\","
-                      + "\"temp20230627\","
-                      + "{"
-                      + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
-                      + "\"kind\":1,"
-                      + "\"pubkey\":\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\","
-                      + "\"created_at\":1687765220,"
-                      + "\"content\":\"手順書が間違ってたら作業者は無理だな\","
-                      + "\"tags\":["
-                      + "[\"e\",\"494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346\",\"\",\"root\"],"
-                      + "[\"p\",\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\"]"
-                      + "],"
-                      + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
-                      + "}]";
+        final String json = "["
+            + "\"EVENT\","
+            + "\"temp20230627\","
+            + "{"
+            + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
+            + "\"kind\":1,"
+            + "\"pubkey\":\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\","
+            + "\"created_at\":1687765220,"
+            + "\"content\":\"手順書が間違ってたら作業者は無理だな\","
+            + "\"tags\":["
+            + "[\"e\",\"494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4346\",\"\",\"root\"],"
+            + "[\"p\",\"2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984\"]"
+            + "],"
+            + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
+            + "}]";
 
         BaseMessage message = new BaseMessageDecoder<>().decode(json);
 
@@ -161,7 +165,7 @@ public class JsonParseTest {
 
     @Test
     public void testGenericTagDecoder() {
-        System.out.println("testGenericTagDecoder");
+        log.info("testGenericTagDecoder");
         final String jsonString = "[\"saturn\", \"jetpack\", false]";
 
         var tag = new GenericTagDecoder<>().decode(jsonString);
@@ -173,23 +177,23 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testClassifiedListingTagSerializer() throws NostrException, JsonProcessingException {
-        System.out.println("testClassifiedListingSerializer");
-        var classifiedListingEventJson = "{"
-                                         + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
-                                         + "\"kind\":30402,"
-                                         + "\"content\":\"content ipsum\","
-                                         + "\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\","
-                                         + "\"created_at\":1687765220,"
-                                         + "\"tags\":["
-                                         + "[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],"
-                                         + "[\"title\",\"title ipsum\"],"
-                                         + "[\"summary\",\"summary ipsum\"],"
-                                         + "[\"published_at\",\"1687765220\"],"
-                                         + "[\"location\",\"location ipsum\"],"
-                                         + "[\"price\",\"11111\",\"BTC\",\"1\"]],"
-                                         + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
-                                         + "}]";
+    public void testClassifiedListingTagSerializer() {
+        log.info("testClassifiedListingSerializer");
+        final String classifiedListingEventJson = "{"
+            + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
+            + "\"kind\":30402,"
+            + "\"content\":\"content ipsum\","
+            + "\"pubkey\":\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\","
+            + "\"created_at\":1687765220,"
+            + "\"tags\":["
+            + "[\"p\",\"ec0762fe78b0f0b763d1324452d973a38bef576d1d76662722d2b8ff948af1de\"],"
+            + "[\"title\",\"title ipsum\"],"
+            + "[\"summary\",\"summary ipsum\"],"
+            + "[\"published_at\",\"1687765220\"],"
+            + "[\"location\",\"location ipsum\"],"
+            + "[\"price\",\"11111\",\"BTC\",\"1\"]],"
+            + "\"sig\":\"86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546\""
+            + "}]";
 
         GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
         EventMessage message = NIP01.createEventMessage(event, "1");
@@ -205,73 +209,76 @@ public class JsonParseTest {
         assertEquals("86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546", event.getSignature().toString());
 
         assertEquals(new BigDecimal("11111"), event.getTags().stream().filter(baseTag ->
-                        baseTag.getCode().equalsIgnoreCase("price"))
-                .filter(PriceTag.class::isInstance)
-                .map(PriceTag.class::cast)
-                .map(PriceTag::getNumber).findFirst().orElseThrow());
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getNumber).findFirst().orElseThrow());
 
         assertEquals("BTC", event.getTags().stream().filter(baseTag ->
-                        baseTag.getCode().equalsIgnoreCase("price"))
-                .filter(PriceTag.class::isInstance)
-                .map(PriceTag.class::cast)
-                .map(PriceTag::getCurrency).findFirst().orElseThrow());
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getCurrency).findFirst().orElseThrow());
 
         assertEquals("1", event.getTags().stream().filter(baseTag ->
-                        baseTag.getCode().equalsIgnoreCase("price"))
-                .filter(PriceTag.class::isInstance)
-                .map(PriceTag.class::cast)
-                .map(PriceTag::getFrequency).findFirst().orElseThrow());
+                baseTag.getCode().equalsIgnoreCase("price"))
+            .filter(PriceTag.class::isInstance)
+            .map(PriceTag.class::cast)
+            .map(PriceTag::getFrequency).findFirst().orElseThrow());
 
         List<GenericTag> genericTags = event.getTags().stream()
-                .filter(GenericTag.class::isInstance)
-                .map(GenericTag.class::cast).toList();
+            .filter(GenericTag.class::isInstance)
+            .map(GenericTag.class::cast).toList();
 
         assertEquals("title ipsum", genericTags.stream()
-                .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("summary ipsum", genericTags.stream()
-                .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("1687765220", genericTags.stream()
-                .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
 
         assertEquals("location ipsum", genericTags.stream()
-                .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
     }
 
     @Test
-    public void testDeserializeTag() throws NostrException {
-        System.out.println("testDeserializeTag");
+    public void testDeserializeTag() {
+        log.info("testDeserializeTag");
 
-        String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
-        final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder<>().decode(jsonString);
+        assertDoesNotThrow(() -> {
+            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
+            var tag = new BaseTagDecoder<>().decode(jsonString);
 
-        Assertions.assertTrue(tag instanceof PubKeyTag);
+            assertTrue(tag instanceof PubKeyTag);
 
-        PubKeyTag pTag = (PubKeyTag) tag;
-        assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
-        assertEquals(npubHex, pTag.getPublicKey().toString());
-        assertEquals("alice", pTag.getPetName());
+            PubKeyTag pTag = (PubKeyTag) tag;
+            assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
+            assertEquals(npubHex, pTag.getPublicKey().toString());
+            assertEquals("alice", pTag.getPetName());
+        });
     }
 
     @Test
-    public void testDeserializeGenericTag() throws NostrException {
-        System.out.println("testDeserializeGenericTag");
+    public void testDeserializeGenericTag() {
+        log.info("testDeserializeGenericTag");
+        assertDoesNotThrow(() -> {
+            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
+            var tag = new BaseTagDecoder<>().decode(jsonString);
 
-        String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
-        final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder<>().decode(jsonString);
+            assertTrue(tag instanceof GenericTag);
 
-        Assertions.assertTrue(tag instanceof GenericTag);
-
-        GenericTag gTag = (GenericTag) tag;
-        assertEquals("gt", gTag.getCode());
+            GenericTag gTag = (GenericTag) tag;
+            assertEquals("gt", gTag.getCode());
+        });
     }
 
     @Test
     public void testFiltersEncoder() {
-        System.out.println("testFiltersEncoder");
+        log.info("testFiltersEncoder");
 
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
@@ -287,8 +294,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() throws JsonProcessingException {
-        System.out.println("testFiltersEncoder");
+    public void testReqMessageSerializer() {
+        log.info("testFiltersEncoder");
 
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
@@ -299,8 +306,11 @@ public class JsonParseTest {
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
         ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
-        String jsonMessage = reqMessage.encode();
+        assertDoesNotThrow(() -> {
+            String jsonMessage = reqMessage.encode();
 
-        assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+        });
     }
+
 }
