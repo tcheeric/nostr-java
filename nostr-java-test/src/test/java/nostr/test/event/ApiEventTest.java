@@ -2,6 +2,7 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP15;
@@ -25,7 +26,6 @@ import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
 import nostr.id.Identity;
 import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -36,10 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  *
  * @author eric
  */
+@Log
 public class ApiEventTest {
 
     public static final String NOSTR_JAVA_PUBKEY = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
@@ -47,8 +50,8 @@ public class ApiEventTest {
     private static final Map<String, String> RELAYS = getRelays();
 
     @Test
-    public void testNIP01CreateTextNoteEvent() throws NostrException {
-        System.out.println("testNIP01CreateTextNoteEvent");
+    public void testNIP01CreateTextNoteEvent() {
+        log.info("testNIP01CreateTextNoteEvent");
 
         PublicKey publicKey = new PublicKey("");
         var recipient = NIP01.createPubKeyTag(publicKey);
@@ -60,13 +63,15 @@ public class ApiEventTest {
 				.getEvent();
         instance.update();
 
-        Assertions.assertNotNull(instance.getId());
-        Assertions.assertNotNull(instance.getCreatedAt());
-        Assertions.assertNull(instance.getSignature());
+        assertNotNull(instance.getId());
+        assertNotNull(instance.getCreatedAt());
+        assertNull(instance.getSignature());
 
         final String bech32 = instance.toBech32();
-        Assertions.assertNotNull(bech32);
-        Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        assertNotNull(bech32);
+        assertDoesNotThrow(() -> {
+            assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        });
     }
 
     @Test
@@ -79,7 +84,7 @@ public class ApiEventTest {
         		.sign();
 
         var signature = instance.getEvent().getSignature();
-        Assertions.assertNotNull(signature);
+        assertNotNull(signature);
         instance.setRelays(RELAYS).send();
 
         //Assertions.assertNotNull(instance.responses());
@@ -98,7 +103,7 @@ public class ApiEventTest {
         		.sign();
         
         var signature = instance.getEvent().getSignature();
-        Assertions.assertNotNull(signature);
+        assertNotNull(signature);
         instance.setRelays(RELAYS).send();
     }
 
@@ -112,7 +117,7 @@ public class ApiEventTest {
         var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
-        Assertions.assertNotNull(instance.getEvent().getSignature());
+        assertNotNull(instance.getEvent().getSignature());
         instance.setRelays(RELAYS).send();
     }
 
@@ -128,7 +133,7 @@ public class ApiEventTest {
 
         var message = NIP04.decrypt(identity, instance.getEvent());
 
-        Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
+        assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
 
     @Test
@@ -143,11 +148,11 @@ public class ApiEventTest {
         var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         var message = NIP44.decrypt(identity, instance.getEvent());
 
-        Assertions.assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
+        assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
     }
 
     @Test
-    public void testNIP15CreateStallEvent() throws JsonProcessingException {
+    public void testNIP15CreateStallEvent() {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
@@ -156,14 +161,18 @@ public class ApiEventTest {
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
         var signature = instance.getEvent().getSignature();
-        Assertions.assertNotNull(signature);
+        assertNotNull(signature);
 
         // Fetch the content and compare with the above original
         var content = instance.getEvent().getContent();
         ObjectMapper mapper = new ObjectMapper();
-        var expected = mapper.readValue(content, Stall.class);
+        assertDoesNotThrow(() -> {
+            Stall expected = mapper.readValue(content, Stall.class);
+            assertEquals(expected, stall);
+        });
 
-        Assertions.assertEquals(expected, stall);
+
+
     }
 
     @Test
@@ -176,7 +185,7 @@ public class ApiEventTest {
         // Create and send the nostr event
         var instance = nip15.createCreateOrUpdateStallEvent(stall).sign();
         var signature = instance.getEvent().getSignature();
-        Assertions.assertNotNull(signature);
+        assertNotNull(signature);
         nip15.setRelays(RELAYS).send();
 
         // Update the shipping
@@ -235,9 +244,9 @@ public class ApiEventTest {
         
         var langNS = NIP32.createNameSpaceTag("Languages");
         
-        Assertions.assertEquals("L", langNS.getCode());
-        Assertions.assertEquals(1, langNS.getAttributes().size());
-        Assertions.assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
+        assertEquals("L", langNS.getCode());
+        assertEquals(1, langNS.getAttributes().size());
+        assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
     }
     
     @Test
@@ -247,10 +256,10 @@ public class ApiEventTest {
                 
         var label = NIP32.createLabelTag("Languages", "english");
         
-        Assertions.assertEquals("l", label.getCode());
-        Assertions.assertEquals(2, label.getAttributes().size());
-        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
-        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
+        assertEquals("l", label.getCode());
+        assertEquals(2, label.getAttributes().size());
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
     }
 
     @Test
@@ -262,15 +271,15 @@ public class ApiEventTest {
         metadata.put("article", "the");
         var label = NIP32.createLabelTag("Languages", "english", metadata);
         
-        Assertions.assertEquals("l", label.getCode());
-        Assertions.assertEquals(3, label.getAttributes().size());
-        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
-        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
-        Assertions.assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
+        assertEquals("l", label.getCode());
+        assertEquals(3, label.getAttributes().size());
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
     }
 
     @Test
-    void testNIP57CreateZapRequestEvent() throws NostrException {
+    void testNIP57CreateZapRequestEvent() {
         System.out.println("testNIP57CreateZapRequestEvent");
 
         Identity sender = Identity.generateRandomIdentity();
@@ -284,28 +293,30 @@ public class ApiEventTest {
         ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
         instance.update();
 
-        Assertions.assertNotNull(instance.getId());
-        Assertions.assertNotNull(instance.getCreatedAt());
-        Assertions.assertNotNull(instance.getContent());
-        Assertions.assertNull(instance.getSignature());
+        assertNotNull(instance.getId());
+        assertNotNull(instance.getCreatedAt());
+        assertNotNull(instance.getContent());
+        assertNull(instance.getSignature());
 
-        Assertions.assertNotNull(instance.getZapRequest());
-        Assertions.assertNotNull(instance.getZapRequest().getRelaysTag());
-        Assertions.assertNotNull(instance.getZapRequest().getAmount());
-        Assertions.assertNotNull(instance.getZapRequest().getLnUrl());
+        assertNotNull(instance.getZapRequest());
+        assertNotNull(instance.getZapRequest().getRelaysTag());
+        assertNotNull(instance.getZapRequest().getAmount());
+        assertNotNull(instance.getZapRequest().getLnUrl());
 
-        Assertions.assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
-        Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
-        Assertions.assertEquals(AMOUNT, instance.getZapRequest().getAmount());
-        Assertions.assertEquals(LNURL, instance.getZapRequest().getLnUrl());
+        assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
+        assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
+        assertEquals(AMOUNT, instance.getZapRequest().getAmount());
+        assertEquals(LNURL, instance.getZapRequest().getLnUrl());
 
         final String bech32 = instance.toBech32();
-        Assertions.assertNotNull(bech32);
-        Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        assertNotNull(bech32);
+        assertDoesNotThrow(() -> {
+            assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        });
     }
 
     @Test
-    void testNIP57CreateZapReceiptEvent() throws NostrException {
+    void testNIP57CreateZapReceiptEvent() {
         System.out.println("testNIP57CreateZapReceiptEvent");
 
         Identity sender = Identity.generateRandomIdentity();
@@ -323,23 +334,25 @@ public class ApiEventTest {
         ZapReceiptEvent instance = nip57.createZapReceiptEvent(zapRequestPubKeyTag, baseTags, zapRequestEventTag, zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE).getEvent();
         instance.update();
 
-        Assertions.assertNotNull(instance.getId());
-        Assertions.assertNotNull(instance.getCreatedAt());
-        Assertions.assertNull(instance.getSignature());
+        assertNotNull(instance.getId());
+        assertNotNull(instance.getCreatedAt());
+        assertNull(instance.getSignature());
 
 
-        Assertions.assertNotNull(instance.getZapReceipt());
-        Assertions.assertNotNull(instance.getZapReceipt().getBolt11());
-        Assertions.assertNotNull(instance.getZapReceipt().getDescriptionSha256());
-        Assertions.assertNotNull(instance.getZapReceipt().getPreimage());
+        assertNotNull(instance.getZapReceipt());
+        assertNotNull(instance.getZapReceipt().getBolt11());
+        assertNotNull(instance.getZapReceipt().getDescriptionSha256());
+        assertNotNull(instance.getZapReceipt().getPreimage());
 
-        Assertions.assertEquals(BOLT_11, instance.getZapReceipt().getBolt11());
-        Assertions.assertEquals(DESCRIPTION_SHA256, instance.getZapReceipt().getDescriptionSha256());
-        Assertions.assertEquals(PRE_IMAGE, instance.getZapReceipt().getPreimage());
+        assertEquals(BOLT_11, instance.getZapReceipt().getBolt11());
+        assertEquals(DESCRIPTION_SHA256, instance.getZapReceipt().getDescriptionSha256());
+        assertEquals(PRE_IMAGE, instance.getZapReceipt().getPreimage());
 
         final String bech32 = instance.toBech32();
-        Assertions.assertNotNull(bech32);
-        Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        assertNotNull(bech32);
+        assertDoesNotThrow(() -> {
+            assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        });
     }
 
     private Stall createStall() {
