@@ -42,6 +42,7 @@ public class EventMessage extends BaseMessage {
         return IEncoder.MAPPER.writeValueAsString(
             getArrayNode()
                 .add(getCommand())
+                .add(getSubscriptionId())
                 .add(IEncoder.MAPPER.readTree(
                     new BaseEventEncoder<>((BaseEvent)getEvent()).encode())));
     }
