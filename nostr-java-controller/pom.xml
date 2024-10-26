@@ -4,7 +4,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.6.2.1-SNAPSHOT</version>
+        <version>0.6.2.1</version>
     </parent>
 
     <artifactId>nostr-java-controller</artifactId>
