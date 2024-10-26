@@ -12,7 +12,7 @@ To use it in your project, add the following to your pom.xml file.
 
 ```xml
     <properties>
-        <nostr-java.version>0.6.2</nostr-java.version>
+        <nostr-java.version>v0.007.1-alpha</nostr-java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 ```
