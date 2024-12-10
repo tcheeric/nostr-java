@@ -32,8 +32,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <okhttp.version>4.9.3</okhttp.version>
         <okio.version>2.8.0</okio.version>
@@ -90,7 +90,7 @@
                 <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
-                        
+
         </dependencies>
     </dependencyManagement>
 
