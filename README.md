@@ -1,27 +1,47 @@
 # nostr-java
-[![](https://jitpack.io/v/tcheeric/nostr-java.svg)](https://jitpack.io/#tcheeric/nostr-java)
+[![](https://jitpack.io/v/xyz.tcheeric/nostr-java.svg)](https://jitpack.io/#xyz.tcheeric/nostr-java)
 
-Introducing the nostr-java library, a solution written in java for generating, signing, and publishing nostr events to relays.
+Nostr-java is a library for generating, signing, and publishing nostr events to relays.
 
 ## Requirements
 - Maven
-- Java 19+
+- Java 22+
 
 ## Usage
-To use the library in your project, add the following dependency to your pom.xml file:
+To use it in your project, add the following to your pom.xml file.
+
 ```xml
-<dependency>
-    <groupId>com.github.tcheeric.nostr-java</groupId>
-    <artifactId>nostr-java-api</artifactId>
-    <version>${nostr.java.version}</version>
-</dependency>
+    <properties>
+        <nostr-java.version>v0.007.1-alpha</nostr-java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 ```
 
-I recommend having a look at:
+```xml
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+```
+
+```xml
+    <dependencies>
+         <dependency>
+            <groupId>nostr-java</groupId>
+            <artifactId>nostr-java-api</artifactId>
+            <version>${nostr-java.version}</version>
+        </dependency>
+    </dependencies>
+```
+
+## Examples
+I recommend having a look at these repositories/module for examples:
   - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
+  - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
   - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
-for simple examples on how to use the library.
 
 ## Supported NIPs
 The following NIPs are supported by the API out-of-the-box:
@@ -47,6 +67,3 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md)
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)
 - [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md)
-
-## Dev Discussion Group:
-- Nostr Public Channel: nostr:nevent1qqszqdmxg26sehmnyrcu2ler8azz6wyj6fh0qg3ad5fnnm6xfqqvhzcppamhxue69uhkummnw3ezumt0d5pzpl7nwh45p66gvet2q28dhjpcyh6clux4cjsm5gh7waza9pzjnmgglv06ew

@@ -12,35 +12,37 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventTagTest {
-  @Test
-  void getSupportedFields() {
-    String eventId = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
-    String recommendedRelayUrl = "ws://localhost:5555";
 
-    EventTag eventTag = new EventTag(eventId);
-    eventTag.setMarker(Marker.REPLY);
-    eventTag.setRecommendedRelayUrl(recommendedRelayUrl);
+    @Test
+    void getSupportedFields() {
+        String eventId = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        String recommendedRelayUrl = "ws://localhost:5555";
 
-    assertDoesNotThrow(() -> {
-      List<Field> fields = eventTag.getSupportedFields();
-      assertTrue(fields.stream().anyMatch(field -> field.getName().equals("idEvent")));
-      assertTrue(fields.stream().anyMatch(field -> field.getName().equals("recommendedRelayUrl")));
-      assertTrue(fields.stream().anyMatch(field -> field.getName().equals("marker")));
+        EventTag eventTag = new EventTag(eventId);
+        eventTag.setMarker(Marker.REPLY);
+        eventTag.setRecommendedRelayUrl(recommendedRelayUrl);
 
-      assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(eventId)));
-      assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equalsIgnoreCase(Marker.REPLY.getValue())));
-      assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(recommendedRelayUrl)));
+        assertDoesNotThrow(() -> {
+            List<Field> fields = eventTag.getSupportedFields();
+            assertTrue(fields.stream().anyMatch(field -> field.getName().equals("idEvent")));
+            assertTrue(fields.stream().anyMatch(field -> field.getName().equals("recommendedRelayUrl")));
+            assertTrue(fields.stream().anyMatch(field -> field.getName().equals("marker")));
 
-      assertFalse(fields.stream().anyMatch(field -> field.getName().equals("idEventXXX")));
-      assertFalse(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(eventId + "x")));
-    });
-  }
+            assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(eventId)));
+            assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equalsIgnoreCase(Marker.REPLY.getValue())));
+            assertTrue(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(recommendedRelayUrl)));
 
-  private String getFieldValue(Field field, EventTag eventTag) {
-    final String[] returnVal = new String[1];
-    assertDoesNotThrow(() -> {
-      returnVal[0] = eventTag.getFieldValue(field);
-    });
-    return returnVal[0];
-  }
+            assertFalse(fields.stream().anyMatch(field -> field.getName().equals("idEventXXX")));
+            assertFalse(fields.stream().map(field -> getFieldValue(field, eventTag)).anyMatch(fieldValue -> fieldValue.equals(eventId + "x")));
+        });
+    }
+
+    private String getFieldValue(Field field, EventTag eventTag) {
+        final String[] returnVal = new String[1];
+        assertDoesNotThrow(() -> {
+            returnVal[0] = eventTag.getFieldValue(field);
+        });
+        return returnVal[0];
+    }
+
 }

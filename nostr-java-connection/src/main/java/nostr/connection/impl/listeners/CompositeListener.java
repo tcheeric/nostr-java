@@ -4,10 +4,8 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okhttp3.Response;
 import okio.ByteString;
-import java.nio.ByteBuffer;
+
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class CompositeListener extends WebSocketListener {
     private final List<WebSocketListener> listeners;

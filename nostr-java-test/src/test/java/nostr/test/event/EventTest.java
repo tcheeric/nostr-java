@@ -1,6 +1,7 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 
 import org.junit.jupiter.api.Assertions;
@@ -22,32 +23,37 @@ import nostr.test.EntityFactory;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  *
  * @author squirrel
  */
+@Log
 public class EventTest {
 
     public EventTest() {
     }
 
     @Test
-    public void testCreateTextNoteEvent() throws NostrException {
-        System.out.println("testCreateTextNoteEvent");
+    public void testCreateTextNoteEvent(){
+        log.info("testCreateTextNoteEvent");
         PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
         instance.update();
-        Assertions.assertNotNull(instance.getId());
-        Assertions.assertNotNull(instance.getCreatedAt());
-        Assertions.assertNull(instance.getSignature());
+        assertNotNull(instance.getId());
+        assertNotNull(instance.getCreatedAt());
+        assertNull(instance.getSignature());
         final String bech32 = instance.toBech32();
-        Assertions.assertNotNull(bech32);
-        Assertions.assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        assertNotNull(bech32);
+        assertDoesNotThrow(() -> {
+            assertEquals(Bech32Prefix.NOTE.getCode(), Bech32.decode(bech32).hrp);
+        });
     }
 
     @Test
-    public void testCreateGenericTag() throws JsonProcessingException {
-        System.out.println("testCreateGenericTag");
+    public void testCreateGenericTag() {
+        log.info("testCreateGenericTag");
         PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
@@ -62,9 +68,10 @@ public class EventTest {
         var encoder = new BaseTagEncoder(genericTag, relay);
         var strJsonEvent = encoder.encode();
 
-        var tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
-        Assertions.assertEquals(genericTag, tag);
-
+        assertDoesNotThrow(() -> {
+            BaseTag tag = IEncoder.MAPPER.readValue(strJsonEvent, BaseTag.class);
+            assertEquals(genericTag, tag);
+        });
     }
 
     @Test
@@ -106,7 +113,7 @@ public class EventTest {
     // TODO - Rewrite the test class after implementing the configuration
 /*
     @Test
-    public void testCreateUnsupportedGenericTag() throws IOException, NostrException {
+    public void testCreateUnsupportedGenericTag() {
         System.out.println("testCreateUnsupportedGenericTag");
         //PublicKey publicKey = this.identity.getPublicKey();
         PublicKey publicKey = Identity.getInstance().getPublicKey();
@@ -140,9 +147,9 @@ public class EventTest {
 
             nip05Validator.validate();
         } catch (NostrException ex) {
-            Assertions.fail(ex);
+            fail(ex);
         }
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
@@ -154,6 +161,6 @@ public class EventTest {
         msg.addAttribute(ElementAttribute.builder().name("challenge").value(attr).build());
 
         var muattr = (msg.getAttributes().iterator().next().getValue()).toString();
-        Assertions.assertEquals(attr, muattr);
+        assertEquals(attr, muattr);
     }
 }

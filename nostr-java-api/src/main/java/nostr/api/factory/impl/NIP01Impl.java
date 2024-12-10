@@ -128,8 +128,8 @@ public class NIP01Impl {
         private String subscriptionId;
 
         public EventMessageFactory(@NonNull IEvent event, @NonNull String subscriptionId) {
-          this.event = event;
-          this.subscriptionId = subscriptionId;
+            this.event = event;
+            this.subscriptionId = subscriptionId;
         }
 
         @Override

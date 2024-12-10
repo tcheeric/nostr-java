@@ -1,6 +1,5 @@
 package nostr.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;

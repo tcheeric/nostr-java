@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import nostr.base.FEncoder;
 import nostr.base.GenericTagQuery;
-import nostr.base.IEncoder;
 import nostr.base.Relay;
 
 /**

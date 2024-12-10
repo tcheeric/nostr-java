@@ -1,6 +1,6 @@
 package nostr.test.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
@@ -27,24 +27,26 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author eric
  */
+@Log
 public class JsonParseTest {
 
     @Test
     public void testBaseMessageDecoder() {
-        System.out.println("testBaseMessageDecoder");
+        log.info("testBaseMessageDecoder");
 
         final String parseTarget =
             "[\"REQ\", " +
@@ -72,8 +74,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseReqMessageDecoder() throws JsonProcessingException {
-        System.out.println("testBaseReqMessageDecoder");
+    public void testBaseReqMessageDecoder() {
+        log.info("testBaseReqMessageDecoder");
 
         final var filtersList = new ArrayList<Filters>();
         var publicKey = Identity.generateRandomIdentity().getPublicKey();
@@ -81,23 +83,25 @@ public class JsonParseTest {
         filtersList.add(Filters.builder().kinds(new ArrayList<>(List.of(Kind.SET_METADATA, Kind.TEXT_NOTE))).build());
         final var reqMessage = new ReqMessage(publicKey.toString(), filtersList);
 
-        var jsonMessage = reqMessage.encode();
+        assertDoesNotThrow(() -> {
+            String jsonMessage = reqMessage.encode();
 
-        var jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
-        var parts = jsonMsg.split(",");
-        Assertions.assertEquals("\"REQ\"", parts[0]);
-        Assertions.assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
-        Assertions.assertFalse(parts[2].startsWith("["));
-        Assertions.assertFalse(parts[parts.length - 1].endsWith("]"));
+            String jsonMsg = jsonMessage.substring(1, jsonMessage.length() - 1);
+            String[] parts = jsonMsg.split(",");
+            assertEquals("\"REQ\"", parts[0]);
+            assertEquals("\"" + publicKey.toString() + "\"", parts[1]);
+            assertFalse(parts[2].startsWith("["));
+            assertFalse(parts[parts.length - 1].endsWith("]"));
 
-        var message = new BaseMessageDecoder<>().decode(jsonMessage);
+            BaseMessage message = new BaseMessageDecoder<>().decode(jsonMessage);
 
-        assertEquals(reqMessage, message);
+            assertEquals(reqMessage, message);
+        });
     }
 
     @Test
     public void testBaseEventMessageDecoder() {
-        System.out.println("testBaseEventMessageDecoder");
+        log.info("testBaseEventMessageDecoder");
 
         final String parseTarget
             = "[\"EVENT\","
@@ -125,9 +129,9 @@ public class JsonParseTest {
 
     @Test
     public void testBaseEventMessageMarkerDecoder() {
-        System.out.println("testBaseEventMessageMarkerDecoder");
+        log.info("testBaseEventMessageMarkerDecoder");
 
-        String json = "["
+        final String json = "["
             + "\"EVENT\","
             + "\"temp20230627\","
             + "{"
@@ -157,7 +161,7 @@ public class JsonParseTest {
 
     @Test
     public void testGenericTagDecoder() {
-        System.out.println("testGenericTagDecoder");
+        log.info("testGenericTagDecoder");
         final String jsonString = "[\"saturn\", \"jetpack\", false]";
 
         var tag = new GenericTagDecoder<>().decode(jsonString);
@@ -169,9 +173,9 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testClassifiedListingTagSerializer() throws NostrException, JsonProcessingException {
-        System.out.println("testClassifiedListingSerializer");
-        var classifiedListingEventJson = "{"
+    public void testClassifiedListingTagSerializer() {
+        log.info("testClassifiedListingSerializer");
+        final String classifiedListingEventJson = "{"
             + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
             + "\"kind\":30402,"
             + "\"content\":\"content ipsum\","
@@ -236,38 +240,41 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testDeserializeTag() throws NostrException {
-        System.out.println("testDeserializeTag");
+    public void testDeserializeTag() {
+        log.info("testDeserializeTag");
 
-        String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
-        final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder<>().decode(jsonString);
+        assertDoesNotThrow(() -> {
+            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
+            var tag = new BaseTagDecoder<>().decode(jsonString);
 
-        Assertions.assertTrue(tag instanceof PubKeyTag);
+            assertTrue(tag instanceof PubKeyTag);
 
-        PubKeyTag pTag = (PubKeyTag) tag;
-        assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
-        assertEquals(npubHex, pTag.getPublicKey().toString());
-        assertEquals("alice", pTag.getPetName());
+            PubKeyTag pTag = (PubKeyTag) tag;
+            assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
+            assertEquals(npubHex, pTag.getPublicKey().toString());
+            assertEquals("alice", pTag.getPetName());
+        });
     }
 
     @Test
-    public void testDeserializeGenericTag() throws NostrException {
-        System.out.println("testDeserializeGenericTag");
+    public void testDeserializeGenericTag() {
+        log.info("testDeserializeGenericTag");
+        assertDoesNotThrow(() -> {
+            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
+            var tag = new BaseTagDecoder<>().decode(jsonString);
 
-        String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
-        final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
-        var tag = new BaseTagDecoder<>().decode(jsonString);
+            assertTrue(tag instanceof GenericTag);
 
-        Assertions.assertTrue(tag instanceof GenericTag);
-
-        GenericTag gTag = (GenericTag) tag;
-        assertEquals("gt", gTag.getCode());
+            GenericTag gTag = (GenericTag) tag;
+            assertEquals("gt", gTag.getCode());
+        });
     }
 
     @Test
     public void testFiltersEncoder() {
-        System.out.println("testFiltersEncoder");
+        log.info("testFiltersEncoder");
 
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
@@ -283,8 +290,8 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() throws JsonProcessingException {
-        System.out.println("testFiltersEncoder");
+    public void testReqMessageSerializer() {
+        log.info("testFiltersEncoder");
 
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
@@ -295,8 +302,11 @@ public class JsonParseTest {
         Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
 
         ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
-        String jsonMessage = reqMessage.encode();
+        assertDoesNotThrow(() -> {
+            String jsonMessage = reqMessage.encode();
 
-        assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+        });
     }
+
 }
