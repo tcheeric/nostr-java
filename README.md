@@ -5,7 +5,7 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
 
 ## Requirements
 - Maven
-- Java 22+
+- Java 21+
 
 ## Usage
 To use it in your project, add the following to your pom.xml file.
