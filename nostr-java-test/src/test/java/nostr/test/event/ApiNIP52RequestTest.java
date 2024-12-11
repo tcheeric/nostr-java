@@ -6,7 +6,6 @@ import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
-import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -137,15 +136,6 @@ class ApiNIP52RequestTest {
             mapper.readTree(expectedRequestResponseJson()),
             mapper.readTree(reqResponse)));
     springWebSocketRequestClient.closeSocket();
-
-    CalendarTimeBasedEvent calendarTimeBasedEvent = mapJsonToEvent(List.of(expectedRequestResponseJson()), CalendarTimeBasedEvent.class);
-    System.out.println(calendarTimeBasedEvent);
-    String encode = new BaseEventEncoder<>(calendarTimeBasedEvent).encode();
-    System.out.println("111111111111111111111");
-    System.out.println("111111111111111111111");
-    System.out.println(mapper.readTree(encode).toPrettyString());
-    System.out.println("111111111111111111111");
-    System.out.println("111111111111111111111");
   }
 
   private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {

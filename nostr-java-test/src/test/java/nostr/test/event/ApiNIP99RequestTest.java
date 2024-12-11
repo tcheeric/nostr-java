@@ -5,7 +5,6 @@ import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.ClassifiedListing;
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.GenericEvent;
@@ -123,13 +122,6 @@ class ApiNIP99RequestTest {
             mapper.readTree(expectedRequestResponseJson()),
             mapper.readTree(reqResponse.getFirst())));
     System.out.println(classifiedListingEvent);
-
-    String encode = new BaseEventEncoder<>(classifiedListingEvent).encode();
-    System.out.println("111111111111111111111");
-    System.out.println("111111111111111111111");
-    System.out.println(mapper.readTree(encode).toPrettyString());
-    System.out.println("111111111111111111111");
-    System.out.println("111111111111111111111");
   }
 
   private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
