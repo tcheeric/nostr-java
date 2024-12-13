@@ -10,7 +10,7 @@ import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-import nostr.event.json.serializer.AddressTagSerializer;
+import nostr.event.json.serializer.AddressableTagSerializer;
 
 /**
  *
@@ -22,9 +22,9 @@ import nostr.event.json.serializer.AddressTagSerializer;
 @Tag(code = "a", nip = 33)
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonSerialize(using = AddressTagSerializer.class)
-public class AddressTag extends BaseTag {
-    
+@JsonSerialize(using = AddressableTagSerializer.class)
+public class AddressableTag extends BaseTag {
+
     private Integer kind;
     private PublicKey publicKey;
     private IdentifierTag identifierTag;

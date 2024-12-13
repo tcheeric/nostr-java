@@ -20,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent> {
   //@JsonProperty
-  private final String id;
+  private String id;
 
   // below fields mandatory
   private final IdentifierTag identifierTag;
