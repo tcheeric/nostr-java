@@ -16,6 +16,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Setter
 @Getter
@@ -39,13 +40,13 @@ public class EventMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        var arrayNode = getArrayNode().add(getCommand());
-        if (getSubscriptionId() != null) {
-            arrayNode.add(getSubscriptionId());
-        }
-        arrayNode.add(IEncoder.MAPPER.readTree(
-                new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
-        return IEncoder.MAPPER.writeValueAsString(arrayNode);
+        Optional.ofNullable(getSubscriptionId())
+            .ifPresent(subscriptionId -> getArrayNode().add(subscriptionId));
+        return IEncoder.MAPPER.writeValueAsString(
+            getArrayNode()
+                .add(getCommand())
+                .add(IEncoder.MAPPER.readTree(
+                    new BaseEventEncoder<>((BaseEvent)getEvent()).encode())));
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {

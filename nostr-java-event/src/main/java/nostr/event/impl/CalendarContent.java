@@ -23,22 +23,22 @@ public class CalendarContent extends AbstractEventContent<CalendarTimeBasedEvent
   private String id;
 
   // below fields mandatory
-  private final IdentifierTag identifierTag;
-  private final String title;
-  private final Long start;
+  private IdentifierTag identifierTag;
+  private String title;
+  private Long start;
 
   // below fields optional
-  private Long end;
-  private String startTzid;
-  private String endTzid;
+//  private Long end;
+//  private String startTzid;
+//  private String endTzid;
   private String summary;
-  private String image;
+//  private String image;
   private String location;
-  private GeohashTag geohashTag;
+//  private GeohashTag geohashTag;
   private List<PubKeyTag> participantPubKeys;
-  private List<String> labels;
-  private List<HashtagTag> hashtagTags;
-  private List<ReferenceTag> referenceTags;
+//  private List<String> labels;
+//  private List<HashtagTag> hashtagTags;
+//  private List<ReferenceTag> referenceTags;
 
   public static CalendarContentBuilder builder(@NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
     return new CalendarContentBuilder()

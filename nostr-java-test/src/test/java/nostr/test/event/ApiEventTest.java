@@ -313,10 +313,10 @@ public class ApiEventTest {
         "Calendar Time-Based Event title",
         1716513986268L).build();
 
-    calendarContent.setStartTzid("1687765220");
-    calendarContent.setEndTzid("1687765230");
+//    calendarContent.setStartTzid("1687765220");
+//    calendarContent.setEndTzid("1687765230");
 
-    calendarContent.setLabels(List.of("english", "mycenaean greek"));
+//    calendarContent.setLabels(List.of("english", "mycenaean greek"));
 
     List<BaseTag> tags = new ArrayList<>();
     tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),

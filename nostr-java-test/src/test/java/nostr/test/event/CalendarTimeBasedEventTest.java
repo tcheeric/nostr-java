@@ -83,10 +83,10 @@ class CalendarTimeBasedEventTest {
 
     CalendarContent calendarContent = CalendarContent.builder(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START).build();
     // a random set of calendar tags
-    calendarContent.setEndTzid(CALENDAR_TIME_BASED_EVENT_END_TZID);
+//    calendarContent.setEndTzid(CALENDAR_TIME_BASED_EVENT_END_TZID);
     calendarContent.setSummary(CALENDAR_TIME_BASED_EVENT_SUMMARY);
     URI uri = new URI(str);
-    calendarContent.setReferenceTags(List.of(new ReferenceTag(uri)));
+//    calendarContent.setReferenceTags(List.of(new ReferenceTag(uri)));
 
     instance = new NIP52<>(identity).createCalendarTimeBasedEvent(tags, CALENDAR_TIME_BASED_EVENT_CONTENT, calendarContent).getEvent();
     signature = identity.sign(instance);
