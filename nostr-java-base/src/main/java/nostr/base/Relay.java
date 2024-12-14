@@ -2,6 +2,7 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +14,11 @@ import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.RuntimeException;
 
 /**
  * @author squirrel
  */
-//@Builder
+// @Builder
 @Data
 @EqualsAndHashCode
 @AllArgsConstructor
@@ -94,7 +94,6 @@ public class Relay {
     public String getHttpUri() {
         return this.scheme.replaceFirst("ws", "http") + "://" + this.host;
     }
-
 
     @Data
     @Builder
