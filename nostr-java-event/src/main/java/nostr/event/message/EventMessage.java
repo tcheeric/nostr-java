@@ -40,13 +40,12 @@ public class EventMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
+        var arrayNode = getArrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
-            .ifPresent(subscriptionId -> getArrayNode().add(subscriptionId));
-        return IEncoder.MAPPER.writeValueAsString(
-            getArrayNode()
-                .add(getCommand())
-                .add(IEncoder.MAPPER.readTree(
-                    new BaseEventEncoder<>((BaseEvent)getEvent()).encode())));
+            .ifPresent(arrayNode::add);
+        arrayNode.add(IEncoder.MAPPER.readTree(
+            new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
+        return IEncoder.MAPPER.writeValueAsString(arrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {

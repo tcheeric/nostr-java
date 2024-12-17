@@ -8,22 +8,31 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import nostr.test.util.JsonComparator;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static nostr.test.event.ApiEventTest.createProduct;
 import static nostr.test.event.ApiEventTest.createStall;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiEventTestUsingSpringWebSocketClientTest {
-  private static final String RELAY_URI = "ws://localhost:5555";
-  private final SpringWebSocketClient springWebSocketClient;
+  private static Map<String, String> relays;
+  private SpringWebSocketClient springWebSocketClient;
 
-  public ApiEventTestUsingSpringWebSocketClientTest() {
-    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+  @BeforeAll
+  static void setupBeforeAll() {
+    relays = ApiEventTest.getRelays();
+  }
+
+  @BeforeEach
+  void setupBeforeEach() {
+    relays.forEach((key, value) -> springWebSocketClient = new SpringWebSocketClient(value));
   }
 
   @Test
