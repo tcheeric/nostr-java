@@ -35,6 +35,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -127,14 +128,20 @@ public class NIP01Impl {
         private final IEvent event;
         private String subscriptionId;
 
-        public EventMessageFactory(@NonNull IEvent event, @NonNull String subscriptionId) {
+        public EventMessageFactory(@NonNull IEvent event) {
             this.event = event;
+        }
+
+        public EventMessageFactory(@NonNull IEvent event, @NonNull String subscriptionId) {
+            this(event);
             this.subscriptionId = subscriptionId;
         }
 
         @Override
         public EventMessage create() {
-            return new EventMessage(event, subscriptionId);
+            return Optional.ofNullable(subscriptionId)
+                .map(subscriptionId -> new EventMessage(event, subscriptionId))
+                .orElse(new EventMessage(event));
         }
 
     }
