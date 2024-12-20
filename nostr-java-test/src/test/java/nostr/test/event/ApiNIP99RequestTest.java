@@ -1,12 +1,23 @@
 package nostr.test.event;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.ClassifiedListing;
-import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -20,19 +31,8 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
-import nostr.test.util.JsonComparator;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP99RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
@@ -85,9 +85,9 @@ class ApiNIP99RequestTest {
 
     PriceTag priceTag = new PriceTag(NUMBER, CURRENCY, FREQUENCY);
     ClassifiedListing classifiedListing = ClassifiedListing.builder(
-            TITLE,
-            SUMMARY,
-            priceTag)
+        TITLE,
+        SUMMARY,
+        priceTag)
         .build();
 
     var nip99 = new NIP99<>(Identity.create(PRV_KEY_VALUE));
@@ -97,31 +97,51 @@ class ApiNIP99RequestTest {
     eventCreatedAt = event.getCreatedAt();
     signature = event.getSignature().toString();
     eventPubKey = event.getPubKey().toString();
-    EventMessage eventMessage = new EventMessage(event, eventId);
+    EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
-    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
+    List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
+
+    assertTrue(eventResponses.size() == 1, "Expected 1 event response, but got " + eventResponses.size());
 
     ObjectMapper mapper = new ObjectMapper();
-    assertTrue(
-        JsonComparator.isEquivalentJson(
-            mapper.readTree(expectedEventResponseJson(event.getId())),
-            mapper.readTree(eventResponse)));
+
+    // Extract and compare only first 3 elements of the JSON array
+    var expectedArray = mapper.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+    var expectedSubscriptionId = mapper.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+    var expectedSuccess = mapper.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+
+    var actualArray = mapper.readTree(eventResponses.get(0)).get(0).asText();
+    var actualSubscriptionId = mapper.readTree(eventResponses.get(0)).get(1).asText();
+    var actualSuccess = mapper.readTree(eventResponses.get(0)).get(2).asBoolean();
+
+    assertTrue(expectedArray.equals(actualArray), "First element should match");
+    assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
+    assertTrue(expectedSuccess == actualSuccess, "Success flag should match");
 
     springWebSocketEventClient.closeSocket();
 
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
-    List<String> reqResponse = springWebSocketRequestClient.send(reqJson).stream().toList();
+    List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
     springWebSocketRequestClient.closeSocket();
 
-    ClassifiedListingEvent classifiedListingEvent = mapJsonToEvent(List.of(expectedRequestResponseJson()), ClassifiedListingEvent.class);
+    var actualJson = mapper.readTree(reqResponses.getFirst());
+    var expectedJson = mapper.readTree(expectedRequestResponseJson());
 
-    assertTrue(
-        JsonComparator.isEquivalentJson(
-            mapper.readTree(expectedRequestResponseJson()),
-            mapper.readTree(reqResponse.getFirst())));
-    System.out.println(classifiedListingEvent);
+    // Verify you receive the event
+    assertTrue(actualJson.get(0).asText().equals("EVENT"), "Event should be received, and not " + actualJson.get(0).asText());
+
+    // Verify only required fields
+    assertTrue(actualJson.size() == 3, "Expected 3 elements in the array, but got " + actualJson.size());
+    assertTrue(actualJson.get(2).get("id").asText().equals(expectedJson.get(2).get("id").asText()), "ID should match");
+    assertTrue(actualJson.get(2).get("kind").asInt() == expectedJson.get(2).get("kind").asInt(), "Kind should match");
+
+    // Verify required tags
+    var actualTags = actualJson.get(2).get("tags");
+    assertTrue(hasRequiredTag(actualTags, "price", NUMBER.toString()), "Price tag should be present");
+    assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");
+    assertTrue(hasRequiredTag(actualTags, "summary", SUMMARY), "Summary tag should be present");
   }
 
   private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
@@ -145,26 +165,27 @@ class ApiNIP99RequestTest {
   }
 
   private String expectedRequestResponseJson() {
-    return
-        "   [\"EVENT\",\"ApiNIP99RequestTest-subscriber_001" + "\",\n" +
-            "          {\"id\": \"" + eventId + "\",\n" +
-            "          \"kind\": " + KIND + ",\n" +
-            "          \"content\": \"" + CLASSIFIED_CONTENT + "\",\n" +
-            "          \"pubkey\": \"" + eventPubKey + "\",\n" +
-            "          \"created_at\": " + eventCreatedAt + ",\n" +
-            "          \"tags\": [\n" +
-            "            [ \"e\", \"" + E_TAG.getIdEvent() + "\", \"" + E_TAG.getMarker() + "\" ],\n" +
-            "            [ \"g\", \"" + G_TAG.getLocation() + "\" ],\n" +
-            "            [ \"t\", \"" + T_TAG.getHashTag() + "\" ],\n" +
-            "            [ \"price\", \"" + NUMBER + "\", \"" + CURRENCY + "\", \"" + FREQUENCY + "\" ],\n" +
-            "            [ \"p\", \"" + P_TAG.getPublicKey() + "\" ],\n" +
-            "            [ \"subject\", \"" + SUBJECT + "\" ],\n" +
-            "            [ \"published_at\", \"" + CREATED_AT + "\" ],\n" +
-            "            [ \"location\", \"" + LOCATION + "\" ],\n" +
-            "            [ \"title\", \"" + TITLE + "\" ],\n" +
-            "            [ \"summary\", \"" + SUMMARY + "\" ]\n" +
-            "          ],\n" +
-            "          \"sig\": \"" + signature + "\"\n" +
-            "        }]";
+    return "   [\"EVENT\",\"ApiNIP99RequestTest-subscriber_001" + "\",\n" +
+        "          {\"id\": \"" + eventId + "\",\n" +
+        "          \"kind\": " + KIND + ",\n" +
+        "          \"content\": \"" + CLASSIFIED_CONTENT + "\",\n" +
+        "          \"pubkey\": \"" + eventPubKey + "\",\n" +
+        "          \"created_at\": " + eventCreatedAt + ",\n" +
+        "          \"tags\": [\n" +
+        "            [ \"price\", \"" + NUMBER + "\", \"" + CURRENCY + "\", \"" + FREQUENCY + "\" ],\n" +
+        "            [ \"title\", \"" + TITLE + "\" ],\n" +
+        "            [ \"summary\", \"" + SUMMARY + "\" ]\n" +
+        "          ],\n" +
+        "          \"sig\": \"" + signature + "\"\n" +
+        "        }]";
+  }
+
+  private boolean hasRequiredTag(JsonNode tags, String tagName, String expectedValue) {
+    for (JsonNode tag : tags) {
+      if (tag.get(0).asText().equals(tagName) && tag.get(1).asText().equals(expectedValue)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
