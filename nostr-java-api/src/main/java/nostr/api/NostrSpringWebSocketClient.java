@@ -1,5 +1,12 @@
 package nostr.api;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -16,13 +23,6 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class NostrSpringWebSocketClient implements NostrIF {
@@ -86,7 +86,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
   @Override
   public List<String> send(@NonNull IEvent event) {
-    EventMessage message = new EventMessage(event, event.getId());
+    EventMessage message = new EventMessage(event);
     return clients.stream().flatMap(client -> send(client, message).stream()).toList();
   }
 
