@@ -6,11 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.AbstractEventContent;
-import nostr.event.tag.GeohashTag;
-import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.ReferenceTag;
 
 import java.util.List;
 

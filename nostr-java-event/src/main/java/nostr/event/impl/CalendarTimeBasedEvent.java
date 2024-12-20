@@ -20,7 +20,6 @@ import nostr.event.NIP52Event;
 import nostr.event.impl.CalendarTimeBasedEvent.CalendarTimeBasedEventDeserializer;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.util.NostrUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
