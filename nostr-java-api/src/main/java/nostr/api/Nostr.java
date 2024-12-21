@@ -45,7 +45,7 @@ import java.util.concurrent.TimeoutException;
  * @author eric
  */
 @NoArgsConstructor
-public class Nostr {
+public class Nostr implements NostrIF {
 
     private static Nostr INSTANCE;
 
@@ -56,11 +56,11 @@ public class Nostr {
     @Getter
     private Map<String, String> relays;
 
-    public static Nostr getInstance() {
+    public static NostrIF getInstance() {
         return (INSTANCE == null) ? new Nostr() : INSTANCE;
     }
 
-    public static Nostr getInstance(@NonNull Identity sender) {
+    public static NostrIF getInstance(@NonNull Identity sender) {
         return (INSTANCE == null) ? new Nostr(sender) : INSTANCE;
     }
 
@@ -68,18 +68,21 @@ public class Nostr {
         this.sender = sender;
     }
 
-    public Nostr setSender(@NonNull Identity sender) {
+    @Override
+    public NostrIF setSender(@NonNull Identity sender) {
         this.sender = sender;
 
         return this;
     }
 
-    public Nostr setRelays(@NonNull Map<String, String> relays) {
+    @Override
+    public NostrIF setRelays(@NonNull Map<String, String> relays) {
         this.relays = relays;
 
         return this;
     }
 
+    @Override
     public void close() {
         if (client == null) {
             throw new IllegalStateException("Client is not initialized");
@@ -91,45 +94,52 @@ public class Nostr {
         }
     }
 
-    public void send(@NonNull IEvent event) {
-        send(event, getRelays());
+    @Override
+    public List<String> send(@NonNull IEvent event) {
+        return send(event, getRelays());
     }
 
-    public void send(@NonNull IEvent event, Map<String, String> relays) {
+    @Override
+    public List<String> send(@NonNull IEvent event, Map<String, String> relays) {
         var context = new DefaultRequestContext();
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
         context.setRelays(relays);
 
-        send(new EventMessage(event), context);
+        return send(new EventMessage(event), context);
     }
 
 
-    public void send(@NonNull Filters filters, @NonNull String subscriptionId) {
-        send(filters, subscriptionId, getRelays());
+    @Override
+    public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId) {
+        return send(filters, subscriptionId, getRelays());
     }
 
-    public void send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    @Override
+    public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
         List<Filters> filtersList = new ArrayList<>();
         filtersList.add(filters);
 
-        send(filtersList, subscriptionId, relays);
+        return send(filtersList, subscriptionId, relays);
     }
 
-    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-        send(filtersList, subscriptionId, getRelays());
+    @Override
+    public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+        return send(filtersList, subscriptionId, getRelays());
     }
 
-    public void send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    @Override
+    public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
 
         var context = new DefaultRequestContext();
         context.setRelays(relays);
         context.setPrivateKey(getSender().getPrivateKey().getRawData());
         var message = new ReqMessage(subscriptionId, filtersList);
 
-        send(message, context);
+        return send(message, context);
     }
 
-    public void send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+    @Override
+    public List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context) {
         if (context instanceof DefaultRequestContext) {
             try {
                 Client.getInstance().connect(context).send(message);
@@ -137,17 +147,20 @@ public class Nostr {
                 throw new RuntimeException(e);
             }
         }
+        return List.of();
     }
 
     /**
      * @param signable
      */
-    public Nostr sign(@NonNull Identity identity, @NonNull ISignable signable) {
+    @Override
+    public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {
         identity.sign(signable);
 
         return this;
     }
 
+    @Override
     public boolean verify(@NonNull GenericEvent event) {
         if (!event.isSigned()) {
             throw new IllegalStateException("The event is not signed");

@@ -24,7 +24,7 @@ import nostr.event.json.serializer.AddressTagSerializer;
 @AllArgsConstructor
 @JsonSerialize(using = AddressTagSerializer.class)
 public class AddressTag extends BaseTag {
-    
+
     private Integer kind;
     private PublicKey publicKey;
     private IdentifierTag identifierTag;

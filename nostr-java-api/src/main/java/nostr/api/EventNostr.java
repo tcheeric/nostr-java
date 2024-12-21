@@ -12,16 +12,20 @@ import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.id.Identity;
 
+import java.util.List;
 import java.util.Map;
+
+import nostr.event.BaseMessage;
 
 /**
  * @author guilhermegps
  */
 @Getter
 @NoArgsConstructor
-public abstract class EventNostr<T extends GenericEvent> extends Nostr {
+public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebSocketClient {
 
     @Setter
     private T event;
@@ -38,22 +42,28 @@ public abstract class EventNostr<T extends GenericEvent> extends Nostr {
         return this;
     }
 
-    public T send() {
+    public <U extends BaseMessage> U send() {
         return this.send(getRelays());
     }
 
-    public T send(Map<String, String> relays) {
-        super.send(this.event, relays);
+    @SuppressWarnings("unchecked")
+    public <U extends BaseMessage> U send(Map<String, String> relays) {
+        List<String> messages = super.send(this.event, relays);
+        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<U>();
 
-        return this.event;
+        return messages.stream()
+                .map(msg -> (U) decoder.decode(msg))
+                .filter(msg -> msg != null)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No message received"));
     }
 
-    public T signAndSend() {
+    public <U extends BaseMessage> U signAndSend() {
         return this.signAndSend(getRelays());
     }
 
-    public T signAndSend(Map<String, String> relays) {
-        return (T) sign().send(relays);
+    public <U extends BaseMessage> U signAndSend(Map<String, String> relays) {
+        return (U) sign().send(relays);
     }
 
     public EventNostr setSender(@NonNull Identity sender) {

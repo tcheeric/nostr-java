@@ -1,20 +1,8 @@
-
 package nostr.event;
 
+import lombok.NoArgsConstructor;
 import nostr.base.IEvent;
-import nostr.event.impl.GenericEvent;
 
-/**
- *
- * @author squirrel
- */
+@NoArgsConstructor
 public abstract class BaseEvent implements IEvent {
-
-    public static class ProxyEvent extends GenericEvent {
-
-        public ProxyEvent(String id)  {
-            setId(id);
-        }
-
-    }
 }

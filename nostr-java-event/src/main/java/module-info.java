@@ -9,9 +9,6 @@ module nostr.event {
     requires nostr.util;
     requires java.logging;
     requires java.desktop;
-    requires openbeans;
-
-    opens nostr.event to com.fasterxml.jackson.databind;
 
     exports nostr.event;
     exports nostr.event.impl;

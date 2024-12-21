@@ -60,14 +60,14 @@ public class NostrApiExamples {
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
-	private final static Map<String, String> RELAYS = Map.of("lol", "nos.lol", "damus", "relay.damus.io", "ZBD",
-			"nostr.zebedee.cloud", "taxi", "relay.taxi", "mom", "nostr.mom");
+    private final static Map<String, String> RELAYS = Map.of("lol", "nos.lol", "damus", "relay.damus.io", "ZBD",
+        "nostr.zebedee.cloud", "taxi", "relay.taxi", "mom", "nostr.mom");
 
     static {
         final LogManager logManager = LogManager.getLogManager();
         try (final InputStream is = NostrApiExamples.class
-				.getResourceAsStream("/logging.properties")) {
-			logManager.readConfiguration(is);
+            .getResourceAsStream("/logging.properties")) {
+            logManager.readConfiguration(is);
         } catch (IOException ex) {
             System.exit(-1000);
         }
@@ -78,7 +78,7 @@ public class NostrApiExamples {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
         try {
             log.log(Level.FINE, "================= The Beginning");
@@ -92,10 +92,10 @@ public class NostrApiExamples {
 //	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
 //			});
 
-			executor.submit(() -> {
-	        	try {
-					sendTextNoteEvent();
-	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+            executor.submit(() -> {
+                try {
+                    sendTextNoteEvent();
+                } catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
             });
 
 //            executor.submit(() -> {
@@ -190,9 +190,9 @@ public class NostrApiExamples {
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
-        		.sign()
-        		.send(RELAYS);
-        
+            .sign()
+            .send(RELAYS);
+
         return nip01.getEvent();
     }
 
@@ -201,8 +201,8 @@ public class NostrApiExamples {
 
         var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
-			.sign()
-			.send(RELAYS);
+            .sign()
+            .send(RELAYS);
     }
 
     private static void mentionsEvent() {
@@ -212,30 +212,30 @@ public class NostrApiExamples {
 
         var nip08 = new NIP08<MentionsEvent>(SENDER);
         nip08.createMentionsEvent(tags, "Hello #[0]")
-			.sign()
-			.send(RELAYS);
+            .sign()
+            .send(RELAYS);
     }
 
-	private static void deletionEvent() {
-		logHeader("deletionEvent");
+    private static void deletionEvent() {
+        logHeader("deletionEvent");
 
-		var event = sendTextNoteEvent();
-		List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
+        var event = sendTextNoteEvent();
+        List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
-		var nip09 = new NIP09<DeletionEvent>(SENDER);
-		nip09.createDeletionEvent(tags)
-			.sign()
-			.send();
-	}
+        var nip09 = new NIP09<DeletionEvent>(SENDER);
+        nip09.createDeletionEvent(tags)
+            .sign()
+            .send();
+    }
 
     private static MetadataEvent metaDataEvent() {
         logHeader("metaDataEvent");
 
         var nip01 = new NIP01<MetadataEvent>(SENDER);
         nip01.createMetadataEvent(PROFILE)
-        		.sign()
-        		.send(RELAYS);
-        
+            .sign()
+            .send(RELAYS);
+
         return nip01.getEvent();
     }
 
@@ -244,8 +244,8 @@ public class NostrApiExamples {
 
         var nip01 = new NIP01<EphemeralEvent>(SENDER);
         nip01.createEphemeralEvent(21000, "An ephemeral event")
-			.sign()
-			.send(RELAYS);
+            .sign()
+            .send(RELAYS);
     }
 
     private static void reactionEvent() {
@@ -253,39 +253,44 @@ public class NostrApiExamples {
 
         List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createCustomEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:")
-        		.signAndSend(RELAYS);
-        		
-        var nip25 = new NIP25<ReactionEvent>(RECIPIENT); 
-        nip25.createReactionEvent(event, Reaction.LIKE).signAndSend(RELAYS);
-        nip25.createReactionEvent(event, "💩").signAndSend();
+        var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:");
+        event.signAndSend(RELAYS);
+
+        var nip25 = new NIP25<ReactionEvent>(RECIPIENT);
+        var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
+        reactionEvent.signAndSend(RELAYS);
+        nip25.createReactionEvent(event.getEvent(), "💩").signAndSend();
 //        Using Custom Emoji as reaction 
-        nip25.createReactionEvent(event, NIP30.createCustomEmojiTag("ablobcatrainbow", "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"))
-        	.signAndSend();
+        nip25.createReactionEvent(
+                event.getEvent(),
+                NIP30.createCustomEmojiTag(
+                    "ablobcatrainbow",
+                    "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"))
+            .signAndSend();
     }
 
     private static void replaceableEvent() {
         logHeader("replaceableEvent");
 
         var nip01 = new NIP01<TextNoteEvent>(SENDER);
-        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!").signAndSend(RELAYS);
+        var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
+        event.signAndSend(RELAYS);
 
-        nip01.createReplaceableEvent(List.of(new EventTag(event.getId())), 15_000, "New content")
-			.signAndSend();
+        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), 15_000, "New content").signAndSend();
     }
 
     private static void internetIdMetadata() {
         logHeader("internetIdMetadata");
         var profile = UserProfile.builder()
-        		.name("Guilherme Gps")
-        		.publicKey(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144"))
-        		.nip05("me@guilhermegps.com.br")
-        		.build();
+            .name("Guilherme Gps")
+            .publicKey(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144"))
+            .nip05("me@guilhermegps.com.br")
+            .build();
 
         var nip05 = new NIP05<InternetIdentifierMetadataEvent>(SENDER);
         nip05.createInternetIdentifierMetadataEvent(profile)
-        	.sign()
-        	.send(RELAYS);
+            .sign()
+            .send(RELAYS);
     }
 
     public static void filters() throws InterruptedException {
@@ -298,14 +303,14 @@ public class NostrApiExamples {
         var subId = "subId" + date.getTimeInMillis();
         date.add(Calendar.DAY_OF_MONTH, -5);
         Filters filters = Filters.builder()
-        		.authors(authors)
-        		.kinds(kinds)
-        		.since(date.getTimeInMillis()/1000)
-        		.build();
-        
+            .authors(authors)
+            .kinds(kinds)
+            .since(date.getTimeInMillis()/1000)
+            .build();
+
         var nip01 = NIP01.getInstance();
         nip01.setRelays(RELAYS).send(filters, subId);
-        Thread.sleep(5000);        
+        Thread.sleep(5000);
     }
 
     private static GenericEvent createChannel() {
@@ -329,9 +334,9 @@ public class NostrApiExamples {
             var channelCreateEvent = createChannel();
 
             BaseTag tag = EventTag.builder()
-                    .idEvent(channelCreateEvent.getId())
-                    .recommendedRelayUrl("localhost:5555")
-                    .build();
+                .idEvent(channelCreateEvent.getId())
+                .recommendedRelayUrl("localhost:5555")
+                .build();
 
             var channel = new ChannelProfile("test change name", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
             var nip28 = new NIP28<ChannelCreateEvent>(SENDER);
@@ -374,17 +379,17 @@ public class NostrApiExamples {
 
     private static void logAccountsData() {
         String msg = "################################ ACCOUNTS BEGINNING ################################" +
-                '\n' + "*** RECEIVER ***" + '\n' +
-                '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().toBech32String() +
-                '\n' + "* PrivateKey HEX: " + RECIPIENT.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().toBech32String() +
-                '\n' + "* PublicKey HEX: " + RECIPIENT.getPublicKey().toString() +
-                '\n' + '\n' + "*** SENDER ***" + '\n' +
-                '\n' + "* PrivateKey: " + SENDER.getPrivateKey().toBech32String() +
-                '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
-                '\n' + "* PublicKey: " + SENDER.getPublicKey().toBech32String() +
-                '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
-                '\n' + '\n' + "################################ ACCOUNTS END ################################";
+            '\n' + "*** RECEIVER ***" + '\n' +
+            '\n' + "* PrivateKey: " + RECIPIENT.getPrivateKey().toBech32String() +
+            '\n' + "* PrivateKey HEX: " + RECIPIENT.getPrivateKey().toString() +
+            '\n' + "* PublicKey: " + RECIPIENT.getPublicKey().toBech32String() +
+            '\n' + "* PublicKey HEX: " + RECIPIENT.getPublicKey().toString() +
+            '\n' + '\n' + "*** SENDER ***" + '\n' +
+            '\n' + "* PrivateKey: " + SENDER.getPrivateKey().toBech32String() +
+            '\n' + "* PrivateKey HEX: " + SENDER.getPrivateKey().toString() +
+            '\n' + "* PublicKey: " + SENDER.getPublicKey().toBech32String() +
+            '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
+            '\n' + '\n' + "################################ ACCOUNTS END ################################";
 
         log.log(Level.INFO, msg);
     }
