@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Signature {
-    
+
     @JsonProperty("rawData")
     private byte[] rawData;
 
@@ -27,5 +27,11 @@ public class Signature {
     @Override
     public String toString() {
         return NostrUtil.bytesToHex(rawData);
+    }
+
+    public static Signature fromString(String sig) {
+      Signature signature = new Signature();
+      signature.setRawData(NostrUtil.hexToBytes(sig));
+      return signature;
     }
 }

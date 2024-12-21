@@ -13,10 +13,12 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.message.OkMessage;
 import nostr.id.Identity;
 
+import java.util.List;
 import java.util.Map;
+
+import nostr.event.BaseMessage;
 
 /**
  * @author guilhermegps
@@ -40,24 +42,28 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         return this;
     }
 
-    public OkMessage send() {
+    public <U extends BaseMessage> U send() {
         return this.send(getRelays());
     }
 
-    public OkMessage send(Map<String, String> relays) {
-        return super.send(this.event, relays)
-            .stream()
-            .map(baseMessage -> new BaseMessageDecoder<OkMessage>().decode(baseMessage))
-            .findFirst().get();
+    @SuppressWarnings("unchecked")
+    public <U extends BaseMessage> U send(Map<String, String> relays) {
+        List<String> messages = super.send(this.event, relays);
+        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<U>();
 
+        return messages.stream()
+                .map(msg -> (U) decoder.decode(msg))
+                .filter(msg -> msg != null)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No message received"));
     }
 
-    public OkMessage signAndSend() {
+    public <U extends BaseMessage> U signAndSend() {
         return this.signAndSend(getRelays());
     }
 
-    public OkMessage signAndSend(Map<String, String> relays) {
-        return sign().send(relays);
+    public <U extends BaseMessage> U signAndSend(Map<String, String> relays) {
+        return (U) sign().send(relays);
     }
 
     public EventNostr setSender(@NonNull Identity sender) {

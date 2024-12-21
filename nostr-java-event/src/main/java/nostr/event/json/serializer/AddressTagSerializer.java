@@ -18,11 +18,11 @@ public class AddressTagSerializer extends JsonSerializer<AddressTag> {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeString("a");
         jsonGenerator.writeString(value.getKind() + ":" + value.getPublicKey().toString() + ":");
-        
+
         if(value.getIdentifierTag() != null) {
             jsonGenerator.writeString(value.getIdentifierTag().getId());
         }
-        
+
         if (value.getRelay() != null) {
             jsonGenerator.writeString("," + value.getRelay().getUri());
         }

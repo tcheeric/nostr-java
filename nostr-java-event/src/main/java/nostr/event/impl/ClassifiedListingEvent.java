@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.PublicKey;
+import nostr.base.Signature;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -113,6 +114,7 @@ public class ClassifiedListingEvent extends NIP99Event {
       );
       classifiedListingEvent.setId(generalMap.get("id"));
       classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
+      classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
 
       return classifiedListingEvent;
     }
