@@ -2,7 +2,8 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.net.URL;
+
+import java.net.URI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,6 @@ public class ReferenceTag extends BaseTag {
 
     @Key
     @JsonProperty("r")
-    private URL url;
+    private URI uri;
 
 }

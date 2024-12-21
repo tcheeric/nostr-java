@@ -41,4 +41,12 @@ public class ZapReceiptEvent extends GenericEvent {
             new Relay(zapRequestRelayUri)),
         new ZapReceipt(bolt11, descriptionSha256, preimage));
   }
+
+  @Override
+  protected void validate() {
+    if (getKind() == 9735)
+      return;
+
+    throw new AssertionError(String.format("Invalid kind value [%s]. Zap Receipt must be of kind 9735", getKind()), null);
+  }
 }

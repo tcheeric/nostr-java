@@ -40,4 +40,12 @@ public class ZapRequestEvent extends GenericEvent {
   public ZapRequestEvent(@NonNull String senderPubKey, @NonNull String recipientPubKey, List<BaseTag> tags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relays) {
     this(senderPubKey, recipientPubKey, tags, content, amount, lnUrl, Arrays.stream(relays).map(Relay::new).toList());
   }
+
+  @Override
+  protected void validate() {
+    if (getKind() == 9734)
+      return;
+
+    throw new AssertionError(String.format("Invalid kind value [%s]. Zap Request must be of kind 9734", getKind()), null);
+  }
 }
