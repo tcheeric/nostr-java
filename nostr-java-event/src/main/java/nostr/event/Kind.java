@@ -2,6 +2,7 @@ package nostr.event;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -35,6 +36,18 @@ public enum Kind {
     CLASSIFIED_LISTING(30_402, "classified_listing_active"),
     CLASSIFIED_LISTING_INACTIVE(30_403, "classified_listing_inactive"),
     CLASSIFIED_LISTING_DRAFT(30_403, "classified_listing_draft"),
+
+    // NIP-60
+    WALLET(37_375, "wallet"),
+    WALLET_UNSPENT_PROOF(7_375, "wallet_unspent_proof"),
+    WALLET_SPENDING_HISTORY(7_376, "wallet_spending_history"),
+    
+    // NIP-61
+    NUTZAP_RECEIPT(7_376, "nutzap_receipt"),
+    NUTZAP(9_321, "nutzap"),
+    NUTZAP_INFO(10_019, "nutzap_info"),
+    
+    // Default
     UNDEFINED(-1, "undefined");
 
     @JsonValue

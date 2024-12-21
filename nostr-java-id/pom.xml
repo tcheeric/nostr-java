@@ -6,7 +6,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.6.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-id</artifactId>
@@ -41,7 +41,6 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>${bcprov-jdk18on.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

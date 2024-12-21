@@ -5,7 +5,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -21,7 +21,28 @@
 
     <developers>
         <developer>
-            <name>npub1llfht66qadyxv44q9rkmequztav07r2ufgd6ytl8w3wjs3ffa5yqy398ja</name>
+            <name>@tcheeric</name>            
+        </developer>
+        <developer>
+            <name>@avlo</name>
+        </developer>
+        <developer>
+            <name>@guilhermegps</name>
+        </developer>
+        <developer>
+            <name>@devinbileck</name>
+        </developer>
+        <developer>
+            <name>@Memory-of-Snow</name>
+        </developer>
+        <developer>
+            <name>@austenjt</name>
+        </developer>
+        <developer>
+            <name>@maxbrito500</name>
+        </developer>
+        <developer>
+            <name>@KoalaSat</name>
         </developer>
     </developers>
 

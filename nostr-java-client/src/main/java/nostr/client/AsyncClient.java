@@ -21,21 +21,21 @@ import java.util.logging.Level;
 
 @Log
 @NoArgsConstructor
-public class Client {
+public class AsyncClient {
 
     private static class Holder {
-        private static final Client INSTANCE = new Client();
+        private static final AsyncClient INSTANCE = new AsyncClient();
     }
 
     private RequestContext context;
 
     private ConnectionPool connectionPool;
 
-    public static Client getInstance() {
+    public static AsyncClient getInstance() {
         return Holder.INSTANCE;
     }
 
-    public Client connect(@NonNull RequestContext context) throws TimeoutException {
+    public AsyncClient connect(@NonNull RequestContext context) throws TimeoutException {
         if (context instanceof DefaultRequestContext defaultRequestContext) {
             Holder.INSTANCE.context = context;
             connectionPool = ConnectionPool.getInstance(defaultRequestContext);
