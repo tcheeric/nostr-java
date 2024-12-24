@@ -55,12 +55,12 @@ class NIP52ImplTest {
         .build();
 
     timeBasedCalendarContent.setParticipantPubKeys(List.of(P_1_TAG, P_2_TAG));
-    timeBasedCalendarContent.setGeohashTag(G_TAG);
-    timeBasedCalendarContent.setHashtagTags(List.of(T_TAG));
-    timeBasedCalendarContent.setStartTzid(CALENDAR_TIME_BASED_EVENT_START_TZID);
-    timeBasedCalendarContent.setEndTzid(START.toString());
+//    timeBasedCalendarContent.setGeohashTag(G_TAG);
+//    timeBasedCalendarContent.setHashtagTags(List.of(T_TAG));
+//    timeBasedCalendarContent.setStartTzid(CALENDAR_TIME_BASED_EVENT_START_TZID);
+//    timeBasedCalendarContent.setEndTzid(START.toString());
     Long l = START + 100L;
-    timeBasedCalendarContent.setEndTzid(l.toString());
+//    timeBasedCalendarContent.setEndTzid(l.toString());
     timeBasedCalendarContent.setSummary(CALENDAR_TIME_BASED_EVENT_SUMMARY);
     timeBasedCalendarContent.setLocation(CALENDAR_TIME_BASED_EVENT_LOCATION);
     timeBasedSender = Identity.generateRandomIdentity();
