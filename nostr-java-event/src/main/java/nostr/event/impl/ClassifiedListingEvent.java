@@ -98,7 +98,6 @@ public class ClassifiedListingEvent extends NIP99Event {
               getTagValueFromString(genericTags, "summary"),
               priceTag)
           .build();
-      classifiedListing.setLocation(getTagValueFromString(genericTags, "location"));
 
       Map<String, String> generalMap = new HashMap<>();
       classifiedListingEventNode.fields().forEachRemaining(generalTag ->
