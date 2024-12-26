@@ -148,7 +148,14 @@ public class EntityFactory {
             refEvents.add(createTextNoteEvent(publicKey));
 
             GenericTagQuery genericTagQuery = createGenericTagQuery();
-            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(Map.of(genericTagQuery.getTagName(), genericTagQuery.getValue())).build();
+            return Filters.builder()
+                .events(eventList)
+                .referencedEvents(refEvents)
+                .genericTagQuery(
+                    Map.of(
+                        genericTagQuery.getTagName(),
+                        genericTagQuery.getValue()))
+                .build();
         }
 
         public static GenericTagQuery createGenericTagQuery() {

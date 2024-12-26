@@ -73,7 +73,7 @@ public class Filters {
 
     @JsonAnySetter
     public void setGenericTagQuery(String key, List<String> value) {
-        this.genericTagQuery = new HashMap<>();
+        this.genericTagQuery = Optional.ofNullable(genericTagQuery).orElse(new HashMap<>());
         this.genericTagQuery.put(key, value);
     }
 }

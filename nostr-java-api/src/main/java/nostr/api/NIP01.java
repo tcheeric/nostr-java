@@ -209,7 +209,10 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         return Filters.builder()
                 .authors(authors)
                 .events(events)
-                .genericTagQuery(Map.of(genericTagQuery.getTagName(), genericTagQuery.getValue()))
+                .genericTagQuery(
+                    Map.of(
+                        genericTagQuery.getTagName(),
+                        genericTagQuery.getValue()))
                 .kinds(kinds).limit(limit)
                 .referencePubKeys(referencePubKeys)
                 .referencedEvents(referencedEvents)
