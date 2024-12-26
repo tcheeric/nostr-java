@@ -18,6 +18,7 @@ import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
+import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagDecoder;
@@ -32,10 +33,12 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -279,10 +282,7 @@ public class JsonParseTest {
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
-        GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
-        genericTagQuery.setValue(geohashList);
-        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+        Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
         FiltersEncoder encoder = new FiltersEncoder(filters);
         String jsonMessage = encoder.encode();
@@ -290,23 +290,80 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() {
-        log.info("testFiltersEncoder");
+    public void testReqMessageFilterListSerializer() {
+        log.info("testReqMessageFilterListSerializer");
 
         String new_geohash = "2vghde";
+        String second_geohash = "3abcde";
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
-        GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
-        genericTagQuery.setValue(geohashList);
-        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+        geohashList.add(second_geohash);
+        Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
         ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
         assertDoesNotThrow(() -> {
             String jsonMessage = reqMessage.encode();
 
-            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\",\"3abcde\"]}]", jsonMessage);
         });
     }
 
+    @Test
+    public void testReqMessageFiltersDecoder() {
+        log.info("testReqMessageFiltersDecoder");
+
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"#g\":[\"2vghde\"]}";
+
+        System.out.println(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        System.out.println(decodedFilters.toString());
+    }
+
+    @Test
+    public void testReqMessageFiltersListDecoder() {
+        log.info("testReqMessageFiltersListDecoder");
+
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"#g\":[\"2vghde\",\"3abcde\"]}";
+
+        Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        System.out.println(decodedFilters.toString());
+    }
+
+    @Test
+    public void testReqMessageDeserializer() {
+        log.info("testReqMessageDeserializer");
+
+        String reqJsonWithCustomTagQueryFilterToDecode = "[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]";
+
+        ReqMessage decoded = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        System.out.println(decoded.toString());
+    }
+
+    @Test
+    public void testReqMessageFilterListDecoder() {
+        log.info("testReqMessageFilterListDecoder");
+
+        String reqJsonWithCustomTagQueryFilterToDecode = "[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\",\"3abcde\"]}]";
+
+        ReqMessage decoded = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        System.out.println(decoded.toString());
+    }
+
+    @Test
+    public void testReqMessagePopulatedFilterDecoder() {
+        log.info("testReqMessageFilterListDecoder");
+
+        String reqJsonWithCustomTagQueryFilterToDecode =
+        "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"kinds\": [1], " +
+            "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
+            "\"#g\": [\"2vghde\",\"3abcde\"]," +
+            "\"#e\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+
+        ReqMessage decoded = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        System.out.println(decoded.toString());
+    }
 }

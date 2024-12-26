@@ -12,11 +12,7 @@ import nostr.event.impl.Filters;
  */
 @Data
 public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
-    private final Class<T> clazz;
-
-    public FiltersDecoder() {
-        this.clazz = (Class<T>)Filters.class;
-    }
+    private final Class<T> clazz = (Class<T>)Filters.class;
 
     @Override
     public T decode(@NonNull String jsonString)  {

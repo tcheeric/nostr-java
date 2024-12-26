@@ -38,8 +38,8 @@ public class CustomFiltersListDeserializer extends JsonDeserializer<List<Filters
         while (elementsIterator.hasNext()) {
             JsonNode element = elementsIterator.next();
             String strFilters = element.toString();
-            FiltersDecoder decoder = new FiltersDecoder(strFilters);
-            filtersList.add(decoder.decode());
+            FiltersDecoder decoder = new FiltersDecoder();
+            filtersList.add(decoder.decode(strFilters));
         }
 
         return filtersList;
