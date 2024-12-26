@@ -281,8 +281,8 @@ public class Nostr implements NostrIF {
          * @param json
          */
         public static Filters decodeFilters(@NonNull String json) {
-            final var dec = new FiltersDecoder(json);
-            return dec.decode();
+            final var dec = new FiltersDecoder();
+            return dec.decode(json);
         }
 
         // Generic Tag Queries

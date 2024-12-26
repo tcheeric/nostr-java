@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -146,7 +147,8 @@ public class EntityFactory {
             List<GenericEvent> refEvents = new ArrayList<>();
             refEvents.add(createTextNoteEvent(publicKey));
 
-            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(createGenericTagQuery()).build();
+            GenericTagQuery genericTagQuery = createGenericTagQuery();
+            return Filters.builder().events(eventList).referencedEvents(refEvents).genericTagQuery(Map.of(genericTagQuery.getTagName(), genericTagQuery.getValue())).build();
         }
 
         public static GenericTagQuery createGenericTagQuery() {
