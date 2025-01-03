@@ -42,6 +42,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -208,7 +209,10 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         return Filters.builder()
                 .authors(authors)
                 .events(events)
-                .genericTagQuery(genericTagQuery)
+                .genericTagQuery(
+                    Map.of(
+                        genericTagQuery.getTagName(),
+                        genericTagQuery.getValue()))
                 .kinds(kinds).limit(limit)
                 .referencePubKeys(referencePubKeys)
                 .referencedEvents(referencedEvents)

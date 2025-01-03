@@ -1,23 +1,25 @@
-
 package nostr.event.impl;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import nostr.base.GenericTagQuery;
+import lombok.Setter;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
 import nostr.event.Kind;
-import nostr.event.json.deserializer.CustomGenericTagQueryDeserializer;
-import nostr.event.json.serializer.CustomGenericTagQuerySerializer;
 import nostr.event.json.serializer.CustomIdEventListSerializer;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -61,7 +63,17 @@ public class Filters {
     private Integer limit;
 
     @Key(nip = 12)
-    @JsonSerialize(using=CustomGenericTagQuerySerializer.class)
-    @JsonDeserialize(using=CustomGenericTagQueryDeserializer.class)
-    private GenericTagQuery genericTagQuery;
+    @Setter(AccessLevel.NONE)
+    private Map<String, List<String>> genericTagQuery;
+
+    @JsonAnyGetter
+    public Map<String, List<String>> getGenericTagQuery() {
+        return genericTagQuery;
+    }
+
+    @JsonAnySetter
+    public void setGenericTagQuery(String key, List<String> value) {
+        this.genericTagQuery = Optional.ofNullable(genericTagQuery).orElse(new HashMap<>());
+        this.genericTagQuery.put(key, value);
+    }
 }
