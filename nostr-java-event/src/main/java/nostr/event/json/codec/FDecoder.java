@@ -1,5 +1,5 @@
 package nostr.event.json.codec;
 
-public interface FDecoder<Filters> {
-    Filters decode();
+public interface FDecoder<T> {
+  T decode(String str);
 }
