@@ -12,8 +12,11 @@ public enum Marker {
     ROOT("root"),
     REPLY("reply"),
     MENTION("mention"),
-    FORK("fork");
-    
+    FORK("fork"),
+    CREATED("created"),
+    DESTROYED("destroyed"),
+    REDEEMED("redeemed");
+
     private final String value;
 
     Marker(String value) {

@@ -1,10 +1,8 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.IEncoder;

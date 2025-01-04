@@ -2,6 +2,7 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -30,6 +31,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -44,6 +46,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import nostr.event.message.OkMessage;
 
 /**
  * @author eric
@@ -85,11 +89,9 @@ public class ApiEventTest {
     var nip01 = new NIP01<TextNoteEvent>(identity);
     var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
 
-    var signature = instance.getEvent().getSignature();
-    assertNotNull(signature);
-    assertEquals(
-        nip01.getEvent().getId(),
-        instance.setRelays(RELAYS).send().getEventId());
+    var response = instance.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip01.getEvent().getId(), ((OkMessage) response).getEventId());
 
     nip01.close();
   }
@@ -101,14 +103,15 @@ public class ApiEventTest {
     PublicKey nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
     Identity identity = Identity.generateRandomIdentity();
     var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
-    var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+    var instance = nip04
+        .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
         .sign();
 
     var signature = instance.getEvent().getSignature();
     assertNotNull(signature);
-    assertEquals(
-        nip04.getEvent().getId(),
-        instance.setRelays(RELAYS).send().getEventId());
+    var response = instance.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip04.getEvent().getId(), ((OkMessage) response).getEventId());
     nip04.close();
   }
 
@@ -121,11 +124,12 @@ public class ApiEventTest {
     Identity identity = Identity.generateRandomIdentity();
     var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
-    var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+    var instance = nip44
+        .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
     assertNotNull(instance.getEvent().getSignature());
-    assertEquals(
-        nip44.getEvent().getId(),
-        instance.setRelays(RELAYS).send().getEventId());
+    var response = instance.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip44.getEvent().getId(), ((OkMessage) response).getEventId());
     nip44.close();
   }
 
@@ -136,7 +140,8 @@ public class ApiEventTest {
     var nostr_java = new PublicKey(NOSTR_JAVA_PUBKEY);
     Identity identity = Identity.generateRandomIdentity();
     var nip04 = new NIP04<DirectMessageEvent>(identity, nostr_java);
-    var instance = nip04.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+    var instance = nip04
+        .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
         .sign();
 
     var message = NIP04.decrypt(identity, instance.getEvent());
@@ -153,7 +158,8 @@ public class ApiEventTest {
     Identity identity = Identity.generateRandomIdentity();
     var nip44 = new NIP44<EncryptedPayloadEvent>(identity, nostr_java);
 
-    var instance = nip44.createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+    var instance = nip44
+        .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
     var message = NIP44.decrypt(identity, instance.getEvent());
 
     assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
@@ -191,18 +197,18 @@ public class ApiEventTest {
     var signature = instance.getEvent().getSignature();
     assertNotNull(signature);
 
-    assertEquals(
-        nip15.getEvent().getId(),
-        nip15.setRelays(RELAYS).send().getEventId());
+    var response = instance.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
     // Update the shipping
     var shipping = stall.getShipping();
     shipping.setCost(20.00f);
 
     EventNostr event = nip15.createCreateOrUpdateStallEvent(stall).sign();
-    assertEquals(
-        event.getEvent().getId(),
-        event.setRelays(RELAYS).send().getEventId());
+    response = event.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
     nip15.close();
   }
@@ -224,9 +230,9 @@ public class ApiEventTest {
     categories.add("Hommes");
 
     EventNostr event = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-    assertEquals(
-        event.getEvent().getId(),
-        event.setRelays(RELAYS).send().getEventId());
+    var response = event.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
     nip15.close();
   }
@@ -248,17 +254,17 @@ public class ApiEventTest {
     categories.add("Hommes");
 
     EventNostr event1 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-    assertEquals(
-        event1.getEvent().getId(),
-        event1.setRelays(RELAYS).send().getEventId());
+    var response = event1.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
     product.setDescription("Un nouveau bijou en or");
     categories.add("bagues");
 
     EventNostr event2 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-    assertEquals(
-        event2.getEvent().getId(),
-        event2.setRelays(RELAYS).send().getEventId());
+    response = event2.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
     nip15.close();
   }
@@ -301,7 +307,8 @@ public class ApiEventTest {
     assertEquals(3, label.getAttributes().size());
     assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
     assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
-    assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)), "{\\\"article\\\":\\\"the\\\"}");
+    assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)),
+        "{\\\"article\\\":\\\"the\\\"}");
   }
 
   @Test
@@ -313,10 +320,10 @@ public class ApiEventTest {
         "Calendar Time-Based Event title",
         1716513986268L).build();
 
-//    calendarContent.setStartTzid("1687765220");
-//    calendarContent.setEndTzid("1687765230");
+     calendarContent.setStartTzid("1687765220");
+     calendarContent.setEndTzid("1687765230");
 
-//    calendarContent.setLabels(List.of("english", "mycenaean greek"));
+     calendarContent.setLabels(List.of("english", "mycenaean greek"));
 
     List<BaseTag> tags = new ArrayList<>();
     tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
@@ -328,9 +335,9 @@ public class ApiEventTest {
 
     var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
     EventNostr event = nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign();
-    assertEquals(
-        event.getEvent().getId(),
-        event.setRelays(RELAYS).send().getEventId());
+    var response = event.setRelays(RELAYS).send();
+    assertTrue(response instanceof OkMessage);
+    assertEquals(nip52.getEvent().getId(), ((OkMessage) response).getEventId());
 
     nip52.close();
   }
@@ -347,7 +354,8 @@ public class ApiEventTest {
     final Long AMOUNT = 1232456L;
     final String LNURL = "lnUrl";
     final String RELAYS_TAG = "ws://localhost:5555";
-    ZapRequestEvent instance = nip57.createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
+    ZapRequestEvent instance = nip57
+        .createZapRequestEvent(recipient, baseTags, ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
     instance.update();
 
     assertNotNull(instance.getId());
@@ -361,7 +369,8 @@ public class ApiEventTest {
     assertNotNull(instance.getZapRequest().getLnUrl());
 
     assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
-    assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
+    assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream()
+        .anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
     assertEquals(AMOUNT, instance.getZapRequest().getAmount());
     assertEquals(LNURL, instance.getZapRequest().getLnUrl());
 
@@ -386,13 +395,14 @@ public class ApiEventTest {
     final String PRE_IMAGE = "preimage";
     var nip57 = new NIP57<ZapReceiptEvent>(sender);
 
-    ZapReceiptEvent instance = nip57.createZapReceiptEvent(zapRequestPubKeyTag, baseTags, zapRequestEventTag, zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE).getEvent();
+    ZapReceiptEvent instance = nip57.createZapReceiptEvent(zapRequestPubKeyTag, baseTags, zapRequestEventTag,
+        zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE)
+        .getEvent();
     instance.update();
 
     assertNotNull(instance.getId());
     assertNotNull(instance.getCreatedAt());
     assertNull(instance.getSignature());
-
 
     assertNotNull(instance.getZapReceipt());
     assertNotNull(instance.getZapReceipt().getBolt11());

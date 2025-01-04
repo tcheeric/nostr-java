@@ -4,7 +4,6 @@ import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
-import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
@@ -18,6 +17,7 @@ import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
+import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.json.codec.GenericTagDecoder;
@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -279,10 +280,7 @@ public class JsonParseTest {
         String new_geohash = "2vghde";
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
-        GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
-        genericTagQuery.setValue(geohashList);
-        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+        Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
         FiltersEncoder encoder = new FiltersEncoder(filters);
         String jsonMessage = encoder.encode();
@@ -290,23 +288,164 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageSerializer() {
-        log.info("testFiltersEncoder");
+    public void testReqMessageFilterListSerializer() {
+        log.info("testReqMessageFilterListSerializer");
 
         String new_geohash = "2vghde";
+        String second_geohash = "3abcde";
         List<String> geohashList = new ArrayList<>();
         geohashList.add(new_geohash);
-        GenericTagQuery genericTagQuery = new GenericTagQuery();
-        genericTagQuery.setTagName("g");
-        genericTagQuery.setValue(geohashList);
-        Filters filters = Filters.builder().genericTagQuery(genericTagQuery).build();
+        geohashList.add(second_geohash);
+        Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
         ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
         assertDoesNotThrow(() -> {
             String jsonMessage = reqMessage.encode();
 
-            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\"]}]", jsonMessage);
+            assertEquals("[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\",\"3abcde\"]}]", jsonMessage);
         });
     }
 
+    @Test
+    public void testReqMessageFiltersDecoder() {
+        log.info("testReqMessageFiltersDecoder");
+
+        String geohashKey = "#g";
+        String geohashValue = "2vghde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
+
+        Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters expectedFilters = new Filters();
+        List<String> expectedGeohashValueList = List.of(geohashValue);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValueList);
+
+        assertEquals(expectedFilters, decodedFilters);
+    }
+
+    @Test
+    public void testReqMessageFiltersListDecoder() {
+        log.info("testReqMessageFiltersListDecoder");
+
+        String geohashKey = "#g";
+        String geohashValue1 = "2vghde";
+        String geohashValue2 = "3abcde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
+
+        Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters expectedFilters = new Filters();
+        List<String> expectedGeohashValuesList = List.of(geohashValue1, geohashValue2);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValuesList);
+
+        assertEquals(expectedFilters, decodedFilters);
+    }
+
+    @Test
+    public void testReqMessageDeserializer() {
+        log.info("testReqMessageDeserializer");
+
+        String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+        String geohashKey = "#g";
+        String geohashValue = "2vghde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}]";
+
+        ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters expectedFilters = new Filters();
+        List<String> expectedGeohashValuesList = List.of(geohashValue);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValuesList);
+
+        ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
+        assertEquals(expectedReqMessage, decodedReqMessage);
+    }
+
+    @Test
+    public void testReqMessageFilterListDecoder() {
+        log.info("testReqMessageFilterListDecoder");
+
+        String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+        String geohashKey = "#g";
+        String geohashValue1 = "2vghde";
+        String geohashValue2 = "3abcde";
+        String reqJsonWithCustomTagQueryFiltersToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}]";
+
+        ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFiltersToDecode);
+
+        Filters expectedFilters = new Filters();
+        List<String> expectedGeohashValuesList = List.of(geohashValue1, geohashValue2);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValuesList);
+
+        ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
+        assertEquals(expectedReqMessage, decodedReqMessage);
+    }
+
+    @Test
+    public void testReqMessagePopulatedFilterDecoder() {
+        log.info("testReqMessagePopulatedFilterDecoder");
+
+        String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
+        String kind = "1";
+        String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String geohashKey = "#g";
+        String geohashValue1 = "2vghde";
+        String geohashValue2 = "3abcde";
+        String referencedEventId = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        String reqJsonWithCustomTagQueryFilterToDecode =
+            "[\"REQ\", " +
+                "\"" + subscriptionId + "\", " +
+                "{\"kinds\": [" + kind + "], " +
+                "\"authors\": [\"" + author + "\"]," +
+                "\"" + geohashKey + "\": [\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]," +
+                "\"#e\": [\"" + referencedEventId + "\"]}]";
+
+        ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters expectedFilters = new Filters();
+        expectedFilters.setKinds(List.of(Kind.TEXT_NOTE));
+        expectedFilters.setAuthors(List.of(new PublicKey(author)));
+        expectedFilters.setReferencedEvents(List.of(new GenericEvent(referencedEventId)));
+        List<String> expectedGeohashValuesList = List.of(geohashValue1, geohashValue2);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValuesList);
+
+        ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
+        assertEquals(expectedReqMessage, decodedReqMessage);
+    }
+
+    @Test
+    public void testReqMessagePopulatedListOfFiltersListDecoder() {
+        log.info("testReqMessagePopulatedListOfFiltersListDecoder");
+
+        String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
+        String kind = "1";
+        String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String geohashKey = "#g";
+        String geohashValue1 = "2vghde";
+        String geohashValue2 = "3abcde";
+        String referencedEventId = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        String uuidKey = "#d";
+        String uuidValue1 = "UUID-1";
+        String uuidValue2 = "UUID-2";
+        String reqJsonWithCustomTagQueryFilterToDecode =
+            "[\"REQ\", " +
+                "\"" + subscriptionId + "\", " +
+                "{\"kinds\": [" + kind + "], " +
+                "\"authors\": [\"" + author + "\"]," +
+                "\"" + geohashKey + "\": [\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]," +
+                "\"" + uuidKey + "\": [\"" + uuidValue1 + "\",\"" + uuidValue2 + "\"]," +
+                "\"#e\": [\"" + referencedEventId + "\"]}]";
+
+        ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+        Filters expectedFilters = new Filters();
+        expectedFilters.setKinds(List.of(Kind.TEXT_NOTE));
+        expectedFilters.setAuthors(List.of(new PublicKey(author)));
+        expectedFilters.setReferencedEvents(List.of(new GenericEvent(referencedEventId)));
+        List<String> expectedGeohashValuesList = List.of(geohashValue1, geohashValue2);
+        expectedFilters.setGenericTagQuery(geohashKey, expectedGeohashValuesList);
+        List<String> expectedIdentityTagValuesList = List.of(uuidValue1, uuidValue2);
+        expectedFilters.setGenericTagQuery(uuidKey, expectedIdentityTagValuesList);
+        ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
+        assertEquals(expectedReqMessage, decodedReqMessage);
+    }
 }

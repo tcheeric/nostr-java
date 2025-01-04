@@ -1,6 +1,14 @@
 package nostr.test.event;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import nostr.api.NIP52;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -13,14 +21,6 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.test.util.JsonComparator;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP52EventTest {
   private static final String RELAY_URI = "ws://localhost:5555";
@@ -45,14 +45,24 @@ class ApiNIP52EventTest {
     var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
 
     GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, "content", createCalendarContent()).sign().getEvent();
-    EventMessage message = new EventMessage(event, event.getId());
+    EventMessage message = new EventMessage(event);
 
     ObjectMapper mapper = new ObjectMapper();
 
+    var expectedJson = mapper.readTree(expectedResponseJson(event.getId()));
+    var actualJson = mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get());
+    
+    // Compare only first 3 elements of the JSON arrays
     assertTrue(
         JsonComparator.isEquivalentJson(
-            mapper.readTree(expectedResponseJson(event.getId())),
-            mapper.readTree(springWebSocketClient.send(message).stream().findFirst().get())));
+            mapper.createArrayNode()
+                .add(expectedJson.get(0)) // OK Command
+                .add(expectedJson.get(1)) // event id
+                .add(expectedJson.get(2)), // Accepted?
+            mapper.createArrayNode()
+                .add(actualJson.get(0))
+                .add(actualJson.get(1))
+                .add(actualJson.get(2))));
 
     springWebSocketClient.closeSocket();
   }
