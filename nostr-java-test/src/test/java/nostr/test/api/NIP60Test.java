@@ -51,7 +51,7 @@ public class NIP60Test {
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
         wallet.setUnit("sat");
-        wallet.setMint(Arrays.asList(mint1, mint2, mint3));
+        wallet.setMints(Arrays.asList(mint1, mint2, mint3));
         wallet.setRelays(Arrays.asList(relay1, relay2));
 
         Identity sender = Identity.generateRandomIdentity();
@@ -115,7 +115,7 @@ public class NIP60Test {
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
         wallet.setUnit("sat");
-        wallet.setMint(Arrays.asList(mint));
+        wallet.setMints(Arrays.asList(mint));
 
         Proof proof = new Proof();
         proof.setId("005c2502034d4f12");
