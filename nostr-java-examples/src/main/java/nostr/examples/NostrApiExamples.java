@@ -223,7 +223,7 @@ public class NostrApiExamples {
         List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
         var nip09 = new NIP09<DeletionEvent>(SENDER);
-        nip09.createDeletionEvent(tags)
+        nip09.createDeletionEvent(event)
             .sign()
             .send();
     }
