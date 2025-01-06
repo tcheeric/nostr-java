@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -25,13 +26,12 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     private final ObjectMapper mapper;
 
     public BaseMessageDecoder() {
-        mapper = new ObjectMapper();
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        this.mapper = new ObjectMapper();
+        this.mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
     }
 
-    @SneakyThrows
     @Override
-    public T decode(@NonNull String jsonString) {
+    public T decode(@NonNull String jsonString) throws JsonProcessingException {
         Object[] msgArr = mapper.readValue(jsonString, Object[].class);
         final String strCmd = msgArr[0].toString();
         final Object arg = msgArr[1];

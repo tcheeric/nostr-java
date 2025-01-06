@@ -17,6 +17,5 @@ module nostr.client {
     requires annotations;
     requires awaitility;
 
-    exports nostr.client;
     exports nostr.client.springwebsocket;
 }

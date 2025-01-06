@@ -1,13 +1,10 @@
 package nostr.command.provider;
 
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.PrivateKey;
 import nostr.base.annotation.DefaultHandler;
-import nostr.client.Client;
-import nostr.command.CommandHandler;
+import nostr.client.springwebsocket.WebSocketClientIF;
 import nostr.context.CommandContext;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.event.impl.CanonicalAuthenticationEvent;
@@ -15,16 +12,19 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.ClosedMessage;
 import nostr.id.Identity;
 
+import java.io.IOException;
 import java.util.logging.Level;
 
-@DefaultHandler(command = Command.CLOSED)
-@NoArgsConstructor
 @Log
-public class ClosedCommandHandler implements CommandHandler {
+@DefaultHandler(command = Command.CLOSED)
+public class ClosedCommandHandler extends AbstractCommandHandler {
 
-    @SneakyThrows
+    public ClosedCommandHandler(WebSocketClientIF client) {
+        super(client);
+    }
+
     @Override
-    public void handle(CommandContext context) {
+    public void handle(CommandContext context) throws IOException {
 
         log.info("onClosed event {0}" + context);
 
@@ -47,13 +47,12 @@ public class ClosedCommandHandler implements CommandHandler {
                     // Sign the event
                     identity.sign(canonicalAuthenticationEvent);
 
-                    var client = Client.getInstance(); // No need to pass the request context here. The client will use the default one
                     var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
                     var encodedMessage = canonicalAuthenticationMessage.encode();
                     log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
                     // Publish the event to the relay
-                    client.send(canonicalAuthenticationMessage);
+                    getClient().send(canonicalAuthenticationMessage);
                 }
             }
         } else {

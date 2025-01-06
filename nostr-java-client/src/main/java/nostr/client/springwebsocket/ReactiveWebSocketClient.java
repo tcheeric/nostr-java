@@ -18,7 +18,7 @@ import java.util.List;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ReactiveWebSocketClient implements WebSocketClient {
+public class ReactiveWebSocketClient implements WebSocketClientIF {
   private final ReactorNettyWebSocketClient client;
   private final URI uri;
 
