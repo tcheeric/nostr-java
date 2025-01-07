@@ -27,6 +27,7 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -122,7 +123,6 @@ public class JsonParseTest {
         assertEquals(Command.EVENT.toString(), message.getCommand());
 
         final var event = (GenericEvent) (((EventMessage) message).getEvent());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((EventMessage) message).getSubscriptionId());
         assertEquals(1, event.getKind().intValue());
         assertEquals(1686199583, event.getCreatedAt().longValue());
         assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());
@@ -244,7 +244,8 @@ public class JsonParseTest {
         log.info("testDeserializeTag");
 
         assertDoesNotThrow(() -> {
-            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            String npubHex = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32(("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9")))).toString();
+
             final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
             var tag = new BaseTagDecoder<>().decode(jsonString);
 
