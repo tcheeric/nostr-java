@@ -51,7 +51,7 @@ public class NostrUtil {
             .filter(s -> s.length() == targetLength)  // length enforcement
             .filter(s -> s.toLowerCase().equals(s)) // case-sensitivity enforcement, potentially swappable for line below
 //                .map(String::toLowerCase)               // if upper-case leniency is desirable, followed by explicit lower-casing
-            .orElseThrow(() -> new IllegalArgumentException(String.format("Invalid hex string: [%s], length: [%d], length targetLength: [%d]", hexString, hexString.length(), targetLength)));
+            .orElseThrow(() -> new IllegalArgumentException(String.format("Invalid hex string: [%s], length: [%d], target length: [%d]", hexString, hexString.length(), targetLength)));
     }
 
     public static byte[] bytesFromInt(int n) {
