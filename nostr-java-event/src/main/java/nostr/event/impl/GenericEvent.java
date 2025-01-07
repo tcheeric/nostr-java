@@ -98,7 +98,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public GenericEvent(@NonNull String id) {
         this();
-        this.id = id;
+        setId(id);
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
@@ -126,6 +126,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         // Update parents
         updateTagsParents(tags);
+    }
+
+    public void setId(String id) {
+        NostrUtil.validateHexString(id, 64);
+        this.id = id;
     }
 
     @Override

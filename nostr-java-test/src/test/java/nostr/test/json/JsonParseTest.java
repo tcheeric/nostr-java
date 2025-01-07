@@ -37,6 +37,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -106,7 +107,6 @@ public class JsonParseTest {
 
         final String parseTarget
             = "[\"EVENT\","
-            + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
             + "{"
             + "\"content\":\"直んないわ。まあええか\","
             + "\"created_at\":1686199583,"
@@ -134,7 +134,6 @@ public class JsonParseTest {
 
         final String json = "["
             + "\"EVENT\","
-            + "\"temp20230627\","
             + "{"
             + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
             + "\"kind\":1,"
@@ -447,5 +446,32 @@ public class JsonParseTest {
         expectedFilters.setGenericTagQuery(uuidKey, expectedIdentityTagValuesList);
         ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
         assertEquals(expectedReqMessage, decodedReqMessage);
+    }
+
+    @Test
+    public void testReqMessageSubscriptionIdLength() {
+        log.info("testReqMessageSubscriptionIdLength");
+        String id65Chars = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9ab";
+        assertThrows(IllegalArgumentException.class, () -> new ReqMessage(id65Chars, new Filters()));
+//        assertDoesNotThrow(() -> new ReqMessage(id65Chars, new Filters()));
+    }
+
+    @Test
+    public void testReqMessageFilterIdLength() {
+        log.info("testReqMessageFilterIdLength");
+        String id64chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        String reqJsonId64Chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id64chars + "\"]}]";
+        assertDoesNotThrow(() -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId64Chars));
+
+        String id65chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123";
+        String reqJsonId65Chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id65chars + "\"]}]";
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId65Chars));
+
+        String id63chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
+        String reqJsonId63chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id63chars + "\"]}]";
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId63chars));
     }
 }

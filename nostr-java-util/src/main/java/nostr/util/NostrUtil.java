@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  *
@@ -27,12 +28,30 @@ public class NostrUtil {
     }
 
     public static byte[] hexToBytes(String s) {
+        validateHexString(s, 64);
+        return hexToBytesConvert(s);
+    }
+
+    public static byte[] hex128ToBytes(String s) {
+        validateHexString(s, 128);
+        return hexToBytesConvert(s);
+    }
+
+    private static byte[] hexToBytesConvert(String s) {
         int len = s.length();
         byte[] buf = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             buf[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
         }
         return buf;
+    }
+
+    public static void validateHexString(String hexString, int targetLength) {
+        Optional.ofNullable(hexString) // non-null enforcement
+            .filter(s -> s.length() == targetLength)  // length enforcement
+            .filter(s -> s.toLowerCase().equals(s)) // case-sensitivity enforcement, potentially swappable for line below
+//                .map(String::toLowerCase)               // if upper-case leniency is desirable, followed by explicit lower-casing
+            .orElseThrow(() -> new IllegalArgumentException(String.format("Invalid hex string: [%s], length: [%d], length targetLength: [%d]", hexString, hexString.length(), targetLength)));
     }
 
     public static byte[] bytesFromInt(int n) {
@@ -87,21 +106,21 @@ public class NostrUtil {
 
     public static String escapeJsonString(String jsonString) {
         return jsonString.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\f", "\\f")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t");
     }
 
     public static String unEscapeJsonString(String jsonString) {
         return jsonString.replace("\\\\", "\\")
-                .replace("\\\"", "\"")
-                .replace("\\b", "\b")
-                .replace("\\f", "\f")
-                .replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\t", "\t");
+            .replace("\\\"", "\"")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t");
     }
 }

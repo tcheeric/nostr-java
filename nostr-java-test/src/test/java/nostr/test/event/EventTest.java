@@ -50,6 +50,21 @@ public class EventTest {
     }
 
     @Test
+    public void testEventIdConstraints() {
+        log.info("testCreateTextNoteEvent");
+        PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
+        GenericEvent genericEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
+        String id64chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        assertDoesNotThrow(() -> genericEvent.setId(id64chars));
+
+        String id63chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
+        assertThrows(IllegalArgumentException.class, () -> genericEvent.setId(id63chars));
+
+        String id65chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
+        assertThrows(IllegalArgumentException.class, () -> genericEvent.setId(id65chars));
+    }
+
+    @Test
     public void testCreateGenericTag() {
         log.info("testCreateGenericTag");
         PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
