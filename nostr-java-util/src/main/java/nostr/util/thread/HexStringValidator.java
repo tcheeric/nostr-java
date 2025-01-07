@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class HexStringValidator {
-  private static final String validHexChars = "0123456789ABCDEF";
+  private static final String validHexChars = "0123456789abcdef";
 
   private static BiFunction<String, Integer, Boolean> lengthCheck = (s, targetLength) -> s.length() == targetLength;
   private static Function<String, Boolean> hexCharsCheck = HexStringValidator::checkValidHexChars;
@@ -41,8 +41,8 @@ public class HexStringValidator {
   }
 
   private static Boolean checkValidHexChars(String aHexString) {
-    for (char a : aHexString.toCharArray()) {
-      if (validHexChars.toLowerCase().indexOf(a) < 0)
+    for (char a : aHexString.toLowerCase().toCharArray()) {
+      if (validHexChars.indexOf(a) < 0)
         return false;
     }
     return true;

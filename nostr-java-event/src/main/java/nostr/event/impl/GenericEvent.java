@@ -26,6 +26,7 @@ import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
+import nostr.util.thread.HexStringValidator;
 
 import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
@@ -129,7 +130,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void setId(String id) {
-        NostrUtil.validateHexString(id, 64);
+        HexStringValidator.validateHex(id, 64);
         this.id = id;
     }
 

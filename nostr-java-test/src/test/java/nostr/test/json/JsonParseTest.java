@@ -516,9 +516,8 @@ public class JsonParseTest {
     assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_NON_HEX_DIGITS))).getMessage().contains("has non-hex characters"));
     assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_SHORT))).getMessage().contains("target length"));
     assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_LONG))).getMessage().contains("target length"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("non-hex characters"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
     assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_SINGLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_SINGLE_UPPERCASE))).getMessage().contains("has non-hex characters"));
   }
 
   @Test
@@ -541,11 +540,10 @@ public class JsonParseTest {
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_ZEROS)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_FF)));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_NON_HEX_DIGITS))).getMessage().contains("has non-hex characters"));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT))).getMessage().contains("target length"));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_LONG))).getMessage().contains("target length"));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("non-hex characters"));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
-      assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE))).getMessage().contains("has non-hex characters"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_NON_HEX_DIGITS))).getMessage().contains("has non-hex characters"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT))).getMessage().contains("target length"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_LONG))).getMessage().contains("target length"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
+    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
   }
 }
