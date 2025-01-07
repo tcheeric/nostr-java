@@ -36,21 +36,21 @@ public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
 
         @JsonProperty
         private final String id;
-        
+
         @JsonProperty
         private String name;
-        
+
         @JsonProperty
         private String description;
-        
+
         @JsonProperty
         private String currency;
-        
+
         @JsonProperty
-        private Shipping shipping;        
+        private Shipping shipping;
 
         public Stall() {
-            this.id = UUID.randomUUID().toString();
+            this.id = UUID.randomUUID().toString().concat(UUID.randomUUID().toString()).substring(0, 64);
         }
 
         @Data
@@ -58,13 +58,13 @@ public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
 
             @JsonProperty
             private final String id;
-            
+
             @JsonProperty
             private String name;
-            
+
             @JsonProperty
             private Float cost;
-            
+
             @JsonProperty
             private List<String> countries;
 
