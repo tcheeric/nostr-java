@@ -34,6 +34,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -479,16 +481,15 @@ public class JsonParseTest {
     @Test
     public void testBaseMessageDecoderKind() {
         log.info("testBaseMessageDecoderKind");
-        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget(0)));
-        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget(65535)));
-        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget(-1)));
-        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget(65536)));
-    }
 
-    private static String kindTarget(int kind) {
-        return "[\"REQ\", " +
+        Function<Integer, String> kindTarget = kind -> "[\"REQ\", " +
             "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
             "{\"kinds\": [" + kind + "]" +
             "}]";
+
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(0)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(65535)));
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(-1)));
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(65536)));
     }
 }
