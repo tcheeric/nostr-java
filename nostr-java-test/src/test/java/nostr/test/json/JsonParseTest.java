@@ -475,4 +475,20 @@ public class JsonParseTest {
             "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id63chars + "\"]}]";
         assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId63chars));
     }
+
+    @Test
+    public void testBaseMessageDecoderKind() {
+        log.info("testBaseMessageDecoderKind");
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget(0)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget(65535)));
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget(-1)));
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget(65536)));
+    }
+
+    private static String kindTarget(int kind) {
+        return "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"kinds\": [" + kind + "]" +
+            "}]";
+    }
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.temporal.ValueRange;
+
 /**
  *
  * @author squirrel
@@ -47,6 +49,9 @@ public enum Kind {
 
     @JsonCreator
     public static Kind valueOf(int value) {
+        if (!ValueRange.of(0, 65535).isValidIntValue(value)) {
+            throw new IllegalArgumentException(String.format("Kind must be between 0 and 65536 but was [%d]", value));
+        }
         for (Kind k : values()) {
             if (k.getValue() == value) {
                 return k;
