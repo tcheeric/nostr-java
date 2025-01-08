@@ -1,5 +1,7 @@
 package nostr.util.thread;
 
+import lombok.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -9,13 +11,13 @@ import java.util.function.Function;
 public class HexStringValidator {
   private static final String validHexChars = "0123456789abcdef";
 
-  private static BiFunction<String, Integer, Boolean> lengthCheck = (s, targetLength) -> s.length() == targetLength;
-  private static Function<String, Boolean> hexCharsCheck = HexStringValidator::checkValidHexChars;
-  private static Function<String, Boolean> upperCaseCheck = s -> s.toLowerCase().equals(s);
+  private static final BiFunction<String, Integer, Boolean> lengthCheck = (s, targetLength) -> s.length() == targetLength;
+  private static final Function<String, Boolean> hexCharsCheck = HexStringValidator::checkValidHexChars;
+  private static final Function<String, Boolean> upperCaseCheck = s -> s.toLowerCase().equals(s);
 
-  public static void validateHex(String hexString, int targetLength) {
+  public static void validateHex(@NonNull String hexString, int targetLength) {
     List<String> exceptions = new ArrayList<>();
-    Optional.ofNullable(hexString) // non-null enforcement
+    Optional.of(hexString) // non-null enforcement
         .filter(s -> {
           if (!lengthCheck.apply(s, targetLength)) {
             return exceptions.add(String.format("Invalid hex string: [%s], length: [%d], target length: [%d]", hexString, hexString.length(), targetLength));

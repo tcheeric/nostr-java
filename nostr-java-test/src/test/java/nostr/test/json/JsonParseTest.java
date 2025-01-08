@@ -40,6 +40,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -66,16 +67,16 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        var filters = ((ReqMessage) message).getFiltersList().get(0);
+        var filters = ((ReqMessage) message).getFiltersList().getFirst();
 
         assertEquals(1, filters.getKinds().size());
-        assertEquals(Kind.TEXT_NOTE, filters.getKinds().get(0));
+        assertEquals(Kind.TEXT_NOTE, filters.getKinds().getFirst());
 
         assertEquals(1, filters.getAuthors().size());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().get(0).toBech32String());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().getFirst().toBech32String());
 
         assertEquals(1, filters.getReferencedEvents().size());
-        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", (filters.getReferencedEvents().get(0).getId()));
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", (filters.getReferencedEvents().getFirst().getId()));
     }
 
     @Test
@@ -229,16 +230,16 @@ public class JsonParseTest {
             .map(GenericTag.class::cast).toList();
 
         assertEquals("title ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("summary ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("1687765220", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("location ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
     }
 
     @Test
@@ -246,12 +247,12 @@ public class JsonParseTest {
         log.info("testDeserializeTag");
 
         assertDoesNotThrow(() -> {
-            String npubHex = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32(("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9")))).toString();
+            String npubHex = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9"))).toString();
 
             final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
             var tag = new BaseTagDecoder<>().decode(jsonString);
 
-            assertTrue(tag instanceof PubKeyTag);
+            assertInstanceOf(PubKeyTag.class, tag);
 
             PubKeyTag pTag = (PubKeyTag) tag;
             assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
@@ -268,7 +269,7 @@ public class JsonParseTest {
             final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
             var tag = new BaseTagDecoder<>().decode(jsonString);
 
-            assertTrue(tag instanceof GenericTag);
+            assertInstanceOf(GenericTag.class, tag);
 
             GenericTag gTag = (GenericTag) tag;
             assertEquals("gt", gTag.getCode());
@@ -300,7 +301,7 @@ public class JsonParseTest {
         geohashList.add(second_geohash);
         Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
-        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
+        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<>(List.of(filters)));
         assertDoesNotThrow(() -> {
             String jsonMessage = reqMessage.encode();
 

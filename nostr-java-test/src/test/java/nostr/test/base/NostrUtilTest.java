@@ -1,7 +1,6 @@
 package nostr.test.base;
 
 import lombok.extern.java.Log;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,7 @@ public class NostrUtilTest {
    * are properly functioning inversions of each other
    */
   @Test
-  public void testHexToBytesHex() throws NostrException {
+  public void testHexToBytesHex() {
     System.out.println("testBech32HexToBytesToBech32");
     String pubKeyString = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
     assertEquals(
