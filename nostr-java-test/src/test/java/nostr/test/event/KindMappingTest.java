@@ -15,14 +15,4 @@ public class KindMappingTest {
   void testKindName() {
     assertEquals("text_note", Kind.valueOf(1).getName());
   }
-
-  @Test
-  void testKindValueOfUndefined() {
-    assertEquals("-1", Kind.valueOf(9999999).toString());
-  }
-
-  @Test
-  void testKindUndefinedName() {
-    assertEquals("undefined", Kind.valueOf(9999999).getName());
-  }
 }

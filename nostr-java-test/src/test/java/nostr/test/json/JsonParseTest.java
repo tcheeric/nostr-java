@@ -1,5 +1,6 @@
 package nostr.test.json;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
@@ -454,8 +455,9 @@ public class JsonParseTest {
   public void testReqMessageSubscriptionIdLength() {
     log.info("testReqMessageSubscriptionIdLength");
     String id65Chars = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9ab";
-    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(id65Chars, new Filters()));
-//        assertDoesNotThrow(() -> new ReqMessage(id65Chars, new Filters()));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new ReqMessage(id65Chars, new Filters()))
+            .getMessage().contains("subscriptionId length must be between 1 and 64 characters but was [65]"));
   }
 
   @Test
@@ -469,12 +471,16 @@ public class JsonParseTest {
     String id65chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123";
     String reqJsonId65Chars =
         "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id65chars + "\"]}]";
-    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId65Chars));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId65Chars))
+            .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123], length: [65], target length: [64]"));
 
     String id63chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
     String reqJsonId63chars =
         "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id63chars + "\"]}]";
-    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId63chars));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId63chars))
+            .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71], length: [63], target length: [64]"));
   }
 
   @Test
@@ -488,8 +494,13 @@ public class JsonParseTest {
 
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(0)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(65535)));
-    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(-1)));
-    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(65536)));
+
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(-1)))
+            .getMessage().contains("Kind must be between 0 and 65535 but was [-1]"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(65536)))
+            .getMessage().contains("Kind must be between 0 and 65535 but was [65536]"));
   }
 
   @Test
@@ -513,11 +524,21 @@ public class JsonParseTest {
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_EVENTID_ALL_ZEROS)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_EVENTID_ALL_FF)));
 
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_NON_HEX_DIGITS))).getMessage().contains("has non-hex characters"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_SHORT))).getMessage().contains("target length"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_LONG))).getMessage().contains("target length"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_SINGLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_NON_HEX_DIGITS)))
+            .getMessage().contains("has non-hex characters"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_SHORT)))
+            .getMessage().contains("target length"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_LONG)))
+            .getMessage().contains("target length"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE)))
+            .getMessage().contains("has uppcase characters"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_SINGLE_UPPERCASE)))
+            .getMessage().contains("has uppcase characters"));
   }
 
   @Test
@@ -540,10 +561,57 @@ public class JsonParseTest {
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_ZEROS)));
     assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_FF)));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_NON_HEX_DIGITS))).getMessage().contains("has non-hex characters"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT))).getMessage().contains("target length"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_LONG))).getMessage().contains("target length"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
-    assertTrue(assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE))).getMessage().contains("has uppcase characters"));
+
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_NON_HEX_DIGITS)))
+            .getMessage().contains("has non-hex characters"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT)))
+            .getMessage().contains("target length"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_LONG)))
+            .getMessage().contains("target length"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE)))
+            .getMessage().contains("has uppcase characters"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE)))
+            .getMessage().contains("has uppcase characters"));
+  }
+
+  @Test
+  public void testReqMessageFilterSince() {
+    log.info("testReqMessageFilterSince");
+    Function<String, String> sinceTarget = since -> "[\"REQ\", " +
+        "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+        "{\"since\": " + since + "}]";
+
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply(null)))
+            .getMessage().contains("since is marked non-null but is null"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply("-1")))
+            .getMessage().contains("'since' filter cannot be negative"));
+    assertTrue(
+        assertThrows(JsonMappingException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply("a")))
+            .getMessage().contains("Unrecognized token 'a'"));
+  }
+
+  @Test
+  public void testReqMessageFilterUntil() {
+    log.info("testReqMessageFilterUntil");
+    Function<String, String> untilTarget = until -> "[\"REQ\", " +
+        "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+        "{\"until\": " + until + "}]";
+
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply(null)))
+            .getMessage().contains("until is marked non-null but is null"));
+    assertTrue(
+        assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply("-1")))
+            .getMessage().contains("'until' filter cannot be negative"));
+    assertTrue(
+        assertThrows(JsonMappingException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply("a")))
+            .getMessage().contains("Unrecognized token 'a'"));
   }
 }
