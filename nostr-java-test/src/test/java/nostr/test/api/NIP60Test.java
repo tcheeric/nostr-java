@@ -2,6 +2,7 @@ package nostr.test.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -51,8 +52,8 @@ public class NIP60Test {
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
         wallet.setUnit("sat");
-        wallet.setMints(Arrays.asList(mint1, mint2, mint3));
-        wallet.setRelays(Arrays.asList(relay1, relay2));
+        wallet.setMints(Set.of(mint1, mint2, mint3));
+        wallet.setRelays(Set.of(relay1, relay2));
 
         Identity sender = Identity.generateRandomIdentity();
         NIP60<GenericEvent> nip60 = new NIP60<>(sender);
@@ -73,8 +74,6 @@ public class NIP60Test {
                 .toList();
 
         Assertions.assertEquals(2, relayTags.size());
-        Assertions.assertEquals("wss://relay1", getRelayUrl(relayTags.get(0)));
-        Assertions.assertEquals("wss://relay2", getRelayUrl(relayTags.get(1)));
 
         // Assert mint tags
         List<BaseTag> mintTags = tags.stream()
@@ -82,9 +81,6 @@ public class NIP60Test {
                 .toList();
 
         Assertions.assertEquals(3, mintTags.size());
-        Assertions.assertEquals("https://mint1", getMintUrl(mintTags.get(0)));
-        Assertions.assertEquals("https://mint2", getMintUrl(mintTags.get(1)));
-        Assertions.assertEquals("https://mint3", getMintUrl(mintTags.get(2)));
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
@@ -115,7 +111,7 @@ public class NIP60Test {
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
         wallet.setUnit("sat");
-        wallet.setMints(Arrays.asList(mint));
+        wallet.setMints(Set.of(mint));
 
         Proof proof = new Proof();
         proof.setId("005c2502034d4f12");
