@@ -20,7 +20,8 @@ import java.util.List;
  */
 // @Builder
 @Data
-@EqualsAndHashCode
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @Log
 public class Relay {

@@ -14,4 +14,8 @@ import lombok.NoArgsConstructor;
 public class Token {
     private Mint mint;
     private List<Proof> proofs;
+
+    public Integer calculateAmount() {
+        return proofs.stream().mapToInt(Proof::getAmount).sum();
+    }
 }

@@ -1,13 +1,13 @@
 
 package nostr.event;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
  *
  * @author squirrel
  */
-@Getter
 public enum Marker {
     ROOT("root"),
     REPLY("reply"),
@@ -23,4 +23,8 @@ public enum Marker {
         this.value = value;
     }
 
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 }
