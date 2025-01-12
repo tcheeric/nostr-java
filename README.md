@@ -66,4 +66,6 @@ The following NIPs are supported by the API out-of-the-box:
 - [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md)
 - [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md)
 - [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md)
+- [NIP-60](https://github.com/nostr-protocol/nips/blob/master/60.md)
+- [NIP-61](https://github.com/nostr-protocol/nips/blob/master/61.md)
 - [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md)

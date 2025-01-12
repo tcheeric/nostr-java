@@ -38,6 +38,9 @@ public enum Kind {
     CLASSIFIED_LISTING_DRAFT(30_403, "classified_listing_draft"),
     CALENDAR_DATE_BASED_EVENT(31_922, "calendar_date_based_event"),
     CALENDAR_TIME_BASED_EVENT(31_923, "calendar_time_based_event"),
+    WALLET(37_375, "wallet"),
+    WALLET_UNSPENT_PROOF(7_375, "wallet_unspent_proof"),
+    WALLET_TX_HISTORY(7_376, "wallet_tx_history"),
     UNDEFINED(-1, "undefined");
 
     @JsonValue

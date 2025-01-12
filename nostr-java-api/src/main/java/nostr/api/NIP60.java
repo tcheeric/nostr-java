@@ -27,7 +27,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.json.codec.BaseTagEncoder;
-import nostr.event.json.codec.GenericTagEncoder;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
@@ -231,8 +230,8 @@ public class NIP60<T extends GenericEvent> extends EventNostr<T> {
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
         tags.add(NIP60.createBalanceTag(wallet.getBalance(), wallet.getUnit()));
 
-        if (wallet.getMint() != null) {
-            wallet.getMint().forEach(mint -> tags.add(NIP60.createMintTag(mint)));
+        if (wallet.getMints() != null) {
+            wallet.getMints().forEach(mint -> tags.add(NIP60.createMintTag(mint)));
         }
 
         if (wallet.getRelays() != null) {

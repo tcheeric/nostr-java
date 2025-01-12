@@ -19,6 +19,19 @@ public class Wallet {
     private Integer balance;
     private String privateKey;
     private String unit;
-    private List<Mint> mint;
+    private List<Mint> mints;
     private List<Relay> relays;
+    private List<Token> tokens;
+
+    public void resetBalance() {
+        this.balance = 0;
+    }
+
+    public void increaseBalance(Integer amount) {
+        this.balance += amount;
+    }
+
+    public void decreaseBalance(Integer amount) {
+        this.balance -= amount;
+    }
 }
