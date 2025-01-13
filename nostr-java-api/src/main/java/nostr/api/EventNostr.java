@@ -4,7 +4,6 @@
  */
 package nostr.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -47,18 +46,13 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         return this.send(getRelays());
     }
 
+    @SuppressWarnings("unchecked")
     public <U extends BaseMessage> U send(Map<String, String> relays) {
         List<String> messages = super.send(this.event, relays);
         BaseMessageDecoder<U> decoder = new BaseMessageDecoder<U>();
 
         return messages.stream()
-                .map(msg -> {
-                  try {
-                    return (U) decoder.decode(msg);
-                  } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                  }
-                })
+                .map(msg -> (U) decoder.decode(msg))
                 .filter(msg -> msg != null)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No message received"));

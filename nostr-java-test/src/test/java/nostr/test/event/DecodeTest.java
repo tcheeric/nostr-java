@@ -1,6 +1,5 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -19,7 +18,7 @@ import java.util.List;
 public class DecodeTest {
 
     @Test
-    public void decodeTest() throws JsonProcessingException {
+    public void decodeTest() {
 
         String json = "["
                 + "\"EVENT\","

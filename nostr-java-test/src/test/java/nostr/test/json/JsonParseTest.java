@@ -1,6 +1,5 @@
 package nostr.test.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JsonParseTest {
 
     @Test
-    public void testBaseMessageDecoder() throws JsonProcessingException {
+    public void testBaseMessageDecoder() {
         log.info("testBaseMessageDecoder");
 
         final String parseTarget =
@@ -102,7 +101,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseEventMessageDecoder() throws JsonProcessingException {
+    public void testBaseEventMessageDecoder() {
         log.info("testBaseEventMessageDecoder");
 
         final String parseTarget
@@ -130,7 +129,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testBaseEventMessageMarkerDecoder() throws JsonProcessingException {
+    public void testBaseEventMessageMarkerDecoder() {
         log.info("testBaseEventMessageMarkerDecoder");
 
         final String json = "["
@@ -343,7 +342,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageDeserializer() throws JsonProcessingException {
+    public void testReqMessageDeserializer() {
         log.info("testReqMessageDeserializer");
 
         String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
@@ -362,7 +361,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessageFilterListDecoder() throws JsonProcessingException {
+    public void testReqMessageFilterListDecoder() {
         log.info("testReqMessageFilterListDecoder");
 
         String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
@@ -382,7 +381,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessagePopulatedFilterDecoder() throws JsonProcessingException {
+    public void testReqMessagePopulatedFilterDecoder() {
         log.info("testReqMessagePopulatedFilterDecoder");
 
         String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
@@ -414,7 +413,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testReqMessagePopulatedListOfFiltersListDecoder() throws JsonProcessingException {
+    public void testReqMessagePopulatedListOfFiltersListDecoder() {
         log.info("testReqMessagePopulatedListOfFiltersListDecoder");
 
         String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
