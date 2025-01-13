@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -155,7 +157,13 @@ class ApiNIP52RequestTest {
   private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
     Optional<T> first = reqResponse
         .stream()
-        .map(baseMessage -> new BaseMessageDecoder<EventMessage>().decode(baseMessage))
+        .map(baseMessage -> {
+          try {
+            return new BaseMessageDecoder<EventMessage>().decode(baseMessage);
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        })
         .map(eventMessage -> ((GenericEvent) eventMessage.getEvent()))
         .map(event -> new BaseEventEncoder<>(event).encode())
         .map(encode -> new GenericEventDecoder<>(clazz).decode(encode))

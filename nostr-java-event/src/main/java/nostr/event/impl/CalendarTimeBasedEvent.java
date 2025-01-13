@@ -42,24 +42,20 @@ public class CalendarTimeBasedEvent extends NIP52Event {
   }
 
   private void mapCustomTags() {
-//    below, required
     addStandardTag(calendarContent.getIdentifierTag());
     addGenericTag("title", getNip(), calendarContent.getTitle());
     addGenericTag("start", getNip(), calendarContent.getStart());
-
-//    below, optional
-//    addGenericTag("end", getNip(), calendarContent.getEnd());
-//    addGenericTag("start_tzid", getNip(), calendarContent.getStartTzid());
-//    addGenericTag("end_tzid", getNip(), calendarContent.getEndTzid());
+    addGenericTag("end", getNip(), calendarContent.getEnd());
+    addGenericTag("start_tzid", getNip(), calendarContent.getStartTzid());
+    addGenericTag("end_tzid", getNip(), calendarContent.getEndTzid());
     addGenericTag("summary", getNip(), calendarContent.getSummary());
-//    addGenericTag("image", getNip(), calendarContent.getImage());
+    addGenericTag("image", getNip(), calendarContent.getImage());
     addGenericTag("location", getNip(), calendarContent.getLocation());
-//    addStandardTag(calendarContent.getGeohashTag());
+    addStandardTag(calendarContent.getGeohashTag());
     addStandardTag(calendarContent.getParticipantPubKeys());
-
-//    addStringListTag("l", getNip(), calendarContent.getLabels());
-//    addStandardTag(calendarContent.getHashtagTags());
-//    addStandardTag(calendarContent.getReferenceTags());
+    addStringListTag("l", getNip(), calendarContent.getLabels());
+    addStandardTag(calendarContent.getHashtagTags());
+    addStandardTag(calendarContent.getReferenceTags());
   }
 
   public static class CalendarTimeBasedEventDeserializer extends StdDeserializer<CalendarTimeBasedEvent> {

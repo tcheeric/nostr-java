@@ -4,9 +4,7 @@ module nostr.client {
     requires java.logging;
     requires nostr.util;
     requires nostr.base;
-    requires nostr.connection;
     requires nostr.context;
-    requires nostr.context.impl;
     requires com.fasterxml.jackson.core;
     requires reactor.core;
     requires spring.webflux;
@@ -14,7 +12,6 @@ module nostr.client {
     requires spring.beans;
     requires spring.websocket;
     requires jakarta.websocket.client;
-    requires annotations;
     requires awaitility;
 
     exports nostr.client.springwebsocket;
