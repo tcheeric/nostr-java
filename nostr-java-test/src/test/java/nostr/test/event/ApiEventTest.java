@@ -62,7 +62,7 @@ public class ApiEventTest {
   public void testNIP01CreateTextNoteEvent() throws NostrException {
     System.out.println("testNIP01CreateTextNoteEvent");
 
-    PublicKey publicKey = new PublicKey("");
+    PublicKey publicKey = new PublicKey(NOSTR_JAVA_PUBKEY);
     var recipient = NIP01.createPubKeyTag(publicKey);
     List<BaseTag> tags = new ArrayList<>();
     tags.add(recipient);
