@@ -38,6 +38,11 @@ public class NostrUtil {
         return hexToBytesConvert(s);
     }
 
+    public static byte[] nip04PubKeyHexToBytes(String s) {
+        HexStringValidator.validateHex(s, 66);
+        return hexToBytesConvert(s);
+    }
+
     private static byte[] hexToBytesConvert(String s) {
         int len = s.length();
         byte[] buf = new byte[len / 2];
