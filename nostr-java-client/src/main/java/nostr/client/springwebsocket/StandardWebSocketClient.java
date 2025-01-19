@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClient {
+public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
   private final WebSocketSession clientSession;
   private List<String> events = new ArrayList<>();
   private boolean completed = false;

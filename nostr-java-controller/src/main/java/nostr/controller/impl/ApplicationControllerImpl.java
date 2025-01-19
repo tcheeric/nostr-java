@@ -12,6 +12,7 @@ import nostr.context.impl.DefaultCommandContext;
 import nostr.controller.ApplicationController;
 import nostr.util.thread.ThreadUtil;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeoutException;
@@ -43,14 +44,14 @@ public class ApplicationControllerImpl implements ApplicationController {
     }
 
     @Override
-    public Void execute(@NonNull Context context) {
+    public Void execute(@NonNull Context context) throws IOException {
         if (context instanceof DefaultCommandContext commandContext) {
             executeCommand(commandContext);
         }
         return null;
     }
 
-    private void executeCommand(@NonNull DefaultCommandContext defaultCommandContext) {
+    private void executeCommand(@NonNull DefaultCommandContext defaultCommandContext) throws IOException {
 
         var commandHandler = getCommandHandler(this.command);
 

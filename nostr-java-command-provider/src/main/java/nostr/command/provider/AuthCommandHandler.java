@@ -1,14 +1,11 @@
 package nostr.command.provider;
 
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.PrivateKey;
 import nostr.base.annotation.DefaultHandler;
-import nostr.client.Client;
-import nostr.command.CommandHandler;
+import nostr.client.springwebsocket.WebSocketClientIF;
 import nostr.context.CommandContext;
 import nostr.context.impl.DefaultCommandContext;
 import nostr.event.impl.CanonicalAuthenticationEvent;
@@ -16,16 +13,19 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.id.Identity;
 
+import java.io.IOException;
 import java.util.logging.Level;
 
 @DefaultHandler(command = Command.AUTH)
-@NoArgsConstructor
 @Log
-public class AuthCommandHandler implements CommandHandler {
+public class AuthCommandHandler extends AbstractCommandHandler {
 
-    @SneakyThrows
+    public AuthCommandHandler(WebSocketClientIF client) {
+        super(client);
+    }
+
     @Override
-    public void handle(@NonNull CommandContext context) {
+    public void handle(@NonNull CommandContext context) throws IOException {
 
         log.log(Level.INFO, "onAuth event - {0}", context);
 
@@ -47,13 +47,12 @@ public class AuthCommandHandler implements CommandHandler {
                 // Sign the event
                 identity.sign(canonicalAuthenticationEvent);
 
-                var client = Client.getInstance();
                 var canonicalAuthenticationMessage = new CanonicalAuthenticationMessage(canonicalAuthenticationEvent);
                 var encodedMessage = canonicalAuthenticationMessage.encode();
                 log.log(Level.INFO, "Sending authentication event {0} to the relay {1}", new Object[]{encodedMessage, relay});
 
                 // Publish the event to the relay
-                client.send(canonicalAuthenticationMessage);
+                getClient().send(canonicalAuthenticationMessage);
             }
         } else {
             throw new IllegalArgumentException("Invalid context type");

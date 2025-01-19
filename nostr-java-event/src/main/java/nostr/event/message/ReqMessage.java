@@ -71,6 +71,6 @@ public class ReqMessage extends BaseMessage {
         System.arraycopy(msgArr, 2, filtersArr, 0, len);
         var filtersList = mapper.convertValue(filtersArr, new TypeReference<List<Filters>>() {
         });
-        return  (T) new ReqMessage(msgArr[1].toString(), filtersList);
+        return (T) new ReqMessage(msgArr[1].toString(), filtersList);
     }
 }
