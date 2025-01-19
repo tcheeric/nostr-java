@@ -206,7 +206,7 @@ public class Nostr implements NostrIF {
         /**
          * @param json
          */
-        public static GenericEvent decodeEvent(@NonNull String json) {
+        public static GenericEvent decodeEvent(@NonNull String json) throws JsonProcessingException {
             return new GenericEventDecoder<>().decode(json);
         }
 
@@ -306,7 +306,7 @@ public class Nostr implements NostrIF {
          * @param json
          * @param clazz
          */
-        public static IElement decode(@NonNull String json, @NonNull Class clazz) {
+        public static IElement decode(@NonNull String json, @NonNull Class clazz) throws JsonProcessingException {
             switch (clazz.getName()) {
                 case "nostr.event.BaseEvent.class" -> {
                     return decodeEvent(json);

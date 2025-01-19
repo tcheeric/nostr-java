@@ -40,6 +40,7 @@ public enum Kind {
     CLASSIFIED_LISTING_DRAFT(30_403, "classified_listing_draft"),
     CALENDAR_DATE_BASED_EVENT(31_922, "calendar_date_based_event"),
     CALENDAR_TIME_BASED_EVENT(31_923, "calendar_time_based_event"),
+    CALENDAR_RSVP_EVENT(31_925, "calendar_rsvp_event"),
     UNDEFINED(-1, "undefined");
 
     @JsonValue

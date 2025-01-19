@@ -1,5 +1,6 @@
 package nostr.test.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
@@ -176,7 +177,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testClassifiedListingTagSerializer() {
+    public void testClassifiedListingTagSerializer() throws JsonProcessingException {
         log.info("testClassifiedListingSerializer");
         final String classifiedListingEventJson = "{"
             + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","

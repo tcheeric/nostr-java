@@ -82,25 +82,19 @@ public class CalendarContentDecodeTest {
 
   @Test
   void testCalendarContentMinimalJsonDecoding() {
-    assertDoesNotThrow(() -> {
-      CalendarTimeBasedEvent decode = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson);
-      return decode;
-    });
+    assertDoesNotThrow(() ->
+      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson));
   }
 
   @Test
   void testCalendarContentFullJsonDecoding() {
-    assertDoesNotThrow(() -> {
-      CalendarTimeBasedEvent decode = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson);
-      return decode;
-    });
+    assertDoesNotThrow(() ->
+      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
   }
 
   @Test
   void testCalendarContentProblemBarchettaJsonDecoding() {
-    assertDoesNotThrow(() -> {
-      CalendarTimeBasedEvent decoded = new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson);
-      return decoded;
-    });
+    assertDoesNotThrow(() ->
+      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
   }
 }
