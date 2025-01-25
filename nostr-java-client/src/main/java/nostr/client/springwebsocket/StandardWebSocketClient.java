@@ -1,9 +1,8 @@
 package nostr.client.springwebsocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.event.BaseMessage;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.awaitility.Awaitility.await;
 
@@ -25,7 +25,7 @@ import static org.awaitility.Awaitility.await;
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClient {
   private final WebSocketSession clientSession;
   private List<String> events = new ArrayList<>();
-  private boolean completed = false;
+  private final AtomicBoolean completed = new AtomicBoolean(false);
 
   @SneakyThrows
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri) {
@@ -33,23 +33,25 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   @Override
-  protected void handleTextMessage(@NotNull WebSocketSession session, TextMessage message) {
+  protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     events.add(message.getPayload());
-    completed = true;
+    completed.setRelease(true);
   }
 
   @Override
-  public <T extends BaseMessage> List<String> send(T eventMessage) throws JsonProcessingException, IOException {
+  public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
     return send(eventMessage.encode());
   }
 
   @Override
   public List<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
-    await().until(() -> completed);
+    await()
+//        .timeout(66, TimeUnit.MINUTES)
+        .untilTrue(completed);
     List<String> eventList = List.copyOf(events);
     events = new ArrayList<>();
-    completed = false;
+    completed.setRelease(false);
     return eventList;
   }
 
