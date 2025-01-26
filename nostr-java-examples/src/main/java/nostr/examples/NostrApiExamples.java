@@ -260,7 +260,7 @@ public class NostrApiExamples {
         var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
         reactionEvent.signAndSend(RELAYS);
         nip25.createReactionEvent(event.getEvent(), "💩").signAndSend();
-//        Using Custom Emoji as reaction 
+//        Using Custom Emoji as reaction
         nip25.createReactionEvent(
                 event.getEvent(),
                 NIP30.createCustomEmojiTag(
