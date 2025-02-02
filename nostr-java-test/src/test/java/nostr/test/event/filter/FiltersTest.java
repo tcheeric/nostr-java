@@ -5,7 +5,7 @@ import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.Kind;
-import nostr.event.filter.Filters;
+import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -113,7 +112,7 @@ public class FiltersTest {
     long sinceTime = Date.from(Instant.now()).getTime();
     filters.setSince(sinceTime);
 
-    assertEquals(sinceTime, filters.getSince());
+    filters.getSince().ifPresent(aLong -> assertEquals(sinceTime, aLong));
   }
 
   @Test
@@ -122,7 +121,14 @@ public class FiltersTest {
     long untilTime = Date.from(Instant.now()).getTime();
     filters.setUntil(untilTime);
 
-    assertEquals(untilTime, filters.getUntil());
+    filters.getUntil().ifPresent(aLong -> assertEquals(untilTime, aLong));
+  }
+
+  @Test
+  public void testLimit() {
+    Filters filters = new Filters();
+    filters.setLimit(1);
+    filters.getLimit().ifPresent(integer -> assertEquals(1, integer));
   }
 
   @Test
@@ -150,13 +156,13 @@ public class FiltersTest {
         genericTagQuery.getTagName(),
         addressTagValues);
 
-    Map<String, List<String>> genericTagQuery1 = filters.getGenericTagQuery(key);
-    log.info(genericTagQuery1.entrySet().toString());
+    List<String> genericTagQueryResult = filters.getGenericTagQuery(key);
+    genericTagQueryResult.forEach(log::info);
 
-    assertTrue(genericTagQuery1.get(key).contains(kind));
-    assertTrue(genericTagQuery1.get(key).contains(hexString));
-    assertTrue(genericTagQuery1.get(key).contains(uuid));
-    assertTrue(genericTagQuery1.get(key).contains(relayUri));
+    assertTrue(genericTagQueryResult.contains(kind));
+    assertTrue(genericTagQueryResult.contains(hexString));
+    assertTrue(genericTagQueryResult.contains(uuid));
+    assertTrue(genericTagQueryResult.contains(relayUri));
   }
 
   @Test
@@ -230,14 +236,28 @@ public class FiltersTest {
         .ifPresent(pubkeyTag ->
             assertEquals(pubkeyTag.getPublicKey().toHexString(), instance.getPubKey().toHexString()));
 
-    assertEquals(sinceTime, filters.getSince());
-    assertEquals(untilTime, filters.getUntil());
+    filters.getSince().ifPresent(aLong -> assertEquals(sinceTime, aLong));
+    filters.getUntil().ifPresent(aLong -> assertEquals(untilTime, aLong));
 
-    Map<String, List<String>> genericTagQuery1 = filters.getGenericTagQuery(key);
+    List<String> genericTagQueryResult = filters.getGenericTagQuery(key);
 
-    assertTrue(genericTagQuery1.get(key).contains(kind));
-    assertTrue(genericTagQuery1.get(key).contains(hexString));
-    assertTrue(genericTagQuery1.get(key).contains(uuid));
-    assertTrue(genericTagQuery1.get(key).contains(relayUri));
+    assertTrue(genericTagQueryResult.contains(kind));
+    assertTrue(genericTagQueryResult.contains(hexString));
+    assertTrue(genericTagQueryResult.contains(uuid));
+    assertTrue(genericTagQueryResult.contains(relayUri));
+  }
+
+  @Test
+  public void testNonExistingValues() {
+    Filters filters = new Filters();
+    assertTrue(filters.getLimit().isEmpty());
+    assertTrue(filters.getAuthors().isEmpty());
+    assertTrue(filters.getKinds().isEmpty());
+    assertTrue(filters.getReferencedEvents().isEmpty());
+    assertTrue(filters.getUntil().isEmpty());
+    assertTrue(filters.getEvents().isEmpty());
+    assertTrue(filters.getReferencePubKeys().isEmpty());
+    assertTrue(filters.getGenericTagQuery().isEmpty());
+    assertTrue(filters.getGenericTagQuery("someKey").isEmpty());
   }
 }
