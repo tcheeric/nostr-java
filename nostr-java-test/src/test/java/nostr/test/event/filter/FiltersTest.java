@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Log
@@ -259,5 +261,37 @@ public class FiltersTest {
     assertTrue(filters.getReferencePubKeys().isEmpty());
     assertTrue(filters.getGenericTagQuery().isEmpty());
     assertTrue(filters.getGenericTagQuery("someKey").isEmpty());
+  }
+
+  @Test
+  public void testNonExistingTagTypes() {
+    Filters filters = new Filters();
+    String key = "some-random-key";
+    String value = "some-random-value";
+    filters.setGenericTagQuery(
+        key,
+        List.of(value));
+
+    assertTrue(filters.getGenericTagQuery(key).contains(value));
+
+    String anotherValue = "another-random-value";
+    filters.setGenericTagQuery(
+        key,
+        List.of(value, anotherValue));
+    assertTrue(filters.getGenericTagQuery(key).contains(value));
+    assertTrue(filters.getGenericTagQuery(key).contains(anotherValue));
+  }
+
+  @Test
+  public void testNullValuesThrowException() {
+    Filters filters = new Filters();
+    assertThrows(NullPointerException.class, () -> filters.setLimit(null));
+    assertThrows(IllegalArgumentException.class, () -> filters.setEvents(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setAuthors(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setKinds(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setReferencedEvents(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setReferencePubKeys(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setGenericTagQuery("", List.of()));
+    assertThrows(IllegalArgumentException.class, () -> filters.setGenericTagQuery(Map.of()));
   }
 }

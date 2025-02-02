@@ -139,17 +139,21 @@ public class Filters {
   //  TODO: add map content validation?
   @JsonAnySetter
   public void setGenericTagQuery(@NonNull Map<String, List<String>> map) {
+    if (map.isEmpty())
+      throw new IllegalArgumentException("generic tag query cannot be empty");
     map.forEach(this::setGenericTagQuery);
   }
 
   //  TODO: add map content validation?
   @JsonAnySetter
   public void setGenericTagQuery(@NonNull String key, @NonNull List<String> value) {
-    getGenericTagQuery().put(key, value);
+    if (key.isBlank())
+      throw new IllegalArgumentException("key cannot be null");
     GenericTagQuery query = new GenericTagQuery();
     query.setTagName(key);
     query.setValue(value);
     setFilterableListByType(key, List.of(query), GenericTagQueryFilter::new);
+    getGenericTagQuery().put(key, value);
   }
 
   private <T> List<T> getFilterableListByType(@NonNull String type) {
@@ -165,11 +169,17 @@ public class Filters {
   @SneakyThrows
   private <T> void setFilterableListByType(
       @NonNull String key,
-      @NonNull List<T> filterType,
+      @NonNull List<T> filterTypeList,
       @NonNull Function<T, Filterable> filterableFunction) {
+
+    if (filterTypeList.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("[%s] filter must contain at least one element", key));
+    }
+
     this.core.addFilterList(
         key,
-        filterType.stream().map(filterableFunction).collect(Collectors.toList()));
+        filterTypeList.stream().map(filterableFunction).collect(Collectors.toList()));
 //        .orElseThrow(() ->
 //            new IllegalArgumentException(
 //                String.format("[%s] filter must contain at least one element")))
