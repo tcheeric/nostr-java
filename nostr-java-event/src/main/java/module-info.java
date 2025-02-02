@@ -18,4 +18,5 @@ module nostr.event {
     exports nostr.event.json.serializer;
     exports nostr.event.tag;
     exports nostr.event.util;
+    exports nostr.event.filter;
 }
