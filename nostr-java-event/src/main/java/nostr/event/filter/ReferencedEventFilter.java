@@ -1,6 +1,7 @@
 package nostr.event.filter;
 
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.EventTag;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,7 +17,9 @@ public class ReferencedEventFilter<T extends GenericEvent> implements Filterable
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.referencedEvent.getId().equals(genericEvent.getId());
+        getTypeSpecificTags(EventTag.class, genericEvent).stream()
+            .anyMatch(eventTag ->
+                eventTag.getIdEvent().equals(referencedEvent.getId()));
   }
 
   @Override

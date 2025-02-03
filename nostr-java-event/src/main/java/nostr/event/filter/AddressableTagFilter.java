@@ -6,7 +6,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -24,18 +23,15 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   }
 
   private boolean compare(@NonNull GenericEvent genericEvent) {
-    IdentifierTag addressTagIdentifierTag = this.addressableTag.getIdentifierTag();
-    String addressTagPublicKey = this.addressableTag.getPublicKey().toHexString();
-    Integer addressTagKind = this.addressableTag.getKind();
-
-    String genericEventPubKey = genericEvent.getPubKey().toHexString();
-    Integer genericEventKind = genericEvent.getKind();
-    List<IdentifierTag> genericEventIdentifierTags = getIdentifierTags(genericEvent);
-
-    return genericEventPubKey.equals(addressTagPublicKey) &&
-        genericEventKind.equals(addressTagKind) &&
-        genericEventIdentifierTags.stream().anyMatch(identifierTag ->
-            identifierTag.getId().equals(addressTagIdentifierTag.getId()));
+    return
+        !genericEvent.getPubKey().toHexString().equals(
+            this.addressableTag.getPublicKey().toHexString()) ||
+        !genericEvent.getKind().equals(
+            this.addressableTag.getKind()) ||
+        getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
+            .anyMatch(identifierTag ->
+                identifierTag.getId().equals(
+                    this.addressableTag.getIdentifierTag().getId()));
   }
 
   @Override

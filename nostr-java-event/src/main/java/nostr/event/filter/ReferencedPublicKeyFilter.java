@@ -2,6 +2,7 @@ package nostr.event.filter;
 
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.PubKeyTag;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,7 +18,9 @@ public class ReferencedPublicKeyFilter<T extends PublicKey> implements Filterabl
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        genericEvent.getPubKey().toHexString().equals(this.publicKey.toHexString());
+        getTypeSpecificTags(PubKeyTag.class, genericEvent).stream()
+            .anyMatch(pubKeyTag ->
+                pubKeyTag.getPublicKey().toHexString().equals(this.publicKey.toHexString()));
   }
 
   @Override

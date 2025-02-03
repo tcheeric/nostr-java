@@ -139,24 +139,24 @@ public class EntityFactory {
             return tag;
         }
 
-        public static Filters createFilters(PublicKey publicKey) {
-            List<GenericEvent> eventList = new ArrayList<>();
-            eventList.add(createTextNoteEvent(publicKey));
-            eventList.add(createEphemeralEvent(publicKey));
-
-            List<GenericEvent> refEvents = new ArrayList<>();
-            refEvents.add(createTextNoteEvent(publicKey));
-
-            GenericTagQuery genericTagQuery = createGenericTagQuery();
-            return Filters.builder()
-                .events(eventList)
-                .referencedEvents(refEvents)
-                .genericTagQuery(
-                    Map.of(
-                        genericTagQuery.getTagName(),
-                        genericTagQuery.getValue()))
-                .build();
-        }
+//        public static Filters createFilters(PublicKey publicKey) {
+//            List<GenericEvent> eventList = new ArrayList<>();
+//            eventList.add(createTextNoteEvent(publicKey));
+//            eventList.add(createEphemeralEvent(publicKey));
+//
+//            List<GenericEvent> refEvents = new ArrayList<>();
+//            refEvents.add(createTextNoteEvent(publicKey));
+//
+//            GenericTagQuery genericTagQuery = createGenericTagQuery();
+//            return Filters.builder()
+//                .events(eventList)
+//                .referencedEvents(refEvents)
+//                .genericTagQuery(
+//                    Map.of(
+//                        genericTagQuery.getTagName(),
+//                        genericTagQuery.getValue()))
+//                .build();
+//        }
 
         public static GenericTagQuery createGenericTagQuery() {
             Character c = generateRamdomAlpha(1).charAt(0);

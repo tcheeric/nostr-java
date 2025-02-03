@@ -16,8 +16,8 @@ public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        (getIdentifierTags(genericEvent).stream().anyMatch(genericEventIdentifiterTag ->
-            genericEventIdentifiterTag.getId().equals(this.identifierTag.getId())));
+        getTypeSpecificTags(IdentifierTag.class, genericEvent).stream().anyMatch(genericEventIdentifiterTag ->
+            genericEventIdentifiterTag.getId().equals(this.identifierTag.getId()));
   }
   @Override
   public T getFilterCriterion() {

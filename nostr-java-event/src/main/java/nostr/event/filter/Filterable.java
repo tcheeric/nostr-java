@@ -1,8 +1,7 @@
 package nostr.event.filter;
 
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
-import nostr.event.tag.IdentifierTag;
 
 import java.util.List;
 import java.util.function.Function;
@@ -14,17 +13,10 @@ public interface Filterable {
   <T> Function<String, T> createContainedInstance();
   String getFilterKey();
 
-  default List<GenericTag> getGenericTags(GenericEvent genericEvent) {
+  default <T extends BaseTag> List<T> getTypeSpecificTags(Class<T> tagClass, GenericEvent genericEvent) {
     return genericEvent.getTags().stream()
-        .filter(GenericTag.class::isInstance)
-        .map(GenericTag.class::cast)
-        .toList();
-  }
-
-  default List<IdentifierTag> getIdentifierTags(GenericEvent genericEvent) {
-    return genericEvent.getTags().stream()
-        .filter(IdentifierTag.class::isInstance)
-        .map(IdentifierTag.class::cast)
+        .filter(tagClass::isInstance)
+        .map(tagClass::cast)
         .toList();
   }
 }

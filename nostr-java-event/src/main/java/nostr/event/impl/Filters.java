@@ -95,7 +95,7 @@ public class Filters {
 
   @JsonProperty(ReferencedEventFilter.filterKey)
   public void setReferencedEvents(@NonNull List<GenericEvent> events) {
-    setFilterableListByType(ReferencedEventFilter.filterKey, events, EventFilter::new);
+    setFilterableListByType(ReferencedEventFilter.filterKey, events, ReferencedEventFilter::new);
   }
 
   @JsonProperty(ReferencedPublicKeyFilter.filterKey)

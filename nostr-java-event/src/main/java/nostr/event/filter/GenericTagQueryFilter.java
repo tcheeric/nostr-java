@@ -3,6 +3,7 @@ package nostr.event.filter;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.event.impl.GenericEvent;
+import nostr.event.impl.GenericTag;
 
 import java.util.HashSet;
 import java.util.function.Function;
@@ -19,7 +20,7 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        getGenericTags(genericEvent).stream()
+        getTypeSpecificTags(GenericTag.class, genericEvent).stream()
             .filter(genericTag ->
                 genericTag.getCode().equals(this.genericTagQuery.getTagName()))
             .anyMatch(genericTag ->
