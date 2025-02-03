@@ -3,19 +3,23 @@ package nostr.event.filter;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class KindFilter<T extends Kind> implements Filterable {
+  public final static String filterKey = "kinds";
   private final T kind;
 
   public KindFilter(T kind) {
     this.kind = kind;
   }
+
   @Override
-  public BiPredicate<T, GenericEvent> getBiPredicate() {
-    return (publicKey, genericEvent) -> Kind.valueOf(genericEvent.getKind()).equals(kind);
+  public Predicate<GenericEvent> getPredicate() {
+    return (genericEvent) ->
+        genericEvent.getKind().equals(this.kind.getValue());
   }
+
   @Override
   public T getFilterCriterion() {
     return kind;
@@ -24,5 +28,10 @@ public class KindFilter<T extends Kind> implements Filterable {
   @Override
   public <T> Function<String, T> createContainedInstance() {
     return pubkey -> (T) Kind.valueOf(pubkey);
+  }
+
+  @Override
+  public String getFilterKey() {
+    return filterKey;
   }
 }

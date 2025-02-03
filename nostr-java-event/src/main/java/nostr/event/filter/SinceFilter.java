@@ -2,27 +2,35 @@ package nostr.event.filter;
 
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class SinceFilter<T extends Long> implements Filterable {
-  private final T since;
+public class SinceFilter implements Filterable {
+  public final static String filterKey = "since";
+  private final Long since;
 
-  public SinceFilter(T since) {
+  public SinceFilter(Long since) {
     this.since = since;
   }
+
   @Override
-  public BiPredicate<T, GenericEvent> getBiPredicate() {
-    return (since, genericEvent) -> (Long) since > genericEvent.getCreatedAt();
+  public Predicate<GenericEvent> getPredicate() {
+    return (genericEvent) ->
+        this.since > genericEvent.getCreatedAt();
   }
 
   @Override
-  public T getFilterCriterion() {
+  public Long getFilterCriterion() {
     return since;
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return longValue -> (T) Long.valueOf(longValue);
+  public Function<String, Long> createContainedInstance() {
+    return longValue -> Long.valueOf(longValue);
+  }
+
+  @Override
+  public String getFilterKey() {
+    return filterKey;
   }
 }

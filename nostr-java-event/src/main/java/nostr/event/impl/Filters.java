@@ -14,15 +14,20 @@ import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
 import nostr.event.Kind;
+import nostr.event.filter.AddressableTagFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.FiltersCore;
 import nostr.event.filter.GenericTagQueryFilter;
+import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.PublicKeyFilter;
+import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
+import nostr.event.tag.AddressTag;
+import nostr.event.tag.IdentifierTag;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,83 +52,87 @@ public class Filters {
     this.core = new FiltersCore();
   }
 
-  @JsonProperty("ids")
+  public FiltersCore getFiltersCore() {
+    return this.core;
+  }
+
+  @JsonProperty(EventFilter.filterKey)
   public List<GenericEvent> getEvents() {
-    return getFilterableListByType("ids");
+    return getFilterableListByType(EventFilter.filterKey);
   }
 
-  @JsonProperty("ids")
+  @JsonProperty(EventFilter.filterKey)
   public void setEvents(@NonNull List<GenericEvent> events) {
-    setFilterableListByType("ids", events, EventFilter::new);
+    setFilterableListByType(EventFilter.filterKey, events, EventFilter::new);
   }
 
-  @JsonProperty("authors")
+  @JsonProperty(PublicKeyFilter.filterKey)
   public List<PublicKey> getAuthors() {
 //    TODO: may possibly require below variant
-//    getFilterableByType("authors", PublicKeyFilter.class);
-    return getFilterableListByType("authors");
+//    getFilterableByType(ReferencedPublicKeyFilter.filterKey, PublicKeyFilter.class);
+    return getFilterableListByType(PublicKeyFilter.filterKey);
   }
 
-  @JsonProperty("authors")
+  @JsonProperty(PublicKeyFilter.filterKey)
   public void setAuthors(@NonNull List<PublicKey> authors) {
-    setFilterableListByType("authors", authors, PublicKeyFilter::new);
+    setFilterableListByType(PublicKeyFilter.filterKey, authors, PublicKeyFilter::new);
   }
 
-  @JsonProperty("kinds")
+  @JsonProperty(KindFilter.filterKey)
   public List<Kind> getKinds() {
-    return getFilterableListByType("kinds");
+    return getFilterableListByType(KindFilter.filterKey);
   }
 
-  @JsonProperty("kinds")
+  @JsonProperty(KindFilter.filterKey)
   public void setKinds(@NonNull List<Kind> kinds) {
-    setFilterableListByType("kinds", kinds, KindFilter::new);
+    setFilterableListByType(KindFilter.filterKey, kinds, KindFilter::new);
   }
 
-  @JsonProperty("#e")
+  @JsonProperty(ReferencedEventFilter.filterKey)
   public List<GenericEvent> getReferencedEvents() {
-    return getFilterableListByType("#e");
+    return getFilterableListByType(ReferencedEventFilter.filterKey);
   }
 
-  @JsonProperty("#e")
+  @JsonProperty(ReferencedEventFilter.filterKey)
   public void setReferencedEvents(@NonNull List<GenericEvent> events) {
-    setFilterableListByType("#e", events, EventFilter::new);
+    setFilterableListByType(ReferencedEventFilter.filterKey, events, EventFilter::new);
   }
 
-  @JsonProperty("#p")
+  @JsonProperty(ReferencedPublicKeyFilter.filterKey)
   public List<PublicKey> getReferencePubKeys() {
-    return getFilterableListByType("#p");
+    return getFilterableListByType(ReferencedPublicKeyFilter.filterKey);
   }
 
-  @JsonProperty("#p")
+  @JsonProperty(ReferencedPublicKeyFilter.filterKey)
   public void setReferencePubKeys(@NonNull List<PublicKey> publicKeys) {
-    setFilterableListByType("#p", publicKeys, ReferencedPublicKeyFilter::new);
+    setFilterableListByType(ReferencedPublicKeyFilter.filterKey, publicKeys, ReferencedPublicKeyFilter::new);
   }
 
-  @JsonProperty("since")
+  @JsonProperty(SinceFilter.filterKey)
   public Optional<Long> getSince() {
-    return getSinceOrUntil("since");
+    return getSinceOrUntil(SinceFilter.filterKey);
   }
 
-  @JsonProperty("since")
+  @JsonProperty(SinceFilter.filterKey)
   public void setSince(@NonNull Long since) {
-    this.core.addFilter("since", new SinceFilter<>(since));
+    this.core.addFilterable(SinceFilter.filterKey, new SinceFilter(since));
   }
 
-  @JsonProperty("until")
+  @JsonProperty(UntilFilter.filterKey)
   public Optional<Long> getUntil() {
-    return getSinceOrUntil("until");
+    return getSinceOrUntil(UntilFilter.filterKey);
   }
 
-  @JsonProperty("until")
+  @JsonProperty(UntilFilter.filterKey)
   public void setUntil(@NonNull Long until) {
-    this.core.addFilter("until", new UntilFilter<>(until));
+    this.core.addFilterable(UntilFilter.filterKey, new UntilFilter(until));
   }
 
   @Setter(AccessLevel.NONE)
   private Map<String, List<String>> genericTagQuery;
 
   public List<GenericEvent> getReferenceforbelow() {
-    return getFilterableListByType("ids");
+    return getFilterableListByType("asdfasdf");
   }
 
   @JsonAnyGetter
@@ -156,6 +165,26 @@ public class Filters {
     getGenericTagQuery().put(key, value);
   }
 
+  @JsonProperty(AddressableTagFilter.filterKey)
+  public List<AddressTag> getAddressableTags() {
+    return getFilterableListByType(AddressableTagFilter.filterKey);
+  }
+
+  @JsonProperty(AddressableTagFilter.filterKey)
+  public void setAddressableTags(@NonNull List<AddressTag> addressTags) {
+    setFilterableListByType(AddressableTagFilter.filterKey, addressTags, AddressableTagFilter::new);
+  }
+
+  @JsonProperty(IdentifierTagFilter.filterKey)
+  public List<IdentifierTag> getIdentifierTags() {
+    return getFilterableListByType(IdentifierTagFilter.filterKey);
+  }
+
+  @JsonProperty(IdentifierTagFilter.filterKey)
+  public void setIdentifierTags(@NonNull List<IdentifierTag> identifierTags) {
+    setFilterableListByType(IdentifierTagFilter.filterKey, identifierTags, IdentifierTagFilter::new);
+  }
+
   private <T> List<T> getFilterableListByType(@NonNull String type) {
     return Optional
         .ofNullable(
@@ -177,7 +206,7 @@ public class Filters {
           String.format("[%s] filter must contain at least one element", key));
     }
 
-    this.core.addFilterList(
+    this.core.addFilterable(
         key,
         filterTypeList.stream().map(filterableFunction).collect(Collectors.toList()));
 //        .orElseThrow(() ->
@@ -208,43 +237,43 @@ public class Filters {
   public static class FiltersBuilder {
     private final Filters filters = new Filters();
 
-    @JsonProperty("ids")
+    @JsonProperty(EventFilter.filterKey)
     public FiltersBuilder events(@NonNull List<GenericEvent> events) {
       filters.setEvents(events);
       return this;
     }
 
-    @JsonProperty("authors")
+    @JsonProperty(PublicKeyFilter.filterKey)
     public FiltersBuilder authors(@NonNull List<PublicKey> authors) {
       filters.setAuthors(authors);
       return this;
     }
 
-    @JsonProperty("kinds")
+    @JsonProperty(KindFilter.filterKey)
     public FiltersBuilder kinds(@NonNull List<Kind> kinds) {
       filters.setKinds(kinds);
       return this;
     }
 
-    @JsonProperty("#e")
+    @JsonProperty(ReferencedEventFilter.filterKey)
     public FiltersBuilder referencedEvents(@NonNull List<GenericEvent> events) {
       filters.setReferencedEvents(events);
       return this;
     }
 
-    @JsonProperty("#p")
+    @JsonProperty(ReferencedPublicKeyFilter.filterKey)
     public FiltersBuilder referencePubKeys(@NonNull List<PublicKey> publicKeys) {
       filters.setReferencePubKeys(publicKeys);
       return this;
     }
 
-    @JsonProperty("since")
+    @JsonProperty(SinceFilter.filterKey)
     public FiltersBuilder since(@NonNull Long since) {
       filters.setSince(since);
       return this;
     }
 
-    @JsonProperty("until")
+    @JsonProperty(UntilFilter.filterKey)
     public FiltersBuilder until(@NonNull Long until) {
       filters.setUntil(until);
       return this;

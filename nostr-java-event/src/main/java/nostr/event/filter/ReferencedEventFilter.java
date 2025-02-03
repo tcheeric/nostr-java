@@ -2,19 +2,23 @@ package nostr.event.filter;
 
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ReferencedEventFilter<T extends GenericEvent> implements Filterable {
+  public final static String filterKey = "#e";
   private final T referencedEvent;
 
   public ReferencedEventFilter(T referencedEvent) {
     this.referencedEvent = referencedEvent;
   }
+
   @Override
-  public BiPredicate<T, GenericEvent> getBiPredicate() {
-    return (referencedEvent, genericEvent) -> referencedEvent.getId().equals(genericEvent.getId());
+  public Predicate<GenericEvent> getPredicate() {
+    return (genericEvent) ->
+        this.referencedEvent.getId().equals(genericEvent.getId());
   }
+
   @Override
   public T getFilterCriterion() {
     return referencedEvent;
@@ -27,5 +31,10 @@ public class ReferencedEventFilter<T extends GenericEvent> implements Filterable
       event.setId(eventId);
       return (T) event;
     };
+  }
+
+  @Override
+  public String getFilterKey() {
+    return filterKey;
   }
 }
