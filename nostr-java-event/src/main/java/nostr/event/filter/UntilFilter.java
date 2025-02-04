@@ -16,7 +16,7 @@ public class UntilFilter implements Filterable {
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.until <= genericEvent.getCreatedAt();
+        this.until < genericEvent.getCreatedAt();
   }
 
   @Override

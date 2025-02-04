@@ -16,7 +16,7 @@ public class SinceFilter implements Filterable {
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.since > genericEvent.getCreatedAt();
+        this.since >= genericEvent.getCreatedAt();
   }
 
   @Override
