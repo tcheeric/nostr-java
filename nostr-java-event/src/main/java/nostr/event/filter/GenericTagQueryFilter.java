@@ -6,8 +6,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
 import java.util.HashSet;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filterable {
   public final static String filterKey = "undefined";
@@ -37,12 +37,10 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return tagName -> {
-      GenericTagQuery tagQuery = new GenericTagQuery();
-      tagQuery.setTagName(tagName);
-      return (T) tagQuery;
-    };
+  public String toJson() {
+    return genericTagQuery.getValue().stream().map(s ->
+            String.format("\"%s\"", s))
+        .collect(Collectors.joining(","));
   }
 
   @Override

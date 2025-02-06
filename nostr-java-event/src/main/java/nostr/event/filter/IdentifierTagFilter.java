@@ -3,7 +3,6 @@ package nostr.event.filter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.IdentifierTag;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable {
@@ -25,11 +24,8 @@ public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable 
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return identifier -> {
-      IdentifierTag identiferTag = new IdentifierTag(identifier);
-      return (T) identiferTag;
-    };
+  public String toJson() {
+    return identifierTag.getId();
   }
 
   @Override

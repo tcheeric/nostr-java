@@ -3,7 +3,6 @@ package nostr.event.filter;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class KindFilter<T extends Kind> implements Filterable {
@@ -26,8 +25,8 @@ public class KindFilter<T extends Kind> implements Filterable {
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return pubkey -> (T) Kind.valueOf(pubkey);
+  public String toJson() {
+    return kind.toString();
   }
 
   @Override

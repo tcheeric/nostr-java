@@ -1,13 +1,13 @@
 package nostr.event.filter;
 
 import lombok.NonNull;
-import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   public final static String filterKey = "#a";
@@ -26,12 +26,12 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     return
         !genericEvent.getPubKey().toHexString().equals(
             this.addressableTag.getPublicKey().toHexString()) ||
-        !genericEvent.getKind().equals(
-            this.addressableTag.getKind()) ||
-        getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
-            .anyMatch(identifierTag ->
-                identifierTag.getId().equals(
-                    this.addressableTag.getIdentifierTag().getId()));
+            !genericEvent.getKind().equals(
+                this.addressableTag.getKind()) ||
+            getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
+                .anyMatch(identifierTag ->
+                    identifierTag.getId().equals(
+                        this.addressableTag.getIdentifierTag().getId()));
   }
 
   @Override
@@ -40,11 +40,14 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return pubKeyString -> {
-      PublicKey pubKey = new PublicKey(pubKeyString);
-      return (T) pubKey;
-    };
+  public String toJson() {
+    Integer kind = addressableTag.getKind();
+    String hexString = addressableTag.getPublicKey().toHexString();
+    String id = addressableTag.getIdentifierTag().getId();
+    String uri = addressableTag.getRelay().getUri();
+
+    return Stream.of(kind, hexString, id, uri).map(Object::toString)
+        .collect(Collectors.joining(","));
   }
   @Override
   public String getFilterKey() {

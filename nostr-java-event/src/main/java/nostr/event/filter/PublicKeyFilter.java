@@ -3,7 +3,6 @@ package nostr.event.filter;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class PublicKeyFilter<T extends PublicKey> implements Filterable {
@@ -24,11 +23,8 @@ public class PublicKeyFilter<T extends PublicKey> implements Filterable {
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return pubKeyString -> {
-      PublicKey pubKey = new PublicKey(pubKeyString);
-      return (T) pubKey;
-    };
+  public String toJson() {
+    return publicKey.toHexString();
   }
 
   @Override

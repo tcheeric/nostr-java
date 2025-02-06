@@ -2,7 +2,6 @@ package nostr.event.filter;
 
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class SinceFilter implements Filterable {
@@ -25,8 +24,8 @@ public class SinceFilter implements Filterable {
   }
 
   @Override
-  public Function<String, Long> createContainedInstance() {
-    return longValue -> Long.valueOf(longValue);
+  public String toJson() {
+    return since.toString();
   }
 
   @Override

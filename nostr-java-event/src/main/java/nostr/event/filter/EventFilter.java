@@ -1,5 +1,6 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import nostr.event.impl.GenericEvent;
 
 import java.util.function.Function;
@@ -25,12 +26,8 @@ public class EventFilter<T extends GenericEvent> implements Filterable {
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return eventId -> {
-      GenericEvent event = new GenericEvent();
-      event.setId(eventId);
-      return (T) event;
-    };
+  public String toJson() {
+    return event.getId();
   }
 
   @Override

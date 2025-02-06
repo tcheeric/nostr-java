@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 public interface Filterable {
   Predicate<GenericEvent> getPredicate();
   <T> T getFilterCriterion();
-  <T> Function<String, T> createContainedInstance();
+  String toJson();
   String getFilterKey();
 
   default <T extends BaseTag> List<T> getTypeSpecificTags(Class<T> tagClass, GenericEvent genericEvent) {

@@ -3,7 +3,6 @@ package nostr.event.filter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ReferencedEventFilter<T extends GenericEvent> implements Filterable {
@@ -28,12 +27,8 @@ public class ReferencedEventFilter<T extends GenericEvent> implements Filterable
   }
 
   @Override
-  public <T> Function<String, T> createContainedInstance() {
-    return eventId -> {
-      GenericEvent event = new GenericEvent();
-      event.setId(eventId);
-      return (T) event;
-    };
+  public String toJson() {
+    return referencedEvent.getId();
   }
 
   @Override
