@@ -1,18 +1,7 @@
 package nostr.test.event;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -20,9 +9,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.BaseEventEncoder;
-import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -31,8 +17,17 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP99RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
@@ -85,9 +80,9 @@ class ApiNIP99RequestTest {
 
     PriceTag priceTag = new PriceTag(NUMBER, CURRENCY, FREQUENCY);
     ClassifiedListing classifiedListing = ClassifiedListing.builder(
-        TITLE,
-        SUMMARY,
-        priceTag)
+            TITLE,
+            SUMMARY,
+            priceTag)
         .build();
 
     var nip99 = new NIP99<>(Identity.create(PRV_KEY_VALUE));
@@ -146,18 +141,6 @@ class ApiNIP99RequestTest {
     assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");
     assertTrue(hasRequiredTag(actualTags, "summary", SUMMARY), "Summary tag should be present");
 */
-  }
-
-  private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
-    Optional<T> first = reqResponse
-        .stream()
-        .map(baseMessage -> new BaseMessageDecoder<EventMessage>().decode(baseMessage))
-        .map(eventMessage -> ((GenericEvent) eventMessage.getEvent()))
-        .map(event -> new BaseEventEncoder<>(event).encode())
-        .map(encode -> new GenericEventDecoder<>(clazz).decode(encode))
-        .findFirst();
-    T t = first.get();
-    return t;
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

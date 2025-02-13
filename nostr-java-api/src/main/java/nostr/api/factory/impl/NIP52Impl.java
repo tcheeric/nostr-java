@@ -6,6 +6,8 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
+import nostr.event.impl.CalendarRsvpContent;
+import nostr.event.impl.CalendarRsvpEvent;
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.id.Identity;
 
@@ -25,6 +27,22 @@ public class NIP52Impl {
     @Override
     public CalendarTimeBasedEvent create() {
       return new CalendarTimeBasedEvent(getSender(), getTags(), getContent(), calendarContent);
+    }
+  }
+
+  @Data
+  @EqualsAndHashCode(callSuper = false)
+  public static class CalendarRsvpEventFactory extends EventFactory<CalendarRsvpEvent> {
+    private final CalendarRsvpContent calendarRsvpContent;
+
+    public CalendarRsvpEventFactory(@NonNull Identity sender, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarRsvpContent calendarRsvpContent) {
+      super(sender, baseTags, content);
+      this.calendarRsvpContent = calendarRsvpContent;
+    }
+
+    @Override
+    public CalendarRsvpEvent create() {
+      return new CalendarRsvpEvent(getSender(), getTags(), getContent(), calendarRsvpContent);
     }
   }
 }

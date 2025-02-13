@@ -4,6 +4,7 @@ import nostr.event.Kind;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KindMappingTest {
   @Test
@@ -17,12 +18,7 @@ public class KindMappingTest {
   }
 
   @Test
-  void testKindValueOfUndefined() {
-    assertEquals("-1", Kind.valueOf(9999999).toString());
-  }
-
-  @Test
   void testKindUndefinedName() {
-    assertEquals("undefined", Kind.valueOf(9999999).getName());
+    assertThrows(IllegalArgumentException.class, () -> Kind.valueOf(9999999));
   }
 }

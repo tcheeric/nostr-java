@@ -37,6 +37,7 @@ import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
+import nostr.util.thread.HexStringValidator;
 
 /**
  *
@@ -100,7 +101,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public GenericEvent(@NonNull String id) {
         this();
-        this.id = id;
+        setId(id);
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind) {
@@ -130,6 +131,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         // Update parents
         updateTagsParents(tags);
+    }
+
+    public void setId(String id) {
+        HexStringValidator.validateHex(id, 64);
+        this.id = id;
     }
 
     @Override

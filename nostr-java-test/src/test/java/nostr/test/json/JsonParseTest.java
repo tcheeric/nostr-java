@@ -1,5 +1,7 @@
 package nostr.test.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
@@ -27,16 +29,20 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -62,16 +68,16 @@ public class JsonParseTest {
         assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
         assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-        var filters = ((ReqMessage) message).getFiltersList().get(0);
+        var filters = ((ReqMessage) message).getFiltersList().getFirst();
 
         assertEquals(1, filters.getKinds().size());
-        assertEquals(Kind.TEXT_NOTE, filters.getKinds().get(0));
+        assertEquals(Kind.TEXT_NOTE, filters.getKinds().getFirst());
 
         assertEquals(1, filters.getAuthors().size());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().get(0).toBech32String());
+        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", filters.getAuthors().getFirst().toBech32String());
 
         assertEquals(1, filters.getReferencedEvents().size());
-        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", (filters.getReferencedEvents().get(0).getId()));
+        assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", (filters.getReferencedEvents().getFirst().getId()));
     }
 
     @Test
@@ -106,7 +112,6 @@ public class JsonParseTest {
 
         final String parseTarget
             = "[\"EVENT\","
-            + "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\","
             + "{"
             + "\"content\":\"直んないわ。まあええか\","
             + "\"created_at\":1686199583,"
@@ -122,7 +127,6 @@ public class JsonParseTest {
         assertEquals(Command.EVENT.toString(), message.getCommand());
 
         final var event = (GenericEvent) (((EventMessage) message).getEvent());
-        assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((EventMessage) message).getSubscriptionId());
         assertEquals(1, event.getKind().intValue());
         assertEquals(1686199583, event.getCreatedAt().longValue());
         assertEquals("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());
@@ -134,7 +138,6 @@ public class JsonParseTest {
 
         final String json = "["
             + "\"EVENT\","
-            + "\"temp20230627\","
             + "{"
             + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
             + "\"kind\":1,"
@@ -174,7 +177,7 @@ public class JsonParseTest {
     }
 
     @Test
-    public void testClassifiedListingTagSerializer() {
+    public void testClassifiedListingTagSerializer() throws JsonProcessingException {
         log.info("testClassifiedListingSerializer");
         final String classifiedListingEventJson = "{"
             + "\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\","
@@ -228,16 +231,16 @@ public class JsonParseTest {
             .map(GenericTag.class::cast).toList();
 
         assertEquals("title ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("summary ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("1687765220", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
 
         assertEquals("location ipsum", genericTags.stream()
-            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).getValue());
+            .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
     }
 
     @Test
@@ -245,11 +248,12 @@ public class JsonParseTest {
         log.info("testDeserializeTag");
 
         assertDoesNotThrow(() -> {
-            String npubHex = new PublicKey(Bech32.decode("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9").data).toString();
+            String npubHex = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9"))).toString();
+
             final String jsonString = "[\"p\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
             var tag = new BaseTagDecoder<>().decode(jsonString);
 
-            assertTrue(tag instanceof PubKeyTag);
+            assertInstanceOf(PubKeyTag.class, tag);
 
             PubKeyTag pTag = (PubKeyTag) tag;
             assertEquals("wss://nostr.java", pTag.getMainRelayUrl());
@@ -266,7 +270,7 @@ public class JsonParseTest {
             final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";
             var tag = new BaseTagDecoder<>().decode(jsonString);
 
-            assertTrue(tag instanceof GenericTag);
+            assertInstanceOf(GenericTag.class, tag);
 
             GenericTag gTag = (GenericTag) tag;
             assertEquals("gt", gTag.getCode());
@@ -298,7 +302,7 @@ public class JsonParseTest {
         geohashList.add(second_geohash);
         Filters filters = Filters.builder().genericTagQuery(Map.of("#g", geohashList)).build();
 
-        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<Filters>(List.of(filters)));
+        ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new ArrayList<>(List.of(filters)));
         assertDoesNotThrow(() -> {
             String jsonMessage = reqMessage.encode();
 
@@ -447,5 +451,169 @@ public class JsonParseTest {
         expectedFilters.setGenericTagQuery(uuidKey, expectedIdentityTagValuesList);
         ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, expectedFilters);
         assertEquals(expectedReqMessage, decodedReqMessage);
+    }
+
+    @Test
+    public void testReqMessageSubscriptionIdLength() {
+        log.info("testReqMessageSubscriptionIdLength");
+        String id65Chars = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9ab";
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new ReqMessage(id65Chars, new Filters()))
+                .getMessage().contains("subscriptionId length must be between 1 and 64 characters but was [65]"));
+    }
+
+    @Test
+    public void testReqMessageFilterIdLength() {
+        log.info("testReqMessageFilterIdLength");
+        String id64chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";
+        String reqJsonId64Chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id64chars + "\"]}]";
+        assertDoesNotThrow(() -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId64Chars));
+
+        String id65chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123";
+        String reqJsonId65Chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id65chars + "\"]}]";
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId65Chars))
+                .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123], length: [65], target length: [64]"));
+
+        String id63chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
+        String reqJsonId63chars =
+            "[\"REQ\",\"" + "subscriber_id" + "\",{\"ids\":[\"" + id63chars + "\"]}]";
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<ReqMessage>().decode(reqJsonId63chars))
+                .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71], length: [63], target length: [64]"));
+    }
+
+    @Test
+    public void testReqMessageDecoderKind() {
+        log.info("testReqMessageDecoderKind");
+
+        Function<Integer, String> kindTarget = kind -> "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"kinds\": [" + kind + "]" +
+            "}]";
+
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(0)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(kindTarget.apply(65535)));
+
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(-1)))
+                .getMessage().contains("Kind must be between 0 and 65535 but was [-1]"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(kindTarget.apply(65536)))
+                .getMessage().contains("Kind must be between 0 and 65535 but was [65536]"));
+    }
+
+    @Test
+    public void testReqMessageDecoderETag() {
+        log.info("testReqMessageDecoderETag");
+
+        String VALID_EVENTID = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
+        String VALID_EVENTID_ALL_ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
+        String VALID_EVENTID_ALL_FF = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        String INVALID_EVENTID_NON_HEX_DIGITS = "XYZdf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
+        String INVALID_EVENTID_LENGTH_TOO_SHORT = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6";
+        String INVALID_EVENTID_LENGTH_TOO_LONG = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f666";
+        String INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        String INVALID_EVENTID_HAS_SINGLE_UPPERCASE = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6F";
+
+        Function<String, String> eTagTarget = eTag -> "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"#e\": [\"" + eTag + "\"]}]";
+
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_EVENTID)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_EVENTID_ALL_ZEROS)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_EVENTID_ALL_FF)));
+
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_NON_HEX_DIGITS)))
+                .getMessage().contains("has non-hex characters"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_SHORT)))
+                .getMessage().contains("target length"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_LENGTH_TOO_LONG)))
+                .getMessage().contains("target length"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_MULTIPLE_UPPERCASE)))
+                .getMessage().contains("has uppcase characters"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_EVENTID_HAS_SINGLE_UPPERCASE)))
+                .getMessage().contains("has uppcase characters"));
+    }
+
+    @Test
+    public void testReqMessageDecoderPTag() {
+        log.info("testReqMessageDecoderPTag");
+
+        String VALID_HEXPUBKEY = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
+        String VALID_HEXPUBKEY_ALL_ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
+        String VALID_HEXPUBKEY_ALL_FF = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        String INVALID_HEXPUBKEY_NON_HEX_DIGITS = "XYZdf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
+        String INVALID_HEXPUBKEY_LENGTH_TOO_SHORT = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6";
+        String INVALID_HEXPUBKEY_LENGTH_TOO_LONG = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f666";
+        String INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        String INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6F";
+
+        Function<String, String> eTagTarget = pTag -> "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"#p\": [\"" + pTag + "\"]}]";
+
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_ZEROS)));
+        assertDoesNotThrow(() -> new BaseMessageDecoder<>().decode(eTagTarget.apply(VALID_HEXPUBKEY_ALL_FF)));
+
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_NON_HEX_DIGITS)))
+                .getMessage().contains("has non-hex characters"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT)))
+                .getMessage().contains("target length"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_LENGTH_TOO_LONG)))
+                .getMessage().contains("target length"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE)))
+                .getMessage().contains("has uppcase characters"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(eTagTarget.apply(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE)))
+                .getMessage().contains("has uppcase characters"));
+    }
+
+    @Test
+    public void testReqMessageFilterSince() {
+        log.info("testReqMessageFilterSince");
+        Function<String, String> sinceTarget = since -> "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"since\": " + since + "}]";
+
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply(null)))
+                .getMessage().contains("since is marked non-null but is null"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply("-1")))
+                .getMessage().contains("'since' filter cannot be negative"));
+        assertTrue(
+            assertThrows(JsonMappingException.class, () -> new BaseMessageDecoder<>().decode(sinceTarget.apply("a")))
+                .getMessage().contains("Unrecognized token 'a'"));
+    }
+
+    @Test
+    public void testReqMessageFilterUntil() {
+        log.info("testReqMessageFilterUntil");
+        Function<String, String> untilTarget = until -> "[\"REQ\", " +
+            "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+            "{\"until\": " + until + "}]";
+
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply(null)))
+                .getMessage().contains("until is marked non-null but is null"));
+        assertTrue(
+            assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply("-1")))
+                .getMessage().contains("'until' filter cannot be negative"));
+        assertTrue(
+            assertThrows(JsonMappingException.class, () -> new BaseMessageDecoder<>().decode(untilTarget.apply("a")))
+                .getMessage().contains("Unrecognized token 'a'"));
     }
 }

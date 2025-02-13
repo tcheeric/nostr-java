@@ -31,7 +31,7 @@ public class Signature {
 
     public static Signature fromString(String sig) {
       Signature signature = new Signature();
-      signature.setRawData(NostrUtil.hexToBytes(sig));
+      signature.setRawData(NostrUtil.hex128ToBytes(sig));
       return signature;
     }
 }

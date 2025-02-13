@@ -11,14 +11,14 @@ import nostr.base.Signature;
 import nostr.util.NostrUtil;
 
 public class SignatureDeserializer extends JsonDeserializer<Signature> {
-            
+
     @Override
     public Signature deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectMapper objectMapper = (ObjectMapper) jsonParser.getCodec();
         JsonNode node = objectMapper.readTree(jsonParser);
 
         String sigValue = node.asText();
-        byte[] rawData = NostrUtil.hexToBytes(sigValue);
+        byte[] rawData = NostrUtil.hex128ToBytes(sigValue);
 
         Signature signature = new Signature();
         signature.setRawData(rawData);
