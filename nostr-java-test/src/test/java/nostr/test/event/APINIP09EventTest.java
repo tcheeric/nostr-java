@@ -2,8 +2,8 @@ package nostr.test.event;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
+import nostr.api.NostrSpringWebSocketClient;
 import nostr.base.Relay;
-import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -32,10 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class APINIP09EventTest {
 
     private static final String RELAY_URI = "ws://localhost:5555";
-    private final SpringWebSocketClient springWebSocketClient;
+    private final NostrSpringWebSocketClient nostrSpringWebSocketClient;
 
     public APINIP09EventTest() {
-        springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+        nostrSpringWebSocketClient = new NostrSpringWebSocketClient("localhost", RELAY_URI);
     }
 
     @Test
