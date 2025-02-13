@@ -14,6 +14,7 @@ import nostr.event.BaseMessage;
 import nostr.event.impl.Filters;
 import nostr.event.json.codec.FiltersEncoder;
 
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class ReqMessage extends BaseMessage {
 
     public ReqMessage(String subscriptionId, List<Filters> incomingFiltersList) {
         super(Command.REQ.name());
+        if (!ValueRange.of(1, 64).isValidIntValue(subscriptionId.length())) {
+            throw new IllegalArgumentException("subscriptionId must be between 1 and 64 characters");
+        }
         this.subscriptionId = subscriptionId;
         this.filtersList = new ArrayList<>();
         this.filtersList.addAll(incomingFiltersList);
@@ -67,6 +71,6 @@ public class ReqMessage extends BaseMessage {
         System.arraycopy(msgArr, 2, filtersArr, 0, len);
         var filtersList = mapper.convertValue(filtersArr, new TypeReference<List<Filters>>() {
         });
-        return  (T) new ReqMessage(msgArr[1].toString(), filtersList);
+        return (T) new ReqMessage(msgArr[1].toString(), filtersList);
     }
 }

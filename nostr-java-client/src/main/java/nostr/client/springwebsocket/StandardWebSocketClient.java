@@ -1,9 +1,9 @@
 package nostr.client.springwebsocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.event.BaseMessage;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClient {
+public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
   private final WebSocketSession clientSession;
   private List<String> events = new ArrayList<>();
   private boolean completed = false;
@@ -33,7 +33,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   @Override
-  protected void handleTextMessage(@NotNull WebSocketSession session, TextMessage message) {
+  protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     events.add(message.getPayload());
     completed = true;
   }

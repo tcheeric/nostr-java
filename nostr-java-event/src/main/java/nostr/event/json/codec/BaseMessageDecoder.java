@@ -25,8 +25,8 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     private final ObjectMapper mapper;
 
     public BaseMessageDecoder() {
-        mapper = new ObjectMapper();
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        this.mapper = new ObjectMapper();
+        this.mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
     }
 
     @SneakyThrows
