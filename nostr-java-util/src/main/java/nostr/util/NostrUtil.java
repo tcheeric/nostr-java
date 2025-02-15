@@ -1,5 +1,7 @@
 package nostr.util;
 
+import nostr.util.thread.HexStringValidator;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,6 +29,21 @@ public class NostrUtil {
     }
 
     public static byte[] hexToBytes(String s) {
+        HexStringValidator.validateHex(s, 64);
+        return hexToBytesConvert(s);
+    }
+
+    public static byte[] hex128ToBytes(String s) {
+        HexStringValidator.validateHex(s, 128);
+        return hexToBytesConvert(s);
+    }
+
+    public static byte[] nip04PubKeyHexToBytes(String s) {
+        HexStringValidator.validateHex(s, 66);
+        return hexToBytesConvert(s);
+    }
+
+    private static byte[] hexToBytesConvert(String s) {
         int len = s.length();
         byte[] buf = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -87,21 +104,21 @@ public class NostrUtil {
 
     public static String escapeJsonString(String jsonString) {
         return jsonString.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\f", "\\f")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t");
     }
 
     public static String unEscapeJsonString(String jsonString) {
         return jsonString.replace("\\\\", "\\")
-                .replace("\\\"", "\"")
-                .replace("\\b", "\b")
-                .replace("\\f", "\f")
-                .replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\t", "\t");
+            .replace("\\\"", "\"")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t");
     }
 }

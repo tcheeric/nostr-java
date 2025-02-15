@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
@@ -65,6 +66,20 @@ public class Filters {
     @Key(nip = 12)
     @Setter(AccessLevel.NONE)
     private Map<String, List<String>> genericTagQuery;
+
+    public void setUntil(@NonNull Long until) {
+        if (until < 0) {
+            throw new IllegalArgumentException("'until' filter cannot be negative.");
+        }
+        this.until = until;
+    }
+
+    public void setSince(@NonNull Long since) {
+        if (since < 0) {
+            throw new IllegalArgumentException("'since' filter cannot be negative.");
+        }
+        this.since = since;
+    }
 
     @JsonAnyGetter
     public Map<String, List<String>> getGenericTagQuery() {

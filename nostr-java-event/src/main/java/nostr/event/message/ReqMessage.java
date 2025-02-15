@@ -14,6 +14,7 @@ import nostr.event.BaseMessage;
 import nostr.event.impl.Filters;
 import nostr.event.json.codec.FiltersEncoder;
 
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +33,15 @@ public class ReqMessage extends BaseMessage {
     @JsonProperty
     private final List<Filters> filtersList;
 
-    public ReqMessage(String subscriptionId, Filters filters) {
+    public ReqMessage(@NonNull String subscriptionId, Filters filters) {
         this(subscriptionId, List.of(filters));
     }
 
-    public ReqMessage(String subscriptionId, List<Filters> incomingFiltersList) {
+    public ReqMessage(@NonNull String subscriptionId, List<Filters> incomingFiltersList) {
         super(Command.REQ.name());
+        if (!ValueRange.of(1, 64).isValidIntValue(subscriptionId.length())) {
+            throw new IllegalArgumentException(String.format("subscriptionId length must be between 1 and 64 characters but was [%d]", subscriptionId.length()));
+        }
         this.subscriptionId = subscriptionId;
         this.filtersList = new ArrayList<>();
         this.filtersList.addAll(incomingFiltersList);

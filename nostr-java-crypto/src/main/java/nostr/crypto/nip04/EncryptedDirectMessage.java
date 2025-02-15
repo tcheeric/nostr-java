@@ -79,7 +79,7 @@ public class EncryptedDirectMessage {
     private static byte[] getSharedSecret(String privateKeyHex, String publicKeyHex) {
 
         SecP256K1Curve curve = new SecP256K1Curve();
-        ECPoint pubKeyPt = curve.decodePoint(NostrUtil.hexToBytes("02" + publicKeyHex));
+        ECPoint pubKeyPt = curve.decodePoint(NostrUtil.nip04PubKeyHexToBytes("02" + publicKeyHex));
         BigInteger tweakVal = new BigInteger(1, NostrUtil.hexToBytes(privateKeyHex));
         return pubKeyPt.multiply(tweakVal).getEncoded(true);
     }
