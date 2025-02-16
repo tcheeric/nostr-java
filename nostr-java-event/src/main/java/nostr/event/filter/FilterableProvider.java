@@ -14,14 +14,13 @@ public class FilterableProvider {
     return switch (type) {
       case ReferencedPublicKeyFilter.filterKey -> Filters.getFilterable(node, referencedPubKey -> new ReferencedPublicKeyFilter<>(new PublicKey(referencedPubKey.asText())));
       case ReferencedEventFilter.filterKey -> Filters.getFilterable(node, referencedEvent -> new ReferencedEventFilter<>(new GenericEvent(referencedEvent.asText())));
+      case AddressableTagFilter.filterKey -> Filters.getFilterable(node, addressableTag -> new AddressableTagFilter<>(AddressableTagFilter.createAddressTag(addressableTag)));
       case IdentifierTagFilter.filterKey -> Filters.getFilterable(node, identifierTag -> new IdentifierTagFilter<>(new IdentifierTag(identifierTag.asText())));
       case AuthorFilter.filterKey -> Filters.getFilterable(node, author -> new AuthorFilter<>(new PublicKey(author.asText())));
       case EventFilter.filterKey -> Filters.getFilterable(node, event -> new EventFilter<>(new GenericEvent(event.asText())));
       case SinceFilter.filterKey -> Filters.getFilterable(node, since -> new SinceFilter(since.asLong()));
       case UntilFilter.filterKey -> Filters.getFilterable(node, until -> new UntilFilter(until.asLong()));
       case KindFilter.filterKey -> Filters.getFilterable(node, kindNode ->  new KindFilter<>(Kind.valueOf(kindNode.asInt())));
-//      TODO: complete & test below
-//            case AddressableTagFilter.filterKey -> new XYZ<>(getGenericTagQuery(node));
       default -> Filters.getFilterable(node, genericNode -> new GenericTagQueryFilter<>(new GenericTagQuery(type, genericNode.asText())));
     };
   }
