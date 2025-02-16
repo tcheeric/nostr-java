@@ -1,10 +1,13 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.EqualsAndHashCode;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
+@EqualsAndHashCode
 public class KindFilter<T extends Kind> implements Filterable {
   public final static String filterKey = "kinds";
   private final T kind;
@@ -25,8 +28,8 @@ public class KindFilter<T extends Kind> implements Filterable {
   }
 
   @Override
-  public String toJson() {
-    return kind.toString();
+  public ArrayNode toArrayNode() {
+    return mapper.createArrayNode().add(kind.toString());
   }
 
   @Override

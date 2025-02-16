@@ -5,7 +5,7 @@ import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.context.RequestContext;
 import nostr.event.BaseMessage;
-import nostr.event.impl.Filters;
+import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 

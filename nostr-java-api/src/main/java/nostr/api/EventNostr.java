@@ -49,7 +49,7 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
     @SuppressWarnings("unchecked")
     public <U extends BaseMessage> U send(Map<String, String> relays) {
         List<String> messages = super.send(this.event, relays);
-        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<U>();
+        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<>();
 
         return messages.stream()
                 .map(msg -> (U) decoder.decode(msg))

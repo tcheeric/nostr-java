@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -16,37 +17,63 @@ import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author eric
  */
 public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
-    private final ObjectMapper mapper;
+    public static final int MAX_JSON_NODE_THRESHOLD = 99;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public BaseMessageDecoder() {
-        this.mapper = new ObjectMapper();
-        this.mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
     }
 
     @SneakyThrows
     @Override
     public T decode(@NonNull String jsonString) {
-        Object[] msgArr = mapper.readValue(jsonString, Object[].class);
-        final String strCmd = msgArr[0].toString();
-        final Object arg = msgArr[1];
+        ValidJsonNode validJsonNode = validateJson(jsonString);
+        String command = validJsonNode.formerly_strCmd();
+        Object subscriptionId = validJsonNode.formerly_arg(); // subscriptionId
+        String filtersJson = validJsonNode.formerly_msgArr(); // filters
 
-        return switch (strCmd) {
-            case "AUTH" -> arg instanceof Map map ?
+        Object[] msgArr = mapper.readValue(jsonString, Object[].class); // TODO: replace with jsonNode after ReqMessage.decode() is finished
+
+        return switch (command) {
+            case "AUTH" -> subscriptionId instanceof Map map ?
                 CanonicalAuthenticationMessage.decode(map, mapper) :
-                RelayAuthenticationMessage.decode(arg);
-            case "CLOSE" -> CloseMessage.decode(arg);
-            case "EOSE" -> EoseMessage.decode(arg);
+                RelayAuthenticationMessage.decode(subscriptionId);
+            case "CLOSE" -> CloseMessage.decode(subscriptionId);
+            case "EOSE" -> EoseMessage.decode(subscriptionId);
             case "EVENT" -> EventMessage.decode(msgArr, mapper);
-            case "NOTICE" -> NoticeMessage.decode(arg);
+            case "NOTICE" -> NoticeMessage.decode(subscriptionId);
             case "OK" -> OkMessage.decode(msgArr);
-            case "REQ" -> ReqMessage.decode(msgArr, mapper);
+            case "REQ" -> ReqMessage.decode(subscriptionId, List.of(filtersJson));
             default -> GenericMessage.decode(msgArr);
         };
+    }
+
+    @SneakyThrows
+    private ValidJsonNode validateJson(@NonNull String jsonString) {
+        final JsonNode jsonNode = mapper.readTree(jsonString);
+
+        if (jsonNode.size() > MAX_JSON_NODE_THRESHOLD)
+            throw new IllegalArgumentException(
+                String.format("BaseMessageDecoder expected max [%d] JSON nodes but received [%s] instead with contents:\n\n[%s]\n",
+                    MAX_JSON_NODE_THRESHOLD,
+                    jsonNode.size(),
+                    jsonNode.toPrettyString()
+                ));
+
+        return new ValidJsonNode(
+            jsonNode.get(0).asText(),
+            jsonNode.get(1).asText(),
+            jsonNode.get(2).toString());
+    }
+
+    private record ValidJsonNode(@NonNull String formerly_strCmd, @NonNull Object formerly_arg,
+                                 @NonNull String formerly_msgArr) {
     }
 }

@@ -1,70 +1,37 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import nostr.base.FEncoder;
-import nostr.event.impl.Filters;
-import nostr.util.NostrException;
+import nostr.event.filter.Filterable;
+import nostr.event.filter.Filters;
 
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * @author guilhermegps
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class FiltersEncoder implements FEncoder<Filters> {
-    private final Filters filters;
+  private final Filters filters;
 
-    public FiltersEncoder(Filters filters) {
-        this.filters = filters;
-    }
+  public FiltersEncoder(Filters filters) {
+    this.filters = filters;
+  }
 
-    protected String toJson() throws NostrException {
-        try {
-            JsonNode node = MAPPER.valueToTree(filters);
-            ObjectNode objNode = (ObjectNode) node;
-            //var arrayNode = (ArrayNode) node.get("genericTagQuery");
-            if (objNode != null && !objNode.isNull()) {
-                for (JsonNode jn : objNode) {
-                    StreamSupport.stream(
-                            Spliterators.spliteratorUnknownSize(jn.fields(), Spliterator.ORDERED), false)
-                        .forEach(f -> {
-                            if ("genericTagQuery".equals(f.getKey())) {
-                                var mapper = new ObjectMapper();
-                                try {
-                                    mapper.readTree(f.getValue().toString())
-                                        .fields()
-                                        .forEachRemaining(g -> objNode.set(g.getKey(), g.getValue()));
-                                } catch (JsonProcessingException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            } else {
-                                objNode.set(f.getKey(), f.getValue());
-                            }
-                        });
-                }
-            }
-            objNode.remove("genericTagQuery");
-
-            return MAPPER.writeValueAsString(objNode);
-        } catch (JsonProcessingException | IllegalArgumentException e) {
-            throw new NostrException(e);
-        }
-    }
-
-    @Override
-    public String encode() {
-        try {
-            return toJson();
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+  @SneakyThrows
+  @Override
+  public String encode() {
+    Map<String, ArrayNode> result = new HashMap<>();
+    filters.getFiltersMap().forEach((key, value) ->
+        value.stream().distinct()
+            .map(Filterable::toArrayNode)
+            .reduce(ArrayNode::addAll)
+            .ifPresent(arrayNode ->
+                result.put(key, arrayNode)));
+    JsonNode jsonNode = MAPPER.valueToTree(result);
+    return MAPPER.writeValueAsString(jsonNode);
+  }
 }

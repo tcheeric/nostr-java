@@ -20,7 +20,6 @@ import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.DeletionEvent;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.InternetIdentifierMetadataEvent;

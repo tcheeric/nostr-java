@@ -1,17 +1,20 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 
 import java.util.function.Predicate;
 
+@EqualsAndHashCode
 public class ReferencedPublicKeyFilter<T extends PublicKey> implements Filterable {
   public final static String filterKey = "#p";
-  private final T publicKey;
+  private final T referencedPublicKey;
 
-  public ReferencedPublicKeyFilter(T publicKey) {
-    this.publicKey = publicKey;
+  public ReferencedPublicKeyFilter(T referencedPublicKey) {
+    this.referencedPublicKey = referencedPublicKey;
   }
 
   @Override
@@ -19,17 +22,17 @@ public class ReferencedPublicKeyFilter<T extends PublicKey> implements Filterabl
     return (genericEvent) ->
         getTypeSpecificTags(PubKeyTag.class, genericEvent).stream()
             .anyMatch(pubKeyTag ->
-                pubKeyTag.getPublicKey().toHexString().equals(this.publicKey.toHexString()));
+                pubKeyTag.getPublicKey().toHexString().equals(this.referencedPublicKey.toHexString()));
   }
 
   @Override
   public T getFilterCriterion() {
-    return publicKey;
+    return referencedPublicKey;
   }
 
   @Override
-  public String toJson() {
-    return publicKey.toHexString();
+  public ArrayNode toArrayNode() {
+    return mapper.createArrayNode().add(referencedPublicKey.toHexString());
   }
 
   @Override

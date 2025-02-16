@@ -1,11 +1,12 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
+@EqualsAndHashCode
 public class EventFilter<T extends GenericEvent> implements Filterable {
   public final static String filterKey = "ids";
   private final T event;
@@ -26,8 +27,8 @@ public class EventFilter<T extends GenericEvent> implements Filterable {
   }
 
   @Override
-  public String toJson() {
-    return event.getId();
+  public ArrayNode toArrayNode() {
+    return mapper.createArrayNode().add(event.getId());
   }
 
   @Override

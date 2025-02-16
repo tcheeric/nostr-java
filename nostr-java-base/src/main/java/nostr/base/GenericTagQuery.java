@@ -2,14 +2,12 @@
 package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
- *
  * @author squirrel
  */
 @Data
@@ -17,11 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 public class GenericTagQuery {
 
-    private String tagName;
-    private List<String> value;
+  private String tagName;
 
-    @JsonIgnore
-    public Integer getNip() {
-        return 1;
-    }
+  @JsonProperty
+  private String value;
+
+  @JsonIgnore
+  public Integer getNip() {
+    return 1;
+  }
 }

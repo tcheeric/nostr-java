@@ -9,9 +9,9 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
+import nostr.event.filter.Filters;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -60,7 +59,8 @@ public class EntityFactory {
         }
 
         public static Filters createFilters(List<PublicKey> authors, List<Kind> kindList, Long since) {
-            return Filters.builder().authors(authors).kinds(kindList).since(since).build();
+//            return Filters.builder().authors(authors).kinds(kindList).since(since).build();
+            return null;
         }
 
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {

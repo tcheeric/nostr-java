@@ -28,7 +28,7 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
-import nostr.event.impl.Filters;
+import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
@@ -98,7 +98,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create a replaceable event
-     * 
+     *
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the content
      */
@@ -111,7 +111,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create a replaceable event
-     * 
+     *
      * @param tags    the note's tags
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the note's content
@@ -125,7 +125,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create an ephemeral event
-     * 
+     *
      * @param kind    the kind (20000 <= n < 30000)
      * @param content the note's content
      */
@@ -217,19 +217,20 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     public static Filters createFilters(List<GenericEvent> events, List<PublicKey> authors, List<Kind> kinds,
             List<GenericEvent> referencedEvents, List<PublicKey> referencePubKeys, Long since, Long until,
             Integer limit, GenericTagQuery genericTagQuery) {
-        return Filters.builder()
-                .authors(authors)
-                .events(events)
-                .genericTagQuery(
-                    Map.of(
-                        genericTagQuery.getTagName(),
-                        genericTagQuery.getValue()))
-                .kinds(kinds).limit(limit)
-                .referencePubKeys(referencePubKeys)
-                .referencedEvents(referencedEvents)
-                .since(since)
-                .until(until)
-                .build();
+//        return Filters.builder()
+//                .authors(authors)
+//                .events(events)
+//                .genericTagQuery(
+//                    Map.of(
+//                        genericTagQuery.getTagName(),
+//                        genericTagQuery.getValue()))
+//                .kinds(kinds).limit(limit)
+//                .referencePubKeys(referencePubKeys)
+//                .referencedEvents(referencedEvents)
+//                .since(since)
+//                .until(until)
+//                .build();
+        return null;
     }
 
     /**

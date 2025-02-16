@@ -1,5 +1,7 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.event.impl.GenericEvent;
@@ -7,10 +9,9 @@ import nostr.event.impl.GenericTag;
 
 import java.util.HashSet;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
+@EqualsAndHashCode
 public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filterable {
-  public final static String filterKey = "undefined";
   private final T genericTagQuery;
 
   public GenericTagQueryFilter(T genericTagQuery) {
@@ -27,7 +28,7 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
                 new HashSet<>(genericTag
                     .getAttributes().stream().map(
                         ElementAttribute::getValue).toList())
-                    .containsAll(
+                    .contains(
                         this.genericTagQuery.getValue()));
   }
 
@@ -37,14 +38,12 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
   }
 
   @Override
-  public String toJson() {
-    return genericTagQuery.getValue().stream().map(s ->
-            String.format("\"%s\"", s))
-        .collect(Collectors.joining(","));
+  public ArrayNode toArrayNode() {
+    return mapper.createArrayNode().add(genericTagQuery.getValue());
   }
 
   @Override
   public String getFilterKey() {
-    return filterKey;
+    return genericTagQuery.getTagName();
   }
 }
