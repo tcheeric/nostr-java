@@ -1,6 +1,7 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@EqualsAndHashCode
 public class Filters {
   @Getter
   private final Map<String, List<Filterable>> filtersMap;

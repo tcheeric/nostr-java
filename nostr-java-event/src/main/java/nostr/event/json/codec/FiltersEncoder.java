@@ -1,6 +1,5 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,13 +24,14 @@ public class FiltersEncoder implements FEncoder<Filters> {
   @Override
   public String encode() {
     Map<String, ArrayNode> result = new HashMap<>();
+
     filters.getFiltersMap().forEach((key, value) ->
         value.stream().distinct()
             .map(Filterable::toArrayNode)
             .reduce(ArrayNode::addAll)
             .ifPresent(arrayNode ->
                 result.put(key, arrayNode)));
-    JsonNode jsonNode = MAPPER.valueToTree(result);
-    return MAPPER.writeValueAsString(jsonNode);
+
+    return MAPPER.writeValueAsString(MAPPER.valueToTree(result));
   }
 }

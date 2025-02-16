@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
@@ -31,9 +32,8 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
     }
 
-    @SneakyThrows
     @Override
-    public T decode(@NonNull String jsonString) {
+    public T decode(@NonNull String jsonString) throws JsonProcessingException {
         ValidJsonNode validJsonNode = validateJson(jsonString);
         String command = validJsonNode.formerly_strCmd();
         Object subscriptionId = validJsonNode.formerly_arg(); // subscriptionId
@@ -55,8 +55,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         };
     }
 
-    @SneakyThrows
-    private ValidJsonNode validateJson(@NonNull String jsonString) {
+    private ValidJsonNode validateJson(@NonNull String jsonString) throws JsonProcessingException {
         final JsonNode jsonNode = mapper.readTree(jsonString);
 
         if (jsonNode.size() > MAX_JSON_NODE_THRESHOLD)
