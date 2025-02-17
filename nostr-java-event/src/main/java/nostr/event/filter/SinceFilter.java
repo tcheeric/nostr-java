@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 
@@ -27,12 +27,17 @@ public class SinceFilter implements Filterable {
   }
 
   @Override
-  public ArrayNode toArrayNode() {
-    return mapper.createArrayNode().add(since);
+  public ObjectNode toObjectNode(ObjectNode objectNode) {
+    return mapper.createObjectNode().put(filterKey, since);
   }
 
   @Override
   public String getFilterKey() {
     return filterKey;
+  }
+
+  @Override
+  public String getFilterableValue() {
+    return since.toString();
   }
 }

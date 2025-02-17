@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
@@ -28,12 +28,17 @@ public class KindFilter<T extends Kind> implements Filterable {
   }
 
   @Override
-  public ArrayNode toArrayNode() {
-    return mapper.createArrayNode().add(kind.toString());
+  public ObjectNode toObjectNode(ObjectNode objectNode) {
+    return processArrayNode(objectNode);
   }
 
   @Override
   public String getFilterKey() {
     return filterKey;
+  }
+
+  @Override
+  public String getFilterableValue() {
+    return kind.toString();
   }
 }

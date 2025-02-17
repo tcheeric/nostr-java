@@ -1,7 +1,7 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.PublicKey;
@@ -47,16 +47,8 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   }
 
   @Override
-  public ArrayNode toArrayNode() {
-    Integer kind = addressableTag.getKind();
-    String hexString = addressableTag.getPublicKey().toHexString();
-    String id = addressableTag.getIdentifierTag().getId();
-//    String uri = addressableTag.getRelay().getUri();
-
-    String collected = Stream.of(kind, hexString, id).map(Object::toString)
-        .collect(Collectors.joining(":"));
-
-    return mapper.createArrayNode().add(collected);
+  public ObjectNode toObjectNode(ObjectNode objectNode) {
+    return processArrayNode(objectNode);
   }
 
   @Override
@@ -74,5 +66,18 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
 
     return addressTag;
+  }
+
+  @Override
+  public String getFilterableValue() {
+    Integer kind = addressableTag.getKind();
+    String hexString = addressableTag.getPublicKey().toHexString();
+    String id = addressableTag.getIdentifierTag().getId();
+//    String uri = addressableTag.getRelay().getUri();
+
+    String collected = Stream.of(kind, hexString, id).map(Object::toString)
+        .collect(Collectors.joining(":"));
+
+    return collected;
   }
 }

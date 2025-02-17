@@ -75,13 +75,18 @@ public class ReqMessage extends BaseMessage {
       arrayNode.add(jsonNode);
     });
 
-    return IEncoder.MAPPER.writeValueAsString(getArrayNode());
+    String s = IEncoder.MAPPER.writeValueAsString(getArrayNode());
+    System.out.println(s);
+    return s;
   }
 
   public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull List<String> jsonFiltersList) {
-    return (T) new ReqMessage(subscriptionId.toString(),
+
+    ReqMessage reqMessage = new ReqMessage(subscriptionId.toString(),
         jsonFiltersList.stream().map(
             ReqMessage::createFiltersFromJson).toList());
+
+    return (T) reqMessage;
   }
 
   private static Filters createFiltersFromJson(String jsonFiltersList) {

@@ -1,15 +1,15 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import nostr.base.FEncoder;
-import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -23,15 +23,18 @@ public class FiltersEncoder implements FEncoder<Filters> {
   @SneakyThrows
   @Override
   public String encode() {
-    Map<String, ArrayNode> result = new HashMap<>();
+    List<ObjectNode> result = new ArrayList<>();
 
-    filters.getFiltersMap().forEach((key, value) ->
-        value.stream().distinct()
-            .map(Filterable::toArrayNode)
-            .reduce(ArrayNode::addAll)
-            .ifPresent(arrayNode ->
-                result.put(key, arrayNode)));
+    filters.getFiltersMap().forEach((key, filterableList) -> {
+      final ObjectNode objectNode = MAPPER.createObjectNode();
+      ObjectNode list = filterableList.stream().map(filterable -> filterable.toObjectNode(objectNode)).toList().getFirst();
+      result.add(list);
+    });
 
-    return MAPPER.writeValueAsString(MAPPER.valueToTree(result));
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    result.forEach(root::setAll);
+    System.out.println(root.toPrettyString());
+    return root.toString();
   }
 }

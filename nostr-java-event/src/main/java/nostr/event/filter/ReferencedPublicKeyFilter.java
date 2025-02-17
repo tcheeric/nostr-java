@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
@@ -31,12 +31,17 @@ public class ReferencedPublicKeyFilter<T extends PublicKey> implements Filterabl
   }
 
   @Override
-  public ArrayNode toArrayNode() {
-    return mapper.createArrayNode().add(referencedPublicKey.toHexString());
+  public ObjectNode toObjectNode(ObjectNode objectNode) {
+    return processArrayNode(objectNode);
   }
 
   @Override
   public String getFilterKey() {
     return filterKey;
+  }
+
+  @Override
+  public String getFilterableValue() {
+    return referencedPublicKey.toHexString();
   }
 }

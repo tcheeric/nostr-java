@@ -19,7 +19,7 @@ public class Filters {
   @Getter
   private final Map<String, List<Filterable>> filtersMap;
 
-  //  TODO: make limit configurable
+  @Getter
   @Setter
   private Integer limit = 10;
 
