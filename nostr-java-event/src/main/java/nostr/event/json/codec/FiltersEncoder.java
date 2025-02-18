@@ -22,8 +22,12 @@ public class FiltersEncoder implements FEncoder<Filters> {
     filters.getFiltersMap().forEach((key, filterableList) -> {
       final ObjectNode objectNode = MAPPER.createObjectNode();
       root.setAll(
-          filterableList.stream().map(
-              filterable -> filterable.toObjectNode(objectNode)).findFirst().orElseThrow());
+          filterableList
+              .stream()
+              .map(filterable ->
+                  filterable.toObjectNode(objectNode))
+              .toList()
+              .getFirst());
     });
 
     return root.toString();
