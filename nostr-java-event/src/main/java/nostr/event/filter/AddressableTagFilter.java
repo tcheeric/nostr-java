@@ -1,7 +1,6 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.PublicKey;
@@ -44,11 +43,6 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   @Override
   public T getFilterCriterion() {
     return addressableTag;
-  }
-
-  @Override
-  public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeString(objectNode);
   }
 
   @Override

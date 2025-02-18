@@ -1,6 +1,5 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
@@ -35,11 +34,6 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
   @Override
   public T getFilterCriterion() {
     return genericTagQuery;
-  }
-
-  @Override
-  public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeString(objectNode);
   }
 
   @Override

@@ -1,25 +1,22 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.codec.ArrayNodeCollector;
-import nostr.event.json.codec.Collectors;
-import nostr.event.json.codec.ObjectNodeCollector;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public interface Filterable {
   ObjectMapper mapper = new ObjectMapper();
 
   Predicate<GenericEvent> getPredicate();
   <T> T getFilterCriterion();
-  ObjectNode toObjectNode(ObjectNode objectNode);
   Object getFilterableValue();
   String getFilterKey();
 
@@ -30,66 +27,35 @@ public interface Filterable {
         .toList();
   }
 
-  default ObjectNode processArrayNodeString(ObjectNode objectNode) {
-    Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
-
-    ArrayNodeCollector arrayNodeCollector = Collectors.toArrayNode();
-
-    ArrayNode arrayNode = arrayNodeCollector.supplier().get();
-    jsonNode1.ifPresent(jsonNode -> {
-      jsonNode.elements().forEachRemaining(jsonNode2 ->
-          arrayNodeCollector.accumulator().accept(arrayNode, jsonNode2));
-    });
-
-    ArrayNode arrayNode1 = mapper.createArrayNode();
-    ArrayNode add2 = arrayNode1.add(getFilterableValue().toString());
-
-    arrayNodeCollector.combiner().apply(arrayNode, add2);
-
-    objectNode.set(getFilterKey(), arrayNode);
-
-    return objectNode;
+  default ObjectNode toObjectNode(ObjectNode objectNode) {
+    return processArrayNode(objectNode, this::getFilterableValue);
   }
 
-  default ObjectNode processArrayNodeInt(ObjectNode objectNode) {
-    Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
+  default ObjectNode processArrayNode(@NonNull ObjectNode objectNode, Supplier<Object> objectSupplier) {
+    ArrayNode arrayNode = mapper.createArrayNode();
 
-    ArrayNodeCollector arrayNodeCollector = Collectors.toArrayNode();
+    Optional.ofNullable(objectNode.get(getFilterKey()))
+        .ifPresent(jsonNode ->
+            jsonNode.elements().forEachRemaining(arrayNode::add));
 
-    ArrayNode arrayNode = arrayNodeCollector.supplier().get();
-    jsonNode1.ifPresent(jsonNode -> {
-      jsonNode.elements().forEachRemaining(jsonNode2 ->
-          arrayNodeCollector.accumulator().accept(arrayNode, jsonNode2));
-    });
+    arrayNode.addAll(
+        mapper.createArrayNode().add(
+            objectSupplier.get().toString()));
 
-    ArrayNode arrayNode1 = mapper.createArrayNode();
-    ArrayNode add2 = arrayNode1.add(Integer.valueOf(getFilterableValue().toString()));
-
-    arrayNodeCollector.combiner().apply(arrayNode, add2);
-
-    objectNode.set(getFilterKey(), arrayNode);
-
-    return objectNode;
+    return objectNode.set(getFilterKey(), arrayNode);
   }
 
-  default ObjectNode processObjectNode(String key, ObjectNode objectNode) {
-    Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
+  default ObjectNode processArrayNodeIntRxR(@NonNull ObjectNode objectNode, Supplier<Integer> integerSupplier) {
+    ArrayNode arrayNode = mapper.createArrayNode();
 
-    ObjectNodeCollector objectNodeCollector = Collectors.toObjectNode();
+    Optional.ofNullable(objectNode.get(getFilterKey()))
+        .ifPresent(jsonNode ->
+            jsonNode.elements().forEachRemaining(arrayNode::add));
 
-    ObjectNode objectNode1 = objectNodeCollector.supplier().get();
-    jsonNode1.ifPresent(jsonNode -> {
-      jsonNode.elements().forEachRemaining(jsonNode2 ->
-          objectNodeCollector.accumulator().accept(objectNode1, jsonNode2));
-    });
+    arrayNode.addAll(
+        mapper.createArrayNode().add(
+            integerSupplier.get()));
 
-    ObjectNode objectNode2 = mapper.createObjectNode();
-
-//    TODO: hack string to int, needs fix
-    ObjectNode add2 = objectNode2.put(key, Long.valueOf(getFilterableValue().toString()));
-
-    objectNodeCollector.combiner().apply(objectNode1, add2);
-
-    return add2;
+    return objectNode.set(getFilterKey(), arrayNode);
   }
 }

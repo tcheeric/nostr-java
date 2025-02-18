@@ -1,6 +1,5 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 
@@ -24,11 +23,6 @@ public class EventFilter<T extends GenericEvent> implements Filterable {
   @Override
   public T getFilterCriterion() {
     return event;
-  }
-
-  @Override
-  public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeString(objectNode);
   }
 
   @Override

@@ -1,18 +1,12 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.SneakyThrows;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @EqualsAndHashCode
 public class Filters {
@@ -27,6 +21,7 @@ public class Filters {
     this.filtersMap = filtersMap;
   }
 
+//  TODO: unused
   public void addFilterable(@NonNull String key, @NonNull Filterable... filterable) {
     addFilterable(key, List.of(filterable));
   }
@@ -39,36 +34,30 @@ public class Filters {
     return filtersMap.get(type);
   }
 
-  public <T> List<T> getFilterCriterion(@NonNull String type) {
-    return Optional
-        .ofNullable(
-            getFilterableByType(type))
-        .stream().flatMap(filterables ->
-            filterables.stream().map(filterable ->
-                (T) filterable.getFilterCriterion()))
-        .toList();
-  }
+  //  TODO: no tests currently call below...
+//  public <T> List<T> getFilterCriterion(@NonNull String type) {
+//    return Optional
+//        .ofNullable(
+//            getFilterableByType(type))
+//        .stream().flatMap(filterables ->
+//            filterables.stream().map(filterable ->
+////  TODO: ...which leavesw below uncalled as well.  needs testing
+//                (T) filterable.getFilterCriterion()))
+//        .toList();
+//  }
 
-  @SneakyThrows
-  public <T> void setFilterableListByType(
-      @NonNull String key,
-      @NonNull List<T> filterTypeList,
-      @NonNull Function<T, Filterable> filterableFunction) {
-
-    if (filterTypeList.isEmpty()) {
-      throw new IllegalArgumentException(
-          String.format("[%s] filter must contain at least one element", key));
-    }
-
-    addFilterable(
-        key,
-        filterTypeList.stream().map(filterableFunction).collect(Collectors.toList()));
-//        .orElseThrow(() ->
-//            new IllegalArgumentException(
-//                String.format("[%s] filter must contain at least one element")))
-  }
-
-  public static List<Filterable> getFilterable(JsonNode jsonNode, Function<JsonNode, Filterable> filterFunction) {
-    return StreamSupport.stream(jsonNode.spliterator(), false).map(filterFunction).toList();
-  }
+//  @SneakyThrows
+//  public <T> void setFilterableListByType(
+//      @NonNull String key,
+//      @NonNull List<T> filterTypeList,
+//      @NonNull Function<T, Filterable> filterableFunction) {
+//
+//    if (filterTypeList.isEmpty()) {
+//      throw new IllegalArgumentException(
+//          String.format("[%s] filter must contain at least one element", key));
+//    }
+//
+//    addFilterable(
+//        key,
+//        filterTypeList.stream().map(filterableFunction).collect(Collectors.toList()));
 }

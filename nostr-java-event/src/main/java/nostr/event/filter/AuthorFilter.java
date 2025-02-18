@@ -1,6 +1,5 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
@@ -25,11 +24,6 @@ public class AuthorFilter<T extends PublicKey> implements Filterable {
   @Override
   public T getFilterCriterion() {
     return publicKey;
-  }
-
-  @Override
-  public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeString(objectNode);
   }
 
   @Override

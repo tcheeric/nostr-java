@@ -1,6 +1,5 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.IdentifierTag;
@@ -26,11 +25,6 @@ public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable 
   @Override
   public T getFilterCriterion() {
     return identifierTag;
-  }
-
-  @Override
-  public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeString(objectNode);
   }
 
   @Override

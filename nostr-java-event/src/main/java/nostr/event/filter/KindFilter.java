@@ -6,6 +6,7 @@ import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @EqualsAndHashCode
 public class KindFilter<T extends Kind> implements Filterable {
@@ -29,7 +30,7 @@ public class KindFilter<T extends Kind> implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNodeInt(objectNode);
+    return processArrayNodeIntRxR(objectNode, () -> Integer.valueOf(getFilterableValue().toString()));
   }
 
   @Override
