@@ -8,6 +8,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.ArrayNodeCollector;
 import nostr.event.json.codec.Collectors;
+import nostr.event.json.codec.ObjectNodeCollector;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,5 +49,26 @@ public interface Filterable {
     objectNode.set(getFilterKey(), arrayNode);
 
     return objectNode;
+  }
+
+  default ObjectNode processObjectNode(String key, ObjectNode objectNode) {
+    Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
+
+    ObjectNodeCollector objectNodeCollector = Collectors.toObjectNode();
+
+    ObjectNode objectNode1 = objectNodeCollector.supplier().get();
+    jsonNode1.ifPresent(jsonNode -> {
+      jsonNode.elements().forEachRemaining(jsonNode2 ->
+          objectNodeCollector.accumulator().accept(objectNode1, jsonNode2));
+    });
+
+    ObjectNode objectNode2 = mapper.createObjectNode();
+
+//    TODO: hack string to int, needs fix
+    ObjectNode add2 = objectNode2.put(key, Integer.valueOf(getFilterableValue()));
+
+    objectNodeCollector.combiner().apply(objectNode1, add2);
+
+    return add2;
   }
 }

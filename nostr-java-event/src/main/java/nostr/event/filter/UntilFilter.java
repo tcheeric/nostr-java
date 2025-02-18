@@ -28,7 +28,7 @@ public class UntilFilter implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return mapper.createObjectNode().put(filterKey, until);
+    return processObjectNode(filterKey, objectNode);
   }
 
   @Override

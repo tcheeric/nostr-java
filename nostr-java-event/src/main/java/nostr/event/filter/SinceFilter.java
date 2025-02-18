@@ -28,7 +28,7 @@ public class SinceFilter implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return mapper.createObjectNode().put(filterKey, since);
+    return processObjectNode(filterKey, objectNode);
   }
 
   @Override
