@@ -1,5 +1,6 @@
 package nostr.test.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -9,16 +10,19 @@ import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class DecodeTest {
 
     @Test
-    public void decodeTest() {
+    public void decodeTest() throws JsonProcessingException {
 
         String json = "["
                 + "\"EVENT\","
@@ -38,18 +42,20 @@ public class DecodeTest {
 
         BaseMessage message = new BaseMessageDecoder<>().decode(json);
 
-        Assertions.assertEquals("EVENT", message.getCommand());
+        assertEquals("EVENT", message.getCommand());
+        assertInstanceOf(EventMessage.class, message);
+
         EventMessage eventMessage = (EventMessage) message;
 
-        Assertions.assertEquals("temp20230627", eventMessage.getSubscriptionId());
+        assertEquals("temp20230627", eventMessage.getSubscriptionId());
         GenericEvent eventImpl = (GenericEvent) eventMessage.getEvent();
 
-        Assertions.assertEquals("28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a", eventImpl.getId());
-        Assertions.assertEquals(1, eventImpl.getKind());
-        Assertions.assertEquals("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984", eventImpl.getPubKey().toString());
-        Assertions.assertEquals(1687765220, eventImpl.getCreatedAt());
-        Assertions.assertEquals("手順書が間違ってたら作業者は無理だな", eventImpl.getContent());
-        Assertions.assertEquals("86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546",
+        assertEquals("28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a", eventImpl.getId());
+        assertEquals(1, eventImpl.getKind());
+        assertEquals("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76984", eventImpl.getPubKey().toString());
+        assertEquals(1687765220, eventImpl.getCreatedAt());
+        assertEquals("手順書が間違ってたら作業者は無理だな", eventImpl.getContent());
+        assertEquals("86f25c161fec51b9e441bdb2c09095d5f8b92fdce66cb80d9ef09fad6ce53eaa14c5e16787c42f5404905536e43ebec0e463aee819378a4acbe412c533e60546",
                 eventImpl.getSignature().toString());
 
         List<BaseTag> expectedTags = new ArrayList<>();
@@ -67,14 +73,14 @@ public class DecodeTest {
             BaseTag expected = expectedTags.get(i);
             if (expected instanceof EventTag expetedEventTag) {
                 EventTag actualEventTag = (EventTag) actualTags.get(i);
-                Assertions.assertEquals(expetedEventTag.getIdEvent(), actualEventTag.getIdEvent());
-                Assertions.assertEquals(expetedEventTag.getRecommendedRelayUrl(), actualEventTag.getRecommendedRelayUrl());
-                Assertions.assertEquals(expetedEventTag.getMarker(), actualEventTag.getMarker());
+                assertEquals(expetedEventTag.getIdEvent(), actualEventTag.getIdEvent());
+                assertEquals(expetedEventTag.getRecommendedRelayUrl(), actualEventTag.getRecommendedRelayUrl());
+                assertEquals(expetedEventTag.getMarker(), actualEventTag.getMarker());
             } else if (expected instanceof PubKeyTag expectedPublicKeyTag) {
                 PubKeyTag actualPublicKeyTag = (PubKeyTag) actualTags.get(i);
-                Assertions.assertEquals(expectedPublicKeyTag.getPublicKey().toString(), actualPublicKeyTag.getPublicKey().toString());
+                assertEquals(expectedPublicKeyTag.getPublicKey().toString(), actualPublicKeyTag.getPublicKey().toString());
             } else {
-                Assertions.fail();
+                fail();
             }
 
         }
