@@ -30,7 +30,8 @@ public class KindFilter<T extends Kind> implements Filterable {
   @Override
   public void addToArrayNode(ArrayNode arrayNode) {
     arrayNode.addAll(
-        mapper.createArrayNode().add(getFilterableValue()));
+        mapper.createArrayNode().add(
+            getFilterableValue()));
   }
 
   @Override

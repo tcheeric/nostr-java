@@ -46,8 +46,8 @@ public class FiltersEncoderTest {
             new EventFilter<>(new GenericEvent(eventId))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"" + filterKey + "\":[\"" + eventId + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
   }
 
   @Test
@@ -63,8 +63,8 @@ public class FiltersEncoderTest {
             new KindFilter<>(kind)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"" + filterKey + "\":[" + kind.toString() + "]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"kinds\":[" + kind.toString() + "]}", encodedFilters);
   }
 
   @Test
@@ -79,8 +79,8 @@ public class FiltersEncoderTest {
             new AuthorFilter<>(new PublicKey(pubKeyString))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"authors\":[\"" + pubKeyString + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"authors\":[\"" + pubKeyString + "\"]}", encodedFilters);
   }
 
   @Test
@@ -97,11 +97,10 @@ public class FiltersEncoderTest {
             new AuthorFilter<>(new PublicKey(pubKeyString2))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
+    String encodedFilters = encoder.encode();
+    String authorPubKeys = String.join("\",\"", pubKeyString1, pubKeyString2);
 
-    String joined = String.join("\",\"", pubKeyString1, pubKeyString2);
-
-    assertEquals("{\"authors\":[\"" + joined + "\"]}", jsonMessage);
+    assertEquals("{\"authors\":[\"" + authorPubKeys + "\"]}", encodedFilters);
   }
 
   @Test
@@ -119,9 +118,9 @@ public class FiltersEncoderTest {
             new KindFilter<>(kind2)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    String join = String.join(",", kind1.toString(), kind2.toString());
-    assertEquals("{\"" + filterKey + "\":[" + join + "]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    String kinds = String.join(",", kind1.toString(), kind2.toString());
+    assertEquals("{\"kinds\":[" + kinds + "]}", encodedFilters);
   }
 
   @Test
@@ -132,8 +131,6 @@ public class FiltersEncoderTest {
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String uuidKey = "#d";
     String uuidValue1 = "UUID-1";
-
-    String joined = String.join(":", String.valueOf(kind), author, uuidValue1);
 
     AddressTag addressTag = new AddressTag();
     addressTag.setKind(kind);
@@ -146,9 +143,10 @@ public class FiltersEncoderTest {
             new AddressableTagFilter<>(addressTag)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-//    TODO: make sure below should be #d/#a and not the opposite
-    assertEquals("{\"#a\":[\"" + joined + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
+
+    assertEquals("{\"#a\":[\"" + addressableTag + "\"]}", encodedFilters);
   }
 
   @Test
@@ -163,8 +161,8 @@ public class FiltersEncoderTest {
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"#d\":[\"" + uuidValue1 + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#d\":[\"" + uuidValue1 + "\"]}", encodedFilters);
   }
 
   @Test
@@ -181,9 +179,9 @@ public class FiltersEncoderTest {
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    String joined = String.join("\",\"", uuidValue1, uuidValue2);
-    assertEquals("{\"#d\":[\"" + joined + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    String dTags = String.join("\",\"", uuidValue1, uuidValue2);
+    assertEquals("{\"#d\":[\"" + dTags + "\"]}", encodedFilters);
   }
 
   @Test
@@ -198,8 +196,8 @@ public class FiltersEncoderTest {
             new ReferencedEventFilter<>(new GenericEvent(eventId))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"#e\":[\"" + eventId + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#e\":[\"" + eventId + "\"]}", encodedFilters);
   }
 
   @Test
@@ -216,9 +214,9 @@ public class FiltersEncoderTest {
             new ReferencedEventFilter<>(new GenericEvent(eventId2))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    String joined = String.join("\",\"", eventId1, eventId2);
-    assertEquals("{\"#e\":[\"" + joined + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    String eventIds = String.join("\",\"", eventId1, eventId2);
+    assertEquals("{\"#e\":[\"" + eventIds + "\"]}", encodedFilters);
   }
 
   @Test
@@ -234,8 +232,8 @@ public class FiltersEncoderTest {
             new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, new_geohash))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"#g\":[\"2vghde\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#g\":[\"2vghde\"]}", encodedFilters);
   }
 
   @Test
@@ -250,8 +248,8 @@ public class FiltersEncoderTest {
             new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"#p\":[\"" + pubKeyString + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#p\":[\"" + pubKeyString + "\"]}", encodedFilters);
   }
 
   @Test
@@ -268,9 +266,9 @@ public class FiltersEncoderTest {
             new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString2))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    String joined = String.join("\",\"", pubKeyString1, pubKeyString2);
-    assertEquals("{\"#p\":[\"" + joined + "\"]}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    String pubKeyTags = String.join("\",\"", pubKeyString1, pubKeyString2);
+    assertEquals("{\"#p\":[\"" + pubKeyTags + "\"]}", encodedFilters);
   }
 
   @Test
@@ -288,10 +286,8 @@ public class FiltersEncoderTest {
             new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals(
-        "{\"#g\":[\"2vghde\",\"3abcde\"]}"
-        , jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#g\":[\"2vghde\",\"3abcde\"]}", encodedFilters);
   }
 
   @Test
@@ -304,8 +300,8 @@ public class FiltersEncoderTest {
     String uuidValue1 = "UUID-1";
     String uuidValue2 = "UUID-2";
 
-    String joined1 = String.join(":", String.valueOf(kind), author, uuidValue1);
-    String joined2 = String.join(":", String.valueOf(kind), author, uuidValue2);
+    String addressableTag1 = String.join(":", String.valueOf(kind), author, uuidValue1);
+    String addressableTag2 = String.join(":", String.valueOf(kind), author, uuidValue2);
 
     AddressTag addressTag1 = new AddressTag();
     addressTag1.setKind(kind);
@@ -324,9 +320,9 @@ public class FiltersEncoderTest {
             new AddressableTagFilter<>(addressTag2)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    String joinedTags = String.join("\",\"", joined1, joined2);
-    assertEquals("{\"#a\":[\"" + joinedTags + "\"]}", jsonMessage);
+    String encoded = encoder.encode();
+    String addressableTags = String.join("\",\"", addressableTag1, addressableTag2);
+    assertEquals("{\"#a\":[\"" + addressableTags + "\"]}", encoded);
   }
 
   @Test
@@ -342,8 +338,8 @@ public class FiltersEncoderTest {
             new SinceFilter(since)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"since\":" + since + "}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"since\":" + since + "}", encodedFilters);
   }
 
   @Test
@@ -359,7 +355,7 @@ public class FiltersEncoderTest {
             new UntilFilter(until)));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
-    String jsonMessage = encoder.encode();
-    assertEquals("{\"until\":" + until + "}", jsonMessage);
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"until\":" + until + "}", encodedFilters);
   }
 }
