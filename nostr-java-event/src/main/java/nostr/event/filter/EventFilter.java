@@ -28,7 +28,7 @@ public class EventFilter<T extends GenericEvent> implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeString(objectNode);
   }
 
   @Override

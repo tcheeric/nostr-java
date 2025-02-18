@@ -29,7 +29,7 @@ public class KindFilter<T extends Kind> implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeInt(objectNode);
   }
 
   @Override
@@ -38,7 +38,7 @@ public class KindFilter<T extends Kind> implements Filterable {
   }
 
   @Override
-  public String getFilterableValue() {
-    return kind.toString();
+  public Integer getFilterableValue() {
+    return kind.getValue();
   }
 }

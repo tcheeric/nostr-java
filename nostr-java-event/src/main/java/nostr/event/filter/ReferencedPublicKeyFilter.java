@@ -32,7 +32,7 @@ public class ReferencedPublicKeyFilter<T extends PublicKey> implements Filterabl
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeString(objectNode);
   }
 
   @Override

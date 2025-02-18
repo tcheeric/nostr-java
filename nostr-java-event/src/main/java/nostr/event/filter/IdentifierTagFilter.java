@@ -30,7 +30,7 @@ public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable 
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeString(objectNode);
   }
 
   @Override

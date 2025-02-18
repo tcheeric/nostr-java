@@ -20,7 +20,7 @@ public interface Filterable {
   Predicate<GenericEvent> getPredicate();
   <T> T getFilterCriterion();
   ObjectNode toObjectNode(ObjectNode objectNode);
-  String getFilterableValue();
+  Object getFilterableValue();
   String getFilterKey();
 
   default <T extends BaseTag> List<T> getTypeSpecificTags(Class<T> tagClass, GenericEvent event) {
@@ -30,7 +30,7 @@ public interface Filterable {
         .toList();
   }
 
-  default ObjectNode processArrayNode(ObjectNode objectNode) {
+  default ObjectNode processArrayNodeString(ObjectNode objectNode) {
     Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
 
     ArrayNodeCollector arrayNodeCollector = Collectors.toArrayNode();
@@ -42,7 +42,28 @@ public interface Filterable {
     });
 
     ArrayNode arrayNode1 = mapper.createArrayNode();
-    ArrayNode add2 = arrayNode1.add(getFilterableValue());
+    ArrayNode add2 = arrayNode1.add(getFilterableValue().toString());
+
+    arrayNodeCollector.combiner().apply(arrayNode, add2);
+
+    objectNode.set(getFilterKey(), arrayNode);
+
+    return objectNode;
+  }
+
+  default ObjectNode processArrayNodeInt(ObjectNode objectNode) {
+    Optional<JsonNode> jsonNode1 = Optional.ofNullable(objectNode.get(getFilterKey()));
+
+    ArrayNodeCollector arrayNodeCollector = Collectors.toArrayNode();
+
+    ArrayNode arrayNode = arrayNodeCollector.supplier().get();
+    jsonNode1.ifPresent(jsonNode -> {
+      jsonNode.elements().forEachRemaining(jsonNode2 ->
+          arrayNodeCollector.accumulator().accept(arrayNode, jsonNode2));
+    });
+
+    ArrayNode arrayNode1 = mapper.createArrayNode();
+    ArrayNode add2 = arrayNode1.add(Integer.valueOf(getFilterableValue().toString()));
 
     arrayNodeCollector.combiner().apply(arrayNode, add2);
 
@@ -65,7 +86,7 @@ public interface Filterable {
     ObjectNode objectNode2 = mapper.createObjectNode();
 
 //    TODO: hack string to int, needs fix
-    ObjectNode add2 = objectNode2.put(key, Integer.valueOf(getFilterableValue()));
+    ObjectNode add2 = objectNode2.put(key, Long.valueOf(getFilterableValue().toString()));
 
     objectNodeCollector.combiner().apply(objectNode1, add2);
 

@@ -29,7 +29,7 @@ public class AuthorFilter<T extends PublicKey> implements Filterable {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeString(objectNode);
   }
 
   @Override

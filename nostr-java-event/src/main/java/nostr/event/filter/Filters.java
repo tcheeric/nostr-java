@@ -71,12 +71,4 @@ public class Filters {
   public static List<Filterable> getFilterable(JsonNode jsonNode, Function<JsonNode, Filterable> filterFunction) {
     return StreamSupport.stream(jsonNode.spliterator(), false).map(filterFunction).toList();
   }
-
-  public Optional<Long> getSinceOrUntil(String type) {
-    return Optional
-        .ofNullable(
-            getFilterableByType(type))
-        .map(filterables -> filterables
-            .getFirst().getFilterCriterion());
-  }
 }

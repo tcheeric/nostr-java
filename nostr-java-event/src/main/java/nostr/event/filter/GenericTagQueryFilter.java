@@ -39,7 +39,7 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode);
+    return processArrayNodeString(objectNode);
   }
 
   @Override
