@@ -3,14 +3,12 @@ package nostr.event.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.NonNull;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public interface Filterable {
   ObjectMapper mapper = new ObjectMapper();
@@ -28,34 +26,20 @@ public interface Filterable {
   }
 
   default ObjectNode toObjectNode(ObjectNode objectNode) {
-    return processArrayNode(objectNode, this::getFilterableValue);
-  }
-
-  default ObjectNode processArrayNode(@NonNull ObjectNode objectNode, Supplier<Object> objectSupplier) {
     ArrayNode arrayNode = mapper.createArrayNode();
 
     Optional.ofNullable(objectNode.get(getFilterKey()))
         .ifPresent(jsonNode ->
             jsonNode.elements().forEachRemaining(arrayNode::add));
 
-    arrayNode.addAll(
-        mapper.createArrayNode().add(
-            objectSupplier.get().toString()));
+    addToArrayNode(arrayNode);
 
     return objectNode.set(getFilterKey(), arrayNode);
   }
 
-  default ObjectNode processArrayNodeIntRxR(@NonNull ObjectNode objectNode, Supplier<Integer> integerSupplier) {
-    ArrayNode arrayNode = mapper.createArrayNode();
-
-    Optional.ofNullable(objectNode.get(getFilterKey()))
-        .ifPresent(jsonNode ->
-            jsonNode.elements().forEachRemaining(arrayNode::add));
-
+  default void addToArrayNode(ArrayNode arrayNode) {
     arrayNode.addAll(
         mapper.createArrayNode().add(
-            integerSupplier.get()));
-
-    return objectNode.set(getFilterKey(), arrayNode);
+            getFilterableValue().toString()));
   }
 }
