@@ -14,9 +14,12 @@ import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -49,10 +52,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  public <T extends GenericEvent> List<String> send(T event, Map<String, String> relays) {
-    return relays.entrySet().stream().map(relayEntry ->
-            clientMap.get(relayEntry.getKey())
-                .sendEvent(event))
+  public <T extends GenericEvent> List<String> sendEvent(T event, Map<String, String> relays) {
+    setRelays(relays);
+    return relays.keySet().stream().map(s ->
+            clientMap.get(s).sendEvent(event))
         .flatMap(List::stream)
         .distinct().toList();
   }
@@ -68,31 +71,30 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> send(@NonNull IEvent event) {
+  public List<String> sendEvent(@NonNull IEvent event) {
     return clientMap.values().stream().map(client ->
         client.sendEvent(event)).flatMap(List::stream).distinct().toList();
   }
 
   @Override
-  public List<String> send(@NonNull IEvent event, Map<String, String> relays) {
+  public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
-    return send(event);
+    return sendEvent(event);
   }
 
   @Override
-  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId) {
-    return clientMap.get(subscriptionId).sendRequest(filters, subscriptionId);
+  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    return sendRequest(filtersList, subscriptionId);
   }
 
   @Override
-  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
-    setRelays(relays);
-    return send(filters, subscriptionId);
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    return sendRequest(filters, subscriptionId);
   }
 
   @Override
-  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-    return filtersList.stream().map(filters -> send(
+  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+    return filtersList.stream().map(filters -> sendRequest(
             filters,
             subscriptionId
         ))
@@ -101,13 +103,42 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
-    setRelays(relays);
-    return send(filtersList, subscriptionId);
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId2) {
+    String subscriptionId = "-" + subscriptionId2;
+    Set<Entry<String, WebSocketClientHandler>> entrySet = clientMap.entrySet();
+
+    if (entrySet.stream().noneMatch(entry ->
+    {
+      String relayName = entry.getValue().getRelayName();
+      String targetRelayName = entry.getKey() + subscriptionId;
+      boolean equals = relayName.equals(targetRelayName);
+      return equals;
+    })) {
+      clientMap.keySet().forEach(clientMapKey ->
+          entrySet.stream().map(entry ->
+          {
+            String relayName = entry.getKey() + subscriptionId;
+            String relayUri = entry.getValue().getRelayUri();
+            return new WebSocketClientHandler(relayName, relayUri);
+          }).toList().forEach(webSocketClientHandler ->
+              clientMap.put(clientMapKey, webSocketClientHandler)));
+    }
+
+    List<String> list = entrySet.stream().filter(entry ->
+        {
+          String relayName = entry.getValue().getRelayName();
+          String targetRelayName = entry.getKey() + subscriptionId;
+          return relayName.equals(targetRelayName);
+        })
+        .map(Entry::getValue)
+        .map(webSocketClientHandler -> webSocketClientHandler.sendRequest(filters, webSocketClientHandler.getRelayName()))
+        .flatMap(List::stream).distinct().toList();
+
+    return list;
   }
 
   @Override
-  public List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+  public List<String> sendRequest(@NonNull BaseMessage message, @NonNull RequestContext context) {
     return List.of();
   }
 

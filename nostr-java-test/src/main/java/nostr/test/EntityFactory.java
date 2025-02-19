@@ -158,7 +158,7 @@ public class EntityFactory {
 //                .build();
 //        }
 
-        public static GenericTagQuery createGenericTagQuery() {
+        public static List<GenericTagQuery> createGenericTagQuery() {
             Character c = generateRamdomAlpha(1).charAt(0);
             String v1 = generateRamdomAlpha(5);
             String v2 = generateRamdomAlpha(6);
@@ -169,10 +169,12 @@ public class EntityFactory {
             list.add(v2);
             list.add(v1);
 
-            var result = new GenericTagQuery();
-            result.setTagName(c.toString());
-            result.setValue(list);
-            return result;
+            return list.stream().map(item -> {
+                var result = new GenericTagQuery();
+                result.setTagName(c.toString());
+                result.setValue(item);
+                return result;
+            }).toList();
         }
     }
 

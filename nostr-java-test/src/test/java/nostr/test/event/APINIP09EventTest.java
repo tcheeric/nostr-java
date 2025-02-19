@@ -2,12 +2,14 @@ package nostr.test.event;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
-import nostr.api.NostrSpringWebSocketClient;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.impl.Filters;
+import nostr.event.filter.AuthorFilter;
+import nostr.event.filter.Filterable;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
@@ -19,6 +21,7 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,11 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class APINIP09EventTest {
 
     private static final String RELAY_URI = "ws://localhost:5555";
-    private final NostrSpringWebSocketClient nostrSpringWebSocketClient;
-
-    public APINIP09EventTest() {
-        nostrSpringWebSocketClient = new NostrSpringWebSocketClient("localhost", RELAY_URI);
-    }
 
     @Test
     public void deleteEvent() throws IOException {
@@ -47,21 +45,21 @@ public class APINIP09EventTest {
         NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
         nip01.createTextNoteEvent("Delete me!").signAndSend(Map.of("local", RELAY_URI));
 
+        Map<String, List<Filterable>> expectedFilters = new HashMap<>();
+        expectedFilters.put(KindFilter.filterKey, List.of(
+            new KindFilter<>(Kind.TEXT_NOTE)));
+        expectedFilters.put(AuthorFilter.filterKey, List.of(
+            new AuthorFilter<>(identity.getPublicKey())));
 
-        Filters filters = Filters
-                .builder()
-                .kinds(List.of(Kind.TEXT_NOTE))
-                .authors(List.of(identity.getPublicKey()))
-                .build();
-
-        List<String> result = nip01.send(filters, UUID.randomUUID().toString());
+        Filters filters = new Filters(expectedFilters);
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
 
         nip09.createDeletionEvent(nip01.getEvent()).signAndSend(Map.of("local", RELAY_URI));
 
-        result = nip01.send(filters, UUID.randomUUID().toString());
+        result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
@@ -86,9 +84,9 @@ public class APINIP09EventTest {
 
         NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
         nip01
-                .createTextNoteEvent("Reference me!")
-                .getEvent()
-                .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
+            .createTextNoteEvent("Reference me!")
+            .getEvent()
+            .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
 
         BaseMessage message = nip01.signAndSend(Map.of("local", RELAY_URI));
 
@@ -103,9 +101,9 @@ public class APINIP09EventTest {
         assertEquals(4, deletedEvent.getTags().size());
 
         List<BaseTag> eventTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "e".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "e".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(1, eventTags.size());
 
@@ -113,9 +111,9 @@ public class APINIP09EventTest {
         assertEquals(event.getId(), eventTag.getIdEvent());
 
         List<BaseTag> addressTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "a".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "a".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(1, addressTags.size());
 
@@ -125,9 +123,9 @@ public class APINIP09EventTest {
         assertEquals(identity.getPublicKey(), addressTag.getPublicKey());
 
         List<BaseTag> kindTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "k".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "k".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(2, kindTags.size());
 

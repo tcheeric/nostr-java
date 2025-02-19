@@ -1,24 +1,23 @@
 package nostr.api;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.event.impl.Filters;
+import nostr.event.filter.Filters;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-@NoArgsConstructor
 public class WebSocketClientHandler {
-
-  private SpringWebSocketClient eventClient;
-  private Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
+  private final SpringWebSocketClient eventClient;
+  private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
 
   @Getter
   private String relayName;
@@ -36,7 +35,17 @@ public class WebSocketClientHandler {
   }
 
   protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
-    return requestClientMap.get(subscriptionId).send(new ReqMessage(subscriptionId, filters));
+    return Optional
+        .ofNullable(
+            requestClientMap.get(subscriptionId))
+        .map(client ->
+            client.send(new ReqMessage(subscriptionId, filters))).or(() -> {
+          requestClientMap.put(subscriptionId, new SpringWebSocketClient(relayUri));
+          return Optional.ofNullable(
+              requestClientMap.get(subscriptionId).send(
+                  new ReqMessage(subscriptionId, filters)));
+        })
+        .orElse(new ArrayList<>());
   }
 
   public void close() throws IOException {

@@ -21,7 +21,7 @@
 
     <developers>
         <developer>
-            <name>@tcheeric</name>            
+            <name>@tcheeric</name>
         </developer>
         <developer>
             <name>@avlo</name>
@@ -69,7 +69,6 @@
         <module>nostr-java-test</module>
         <module>nostr-java-util</module>
         <module>nostr-java-command-interface</module>
-        <module>nostr-java-command-provider</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
         <module>nostr-java-encryption</module>
@@ -77,7 +76,6 @@
         <module>nostr-java-encryption-nip44</module>
         <module>nostr-java-context</module>
         <module>nostr-java-context-interface</module>
-        <module>nostr-java-controller</module>
     </modules>
 
     <properties>

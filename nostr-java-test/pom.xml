@@ -58,13 +58,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-command-provider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>org.springframework</groupId>

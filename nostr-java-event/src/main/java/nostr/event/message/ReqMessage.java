@@ -31,6 +31,7 @@ public class ReqMessage extends BaseMessage {
   private final List<Filters> filtersList;
 
   public ReqMessage(@NonNull String subscriptionId, Filters... filtersList) {
+//    TODO: complete logic for a list of filters
     this(subscriptionId, List.of(filtersList));
   }
 

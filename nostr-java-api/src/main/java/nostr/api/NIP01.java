@@ -19,17 +19,14 @@ import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
-import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
 import nostr.event.filter.Filters;
-import nostr.event.impl.GenericEvent;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -42,7 +39,6 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -90,7 +86,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
         var sender = getSender();
         var event = (sender != null) ? new MetadataEventFactory(sender, profile).create()
-                : new MetadataEventFactory(profile).create();
+            : new MetadataEventFactory(profile).create();
 
         this.setEvent((T) event);
         return this;
@@ -191,49 +187,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     }
 
     /**
-     * Create a NIP01 filters object (all parameters are optional)
-     *
-     * @param events           a list of event
-     * @param authors          a list of pubkeys or prefixes, the pubkey of an event
-     *                         must
-     *                         be one of these
-     * @param kinds            a list of a kind numbers
-     * @param referencedEvents a list of event ids that are referenced in an "e"
-     *                         tag
-     * @param referencePubKeys a list of pubkeys that are referenced in a "p"
-     *                         tag
-     * @param since            an integer unix timestamp in seconds, events must be
-     *                         newer
-     *                         than this to pass
-     * @param until            an integer unix timestamp in seconds, events must be
-     *                         older
-     *                         than this to pass
-     * @param limit            maximum number of events to be returned in the
-     *                         initial query
-     * @param genericTagQuery  a generic tag query
-     * @return a filters object
-     */
-    @Deprecated(forRemoval = true)
-    public static Filters createFilters(List<GenericEvent> events, List<PublicKey> authors, List<Kind> kinds,
-            List<GenericEvent> referencedEvents, List<PublicKey> referencePubKeys, Long since, Long until,
-            Integer limit, GenericTagQuery genericTagQuery) {
-//        return Filters.builder()
-//                .authors(authors)
-//                .events(events)
-//                .genericTagQuery(
-//                    Map.of(
-//                        genericTagQuery.getTagName(),
-//                        genericTagQuery.getValue()))
-//                .kinds(kinds).limit(limit)
-//                .referencePubKeys(referencePubKeys)
-//                .referencedEvents(referencedEvents)
-//                .since(since)
-//                .until(until)
-//                .build();
-        return null;
-    }
-
-    /**
      * Create an event message to send events requested by clients
      *
      * @param event          the related event
@@ -306,7 +259,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind,
-            String comment) {
+        String comment) {
         var event = new ParameterizedReplaceableEventFactory(getSender(), tags, kind, comment).create();
 
         this.setEvent((T) event);
@@ -331,7 +284,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return
      */
     public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey,
-            IdentifierTag idTag, Relay relay) {
+        IdentifierTag idTag, Relay relay) {
         var result = new AddressTagFactory(publicKey).create();
         if(idTag != null) {
             result.setIdentifierTag(idTag);
