@@ -18,6 +18,7 @@ import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Log
 public class FiltersEncoderTest {
@@ -357,5 +359,37 @@ public class FiltersEncoderTest {
     FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"until\":" + until + "}", encodedFilters);
+  }
+
+  @Test
+  public void testReqMessageEmptyFilterMap() {
+    log.info("testReqMessageEmptyFilterMap");
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    Map<String, List<Filterable>> emptyFilters = new HashMap<>();
+    emptyFilters.put("", List.of());
+
+    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilters)));
+  }
+
+  @Test
+  public void testReqMessageEmptyFilters() {
+    log.info("testReqMessageEmptyFilters");
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    Map<String, List<Filterable>> emptyFilters = new HashMap<>();
+    emptyFilters.put("#g", List.of());
+
+    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilters)));
+  }
+
+  @Test
+  public void testReqMessageEmptyFilterKey() {
+    log.info("testReqMessageEmptyFilterKey");
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    Map<String, List<Filterable>> emptyFilterKey = new HashMap<>();
+    emptyFilterKey.put("",
+        List.of(
+            new GenericTagQueryFilter<>(new GenericTagQuery("some-tag", "some-value"))));
+
+    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilterKey)));
   }
 }

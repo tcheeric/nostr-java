@@ -17,11 +17,12 @@ public class Filters {
   @Setter
   private Integer limit = 10;
 
-  public Filters(Map<String, List<Filterable>> filtersMap) {
+  public Filters(@NonNull Map<String, List<Filterable>> filtersMap) {
+    validateFiltersMap(filtersMap);
     this.filtersMap = filtersMap;
   }
 
-//  TODO: unused
+  //  TODO: unused
   public void addFilterable(@NonNull String key, @NonNull Filterable... filterable) {
     addFilterable(key, List.of(filterable));
   }
@@ -34,14 +35,28 @@ public class Filters {
     return filtersMap.get(type);
   }
 
-  //  TODO: no tests currently call below...
+  private static void validateFiltersMap(Map<String, List<Filterable>> filtersMap) throws IllegalArgumentException {
+    filtersMap.values().forEach(filterables -> {
+      if (filterables.isEmpty()) {
+        throw new IllegalArgumentException("Filters cannot be empty.");
+      }
+    });
+
+    filtersMap.forEach((key, value) -> {
+      if (key.isEmpty())
+        throw new IllegalArgumentException(String.format("Filter key for filterable [%s] is not defined", value.getFirst().getFilterKey()));
+    });
+  }
+}
+
+//  TODO: no tests currently call below...
 //  public <T> List<T> getFilterCriterion(@NonNull String type) {
 //    return Optional
 //        .ofNullable(
 //            getFilterableByType(type))
 //        .stream().flatMap(filterables ->
 //            filterables.stream().map(filterable ->
-////  TODO: ...which leavesw below uncalled as well.  needs testing
+/// /  TODO: ...which leavesw below uncalled as well.  needs testing
 //                (T) filterable.getFilterCriterion()))
 //        .toList();
 //  }
@@ -60,4 +75,3 @@ public class Filters {
 //    addFilterable(
 //        key,
 //        filterTypeList.stream().map(filterableFunction).collect(Collectors.toList()));
-}

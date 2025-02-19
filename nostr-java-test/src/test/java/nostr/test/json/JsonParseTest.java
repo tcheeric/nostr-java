@@ -52,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -566,7 +567,7 @@ public class JsonParseTest {
     expectedFilters.put(KindFilter.filterKey, List.of(new KindFilter<>(Kind.TEXT_NOTE)));
     expectedFilters.put(AuthorFilter.filterKey, List.of(new AuthorFilter<>(new PublicKey(author))));
     expectedFilters.put(ReferencedEventFilter.filterKey, List.of(new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
-    expectedFilters.put(ReferencedPublicKeyFilter.filterKey, List.of( new ReferencedPublicKeyFilter<>(new PublicKey(author))));
+    expectedFilters.put(ReferencedPublicKeyFilter.filterKey, List.of(new ReferencedPublicKeyFilter<>(new PublicKey(author))));
 
     AddressTag addressTag1 = new AddressTag();
     addressTag1.setKind(kind);
@@ -710,6 +711,36 @@ public class JsonParseTest {
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
+  }
+
+  @Test
+  public void testReqMessageSubscriptionIdTooLong() {
+    log.info("testReqMessageSubscriptionIdTooLong");
+
+    String malformedSubscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujhaa";
+    final String parseTarget =
+        "[\"REQ\", " +
+            "\"" + malformedSubscriptionId + "\", " +
+            "{\"kinds\": [1], " +
+            "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
+            "\"#p\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(parseTarget));
+  }
+
+  @Test
+  public void testReqMessageSubscriptionIdTooShort() {
+    log.info("testReqMessageSubscriptionIdTooShort");
+
+    String malformedSubscriptionId = "";
+    final String parseTarget =
+        "[\"REQ\", " +
+            "\"" + malformedSubscriptionId + "\", " +
+            "{\"kinds\": [1], " +
+            "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
+            "\"#p\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+    assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(parseTarget));
   }
 }
 

@@ -28,18 +28,6 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     return this::compare;
   }
 
-  private boolean compare(@NonNull GenericEvent genericEvent) {
-    return
-        !genericEvent.getPubKey().toHexString().equals(
-            this.addressableTag.getPublicKey().toHexString()) ||
-            !genericEvent.getKind().equals(
-                this.addressableTag.getKind()) ||
-            getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
-                .anyMatch(identifierTag ->
-                    identifierTag.getId().equals(
-                        this.addressableTag.getIdentifierTag().getId()));
-  }
-
   @Override
   public T getFilterCriterion() {
     return addressableTag;
@@ -62,7 +50,7 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
       return addressTag;
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException(
-          String.format("malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
+          String.format("Malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
     }
   }
 
@@ -75,5 +63,17 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     return Stream.of(kind, hexString, id)
         .map(Object::toString)
         .collect(Collectors.joining(":"));
+  }
+
+  private boolean compare(@NonNull GenericEvent genericEvent) {
+    return
+        !genericEvent.getPubKey().toHexString().equals(
+            this.addressableTag.getPublicKey().toHexString()) ||
+            !genericEvent.getKind().equals(
+                this.addressableTag.getKind()) ||
+            getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
+                .anyMatch(identifierTag ->
+                    identifierTag.getId().equals(
+                        this.addressableTag.getIdentifierTag().getId()));
   }
 }

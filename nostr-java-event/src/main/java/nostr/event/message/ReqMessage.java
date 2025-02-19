@@ -3,7 +3,6 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -31,17 +30,15 @@ public class ReqMessage extends BaseMessage {
   @JsonProperty
   private final List<Filters> filtersList;
 
-  public ReqMessage(String subscriptionId, Filters... filtersList) {
+  public ReqMessage(@NonNull String subscriptionId, Filters... filtersList) {
     this(subscriptionId, List.of(filtersList));
   }
 
-  public ReqMessage(String subscriptionId, List<Filters> filtersList) {
+  public ReqMessage(@NonNull String subscriptionId, List<Filters> filtersList) {
     super(Command.REQ.name());
-    if (!ValueRange.of(1, 64).isValidIntValue(subscriptionId.length())) {
-      throw new IllegalArgumentException(String.format("subscriptionId length must be between 1 and 64 characters but was [%d]", subscriptionId.length()));
-    }
-    this.filtersList = filtersList;
+    validateSubscriptionId(subscriptionId);
     this.subscriptionId = subscriptionId;
+    this.filtersList = filtersList;
   }
 
   @Override
@@ -50,46 +47,36 @@ public class ReqMessage extends BaseMessage {
         .add(getCommand())
         .add(getSubscriptionId());
 
-//    filtersList.stream()
-//        .map(FiltersEncoder::new)
-//        .map(FiltersEncoder::encode)
-//        .map(IEncoder.MAPPER::readTree)
-//        .forEach(jsonNode ->
-//            getArrayNode().add(jsonNode));
+    filtersList.stream()
+        .map(FiltersEncoder::new)
+        .map(FiltersEncoder::encode)
+        .map(ReqMessage::createJsonNode)
+        .forEach(jsonNode ->
+            getArrayNode().add(jsonNode));
 
-//    TODO: remove below once above confirmed working
-    List<String> encodedFilterList = filtersList.stream().map(FiltersEncoder::new).map(FiltersEncoder::encode).toList();
-
-    List<JsonNode> jsonNodesList = encodedFilterList.stream().map(
-        encode -> {
-          try {
-            return IEncoder.MAPPER.readTree(encode);
-          } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-          }
-        }
-    ).toList();
-
-    jsonNodesList.forEach(jsonNode -> {
-      ArrayNode arrayNode = getArrayNode();
-      arrayNode.add(jsonNode);
-    });
-
-    String s = IEncoder.MAPPER.writeValueAsString(getArrayNode());
-    System.out.println(s);
-    return s;
+    return IEncoder.MAPPER.writeValueAsString(getArrayNode());
   }
 
   public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull List<String> jsonFiltersList) {
-
-    ReqMessage reqMessage = new ReqMessage(subscriptionId.toString(),
-        jsonFiltersList.stream().map(
-            ReqMessage::createFiltersFromJson).toList());
-
+    validateSubscriptionId(subscriptionId.toString());
+    ReqMessage reqMessage = new ReqMessage(
+        subscriptionId.toString(),
+        jsonFiltersList.stream().map(filtersList ->
+            new FiltersDecoder<>().decode(filtersList)).toList());
     return (T) reqMessage;
   }
 
-  private static Filters createFiltersFromJson(String jsonFiltersList) {
-    return new FiltersDecoder<>().decode(jsonFiltersList);
+  private static void validateSubscriptionId(String subscriptionId) {
+    if (!ValueRange.of(1, 64).isValidIntValue(subscriptionId.length())) {
+      throw new IllegalArgumentException(String.format("SubscriptionId length must be between 1 and 64 characters but was [%d]", subscriptionId.length()));
+    }
+  }
+
+  private static JsonNode createJsonNode(String jsonNode) {
+    try {
+      return IEncoder.MAPPER.readTree(jsonNode);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
+    }
   }
 }
