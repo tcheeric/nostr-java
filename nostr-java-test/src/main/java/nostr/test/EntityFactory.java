@@ -58,11 +58,6 @@ public class EntityFactory {
             return event;
         }
 
-        public static Filters createFilters(List<PublicKey> authors, List<Kind> kindList, Long since) {
-//            return Filters.builder().authors(authors).kinds(kindList).since(since).build();
-            return null;
-        }
-
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {
             final PublicKey publicKey = profile.getPublicKey();
             InternetIdentifierMetadataEvent event = new InternetIdentifierMetadataEvent(publicKey, profile);
@@ -138,25 +133,6 @@ public class EntityFactory {
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
-
-//        public static Filters createFilters(PublicKey publicKey) {
-//            List<GenericEvent> eventList = new ArrayList<>();
-//            eventList.add(createTextNoteEvent(publicKey));
-//            eventList.add(createEphemeralEvent(publicKey));
-//
-//            List<GenericEvent> refEvents = new ArrayList<>();
-//            refEvents.add(createTextNoteEvent(publicKey));
-//
-//            GenericTagQuery genericTagQuery = createGenericTagQuery();
-//            return Filters.builder()
-//                .events(eventList)
-//                .referencedEvents(refEvents)
-//                .genericTagQuery(
-//                    Map.of(
-//                        genericTagQuery.getTagName(),
-//                        genericTagQuery.getValue()))
-//                .build();
-//        }
 
         public static List<GenericTagQuery> createGenericTagQuery() {
             Character c = generateRamdomAlpha(1).charAt(0);

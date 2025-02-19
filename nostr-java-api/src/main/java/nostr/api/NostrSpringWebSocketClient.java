@@ -14,7 +14,6 @@ import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

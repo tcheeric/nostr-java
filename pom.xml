@@ -68,7 +68,6 @@
         <module>nostr-java-id</module>
         <module>nostr-java-test</module>
         <module>nostr-java-util</module>
-        <module>nostr-java-command-interface</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
         <module>nostr-java-encryption</module>

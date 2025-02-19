@@ -10,7 +10,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
-import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
@@ -20,6 +19,7 @@ import org.apache.commons.lang3.stream.Streams.FailableStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import nostr.event.BaseMessage;
 
 /**
  * @author guilhermegps
