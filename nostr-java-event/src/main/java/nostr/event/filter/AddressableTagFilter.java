@@ -50,16 +50,20 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     return filterKey;
   }
 
-  public static AddressTag createAddressTag(JsonNode addressableTag) {
-    List<String> list = Arrays.stream(addressableTag.asText().split(":")).toList();
+  public static AddressTag createAddressTag(@NonNull JsonNode addressableTag) throws IllegalArgumentException {
+    try {
+      List<String> list = Arrays.stream(addressableTag.asText().split(":")).toList();
 
-//    TODO: add validation
-    AddressTag addressTag = new AddressTag();
-    addressTag.setKind(Integer.valueOf(list.getFirst()));
-    addressTag.setPublicKey(new PublicKey(list.get(1)));
-    addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
+      AddressTag addressTag = new AddressTag();
+      addressTag.setKind(Integer.valueOf(list.getFirst()));
+      addressTag.setPublicKey(new PublicKey(list.get(1)));
+      addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
 
-    return addressTag;
+      return addressTag;
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+          String.format("malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
+    }
   }
 
   @Override
@@ -67,11 +71,9 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
     Integer kind = addressableTag.getKind();
     String hexString = addressableTag.getPublicKey().toHexString();
     String id = addressableTag.getIdentifierTag().getId();
-//    String uri = addressableTag.getRelay().getUri();
 
-    String collected = Stream.of(kind, hexString, id).map(Object::toString)
+    return Stream.of(kind, hexString, id)
+        .map(Object::toString)
         .collect(Collectors.joining(":"));
-
-    return collected;
   }
 }

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Log
 public class FiltersDecoderTest {
@@ -350,5 +351,19 @@ public class FiltersDecoderTest {
     expectedFilters.put(filterKey, List.of(new UntilFilter(until)));
 
     assertEquals(new Filters(expectedFilters), decodedFilters);
+  }
+
+  @Test
+  public void testFailedAddressableTagMalformedSeparator() {
+    log.info("testFailedAddressableTagMalformedSeparator");
+
+    Integer kind = 1;
+    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String uuidValue1 = "UUID-1";
+
+    String malformedJoin = String.join(",", String.valueOf(kind), author, uuidValue1);
+    String expected = "{\"#a\":[\"" + malformedJoin + "\"]}";
+
+    assertThrows(IllegalArgumentException.class, () -> new FiltersDecoder<>().decode(expected));
   }
 }

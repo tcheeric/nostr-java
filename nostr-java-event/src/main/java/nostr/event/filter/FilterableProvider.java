@@ -20,16 +20,13 @@ public class FilterableProvider {
       case IdentifierTagFilter.filterKey -> getFilterable(node, identifierTag -> new IdentifierTagFilter<>(new IdentifierTag(identifierTag.asText())));
       case AuthorFilter.filterKey -> getFilterable(node, author -> new AuthorFilter<>(new PublicKey(author.asText())));
       case EventFilter.filterKey -> getFilterable(node, event -> new EventFilter<>(new GenericEvent(event.asText())));
-      case KindFilter.filterKey -> getFilterable(node, kindNode ->  new KindFilter<>(Kind.valueOf(kindNode.asInt())));
+      case KindFilter.filterKey -> getFilterable(node, kindNode -> new KindFilter<>(Kind.valueOf(kindNode.asInt())));
       case SinceFilter.filterKey -> List.of(new SinceFilter(node.asLong()));
       case UntilFilter.filterKey -> List.of(new UntilFilter(node.asLong()));
-      default -> getFilterable(node, genericNode -> new GenericTagQueryFilter<>(new GenericTagQuery(type, genericNode.asText())));
+      default ->
+          getFilterable(node, genericNode -> new GenericTagQueryFilter<>(new GenericTagQuery(type, genericNode.asText())));
     };
   }
-  /// /        .orElseThrow(() ->
-  /// /            new IllegalArgumentException(
-  /// /                String.format("[%s] filter must contain at least one element")))
-//  }
 
   public static List<Filterable> getFilterable(JsonNode jsonNode, Function<JsonNode, Filterable> filterFunction) {
     return StreamSupport.stream(jsonNode.spliterator(), false).map(filterFunction).toList();
