@@ -248,7 +248,7 @@ public class NostrApiExamples {
         logHeader("ephemeralEvent");
 
         var nip01 = new NIP01<EphemeralEvent>(SENDER);
-        nip01.createEphemeralEvent(21000, "An ephemeral event")
+        nip01.createEphemeralEvent(Kind.EPHEMEREAL_EVENT.getValue(), "An ephemeral event")
             .sign()
             .send(RELAYS);
     }
@@ -281,7 +281,7 @@ public class NostrApiExamples {
         var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
         event.signAndSend(RELAYS);
 
-        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), 15_000, "New content").signAndSend();
+        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend();
     }
 
     private static void internetIdMetadata() {
