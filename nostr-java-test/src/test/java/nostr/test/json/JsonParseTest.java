@@ -44,9 +44,7 @@ import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,15 +80,15 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterableByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> eventFilter = filters.getFilterableByType(EventFilter.filterKey);
+    List<Filterable> eventFilter = filters.getFilterByType(EventFilter.filterKey);
     assertEquals(1, eventFilter.size());
     assertEquals(new EventFilter<>(new GenericEvent("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), eventFilter.getFirst());
 
-    List<Filterable> referencedPublicKeyfilter = filters.getFilterableByType(ReferencedPublicKeyFilter.filterKey);
+    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.filterKey);
     assertEquals(1, referencedPublicKeyfilter.size());
     assertEquals(new ReferencedPublicKeyFilter<>(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedPublicKeyfilter.getFirst());
   }
@@ -114,15 +112,15 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterableByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> authorFilters = filters.getFilterableByType(AuthorFilter.filterKey);
+    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.filterKey);
     assertEquals(1, authorFilters.size());
     assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
 
-    List<Filterable> referencedPublicKeyfilter = filters.getFilterableByType(ReferencedPublicKeyFilter.filterKey);
+    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.filterKey);
     assertEquals(1, referencedPublicKeyfilter.size());
     assertEquals(new ReferencedPublicKeyFilter<>(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedPublicKeyfilter.getFirst());
   }
@@ -146,15 +144,15 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterableByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> authorFilters = filters.getFilterableByType(AuthorFilter.filterKey);
+    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.filterKey);
     assertEquals(1, authorFilters.size());
     assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
 
-    List<Filterable> referencedEventFilters = filters.getFilterableByType(ReferencedEventFilter.filterKey);
+    List<Filterable> referencedEventFilters = filters.getFilterByType(ReferencedEventFilter.filterKey);
     assertEquals(1, referencedEventFilters.size());
     assertEquals(new ReferencedEventFilter<>(new GenericEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.getFirst());
   }
@@ -165,23 +163,13 @@ public class JsonParseTest {
 
     var publicKey = Identity.generateRandomIdentity().getPublicKey();
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-
-    expectedFilters.put(AuthorFilter.filterKey,
-        List.of(
-            new AuthorFilter<>(publicKey)));
-
-    expectedFilters.put(KindFilter.filterKey,
-        List.of(
-            new KindFilter<>(Kind.CONTACT_LIST),
-            new KindFilter<>(Kind.DELETION)));
-
-    expectedFilters.put(KindFilter.filterKey,
-        List.of(
+    final var expectedReqMessage = new ReqMessage(publicKey.toString(),
+        new Filters(
             new KindFilter<>(Kind.SET_METADATA),
-            new KindFilter<>(Kind.TEXT_NOTE)));
-
-    final var expectedReqMessage = new ReqMessage(publicKey.toString(), new Filters(expectedFilters));
+            new KindFilter<>(Kind.TEXT_NOTE),
+            new KindFilter<>(Kind.CONTACT_LIST),
+            new KindFilter<>(Kind.DELETION),
+            new AuthorFilter<>(publicKey)));
 
     String jsonMessage = expectedReqMessage.encode();
 
@@ -377,13 +365,11 @@ public class JsonParseTest {
     String new_geohash = "2vghde";
     String second_geohash = "3abcde";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put("#g",
-        List.of(
+    ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9",
+        new Filters(
             new GenericTagQueryFilter<>(new GenericTagQuery("#g", new_geohash)),
             new GenericTagQueryFilter<>(new GenericTagQuery("#g", second_geohash))));
 
-    ReqMessage reqMessage = new ReqMessage("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9", new Filters(expectedFilters));
     assertDoesNotThrow(() -> {
       String jsonMessage = reqMessage.encode();
       String expected = "[\"REQ\",\"npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9\",{\"#g\":[\"2vghde\",\"3abcde\"]}]";
@@ -402,12 +388,10 @@ public class JsonParseTest {
 
     ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put("#g",
-        List.of(
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
             new GenericTagQueryFilter<>(new GenericTagQuery("#g", geohashValue))));
 
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 
@@ -424,12 +408,11 @@ public class JsonParseTest {
     assertDoesNotThrow(() -> {
       ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFiltersToDecode);
 
-      Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-      expectedFilters.put(geohashKey, List.of(
-          new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-          new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
+      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+          new Filters(
+              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
+              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
 
-      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
       assertEquals(reqJsonWithCustomTagQueryFiltersToDecode, decodedReqMessage.encode());
       assertEquals(expectedReqMessage, decodedReqMessage);
     });
@@ -459,28 +442,14 @@ public class JsonParseTest {
     assertDoesNotThrow(() -> {
       ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-      Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-
-      expectedFilters.put(AuthorFilter.filterKey,
-          List.of(
-              new AuthorFilter<>(new PublicKey(author))));
-
-      expectedFilters.put(KindFilter.filterKey,
-          List.of(
-              new KindFilter<>(Kind.TEXT_NOTE)));
-
-      expectedFilters.put(ReferencedEventFilter.filterKey,
-          List.of(new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
-
-      expectedFilters.put(geohashKey, List.of(
-          new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-          new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
-
-      expectedFilters.put(ReferencedPublicKeyFilter.filterKey,
-          List.of(
-              new ReferencedPublicKeyFilter<>(new PublicKey(author))));
-
-      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
+      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+          new Filters(
+              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
+              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
+              new ReferencedPublicKeyFilter<>(new PublicKey(author)),
+              new KindFilter<>(Kind.TEXT_NOTE),
+              new AuthorFilter<>(new PublicKey(author)),
+              new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
 
       assertEquals(expectedReqMessage, decodedReqMessage);
     });
@@ -512,30 +481,16 @@ public class JsonParseTest {
 
     ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(KindFilter.filterKey,
-        List.of(
-            new KindFilter<>(Kind.TEXT_NOTE)));
-
-    expectedFilters.put(AuthorFilter.filterKey,
-        List.of(
-            new AuthorFilter<>(new PublicKey(author))));
-
-    expectedFilters.put(ReferencedEventFilter.filterKey,
-        List.of(
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
-
-    expectedFilters.put(geohashKey,
-        List.of(
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
+            new KindFilter<>(Kind.TEXT_NOTE),
+            new AuthorFilter<>(new PublicKey(author)),
+            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
             new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
-
-    expectedFilters.put(uuidKey,
-        List.of(
+            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 
@@ -563,20 +518,18 @@ public class JsonParseTest {
 
     ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(KindFilter.filterKey, List.of(new KindFilter<>(Kind.TEXT_NOTE)));
-    expectedFilters.put(AuthorFilter.filterKey, List.of(new AuthorFilter<>(new PublicKey(author))));
-    expectedFilters.put(ReferencedEventFilter.filterKey, List.of(new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
-    expectedFilters.put(ReferencedPublicKeyFilter.filterKey, List.of(new ReferencedPublicKeyFilter<>(new PublicKey(author))));
-
     AddressTag addressTag1 = new AddressTag();
     addressTag1.setKind(kind);
     addressTag1.setPublicKey(new PublicKey(author));
     addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    expectedFilters.put(AddressableTagFilter.filterKey, List.of(new AddressableTagFilter<>(addressTag1)));
-
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
+            new KindFilter<>(Kind.TEXT_NOTE),
+            new AuthorFilter<>(new PublicKey(author)),
+            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
+            new ReferencedPublicKeyFilter<>(new PublicKey(author)),
+            new AddressableTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
@@ -602,18 +555,14 @@ public class JsonParseTest {
 
     ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(KindFilter.filterKey,
-        List.of(
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
-            new KindFilter<>(Kind.RECOMMEND_SERVER)));
-    expectedFilters.put(AuthorFilter.filterKey,
-        List.of(
+            new KindFilter<>(Kind.RECOMMEND_SERVER),
             new AuthorFilter<>(new PublicKey(author)),
-            new AuthorFilter<>(new PublicKey(author2))));
-    expectedFilters.put(ReferencedEventFilter.filterKey, List.of(new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
+            new AuthorFilter<>(new PublicKey(author2)),
+            new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
 
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
@@ -646,32 +595,17 @@ public class JsonParseTest {
 
     ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(KindFilter.filterKey,
-        List.of(
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
-            new KindFilter<>(Kind.RECOMMEND_SERVER)));
-
-    expectedFilters.put(AuthorFilter.filterKey,
-        List.of(
+            new KindFilter<>(Kind.RECOMMEND_SERVER),
             new AuthorFilter<>(new PublicKey(author)),
-            new AuthorFilter<>(new PublicKey(author2))));
-
-    expectedFilters.put(ReferencedEventFilter.filterKey,
-        List.of(
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
-
-    expectedFilters.put(geohashKey,
-        List.of(
+            new AuthorFilter<>(new PublicKey(author2)),
+            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
             new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
-
-    expectedFilters.put(uuidKey,
-        List.of(
+            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
-
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
 
     assertTrue(JsonComparator.isEquivalentJson(
         mapper.createArrayNode()
@@ -703,11 +637,7 @@ public class JsonParseTest {
     addressTag1.setPublicKey(new PublicKey(author));
     addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put("#a",
-        List.of(new AddressableTagFilter<>(addressTag1)));
-
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(expectedFilters));
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(new AddressableTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);

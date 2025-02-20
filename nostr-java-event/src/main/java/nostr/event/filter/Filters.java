@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.groupingBy;
+
 @EqualsAndHashCode
 public class Filters {
   public static final int DEFAULT_FILTERS_LIMIT = 10;
@@ -18,12 +20,20 @@ public class Filters {
   @Setter
   private Integer limit = DEFAULT_FILTERS_LIMIT;
 
-  public Filters(@NonNull Map<String, List<Filterable>> filtersMap) {
-    validateFiltersMap(filtersMap);
-    this.filtersMap = filtersMap;
+  public Filters(@NonNull Filterable... filterablesByDefaultType) {
+    this(List.of(filterablesByDefaultType));
   }
 
-  public List<Filterable> getFilterableByType(@NonNull String type) {
+  public Filters(@NonNull List<Filterable> filterablesByDefaultType) {
+    this(filterablesByDefaultType.stream().collect(groupingBy(Filterable::getFilterKey)));
+  }
+
+  public Filters(@NonNull Map<String, List<Filterable>> filterablesByCustomType) {
+    validateFiltersMap(filterablesByCustomType);
+    this.filtersMap = filterablesByCustomType;
+  }
+
+  public List<Filterable> getFilterByType(@NonNull String type) {
     return filtersMap.get(type);
   }
 

@@ -24,11 +24,13 @@ import nostr.event.tag.IdentifierTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -36,8 +38,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FiltersEncoderTest {
 
   @Test
-  public void testEventFilterEncoder() {
-    log.info("testEventFilterEncoder");
+  public void testEventFilterEncoderUsingVarArgs() {
+    log.info("testEventFilterEncoderUsingVarArgs");
+
+    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new EventFilter<>(new GenericEvent(eventId))));
+
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
+  }
+
+  @Test
+  public void testEventFilterEncoderUsingList() {
+    log.info("testEventFilterEncoderUsingList");
+
+    List<Filterable> expectedFilters = new ArrayList<>();
+
+    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    expectedFilters.add(new EventFilter<>(new GenericEvent(eventId)));
+
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
+  }
+
+  @Test
+  public void testEventFilterEncoderByMap() {
+    log.info("testEventFilterEncoderByMap");
 
     Map<String, List<Filterable>> expectedFilters = new HashMap<>();
 
@@ -56,15 +84,9 @@ public class FiltersEncoderTest {
   public void testKindFiltersEncoder() {
     log.info("testKindFiltersEncoder");
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
     Kind kind = Kind.valueOf(1);
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new KindFilter<>(kind)));
 
-    String filterKey = KindFilter.filterKey;
-    expectedFilters.put(filterKey,
-        List.of(
-            new KindFilter<>(kind)));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"kinds\":[" + kind.toString() + "]}", encodedFilters);
   }
@@ -74,13 +96,8 @@ public class FiltersEncoderTest {
     log.info("testAuthorFilterEncoder");
 
     String pubKeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AuthorFilter<>(new PublicKey(pubKeyString))));
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(AuthorFilter.filterKey,
-        List.of(
-            new AuthorFilter<>(new PublicKey(pubKeyString))));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"authors\":[\"" + pubKeyString + "\"]}", encodedFilters);
   }
@@ -91,14 +108,11 @@ public class FiltersEncoderTest {
 
     String pubKeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String pubKeyString2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(AuthorFilter.filterKey,
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
         List.of(
             new AuthorFilter<>(new PublicKey(pubKeyString1)),
-            new AuthorFilter<>(new PublicKey(pubKeyString2))));
+            new AuthorFilter<>(new PublicKey(pubKeyString2)))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     String authorPubKeys = String.join("\",\"", pubKeyString1, pubKeyString2);
 
@@ -109,17 +123,14 @@ public class FiltersEncoderTest {
   public void testMultipleKindFiltersEncoder() {
     log.info("testMultipleKindFiltersEncoder");
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
     Kind kind1 = Kind.valueOf(1);
     Kind kind2 = Kind.valueOf(2);
 
-    String filterKey = KindFilter.filterKey;
-    expectedFilters.put(filterKey,
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
         List.of(
             new KindFilter<>(kind1),
-            new KindFilter<>(kind2)));
+            new KindFilter<>(kind2))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     String kinds = String.join(",", kind1.toString(), kind2.toString());
     assertEquals("{\"kinds\":[" + kinds + "]}", encodedFilters);
@@ -131,7 +142,6 @@ public class FiltersEncoderTest {
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidKey = "#d";
     String uuidValue1 = "UUID-1";
 
     AddressTag addressTag = new AddressTag();
@@ -139,12 +149,7 @@ public class FiltersEncoderTest {
     addressTag.setPublicKey(new PublicKey(author));
     addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(uuidKey,
-        List.of(
-            new AddressableTagFilter<>(addressTag)));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AddressableTagFilter<>(addressTag)));
     String encodedFilters = encoder.encode();
     String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
 
@@ -157,12 +162,7 @@ public class FiltersEncoderTest {
 
     String uuidValue1 = "UUID-1";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(IdentifierTagFilter.filterKey,
-        List.of(
-            new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))));
     String encodedFilters = encoder.encode();
     assertEquals("{\"#d\":[\"" + uuidValue1 + "\"]}", encodedFilters);
   }
@@ -174,13 +174,11 @@ public class FiltersEncoderTest {
     String uuidValue1 = "UUID-1";
     String uuidValue2 = "UUID-2";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(IdentifierTagFilter.filterKey,
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
         List.of(
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
-            new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
+            new IdentifierTagFilter<>(new IdentifierTag(uuidValue2)))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     String dTags = String.join("\",\"", uuidValue1, uuidValue2);
     assertEquals("{\"#d\":[\"" + dTags + "\"]}", encodedFilters);
@@ -209,13 +207,11 @@ public class FiltersEncoderTest {
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(ReferencedEventFilter.filterKey,
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
         List.of(
             new ReferencedEventFilter<>(new GenericEvent(eventId1)),
-            new ReferencedEventFilter<>(new GenericEvent(eventId2))));
+            new ReferencedEventFilter<>(new GenericEvent(eventId2)))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     String eventIds = String.join("\",\"", eventId1, eventId2);
     assertEquals("{\"#e\":[\"" + eventIds + "\"]}", encodedFilters);
@@ -228,12 +224,9 @@ public class FiltersEncoderTest {
     String geohashKey = "#g";
     String new_geohash = "2vghde";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(geohashKey,
-        List.of(
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, new_geohash))));
+    FiltersEncoder encoder = new FiltersEncoder(
+        new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, new_geohash))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"#g\":[\"2vghde\"]}", encodedFilters);
   }
@@ -244,12 +237,8 @@ public class FiltersEncoderTest {
 
     String pubKeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(ReferencedPublicKeyFilter.filterKey,
-        List.of(
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString))));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"#p\":[\"" + pubKeyString + "\"]}", encodedFilters);
   }
@@ -261,13 +250,10 @@ public class FiltersEncoderTest {
     String pubKeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String pubKeyString2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(ReferencedPublicKeyFilter.filterKey,
-        List.of(
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString1)),
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString2))));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
+        new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString1)),
+        new ReferencedPublicKeyFilter<>(new PublicKey(pubKeyString2))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     String pubKeyTags = String.join("\",\"", pubKeyString1, pubKeyString2);
     assertEquals("{\"#p\":[\"" + pubKeyTags + "\"]}", encodedFilters);
@@ -281,13 +267,10 @@ public class FiltersEncoderTest {
     String geohashValue1 = "2vghde";
     String geohashValue2 = "3abcde";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(geohashKey,
-        List.of(
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
+        new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
+        new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"#g\":[\"2vghde\",\"3abcde\"]}", encodedFilters);
   }
@@ -298,7 +281,6 @@ public class FiltersEncoderTest {
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidKey = "#a";
     String uuidValue1 = "UUID-1";
     String uuidValue2 = "UUID-2";
 
@@ -315,13 +297,10 @@ public class FiltersEncoderTest {
     addressTag2.setPublicKey(new PublicKey(author));
     addressTag2.setIdentifierTag(new IdentifierTag(uuidValue2));
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(uuidKey,
-        List.of(
-            new AddressableTagFilter<>(addressTag1),
-            new AddressableTagFilter<>(addressTag2)));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
+        new AddressableTagFilter<>(addressTag1),
+        new AddressableTagFilter<>(addressTag2)));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encoded = encoder.encode();
     String addressableTags = String.join("\",\"", addressableTag1, addressableTag2);
     assertEquals("{\"#a\":[\"" + addressableTags + "\"]}", encoded);
@@ -331,15 +310,9 @@ public class FiltersEncoderTest {
   public void testSinceFiltersEncoder() {
     log.info("testSinceFiltersEncoder");
 
-    String sinceKey = SinceFilter.filterKey;
     Long since = Date.from(Instant.now()).getTime();
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(sinceKey,
-        List.of(
-            new SinceFilter(since)));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new SinceFilter(since)));
     String encodedFilters = encoder.encode();
     assertEquals("{\"since\":" + since + "}", encodedFilters);
   }
@@ -348,15 +321,9 @@ public class FiltersEncoderTest {
   public void testUntilFiltersEncoder() {
     log.info("testUntilFiltersEncoder");
 
-    String untilKey = UntilFilter.filterKey;
     Long until = Date.from(Instant.now()).getTime();
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(untilKey,
-        List.of(
-            new UntilFilter(until)));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new UntilFilter(until)));
     String encodedFilters = encoder.encode();
     assertEquals("{\"until\":" + until + "}", encodedFilters);
   }
@@ -383,6 +350,16 @@ public class FiltersEncoderTest {
 
   @Test
   public void testReqMessageEmptyFilterKey() {
+    log.info("testReqMessageEmptyFilterKey");
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+
+    assertDoesNotThrow(() ->
+        new ReqMessage(subscriptionId, new Filters(
+            new GenericTagQueryFilter<>(new GenericTagQuery("some-tag", "some-value")))));
+  }
+
+  @Test
+  public void testReqMessageEmptyFilterKeyAsMap() {
     log.info("testReqMessageEmptyFilterKey");
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     Map<String, List<Filterable>> emptyFilterKey = new HashMap<>();
