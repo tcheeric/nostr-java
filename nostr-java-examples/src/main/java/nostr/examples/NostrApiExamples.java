@@ -15,10 +15,9 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
-import nostr.event.filter.Filterable;
+import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
-import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
@@ -45,7 +44,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -305,16 +303,14 @@ public class NostrApiExamples {
         var subId = "subId" + date.getTimeInMillis();
         date.add(Calendar.DAY_OF_MONTH, -5);
 
-        Map<String, List<Filterable>> filterablesMap = new HashMap<>();
-        filterablesMap.put(KindFilter.filterKey, List.of(
-            new KindFilter<>(Kind.EPHEMEREAL_EVENT),
-            new KindFilter<>(Kind.TEXT_NOTE)));
-        filterablesMap.put(AuthorFilter.filterKey, List.of(
-            new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144"))));
-        filterablesMap.put(SinceFilter.filterKey, List.of(new SinceFilter(date.getTimeInMillis()/1000)));
-
         var nip01 = NIP01.getInstance();
-        nip01.setRelays(RELAYS).sendRequest(new Filters(filterablesMap), subId);
+        nip01.setRelays(RELAYS).sendRequest(
+            new Filters(
+                new KindFilter<>(Kind.EPHEMEREAL_EVENT),
+                new KindFilter<>(Kind.TEXT_NOTE),
+                new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),
+                new SinceFilter(date.getTimeInMillis()/1000)), subId);
+
         Thread.sleep(5000);
     }
 

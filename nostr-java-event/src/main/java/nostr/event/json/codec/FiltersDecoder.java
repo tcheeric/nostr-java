@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.event.filter.Filterable;
-import nostr.event.filter.FilterableProvider;
 import nostr.event.filter.Filters;
 
 import java.util.HashMap;

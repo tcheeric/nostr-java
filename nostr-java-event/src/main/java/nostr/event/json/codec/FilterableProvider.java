@@ -1,9 +1,20 @@
-package nostr.event.filter;
+package nostr.event.json.codec;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
 import nostr.event.Kind;
+import nostr.event.filter.AddressableTagFilter;
+import nostr.event.filter.AuthorFilter;
+import nostr.event.filter.EventFilter;
+import nostr.event.filter.Filterable;
+import nostr.event.filter.GenericTagQueryFilter;
+import nostr.event.filter.IdentifierTagFilter;
+import nostr.event.filter.KindFilter;
+import nostr.event.filter.ReferencedEventFilter;
+import nostr.event.filter.ReferencedPublicKeyFilter;
+import nostr.event.filter.SinceFilter;
+import nostr.event.filter.UntilFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.IdentifierTag;
 
@@ -11,8 +22,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-public class FilterableProvider {
-  public static List<Filterable> getFilterable(String type, JsonNode node) {
+class FilterableProvider {
+  protected static List<Filterable> getFilterable(String type, JsonNode node) {
     return switch (type) {
       case ReferencedPublicKeyFilter.filterKey -> getFilterable(node, referencedPubKey -> new ReferencedPublicKeyFilter<>(new PublicKey(referencedPubKey.asText())));
       case ReferencedEventFilter.filterKey -> getFilterable(node, referencedEvent -> new ReferencedEventFilter<>(new GenericEvent(referencedEvent.asText())));
@@ -28,7 +39,7 @@ public class FilterableProvider {
     };
   }
 
-  public static List<Filterable> getFilterable(JsonNode jsonNode, Function<JsonNode, Filterable> filterFunction) {
+  private static List<Filterable> getFilterable(JsonNode jsonNode, Function<JsonNode, Filterable> filterFunction) {
     return StreamSupport.stream(jsonNode.spliterator(), false).map(filterFunction).toList();
   }
 }
