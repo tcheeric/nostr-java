@@ -86,7 +86,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
     public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
         var sender = getSender();
         var event = (sender != null) ? new MetadataEventFactory(sender, profile).create()
-            : new MetadataEventFactory(profile).create();
+                : new MetadataEventFactory(profile).create();
 
         this.setEvent((T) event);
         return this;
@@ -259,7 +259,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return
      */
     public NIP01<T> createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind,
-        String comment) {
+            String comment) {
         var event = new ParameterizedReplaceableEventFactory(getSender(), tags, kind, comment).create();
 
         this.setEvent((T) event);
@@ -284,7 +284,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return
      */
     public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey,
-        IdentifierTag idTag, Relay relay) {
+            IdentifierTag idTag, Relay relay) {
         var result = new AddressTagFactory(publicKey).create();
         if(idTag != null) {
             result.setIdentifierTag(idTag);
