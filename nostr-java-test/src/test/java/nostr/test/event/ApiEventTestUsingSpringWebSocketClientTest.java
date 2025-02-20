@@ -21,7 +21,7 @@ import nostr.id.Identity;
 import static nostr.test.event.ApiEventTest.createProduct;
 import static nostr.test.event.ApiEventTest.createStall;
 
-class ApiEventTestUsingSpringWebSocketClientIFTest {
+class ApiEventTestUsingSpringWebSocketClientTest {
   private static Map<String, String> relays;
   private SpringWebSocketClient springWebSocketClient;
 

@@ -16,19 +16,19 @@ import java.util.Map;
  */
 @Data
 public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
-  private final static ObjectMapper mapper = new ObjectMapper();
+    private final static ObjectMapper mapper = new ObjectMapper();
 
-  @SneakyThrows
-  public T decode(@NonNull String jsonFiltersList) {
-    final Map<String, List<Filterable>> filterPluginsMap = new HashMap<>();
+    @SneakyThrows
+    public T decode(@NonNull String jsonFiltersList) {
+        final Map<String, List<Filterable>> filterPluginsMap = new HashMap<>();
 
-    mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
-        filterPluginsMap.put(
-            field.getKey(),
-            FilterableProvider.getFilterable(
+        mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
+            filterPluginsMap.put(
                 field.getKey(),
-                field.getValue())));
+                FilterableProvider.getFilterable(
+                    field.getKey(),
+                    field.getValue())));
 
-    return (T) new Filters(filterPluginsMap);
-  }
+        return (T) new Filters(filterPluginsMap);
+    }
 }

@@ -7,7 +7,6 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.filter.AuthorFilter;
-import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.impl.GenericEvent;
@@ -21,7 +20,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,13 +43,10 @@ public class APINIP09EventTest {
         NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
         nip01.createTextNoteEvent("Delete me!").signAndSend(Map.of("local", RELAY_URI));
 
-        Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-        expectedFilters.put(KindFilter.filterKey, List.of(
-            new KindFilter<>(Kind.TEXT_NOTE)));
-        expectedFilters.put(AuthorFilter.filterKey, List.of(
-            new AuthorFilter<>(identity.getPublicKey())));
+        Filters filters = new Filters(
+            new KindFilter<>(Kind.TEXT_NOTE),
+            new AuthorFilter<>(identity.getPublicKey()));
 
-        Filters filters = new Filters(expectedFilters);
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
         assertFalse(result.isEmpty());

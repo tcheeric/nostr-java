@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GenericTagQuery {
 
-  private String tagName;
+    private String tagName;
 
-  @JsonProperty
-  private String value;
+    @JsonProperty
+    private String value;
 
-  @JsonIgnore
-  public Integer getNip() {
-    return 1;
-  }
+    @JsonIgnore
+    public Integer getNip() {
+        return 1;
+    }
 }

@@ -14,7 +14,7 @@ module nostr.api {
     requires lombok;
     requires java.logging;
     requires nostr.crypto;
-  requires org.apache.commons.lang3;
+    requires org.apache.commons.lang3;
 
-  exports nostr.api;
+    exports nostr.api;
 }
