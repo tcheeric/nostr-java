@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -102,39 +101,19 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId2) {
-    String subscriptionId = "-" + subscriptionId2;
-    Set<Entry<String, WebSocketClientHandler>> entrySet = clientMap.entrySet();
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+    createRequestClient(subscriptionId);
 
-    if (entrySet.stream().noneMatch(entry ->
-    {
-      String relayName = entry.getValue().getRelayName();
-      String targetRelayName = entry.getKey() + subscriptionId;
-      boolean equals = relayName.equals(targetRelayName);
-      return equals;
-    })) {
-      clientMap.keySet().forEach(clientMapKey ->
-          entrySet.stream().map(entry ->
-          {
-            String relayName = entry.getKey() + subscriptionId;
-            String relayUri = entry.getValue().getRelayUri();
-            return new WebSocketClientHandler(relayName, relayUri);
-          }).toList().forEach(webSocketClientHandler ->
-              clientMap.put(clientMapKey, webSocketClientHandler)));
-    }
-
-    List<String> list = entrySet.stream().filter(entry ->
-        {
-          String relayName = entry.getValue().getRelayName();
-          String targetRelayName = entry.getKey() + subscriptionId;
-          return relayName.equals(targetRelayName);
-        })
+    return clientMap.entrySet().stream().filter(entry ->
+            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))
         .map(Entry::getValue)
-        .map(webSocketClientHandler -> webSocketClientHandler.sendRequest(filters, webSocketClientHandler.getRelayName()))
-        .flatMap(List::stream).distinct().toList();
-
-    return list;
+        .map(webSocketClientHandler ->
+            webSocketClientHandler.sendRequest(
+                filters,
+                webSocketClientHandler.getRelayName()))
+        .flatMap(List::stream).toList();
   }
+
 
   @Override
   public List<String> sendRequest(@NonNull BaseMessage message, @NonNull RequestContext context) {
@@ -178,6 +157,20 @@ public class NostrSpringWebSocketClient implements NostrIF {
   public void close() throws IOException {
     for (WebSocketClientHandler client : clientMap.values()) {
       client.close();
+    }
+  }
+
+  private void createRequestClient(String subscriptionId) {
+    if (clientMap.entrySet().stream() // if a request client doesn't yet exist for subscriptionId...
+        .noneMatch(entry ->
+            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))) {
+      clientMap.keySet().forEach(clientMapKey -> // ... create one for each relay and add it to the client map
+          clientMap.entrySet().stream().map(entry ->
+                  new WebSocketClientHandler(
+                      String.join(entry.getKey(), subscriptionId),
+                      entry.getValue().getRelayUri()))
+              .toList().forEach(webSocketClientHandler ->
+                  clientMap.put(clientMapKey, webSocketClientHandler)));
     }
   }
 }
