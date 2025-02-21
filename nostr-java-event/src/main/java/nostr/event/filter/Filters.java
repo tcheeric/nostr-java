@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -28,7 +29,7 @@ public class Filters {
     this(filterablesByDefaultType.stream().collect(groupingBy(Filterable::getFilterKey)));
   }
 
-  public Filters(@NonNull Map<String, List<Filterable>> filterablesByCustomType) {
+  private Filters(@NonNull Map<String, List<Filterable>> filterablesByCustomType) {
     validateFiltersMap(filterablesByCustomType);
     this.filtersMap = filterablesByCustomType;
   }
@@ -38,6 +39,10 @@ public class Filters {
   }
 
   private static void validateFiltersMap(Map<String, List<Filterable>> filtersMap) throws IllegalArgumentException {
+    if (filtersMap.isEmpty()) {
+      throw new IllegalArgumentException("Filters cannot be empty.");
+    }
+
     filtersMap.values().forEach(filterables -> {
       if (filterables.isEmpty()) {
         throw new IllegalArgumentException("Filters cannot be empty.");

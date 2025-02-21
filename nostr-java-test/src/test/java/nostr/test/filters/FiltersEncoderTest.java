@@ -26,9 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,15 +65,9 @@ public class FiltersEncoderTest {
   public void testEventFilterEncoderByMap() {
     log.info("testEventFilterEncoderByMap");
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-
-    String filterKey = EventFilter.filterKey;
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    expectedFilters.put(filterKey,
-        List.of(
-            new EventFilter<>(new GenericEvent(eventId))));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new EventFilter<>(new GenericEvent(eventId))));
     String encodedFilters = encoder.encode();
     assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
   }
@@ -190,12 +182,7 @@ public class FiltersEncoderTest {
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    Map<String, List<Filterable>> expectedFilters = new HashMap<>();
-    expectedFilters.put(ReferencedEventFilter.filterKey,
-        List.of(
-            new ReferencedEventFilter<>(new GenericEvent(eventId))));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new ReferencedEventFilter<>(new GenericEvent(eventId))));
     String encodedFilters = encoder.encode();
     assertEquals("{\"#e\":[\"" + eventId + "\"]}", encodedFilters);
   }
@@ -329,44 +316,20 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testReqMessageEmptyFilterMap() {
-    log.info("testReqMessageEmptyFilterMap");
-    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
-    Map<String, List<Filterable>> emptyFilters = new HashMap<>();
-    emptyFilters.put("", List.of());
-
-    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilters)));
-  }
-
-  @Test
   public void testReqMessageEmptyFilters() {
     log.info("testReqMessageEmptyFilters");
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
-    Map<String, List<Filterable>> emptyFilters = new HashMap<>();
-    emptyFilters.put("#g", List.of());
 
-    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilters)));
+    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(List.of())));
   }
 
   @Test
-  public void testReqMessageEmptyFilterKey() {
+  public void testReqMessageCustomGenericTagFilter() {
     log.info("testReqMessageEmptyFilterKey");
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
 
     assertDoesNotThrow(() ->
         new ReqMessage(subscriptionId, new Filters(
             new GenericTagQueryFilter<>(new GenericTagQuery("some-tag", "some-value")))));
-  }
-
-  @Test
-  public void testReqMessageEmptyFilterKeyAsMap() {
-    log.info("testReqMessageEmptyFilterKey");
-    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
-    Map<String, List<Filterable>> emptyFilterKey = new HashMap<>();
-    emptyFilterKey.put("",
-        List.of(
-            new GenericTagQueryFilter<>(new GenericTagQuery("some-tag", "some-value"))));
-
-    assertThrows(IllegalArgumentException.class, () -> new ReqMessage(subscriptionId, new Filters(emptyFilterKey)));
   }
 }

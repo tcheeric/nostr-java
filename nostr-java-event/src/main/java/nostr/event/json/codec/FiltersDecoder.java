@@ -7,28 +7,26 @@ import lombok.SneakyThrows;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author eric
  */
 @Data
 public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
-    private final static ObjectMapper mapper = new ObjectMapper();
+  private final static ObjectMapper mapper = new ObjectMapper();
 
-    @SneakyThrows
-    public T decode(@NonNull String jsonFiltersList) {
-        final Map<String, List<Filterable>> filterPluginsMap = new HashMap<>();
+  @SneakyThrows
+  public T decode(@NonNull String jsonFiltersList) {
+    final List<Filterable> filterables = new ArrayList<>();
 
-        mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
-            filterPluginsMap.put(
+    mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
+        filterables.addAll(
+            FilterableProvider.getFilterable(
                 field.getKey(),
-                FilterableProvider.getFilterable(
-                    field.getKey(),
-                    field.getValue())));
+                field.getValue())));
 
-        return (T) new Filters(filterPluginsMap);
-    }
+    return (T) new Filters(filterables);
+  }
 }

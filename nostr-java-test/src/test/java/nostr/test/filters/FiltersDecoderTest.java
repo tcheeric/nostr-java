@@ -33,7 +33,7 @@ public class FiltersDecoderTest {
   public void testEventFiltersDecoder() {
     log.info("testEventFiltersDecoder");
 
-    String filterKey = EventFilter.filterKey;
+    String filterKey = "ids";
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     String expected = "{\"" + filterKey + "\":[\"" + eventId + "\"]}";
@@ -49,7 +49,7 @@ public class FiltersDecoderTest {
   public void testMultipleEventFiltersDecoder() {
     log.info("testMultipleEventFiltersDecoder");
 
-    String filterKey = EventFilter.filterKey;
+    String filterKey = "ids";
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 

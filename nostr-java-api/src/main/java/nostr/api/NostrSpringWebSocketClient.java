@@ -81,13 +81,14 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
-    return sendRequest(filtersList, subscriptionId);
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
   @Override
-  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
-    return sendRequest(filters, subscriptionId);
+  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+    setRelays(relays);
+    return sendRequest(filtersList, subscriptionId);
   }
 
   @Override
