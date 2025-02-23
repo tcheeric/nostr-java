@@ -10,15 +10,16 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
+import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.id.Identity;
+import org.apache.commons.lang3.stream.Streams.FailableStream;
 
 import java.util.List;
 import java.util.Map;
-
-import nostr.event.BaseMessage;
+import java.util.Objects;
 
 /**
  * @author guilhermegps
@@ -46,14 +47,14 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         return this.send(getRelays());
     }
 
-    @SuppressWarnings("unchecked")
     public <U extends BaseMessage> U send(Map<String, String> relays) {
-        List<String> messages = super.send(this.event, relays);
-        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<U>();
+        List<String> messages = super.sendEvent(this.event, relays);
+        BaseMessageDecoder<U> decoder = new BaseMessageDecoder<>();
 
-        return messages.stream()
+        return new FailableStream<>(messages.stream())
                 .map(msg -> (U) decoder.decode(msg))
-                .filter(msg -> msg != null)
+                .filter(Objects::nonNull)
+                .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No message received"));
     }

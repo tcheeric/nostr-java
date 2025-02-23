@@ -19,17 +19,14 @@ import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
 import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
 import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
 import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
-import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.UserProfile;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
 import nostr.event.Marker;
 import nostr.event.NIP01Event;
-import nostr.event.impl.Filters;
-import nostr.event.impl.GenericEvent;
+import nostr.event.filter.Filters;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -42,7 +39,6 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -98,7 +94,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create a replaceable event
-     * 
+     *
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the content
      */
@@ -111,7 +107,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create a replaceable event
-     * 
+     *
      * @param tags    the note's tags
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the note's content
@@ -125,7 +121,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
 
     /**
      * Create an ephemeral event
-     * 
+     *
      * @param kind    the kind (20000 <= n < 30000)
      * @param content the note's content
      */
@@ -188,48 +184,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
         result.setMainRelayUrl(mainRelayUrl);
         result.setPetName(petName);
         return result;
-    }
-
-    /**
-     * Create a NIP01 filters object (all parameters are optional)
-     *
-     * @param events           a list of event
-     * @param authors          a list of pubkeys or prefixes, the pubkey of an event
-     *                         must
-     *                         be one of these
-     * @param kinds            a list of a kind numbers
-     * @param referencedEvents a list of event ids that are referenced in an "e"
-     *                         tag
-     * @param referencePubKeys a list of pubkeys that are referenced in a "p"
-     *                         tag
-     * @param since            an integer unix timestamp in seconds, events must be
-     *                         newer
-     *                         than this to pass
-     * @param until            an integer unix timestamp in seconds, events must be
-     *                         older
-     *                         than this to pass
-     * @param limit            maximum number of events to be returned in the
-     *                         initial query
-     * @param genericTagQuery  a generic tag query
-     * @return a filters object
-     */
-    @Deprecated(forRemoval = true)
-    public static Filters createFilters(List<GenericEvent> events, List<PublicKey> authors, List<Kind> kinds,
-            List<GenericEvent> referencedEvents, List<PublicKey> referencePubKeys, Long since, Long until,
-            Integer limit, GenericTagQuery genericTagQuery) {
-        return Filters.builder()
-                .authors(authors)
-                .events(events)
-                .genericTagQuery(
-                    Map.of(
-                        genericTagQuery.getTagName(),
-                        genericTagQuery.getValue()))
-                .kinds(kinds).limit(limit)
-                .referencePubKeys(referencePubKeys)
-                .referencedEvents(referencedEvents)
-                .since(since)
-                .until(until)
-                .build();
     }
 
     /**

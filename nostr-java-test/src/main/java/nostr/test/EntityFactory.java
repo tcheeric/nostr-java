@@ -9,9 +9,9 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
+import nostr.event.filter.Filters;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -57,10 +56,6 @@ public class EntityFactory {
             DirectMessageEvent event = new DirectMessageEvent(senderPublicKey, tagList, content);
             event.update();
             return event;
-        }
-
-        public static Filters createFilters(List<PublicKey> authors, List<Kind> kindList, Long since) {
-            return Filters.builder().authors(authors).kinds(kindList).since(since).build();
         }
 
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {
@@ -139,26 +134,7 @@ public class EntityFactory {
             return tag;
         }
 
-        public static Filters createFilters(PublicKey publicKey) {
-            List<GenericEvent> eventList = new ArrayList<>();
-            eventList.add(createTextNoteEvent(publicKey));
-            eventList.add(createEphemeralEvent(publicKey));
-
-            List<GenericEvent> refEvents = new ArrayList<>();
-            refEvents.add(createTextNoteEvent(publicKey));
-
-            GenericTagQuery genericTagQuery = createGenericTagQuery();
-            return Filters.builder()
-                .events(eventList)
-                .referencedEvents(refEvents)
-                .genericTagQuery(
-                    Map.of(
-                        genericTagQuery.getTagName(),
-                        genericTagQuery.getValue()))
-                .build();
-        }
-
-        public static GenericTagQuery createGenericTagQuery() {
+        public static List<GenericTagQuery> createGenericTagQuery() {
             Character c = generateRamdomAlpha(1).charAt(0);
             String v1 = generateRamdomAlpha(5);
             String v2 = generateRamdomAlpha(6);
@@ -169,10 +145,12 @@ public class EntityFactory {
             list.add(v2);
             list.add(v1);
 
-            var result = new GenericTagQuery();
-            result.setTagName(c.toString());
-            result.setValue(list);
-            return result;
+            return list.stream().map(item -> {
+                var result = new GenericTagQuery();
+                result.setTagName(c.toString());
+                result.setValue(item);
+                return result;
+            }).toList();
         }
     }
 

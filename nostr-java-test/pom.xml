@@ -6,7 +6,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.6.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>nostr-java-test</artifactId>
@@ -58,13 +58,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-command-provider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>org.springframework</groupId>

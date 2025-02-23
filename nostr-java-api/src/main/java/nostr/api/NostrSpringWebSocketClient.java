@@ -1,45 +1,36 @@
 package nostr.api;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
-import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.context.RequestContext;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.BaseMessage;
-import nostr.event.impl.Filters;
+import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
-import nostr.event.message.EventMessage;
-import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 @NoArgsConstructor
 public class NostrSpringWebSocketClient implements NostrIF {
-
-  private static NostrSpringWebSocketClient INSTANCE;
-
-  private List<SpringWebSocketClient> clients = new ArrayList<>();
-
+  private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
   @Getter
   private Identity sender;
 
-  private NostrSpringWebSocketClient(@NonNull Map<String, String> relays) {
-    relays.values().forEach(this::createClientForRelay);
-  }
+  private static NostrSpringWebSocketClient INSTANCE;
 
-  public NostrSpringWebSocketClient(@NonNull Identity sender) {
-    this.sender = sender;
+  public NostrSpringWebSocketClient(String relayName, String relayUri) {
+    setRelays(Map.of(relayName, relayUri));
   }
 
   public static NostrIF getInstance() {
@@ -50,82 +41,83 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return (INSTANCE == null) ? new NostrSpringWebSocketClient(sender) : INSTANCE;
   }
 
-  private void createClientForRelay(String relay) {
-    clients.add(new SpringWebSocketClient(relay));
+  public NostrSpringWebSocketClient(@NonNull Identity sender) {
+    this.sender = sender;
   }
 
-  @Override
   public NostrIF setSender(@NonNull Identity sender) {
     this.sender = sender;
     return this;
   }
 
+  public <T extends GenericEvent> List<String> sendEvent(T event, Map<String, String> relays) {
+    setRelays(relays);
+    return relays.keySet().stream().map(s ->
+            clientMap.get(s).sendEvent(event))
+        .flatMap(List::stream)
+        .distinct().toList();
+  }
+
   @Override
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
-    relays.values().stream()
-        .filter(relay ->
-            clients.stream()
-                .map(SpringWebSocketClient::getRelayUrl)
-                .noneMatch(
-                    relay::equals))
-        .forEach(this::addClient);
+    relays.entrySet().stream().forEach(relayEntry ->
+        clientMap.putIfAbsent(relayEntry.getKey(),
+            new WebSocketClientHandler(
+                relayEntry.getKey(),
+                relayEntry.getValue())));
     return this;
   }
 
-  @SneakyThrows
-  private void addClient(String relay) {
-    clients.add(new SpringWebSocketClient(relay));
+  @Override
+  public List<String> sendEvent(@NonNull IEvent event) {
+    return clientMap.values().stream().map(client ->
+        client.sendEvent(event)).flatMap(List::stream).distinct().toList();
   }
 
   @Override
-  public void close() throws IOException {
-    for (SpringWebSocketClient client : clients) {
-      client.closeSocket();
-    }
-  }
-
-  @Override
-  public List<String> send(@NonNull IEvent event) {
-    EventMessage message = new EventMessage(event);
-    return clients.stream().flatMap(client -> send(client, message).stream()).toList();
-  }
-
-
-  @Override
-  public List<String> send(@NonNull IEvent event, Map<String, String> relays) {
+  public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
-    return send(event);
+    return sendEvent(event);
   }
 
   @Override
-  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId) {
-    ReqMessage reqMessage = new ReqMessage(subscriptionId, filters);
-    return clients.stream().flatMap(client -> send(client, reqMessage).stream()).toList();
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+    return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
   @Override
-  public List<String> send(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
     setRelays(relays);
-    return send(filters, subscriptionId);
+    return sendRequest(filtersList, subscriptionId);
   }
 
   @Override
-  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-    return filtersList.stream().flatMap(filters -> send(filters, subscriptionId).stream()).toList();
+  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+    return filtersList.stream().map(filters -> sendRequest(
+            filters,
+            subscriptionId
+        ))
+        .flatMap(List::stream)
+        .distinct().toList();
   }
 
   @Override
-  public List<String> send(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
-    return filtersList.stream().flatMap(filters -> send(filters, subscriptionId, relays).stream()).toList();
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+    createRequestClient(subscriptionId);
+
+    return clientMap.entrySet().stream().filter(entry ->
+            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))
+        .map(Entry::getValue)
+        .map(webSocketClientHandler ->
+            webSocketClientHandler.sendRequest(
+                filters,
+                webSocketClientHandler.getRelayName()))
+        .flatMap(List::stream).toList();
   }
 
-  @SneakyThrows
-  private List<String> send(SpringWebSocketClient client, BaseMessage message) {
-    return client.send(message);
-  }
 
   @Override
-  public List<String> send(@NonNull BaseMessage message, @NonNull RequestContext context) {
+  public List<String> sendRequest(@NonNull BaseMessage message, @NonNull RequestContext context) {
     return List.of();
   }
 
@@ -152,8 +144,34 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  public Identity getSender() {
+    return sender;
+  }
+
+  @Override
   public Map<String, String> getRelays() {
-    return clients.stream()
-        .collect(Collectors.toMap(SpringWebSocketClient::getRelayUrl, SpringWebSocketClient::getRelayUrl, (prev, next) -> next, HashMap::new));
+    return clientMap.values().stream()
+        .collect(Collectors.toMap(WebSocketClientHandler::getRelayName, WebSocketClientHandler::getRelayUri,
+            (prev, next) -> next, HashMap::new));
+  }
+
+  public void close() throws IOException {
+    for (WebSocketClientHandler client : clientMap.values()) {
+      client.close();
+    }
+  }
+
+  private void createRequestClient(String subscriptionId) {
+    if (clientMap.entrySet().stream() // if a request client doesn't yet exist for subscriptionId...
+        .noneMatch(entry ->
+            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))) {
+      clientMap.keySet().forEach(clientMapKey -> // ... create one for each relay and add it to the client map
+          clientMap.entrySet().stream().map(entry ->
+                  new WebSocketClientHandler(
+                      String.join(entry.getKey(), subscriptionId),
+                      entry.getValue().getRelayUri()))
+              .toList().forEach(webSocketClientHandler ->
+                  clientMap.put(clientMapKey, webSocketClientHandler)));
+    }
   }
 }

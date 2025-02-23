@@ -15,6 +15,7 @@ import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.AbstractEventContent;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 
 /**
  *
@@ -26,7 +27,7 @@ import nostr.event.BaseTag;
 public class CreateOrUpdateStallEvent extends NostrMarketplaceEvent {
 
     public CreateOrUpdateStallEvent(PublicKey sender, List<BaseTag> tags, @NonNull Stall stall) {
-        super(sender, 30017, tags, stall);
+        super(sender, Kind.STALL_CREATE_OR_UPDATE.getValue(), tags, stall);
     }
 
     @Getter

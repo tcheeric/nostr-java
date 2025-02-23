@@ -10,6 +10,7 @@ import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.api.factory.TagFactory;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -21,8 +22,6 @@ import java.util.List;
  * @author eric
  */
 public class NIP23Impl {
-
-    public static final Integer KIND_PRE_LONG_FORM_CONTENT = 30023;
 
     @Data
     @EqualsAndHashCode(callSuper = false)
@@ -38,7 +37,7 @@ public class NIP23Impl {
 
         @Override
         public GenericEvent create() {
-            return new GenericEvent(getSender(), KIND_PRE_LONG_FORM_CONTENT, getTags(), getContent());
+            return new GenericEvent(getSender(), Kind.PRE_LONG_FORM_CONTENT, getTags(), getContent());
         }
     }
 

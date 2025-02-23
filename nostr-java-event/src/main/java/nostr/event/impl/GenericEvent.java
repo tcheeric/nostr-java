@@ -124,7 +124,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags,
             @NonNull String content) {
         this.pubKey = pubKey;
-        this.kind = kind;
+        this.kind = Kind.valueOf(kind).getValue();
         this.tags = tags;
         this.content = content;
         this.attributes = new ArrayList<>();

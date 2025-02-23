@@ -1,17 +1,6 @@
 package nostr.test.event;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -19,9 +8,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
-import nostr.event.json.codec.BaseEventEncoder;
-import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.json.codec.GenericEventDecoder;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -30,7 +16,15 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.id.Identity;
-import nostr.test.util.JsonComparator;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP52RequestTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
@@ -103,9 +97,9 @@ class ApiNIP52RequestTest {
     tags.add(R_TAG);
 
     CalendarContent calendarContent = CalendarContent.builder(
-        new IdentifierTag(UUID_CALENDAR_TIME_BASED_EVENT_TEST),
-        TITLE,
-        Long.valueOf(START))
+            new IdentifierTag(UUID_CALENDAR_TIME_BASED_EVENT_TEST),
+            TITLE,
+            Long.valueOf(START))
         .build();
 
     var nip52 = new NIP52<>(Identity.create(PRV_KEY_VALUE));
@@ -150,18 +144,6 @@ class ApiNIP52RequestTest {
 
     springWebSocketRequestClient.closeSocket();
 */
-  }
-
-  private <T extends GenericEvent> T mapJsonToEvent(List<String> reqResponse, Class<T> clazz) {
-    Optional<T> first = reqResponse
-        .stream()
-        .map(baseMessage -> new BaseMessageDecoder<EventMessage>().decode(baseMessage))
-        .map(eventMessage -> ((GenericEvent) eventMessage.getEvent()))
-        .map(event -> new BaseEventEncoder<>(event).encode())
-        .map(encode -> new GenericEventDecoder<>(clazz).decode(encode))
-        .findFirst();
-    T t = first.get();
-    return t;
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

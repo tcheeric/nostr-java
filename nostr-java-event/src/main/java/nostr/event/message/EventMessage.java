@@ -51,15 +51,25 @@ public class EventMessage extends BaseMessage {
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {
         var arg = msgArr[1];
         if (msgArr.length == 2 && arg instanceof Map map) {
-            var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {});
-            return (T) new EventMessage(event);
-        } else if (msgArr.length == 3 && arg instanceof String) {
-            var subId = arg.toString();
+            return (T) new EventMessage(
+                convertValue(mapper, map)
+            );
+        }
+
+        if (msgArr.length == 3 && arg instanceof String) {
             if (msgArr[2] instanceof Map map) {
-                var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {});
-                return (T) new EventMessage(event, subId);
+                return (T) new EventMessage(
+                    convertValue(mapper, map),
+                    arg.toString()
+                );
             }
         }
+
         throw new AssertionError("Invalid argument: " + arg);
+    }
+
+    private static GenericEvent convertValue(ObjectMapper mapper, Map map) {
+        return mapper.convertValue(map, new TypeReference<GenericEvent>() {
+        });
     }
 }

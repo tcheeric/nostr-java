@@ -15,12 +15,15 @@ import nostr.base.UserProfile;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Reaction;
+import nostr.event.filter.AuthorFilter;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
+import nostr.event.filter.SinceFilter;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.ChannelMessageEvent;
 import nostr.event.impl.DeletionEvent;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
-import nostr.event.impl.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.HideMessageEvent;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
@@ -243,7 +246,7 @@ public class NostrApiExamples {
         logHeader("ephemeralEvent");
 
         var nip01 = new NIP01<EphemeralEvent>(SENDER);
-        nip01.createEphemeralEvent(21000, "An ephemeral event")
+        nip01.createEphemeralEvent(Kind.EPHEMEREAL_EVENT.getValue(), "An ephemeral event")
             .sign()
             .send(RELAYS);
     }
@@ -260,7 +263,7 @@ public class NostrApiExamples {
         var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
         reactionEvent.signAndSend(RELAYS);
         nip25.createReactionEvent(event.getEvent(), "💩").signAndSend();
-//        Using Custom Emoji as reaction 
+//        Using Custom Emoji as reaction
         nip25.createReactionEvent(
                 event.getEvent(),
                 NIP30.createCustomEmojiTag(
@@ -276,7 +279,7 @@ public class NostrApiExamples {
         var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
         event.signAndSend(RELAYS);
 
-        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), 15_000, "New content").signAndSend();
+        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend();
     }
 
     private static void internetIdMetadata() {
@@ -296,20 +299,18 @@ public class NostrApiExamples {
     public static void filters() throws InterruptedException {
         logHeader("filters");
 
-        var kinds = List.of(Kind.EPHEMEREAL_EVENT, Kind.TEXT_NOTE);
-        var authors = new ArrayList<>(List.of(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")));
-
         var date = Calendar.getInstance();
         var subId = "subId" + date.getTimeInMillis();
         date.add(Calendar.DAY_OF_MONTH, -5);
-        Filters filters = Filters.builder()
-            .authors(authors)
-            .kinds(kinds)
-            .since(date.getTimeInMillis()/1000)
-            .build();
 
         var nip01 = NIP01.getInstance();
-        nip01.setRelays(RELAYS).send(filters, subId);
+        nip01.setRelays(RELAYS).sendRequest(
+            new Filters(
+                new KindFilter<>(Kind.EPHEMEREAL_EVENT),
+                new KindFilter<>(Kind.TEXT_NOTE),
+                new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),
+                new SinceFilter(date.getTimeInMillis()/1000)), subId);
+
         Thread.sleep(5000);
     }
 

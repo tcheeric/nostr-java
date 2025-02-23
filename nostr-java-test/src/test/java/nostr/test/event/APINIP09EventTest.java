@@ -3,11 +3,12 @@ package nostr.test.event;
 import nostr.api.NIP01;
 import nostr.api.NIP09;
 import nostr.base.Relay;
-import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
-import nostr.event.impl.Filters;
+import nostr.event.filter.AuthorFilter;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
@@ -32,11 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class APINIP09EventTest {
 
     private static final String RELAY_URI = "ws://localhost:5555";
-    private final SpringWebSocketClient springWebSocketClient;
-
-    public APINIP09EventTest() {
-        springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
-    }
 
     @Test
     public void deleteEvent() throws IOException {
@@ -47,21 +43,18 @@ public class APINIP09EventTest {
         NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
         nip01.createTextNoteEvent("Delete me!").signAndSend(Map.of("local", RELAY_URI));
 
+        Filters filters = new Filters(
+                new KindFilter<>(Kind.TEXT_NOTE),
+                new AuthorFilter<>(identity.getPublicKey()));
 
-        Filters filters = Filters
-                .builder()
-                .kinds(List.of(Kind.TEXT_NOTE))
-                .authors(List.of(identity.getPublicKey()))
-                .build();
-
-        List<String> result = nip01.send(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
 
         nip09.createDeletionEvent(nip01.getEvent()).signAndSend(Map.of("local", RELAY_URI));
 
-        result = nip01.send(filters, UUID.randomUUID().toString());
+        result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());

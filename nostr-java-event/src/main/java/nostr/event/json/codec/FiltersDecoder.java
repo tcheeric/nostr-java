@@ -1,26 +1,32 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NonNull;
-import nostr.event.impl.Filters;
+import lombok.SneakyThrows;
+import nostr.event.filter.Filterable;
+import nostr.event.filter.Filters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author eric
  */
 @Data
 public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
-    private final Class<T> clazz = (Class<T>)Filters.class;
+  private final static ObjectMapper mapper = new ObjectMapper();
 
-    @Override
-    public T decode(@NonNull String jsonString)  {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonString, clazz);
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+  @SneakyThrows
+  public T decode(@NonNull String jsonFiltersList) {
+    final List<Filterable> filterables = new ArrayList<>();
+
+    mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
+        filterables.addAll(
+            FilterableProvider.getFilterable(
+                field.getKey(),
+                field.getValue())));
+
+    return (T) new Filters(filterables);
+  }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
+import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -18,7 +19,7 @@ public class NIP60Impl {
 
         @Override
         public GenericEvent create() {
-            return new GenericEvent(getIdentity().getPublicKey(), 37375, getTags(), getContent());
+            return new GenericEvent(getIdentity().getPublicKey(), Kind.WALLET, getTags(), getContent());
         }
     }
 
@@ -30,7 +31,7 @@ public class NIP60Impl {
 
         @Override
         public GenericEvent create() {
-            return new GenericEvent(getIdentity().getPublicKey(), 7375, getTags(), getContent());
+            return new GenericEvent(getIdentity().getPublicKey(), Kind.WALLET_UNSPENT_PROOF, getTags(), getContent());
         }
     }
 
@@ -42,7 +43,7 @@ public class NIP60Impl {
 
         @Override
         public GenericEvent create() {
-            return new GenericEvent(getIdentity().getPublicKey(), 7376, getTags(), getContent());
+            return new GenericEvent(getIdentity().getPublicKey(), Kind.WALLET_TX_HISTORY, getTags(), getContent());
         }
     }
 
@@ -54,7 +55,7 @@ public class NIP60Impl {
 
         @Override
         public GenericEvent create() {
-            return new GenericEvent(getIdentity().getPublicKey(), 7374, getTags(), getContent());
+            return new GenericEvent(getIdentity().getPublicKey(), Kind.RESERVED_CASHU_WALLET_TOKENS, getTags(), getContent());
         }
     }
 
