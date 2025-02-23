@@ -5,7 +5,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -73,8 +73,6 @@
         <module>nostr-java-encryption</module>
         <module>nostr-java-encryption-nip04</module>
         <module>nostr-java-encryption-nip44</module>
-        <module>nostr-java-context</module>
-        <module>nostr-java-context-interface</module>
     </modules>
 
     <properties>
