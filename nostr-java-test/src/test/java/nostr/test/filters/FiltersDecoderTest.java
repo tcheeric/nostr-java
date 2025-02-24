@@ -301,24 +301,6 @@ public class FiltersDecoderTest {
     assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
   }
 
-  //
-//  @Test
-//  public void testHashTagFiltersEncoder() {
-//    log.info("testHashTagFiltersEncoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-//
-//  @Test
-//  public void testMultipleHashTagFiltersEncoder() {
-//    log.info("testMultipleHashTagFiltersEncoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-
-
   @Test
   public void testMultipleGenericTagFiltersDecoder() {
     log.info("testMultipleGenericTagFiltersDecoder");
