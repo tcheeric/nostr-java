@@ -7,17 +7,15 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Getter
 @EqualsAndHashCode
 public class Filters {
   public static final int DEFAULT_FILTERS_LIMIT = 10;
-  @Getter
   private final Map<String, List<Filterable>> filtersMap;
 
-  @Getter
   @Setter
   private Integer limit = DEFAULT_FILTERS_LIMIT;
 

@@ -6,38 +6,31 @@ import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class UntilFilter implements Filterable {
-  public final static String filterKey = "until";
-  private final Long until;
+@EqualsAndHashCode(callSuper = true)
+public class UntilFilter extends AbstractFilterable<Long> {
+  public final static String FILTER_KEY = "until";
 
   public UntilFilter(Long until) {
-    this.until = until;
+    super(until, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.until >= genericEvent.getCreatedAt();
-  }
-
-  @Override
-  public Long getFilterCriterion() {
-    return until;
+        genericEvent.getCreatedAt() < getUntil();
   }
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return mapper.createObjectNode().put(filterKey, until);
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+    return mapper.createObjectNode().put(FILTER_KEY, getUntil());
   }
 
   @Override
   public String getFilterableValue() {
-    return until.toString();
+    return getUntil().toString();
+  }
+
+  private Long getUntil() {
+    return super.getFilterable();
   }
 }

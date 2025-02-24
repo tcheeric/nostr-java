@@ -6,34 +6,27 @@ import nostr.event.tag.IdentifierTag;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class IdentifierTagFilter<T extends IdentifierTag> implements Filterable {
-  public final static String filterKey = "#d";
-  private final T identifierTag;
-
+@EqualsAndHashCode(callSuper = true)
+public class IdentifierTagFilter<T extends IdentifierTag> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "#d";
   public IdentifierTagFilter(T identifierTag) {
-    this.identifierTag = identifierTag;
+    super(identifierTag, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        getTypeSpecificTags(IdentifierTag.class, genericEvent).stream().anyMatch(genericEventIdentifiterTag ->
-            genericEventIdentifiterTag.getId().equals(this.identifierTag.getId()));
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return identifierTag;
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+        getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
+            .anyMatch(genericEventIdentifierTag ->
+                genericEventIdentifierTag.getId().equals(getFilterableValue()));
   }
 
   @Override
   public String getFilterableValue() {
-    return identifierTag.getId();
+    return getIdentifierTag().getId();
+  }
+
+  private T getIdentifierTag() {
+    return super.getFilterable();
   }
 }

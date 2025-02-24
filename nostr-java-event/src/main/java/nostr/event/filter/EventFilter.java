@@ -5,33 +5,26 @@ import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class EventFilter<T extends GenericEvent> implements Filterable {
-  public final static String filterKey = "ids";
-  private final T event;
+@EqualsAndHashCode(callSuper = true)
+public class EventFilter<T extends GenericEvent> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "ids";
 
   public EventFilter(T event) {
-    this.event = event;
+    super(event, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.event.getId().equals(genericEvent.getId());
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return event;
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+        genericEvent.getId().equals(getFilterableValue());
   }
 
   @Override
   public String getFilterableValue() {
-    return event.getId();
+    return getEvent().getId();
+  }
+
+  private T getEvent() {
+    return super.getFilterable();
   }
 }

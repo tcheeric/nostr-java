@@ -14,7 +14,7 @@ public interface Filterable {
   ObjectMapper mapper = new ObjectMapper();
 
   Predicate<GenericEvent> getPredicate();
-  <T> T getFilterCriterion();
+  <T> T getFilterable();
   Object getFilterableValue();
   String getFilterKey();
 

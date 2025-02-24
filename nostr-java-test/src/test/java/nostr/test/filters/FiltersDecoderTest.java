@@ -8,6 +8,7 @@ import nostr.event.filter.AddressableTagFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
+import nostr.event.filter.GeohashTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -17,7 +18,10 @@ import nostr.event.filter.UntilFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.tag.AddressTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.GeohashTag;
 import nostr.event.tag.IdentifierTag;
+import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -25,6 +29,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Log
 public class FiltersDecoderTest {
@@ -131,7 +136,7 @@ public class FiltersDecoderTest {
   public void testKindFiltersDecoder() {
     log.info("testKindFiltersDecoder");
 
-    String filterKey = KindFilter.filterKey;
+    String filterKey = KindFilter.FILTER_KEY;
     Kind kind = Kind.valueOf(1);
 
     String expected = "{\"" + filterKey + "\":[" + kind.toString() + "]}";
@@ -144,7 +149,7 @@ public class FiltersDecoderTest {
   public void testMultipleKindFiltersDecoder() {
     log.info("testMultipleKindFiltersDecoder");
 
-    String filterKey = KindFilter.filterKey;
+    String filterKey = KindFilter.FILTER_KEY;
     Kind kind1 = Kind.valueOf(1);
     Kind kind2 = Kind.valueOf(2);
 
@@ -201,7 +206,7 @@ public class FiltersDecoderTest {
     String expected = "{\"#e\":[\"" + eventId + "\"]}";
     Filters decodedFilters = new FiltersDecoder<>().decode(expected);
 
-    assertEquals(new Filters(new ReferencedEventFilter<>(new GenericEvent(eventId))), decodedFilters);
+    assertEquals(new Filters(new ReferencedEventFilter<>(new EventTag(eventId))), decodedFilters);
   }
 
   @Test
@@ -217,13 +222,13 @@ public class FiltersDecoderTest {
 
     assertEquals(
         new Filters(
-            new ReferencedEventFilter<>(new GenericEvent(eventId1)),
-            new ReferencedEventFilter<>(new GenericEvent(eventId2))),
+            new ReferencedEventFilter<>(new EventTag(eventId1)),
+            new ReferencedEventFilter<>(new EventTag(eventId2))),
         decodedFilters);
   }
 
   @Test
-  public void testReferencedPublicKeyFilterDecoder() {
+  public void testReferencedPublicKeyFilterDecofder() {
     log.info("testReferencedPublicKeyFilterDecoder");
 
     String pubkeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -231,7 +236,7 @@ public class FiltersDecoderTest {
     String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
     Filters decodedFilters = new FiltersDecoder<>().decode(expected);
 
-    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString))), decodedFilters);
+    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
   }
 
   @Test
@@ -248,14 +253,14 @@ public class FiltersDecoderTest {
 
     assertEquals(
         new Filters(
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString1)),
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString2))),
+            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString1))),
+            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString2)))),
         decodedFilters);
   }
 
   @Test
-  public void testGenericTagFiltersDecoder() {
-    log.info("testGenericTagFiltersDecoder");
+  public void testGeohashTagFiltersDecoder() {
+    log.info("testGeohashTagFiltersDecoder");
 
     String geohashKey = "#g";
     String geohashValue = "2vghde";
@@ -263,12 +268,12 @@ public class FiltersDecoderTest {
 
     Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue))), decodedFilters);
+    assertEquals(new Filters(new GeohashTagFilter<>(new GeohashTag(geohashValue))), decodedFilters);
   }
 
   @Test
-  public void testMultipleGenericTagFiltersDecoder() {
-    log.info("testMultipleGenericTagFiltersDecoder");
+  public void testMultipleGeohashTagFiltersDecoder() {
+    log.info("testMultipleGeohashTagFiltersDecoder");
 
     String geohashKey = "#g";
     String geohashValue1 = "2vghde";
@@ -277,10 +282,41 @@ public class FiltersDecoderTest {
 
     Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
+    assertEquals(new Filters(
+            new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+            new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
+        decodedFilters);
+  }
+
+  @Test
+  public void testGenericTagFiltersDecoder() {
+    log.info("testGenericTagFiltersDecoder");
+
+    String customTagKey = "#b";
+    String customTagValue = "2vghde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
+  }
+
+  @Test
+  public void testMultipleGenericTagFiltersDecoder() {
+    log.info("testMultipleGenericTagFiltersDecoder");
+
+    String customTagKey = "#b";
+    String customTagValue1 = "2vghde";
+    String customTagValue2 = "3abcde";
+
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
     assertEquals(
         new Filters(
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))),
+            new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue1)),
+            new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue2))),
         decodedFilters);
   }
 
