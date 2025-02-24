@@ -7,12 +7,12 @@ import nostr.event.tag.EventTag;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode
-public class ReferencedEventFilter<T extends GenericEvent> implements Filterable {
+public class ReferencedEventFilter<T extends EventTag> implements Filterable {
   public final static String filterKey = "#e";
-  private final T referencedEvent;
+  private final T referencedEventTag;
 
-  public ReferencedEventFilter(T referencedEvent) {
-    this.referencedEvent = referencedEvent;
+  public ReferencedEventFilter(T referencedEventTag) {
+    this.referencedEventTag = referencedEventTag;
   }
 
   @Override
@@ -20,12 +20,12 @@ public class ReferencedEventFilter<T extends GenericEvent> implements Filterable
     return (genericEvent) ->
         getTypeSpecificTags(EventTag.class, genericEvent).stream()
             .anyMatch(eventTag ->
-                eventTag.getIdEvent().equals(referencedEvent.getId()));
+                eventTag.getIdEvent().equals(referencedEventTag.getIdEvent()));
   }
 
   @Override
   public T getFilterCriterion() {
-    return referencedEvent;
+    return referencedEventTag;
   }
 
   @Override
@@ -35,6 +35,6 @@ public class ReferencedEventFilter<T extends GenericEvent> implements Filterable
 
   @Override
   public String getFilterableValue() {
-    return referencedEvent.getId();
+    return referencedEventTag.getIdEvent();
   }
 }

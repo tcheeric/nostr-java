@@ -140,6 +140,26 @@ public class ApiEventTest {
     nip44.close();
   }
 
+
+  @Test
+  public void pubKey() {
+//    public class PubKeyTag extends BaseTag {
+    fail();
+  }
+
+  @Test
+  public void event() {
+//    public class PubKeyTag extends BaseTag {
+    fail();
+  }
+
+  @Test
+  public void hashatag() {
+//    public class PubKeyTag extends BaseTag {
+    fail();
+  }
+
+
   @Test
   public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
     System.out.println("testNIP01SendTextNoteEventGeoHashTag");
@@ -194,12 +214,6 @@ public class ApiEventTest {
     assertTrue(result.stream().anyMatch(s -> s.contains("#m")));
 
     nip01.close();
-  }
-
-  @Test
-  public void asdfasdf() {
-//    public class PubKeyTag extends BaseTag {
-    fail();
   }
 
   @Test

@@ -17,6 +17,7 @@ import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.IdentifierTag;
 
@@ -28,7 +29,7 @@ class FilterableProvider {
   protected static List<Filterable> getFilterable(String type, JsonNode node) {
     return switch (type) {
       case ReferencedPublicKeyFilter.filterKey -> getFilterable(node, referencedPubKey -> new ReferencedPublicKeyFilter<>(new PublicKey(referencedPubKey.asText())));
-      case ReferencedEventFilter.filterKey -> getFilterable(node, referencedEvent -> new ReferencedEventFilter<>(new GenericEvent(referencedEvent.asText())));
+      case ReferencedEventFilter.filterKey -> getFilterable(node, referencedEvent -> new ReferencedEventFilter<>(new EventTag(referencedEvent.asText())));
       case AddressableTagFilter.filterKey -> getFilterable(node, addressableTag -> new AddressableTagFilter<>(AddressableTagFilter.createAddressTag(addressableTag)));
       case IdentifierTagFilter.filterKey -> getFilterable(node, identifierTag -> new IdentifierTagFilter<>(new IdentifierTag(identifierTag.asText())));
       case GeohashTagFilter.filterKey -> getFilterable(node, geohashTag -> new GeohashTagFilter<>(new GeohashTag(geohashTag.asText())));

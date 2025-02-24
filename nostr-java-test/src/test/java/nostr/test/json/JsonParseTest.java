@@ -20,6 +20,7 @@ import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
+import nostr.event.filter.GeohashTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -35,6 +36,7 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GeohashTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
@@ -154,7 +156,7 @@ public class JsonParseTest {
 
     List<Filterable> referencedEventFilters = filters.getFilterByType(ReferencedEventFilter.filterKey);
     assertEquals(1, referencedEventFilters.size());
-    assertEquals(new ReferencedEventFilter<>(new GenericEvent("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.getFirst());
+    assertEquals(new ReferencedEventFilter<>(new EventTag("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.getFirst());
   }
 
   @Test
@@ -390,7 +392,7 @@ public class JsonParseTest {
 
     ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
         new Filters(
-            new GenericTagQueryFilter<>(new GenericTagQuery("#g", geohashValue))));
+            new GeohashTagFilter<>(new GeohashTag(geohashValue))));
 
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
@@ -410,8 +412,8 @@ public class JsonParseTest {
 
       ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
           new Filters(
-              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2))));
+              new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+              new GeohashTagFilter<>(new GeohashTag(geohashValue2))));
 
       assertEquals(reqJsonWithCustomTagQueryFiltersToDecode, decodedReqMessage.encode());
       assertEquals(expectedReqMessage, decodedReqMessage);
@@ -444,12 +446,12 @@ public class JsonParseTest {
 
       ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
           new Filters(
-              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-              new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
+              new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+              new GeohashTagFilter<>(new GeohashTag(geohashValue2)),
               new ReferencedPublicKeyFilter<>(new PublicKey(author)),
               new KindFilter<>(Kind.TEXT_NOTE),
               new AuthorFilter<>(new PublicKey(author)),
-              new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
+              new ReferencedEventFilter<>(new EventTag(referencedEventId))));
 
       assertEquals(expectedReqMessage, decodedReqMessage);
     });
@@ -485,9 +487,9 @@ public class JsonParseTest {
         new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(new PublicKey(author)),
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
+            new ReferencedEventFilter<>(new EventTag(referencedEventId)),
+            new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+            new GeohashTagFilter<>(new GeohashTag(geohashValue2)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
@@ -527,7 +529,7 @@ public class JsonParseTest {
         new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(new PublicKey(author)),
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
+            new ReferencedEventFilter<>(new EventTag(referencedEventId)),
             new ReferencedPublicKeyFilter<>(new PublicKey(author)),
             new AddressableTagFilter<>(addressTag1)));
 
@@ -561,7 +563,7 @@ public class JsonParseTest {
             new KindFilter<>(Kind.RECOMMEND_SERVER),
             new AuthorFilter<>(new PublicKey(author)),
             new AuthorFilter<>(new PublicKey(author2)),
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId))));
+            new ReferencedEventFilter<>(new EventTag(referencedEventId))));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
@@ -601,9 +603,9 @@ public class JsonParseTest {
             new KindFilter<>(Kind.RECOMMEND_SERVER),
             new AuthorFilter<>(new PublicKey(author)),
             new AuthorFilter<>(new PublicKey(author2)),
-            new ReferencedEventFilter<>(new GenericEvent(referencedEventId)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(geohashKey, geohashValue2)),
+            new ReferencedEventFilter<>(new EventTag(referencedEventId)),
+            new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+            new GeohashTagFilter<>(new GeohashTag(geohashValue2)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
