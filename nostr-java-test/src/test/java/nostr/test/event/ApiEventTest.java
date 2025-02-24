@@ -140,26 +140,6 @@ public class ApiEventTest {
     nip44.close();
   }
 
-
-  @Test
-  public void pubKey() {
-//    public class PubKeyTag extends BaseTag {
-    fail();
-  }
-
-  @Test
-  public void event() {
-//    public class PubKeyTag extends BaseTag {
-    fail();
-  }
-
-  @Test
-  public void hashatag() {
-//    public class PubKeyTag extends BaseTag {
-    fail();
-  }
-
-
   @Test
   public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
     System.out.println("testNIP01SendTextNoteEventGeoHashTag");
@@ -191,7 +171,7 @@ public class ApiEventTest {
     Identity identity = Identity.generateRandomIdentity();
 
     String targetString = "custom-generic-tag";
-    GenericTag genericTag = GenericTag.create("#m", 1, targetString);
+    GenericTag genericTag = GenericTag.create("m", 1, targetString);
     NIP01<NIP01Event> nip01 = new NIP01<>(identity);
     nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test").signAndSend(Map.of("local", "ws://localhost:5555"));
 
@@ -200,18 +180,13 @@ public class ApiEventTest {
 
     List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
-
-    System.out.println("000000000000");
-    System.out.println("000000000000");
-    result.stream().forEach(System.out::println);
-
-    System.out.println("000000000000");
-    System.out.println("000000000000");
-
     assertFalse(result.isEmpty());
     assertEquals(2, result.size());
 
-    assertTrue(result.stream().anyMatch(s -> s.contains("#m")));
+    String matcher = """
+        ["m","custom-generic-tag"]""";
+
+    assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
     nip01.close();
   }

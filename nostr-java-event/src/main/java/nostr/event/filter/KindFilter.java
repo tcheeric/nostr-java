@@ -7,24 +7,18 @@ import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class KindFilter<T extends Kind> implements Filterable {
-  public final static String filterKey = "kinds";
-  private final T kind;
+@EqualsAndHashCode(callSuper = true)
+public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "kinds";
 
   public KindFilter(T kind) {
-    this.kind = kind;
+    super(kind, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        genericEvent.getKind().equals(this.kind.getValue());
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return kind;
+        genericEvent.getKind().equals(getFilterableValue());
   }
 
   @Override
@@ -35,12 +29,11 @@ public class KindFilter<T extends Kind> implements Filterable {
   }
 
   @Override
-  public String getFilterKey() {
-    return filterKey;
+  public Integer getFilterableValue() {
+    return getKind().getValue();
   }
 
-  @Override
-  public Integer getFilterableValue() {
-    return kind.getValue();
+  private T getKind() {
+    return super.getFilterable();
   }
 }

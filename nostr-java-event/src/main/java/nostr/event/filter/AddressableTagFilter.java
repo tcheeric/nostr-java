@@ -14,28 +14,17 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@EqualsAndHashCode
-public class AddressableTagFilter<T extends AddressTag> implements Filterable {
-  public final static String filterKey = "#a";
-  private final T addressableTag;
+@EqualsAndHashCode(callSuper = true)
+public class AddressableTagFilter<T extends AddressTag> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "#a";
 
   public AddressableTagFilter(T addressableTag) {
-    this.addressableTag = addressableTag;
+    super(addressableTag, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return this::compare;
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return addressableTag;
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
   }
 
   public static AddressTag createAddressTag(@NonNull JsonNode addressableTag) throws IllegalArgumentException {
@@ -56,6 +45,7 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
 
   @Override
   public String getFilterableValue() {
+    T addressableTag = getAddressableTag();
     Integer kind = addressableTag.getKind();
     String hexString = addressableTag.getPublicKey().toHexString();
     String id = addressableTag.getIdentifierTag().getId();
@@ -66,14 +56,19 @@ public class AddressableTagFilter<T extends AddressTag> implements Filterable {
   }
 
   private boolean compare(@NonNull GenericEvent genericEvent) {
+    T addressableTag = getAddressableTag();
     return
         !genericEvent.getPubKey().toHexString().equals(
-            this.addressableTag.getPublicKey().toHexString()) ||
+            addressableTag.getPublicKey().toHexString()) ||
             !genericEvent.getKind().equals(
-                this.addressableTag.getKind()) ||
+                addressableTag.getKind()) ||
             getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
                 .anyMatch(identifierTag ->
                     identifierTag.getId().equals(
-                        this.addressableTag.getIdentifierTag().getId()));
+                        addressableTag.getIdentifierTag().getId()));
+  }
+
+  private T getAddressableTag() {
+    return super.getFilterable();
   }
 }

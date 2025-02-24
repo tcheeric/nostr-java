@@ -6,15 +6,14 @@ import nostr.base.GenericTagQuery;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
-import java.util.HashSet;
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filterable {
-  private final T genericTagQuery;
+@EqualsAndHashCode(callSuper = true)
+public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFilterable<T> {
+  public static final String HASH_PREFIX = "#";
 
   public GenericTagQueryFilter(T genericTagQuery) {
-    this.genericTagQuery = genericTagQuery;
+    super(genericTagQuery, genericTagQuery.getTagName());
   }
 
   @Override
@@ -22,27 +21,32 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> implements Filtera
     return (genericEvent) ->
         getTypeSpecificTags(GenericTag.class, genericEvent).stream()
             .filter(genericTag ->
-                genericTag.getCode().equals(this.genericTagQuery.getTagName()))
+                genericTag.getCode().equals(stripLeadingHashTag()))
             .anyMatch(genericTag ->
-                new HashSet<>(genericTag
+                genericTag
                     .getAttributes().stream().map(
-                        ElementAttribute::getValue).toList())
+                        ElementAttribute::getValue).toList()
                     .contains(
-                        this.genericTagQuery.getValue()));
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return genericTagQuery;
+                        getFilterableValue()));
   }
 
   @Override
   public String getFilterKey() {
-    return genericTagQuery.getTagName();
+    return getGenericTagQuery().getTagName();
   }
 
   @Override
   public String getFilterableValue() {
-    return genericTagQuery.getValue();
+    return getGenericTagQuery().getValue();
+  }
+
+  private T getGenericTagQuery() {
+    return super.getFilterable();
+  }
+
+  private String stripLeadingHashTag() {
+    return getFilterKey().startsWith(HASH_PREFIX) ?
+        getFilterKey().substring(1) :
+        getFilterKey();
   }
 }

@@ -82,17 +82,17 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> eventFilter = filters.getFilterByType(EventFilter.filterKey);
+    List<Filterable> eventFilter = filters.getFilterByType(EventFilter.FILTER_KEY);
     assertEquals(1, eventFilter.size());
     assertEquals(new EventFilter<>(new GenericEvent("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), eventFilter.getFirst());
 
-    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.filterKey);
+    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.FILTER_KEY);
     assertEquals(1, referencedPublicKeyfilter.size());
-    assertEquals(new ReferencedPublicKeyFilter<>(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedPublicKeyfilter.getFirst());
+    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
   }
 
   @Test
@@ -114,17 +114,17 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.filterKey);
+    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
     assertEquals(1, authorFilters.size());
     assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
 
-    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.filterKey);
+    List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.FILTER_KEY);
     assertEquals(1, referencedPublicKeyfilter.size());
-    assertEquals(new ReferencedPublicKeyFilter<>(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedPublicKeyfilter.getFirst());
+    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
   }
 
   @Test
@@ -146,15 +146,15 @@ public class JsonParseTest {
 
     Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
 
-    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.filterKey);
+    List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
     assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
 
-    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.filterKey);
+    List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
     assertEquals(1, authorFilters.size());
     assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
 
-    List<Filterable> referencedEventFilters = filters.getFilterByType(ReferencedEventFilter.filterKey);
+    List<Filterable> referencedEventFilters = filters.getFilterByType(ReferencedEventFilter.FILTER_KEY);
     assertEquals(1, referencedEventFilters.size());
     assertEquals(new ReferencedEventFilter<>(new EventTag("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.getFirst());
   }
@@ -448,7 +448,7 @@ public class JsonParseTest {
           new Filters(
               new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
               new GeohashTagFilter<>(new GeohashTag(geohashValue2)),
-              new ReferencedPublicKeyFilter<>(new PublicKey(author)),
+              new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(author))),
               new KindFilter<>(Kind.TEXT_NOTE),
               new AuthorFilter<>(new PublicKey(author)),
               new ReferencedEventFilter<>(new EventTag(referencedEventId))));
@@ -530,7 +530,7 @@ public class JsonParseTest {
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(new PublicKey(author)),
             new ReferencedEventFilter<>(new EventTag(referencedEventId)),
-            new ReferencedPublicKeyFilter<>(new PublicKey(author)),
+            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(author))),
             new AddressableTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());

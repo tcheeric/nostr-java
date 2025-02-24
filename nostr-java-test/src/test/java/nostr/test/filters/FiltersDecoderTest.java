@@ -21,6 +21,7 @@ import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.IdentifierTag;
+import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -95,22 +96,6 @@ public class FiltersDecoderTest {
   }
 
 //  @Test
-//  public void testGeohashTagFiltersDecoder() {
-//    log.info("testGeohashTagFiltersDecoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-//
-//  @Test
-//  public void testMultipleGeohashTagFiltersDecoder() {
-//    log.info("testMultipleGeohashTagFiltersDecoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-//
-//  @Test
 //  public void testHashTagFiltersDecoder() {
 //    log.info("testHashTagFiltersDecoder");
 //
@@ -167,7 +152,7 @@ public class FiltersDecoderTest {
   public void testKindFiltersDecoder() {
     log.info("testKindFiltersDecoder");
 
-    String filterKey = KindFilter.filterKey;
+    String filterKey = KindFilter.FILTER_KEY;
     Kind kind = Kind.valueOf(1);
 
     String expected = "{\"" + filterKey + "\":[" + kind.toString() + "]}";
@@ -180,7 +165,7 @@ public class FiltersDecoderTest {
   public void testMultipleKindFiltersDecoder() {
     log.info("testMultipleKindFiltersDecoder");
 
-    String filterKey = KindFilter.filterKey;
+    String filterKey = KindFilter.FILTER_KEY;
     Kind kind1 = Kind.valueOf(1);
     Kind kind2 = Kind.valueOf(2);
 
@@ -267,7 +252,7 @@ public class FiltersDecoderTest {
     String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
     Filters decodedFilters = new FiltersDecoder<>().decode(expected);
 
-    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString))), decodedFilters);
+    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
   }
 
   @Test
@@ -284,8 +269,8 @@ public class FiltersDecoderTest {
 
     assertEquals(
         new Filters(
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString1)),
-            new ReferencedPublicKeyFilter<>(new PublicKey(pubkeyString2))),
+            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString1))),
+            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString2)))),
         decodedFilters);
   }
 

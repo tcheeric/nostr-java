@@ -6,33 +6,26 @@ import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class AuthorFilter<T extends PublicKey> implements Filterable {
-  public final static String filterKey = "authors";
-  private final T publicKey;
+@EqualsAndHashCode(callSuper = true)
+public class AuthorFilter<T extends PublicKey> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "authors";
 
   public AuthorFilter(T publicKey) {
-    this.publicKey = publicKey;
+    super(publicKey, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.publicKey.toHexString().equals(genericEvent.getPubKey().toHexString());
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return publicKey;
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+        genericEvent.getPubKey().toHexString().equals(getFilterableValue());
   }
 
   @Override
   public String getFilterableValue() {
-    return publicKey.toHexString();
+    return getAuthor().toHexString();
+  }
+
+  private T getAuthor() {
+    return super.getFilterable();
   }
 }

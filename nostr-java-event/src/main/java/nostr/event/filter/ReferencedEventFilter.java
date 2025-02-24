@@ -6,13 +6,12 @@ import nostr.event.tag.EventTag;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class ReferencedEventFilter<T extends EventTag> implements Filterable {
-  public final static String filterKey = "#e";
-  private final T referencedEventTag;
+@EqualsAndHashCode(callSuper = true)
+public class ReferencedEventFilter<T extends EventTag> extends AbstractFilterable<T> {
+  public final static String FILTER_KEY = "#e";
 
   public ReferencedEventFilter(T referencedEventTag) {
-    this.referencedEventTag = referencedEventTag;
+    super(referencedEventTag, FILTER_KEY);
   }
 
   @Override
@@ -20,21 +19,15 @@ public class ReferencedEventFilter<T extends EventTag> implements Filterable {
     return (genericEvent) ->
         getTypeSpecificTags(EventTag.class, genericEvent).stream()
             .anyMatch(eventTag ->
-                eventTag.getIdEvent().equals(referencedEventTag.getIdEvent()));
-  }
-
-  @Override
-  public T getFilterCriterion() {
-    return referencedEventTag;
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+                eventTag.getIdEvent().equals(getFilterableValue()));
   }
 
   @Override
   public String getFilterableValue() {
-    return referencedEventTag.getIdEvent();
+    return getReferencedEventTag().getIdEvent();
+  }
+
+  private T getReferencedEventTag() {
+    return super.getFilterable();
   }
 }

@@ -6,38 +6,31 @@ import nostr.event.impl.GenericEvent;
 
 import java.util.function.Predicate;
 
-@EqualsAndHashCode
-public class SinceFilter implements Filterable {
-  public final static String filterKey = "since";
-  private final Long since;
+@EqualsAndHashCode(callSuper = true)
+public class SinceFilter extends AbstractFilterable<Long> {
+  public final static String FILTER_KEY = "since";
 
   public SinceFilter(Long since) {
-    this.since = since;
+    super(since, FILTER_KEY);
   }
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
     return (genericEvent) ->
-        this.since < genericEvent.getCreatedAt();
-  }
-
-  @Override
-  public Long getFilterCriterion() {
-    return since;
+        genericEvent.getCreatedAt() > getSince();
   }
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return mapper.createObjectNode().put(filterKey, since);
-  }
-
-  @Override
-  public String getFilterKey() {
-    return filterKey;
+    return mapper.createObjectNode().put(FILTER_KEY, getSince());
   }
 
   @Override
   public String getFilterableValue() {
-    return since.toString();
+    return getSince().toString();
+  }
+
+  private Long getSince() {
+    return super.getFilterable();
   }
 }
