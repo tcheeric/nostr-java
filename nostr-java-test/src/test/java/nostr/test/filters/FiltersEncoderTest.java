@@ -180,23 +180,6 @@ public class FiltersEncoderTest {
     assertEquals("{\"#d\":[\"" + dTags + "\"]}", encodedFilters);
   }
 
-//
-//  @Test
-//  public void testHashTagFiltersEncoder() {
-//    log.info("testHashTagFiltersEncoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-//
-//  @Test
-//  public void testMultipleHashTagFiltersEncoder() {
-//    log.info("testMultipleHashTagFiltersEncoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-
   @Test
   public void testReferencedEventFilterEncoder() {
     log.info("testReferencedEventFilterEncoder");

@@ -95,22 +95,6 @@ public class FiltersDecoderTest {
         decodedFilters);
   }
 
-//  @Test
-//  public void testHashTagFiltersDecoder() {
-//    log.info("testHashTagFiltersDecoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-//
-//  @Test
-//  public void testMultipleHashTagFiltersDecoder() {
-//    log.info("testMultipleHashTagFiltersDecoder");
-//
-//    Integer kind = 1;
-//    fail();
-//  }
-
   @Test
   public void testMultipleAddressableTagFiltersDecoder() {
     log.info("testMultipleAddressableTagFiltersDecoder");
