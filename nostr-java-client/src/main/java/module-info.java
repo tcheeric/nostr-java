@@ -4,7 +4,6 @@ module nostr.client {
     requires java.logging;
     requires nostr.util;
     requires nostr.base;
-    requires nostr.context;
     requires com.fasterxml.jackson.core;
     requires reactor.core;
     requires spring.webflux;

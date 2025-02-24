@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
-import nostr.context.RequestContext;
 import nostr.crypto.schnorr.Schnorr;
-import nostr.event.BaseMessage;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
@@ -115,11 +113,6 @@ public class NostrSpringWebSocketClient implements NostrIF {
         .flatMap(List::stream).toList();
   }
 
-
-  @Override
-  public List<String> sendRequest(@NonNull BaseMessage message, @NonNull RequestContext context) {
-    return List.of();
-  }
 
   @Override
   public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {

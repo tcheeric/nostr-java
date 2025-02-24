@@ -2,7 +2,6 @@ package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -12,26 +11,33 @@ import nostr.api.NIP44;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
 import nostr.base.ElementAttribute;
+import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
+import nostr.event.NIP01Event;
+import nostr.event.filter.Filters;
+import nostr.event.filter.GenericTagQueryFilter;
+import nostr.event.filter.GeohashTagFilter;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EncryptedPayloadEvent;
+import nostr.event.impl.GenericTag;
 import nostr.event.impl.NostrMarketplaceEvent;
 import nostr.event.impl.NostrMarketplaceEvent.Product.Spec;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
+import nostr.event.message.OkMessage;
+import nostr.event.tag.GeohashTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,13 +47,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import nostr.event.message.OkMessage;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author eric
@@ -131,6 +138,68 @@ public class ApiEventTest {
     assertTrue(response instanceof OkMessage);
     assertEquals(nip44.getEvent().getId(), ((OkMessage) response).getEventId());
     nip44.close();
+  }
+
+  @Test
+  public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
+    System.out.println("testNIP01SendTextNoteEventGeoHashTag");
+
+    Identity identity = Identity.generateRandomIdentity();
+
+    String targetString = "geohash_tag-location";
+    GeohashTag geohashTag = new GeohashTag(targetString);
+    NIP01<NIP01Event> nip01 = new NIP01<>(identity);
+
+    nip01.createTextNoteEvent(List.of(geohashTag), "GeohashTag Test location").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters = new Filters(
+        new GeohashTagFilter<>(new GeohashTag(targetString)));
+
+    List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+    assertFalse(result.isEmpty());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
+
+    nip01.close();
+  }
+
+  @Test
+  public void testNIP01SendTextNoteEventCustomGenericTag() throws IOException {
+    System.out.println("testNIP01SendTextNoteEventCustomGenericTag");
+
+    Identity identity = Identity.generateRandomIdentity();
+
+    String targetString = "custom-generic-tag";
+    GenericTag genericTag = GenericTag.create("#m", 1, targetString);
+    NIP01<NIP01Event> nip01 = new NIP01<>(identity);
+    nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters = new Filters(
+        new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
+
+    List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+
+    System.out.println("000000000000");
+    System.out.println("000000000000");
+    result.stream().forEach(System.out::println);
+
+    System.out.println("000000000000");
+    System.out.println("000000000000");
+
+    assertFalse(result.isEmpty());
+    assertEquals(2, result.size());
+
+    assertTrue(result.stream().anyMatch(s -> s.contains("#m")));
+
+    nip01.close();
+  }
+
+  @Test
+  public void asdfasdf() {
+//    public class PubKeyTag extends BaseTag {
+    fail();
   }
 
   @Test
@@ -320,10 +389,10 @@ public class ApiEventTest {
         "Calendar Time-Based Event title",
         1716513986268L).build();
 
-     calendarContent.setStartTzid("1687765220");
-     calendarContent.setEndTzid("1687765230");
+    calendarContent.setStartTzid("1687765220");
+    calendarContent.setEndTzid("1687765230");
 
-     calendarContent.setLabels(List.of("english", "mycenaean greek"));
+    calendarContent.setLabels(List.of("english", "mycenaean greek"));
 
     List<BaseTag> tags = new ArrayList<>();
     tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
@@ -396,7 +465,7 @@ public class ApiEventTest {
     var nip57 = new NIP57<ZapReceiptEvent>(sender);
 
     ZapReceiptEvent instance = nip57.createZapReceiptEvent(zapRequestPubKeyTag, baseTags, zapRequestEventTag,
-        zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE)
+            zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE)
         .getEvent();
     instance.update();
 

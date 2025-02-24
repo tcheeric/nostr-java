@@ -4,7 +4,6 @@ module nostr.api {
     requires nostr.event;
     requires nostr.id;
     requires nostr.client;
-    requires nostr.context;
     requires nostr.encryption;
     requires nostr.encryption.nip04dm;
     requires nostr.encryption.nip44dm;
