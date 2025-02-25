@@ -21,6 +21,7 @@ import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -37,6 +38,7 @@ import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
@@ -380,8 +382,8 @@ public class JsonParseTest {
   }
 
   @Test
-  public void testReqMessageDeserializer() throws JsonProcessingException {
-    log.info("testReqMessageDeserializer");
+  public void testReqMessageGeohashTagDeserializer() throws JsonProcessingException {
+    log.info("testReqMessageGeohashTagDeserializer");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String geohashKey = "#g";
@@ -398,8 +400,8 @@ public class JsonParseTest {
   }
 
   @Test
-  public void testReqMessageFilterListDecoder() {
-    log.info("testReqMessageFilterListDecoder");
+  public void testReqMessageGeohashFilterListDecoder() {
+    log.info("testReqMessageGeohashFilterListDecoder");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String geohashKey = "#g";
@@ -414,6 +416,47 @@ public class JsonParseTest {
           new Filters(
               new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
               new GeohashTagFilter<>(new GeohashTag(geohashValue2))));
+
+      assertEquals(reqJsonWithCustomTagQueryFiltersToDecode, decodedReqMessage.encode());
+      assertEquals(expectedReqMessage, decodedReqMessage);
+    });
+  }
+
+  @Test
+  public void testReqMessageHashtagTagDeserializer() throws JsonProcessingException {
+    log.info("testReqMessageHashtagTagDeserializer");
+
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    String hashtagKey = "#t";
+    String hashtagValue = "2vghde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}]";
+
+    ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+        new Filters(
+            new HashtagTagFilter<>(new HashtagTag(hashtagValue))));
+
+    assertEquals(expectedReqMessage, decodedReqMessage);
+  }
+
+  @Test
+  public void testReqMessageHashtagTagFilterListDecoder() {
+    log.info("testReqMessageHashtagTagFilterListDecoder");
+
+    String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    String hashtagKey = "#t";
+    String hashtagValue1 = "2vghde";
+    String hashtagValue2 = "3abcde";
+    String reqJsonWithCustomTagQueryFiltersToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}]";
+
+    assertDoesNotThrow(() -> {
+      ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithCustomTagQueryFiltersToDecode);
+
+      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+          new Filters(
+              new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
+              new HashtagTagFilter<>(new HashtagTag(hashtagValue2))));
 
       assertEquals(reqJsonWithCustomTagQueryFiltersToDecode, decodedReqMessage.encode());
       assertEquals(expectedReqMessage, decodedReqMessage);

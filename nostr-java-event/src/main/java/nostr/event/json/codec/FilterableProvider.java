@@ -10,6 +10,7 @@ import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -19,6 +20,7 @@ import nostr.event.filter.UntilFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 
@@ -34,6 +36,7 @@ class FilterableProvider {
       case AddressableTagFilter.FILTER_KEY -> getFilterable(node, addressableTag -> new AddressableTagFilter<>(AddressableTagFilter.createAddressTag(addressableTag)));
       case IdentifierTagFilter.FILTER_KEY -> getFilterable(node, identifierTag -> new IdentifierTagFilter<>(new IdentifierTag(identifierTag.asText())));
       case GeohashTagFilter.FILTER_KEY -> getFilterable(node, geohashTag -> new GeohashTagFilter<>(new GeohashTag(geohashTag.asText())));
+      case HashtagTagFilter.FILTER_KEY -> getFilterable(node, hashtagTag -> new HashtagTagFilter<>(new HashtagTag(hashtagTag.asText())));
       case AuthorFilter.FILTER_KEY -> getFilterable(node, author -> new AuthorFilter<>(new PublicKey(author.asText())));
       case EventFilter.FILTER_KEY -> getFilterable(node, event -> new EventFilter<>(new GenericEvent(event.asText())));
       case KindFilter.FILTER_KEY -> getFilterable(node, kindNode -> new KindFilter<>(Kind.valueOf(kindNode.asInt())));

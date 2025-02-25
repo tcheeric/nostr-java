@@ -9,6 +9,7 @@ import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -20,6 +21,7 @@ import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
@@ -285,6 +287,36 @@ public class FiltersDecoderTest {
     assertEquals(new Filters(
             new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
             new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
+        decodedFilters);
+  }
+
+  @Test
+  public void testHashtagTagFiltersDecoder() {
+    log.info("testHashtagTagFiltersDecoder");
+
+    String hashtagKey = "#t";
+    String hashtagValue = "2vghde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    assertEquals(new Filters(new HashtagTagFilter<>(new HashtagTag(hashtagValue))), decodedFilters);
+  }
+
+  @Test
+  public void testMultipleHashtagTagFiltersDecoder() {
+    log.info("testMultipleHashtagTagFiltersDecoder");
+
+    String hashtagKey = "#t";
+    String hashtagValue1 = "2vghde";
+    String hashtagValue2 = "3abcde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    assertEquals(new Filters(
+            new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
+            new HashtagTagFilter<>(new HashtagTag(hashtagValue2))),
         decodedFilters);
   }
 
