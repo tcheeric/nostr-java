@@ -21,6 +21,7 @@ import nostr.event.NIP01Event;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
@@ -34,6 +35,7 @@ import nostr.event.impl.ZapReceiptEvent;
 import nostr.event.impl.ZapRequestEvent;
 import nostr.event.message.OkMessage;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -154,6 +156,30 @@ public class ApiEventTest {
 
     Filters filters = new Filters(
         new GeohashTagFilter<>(new GeohashTag(targetString)));
+
+    List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+    assertFalse(result.isEmpty());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
+
+    nip01.close();
+  }
+
+  @Test
+  public void testNIP01SendTextNoteEventHashtagTag() throws IOException {
+    System.out.println("testNIP01SendTextNoteEventHashtagTag");
+
+    Identity identity = Identity.generateRandomIdentity();
+
+    String targetString = "hashtag-tag-value";
+    HashtagTag hashtagTag = new HashtagTag(targetString);
+    NIP01<NIP01Event> nip01 = new NIP01<>(identity);
+
+    nip01.createTextNoteEvent(List.of(hashtagTag), "Hashtag Tag Test value").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters = new Filters(
+        new HashtagTagFilter<>(new HashtagTag(targetString)));
 
     List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 

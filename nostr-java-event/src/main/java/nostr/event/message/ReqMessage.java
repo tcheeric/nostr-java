@@ -63,7 +63,7 @@ public class ReqMessage extends BaseMessage {
         ReqMessage reqMessage = new ReqMessage(
                 subscriptionId.toString(),
                 jsonFiltersList.stream().map(filtersList ->
-                        new FiltersDecoder<>().decode(filtersList)).toList());
+                        new FiltersDecoder().decode(filtersList)).toList());
         return (T) reqMessage;
     }
 

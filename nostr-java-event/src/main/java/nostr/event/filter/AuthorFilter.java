@@ -1,9 +1,11 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -28,4 +30,6 @@ public class AuthorFilter<T extends PublicKey> extends AbstractFilterable<T> {
   private T getAuthor() {
     return super.getFilterable();
   }
+
+  public static Function<JsonNode, Filterable> fxn = node -> new AuthorFilter<>(new PublicKey(node.asText()));
 }

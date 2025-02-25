@@ -10,6 +10,7 @@ import nostr.event.tag.IdentifierTag;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,4 +72,6 @@ public class AddressableTagFilter<T extends AddressTag> extends AbstractFilterab
   private T getAddressableTag() {
     return super.getFilterable();
   }
+
+  public static Function<JsonNode, Filterable> fxn = node -> new AddressableTagFilter<>(AddressableTagFilter.createAddressTag(node));
 }

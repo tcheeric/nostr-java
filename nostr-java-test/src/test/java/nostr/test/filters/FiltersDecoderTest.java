@@ -9,6 +9,7 @@ import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -20,6 +21,7 @@ import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,6 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @Log
 public class FiltersDecoderTest {
@@ -42,7 +43,7 @@ public class FiltersDecoderTest {
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     String expected = "{\"" + filterKey + "\":[\"" + eventId + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -61,7 +62,7 @@ public class FiltersDecoderTest {
     String joined = String.join("\",\"", eventId1, eventId2);
 
     String expected = "{\"" + filterKey + "\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -87,7 +88,7 @@ public class FiltersDecoderTest {
     addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
 
     String expected = "{\"#a\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -123,7 +124,7 @@ public class FiltersDecoderTest {
     String joined3 = String.join("\",\"", joined1, joined2);
 
     String expected = "{\"#a\":[\"" + joined3 + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -140,7 +141,7 @@ public class FiltersDecoderTest {
     Kind kind = Kind.valueOf(1);
 
     String expected = "{\"" + filterKey + "\":[" + kind.toString() + "]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(new Filters(new KindFilter<>(kind)), decodedFilters);
   }
@@ -156,7 +157,7 @@ public class FiltersDecoderTest {
     String join = String.join(",", kind1.toString(), kind2.toString());
 
     String expected = "{\"" + filterKey + "\":[" + join + "]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -172,7 +173,7 @@ public class FiltersDecoderTest {
     String uuidValue1 = "UUID-1";
 
     String expected = "{\"#d\":[\"" + uuidValue1 + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
 
     assertEquals(new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))), decodedFilters);
@@ -188,7 +189,7 @@ public class FiltersDecoderTest {
     String joined = String.join("\",\"", uuidValue1, uuidValue2);
     String expected = "{\"#d\":[\"" + joined + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -204,7 +205,7 @@ public class FiltersDecoderTest {
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     String expected = "{\"#e\":[\"" + eventId + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(new Filters(new ReferencedEventFilter<>(new EventTag(eventId))), decodedFilters);
   }
@@ -218,7 +219,7 @@ public class FiltersDecoderTest {
 
     String joined = String.join("\",\"", eventId1, eventId2);
     String expected = "{\"#e\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -234,7 +235,7 @@ public class FiltersDecoderTest {
     String pubkeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
   }
@@ -249,7 +250,7 @@ public class FiltersDecoderTest {
     String joined = String.join("\",\"", pubkeyString1, pubkeyString2);
     String expected = "{\"#p\":[\"" + joined + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
         new Filters(
@@ -266,7 +267,7 @@ public class FiltersDecoderTest {
     String geohashValue = "2vghde";
     String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
     assertEquals(new Filters(new GeohashTagFilter<>(new GeohashTag(geohashValue))), decodedFilters);
   }
@@ -280,11 +281,41 @@ public class FiltersDecoderTest {
     String geohashValue2 = "3abcde";
     String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
     assertEquals(new Filters(
             new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
             new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
+        decodedFilters);
+  }
+
+  @Test
+  public void testHashtagTagFiltersDecoder() {
+    log.info("testHashtagTagFiltersDecoder");
+
+    String hashtagKey = "#t";
+    String hashtagValue = "2vghde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    assertEquals(new Filters(new HashtagTagFilter<>(new HashtagTag(hashtagValue))), decodedFilters);
+  }
+
+  @Test
+  public void testMultipleHashtagTagFiltersDecoder() {
+    log.info("testMultipleHashtagTagFiltersDecoder");
+
+    String hashtagKey = "#t";
+    String hashtagValue1 = "2vghde";
+    String hashtagValue2 = "3abcde";
+    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
+
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+
+    assertEquals(new Filters(
+            new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
+            new HashtagTagFilter<>(new HashtagTag(hashtagValue2))),
         decodedFilters);
   }
 
@@ -296,7 +327,7 @@ public class FiltersDecoderTest {
     String customTagValue = "2vghde";
     String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
     assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
   }
@@ -311,7 +342,7 @@ public class FiltersDecoderTest {
 
     String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
 
-    Filters decodedFilters = new FiltersDecoder<>().decode(reqJsonWithCustomTagQueryFilterToDecode);
+    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
     assertEquals(
         new Filters(
@@ -327,7 +358,7 @@ public class FiltersDecoderTest {
     Long since = Date.from(Instant.now()).getTime();
 
     String expected = "{\"since\":" + since + "}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(new Filters(new SinceFilter(since)), decodedFilters);
   }
@@ -339,7 +370,7 @@ public class FiltersDecoderTest {
     Long until = Date.from(Instant.now()).getTime();
 
     String expected = "{\"until\":" + until + "}";
-    Filters decodedFilters = new FiltersDecoder<>().decode(expected);
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(new Filters(new UntilFilter(until)), decodedFilters);
   }
@@ -355,6 +386,6 @@ public class FiltersDecoderTest {
     String malformedJoin = String.join(",", String.valueOf(kind), author, uuidValue1);
     String expected = "{\"#a\":[\"" + malformedJoin + "\"]}";
 
-    assertThrows(IllegalArgumentException.class, () -> new FiltersDecoder<>().decode(expected));
+    assertThrows(IllegalArgumentException.class, () -> new FiltersDecoder().decode(expected));
   }
 }

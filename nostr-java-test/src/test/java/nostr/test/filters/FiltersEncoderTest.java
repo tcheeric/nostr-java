@@ -11,6 +11,7 @@ import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
+import nostr.event.filter.HashtagTagFilter;
 import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
@@ -23,6 +24,7 @@ import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
+import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
@@ -66,14 +68,20 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testEventFilterEncoderByMap() {
-    log.info("testEventFilterEncoderByMap");
+  public void testMultipleEventFilterEncoder() {
+    log.info("testMultipleEventFilterEncoder");
 
-    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(new EventFilter<>(new GenericEvent(eventId))));
+    FiltersEncoder encoder = new FiltersEncoder(
+        new Filters(
+            new EventFilter<>(new GenericEvent(eventId1)),
+            new EventFilter<>(new GenericEvent(eventId2))));
     String encodedFilters = encoder.encode();
-    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
+
+    String events = String.join("\",\"", eventId1, eventId2);
+    assertEquals("{\"ids\":[\"" + events + "\"]}", encodedFilters);
   }
 
   @Test
@@ -237,8 +245,8 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testSingleGeohashTagQueryFiltersEncoder() {
-    log.info("testSingleGeohashTagQueryFiltersEncoder");
+  public void testSingleGeohashTagFiltersEncoder() {
+    log.info("testSingleGeohashTagFiltersEncoder");
 
     String new_geohash = "2vghde";
 
@@ -250,8 +258,8 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testMultipleGeohashTagQueryFiltersEncoder() {
-    log.info("testMultipleGenericTagQueryFiltersEncoder");
+  public void testMultipleGeohashTagFiltersEncoder() {
+    log.info("testMultipleGenericTagFiltersEncoder");
 
     String geohashValue1 = "2vghde";
     String geohashValue2 = "3abcde";
@@ -262,6 +270,34 @@ public class FiltersEncoderTest {
 
     String encodedFilters = encoder.encode();
     assertEquals("{\"#g\":[\"2vghde\",\"3abcde\"]}", encodedFilters);
+  }
+
+  @Test
+  public void testSingleHashtagTagFiltersEncoder() {
+    log.info("testSingleHashtagTagFiltersEncoder");
+
+    String hashtag_target = "2vghde";
+
+    FiltersEncoder encoder = new FiltersEncoder(
+        new Filters(new HashtagTagFilter<>(new HashtagTag(hashtag_target))));
+
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#t\":[\"2vghde\"]}", encodedFilters);
+  }
+
+  @Test
+  public void testMultipleHashtagTagFiltersEncoder() {
+    log.info("testMultipleHashtagTagFiltersEncoder");
+
+    String hashtagValue1 = "2vghde";
+    String hashtagValue2 = "3abcde";
+
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(
+        new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
+        new HashtagTagFilter<>(new HashtagTag(hashtagValue2))));
+
+    String encodedFilters = encoder.encode();
+    assertEquals("{\"#t\":[\"2vghde\",\"3abcde\"]}", encodedFilters);
   }
 
   @Test
