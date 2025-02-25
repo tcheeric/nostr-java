@@ -1,11 +1,13 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -48,5 +50,9 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFi
     return getFilterKey().startsWith(HASH_PREFIX) ?
         getFilterKey().substring(1) :
         getFilterKey();
+  }
+
+  public static Function<JsonNode, Filterable> fxn(String type) {
+    return node -> new GenericTagQueryFilter<>(new GenericTagQuery(type, node.asText()));
   }
 }

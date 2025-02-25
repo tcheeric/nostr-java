@@ -1,9 +1,12 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -33,4 +36,6 @@ public class UntilFilter extends AbstractFilterable<Long> {
   private Long getUntil() {
     return super.getFilterable();
   }
+
+  public static Function<JsonNode, List<Filterable>> fxn = node -> List.of(new UntilFilter(node.asLong()));
 }

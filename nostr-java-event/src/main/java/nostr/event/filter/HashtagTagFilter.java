@@ -1,9 +1,11 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.HashtagTag;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -29,4 +31,6 @@ public class HashtagTagFilter<T extends HashtagTag> extends AbstractFilterable<T
   private T getHashtagTag() {
     return super.getFilterable();
   }
+
+  public static Function<JsonNode, Filterable> fxn = node -> new HashtagTagFilter<>(new HashtagTag(node.asText()));
 }

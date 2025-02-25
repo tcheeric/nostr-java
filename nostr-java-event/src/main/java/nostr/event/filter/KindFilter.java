@@ -1,10 +1,12 @@
 package nostr.event.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
 import nostr.event.Kind;
 import nostr.event.impl.GenericEvent;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -36,4 +38,6 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
   private T getKind() {
     return super.getFilterable();
   }
+
+  public static Function<JsonNode, Filterable> fxn = node -> new KindFilter<>(Kind.valueOf(node.asInt()));
 }

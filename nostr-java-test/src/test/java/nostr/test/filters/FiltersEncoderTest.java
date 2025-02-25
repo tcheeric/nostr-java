@@ -68,14 +68,20 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testEventFilterEncoderByMap() {
-    log.info("testEventFilterEncoderByMap");
+  public void testMultipleEventFilterEncoder() {
+    log.info("testMultipleEventFilterEncoder");
 
-    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(new EventFilter<>(new GenericEvent(eventId))));
+    FiltersEncoder encoder = new FiltersEncoder(
+        new Filters(
+            new EventFilter<>(new GenericEvent(eventId1)),
+            new EventFilter<>(new GenericEvent(eventId2))));
     String encodedFilters = encoder.encode();
-    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
+
+    String events = String.join("\",\"", eventId1, eventId2);
+    assertEquals("{\"ids\":[\"" + events + "\"]}", encodedFilters);
   }
 
   @Test
