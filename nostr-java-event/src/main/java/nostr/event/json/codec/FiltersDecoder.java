@@ -14,11 +14,11 @@ import java.util.List;
  * @author eric
  */
 @Data
-public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
+public class FiltersDecoder implements FDecoder<Filters> {
   private final static ObjectMapper mapper = new ObjectMapper();
 
   @SneakyThrows
-  public T decode(@NonNull String jsonFiltersList) {
+  public Filters decode(@NonNull String jsonFiltersList) {
     final List<Filterable> filterables = new ArrayList<>();
 
     mapper.readTree(jsonFiltersList).fields().forEachRemaining(field ->
@@ -27,6 +27,6 @@ public class FiltersDecoder<T extends Filters> implements FDecoder<T> {
                 field.getKey(),
                 field.getValue())));
 
-    return (T) new Filters(filterables);
+    return new Filters(filterables);
   }
 }
