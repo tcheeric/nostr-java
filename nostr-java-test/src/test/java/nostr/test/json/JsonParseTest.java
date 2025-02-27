@@ -717,5 +717,44 @@ public class JsonParseTest {
 
     assertThrows(IllegalArgumentException.class, () -> new BaseMessageDecoder<>().decode(parseTarget));
   }
-}
 
+  @Test
+  public void testBaseEventMessageDecoderMultipleFiltersJson() throws JsonProcessingException {
+    log.info("testBaseEventMessageDecoderMultipleFiltersJson");
+
+    final String eventJson
+        = "[\"EVENT\","
+        + "{"
+        + "\"content\":\"直ん直んないわ。まあええか\","
+        + "\"created_at\":1786199583,"
+        + "\"id\":\"ec7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\","
+        + "\"kind\":1,"
+        + "\"pubkey\":\"9c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\","
+        + "\"sig\":\"9584afd231c52fcbcec6ce668a2cc4b6dc9b4d9da20510dcb9005c6844679b4844edb7a2e1e0591958b0295241567c774dbf7d39a73932877542de1a5f963f4b\","
+        + "\"tags\":[]"
+        + "}]";
+
+    final var eventMessage = new BaseMessageDecoder<>().decode(eventJson);
+
+    assertEquals(Command.EVENT.toString(), eventMessage.getCommand());
+
+    final var event = (GenericEvent) (((EventMessage) eventMessage).getEvent());
+    assertEquals(1, event.getKind().intValue());
+    assertEquals(1786199583, event.getCreatedAt().longValue());
+    assertEquals("ec7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712", event.getId());
+
+    String subscriptionId = "npub27x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
+    final String requestJson =
+        "[\"REQ\", " +
+            "\"" + subscriptionId + "\", " +
+            "{\"kinds\": [1], \"authors\": [\"9c59239319637f97e007dad0d681e65ce35b1ace333b629e2d33f9465c132608\"]}," + // first filter set
+            "{\"kinds\": [1], \"#p\": [\"ec7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}" + // second filter set
+            "]";
+
+    final var message = new BaseMessageDecoder<>().decode(requestJson);
+
+    assertEquals(Command.REQ.toString(), message.getCommand());
+    assertEquals(subscriptionId, ((ReqMessage) message).getSubscriptionId());
+    assertEquals(2, ((ReqMessage) message).getFiltersList().size());
+  }
+}

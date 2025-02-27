@@ -218,6 +218,104 @@ public class ApiEventTest {
   }
 
   @Test
+  public void testFiltersListReturnSameSingularEvent() throws IOException {
+    System.out.println("testFiltersListReturnSameSingularEvent");
+
+    Identity identity = Identity.generateRandomIdentity();
+
+    String geoHashTagTarget = "geohash_tag-location_SameSingularEvent";
+    GeohashTag geohashTag = new GeohashTag(geoHashTagTarget);
+
+    String genericTagTarget = "generic-tag-value_SameSingularEvent";
+    GenericTag genericTag = GenericTag.create("m", 1, genericTagTarget);
+
+    NIP01<NIP01Event> nip01 = new NIP01<>(identity);
+
+    nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters1 = new Filters(
+        new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)));
+    Filters filters2 = new Filters(
+        new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
+
+    List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+
+    assertFalse(result.isEmpty());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
+
+    nip01.close();
+  }
+
+  @Test
+  public void testFiltersListReturnTwoDifferentEvents() throws IOException {
+    System.out.println("testFiltersListReturnTwoDifferentEvents");
+
+//    first event
+    Identity identity1 = Identity.generateRandomIdentity();
+    String geoHashTagTarget1 = "geohash_tag-location-1";
+    GeohashTag geohashTag1 = new GeohashTag(geoHashTagTarget1);
+    String genericTagTarget1 = "generic-tag-value-1";
+    GenericTag genericTag1 = GenericTag.create("m", 1, genericTagTarget1);
+    NIP01<NIP01Event> nip01_1 = new NIP01<>(identity1);
+    nip01_1.createTextNoteEvent(List.of(geohashTag1, genericTag1), "Multiple Filters 1").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+//    second event
+    Identity identity2 = Identity.generateRandomIdentity();
+    String geoHashTagTarget2 = "geohash_tag-location-2";
+    GeohashTag geohashTag2 = new GeohashTag(geoHashTagTarget2);
+    String genericTagTarget2 = "generic-tag-value-2";
+    GenericTag genericTag2 = GenericTag.create("m", 1, genericTagTarget2);
+    NIP01<NIP01Event> nip01_2 = new NIP01<>(identity2);
+    nip01_2.createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters1 = new Filters(
+        new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget1)));  // 1st filter should find match in 1st event
+
+    Filters filters2 = new Filters(
+        new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget2)));  // 2nd filter should find match in 2nd event
+
+    List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+
+    assertFalse(result.isEmpty());
+    assertEquals(3, result.size());
+    assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget1)));
+    assertTrue(result.stream().anyMatch(s -> s.contains(genericTagTarget2)));
+
+    nip01_1.close();
+    nip01_2.close();
+  }
+
+  @Test
+  public void testMultipleFiltersDifferentTypesReturnSameEvent() throws IOException {
+    System.out.println("testMultipleFilters");
+
+    Identity identity = Identity.generateRandomIdentity();
+
+    String geoHashTagTarget = "geohash_tag-location-DifferentTypesReturnSameEvent";
+    GeohashTag geohashTag = new GeohashTag(geoHashTagTarget);
+
+    String genericTagTarget = "generic-tag-value-DifferentTypesReturnSameEvent";
+    GenericTag genericTag = GenericTag.create("m", 1, genericTagTarget);
+
+    NIP01<NIP01Event> nip01 = new NIP01<>(identity);
+
+    nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(Map.of("local", "ws://localhost:5555"));
+
+    Filters filters = new Filters(
+        new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)),
+        new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
+
+    List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+    assertFalse(result.isEmpty());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
+
+    nip01.close();
+  }
+
+  @Test
   public void testNIP04EncryptDecrypt() {
     System.out.println("testNIP04EncryptDecrypt");
 
