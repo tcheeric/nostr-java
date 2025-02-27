@@ -2,9 +2,9 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericMessage;
@@ -19,12 +19,16 @@ import nostr.event.message.ReqMessage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * @author eric
  */
 public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
-    public static final int MAX_JSON_NODE_THRESHOLD = 99;
+    public static final int COMMAND_INDEX = 0;
+    public static final int ARG_INDEX = 1;
+    public static final int FILTERS_START_INDEX = 2;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     public BaseMessageDecoder() {
@@ -33,9 +37,9 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
 
     @Override
     public T decode(@NonNull String jsonString) throws JsonProcessingException {
-        ValidJsonNodeFirstPair validJsonNodeFirstPair = jsonFirstPair(jsonString);
+        ValidJsonNodeFirstPair validJsonNodeFirstPair = json_strCmd_arg(jsonString);
         String command = validJsonNodeFirstPair.formerly_strCmd();
-        Object subscriptionId = validJsonNodeFirstPair.formerly_arg(); // subscriptionId
+        Object subscriptionId = validJsonNodeFirstPair.formerly_arg();
 
         Object[] msgArr = mapper.readValue(jsonString, Object[].class); // TODO: replace with jsonNode after ReqMessage.decode() is finished
 
@@ -48,35 +52,28 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
             case "EVENT" -> EventMessage.decode(msgArr, mapper);
             case "NOTICE" -> NoticeMessage.decode(subscriptionId);
             case "OK" -> OkMessage.decode(msgArr);
-            case "REQ" -> {
-                String filtersJson = jsonSecondPair(jsonString).formerly_msgArr(); // filters
-                yield ReqMessage.decode(subscriptionId, List.of(filtersJson));
-            }
+            case "REQ" -> ReqMessage.decode(subscriptionId, json_msgArr(jsonString));
             default -> GenericMessage.decode(msgArr);
         };
     }
 
-    private ValidJsonNodeFirstPair jsonFirstPair(@NonNull String jsonString) throws JsonProcessingException {
-        final JsonNode jsonNode = mapper.readTree(jsonString);
-
+    private ValidJsonNodeFirstPair json_strCmd_arg(@NonNull String jsonString) throws JsonProcessingException {
         return new ValidJsonNodeFirstPair(
-            jsonNode.get(0).asText(),
-            jsonNode.get(1).asText());
+            mapper.readTree(jsonString).get(COMMAND_INDEX).asText(),
+            mapper.readTree(jsonString).get(ARG_INDEX).asText());
     }
 
-    private ValidJsonNodeSecondPair jsonSecondPair(@NonNull String jsonString) throws JsonProcessingException {
-        final JsonNode jsonNode = mapper.readTree(jsonString);
+    private List<String> json_msgArr(@NonNull String jsonString) throws JsonProcessingException {
+        return IntStream.range(FILTERS_START_INDEX, mapper.readTree(jsonString).size())
+            .mapToObj(idx -> readTree(jsonString, idx)).toList();
+    }
 
-        return new ValidJsonNodeSecondPair(
-            jsonNode.get(2).toString());
+    @SneakyThrows
+    private String readTree(String jsonString, int idx) {
+        return mapper.readTree(jsonString).get(idx).toString();
     }
 
     private record ValidJsonNodeFirstPair(
         @NonNull String formerly_strCmd,
-        @NonNull Object formerly_arg) {
-    }
-
-    private record ValidJsonNodeSecondPair(
-        @NonNull String formerly_msgArr) {
-    }
+        @NonNull Object formerly_arg) {}
 }

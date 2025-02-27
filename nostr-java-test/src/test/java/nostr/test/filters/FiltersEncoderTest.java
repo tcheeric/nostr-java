@@ -7,7 +7,6 @@ import nostr.event.Kind;
 import nostr.event.filter.AddressableTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
-import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
@@ -30,7 +29,6 @@ import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,27 +40,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FiltersEncoderTest {
 
   @Test
-  public void testEventFilterEncoderUsingVarArgs() {
-    log.info("testEventFilterEncoderUsingVarArgs");
+  public void testEventFilterEncoder() {
+    log.info("testEventFilterEncoder");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(new EventFilter<>(new GenericEvent(eventId))));
 
-    String encodedFilters = encoder.encode();
-    assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
-  }
-
-  @Test
-  public void testEventFilterEncoderUsingList() {
-    log.info("testEventFilterEncoderUsingList");
-
-    List<Filterable> expectedFilters = new ArrayList<>();
-
-    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    expectedFilters.add(new EventFilter<>(new GenericEvent(eventId)));
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(expectedFilters));
     String encodedFilters = encoder.encode();
     assertEquals("{\"ids\":[\"" + eventId + "\"]}", encodedFilters);
   }
