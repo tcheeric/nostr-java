@@ -28,6 +28,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     public static final int COMMAND_INDEX = 0;
     public static final int ARG_INDEX = 1;
     public static final int FILTERS_START_INDEX = 2;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     public BaseMessageDecoder() {
@@ -69,13 +70,10 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
 
     @SneakyThrows
     private String readTree(String jsonString, int idx) {
-        return new ValidJsonNodeSecondPair(mapper.readTree(jsonString).get(idx).toString()).formerly_msgArr();
+        return mapper.readTree(jsonString).get(idx).toString();
     }
 
     private record ValidJsonNodeFirstPair(
         @NonNull String formerly_strCmd,
         @NonNull Object formerly_arg) {}
-
-    private record ValidJsonNodeSecondPair(
-        @NonNull String formerly_msgArr) {}
 }
