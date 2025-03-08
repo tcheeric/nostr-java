@@ -71,8 +71,6 @@
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
         <module>nostr-java-encryption</module>
-        <module>nostr-java-encryption-nip04</module>
-        <module>nostr-java-encryption-nip44</module>
     </modules>
 
     <properties>

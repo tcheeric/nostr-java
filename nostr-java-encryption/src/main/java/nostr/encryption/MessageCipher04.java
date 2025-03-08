@@ -1,10 +1,9 @@
-package nostr.encryption.nip04;
+package nostr.encryption;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.crypto.nip04.EncryptedDirectMessage;
-import nostr.encryption.MessageCipher;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

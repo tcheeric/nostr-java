@@ -10,7 +10,7 @@ import nostr.api.factory.impl.NIP04Impl.DirectMessageEventFactory;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
-import nostr.encryption.nip04.MessageCipher04;
+import nostr.encryption.MessageCipher04;
 import nostr.event.NIP04Event;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.GenericEvent;

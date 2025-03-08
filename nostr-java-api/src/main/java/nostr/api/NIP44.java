@@ -6,7 +6,7 @@ import nostr.api.factory.impl.NIP44Impl;
 import nostr.base.ITag;
 import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
-import nostr.encryption.nip44.MessageCipher44;
+import nostr.encryption.MessageCipher44;
 import nostr.event.BaseTag;
 import nostr.event.impl.EncryptedPayloadEvent;
 import nostr.event.impl.GenericEvent;

@@ -1,10 +1,9 @@
-package nostr.encryption.nip44;
+package nostr.encryption;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.crypto.nip44.EncryptedPayloads;
-import nostr.encryption.MessageCipher;
 import nostr.util.NostrUtil;
 
 import java.security.NoSuchAlgorithmException;
