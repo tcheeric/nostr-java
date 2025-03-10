@@ -15,6 +15,7 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 
 @Builder
@@ -48,5 +49,22 @@ public class PriceTag extends BaseTag {
     Optional.ofNullable(node.get(3)).ifPresent(jsonNode1 -> tag.setFrequency(jsonNode1.asText()));
 
     return (T) tag;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    PriceTag priceTag = (PriceTag) o;
+    return Objects.equals(
+        number.stripTrailingZeros(),
+        priceTag.number.stripTrailingZeros()
+    )
+        && Objects.equals(currency, priceTag.currency) && Objects.equals(frequency, priceTag.frequency);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), number.stripTrailingZeros(), currency, frequency);
   }
 }

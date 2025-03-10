@@ -58,7 +58,7 @@ public class NIP01Impl {
         @Override
         public TextNoteEvent create() {
             var event = new TextNoteEvent(getSender(), getTags(), getContent());
-            getTags().forEach(t -> event.addTag(t));
+            getTags().forEach(event::addTag);
             return event;
         }
     }
