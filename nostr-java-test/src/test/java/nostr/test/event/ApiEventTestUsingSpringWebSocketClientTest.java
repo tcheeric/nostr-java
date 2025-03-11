@@ -1,25 +1,24 @@
 package nostr.test.event;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static nostr.test.event.ApiEventTest.createProduct;
 import static nostr.test.event.ApiEventTest.createStall;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiEventTestUsingSpringWebSocketClientTest {
   private static Map<String, String> relays;
@@ -51,16 +50,14 @@ class ApiEventTestUsingSpringWebSocketClientTest {
 
     String eventResponse = springWebSocketClient.send(message).stream().findFirst().get();
 
-    ObjectMapper mapper = new ObjectMapper();
-
     // Extract and compare only first 3 elements of the JSON array
-    var expectedArray = mapper.readTree(expectedResponseJson(event.getId())).get(0).asText();
-    var expectedSubscriptionId = mapper.readTree(expectedResponseJson(event.getId())).get(1).asText();
-    var expectedSuccess = mapper.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+    var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
+    var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
+    var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-    var actualArray = mapper.readTree(eventResponse).get(0).asText();
-    var actualSubscriptionId = mapper.readTree(eventResponse).get(1).asText();
-    var actualSuccess = mapper.readTree(eventResponse).get(2).asBoolean();
+    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
+    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
+    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
 
     assertTrue(expectedArray.equals(actualArray), "First element should match");

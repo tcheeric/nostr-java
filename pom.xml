@@ -102,6 +102,7 @@
         <maven-failsafe-plugin.version>3.3.0</maven-failsafe-plugin.version>
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
     </properties>
 
     <dependencyManagement>
@@ -113,9 +114,9 @@
                 <version>${lombok.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-afterburner</artifactId>
+                <version>${jackson-module-afterburner.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>

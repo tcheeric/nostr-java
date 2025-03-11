@@ -39,6 +39,8 @@ import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.thread.HexStringValidator;
 
+import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+
 /**
  *
  * @author squirrel
@@ -203,7 +205,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     private String serialize() throws NostrException {
-        var mapper = IEncoder.MAPPER;
+        var mapper = I_ENCODER_MAPPER_AFTERBURNER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {

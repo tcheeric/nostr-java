@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,7 +17,6 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP52Event;
 import nostr.event.impl.CalendarRsvpEvent.CalendarRsvpEventDeserializer;
-import nostr.event.impl.CalendarTimeBasedEvent.CalendarTimeBasedEventDeserializer;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
@@ -55,7 +53,7 @@ public class CalendarRsvpEvent extends NIP52Event {
       super(CalendarRsvpEvent.class);
     }
 
-//    TODO: below methods needs comprehensive tags assignment completion
+    //    TODO: below methods needs comprehensive tags assignment completion
     @Override
     public CalendarRsvpEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
       JsonNode calendarTimeBasedEventNode = jsonParser.getCodec().readTree(jsonParser);
@@ -66,7 +64,7 @@ public class CalendarRsvpEvent extends NIP52Event {
           .map(
               JsonNode::elements)
           .map(element ->
-              new ObjectMapper().convertValue(element, BaseTag.class)).toList();
+              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
 
       List<GenericTag> genericTags = baseTags.stream()
           .filter(GenericTag.class::isInstance)

@@ -39,17 +39,17 @@ public class OstEventEncoder implements IEncoder<OtsEvent> {
 
     private String toJson() throws NostrException {
         try {
-            JsonNode node = IEncoder.MAPPER.valueToTree(event);
+            JsonNode node = I_ENCODER_MAPPER_AFTERBURNER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
             event.getAttributes().parallelStream()
                     .map(ElementAttribute::getValue)
                     .forEach(ev -> {
                         var expression = (HashMap<String, String>) ev;
 
-                        objNode.set("ots", IEncoder.MAPPER.valueToTree(expression.get("ots")));
+                        objNode.set("ots", I_ENCODER_MAPPER_AFTERBURNER.valueToTree(expression.get("ots")));
                     });
 
-            return IEncoder.MAPPER.writeValueAsString(node);
+            return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(node);
         } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new NostrException(e);
         }

@@ -30,6 +30,8 @@ import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+
 public class NIP60<T extends GenericEvent> extends EventNostr<T> {
 
     private static final String MINT_TAG_NAME = "mint";
@@ -189,12 +191,12 @@ public class NIP60<T extends GenericEvent> extends EventNostr<T> {
         tags.add(NIP60.createBalanceTag(wallet.getBalance(), wallet.getUnit()));
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
-        return NIP44.encrypt(getSender(), new ObjectMapper().writeValueAsString(tags), getSender().getPublicKey());
+        return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(tags), getSender().getPublicKey());
     }
 
     @SneakyThrows
     private String getTokenEventContent(@NonNull Token token) {
-        return NIP44.encrypt(getSender(), new ObjectMapper().writeValueAsString(token), getSender().getPublicKey());
+        return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(token), getSender().getPublicKey());
     }
 
     @SneakyThrows

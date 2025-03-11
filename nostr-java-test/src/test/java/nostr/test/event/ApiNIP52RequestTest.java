@@ -1,6 +1,5 @@
 package nostr.test.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -24,6 +23,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiNIP52RequestTest {
@@ -113,16 +113,14 @@ class ApiNIP52RequestTest {
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
 
-    ObjectMapper mapper = new ObjectMapper();
-
     // Extract and compare only first 3 elements of the JSON array
-    var expectedArray = mapper.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
-    var expectedSubscriptionId = mapper.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
-    var expectedSuccess = mapper.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+    var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+    var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+    var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-    var actualArray = mapper.readTree(eventResponse).get(0).asText();
-    var actualSubscriptionId = mapper.readTree(eventResponse).get(1).asText();
-    var actualSuccess = mapper.readTree(eventResponse).get(2).asBoolean();
+    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
+    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
+    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
     assertTrue(expectedArray.equals(actualArray), "First element should match");
     assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
@@ -139,8 +137,8 @@ class ApiNIP52RequestTest {
 
     assertTrue(
         JsonComparator.isEquivalentJson(
-            mapper.readTree(expectedRequestResponseJson()),
-            mapper.readTree(reqResponse)));
+            MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson()),
+            MAPPER_AFTERBURNER.readTree(reqResponse)));
 
     springWebSocketRequestClient.closeSocket();
 */

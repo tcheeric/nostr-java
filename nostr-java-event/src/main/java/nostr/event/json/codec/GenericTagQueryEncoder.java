@@ -27,7 +27,7 @@ public class GenericTagQueryEncoder<T extends GenericTagQuery> implements FEncod
     @Override
     public String encode() {
         try {
-            return FEncoder.MAPPER.writeValueAsString(genericTagQuery);
+            return F_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(genericTagQuery);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -20,6 +20,9 @@ import nostr.event.json.codec.BaseEventEncoder;
 import java.util.List;
 import java.util.Map;
 
+import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
+import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+
 /**
  * @author eric
  */
@@ -36,16 +39,16 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   }
   @Override
   public String encode() throws JsonProcessingException {
-    return IEncoder.MAPPER.writeValueAsString(
+    return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(
         getArrayNode()
             .add(getCommand())
-            .add(IEncoder.MAPPER.readTree(
+            .add(I_ENCODER_MAPPER_AFTERBURNER.readTree(
                 new BaseEventEncoder<>(getEvent()).encode())));
   }
 
   @SneakyThrows
-  public static <T extends BaseMessage> T decode(@NonNull Map map, ObjectMapper mapper) {
-    var event = mapper.convertValue(map, new TypeReference<GenericEvent>() {});
+  public static <T extends BaseMessage> T decode(@NonNull Map map) {
+    var event = I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<GenericEvent>() {});
 
     List<GenericTag> genericTags = event.getTags().stream()
         .filter(GenericTag.class::isInstance)

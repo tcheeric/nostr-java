@@ -1,7 +1,6 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -25,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static nostr.test.event.ClassifiedListingEventTest.LOCATION_CODE;
 import static nostr.test.event.ClassifiedListingEventTest.PUBLISHED_AT_CODE;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,16 +99,14 @@ class ApiNIP99RequestTest {
 
     assertTrue(eventResponses.size() == 1, "Expected 1 event response, but got " + eventResponses.size());
 
-    ObjectMapper mapper = new ObjectMapper();
-
     // Extract and compare only first 3 elements of the JSON array
-    var expectedArray = mapper.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
-    var expectedSubscriptionId = mapper.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
-    var expectedSuccess = mapper.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+    var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+    var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+    var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-    var actualArray = mapper.readTree(eventResponses.get(0)).get(0).asText();
-    var actualSubscriptionId = mapper.readTree(eventResponses.get(0)).get(1).asText();
-    var actualSuccess = mapper.readTree(eventResponses.get(0)).get(2).asBoolean();
+    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(0).asText();
+    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(1).asText();
+    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(2).asBoolean();
 
     assertTrue(expectedArray.equals(actualArray), "First element should match");
     assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
@@ -124,8 +122,8 @@ class ApiNIP99RequestTest {
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
     springWebSocketRequestClient.closeSocket();
 
-    var actualJson = mapper.readTree(reqResponses.getFirst());
-    var expectedJson = mapper.readTree(expectedRequestResponseJson());
+    var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
+    var expectedJson = MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson());
 
     // Verify you receive the event
     assertTrue(actualJson.get(0).asText().equals("EVENT"), "Event should be received, and not " + actualJson.get(0).asText());

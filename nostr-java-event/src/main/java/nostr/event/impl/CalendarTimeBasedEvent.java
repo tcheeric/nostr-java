@@ -74,7 +74,7 @@ public class CalendarTimeBasedEvent extends NIP52Event {
           .map(
               JsonNode::elements)
           .map(element ->
-              new ObjectMapper().convertValue(element, BaseTag.class)).toList();
+              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
 
       List<GenericTag> genericTags = baseTags.stream()
           .filter(GenericTag.class::isInstance)

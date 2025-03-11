@@ -1,6 +1,5 @@
 package nostr.event.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import nostr.event.BaseTag;
@@ -10,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public interface Filterable {
-  ObjectMapper mapper = new ObjectMapper();
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
+public interface Filterable {
   Predicate<GenericEvent> getPredicate();
   <T> T getFilterable();
   Object getFilterableValue();
@@ -26,7 +25,7 @@ public interface Filterable {
   }
 
   default ObjectNode toObjectNode(ObjectNode objectNode) {
-    ArrayNode arrayNode = mapper.createArrayNode();
+    ArrayNode arrayNode = MAPPER_AFTERBURNER.createArrayNode();
 
     Optional.ofNullable(objectNode.get(getFilterKey()))
         .ifPresent(jsonNode ->
@@ -39,7 +38,7 @@ public interface Filterable {
 
   default void addToArrayNode(ArrayNode arrayNode) {
     arrayNode.addAll(
-        mapper.createArrayNode().add(
+        MAPPER_AFTERBURNER.createArrayNode().add(
             getFilterableValue().toString()));
   }
 }

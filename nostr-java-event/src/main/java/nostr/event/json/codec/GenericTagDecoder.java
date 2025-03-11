@@ -1,15 +1,15 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Data;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.impl.GenericTag;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 @Data
 public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
@@ -23,8 +23,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
     @Override
     public T decode(String json) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String[] jsonElements = objectMapper.readValue(json, String[].class);
+            String[] jsonElements = MAPPER_AFTERBURNER.readValue(json, String[].class);
 
             String code = jsonElements[0];
 

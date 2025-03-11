@@ -30,7 +30,7 @@ public class BaseEventEncoder<T extends BaseEvent> implements IEncoder<T> {
 
     protected String toJson() throws NostrException {
         try {
-            return IEncoder.MAPPER.writeValueAsString(event);
+            return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(event);
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }

@@ -6,12 +6,12 @@ module nostr.api {
     requires nostr.client;
     requires nostr.encryption;
 
-    requires com.fasterxml.jackson.databind;
-
-    requires lombok;
-    requires java.logging;
-    requires nostr.crypto;
+  requires lombok;
+  requires nostr.crypto;
     requires org.apache.commons.lang3;
+  requires com.fasterxml.jackson.module.afterburner;
+  requires com.fasterxml.jackson.databind;
+  requires java.logging;
 
-    exports nostr.api;
+  exports nostr.api;
 }

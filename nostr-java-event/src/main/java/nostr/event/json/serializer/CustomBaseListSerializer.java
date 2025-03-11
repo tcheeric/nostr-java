@@ -1,5 +1,11 @@
 package nostr.event.json.serializer;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import nostr.event.BaseEvent;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -8,12 +14,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import nostr.base.IEncoder;
-import nostr.event.BaseEvent;
+import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
 
 /**
  * @author guilhermegps
@@ -33,7 +34,7 @@ public class CustomBaseListSerializer<T extends List<U>, U extends BaseEvent> ex
     }
 
     private JsonNode toJson(Object obj) {
-        var mapper = IEncoder.MAPPER;
+        var mapper = I_ENCODER_MAPPER_AFTERBURNER;
         try {
             JsonNode node = mapper.valueToTree(obj);
 

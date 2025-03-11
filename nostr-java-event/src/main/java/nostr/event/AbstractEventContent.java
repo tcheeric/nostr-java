@@ -1,23 +1,22 @@
 package nostr.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.base.IEvent;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+
 /**
- *
- * @author eric
  * @param <T>
+ * @author eric
  */
 public abstract class AbstractEventContent<T extends IEvent> implements IContent {
-        
-    @Override
-    public String toString() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(this);
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException(ex);
-        }
+
+  @Override
+  public String toString() {
+    try {
+      return MAPPER_AFTERBURNER.writeValueAsString(this);
+    } catch (JsonProcessingException ex) {
+      throw new RuntimeException(ex);
     }
+  }
 }

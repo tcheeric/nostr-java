@@ -1,15 +1,6 @@
 package nostr.test.api;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.NonNull;
 import nostr.api.NIP44;
 import nostr.api.NIP60;
@@ -26,6 +17,14 @@ import nostr.event.impl.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 public class NIP60Test {
 
@@ -70,22 +69,21 @@ public class NIP60Test {
 
         // Assert relay tags
         List<BaseTag> relayTags = tags.stream()
-                .filter(tag -> tag.getCode().equals("relay"))
-                .toList();
+            .filter(tag -> tag.getCode().equals("relay"))
+            .toList();
 
         Assertions.assertEquals(2, relayTags.size());
 
         // Assert mint tags
         List<BaseTag> mintTags = tags.stream()
-                .filter(tag -> tag.getCode().equals("mint"))
-                .toList();
+            .filter(tag -> tag.getCode().equals("mint"))
+            .toList();
 
         Assertions.assertEquals(3, mintTags.size());
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        ObjectMapper mapper = new ObjectMapper();
-        GenericTag[] contentTags = mapper.readValue(decryptedContent, GenericTag[].class);
+        GenericTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, GenericTag[].class);
 
         // First tag should be balance
         Assertions.assertEquals("balance", contentTags[0].getCode());
@@ -145,8 +143,7 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        ObjectMapper mapper = new ObjectMapper();
-        Token contentToken = mapper.readValue(decryptedContent, Token.class);
+        Token contentToken = MAPPER_AFTERBURNER.readValue(decryptedContent, Token.class);
         Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
         Proof proofContent = contentToken.getProofs().get(0);
@@ -198,14 +195,13 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        ObjectMapper mapper = new ObjectMapper();
-        BaseTag[] contentTags = mapper.readValue(decryptedContent, BaseTag[].class);
+        BaseTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, BaseTag[].class);
 
         // Assert direction
         GenericTag directionTag = (GenericTag) contentTags[0];
         Assertions.assertEquals("direction", directionTag.getCode());
         Assertions.assertEquals("in",
-                directionTag.getAttributes().get(0).getValue().toString());
+            directionTag.getAttributes().get(0).getValue().toString());
 
         // Assert amount
         GenericTag amountTag = (GenericTag) contentTags[1];

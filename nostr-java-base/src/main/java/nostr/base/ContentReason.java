@@ -1,12 +1,12 @@
 package nostr.base;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 /**
  * @author guilhermegps
@@ -22,10 +22,8 @@ public class ContentReason {
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
-            return mapper.writeValueAsString(this);
+            return MAPPER_AFTERBURNER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

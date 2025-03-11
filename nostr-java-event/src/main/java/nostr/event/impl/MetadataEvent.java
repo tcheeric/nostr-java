@@ -17,6 +17,8 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP01Event;
 
+import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+
 /**
  *
  * @author squirrel
@@ -59,7 +61,7 @@ public final class MetadataEvent extends NIP01Event {
     }
 
     private void setContent() {
-        var mapper = IEncoder.MAPPER;
+        var mapper = I_ENCODER_MAPPER_AFTERBURNER;
         try {
             ObjectNode objNode = JsonNodeFactory.instance.objectNode();
             objNode.set("name", mapper.valueToTree(this.getProfile().getName()));

@@ -17,10 +17,10 @@ public class FiltersEncoder implements FEncoder<Filters> {
 
     @Override
     public String encode() {
-        ObjectNode root = MAPPER.createObjectNode();
+        ObjectNode root = F_ENCODER_MAPPER_AFTERBURNER.createObjectNode();
 
         filters.getFiltersMap().forEach((key, filterableList) -> {
-            final ObjectNode objectNode = MAPPER.createObjectNode();
+            final ObjectNode objectNode = F_ENCODER_MAPPER_AFTERBURNER.createObjectNode();
             root.setAll(
                 filterableList
                     .stream()

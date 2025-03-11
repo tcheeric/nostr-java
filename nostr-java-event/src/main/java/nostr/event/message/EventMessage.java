@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
-import nostr.base.IEncoder;
 import nostr.base.IEvent;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
@@ -17,6 +16,8 @@ import nostr.event.json.codec.BaseEventEncoder;
 
 import java.util.Map;
 import java.util.Optional;
+
+import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
 
 @Setter
 @Getter
@@ -43,9 +44,9 @@ public class EventMessage extends BaseMessage {
         var arrayNode = getArrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
             .ifPresent(arrayNode::add);
-        arrayNode.add(IEncoder.MAPPER.readTree(
+        arrayNode.add(I_ENCODER_MAPPER_AFTERBURNER.readTree(
             new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
-        return IEncoder.MAPPER.writeValueAsString(arrayNode);
+        return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(arrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {

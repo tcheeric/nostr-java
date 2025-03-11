@@ -1,7 +1,6 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.codec.BaseTagEncoder;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +33,7 @@ class RelaysTagTest {
     void testDeserialize() {
         final String EXPECTED = "[\"relays\",\"ws://localhost:5555\"]";
         assertDoesNotThrow(() -> {
-          JsonNode node = new ObjectMapper().readTree(EXPECTED);
+            JsonNode node = MAPPER_AFTERBURNER.readTree(EXPECTED);
             BaseTag deserialize = RelaysTag.deserialize(node);
             assertEquals(RELAYS_KEY, deserialize.getCode());
             assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().get(0).getUri());

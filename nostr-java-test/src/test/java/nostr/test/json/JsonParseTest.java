@@ -1,7 +1,6 @@
 package nostr.test.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.base.Command;
@@ -50,20 +49,14 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author eric
  */
 @Log
 public class JsonParseTest {
-  ObjectMapper mapper = new ObjectMapper();
-
   @Test
   public void testBaseMessageDecoderEventFilter() throws JsonProcessingException {
     log.info("testBaseMessageDecoderEventFilter");
@@ -653,11 +646,11 @@ public class JsonParseTest {
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
     assertTrue(JsonComparator.isEquivalentJson(
-        mapper.createArrayNode()
-            .add(mapper.readTree(
+        MAPPER_AFTERBURNER.createArrayNode()
+            .add(MAPPER_AFTERBURNER.readTree(
                 expectedReqMessage.encode())),
-        mapper.createArrayNode()
-            .add(mapper.readTree(decodedReqMessage.encode()))));
+        MAPPER_AFTERBURNER.createArrayNode()
+            .add(MAPPER_AFTERBURNER.readTree(decodedReqMessage.encode()))));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 

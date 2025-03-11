@@ -1,7 +1,6 @@
 package nostr.test.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -10,6 +9,7 @@ import nostr.api.NIP32;
 import nostr.api.NIP44;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
+import nostr.api.NostrIF;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -361,8 +362,7 @@ public class ApiEventTest {
 
     // Fetch the content and compare with the above original
     var content = instance.getEvent().getContent();
-    ObjectMapper mapper = new ObjectMapper();
-    var expected = mapper.readValue(content, Stall.class);
+    var expected = MAPPER_AFTERBURNER.readValue(content, Stall.class);
 
     assertEquals(expected, stall);
   }
