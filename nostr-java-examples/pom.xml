@@ -16,26 +16,6 @@
         <!-- Project Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-event</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-id</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-api</artifactId>
             <version>${project.version}</version>
         </dependency>

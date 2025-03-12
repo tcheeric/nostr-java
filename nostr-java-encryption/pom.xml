@@ -27,10 +27,5 @@
             <artifactId>nostr-java-crypto</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>nostr-java-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>
