@@ -6,8 +6,10 @@
         <artifactId>nostr-java</artifactId>
         <version>0.6.5-SNAPSHOT</version>
     </parent>
+    
     <artifactId>nostr-java-api</artifactId>
     <packaging>jar</packaging>
+    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -40,7 +42,4 @@
             <version>${commons-lang3.version}</version>
         </dependency>
     </dependencies>
-    <properties>
-        <exec.mainClass>nostr.java.api.NostrJavaApi</exec.mainClass>
-    </properties>
 </project>

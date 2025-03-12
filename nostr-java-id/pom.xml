@@ -12,9 +12,6 @@
     <artifactId>nostr-java-id</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-    </properties>
-
     <dependencies>
         <!-- Annotation Dependencies -->
         <dependency>

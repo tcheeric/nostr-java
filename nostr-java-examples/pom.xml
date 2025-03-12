@@ -12,10 +12,6 @@
     <artifactId>nostr-java-examples</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <exec.mainClass>nostr.examples.NostrApiExamples</exec.mainClass>
-    </properties>
-
     <dependencies>
         <!-- Project Dependencies -->
         <dependency>
