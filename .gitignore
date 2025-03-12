@@ -212,6 +212,14 @@ hs_err_pid*
 ## ignoring target file
 target/
 
+# Gradle files
+.gradle/
+build/
+gradle/
+gradlew
+gradlew.bat
+buildSrc/
+
 ### VisualStudioCode ###
 .vscode
 .vscode/*
