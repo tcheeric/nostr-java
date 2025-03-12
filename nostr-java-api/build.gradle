@@ -13,3 +13,12 @@ dependencies {
 }
 
 description = 'nostr-java-api'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

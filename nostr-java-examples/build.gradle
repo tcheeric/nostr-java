@@ -11,3 +11,12 @@ dependencies {
 }
 
 description = 'nostr-java-examples'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

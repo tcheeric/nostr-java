@@ -18,3 +18,12 @@ dependencies {
 }
 
 description = 'nostr-java-client'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

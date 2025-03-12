@@ -21,3 +21,12 @@ dependencies {
 }
 
 description = 'nostr-java-test'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

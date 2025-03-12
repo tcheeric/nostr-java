@@ -17,3 +17,12 @@ dependencies {
 }
 
 description = 'nostr-java-util'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

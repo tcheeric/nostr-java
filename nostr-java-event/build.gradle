@@ -11,3 +11,12 @@ dependencies {
 }
 
 description = 'nostr-java-event'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}

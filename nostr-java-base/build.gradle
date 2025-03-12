@@ -12,3 +12,12 @@ dependencies {
 }
 
 description = 'nostr-java-base'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = description
+            from(components.java)
+        }
+    }
+}
