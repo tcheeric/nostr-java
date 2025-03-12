@@ -76,18 +76,17 @@
     <properties>
         <project.version>0.6.5-SNAPSHOT</project.version>
         <java.version>21</java.version>
-        <spring-boot.version>3.3.5</spring-boot.version>
+        <spring-boot.version>3.4.3</spring-boot.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Annotation Dependency Versions -->
+        <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
         <lombok.version>1.18.34</lombok.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
-
-        <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
@@ -102,7 +101,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Annotation Dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot</artifactId>
@@ -123,7 +121,6 @@
                 <artifactId>spring-boot-devtools</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-            
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
