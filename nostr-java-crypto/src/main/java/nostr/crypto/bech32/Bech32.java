@@ -62,20 +62,20 @@ public class Bech32 {
     }
 
     public static String toBech32(Bech32Prefix hrp, byte[] hexKey) throws NostrException {
-        var data = convertBits(hexKey, 8, 5, true);
+        byte[] data = convertBits(hexKey, 8, 5, true);
 
         return Bech32.encode(Bech32.Encoding.BECH32, hrp.getCode(), data);
     }
 
     public static String toBech32(Bech32Prefix hrp, String hexKey) throws NostrException {
-        var data = NostrUtil.hexToBytes(hexKey);
+        byte[] data = NostrUtil.hexToBytes(hexKey);
 
         return toBech32(hrp, data);
     }
 
     // Added by squirrel
     public static String fromBech32(String strBech32) throws NostrException {
-        var data = Bech32.decode(strBech32).data;
+        byte[] data = Bech32.decode(strBech32).data;
 
         data = convertBits(data, 5, 8, true);
 

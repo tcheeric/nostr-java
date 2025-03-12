@@ -26,20 +26,20 @@ public class EncryptedDirectMessage {
     }
 
     public static String decryptMessage(@NonNull byte[] senderPrivKey, @NonNull String encContent, @NonNull byte[] rcptPubKey) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
-            var sharedSecret = getSharedSecretKeySpec(senderPrivKey, rcptPubKey);
-            return decryptMessage(sharedSecret, encContent);
+        SecretKeySpec sharedSecret = getSharedSecretKeySpec(senderPrivKey, rcptPubKey);
+        return decryptMessage(sharedSecret, encContent);
     }
 
     private static String decryptMessage(SecretKeySpec sharedSecretKey, String encodedMessage) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
-        final var parts = encodedMessage.split("\\?iv=");
+        String[] parts = encodedMessage.split("\\?iv=");
 
-        final var Base64Decoder = Base64.getDecoder();
-        final var encryptedMessage = Base64Decoder.decode(parts[0]);
-        final var iv = Base64Decoder.decode(parts[1]);
+        Base64.Decoder Base64Decoder = Base64.getDecoder();
+        byte[] encryptedMessage = Base64Decoder.decode(parts[0]);
+        byte[] iv = Base64Decoder.decode(parts[1]);
 
-        var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        var ivParamSpec = new IvParameterSpec(iv);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        IvParameterSpec ivParamSpec = new IvParameterSpec(iv);
         cipher.init(Cipher.DECRYPT_MODE, sharedSecretKey, ivParamSpec);
 
         return new String(cipher.doFinal(encryptedMessage), StandardCharsets.UTF_8);
@@ -47,21 +47,21 @@ public class EncryptedDirectMessage {
 
     static String encryptMessage(byte[] senderPrivateKey, byte[] rcptPublicKey, String message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
-        var sharedSecretKey = getSharedSecretKeySpec(senderPrivateKey, rcptPublicKey);
+        SecretKeySpec sharedSecretKey = getSharedSecretKeySpec(senderPrivateKey, rcptPublicKey);
 
-        var iv = NostrUtil.createRandomByteArray(16);
-        var ivParamSpec = new IvParameterSpec(iv);
+        byte[] iv = NostrUtil.createRandomByteArray(16);
+        IvParameterSpec ivParamSpec = new IvParameterSpec(iv);
 
-        var cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, ivParamSpec);
 
-        final var msg = message.getBytes(StandardCharsets.UTF_8);
-        var encryptedMessage = cipher.doFinal(msg);
+        byte[] msg = message.getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedMessage = cipher.doFinal(msg);
 
-        final var Base64Encoder = Base64.getEncoder();
-        var encryptedMessage64 = Base64Encoder.encode(encryptedMessage);
+        Base64.Encoder Base64Encoder = Base64.getEncoder();
+        byte[] encryptedMessage64 = Base64Encoder.encode(encryptedMessage);
 
-        var iv64 = Base64Encoder.encode(ivParamSpec.getIV());
+        byte[] iv64 = Base64Encoder.encode(ivParamSpec.getIV());
 
         return new String(encryptedMessage64) + "?iv=" + new String(iv64);
     }
@@ -70,8 +70,8 @@ public class EncryptedDirectMessage {
         final String secKeyHex = NostrUtil.bytesToHex(privateKey);
         final String pubKeyHex = NostrUtil.bytesToHex(publicKey);
 
-        var sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);
-        var sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
+        byte[] sharedPoint = getSharedSecret(secKeyHex, pubKeyHex);
+        byte[] sharedX = Arrays.copyOfRange(sharedPoint, 1, 33);
 
         return new SecretKeySpec(sharedX, "AES");
     }

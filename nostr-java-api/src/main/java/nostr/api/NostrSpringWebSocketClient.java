@@ -137,11 +137,6 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public Identity getSender() {
-    return sender;
-  }
-
-  @Override
   public Map<String, String> getRelays() {
     return clientMap.values().stream()
         .collect(Collectors.toMap(WebSocketClientHandler::getRelayName, WebSocketClientHandler::getRelayUri,

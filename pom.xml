@@ -74,28 +74,23 @@
     </modules>
 
     <properties>
+        <project.version>0.6.5-SNAPSHOT</project.version>
         <java.version>21</java.version>
         <spring-boot.version>3.3.5</spring-boot.version>
-
-        <project.version>${version}</project.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
-        <lombok.version>1.18.34</lombok.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Annotation Dependency Versions -->
+        <lombok.version>1.18.34</lombok.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
 
-        <jackson-databind.version>2.17.2</jackson-databind.version>
         <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <assertj.version>3.23.1</assertj.version>
 
         <!-- Maven Plugin Versions -->
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -128,11 +123,7 @@
                 <artifactId>spring-boot-devtools</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-websocket</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
+            
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
@@ -159,22 +150,20 @@
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bcprov-jdk18on.version}</version>
             </dependency>
-
-            <!-- Test Dependencies -->
             
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
+            <!-- Test Dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

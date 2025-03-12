@@ -15,7 +15,6 @@ dependencies {
     api libs.org.springframework.spring.websocket
     api libs.jakarta.websocket.jakarta.websocket.api
     api libs.jakarta.websocket.jakarta.websocket.client.api
-    api libs.org.glassfish.tyrus.bundles.tyrus.standalone.client
     api libs.org.springframework.spring.webflux
     api libs.io.projectreactor.netty.reactor.netty.http
     testImplementation project(':nostr-java-id')
