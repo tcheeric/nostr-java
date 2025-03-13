@@ -21,9 +21,7 @@ subprojects {
     publishing {
         publications {
             maven(MavenPublication) {
-//                groupId = 'xyz.tcheeric'
                 artifactId = description
-//                version = '0.6.5-SNAPSHOT'
                 from(components.java)
             }
         }
@@ -38,6 +36,6 @@ tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
 }
 
-tasks.build.finalizedBy() {
-    tasks.publishToMavenLocal
-}   
+//tasks.build.finalizedBy() {
+//    tasks.publishToMavenLocal
+//}

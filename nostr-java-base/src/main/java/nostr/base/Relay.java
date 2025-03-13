@@ -2,7 +2,6 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,8 +33,6 @@ public class Relay {
     @ToString.Include
     private String host;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private RelayInformationDocument informationDocument;
 
     public Relay(@NonNull String uri) {

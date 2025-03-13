@@ -41,6 +41,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author eric
  */
+@ActiveProfiles("test")
 public class ApiEventTest {
 
   public static final String NOSTR_JAVA_PUBKEY = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";

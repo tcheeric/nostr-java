@@ -2,6 +2,7 @@ package nostr.test.event;
 
 import nostr.event.tag.PriceTag;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -30,35 +31,35 @@ class PriceTagTest {
     @Test
     void valueParameterCompare() {
         List<PriceTag> list = Stream.of(
-                aVal, bVal, cVal, dVal, eVal)
-            .map(bigDecimal ->
-                new PriceTag(bigDecimal, BTC, freq)).toList();
+                        aVal, bVal, cVal, dVal, eVal)
+                .map(bigDecimal ->
+                        new PriceTag(bigDecimal, BTC, freq)).toList();
         assertTrue(list.stream().allMatch(list.getFirst()::equals));
     }
 
     @Test
     void stringParameterCompare() {
         List<PriceTag> list = Stream.of(
-                aString, bString, cString, dString, eString)
-            .map(bigDecimal ->
-                new PriceTag(bigDecimal, BTC, freq)).toList();
+                        aString, bString, cString, dString, eString)
+                .map(bigDecimal ->
+                        new PriceTag(bigDecimal, BTC, freq)).toList();
         assertTrue(list.stream().allMatch(list.getFirst()::equals));
     }
 
     @Test
     void failure() {
         List<PriceTag> priceTags = List.of(
-            new PriceTag(new BigDecimal("1"), BTC, freq),
-            new PriceTag(new BigDecimal("01"), BTC, freq),
-            new PriceTag(new BigDecimal("001"), BTC, freq),
-            new PriceTag(new BigDecimal(1), BTC, freq),
-            new PriceTag(new BigDecimal(01), BTC, freq),
-            new PriceTag(new BigDecimal(001), BTC, freq)
+                new PriceTag(new BigDecimal("1"), BTC, freq),
+                new PriceTag(new BigDecimal("01"), BTC, freq),
+                new PriceTag(new BigDecimal("001"), BTC, freq),
+                new PriceTag(new BigDecimal(1), BTC, freq),
+                new PriceTag(new BigDecimal(01), BTC, freq),
+                new PriceTag(new BigDecimal(001), BTC, freq)
         );
         List<PriceTag> list = Stream.of(
-                aString, bString, cString, dString, eString)
-            .map(bigDecimal ->
-                new PriceTag(bigDecimal, BTC, freq)).toList();
+                        aString, bString, cString, dString, eString)
+                .map(bigDecimal ->
+                        new PriceTag(bigDecimal, BTC, freq)).toList();
         assertTrue(list.stream().noneMatch(priceTags::equals));
     }
 
@@ -70,5 +71,17 @@ class PriceTagTest {
             assertTrue(List.of("number", "currency", "frequency").containsAll(list.stream().map(Field::getName).toList()));
             assertTrue(List.of("java.math.BigDecimal", "java.lang.String").containsAll(list.stream().map(field -> field.getAnnotatedType().toString()).toList()));
         });
+    }
+    
+    @Test
+    void donothing() {
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
+        System.out.println("00000000000000000000000000000");
     }
 }
