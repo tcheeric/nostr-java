@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.AllArgsConstructor;
-
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.IEncoder;
@@ -15,7 +14,6 @@ import nostr.event.json.serializer.TagSerializer;
 
 /**
  * @author guilhermegps
- *
  */
 @Data
 @AllArgsConstructor
@@ -31,13 +29,12 @@ public class BaseTagEncoder implements IEncoder<BaseTag> {
     @Override
     public String encode() {
         try {
+//            TODO: revisit below using afterburner alternative
             SimpleModule module = new SimpleModule();
             module.addSerializer(new TagSerializer());
-            var mapper = (new ObjectMapper())
+            return (new ObjectMapper())
                     .setSerializationInclusion(Include.NON_NULL)
-                    .registerModule(module);
-
-            return mapper.writeValueAsString(tag);
+                    .registerModule(module).writeValueAsString(tag);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -21,7 +21,6 @@ import nostr.event.BaseTag;
 import nostr.event.Marker;
 
 /**
- *
  * @author squirrel
  */
 @Builder
@@ -55,23 +54,13 @@ public class EventTag extends BaseTag {
         //this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
     }
 
+//                tag.setMarker(Marker.valueOf(nodeMarker.asText().toUpperCase()));
+
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         EventTag tag = new EventTag();
-
-        final JsonNode nodeIdEvent = node.get(1);
-        if (nodeIdEvent != null) {
-            tag.setIdEvent(nodeIdEvent.asText());
-        }
-
-        final JsonNode nodeRelay = node.get(2);
-        if (nodeRelay != null) {
-            tag.setRecommendedRelayUrl(nodeRelay.asText());
-        }
-
-        final JsonNode nodeMarker = node.get(3);
-        if (nodeMarker != null) {
-            tag.setMarker(Marker.valueOf(nodeMarker.asText().toUpperCase()));
-        }
+        setTagFields(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);
+        setTagFields(node.get(2), (n, t) -> tag.setRecommendedRelayUrl(n.asText()), tag);
+        setTagFields(node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
         return (T) tag;
     }
 }

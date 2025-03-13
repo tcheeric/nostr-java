@@ -7,6 +7,10 @@ dependencies {
     annotationProcessor libs.org.projectlombok.lombok
     implementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
     annotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
+    
+    implementation libs.org.apache.commons.commons.lang3
+    implementation libs.com.google.guava.guava
+    
     api project(':nostr-java-base')
 }
 
