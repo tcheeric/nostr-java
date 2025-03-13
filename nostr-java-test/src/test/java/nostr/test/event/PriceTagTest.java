@@ -2,7 +2,6 @@ package nostr.test.event;
 
 import nostr.event.tag.PriceTag;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -71,17 +70,5 @@ class PriceTagTest {
             assertTrue(List.of("number", "currency", "frequency").containsAll(list.stream().map(Field::getName).toList()));
             assertTrue(List.of("java.math.BigDecimal", "java.lang.String").containsAll(list.stream().map(field -> field.getAnnotatedType().toString()).toList()));
         });
-    }
-    
-    @Test
-    void donothing() {
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
-        System.out.println("00000000000000000000000000000");
     }
 }
