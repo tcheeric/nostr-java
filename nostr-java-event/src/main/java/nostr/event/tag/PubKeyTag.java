@@ -56,9 +56,9 @@ public class PubKeyTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         PubKeyTag tag = new PubKeyTag();
-        setTagFields(node.get(1), (n, t) -> tag.setPublicKey(new PublicKey(n.asText())), tag);
-        setTagFields(node.get(2), (n, t) -> tag.setMainRelayUrl(n.asText()), tag);
-        setTagFields(node.get(3), (n, t) -> tag.setPetName(n.asText()), tag);
+        setRequiredField(node.get(1), (n, t) -> tag.setPublicKey(new PublicKey(n.asText())), tag);
+        setOptionalField(node.get(2), (n, t) -> tag.setMainRelayUrl(n.asText()), tag);
+        setOptionalField(node.get(3), (n, t) -> tag.setPetName(n.asText()), tag);
         return (T) tag;
     }
 }

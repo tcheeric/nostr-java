@@ -13,7 +13,6 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
 /**
- *
  * @author eric
  */
 @Builder
@@ -23,19 +22,14 @@ import nostr.event.BaseTag;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GeohashTag extends BaseTag {
-    
+
     @Key
     @JsonProperty("g")
     private String location;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         GeohashTag tag = new GeohashTag();
-
-        final JsonNode nodePubKey = node.get(1);
-        if (nodePubKey != null) {
-            tag.setLocation(nodePubKey.asText());
-        }
-
+        setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
         return (T) tag;
     }
 }

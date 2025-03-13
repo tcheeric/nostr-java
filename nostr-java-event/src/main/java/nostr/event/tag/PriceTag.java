@@ -15,7 +15,6 @@ import nostr.event.BaseTag;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.Optional;
 
 @Builder
 @Data
@@ -39,13 +38,10 @@ public class PriceTag extends BaseTag {
     private String frequency;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        String text = Optional.ofNullable(node.get(1)).orElseThrow().asText();
-        final BigDecimal number = new BigDecimal(text);
-        final String currency = Optional.ofNullable(node.get(2)).orElseThrow().asText();
-
-        PriceTag tag = PriceTag.builder().number(number).currency(currency).build();
-        Optional.ofNullable(node.get(3)).ifPresent(jsonNode1 -> tag.setFrequency(jsonNode1.asText()));
-
+        PriceTag tag = new PriceTag();
+        setRequiredField(node.get(1), (n, t) -> tag.setNumber(new BigDecimal(n.asText())), tag);
+        setOptionalField(node.get(2), (n, t) -> tag.setCurrency(n.asText()), tag);
+        setOptionalField(node.get(3), (n, t) -> tag.setFrequency(n.asText()), tag);
         return (T) tag;
     }
 

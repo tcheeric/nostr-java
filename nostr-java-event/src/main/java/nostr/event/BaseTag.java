@@ -14,7 +14,6 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.TagSerializer;
-import nostr.event.tag.EventTag;
 import nostr.util.NostrException;
 import org.apache.commons.lang3.stream.Streams;
 
@@ -30,7 +29,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author squirrel
  */
 @Data
@@ -76,8 +74,12 @@ public abstract class BaseTag implements ITag {
                         Objects.nonNull(getFieldValue(f)))
                 .collect(Collectors.toList());
     }
-    
-    protected static <T extends BaseTag> void setTagFields(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+
+    protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
         Optional.ofNullable(node).ifPresent(n -> con.accept(n, tag));
+    }
+
+    protected static <T extends BaseTag> void setRequiredField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+        con.accept(Optional.ofNullable(node).orElseThrow(), tag);
     }
 }

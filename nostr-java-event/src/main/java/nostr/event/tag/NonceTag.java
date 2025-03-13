@@ -4,17 +4,16 @@ package nostr.event.tag;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
-import nostr.base.annotation.Key;
-import nostr.event.BaseTag;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
+import nostr.event.BaseTag;
 
 /**
- *
  * @author squirrel
  */
 @Builder
@@ -40,16 +39,8 @@ public class NonceTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         NonceTag tag = new NonceTag();
-
-        final JsonNode nodeNonce = node.get(1);
-        if (nodeNonce != null) {
-            tag.setNonce(Integer.valueOf(nodeNonce.asText()));
-        }
-
-        final JsonNode nodeDifficulty = node.get(2);
-        if (nodeDifficulty != null) {
-            tag.setDifficulty(Integer.valueOf(nodeDifficulty.asText()));
-        }
+        setRequiredField(node.get(1), (n, t) -> tag.setNonce(Integer.valueOf(n.asText())), tag);
+        setRequiredField(node.get(2), (n, t) -> tag.setDifficulty(Integer.valueOf(n.asText())), tag);
         return (T) tag;
     }
 }
