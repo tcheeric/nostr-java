@@ -12,12 +12,11 @@
     <artifactId>nostr-java-util</artifactId>
     <packaging>jar</packaging>
 
-<!--    <properties>-->
-<!--        <exec.mainClass>nostr.util.NostrUtil</exec.mainClass>-->
-<!--    </properties>-->
-
     <dependencies>
-        <!-- Annotation Dependencies -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

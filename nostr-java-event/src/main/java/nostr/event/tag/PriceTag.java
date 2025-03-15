@@ -47,8 +47,7 @@ public class PriceTag extends BaseTag {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) &&
-                Objects.equals(
+        return Objects.equals(
                         number.stripTrailingZeros(),
                         ((PriceTag) o).number.stripTrailingZeros()
                 )
