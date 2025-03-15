@@ -3,7 +3,6 @@ package nostr.event.impl;
 import static nostr.util.NostrUtil.escapeJsonString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +14,7 @@ import nostr.base.annotation.Event;
 import nostr.event.Kind;
 import nostr.event.NIP05Event;
 import nostr.event.util.Nip05Validator;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 /**
  *
@@ -37,7 +36,7 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
             Nip05Validator.builder().nip05(profile.getNip05()).publicKey(profile.getPublicKey()).build().validate();
 
             setContent(profile);
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             throw new RuntimeException(ex);
         }
     }

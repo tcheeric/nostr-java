@@ -11,7 +11,7 @@ import nostr.base.ElementAttribute;
 import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.impl.OtsEvent;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 /**
  * @author guilhermegps
@@ -32,12 +32,12 @@ public class OstEventEncoder implements IEncoder<OtsEvent> {
     public String encode() {
         try {
             return toJson();
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private String toJson() throws NostrException {
+    private String toJson() throws NostrExceptionFactory {
         try {
             JsonNode node = I_ENCODER_MAPPER_AFTERBURNER.valueToTree(event);
             ObjectNode objNode = (ObjectNode) node;
@@ -51,7 +51,7 @@ public class OstEventEncoder implements IEncoder<OtsEvent> {
 
             return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(node);
         } catch (JsonProcessingException | IllegalArgumentException e) {
-            throw new NostrException(e);
+            throw new NostrExceptionFactory(e);
         }
     }
 

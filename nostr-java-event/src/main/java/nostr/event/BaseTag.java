@@ -14,7 +14,7 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.TagSerializer;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 import org.apache.commons.lang3.stream.Streams;
 
 import java.beans.IntrospectionException;
@@ -57,16 +57,16 @@ public abstract class BaseTag implements ITag {
         return 1;
     }
 
-    public String getFieldValue(Field field) throws NostrException {
+    public String getFieldValue(Field field) throws NostrExceptionFactory {
         try {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
             return f != null ? f.toString() : null;
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-            throw new NostrException(ex);
+            throw new NostrExceptionFactory(ex);
         }
     }
 
-    public List<Field> getSupportedFields() throws NostrException {
+    public List<Field> getSupportedFields() throws NostrExceptionFactory {
         return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
                 .filter(f ->
                         Objects.nonNull(f.getAnnotation(Key.class)))

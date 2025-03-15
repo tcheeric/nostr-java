@@ -1,26 +1,15 @@
 package nostr.event.impl;
 
-import java.beans.Transient;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
-import nostr.base.IEncoder;
 import nostr.base.IGenericElement;
 import nostr.base.ISignable;
 import nostr.base.ITag;
@@ -35,14 +24,25 @@ import nostr.event.Deleteable;
 import nostr.event.Kind;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 import nostr.util.thread.HexStringValidator;
+
+import java.beans.Transient;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
 
 /**
- *
  * @author squirrel
  */
 @Log
@@ -148,7 +148,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         try {
             return Bech32.toBech32(Bech32Prefix.NOTE, this.getId());
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -182,7 +182,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             this._serializedEvent = this.serialize().getBytes(StandardCharsets.UTF_8);
 
             this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
-        } catch (NostrException | NoSuchAlgorithmException ex) {
+        } catch (NostrExceptionFactory | NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         } catch (AssertionError ex) {
             log.log(Level.WARNING, ex.getMessage());
@@ -204,7 +204,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    private String serialize() throws NostrException {
+    private String serialize() throws NostrExceptionFactory {
         var mapper = I_ENCODER_MAPPER_AFTERBURNER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
@@ -218,8 +218,20 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
             return mapper.writeValueAsString(arrayNode);
         } catch (JsonProcessingException e) {
-            throw new NostrException(e);
+            throw new NostrExceptionFactory(e);
         }
+    }
+
+    @Override
+    public Consumer<Signature> getSignatureConsumer() {
+        return this::setSignature;
+    }
+
+    @Override
+    public Supplier<ByteBuffer> getByeArraySupplier() {
+        this.update();
+        log.log(Level.FINER, "Serialized event: {0}", new String(this.get_serializedEvent()));
+        return () -> ByteBuffer.wrap(this.get_serializedEvent());
     }
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {

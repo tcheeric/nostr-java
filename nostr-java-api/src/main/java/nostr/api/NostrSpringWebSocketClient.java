@@ -115,7 +115,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
 
   @Override
-  public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {
+  public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) throws Exception {
     identity.sign(signable);
     return this;
   }

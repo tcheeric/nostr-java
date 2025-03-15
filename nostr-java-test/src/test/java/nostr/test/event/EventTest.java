@@ -5,7 +5,6 @@ import nostr.base.ElementAttribute;
 
 import org.junit.jupiter.api.Test;
 
-import nostr.base.IEncoder;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
@@ -18,7 +17,7 @@ import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 
 import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
@@ -145,7 +144,7 @@ public class EventTest {
             var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
 
             nip05Validator.validate();
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             fail(ex);
         }
         assertTrue(true);
@@ -173,12 +172,12 @@ public class EventTest {
 
         String id63chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71";
         assertTrue(
-            assertThrows(IllegalArgumentException.class, () -> genericEvent.setId(id63chars))
+            assertThrows(AssertionError.class, () -> genericEvent.setId(id63chars))
                 .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a71], length: [63], target length: [64]"));
 
         String id65chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123";
         assertTrue(
-            assertThrows(IllegalArgumentException.class, () -> genericEvent.setId(id65chars))
+            assertThrows(AssertionError.class, () -> genericEvent.setId(id65chars))
                 .getMessage().contains("[fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a7123], length: [65], target length: [64]"));
     }
 }

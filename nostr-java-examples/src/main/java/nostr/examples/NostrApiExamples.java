@@ -35,7 +35,7 @@ import nostr.event.impl.TextNoteEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -182,7 +182,7 @@ public class NostrApiExamples {
 
         } catch (IllegalArgumentException ex) {
             log.log(Level.SEVERE, null, ex);
-            throw new NostrException(ex);
+            throw new NostrExceptionFactory(ex);
         }
     }
 

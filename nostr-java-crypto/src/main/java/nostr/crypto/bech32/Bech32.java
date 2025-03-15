@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 
 /**
@@ -61,20 +61,20 @@ public class Bech32 {
         }
     }
 
-    public static String toBech32(Bech32Prefix hrp, byte[] hexKey) throws NostrException {
+    public static String toBech32(Bech32Prefix hrp, byte[] hexKey) throws NostrExceptionFactory {
         byte[] data = convertBits(hexKey, 8, 5, true);
 
         return Bech32.encode(Bech32.Encoding.BECH32, hrp.getCode(), data);
     }
 
-    public static String toBech32(Bech32Prefix hrp, String hexKey) throws NostrException {
+    public static String toBech32(Bech32Prefix hrp, String hexKey) throws NostrExceptionFactory {
         byte[] data = NostrUtil.hexToBytes(hexKey);
 
         return toBech32(hrp, data);
     }
 
     // Added by squirrel
-    public static String fromBech32(String strBech32) throws NostrException {
+    public static String fromBech32(String strBech32) throws NostrExceptionFactory {
         byte[] data = Bech32.decode(strBech32).data;
 
         data = convertBits(data, 5, 8, true);
@@ -93,9 +93,9 @@ public class Bech32 {
      *
      * @param bech32
      * @return
-     * @throws nostr.util.NostrException
+     * @throws NostrExceptionFactory
      */
-    public static String encode(final Bech32Data bech32) throws NostrException {
+    public static String encode(final Bech32Data bech32) throws NostrExceptionFactory {
         return encode(bech32.encoding, bech32.hrp, bech32.data);
     }
 
@@ -106,12 +106,12 @@ public class Bech32 {
      * @param hrp
      * @param values
      * @return
-     * @throws nostr.util.NostrException
+     * @throws NostrExceptionFactory
      */
     // Modified to throw NostrExceptions
-    public static String encode(Encoding encoding, String hrp, final byte[] values) throws NostrException {
+    public static String encode(Encoding encoding, String hrp, final byte[] values) throws NostrExceptionFactory {
         if (hrp.isEmpty()) {
-            throw new NostrException("Human-readable part is too short");
+            throw new NostrExceptionFactory("Human-readable part is too short");
         }
 
         hrp = hrp.toLowerCase(Locale.ROOT);
@@ -133,53 +133,53 @@ public class Bech32 {
      *
      * @param str
      * @return
-     * @throws nostr.util.NostrException
+     * @throws NostrExceptionFactory
      */
     // Modified to throw NostrExceptions
-    public static Bech32Data decode(final String str) throws NostrException {
+    public static Bech32Data decode(final String str) throws NostrExceptionFactory {
         boolean lower = false, upper = false;
         if (str.length() < 8) {
-            throw new NostrException("Input too short: " + str.length());
+            throw new NostrExceptionFactory("Input too short: " + str.length());
         }
         for (int i = 0; i < str.length(); ++i) {
             char c = str.charAt(i);
             if (c < 33 || c > 126) {
-                throw new NostrException(String.format("Invalid Character %c, %d", c, i));
+                throw new NostrExceptionFactory(String.format("Invalid Character %c, %d", c, i));
             }
             if (c >= 'a' && c <= 'z') {
                 if (upper) {
-                    throw new NostrException(String.format("Invalid Character %c, %d", c, i));
+                    throw new NostrExceptionFactory(String.format("Invalid Character %c, %d", c, i));
                 }
                 lower = true;
 
             }
             if (c >= 'A' && c <= 'Z') {
                 if (lower) {
-                    throw new NostrException(String.format("Invalid Character %c, %d", c, i));
+                    throw new NostrExceptionFactory(String.format("Invalid Character %c, %d", c, i));
                 }
                 upper = true;
             }
         }
         final int pos = str.lastIndexOf('1');
         if (pos < 1) {
-            throw new NostrException("Missing human-readable part");
+            throw new NostrExceptionFactory("Missing human-readable part");
         }
         final int dataPartLength = str.length() - 1 - pos;
         if (dataPartLength < 6) {
-            throw new NostrException(String.format("Data part too short: %d)", dataPartLength));
+            throw new NostrExceptionFactory(String.format("Data part too short: %d)", dataPartLength));
         }
         byte[] values = new byte[dataPartLength];
         for (int i = 0; i < dataPartLength; ++i) {
             char c = str.charAt(i + pos + 1);
             if (CHARSET_REV[c] == -1) {
-                throw new NostrException(String.format("Invalid Character %c, %d", c, i + pos + 1));
+                throw new NostrExceptionFactory(String.format("Invalid Character %c, %d", c, i + pos + 1));
             }
             values[i] = CHARSET_REV[c];
         }
         String hrp = str.substring(0, pos).toLowerCase(Locale.ROOT);
         Encoding encoding = verifyChecksum(hrp, values);
         if (encoding == null) {
-            throw new NostrException("InvalidChecksum");
+            throw new NostrExceptionFactory("InvalidChecksum");
         }
         return new Bech32Data(encoding, hrp, Arrays.copyOfRange(values, 0, values.length - 6));
     }

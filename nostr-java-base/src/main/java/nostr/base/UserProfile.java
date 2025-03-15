@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.java.Log;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 /**
  *
@@ -39,7 +39,7 @@ public final class UserProfile extends Profile implements IBech32Encodable {
     public String toBech32() {
         try {
             return Bech32.encode(Bech32.Encoding.BECH32, Bech32Prefix.NPROFILE.getCode(), this.publicKey.getRawData());
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             log.log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }

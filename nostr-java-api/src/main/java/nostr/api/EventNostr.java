@@ -37,9 +37,8 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         super(sender);
     }
 
-    public EventNostr sign() {
+    public EventNostr sign() throws Exception {
         super.sign(getSender(), event);
-
         return this;
     }
 
@@ -69,19 +68,16 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
 
     public EventNostr setSender(@NonNull Identity sender) {
         super.setSender(sender);
-
         return this;
     }
 
     public EventNostr setRelays(@NonNull Map<String, String> relays) {
         super.setRelays(relays);
-
         return this;
     }
 
     public EventNostr setRecipient(@NonNull PublicKey recipient) {
         this.recipient = recipient;
-
         return this;
     }
 

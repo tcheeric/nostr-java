@@ -2,6 +2,7 @@ package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 
@@ -17,7 +18,7 @@ public interface Filterable {
   Object getFilterableValue();
   String getFilterKey();
 
-  default <T extends BaseTag> List<T> getTypeSpecificTags(Class<T> tagClass, GenericEvent event) {
+  static <T extends BaseTag> List<T> getTypeSpecificTags(@NonNull Class<T> tagClass, @NonNull GenericEvent event) {
     return event.getTags().stream()
         .filter(tagClass::isInstance)
         .map(tagClass::cast)

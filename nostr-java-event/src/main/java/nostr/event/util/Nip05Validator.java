@@ -6,7 +6,7 @@ import lombok.extern.java.Log;
 import nostr.base.PublicKey;
 import nostr.event.Nip05Content;
 import nostr.event.json.codec.Nip05ContentDecoder;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,14 +32,14 @@ public class Nip05Validator {
     
     private static final String LOCAL_PART_PATTERN = "^[a-zA-Z0-9-_\\.]+$";
 
-    public void validate() throws NostrException {
+    public void validate() throws NostrExceptionFactory {
         if (this.nip05 != null) {
         	var splited = nip05.split("@");
             var localPart = splited[0];
             var domain = splited[1];
 
             if (!localPart.matches(LOCAL_PART_PATTERN)) {
-                throw new NostrException("Invalid <local-part> syntax in nip05 attribute.");
+                throw new NostrExceptionFactory("Invalid <local-part> syntax in nip05 attribute.");
             }
 
             // Verify the public key
@@ -48,12 +48,12 @@ public class Nip05Validator {
                 validatePublicKey(domain, localPart);
             } catch (IOException | URISyntaxException ex) {
             	log.log(Level.SEVERE, ex.getMessage());
-                throw new NostrException(ex);
+                throw new NostrExceptionFactory(ex);
             }
         }
     }
 
-    private void validatePublicKey(String domain, String localPart) throws NostrException, IOException, URISyntaxException {
+    private void validatePublicKey(String domain, String localPart) throws NostrExceptionFactory, IOException, URISyntaxException {
 
         // Set up and estgetPublicKeyablish the HTTP connection
         String strUrl = "https://<domain>/.well-known/nostr.json?name=<localPart>".replace("<domain>", domain).replace("<localPart>", localPart);
@@ -75,14 +75,14 @@ public class Nip05Validator {
             log.log(Level.FINE, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
 
             if (pubKey != null && !pubKey.equals(publicKey.toString())) {
-                throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));
+                throw new NostrExceptionFactory(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));
             }
 
             // All well!
             return;
         }
 
-        throw new NostrException(String.format("Failed to connect to %s. Error message: %s", strUrl, connection.getResponseMessage()));
+        throw new NostrExceptionFactory(String.format("Failed to connect to %s. Error message: %s", strUrl, connection.getResponseMessage()));
     }
 
     private String getPublicKey(StringBuilder content, String localPart) {

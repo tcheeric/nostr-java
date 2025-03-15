@@ -6,7 +6,7 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +33,7 @@ public class CryptoTest {
 
             assertEquals(npub, Bech32.toBech32(Bech32Prefix.NPUB, hexPub));
             assertEquals("56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f", Bech32.fromBech32(npub));
-        } catch (NostrException ex) {
+        } catch (NostrExceptionFactory ex) {
             fail(ex);
         }
     }

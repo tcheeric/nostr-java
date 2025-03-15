@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import nostr.base.ElementAttribute;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericTag;
-import nostr.util.NostrException;
+import nostr.util.NostrExceptionFactory;
 
 import java.io.IOException;
 import java.io.Serial;
@@ -40,7 +40,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             fields.forEach((Field f) -> {
                 try {
                     node.put(f.getName(), value.getFieldValue(f));
-                } catch (NostrException ex) {
+                } catch (NostrExceptionFactory ex) {
                     throw new RuntimeException(ex);
                 }
             });
@@ -64,7 +64,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
                 throw new AssertionError("node.isObject()", new RuntimeException());
             }
 
-        } catch (IOException | NostrException e) {
+        } catch (IOException | NostrExceptionFactory e) {
             throw new RuntimeException(e);
         }
     }

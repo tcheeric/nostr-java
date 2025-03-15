@@ -20,7 +20,7 @@ public interface NostrIF {
   List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays);
   List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId);
   List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays);
-  NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable);
+  NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) throws Exception;
   boolean verify(@NonNull GenericEvent event);
   Identity getSender();
   Map<String, String> getRelays();
