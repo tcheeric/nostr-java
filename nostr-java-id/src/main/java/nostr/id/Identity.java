@@ -3,6 +3,7 @@ package nostr.id;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.java.Log;
 import nostr.base.ISignable;
@@ -10,7 +11,6 @@ import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
-import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 
 /**
@@ -53,20 +53,22 @@ public class Identity {
         return new Identity(PrivateKey.generateRandomPrivKey());
     }
 
-    public PublicKey getPublicKey() throws NostrExceptionFactory {
+    public PublicKey getPublicKey() {
         try {
             return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
         } catch (Exception ex) {
-            throw new NostrExceptionFactory(ex);
+            throw new RuntimeException(ex);
         }
     }
 
+//    TODO: exceptions refactor
+    @SneakyThrows
     public Signature sign(@NonNull ISignable signable) {
         final Signature signature = new Signature();
         signature.setRawData(
                 Schnorr.sign(
-                        NostrUtil.sha256(signable.getByeArraySupplier().get().array()), 
-                        this.getPrivateKey().getRawData(), 
+                        NostrUtil.sha256(signable.getByeArraySupplier().get().array()),
+                        this.getPrivateKey().getRawData(),
                         generateAuxRand()));
         signature.setPubKey(getPublicKey());
         signable.getSignatureConsumer().accept(signature);

@@ -8,7 +8,7 @@ plugins {
     id 'org.gradle.test-retry' version '1.6.2'
 
     id 'groovy-gradle-plugin'
-		id 'java-library'
+    id 'java-library'
 }
 
 group = 'xyz.tcheeric'
@@ -75,5 +75,5 @@ test {
 }
 
 bootJar {
-   enabled = false
+    enabled = false
 }

@@ -37,7 +37,6 @@ import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrExceptionFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +68,7 @@ class ApiEventTest {
     private Map<String, String> relays;
 
     @Test
-    public void testNIP01CreateTextNoteEvent() throws NostrExceptionFactory {
+    public void testNIP01CreateTextNoteEvent() throws Exception {
         System.out.println("testNIP01CreateTextNoteEvent");
 
         var nip01 = new NIP01<TextNoteEvent>(Identity.generateRandomIdentity());
@@ -508,7 +507,7 @@ class ApiEventTest {
     }
 
     @Test
-    void testNIP57CreateZapRequestEvent() throws NostrExceptionFactory {
+    void testNIP57CreateZapRequestEvent() throws Exception {
         System.out.println("testNIP57CreateZapRequestEvent");
 
         var nip57 = new NIP57<ZapRequestEvent>(Identity.generateRandomIdentity());
@@ -542,7 +541,7 @@ class ApiEventTest {
     }
 
     @Test
-    void testNIP57CreateZapReceiptEvent() throws NostrExceptionFactory {
+    void testNIP57CreateZapReceiptEvent() throws Exception {
         System.out.println("testNIP57CreateZapReceiptEvent");
 
         String zapRequestPubKeyTag = Identity.generateRandomIdentity().getPublicKey().toString();

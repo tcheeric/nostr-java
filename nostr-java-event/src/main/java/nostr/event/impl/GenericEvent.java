@@ -24,7 +24,7 @@ import nostr.event.Deleteable;
 import nostr.event.Kind;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
-import nostr.util.NostrExceptionFactory;
+import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.thread.HexStringValidator;
 
@@ -148,8 +148,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         try {
             return Bech32.toBech32(Bech32Prefix.NOTE, this.getId());
-        } catch (NostrExceptionFactory ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -182,7 +182,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             this._serializedEvent = this.serialize().getBytes(StandardCharsets.UTF_8);
 
             this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
-        } catch (NostrExceptionFactory | NoSuchAlgorithmException ex) {
+        } catch (NostrException | NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         } catch (AssertionError ex) {
             log.log(Level.WARNING, ex.getMessage());
@@ -204,7 +204,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     }
 
-    private String serialize() throws NostrExceptionFactory {
+    private String serialize() throws NostrException {
         var mapper = I_ENCODER_MAPPER_AFTERBURNER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
@@ -218,15 +218,17 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
             return mapper.writeValueAsString(arrayNode);
         } catch (JsonProcessingException e) {
-            throw new NostrExceptionFactory(e);
+            throw new NostrException(e);
         }
     }
 
+    @Transient
     @Override
     public Consumer<Signature> getSignatureConsumer() {
         return this::setSignature;
     }
 
+    @Transient
     @Override
     public Supplier<ByteBuffer> getByeArraySupplier() {
         this.update();

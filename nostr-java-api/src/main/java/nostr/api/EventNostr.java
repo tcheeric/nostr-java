@@ -37,7 +37,7 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         super(sender);
     }
 
-    public EventNostr sign() throws Exception {
+    public EventNostr sign() {
         super.sign(getSender(), event);
         return this;
     }

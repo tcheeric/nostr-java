@@ -43,7 +43,6 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.test.util.JsonComparator;
-import nostr.util.NostrExceptionFactory;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -327,7 +326,7 @@ public class JsonParseTest {
   }
 
   @Test
-  public void testDeserializeTag() throws NostrExceptionFactory {
+  public void testDeserializeTag() throws Exception {
     log.info("testDeserializeTag");
 
     String npubHex = new PublicKey(Bech32.fromBech32("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9")).toString();
@@ -343,7 +342,7 @@ public class JsonParseTest {
   }
 
   @Test
-  public void testDeserializeGenericTag() throws NostrExceptionFactory {
+  public void testDeserializeGenericTag() throws Exception {
     log.info("testDeserializeGenericTag");
     String npubHex = new PublicKey(Bech32.fromBech32("npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9")).toString();
     final String jsonString = "[\"gt\", \"" + npubHex + "\", \"wss://nostr.java\", \"alice\"]";

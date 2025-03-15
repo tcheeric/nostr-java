@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    implementation libs.org.apache.commons.commons.lang3
+
     implementation libs.org.projectlombok.lombok
     annotationProcessor libs.org.projectlombok.lombok
     testImplementation libs.org.projectlombok.lombok

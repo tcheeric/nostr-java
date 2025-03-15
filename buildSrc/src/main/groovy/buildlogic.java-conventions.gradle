@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+group = 'xyz.tcheeric'
+version = '0.6.5-SNAPSHOT'
+description = 'nostr-java'
+java.sourceCompatibility = JavaVersion.VERSION_21
+java.targetCompatibility = JavaVersion.VERSION_21
+
+subprojects {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifactId = description
+                from(components.java)
+            }
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+//tasks.build.finalizedBy() {
+//    tasks.publishToMavenLocal
+//}

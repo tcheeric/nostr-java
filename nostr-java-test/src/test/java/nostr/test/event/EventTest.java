@@ -17,7 +17,7 @@ import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import nostr.util.NostrExceptionFactory;
+import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
 import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
@@ -144,7 +144,7 @@ public class EventTest {
             var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
 
             nip05Validator.validate();
-        } catch (NostrExceptionFactory ex) {
+        } catch (Exception ex) {
             fail(ex);
         }
         assertTrue(true);

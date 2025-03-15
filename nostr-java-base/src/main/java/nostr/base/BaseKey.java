@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
-import nostr.util.NostrExceptionFactory;
 import nostr.util.NostrUtil;
 
 import java.util.Arrays;
@@ -32,7 +31,7 @@ public abstract class BaseKey implements IKey {
     public String toBech32String() {
         try {
             return Bech32.toBech32(prefix, rawData);
-        } catch (NostrExceptionFactory ex) {
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
