@@ -60,25 +60,6 @@ public class Relay {
     }
 
     // Helper method
-    public String printSupportedNips() {
-        return convertToJsonArray(this.getInformationDocument().getSupportedNips());
-    }
-
-    private static String convertToJsonArray(List<Integer> list) {
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("[");
-        for (int i = 0; i < list.size(); i++) {
-            jsonBuilder.append("\"").append(list.get(i)).append("\"");
-            if (i != list.size() - 1) {
-                jsonBuilder.append(",");
-            }
-        }
-        jsonBuilder.append("]");
-
-        return jsonBuilder.toString();
-    }
-
-    // Helper method
     public String getName() {
         return this.getInformationDocument().getName();
     }

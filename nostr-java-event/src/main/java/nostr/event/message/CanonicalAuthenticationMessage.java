@@ -65,6 +65,7 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   }
 
   private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
+//    TODO: stream optional
     return genericTags.stream()
         .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName)).map(GenericTag::getAttributes).toList().get(0).get(0).getValue().toString();
   }

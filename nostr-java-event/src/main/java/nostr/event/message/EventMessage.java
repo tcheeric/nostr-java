@@ -49,6 +49,7 @@ public class EventMessage extends BaseMessage {
         return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(arrayNode);
     }
 
+//    TODO: refactor into stream returning optional
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {
         var arg = msgArr[1];
         if (msgArr.length == 2 && arg instanceof Map map) {

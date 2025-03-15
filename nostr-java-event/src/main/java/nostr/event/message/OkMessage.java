@@ -44,6 +44,7 @@ public class OkMessage extends BaseMessage {
                 .add(getMessage()));
     }
 
+    //    TODO: refactor into stream returning optional
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
         if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
             String msgArg = msgArr[3].toString();
