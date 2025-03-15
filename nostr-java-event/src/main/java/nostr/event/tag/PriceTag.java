@@ -47,11 +47,14 @@ public class PriceTag extends BaseTag {
 
     @Override
     public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PriceTag priceTag = (PriceTag) o;
         return Objects.equals(
                         number.stripTrailingZeros(),
-                        ((PriceTag) o).number.stripTrailingZeros()
+                        priceTag.number.stripTrailingZeros()
                 )
-                && Objects.equals(currency, ((PriceTag) o).currency) && Objects.equals(frequency, ((PriceTag) o).frequency);
+                && Objects.equals(currency, priceTag.currency) && Objects.equals(frequency, priceTag.frequency);
     }
 
     @Override
