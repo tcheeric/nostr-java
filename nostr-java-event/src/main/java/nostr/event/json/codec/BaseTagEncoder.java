@@ -7,17 +7,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-import nostr.base.IEncoder;
+import nostr.base.Encoder;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.TagSerializer;
 
-/**
- * @author guilhermegps
- */
 @Data
 @AllArgsConstructor
-public class BaseTagEncoder implements IEncoder<BaseTag> {
+public class BaseTagEncoder implements Encoder {
 
     private final BaseTag tag;
     private final Relay relay;

@@ -16,7 +16,7 @@ import nostr.event.json.codec.FiltersEncoder;
 import java.time.temporal.ValueRange;
 import java.util.List;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author squirrel
@@ -55,7 +55,7 @@ public class ReqMessage extends BaseMessage {
             .forEach(jsonNode ->
                 getArrayNode().add(jsonNode));
 
-        return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(getArrayNode());
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull List<String> jsonFiltersList) {
@@ -75,7 +75,7 @@ public class ReqMessage extends BaseMessage {
 
     private static JsonNode createJsonNode(String jsonNode) {
         try {
-            return I_ENCODER_MAPPER_AFTERBURNER.readTree(jsonNode);
+            return ENCODER_MAPPED_AFTERBURNER.readTree(jsonNode);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
         }

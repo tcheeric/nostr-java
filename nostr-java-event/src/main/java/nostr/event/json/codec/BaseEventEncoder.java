@@ -1,17 +1,12 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
-import nostr.base.IEncoder;
+import lombok.SneakyThrows;
+import nostr.base.Encoder;
 import nostr.event.BaseEvent;
-import nostr.util.NostrException;
 
-/**
- * @author guilhermegps
- *
- */
 @Data
-public class BaseEventEncoder<T extends BaseEvent> implements IEncoder<T> {
+public class BaseEventEncoder<T extends BaseEvent> implements Encoder {
 
     private final T event;
 
@@ -20,19 +15,9 @@ public class BaseEventEncoder<T extends BaseEvent> implements IEncoder<T> {
     }
 
     @Override
+//    TODO: refactor all methods calling this to properly handle invalid json exception
+    @SneakyThrows
     public String encode() {
-        try {
-            return toJson();
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    protected String toJson() throws NostrException {
-        try {
-            return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(event);
-        } catch (JsonProcessingException e) {
-            throw new NostrException(e);
-        }
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(event);
     }
 }

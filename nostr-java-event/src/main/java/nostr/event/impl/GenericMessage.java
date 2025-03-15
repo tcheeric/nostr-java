@@ -7,14 +7,13 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.ElementAttribute;
 import nostr.base.IElement;
-import nostr.base.IEncoder;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  *
@@ -54,7 +53,7 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     public String encode() throws JsonProcessingException {
         getArrayNode().add(getCommand());
         getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> getArrayNode().add(v.toString()));
-        return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(getArrayNode());
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {

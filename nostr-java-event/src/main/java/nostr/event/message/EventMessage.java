@@ -17,7 +17,7 @@ import nostr.event.json.codec.BaseEventEncoder;
 import java.util.Map;
 import java.util.Optional;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 @Setter
 @Getter
@@ -44,9 +44,9 @@ public class EventMessage extends BaseMessage {
         var arrayNode = getArrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
             .ifPresent(arrayNode::add);
-        arrayNode.add(I_ENCODER_MAPPER_AFTERBURNER.readTree(
+        arrayNode.add(ENCODER_MAPPED_AFTERBURNER.readTree(
             new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
-        return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(arrayNode);
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(arrayNode);
     }
 
 //    TODO: refactor into stream returning optional

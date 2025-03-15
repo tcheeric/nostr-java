@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.IEncoder;
 import nostr.base.PublicKey;
 import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
@@ -17,7 +16,7 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP01Event;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  *
@@ -61,7 +60,7 @@ public final class MetadataEvent extends NIP01Event {
     }
 
     private void setContent() {
-        var mapper = I_ENCODER_MAPPER_AFTERBURNER;
+        var mapper = ENCODER_MAPPED_AFTERBURNER;
         try {
             ObjectNode objNode = JsonNodeFactory.instance.objectNode();
             objNode.set("name", mapper.valueToTree(this.getProfile().getName()));

@@ -17,10 +17,9 @@ import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.id.Identity;
 import nostr.test.EntityFactory;
-import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -67,7 +66,7 @@ public class EventTest {
         var strJsonEvent = encoder.encode();
 
         assertDoesNotThrow(() -> {
-            BaseTag tag = I_ENCODER_MAPPER_AFTERBURNER.readValue(strJsonEvent, BaseTag.class);
+            BaseTag tag = ENCODER_MAPPED_AFTERBURNER.readValue(strJsonEvent, BaseTag.class);
             assertEquals(genericTag, tag);
         });
     }

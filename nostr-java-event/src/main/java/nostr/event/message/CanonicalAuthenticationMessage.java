@@ -3,13 +3,11 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import nostr.base.Command;
-import nostr.base.IEncoder;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.impl.CanonicalAuthenticationEvent;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author eric
@@ -39,10 +37,10 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   }
   @Override
   public String encode() throws JsonProcessingException {
-    return I_ENCODER_MAPPER_AFTERBURNER.writeValueAsString(
+    return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
         getArrayNode()
             .add(getCommand())
-            .add(I_ENCODER_MAPPER_AFTERBURNER.readTree(
+            .add(ENCODER_MAPPED_AFTERBURNER.readTree(
                 new BaseEventEncoder<>(getEvent()).encode())));
   }
 

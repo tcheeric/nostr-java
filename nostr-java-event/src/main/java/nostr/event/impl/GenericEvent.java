@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-import static nostr.base.IEncoder.I_ENCODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author squirrel
@@ -205,7 +205,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     private String serialize() throws NostrException {
-        var mapper = I_ENCODER_MAPPER_AFTERBURNER;
+        var mapper = ENCODER_MAPPED_AFTERBURNER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {
