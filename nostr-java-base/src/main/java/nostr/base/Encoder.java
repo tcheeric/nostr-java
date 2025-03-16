@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 
 public interface Encoder {
-    ObjectMapper ENCODER_MAPPED_AFTERBURNER = JsonMapper.builder().addModule(new AfterburnerModule()).build().setSerializationInclusion(Include.NON_NULL);
+    ObjectMapper ENCODER_MAPPED_AFTERBURNER = JsonMapper.builder().addModule(
+                    new AfterburnerModule()).build()
+            .setSerializationInclusion(Include.NON_NULL);
 
     String encode();
 }
