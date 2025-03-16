@@ -1,5 +1,9 @@
 ###  nostr-java & superconductor:  gradle -vs- maven metrics
 
+
+[useful gradle commands (w/ maven equivalents) @ bottom of page](https://github.com/avlo/nostr-java-avlo-fork/blob/79d3f521e177ebd5e741490e1cdc0f1001e07c49/metrics.md#useful-gradle-commands-w-maven-equivalents)  
+
+
 ----
 ##### nostr-java clean build
 
