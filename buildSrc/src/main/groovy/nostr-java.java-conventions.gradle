@@ -23,18 +23,17 @@ repositories {
     // TODO: add eric's remo
 }
 
-publishing {
-    publications {
-//        TODO: check gradle vs maven publishing diffs
-        presto(MavenPublication) {
-            from components.java
-        }
-    }
-
-    repositories {
-        mavenLocal()
-    }
-}
+//publishing {
+//    publications {
+//        nostrjava(MavenPublication) {
+//            from components.java
+//        }
+//    }
+////        TODO: eric may want to provide his publishing specs
+//    repositories {
+//        someRemoteRepo()
+//    }
+//}
 
 dependencies {
     def springBootVersion = '3.4.3'
