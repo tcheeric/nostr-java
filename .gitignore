@@ -217,6 +217,7 @@ build/
 gradle/
 gradlew
 gradlew.bat
+buildSrc/build
 
 ### VisualStudioCode ###
 .vscode
