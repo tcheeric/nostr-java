@@ -25,12 +25,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter:' + springBootVersion
     implementation 'org.springframework.boot:spring-boot-autoconfigure:' + springBootVersion
     implementation 'org.springframework.boot:spring-boot-configuration-processor:' + springBootVersion
-    implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
-    implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: bouncyCastle
+    implementation 'org.springframework.boot:spring-boot-starter-security:' + springBootVersion
 
     implementation 'org.springframework.boot:spring-boot-starter-validation:' + springBootVersion
     implementation 'org.springframework.boot:spring-boot-starter-websocket:' + springBootVersion
 
+    implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: bouncyCastle
     implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:' + jacksonModuleAfterburner
     implementation 'com.google.guava:guava:' + googleGuava
 
