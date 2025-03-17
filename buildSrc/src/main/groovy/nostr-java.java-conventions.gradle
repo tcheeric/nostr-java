@@ -79,6 +79,10 @@ tasks.bootJar {
     enabled = false
 }
 
+tasks.named("jar") {
+    archiveClassifier = ''
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
