@@ -1,29 +1,9 @@
 plugins {
-    id 'buildlogic.java-conventions'
-}
-
-dependencies {
-    implementation libs.org.projectlombok.lombok
-    annotationProcessor libs.org.projectlombok.lombok
-    implementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    annotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    api project(':nostr-java-id')
-    implementation libs.org.springframework.boot.spring.boot.starter.websocket
-    implementation libs.org.springframework.spring.websocket
-    implementation libs.org.springframework.spring.webflux
-    implementation libs.io.projectreactor.netty.reactor.netty.http
-    implementation libs.jakarta.websocket.jakarta.websocket.api
-    implementation libs.jakarta.websocket.jakarta.websocket.client.api
-    implementation libs.org.awaitility.awaitility
+    id 'nostr-java.java-conventions'
 }
 
 description = 'nostr-java-client'
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId = description
-            from(components.java)
-        }
-    }
+dependencies {
+    api project(':nostr-java-id')
 }

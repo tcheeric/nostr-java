@@ -1,5 +1,5 @@
 plugins {
-    id 'buildlogic.java-conventions'
+    id 'nostr-java.java-conventions'
 }
 
 dependencies {

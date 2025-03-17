@@ -1,7 +1,7 @@
 rootProject.name = 'nostr-java'
+
 include(':nostr-java-crypto')
 include(':nostr-java-base')
-include(':nostr-java-test')
 include(':nostr-java-client')
 include(':nostr-java-event')
 include(':nostr-java-examples')

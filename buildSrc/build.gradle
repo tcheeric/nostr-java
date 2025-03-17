@@ -1,46 +1,32 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '8.12.2.1'
     id 'groovy-gradle-plugin'
 }
 
+group = 'xyz.tcheeric'
+version = '0.6.5-SNAPSHOT'
+
 repositories {
     gradlePluginPortal()
-    mavenLocal()
     mavenCentral()
     maven {
         url = uri('https://repo.maven.apache.org/maven2/')
-    }
+    }    
 }
 
 dependencies {
     def springBootVersion = '3.4.3'
-    def apacheCommonsLang3 = '3.17.0'
-    def jacksonModuleAfterburner = '2.18.3'
-    def googleGuava = '33.2.1-jre'
-    def bouncyCastle = '1.80'
-    def awaitility = '4.2.0'
-    def lombok = '1.18.36'
 
-    implementation 'org.springframework.boot:spring-boot-starter:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-autoconfigure:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-configuration-processor:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-starter-security:' + springBootVersion
+    implementation 'org.springframework.boot:spring-boot:' + springBootVersion
+    implementation 'org.springframework.boot:spring-boot-gradle-plugin:' + springBootVersion
+}
 
-    implementation 'org.springframework.boot:spring-boot-starter-validation:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-starter-websocket:' + springBootVersion
+test {
+    useJUnitPlatform()
+}
 
-    implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
-    implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: bouncyCastle
-    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:' + jacksonModuleAfterburner
-    implementation 'com.google.guava:guava:' + googleGuava
-
-    testImplementation 'org.awaitility:awaitility:' + awaitility
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:' + springBootVersion
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    implementation 'org.projectlombok:lombok:' + lombok
-    annotationProcessor 'org.projectlombok:lombok:' + lombok
-    testImplementation 'org.projectlombok:lombok:' + lombok
-    testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }

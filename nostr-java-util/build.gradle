@@ -1,30 +1,5 @@
 plugins {
-    id 'buildlogic.java-conventions'
-}
-
-dependencies {
-    implementation libs.org.apache.commons.commons.lang3
-
-    implementation libs.org.projectlombok.lombok
-    annotationProcessor libs.org.projectlombok.lombok
-    testImplementation libs.org.projectlombok.lombok
-    testAnnotationProcessor libs.org.projectlombok.lombok
-
-    implementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    testImplementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    annotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    testAnnotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
-    testImplementation libs.org.springframework.boot.spring.boot.starter.test
-    testImplementation libs.org.junit.jupiter.junit.jupiter.api
+    id 'nostr-java.java-conventions'
 }
 
 description = 'nostr-java-util'
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId = description
-            from(components.java)
-        }
-    }
-}
