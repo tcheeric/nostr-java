@@ -19,10 +19,6 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-crypto</artifactId>
             <version>${project.version}</version>

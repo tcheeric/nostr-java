@@ -68,13 +68,12 @@ dependencies {
     implementation 'org.projectlombok:lombok:' + lombok
     annotationProcessor 'org.projectlombok:lombok:' + lombok
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:' + springBootVersion
     testImplementation 'org.projectlombok:lombok:' + lombok
     testImplementation 'org.awaitility:awaitility:' + awaitility
-
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.adarshr:gradle-test-logger-plugin:4.0.0'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:' + springBootVersion
     testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 subprojects { apply plugin: 'com.adarshr.test-logger' }

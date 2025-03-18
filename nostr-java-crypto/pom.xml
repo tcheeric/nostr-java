@@ -20,32 +20,21 @@
         https://github.com/unclebob/more-speech/tree/bdd2f32b37264f20bf6abb4887489e70d2b0fdf1
     </description>
 
+    <properties>
+        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
+    </properties>
+    
     <dependencies>
-        <!-- Annotation Dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
         <!-- Project Dependencies -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bcprov-jdk18on.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-util</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
