@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.adarshr:gradle-test-logger-plugin:4.0.0'
+    }
+}
+
 rootProject.name = 'nostr-java'
 
 include(':nostr-java-crypto')
@@ -9,3 +20,5 @@ include(':nostr-java-util')
 include(':nostr-java-api')
 include(':nostr-java-id')
 include(':nostr-java-encryption')
+
+//id 'org.gradle.test-retry' version '1.6.2'

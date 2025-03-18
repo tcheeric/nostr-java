@@ -21,10 +21,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-gradle-plugin:' + springBootVersion
 }
 
-test {
-    useJUnitPlatform()
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

@@ -1,6 +1,5 @@
-package nostr.test.base;
+package nostr.base;
 
-import nostr.base.PublicKey;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
