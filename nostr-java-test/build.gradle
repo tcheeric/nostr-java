@@ -1,0 +1,52 @@
+plugins {
+    id 'nostr-java.java-conventions'
+}
+
+dependencies {
+    implementation libs.org.projectlombok.lombok
+    annotationProcessor libs.org.projectlombok.lombok
+    testImplementation libs.org.projectlombok.lombok
+    testAnnotationProcessor libs.org.projectlombok.lombok
+
+    implementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
+    testImplementation libs.com.fasterxml.jackson.module.jackson.module.afterburner
+    annotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
+    testAnnotationProcessor libs.com.fasterxml.jackson.module.jackson.module.afterburner
+
+    implementation libs.com.google.guava.guava
+    implementation libs.org.springframework.boot.spring.boot.starter.test
+    implementation libs.org.junit.jupiter.junit.jupiter.api
+
+    testImplementation libs.com.google.guava.guava
+    testImplementation libs.org.springframework.boot.spring.boot.starter.test
+    testImplementation libs.org.junit.jupiter.junit.jupiter.api
+    
+    api project(':nostr-java-client')
+    api project(':nostr-java-util')
+    api project(':nostr-java-api')
+}
+
+description = 'nostr-java-test'
+
+// no publishing for test module
+//publishing {
+//    publications {
+//        maven(MavenPublication) {
+//            artifactId = description
+//            from(components.java)
+//        }
+//    }
+//}
+
+tasks.named('test') {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+}
+
+//test {
+//    retry {
+//        failOnPassedAfterRetry = false
+//        maxRetries = 2
+////        maxFailures = 42
+//    }
+//}
