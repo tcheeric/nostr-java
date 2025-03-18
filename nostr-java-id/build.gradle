@@ -7,3 +7,8 @@ description = 'nostr-java-id'
 dependencies {
     api project(':nostr-java-event')
 }
+
+tasks.named('test') {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+}
