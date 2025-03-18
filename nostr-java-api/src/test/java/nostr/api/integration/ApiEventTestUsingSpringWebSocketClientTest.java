@@ -1,7 +1,7 @@
 package nostr.api.integration;
 
 import nostr.api.NIP15;
-import nostr.api.config.TestConfig;
+import nostr.config.RelayProperties;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.impl.GenericEvent;
@@ -23,7 +23,7 @@ import static nostr.api.integration.ApiEventTest.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringJUnitConfig(TestConfig.class)
+@SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientTest {
     private SpringWebSocketClient springWebSocketClient;

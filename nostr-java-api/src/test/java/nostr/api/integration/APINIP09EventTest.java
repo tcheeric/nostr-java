@@ -2,7 +2,7 @@ package nostr.api.integration;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
-import nostr.api.config.TestConfig;
+import nostr.config.RelayProperties;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@SpringJUnitConfig(TestConfig.class)
+@SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
 public class APINIP09EventTest {
     @Autowired

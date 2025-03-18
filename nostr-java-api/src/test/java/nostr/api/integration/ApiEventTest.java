@@ -9,10 +9,10 @@ import nostr.api.NIP32;
 import nostr.api.NIP44;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
-import nostr.api.config.TestConfig;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
+import nostr.config.RelayProperties;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
@@ -39,7 +39,10 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -58,14 +61,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author eric
  */
-@SpringJUnitConfig(TestConfig.class)
+@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig(RelayProperties.class)
+@ActiveProfiles("test")
 public class ApiEventTest {
-    private final Map<String, String> relays;
-
     @Autowired
-    public ApiEventTest(Map<String, String> relaysType) {
-        this.relays = relaysType;
-    }
+    private Map<String, String> relays;
 
     @Test
     public void testNIP01CreateTextNoteEvent() throws Exception {

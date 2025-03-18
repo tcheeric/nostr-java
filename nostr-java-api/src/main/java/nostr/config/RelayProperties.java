@@ -1,21 +1,21 @@
-package nostr.api.config;
+package nostr.config;
 
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-@TestConfiguration
-@TestPropertySource("classpath:relays.properties")
-public class TestConfig {
+@Configuration
+@PropertySource("classpath:relays.properties")
+public class RelayProperties {
 
     @Bean
     public Map<String, String> relays() {
         ResourceBundle relaysBundle = ResourceBundle.getBundle("relays");
         return relaysBundle.keySet().stream()
-                .collect(Collectors.toMap(key -> key, relaysBundle::getString));
+            .collect(Collectors.toMap(key -> key, relaysBundle::getString));
     }
 }
