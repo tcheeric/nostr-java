@@ -9,10 +9,8 @@ import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -25,7 +23,6 @@ import static nostr.api.integration.ApiEventTest.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(TestConfig.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientTest {

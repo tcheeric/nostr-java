@@ -9,6 +9,7 @@ import nostr.api.NIP32;
 import nostr.api.NIP44;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
+import nostr.api.config.TestConfig;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
@@ -16,7 +17,6 @@ import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
 import nostr.event.NIP01Event;
-import nostr.api.config.TestConfig;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
@@ -39,10 +39,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -61,12 +58,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author eric
  */
-@ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(TestConfig.class)
-@ActiveProfiles("test")
-class ApiEventTest {
+public class ApiEventTest {
+    private final Map<String, String> relays;
+
     @Autowired
-    private Map<String, String> relays;
+    public ApiEventTest(Map<String, String> relaysType) {
+        this.relays = relaysType;
+    }
 
     @Test
     public void testNIP01CreateTextNoteEvent() throws Exception {
@@ -74,9 +73,9 @@ class ApiEventTest {
 
         var nip01 = new NIP01<TextNoteEvent>(Identity.generateRandomIdentity());
         var instance = nip01.createTextNoteEvent(
-                        List.of(NIP01.createPubKeyTag(Identity.generateRandomIdentity().getPublicKey())),
-                        "Hello simplified nostr-java!")
-                .getEvent();
+                List.of(NIP01.createPubKeyTag(Identity.generateRandomIdentity().getPublicKey())),
+                "Hello simplified nostr-java!")
+            .getEvent();
         instance.update();
 
         assertNotNull(instance.getId());
@@ -109,12 +108,12 @@ class ApiEventTest {
         System.out.println("testNIP04SendDirectMessage");
 
         var nip04 = new NIP04<DirectMessageEvent>(
-                Identity.generateRandomIdentity(),
-                Identity.generateRandomIdentity().getPublicKey());
+            Identity.generateRandomIdentity(),
+            Identity.generateRandomIdentity().getPublicKey());
 
         var instance = nip04
-                .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-                .sign();
+            .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+            .sign();
 
         var signature = instance.getEvent().getSignature();
         assertNotNull(signature);
@@ -129,11 +128,11 @@ class ApiEventTest {
         System.out.println("testNIP44SendDirectMessage");
 
         var nip44 = new NIP44<EncryptedPayloadEvent>(
-                Identity.generateRandomIdentity(),
-                Identity.generateRandomIdentity().getPublicKey());
+            Identity.generateRandomIdentity(),
+            Identity.generateRandomIdentity().getPublicKey());
 
         var instance = nip44
-                .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+            .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         assertNotNull(instance.getEvent().getSignature());
         var response = instance.setRelays(relays).send();
         assertTrue(response instanceof OkMessage);
@@ -152,7 +151,7 @@ class ApiEventTest {
         nip01.createTextNoteEvent(List.of(geohashTag), "GeohashTag Test location testNIP01SendTextNoteEventGeoHashTag").signAndSend(relays);
 
         Filters filters = new Filters(
-                new GeohashTagFilter<>(new GeohashTag(targetString)));
+            new GeohashTagFilter<>(new GeohashTag(targetString)));
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
@@ -174,7 +173,7 @@ class ApiEventTest {
         nip01.createTextNoteEvent(List.of(hashtagTag), "Hashtag Tag Test value testNIP01SendTextNoteEventHashtagTag").signAndSend(relays);
 
         Filters filters = new Filters(
-                new HashtagTagFilter<>(new HashtagTag(targetString)));
+            new HashtagTagFilter<>(new HashtagTag(targetString)));
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
@@ -196,7 +195,7 @@ class ApiEventTest {
         nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test testNIP01SendTextNoteEventCustomGenericTag").signAndSend(relays);
 
         Filters filters = new Filters(
-                new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
+            new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
@@ -226,9 +225,9 @@ class ApiEventTest {
         nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays);
 
         Filters filters1 = new Filters(
-                new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)));
+            new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)));
         Filters filters2 = new Filters(
-                new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
+            new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
         List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
 
@@ -260,10 +259,10 @@ class ApiEventTest {
         nip01_2.createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2").signAndSend(relays);
 
         Filters filters1 = new Filters(
-                new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget1)));  // 1st filter should find match in 1st event
+            new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget1)));  // 1st filter should find match in 1st event
 
         Filters filters2 = new Filters(
-                new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget2)));  // 2nd filter should find match in 2nd event
+            new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget2)));  // 2nd filter should find match in 2nd event
 
         List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
 
@@ -290,8 +289,8 @@ class ApiEventTest {
         nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays);
 
         Filters filters = new Filters(
-                new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)),
-                new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
+            new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)),
+            new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
@@ -309,8 +308,8 @@ class ApiEventTest {
         Identity identity = Identity.generateRandomIdentity();
         var nip04 = new NIP04<DirectMessageEvent>(identity, Identity.generateRandomIdentity().getPublicKey());
         var instance = nip04
-                .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
-                .sign();
+            .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...")
+            .sign();
 
         var message = NIP04.decrypt(identity, instance.getEvent());
 
@@ -325,7 +324,7 @@ class ApiEventTest {
         var nip44 = new NIP44<EncryptedPayloadEvent>(identity, Identity.generateRandomIdentity().getPublicKey());
 
         var instance = nip44
-                .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
+            .createDirectMessageEvent("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...").sign();
         var message = NIP44.decrypt(identity, instance.getEvent());
 
         assertEquals("Quand on n'a que l'amour pour tracer un chemin et forcer le destin...", message);
@@ -473,7 +472,7 @@ class ApiEventTest {
         assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
         assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
         assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)),
-                "{\\\"article\\\":\\\"the\\\"}");
+            "{\\\"article\\\":\\\"the\\\"}");
     }
 
     @Test
@@ -481,9 +480,9 @@ class ApiEventTest {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
         CalendarContent calendarContent = CalendarContent.builder(
-                new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
-                "Calendar Time-Based Event title",
-                1716513986268L).build();
+            new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
+            "Calendar Time-Based Event title",
+            1716513986268L).build();
 
         calendarContent.setStartTzid("1687765220");
         calendarContent.setEndTzid("1687765230");
@@ -492,11 +491,11 @@ class ApiEventTest {
 
         List<BaseTag> tags = new ArrayList<>();
         tags.add(new PubKeyTag(Identity.generateRandomIdentity().getPublicKey(),
-                "ws://localhost:5555",
-                "ISSUER"));
+            "ws://localhost:5555",
+            "ISSUER"));
         tags.add(new PubKeyTag(Identity.generateRandomIdentity().getPublicKey(),
-                "",
-                "COUNTERPARTY"));
+            "",
+            "COUNTERPARTY"));
 
         var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
         EventNostr event = nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign();
@@ -517,7 +516,7 @@ class ApiEventTest {
         final String LNURL = "lnUrl";
         final String RELAYS_TAG = "ws://localhost:5555";
         ZapRequestEvent instance = nip57
-                .createZapRequestEvent(Identity.generateRandomIdentity().getPublicKey(), new ArrayList<BaseTag>(), ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
+            .createZapRequestEvent(Identity.generateRandomIdentity().getPublicKey(), new ArrayList<BaseTag>(), ZAP_REQUEST_CONTENT, AMOUNT, LNURL, RELAYS_TAG).getEvent();
         instance.update();
 
         assertNotNull(instance.getId());
@@ -532,7 +531,7 @@ class ApiEventTest {
 
         assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
         assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream()
-                .anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
+            .anyMatch(relay -> relay.getUri().equals(RELAYS_TAG)));
         assertEquals(AMOUNT, instance.getZapRequest().getAmount());
         assertEquals(LNURL, instance.getZapRequest().getLnUrl());
 
@@ -556,8 +555,8 @@ class ApiEventTest {
         var nip57 = new NIP57<ZapReceiptEvent>(Identity.generateRandomIdentity());
 
         ZapReceiptEvent instance = nip57.createZapReceiptEvent(zapRequestPubKeyTag, getBaseTags(), zapRequestEventTag,
-                        zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE)
-                .getEvent();
+                zapRequestAddressTag, ZAP_RECEIPT_IDENTIFIER, ZAP_RECEIPT_RELAY_URI, BOLT_11, DESCRIPTION_SHA256, PRE_IMAGE)
+            .getEvent();
         instance.update();
 
         assertNotNull(instance.getId());
