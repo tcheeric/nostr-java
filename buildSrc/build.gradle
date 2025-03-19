@@ -1,3 +1,10 @@
+/* 
+gradle project-build tools configuration file  
+
+nostr-java specific configs can be found in:
+    buildSrc/src/main/groovy/nostr-java.conventions.gradle
+*/
+
 plugins {
     id 'java'
     id 'groovy-gradle-plugin'

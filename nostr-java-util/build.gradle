@@ -1,13 +1,8 @@
 plugins {
-    id 'nostr-java.java-conventions'
+    id 'nostr-java.conventions'
 }
 
 description = 'nostr-java-util'
-
-tasks.named('test') {
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-}
 
 tasks.named('test') {
     systemProperty("spring.profiles.active", "test")

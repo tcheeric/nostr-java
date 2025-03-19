@@ -1,6 +1,5 @@
 plugins {
-    id 'nostr-java.java-conventions'
-    id 'com.adarshr.test-logger'
+    id 'nostr-java.conventions'
 }
 
 description = 'nostr-java-base'
@@ -8,12 +7,6 @@ description = 'nostr-java-base'
 dependencies {
     api project(':nostr-java-util')
     api project(':nostr-java-crypto')
-
-//    TODO: save below/Modulith for multi-module integration testing    
-//    testRuntimeOnly 'org.springframework.modulith:spring-modulith-core:1.3.3'
-//    testCompileOnly 'org.springframework.modulith:spring-modulith-api:1.3.3'
-//    testCompileOnly 'org.springframework.modulith:spring-modulith-apt:1.3.3'
-//    testCompileOnly 'org.springframework.modulith:spring-modulith-moments:1.3.3'
 }
 
 tasks.named('test') {

@@ -1,5 +1,5 @@
 plugins {
-    id 'nostr-java.java-conventions'
+    id 'nostr-java.conventions'
 }
 
 description = 'nostr-java-client'

@@ -1,3 +1,10 @@
+/*
+nostr-java application/library dependencies & configuration file 
+
+gradle project-build tools specific configs can be found in:
+    buildSrc/build.gradle
+*/
+
 plugins {
     id 'java'
     id 'java-library'
@@ -19,9 +26,6 @@ repositories {
     gradlePluginPortal()
     mavenLocal()
     mavenCentral()
-    maven {
-        url = 'https://plugins.gradle.org/m2/'
-    }
 }
 
 ////  TODO: commented placeholder as eric may want to provide custom publishing specs
@@ -43,8 +47,6 @@ dependencies {
     def googleGuava = '33.2.1-jre'
     def bouncyCastle = '1.80'
     def awaitility = '4.2.0'
-//    TODO: save below/Modulith for multi-module integration testing
-    def springModulithVersion = '1.3.3'
     def lombok = '1.18.36'
 
     implementation 'org.springframework.boot:spring-boot-starter:' + springBootVersion
