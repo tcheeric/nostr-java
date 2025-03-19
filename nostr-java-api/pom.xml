@@ -15,12 +15,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-client</artifactId>
-            <version>${nostr-project.version}</version>
+            <version>${nostr-java.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-encryption</artifactId>
-            <version>${nostr-project.version}</version>
+            <version>${nostr-java.version}</version>
         </dependency>
     </dependencies>
 </project>

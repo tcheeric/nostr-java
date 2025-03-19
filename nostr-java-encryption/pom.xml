@@ -22,7 +22,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-crypto</artifactId>
-            <version>${nostr-project.version}</version>
+            <version>${nostr-java.version}</version>
         </dependency>
     </dependencies>
 </project>
