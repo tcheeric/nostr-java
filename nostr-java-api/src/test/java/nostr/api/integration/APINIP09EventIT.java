@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
-public class APINIP09EventTest {
+public class APINIP09EventIT {
     @Autowired
     private Map<String, String> relays;
     

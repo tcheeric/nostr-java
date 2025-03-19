@@ -27,7 +27,7 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ApiNIP99RequestTest {
+class ApiNIP99RequestIT {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String RELAY_URI = "ws://localhost:5555";
   public static final String PUBLISHED_AT_CODE = "published_at";

@@ -1,4 +1,4 @@
-package nostr.api.integration;
+package nostr.api.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;

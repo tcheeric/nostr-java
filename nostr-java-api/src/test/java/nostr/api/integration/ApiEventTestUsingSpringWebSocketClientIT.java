@@ -18,14 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static nostr.api.integration.ApiEventTest.createProduct;
-import static nostr.api.integration.ApiEventTest.createStall;
+import static nostr.api.integration.ApiEventIT.createProduct;
+import static nostr.api.integration.ApiEventIT.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
-class ApiEventTestUsingSpringWebSocketClientTest {
+class ApiEventTestUsingSpringWebSocketClientIT {
     private SpringWebSocketClient springWebSocketClient;
 
     @Autowired

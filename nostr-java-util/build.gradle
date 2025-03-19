@@ -8,3 +8,8 @@ tasks.named('test') {
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
 }
+
+tasks.named('test') {
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+}

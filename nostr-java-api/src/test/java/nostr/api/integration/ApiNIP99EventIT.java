@@ -26,7 +26,7 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ApiNIP99EventTest {
+class ApiNIP99EventIT {
   private static final String RELAY_URI = "ws://localhost:5555";
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
@@ -53,7 +53,7 @@ class ApiNIP99EventTest {
   public static final String LOCATION_CODE = "location";
   private final SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP99EventTest() {
+  public ApiNIP99EventIT() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 

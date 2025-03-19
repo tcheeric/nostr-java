@@ -1,4 +1,4 @@
-package nostr.api.integration;
+package nostr.api.unit;
 
 import java.util.Arrays;
 import java.util.List;

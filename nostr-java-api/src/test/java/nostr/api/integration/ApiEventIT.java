@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
-public class ApiEventTest {
+public class ApiEventIT {
     @Autowired
     private Map<String, String> relays;
 

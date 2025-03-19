@@ -21,11 +21,11 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ApiNIP52EventTest {
+class ApiNIP52EventIT {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP52EventTest() {
+  public ApiNIP52EventIT() {
     springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
   }
 
