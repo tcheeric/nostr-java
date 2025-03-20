@@ -1,6 +1,7 @@
 package nostr.api.integration;
 
 import nostr.api.NIP52;
+import nostr.api.util.JsonComparator;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ApiNIP52RequestIT {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String RELAY_URI = "ws://localhost:5555";
-  private static final String SUBSCRIBER_ID = "ApiNIP52RequestTest-subscriber_001";
   private static final String UUID_CALENDAR_TIME_BASED_EVENT_TEST = "UUID-CalendarTimeBasedEventTest";
 
   public static final String ID = "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07";
@@ -106,12 +107,13 @@ class ApiNIP52RequestIT {
 
     GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, CALENDAR_CONTENT, calendarContent).sign().getEvent();
     event.setCreatedAt(Long.valueOf(CREATED_AT));
+    eventId = event.getId();
     signature = event.getSignature().toString();
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
-    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().get();
+    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
@@ -130,18 +132,20 @@ class ApiNIP52RequestIT {
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
-/*
+///*
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
-    String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
-    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().get();
+    String subscriberId = UUID.randomUUID().toString();
+    String reqJson = createReqJson(subscriberId, eventId);
+    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
 
+    String expected = expectedRequestResponseJson(subscriberId);
     assertTrue(
         JsonComparator.isEquivalentJson(
-            MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson()),
+            MAPPER_AFTERBURNER.readTree(expected),
             MAPPER_AFTERBURNER.readTree(reqResponse)));
 
-    springWebSocketRequestClient.closeSocket();
-*/
+//    springWebSocketRequestClient.closeSocket();
+//*/
   }
 
   private String expectedEventResponseJson(String subscriptionId) {
@@ -152,15 +156,15 @@ class ApiNIP52RequestIT {
     return "[\"REQ\",\"" + subscriberId + "\",{\"ids\":[\"" + id + "\"]}]";
   }
 
-  private String expectedRequestResponseJson() {
-    return "   [\"EVENT\",\"" + SUBSCRIBER_ID + "\",\n" +
+  private String expectedRequestResponseJson(String subscriberId) {
+    return "   [\"EVENT\",\"" + subscriberId + "\",\n" +
         "          {\"id\": \"" + eventId + "\",\n" +
         "          \"kind\": " + KIND + ",\n" +
         "          \"content\": \"" + CALENDAR_CONTENT + "\",\n" +
         "          \"pubkey\": \"" + eventPubKey + "\",\n" +
         "          \"created_at\": " + CREATED_AT + ",\n" +
         "          \"tags\": [\n" +
-        "            [ \"e\", \"" + E_TAG.getIdEvent() + "\", \"" + E_TAG.getMarker() + "\" ],\n" +
+        "            [ \"e\", \"" + E_TAG.getIdEvent() + "\" ],\n" +
         "            [ \"g\", \"" + G_TAG.getLocation() + "\" ],\n" +
         "            [ \"t\", \"" + T_TAG.getHashTag() + "\" ],\n" +
         "            [ \"d\", \"" + UUID_CALENDAR_TIME_BASED_EVENT_TEST + "\" ],\n" +

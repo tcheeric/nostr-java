@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
-public class ApiNIP09EventIT {
+public class ZDoLastApiNIP09EventIT {
     @Autowired
     private Map<String, String> relays;
 

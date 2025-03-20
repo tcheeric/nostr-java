@@ -36,7 +36,7 @@ class RelaysTagTest {
             JsonNode node = MAPPER_AFTERBURNER.readTree(EXPECTED);
             BaseTag deserialize = RelaysTag.deserialize(node);
             assertEquals(RELAYS_KEY, deserialize.getCode());
-            assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().get(0).getUri());
+            assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().getFirst().getUri());
         });
     }
 

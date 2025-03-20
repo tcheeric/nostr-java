@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
@@ -96,39 +98,39 @@ class ApiNIP99RequestIT {
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
     List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
 
-    assertTrue(eventResponses.size() == 1, "Expected 1 event response, but got " + eventResponses.size());
+	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
     var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
     var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(0).asText();
-    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(1).asText();
-    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponses.get(0)).get(2).asBoolean();
+    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(0).asText();
+    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(1).asText();
+    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(2).asBoolean();
 
-    assertTrue(expectedArray.equals(actualArray), "First element should match");
-    assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
-    assertTrue(expectedSuccess == actualSuccess, "Success flag should match");
+	  assertEquals(expectedArray, actualArray, "First element should match");
+	  assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+	  assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
 //    springWebSocketEventClient.closeSocket();
 
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
-/*
+///*
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
-    String reqJson = createReqJson(SUBSCRIBER_ID, eventId);
+    String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
-    springWebSocketRequestClient.closeSocket();
+//    springWebSocketRequestClient.closeSocket();
 
     var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson());
 
     // Verify you receive the event
-    assertTrue(actualJson.get(0).asText().equals("EVENT"), "Event should be received, and not " + actualJson.get(0).asText());
+	  assertEquals("EVENT", actualJson.get(0).asText(), "Event should be received, and not " + actualJson.get(0).asText());
 
     // Verify only required fields
-    assertTrue(actualJson.size() == 3, "Expected 3 elements in the array, but got " + actualJson.size());
+	  assertEquals(3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
     assertTrue(actualJson.get(2).get("id").asText().equals(expectedJson.get(2).get("id").asText()), "ID should match");
     assertTrue(actualJson.get(2).get("kind").asInt() == expectedJson.get(2).get("kind").asInt(), "Kind should match");
 
@@ -137,7 +139,7 @@ class ApiNIP99RequestIT {
     assertTrue(hasRequiredTag(actualTags, "price", NUMBER.toString()), "Price tag should be present");
     assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");
     assertTrue(hasRequiredTag(actualTags, "summary", SUMMARY), "Summary tag should be present");
-*/
+//*/
   }
 
   private String expectedEventResponseJson(String subscriptionId) {
