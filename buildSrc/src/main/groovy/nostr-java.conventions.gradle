@@ -25,17 +25,19 @@ repositories {
     mavenCentral()
 }
 
-////  TODO: commented placeholder as eric may want to provide custom publishing specs
-//publishing {
-//    publications {
-//        nostrjava(MavenPublication) {
-//            from components.java
-//        }
-//    }
-//    repositories {
+publishing {
+    publications {
+        nostrjava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+////  TODO: below placeholder for eric        
 //        someRemoteRepo()
-//    }
-//}
+    }
+}
+
 
 dependencies {
     def springBootVersion = rootProject.property("nostr-java.springBootVersion")
