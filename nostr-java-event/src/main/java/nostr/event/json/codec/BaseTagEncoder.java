@@ -1,37 +1,33 @@
 package nostr.event.json.codec;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.Encoder;
-import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.TagSerializer;
 
 @Data
-@AllArgsConstructor
 public class BaseTagEncoder implements Encoder {
+    public static final ObjectMapper BASETAGENCODER_MAPPED_AFTERBURNER =
+        ENCODER_MAPPED_AFTERBURNER.copy()
+            .registerModule(
+                new SimpleModule().addSerializer(
+                    new TagSerializer()));
 
     private final BaseTag tag;
-    private final Relay relay;
 
     public BaseTagEncoder(@NonNull BaseTag tag) {
-        this(tag, null);
+        this.tag = tag;
     }
 
     @Override
     public String encode() {
         try {
-//            TODO: revisit below using afterburner alternative
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(new TagSerializer());
-            return (new ObjectMapper())
-                    .setSerializationInclusion(Include.NON_NULL)
-                    .registerModule(module).writeValueAsString(tag);
+            String s = BASETAGENCODER_MAPPED_AFTERBURNER.writeValueAsString(tag);
+            return s;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

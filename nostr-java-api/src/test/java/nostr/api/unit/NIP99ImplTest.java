@@ -96,7 +96,7 @@ class NIP99ImplTest {
     classifiedListing.setLocation(LOCATION);
     classifiedListing.setPublishedAt(PUBLISHED_AT);
 
-    baseTags.add(GenericTag.create("published_at", 99, String.valueOf(PUBLISHED_AT)));
+    baseTags.add(GenericTag.create("published_at", String.valueOf(PUBLISHED_AT)));
     ClassifiedListingEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
     instance.update();
 
@@ -114,6 +114,6 @@ class NIP99ImplTest {
   }
 
   private GenericTag containsGeneric(String key, String value) {
-    return GenericTag.create(key, 99, value);
+    return GenericTag.create(key, value);
   }
 }

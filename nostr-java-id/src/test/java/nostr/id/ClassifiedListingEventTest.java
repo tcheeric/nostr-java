@@ -58,10 +58,10 @@ class ClassifiedListingEventTest {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
     tags.add(P_TAG);
-    tags.add(GenericTag.create(TITLE_CODE, 99, CLASSIFIED_LISTING_TITLE));
-    tags.add(GenericTag.create(SUMMARY_CODE, 99, CLASSIFIED_LISTING_SUMMARY));
-    tags.add(GenericTag.create(PUBLISHED_AT_CODE, 99, CLASSIFIED_LISTING_PUBLISHED_AT));
-    tags.add(GenericTag.create(LOCATION_CODE, 99, CLASSIFIED_LISTING_LOCATION));
+    tags.add(GenericTag.create(TITLE_CODE, CLASSIFIED_LISTING_TITLE));
+    tags.add(GenericTag.create(SUMMARY_CODE, CLASSIFIED_LISTING_SUMMARY));
+    tags.add(GenericTag.create(PUBLISHED_AT_CODE, CLASSIFIED_LISTING_PUBLISHED_AT));
+    tags.add(GenericTag.create(LOCATION_CODE, CLASSIFIED_LISTING_LOCATION));
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);

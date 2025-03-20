@@ -73,13 +73,13 @@ class CalendarTimeBasedEventTest {
         List<BaseTag> tags = new ArrayList<>();
         tags.add(P_1_TAG);
         tags.add(P_2_TAG);
-        tags.add(GenericTag.create(LOCATION_CODE, 52, CALENDAR_TIME_BASED_EVENT_LOCATION));
+        tags.add(GenericTag.create(LOCATION_CODE, CALENDAR_TIME_BASED_EVENT_LOCATION));
         tags.add(SUBJECT_TAG);
         tags.add(G_TAG);
         tags.add(T_TAG);
-        tags.add(GenericTag.create(START_TZID_CODE, 52, CALENDAR_TIME_BASED_EVENT_START_TZID));
+        tags.add(GenericTag.create(START_TZID_CODE, CALENDAR_TIME_BASED_EVENT_START_TZID));
         Long l = START + 100L;
-        tags.add(GenericTag.create(END_CODE, 52, l.toString()));
+        tags.add(GenericTag.create(END_CODE, l.toString()));
 
         CalendarContent calendarContent = CalendarContent.builder(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START)
             .build();

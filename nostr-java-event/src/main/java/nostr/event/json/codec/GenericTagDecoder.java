@@ -29,7 +29,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
         try {
             String[] jsonElements = MAPPER_AFTERBURNER.readValue(json, String[].class);
             GenericTag genericTag = new GenericTag(
-                jsonElements[0], // index 0 designated as generic tag's "code"
+                jsonElements[0], // value at index 0 designated as generic tag's "code"
                 IntStream.of(0, jsonElements.length)
                     .mapToObj(i ->
                         new ElementAttribute(

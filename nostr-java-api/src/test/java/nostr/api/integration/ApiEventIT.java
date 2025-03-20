@@ -183,7 +183,7 @@ public class ApiEventIT {
         System.out.println("testNIP01SendTextNoteEventCustomGenericTag");
 
         String targetString = "custom-generic-tag-testNIP01SendTextNoteEventCustomGenericTag";
-        GenericTag genericTag = GenericTag.create("m", 1, targetString);
+        GenericTag genericTag = GenericTag.create("m",  targetString);
 
         NIP01<NIP01Event> nip01 = new NIP01<>(Identity.generateRandomIdentity());
         nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test testNIP01SendTextNoteEventCustomGenericTag").signAndSend(relays);
@@ -212,7 +212,7 @@ public class ApiEventIT {
         GeohashTag geohashTag = new GeohashTag(geoHashTagTarget);
 
         String genericTagTarget = "generic-tag-value_SameSingularEvent";
-        GenericTag genericTag = GenericTag.create("m", 1, genericTagTarget);
+        GenericTag genericTag = GenericTag.create("m",  genericTagTarget);
 
         NIP01<NIP01Event> nip01 = new NIP01<>(Identity.generateRandomIdentity());
 
@@ -240,7 +240,7 @@ public class ApiEventIT {
         String geoHashTagTarget1 = "geohash_tag-location-1";
         GeohashTag geohashTag1 = new GeohashTag(geoHashTagTarget1);
         String genericTagTarget1 = "generic-tag-value-1";
-        GenericTag genericTag1 = GenericTag.create("m", 1, genericTagTarget1);
+        GenericTag genericTag1 = GenericTag.create("m", genericTagTarget1);
         NIP01<NIP01Event> nip01_1 = new NIP01<>(Identity.generateRandomIdentity());
         nip01_1.createTextNoteEvent(List.of(geohashTag1, genericTag1), "Multiple Filters 1").signAndSend(relays);
 
@@ -248,7 +248,7 @@ public class ApiEventIT {
         String geoHashTagTarget2 = "geohash_tag-location-2";
         GeohashTag geohashTag2 = new GeohashTag(geoHashTagTarget2);
         String genericTagTarget2 = "generic-tag-value-2";
-        GenericTag genericTag2 = GenericTag.create("m", 1, genericTagTarget2);
+        GenericTag genericTag2 = GenericTag.create("m", genericTagTarget2);
         NIP01<NIP01Event> nip01_2 = new NIP01<>(Identity.generateRandomIdentity());
         nip01_2.createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2").signAndSend(relays);
 
@@ -277,7 +277,7 @@ public class ApiEventIT {
         GeohashTag geohashTag = new GeohashTag(geoHashTagTarget);
 
         String genericTagTarget = "generic-tag-value-DifferentTypesReturnSameEvent";
-        GenericTag genericTag = GenericTag.create("m", 1, genericTagTarget);
+        GenericTag genericTag = GenericTag.create("m", genericTagTarget);
 
         NIP01<NIP01Event> nip01 = new NIP01<>(Identity.generateRandomIdentity());
         nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays);
@@ -448,8 +448,8 @@ public class ApiEventIT {
 
         assertEquals("l", label.getCode());
         assertEquals(2, label.getAttributes().size());
-        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
-        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english")));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages")));
     }
 
     @Test
@@ -463,9 +463,9 @@ public class ApiEventIT {
 
         assertEquals("l", label.getCode());
         assertEquals(3, label.getAttributes().size());
-        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english", 32)));
-        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages", 32)));
-        assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}", 32)),
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param0", "english")));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param1", "Languages")));
+        assertTrue(label.getAttributes().contains(new ElementAttribute("param2", "{\\\"article\\\":\\\"the\\\"}")),
             "{\\\"article\\\":\\\"the\\\"}");
     }
 

@@ -258,10 +258,10 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     protected void addGenericTag(String key, Integer nip, Object value) {
-        Optional.ofNullable(value).ifPresent(s -> addTag(GenericTag.create(key, nip, s.toString())));
+        Optional.ofNullable(value).ifPresent(s -> addTag(GenericTag.create(key, s.toString())));
     }
 
     protected void addStringListTag(String label, Integer nip, List<String> tag) {
-        Optional.ofNullable(tag).ifPresent(tagList -> addGenericTag(label, nip, tagList));
+        Optional.ofNullable(tag).ifPresent(tagList -> GenericTag.create(label, tagList));
     }
 }

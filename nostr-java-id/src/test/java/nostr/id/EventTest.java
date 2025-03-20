@@ -52,11 +52,7 @@ public class EventTest {
         PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
         GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
-        Relay relay = new Relay("wss://secret.relay.com");
-        relay.addNipSupport(1);
-        relay.addNipSupport(genericTag.getNip());
-
-        var encoder = new BaseTagEncoder(genericTag, relay);
+        var encoder = new BaseTagEncoder(genericTag);
         var strJsonEvent = encoder.encode();
 
         assertDoesNotThrow(() -> {

@@ -1,14 +1,5 @@
 package nostr.api.unit;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -21,6 +12,13 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class NIP52ImplTest {
   public static final String TIME_BASED_EVENT_CONTENT = "CalendarTimeBasedEvent unit test content";
@@ -104,6 +102,6 @@ class NIP52ImplTest {
   }
 
   private GenericTag containsGeneric(String key, String value) {
-    return GenericTag.create(key, 52, value);
+    return GenericTag.create(key, value);
   }
 }

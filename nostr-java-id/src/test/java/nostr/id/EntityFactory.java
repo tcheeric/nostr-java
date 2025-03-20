@@ -126,6 +126,12 @@ public class EntityFactory {
             return tag;
         }
 
+        /**
+         * @param tagNip parameter to be removed
+         *
+         * @deprecated use {@link #createGenericTag(PublicKey, IEvent)} instead.  
+         */
+        @Deprecated(forRemoval = true)
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
             GenericTag tag = new GenericTag("devil");
             tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());

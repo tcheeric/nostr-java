@@ -73,8 +73,8 @@ class ApiNIP99RequestIT {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
     tags.add(P_TAG);
-    tags.add(GenericTag.create(PUBLISHED_AT_CODE, 99, CREATED_AT));
-    tags.add(GenericTag.create(LOCATION_CODE, 99, LOCATION));
+    tags.add(GenericTag.create(PUBLISHED_AT_CODE,  CREATED_AT));
+    tags.add(GenericTag.create(LOCATION_CODE,  LOCATION));
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);

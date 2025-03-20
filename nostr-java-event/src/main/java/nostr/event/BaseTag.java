@@ -51,11 +51,6 @@ public abstract class BaseTag implements ITag {
         return this.getClass().getAnnotation(Tag.class).code();
     }
 
-    @Override
-    public Integer getNip() {
-        return 1;
-    }
-
     public String getFieldValue(Field field) throws NostrException {
         try {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
