@@ -9,7 +9,6 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    id 'groovy-gradle-plugin'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'com.adarshr.test-logger'
