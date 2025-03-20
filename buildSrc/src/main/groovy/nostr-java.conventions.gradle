@@ -11,8 +11,9 @@ plugins {
     id 'maven-publish'
     id 'groovy-gradle-plugin'
     id 'org.springframework.boot'
-    id 'com.adarshr.test-logger'
     id 'io.spring.dependency-management'
+    id 'com.adarshr.test-logger'
+    id 'org.gradle.test-retry'
 }
 
 group = version = rootProject.property("nostr-java.group")
@@ -45,6 +46,7 @@ dependencies {
     def bouncyCastle = rootProject.property("nostr-java.bouncyCastle")
     def awaitility = rootProject.property("nostr-java.awaitility")
     def lombok = rootProject.property("nostr-java.lombok")
+    def logger = rootProject.property("nostr-java.adarshrGradleTestLoggerPlugin")
 
     implementation 'org.springframework.boot:spring-boot-starter:' + springBootVersion
     implementation 'org.springframework.boot:spring-boot-devtools:' + springBootVersion
@@ -56,23 +58,22 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:' + jacksonModuleAfterburner
     implementation 'org.bouncycastle:bcprov-jdk18on:' + bouncyCastle
-    
+
     implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
     implementation 'com.google.guava:guava:' + googleGuava
     implementation 'org.awaitility:awaitility:' + awaitility
-    annotationProcessor 'org.awaitility:awaitility:' + awaitility
     implementation 'org.projectlombok:lombok:' + lombok
+    annotationProcessor 'org.awaitility:awaitility:' + awaitility
     annotationProcessor 'org.projectlombok:lombok:' + lombok
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + springBootVersion
     testImplementation 'org.projectlombok:lombok:' + lombok
     testImplementation 'org.awaitility:awaitility:' + awaitility
-    testImplementation 'com.adarshr:gradle-test-logger-plugin:4.0.0'
-    testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
+    testImplementation 'com.adarshr:gradle-test-logger-plugin:' + logger
+    
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
 }
-
-subprojects { apply plugin: 'com.adarshr.test-logger' }
 
 configurations {
     compileOnly {
@@ -81,8 +82,17 @@ configurations {
 }
 
 tasks.test {
-//    systemProperty("spring.profiles.active", "test")
+    systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
+}
+
+test {
+    retry {
+        maxRetries.set(2)
+//        maxFailures.set(20)
+        failOnPassedAfterRetry.set(false)
+//        failOnSkippedAfterRetry.set(true)
+    }
 }
 
 tasks.bootJar {

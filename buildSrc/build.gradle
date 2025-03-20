@@ -16,16 +16,18 @@ version = '0.6.5-SNAPSHOT'
 repositories {
     gradlePluginPortal()
     mavenCentral()
-    maven {
-        url = 'https://repo.maven.apache.org/maven2/'
-    }    
+    gradlePluginPortal {
+        url = 'https://plugins.gradle.org/m2/'
+    }
 }
 
 dependencies {
     def springBootVersion = '3.4.3'
+    def retry = '1.6.2'
 
     implementation 'org.springframework.boot:spring-boot:' + springBootVersion
     implementation 'org.springframework.boot:spring-boot-gradle-plugin:' + springBootVersion
+    implementation 'org.gradle.test-retry:org.gradle.test-retry.gradle.plugin:' + retry
 }
 
 configurations {
