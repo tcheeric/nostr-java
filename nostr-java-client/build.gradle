@@ -7,8 +7,3 @@ description = 'nostr-java-client'
 dependencies {
     api project(':nostr-java-id')
 }
-
-tasks.named('test') {
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-}

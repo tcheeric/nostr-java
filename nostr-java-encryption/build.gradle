@@ -8,8 +8,3 @@ dependencies {
     api project(':nostr-java-crypto')
     api project(':nostr-java-util')
 }
-
-tasks.named('test') {
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-}
