@@ -2,8 +2,8 @@ package nostr.api.integration;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
-import nostr.config.RelayProperties;
 import nostr.base.Relay;
+import nostr.config.RelayProperties;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -19,10 +19,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -31,18 +29,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
 public class ApiNIP09EventIT {
     @Autowired
     private Map<String, String> relays;
-    
+
     @Test
     public void deleteEvent() throws IOException {
 
@@ -53,8 +47,8 @@ public class ApiNIP09EventIT {
         nip01.createTextNoteEvent("Delete me!").signAndSend(relays);
 
         Filters filters = new Filters(
-                new KindFilter<>(Kind.TEXT_NOTE),
-                new AuthorFilter<>(identity.getPublicKey()));
+            new KindFilter<>(Kind.TEXT_NOTE),
+            new AuthorFilter<>(identity.getPublicKey()));
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
@@ -68,8 +62,8 @@ public class ApiNIP09EventIT {
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
 
-        nip01.close();
-        nip09.close();
+//        nip01.close();
+//        nip09.close();
     }
 
 
@@ -89,10 +83,10 @@ public class ApiNIP09EventIT {
 
         NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
         nip01
-                .createTextNoteEvent("Reference me!")
-                .getEvent()
-                .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
-        
+            .createTextNoteEvent("Reference me!")
+            .getEvent()
+            .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
+
         BaseMessage message = nip01.signAndSend(relays);
 
         assertNotNull(message);
@@ -106,9 +100,9 @@ public class ApiNIP09EventIT {
         assertEquals(4, deletedEvent.getTags().size());
 
         List<BaseTag> eventTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "e".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "e".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(1, eventTags.size());
 
@@ -116,9 +110,9 @@ public class ApiNIP09EventIT {
         assertEquals(event.getId(), eventTag.getIdEvent());
 
         List<BaseTag> addressTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "a".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "a".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(1, addressTags.size());
 
@@ -128,16 +122,16 @@ public class ApiNIP09EventIT {
         assertEquals(identity.getPublicKey(), addressTag.getPublicKey());
 
         List<BaseTag> kindTags = deletedEvent.getTags()
-                .stream()
-                .filter(t -> "k".equals(t.getCode()))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(t -> "k".equals(t.getCode()))
+            .collect(Collectors.toList());
 
         assertEquals(2, kindTags.size());
 
         nip09.signAndSend(relays);
 
-        nip01.close();
-        nip011.close();
-        nip09.close();
+//        nip01.close();
+//        nip011.close();
+//        nip09.close();
     }
 }

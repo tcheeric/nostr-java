@@ -39,10 +39,8 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -57,7 +55,6 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
 public class ApiEventIT {
@@ -97,7 +94,7 @@ public class ApiEventIT {
         assertTrue(response instanceof OkMessage);
         assertEquals(nip01.getEvent().getId(), ((OkMessage) response).getEventId());
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -117,7 +114,7 @@ public class ApiEventIT {
         var response = instance.setRelays(relays).send();
         assertTrue(response instanceof OkMessage);
         assertEquals(nip04.getEvent().getId(), ((OkMessage) response).getEventId());
-        nip04.close();
+//        nip04.close();
     }
 
     @Test
@@ -134,7 +131,7 @@ public class ApiEventIT {
         var response = instance.setRelays(relays).send();
         assertTrue(response instanceof OkMessage);
         assertEquals(nip44.getEvent().getId(), ((OkMessage) response).getEventId());
-        nip44.close();
+//        nip44.close();
     }
 
     @Test
@@ -156,7 +153,7 @@ public class ApiEventIT {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -178,7 +175,7 @@ public class ApiEventIT {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -204,7 +201,7 @@ public class ApiEventIT {
 
         assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -232,7 +229,7 @@ public class ApiEventIT {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -268,8 +265,8 @@ public class ApiEventIT {
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget1)));
         assertTrue(result.stream().anyMatch(s -> s.contains(genericTagTarget2)));
 
-        nip01_1.close();
-        nip01_2.close();
+//        nip01_1.close();
+//        nip01_2.close();
     }
 
     @Test
@@ -295,7 +292,7 @@ public class ApiEventIT {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
-        nip01.close();
+//        nip01.close();
     }
 
     @Test
@@ -371,7 +368,7 @@ public class ApiEventIT {
         assertTrue(response instanceof OkMessage);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-        nip15.close();
+//        nip15.close();
     }
 
     @Test
@@ -395,7 +392,7 @@ public class ApiEventIT {
         assertTrue(response instanceof OkMessage);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-        nip15.close();
+//        nip15.close();
     }
 
     @Test
@@ -427,7 +424,7 @@ public class ApiEventIT {
         assertTrue(response instanceof OkMessage);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-        nip15.close();
+//        nip15.close();
     }
 
     @Test
@@ -500,7 +497,7 @@ public class ApiEventIT {
         assertTrue(response instanceof OkMessage);
         assertEquals(nip52.getEvent().getId(), ((OkMessage) response).getEventId());
 
-        nip52.close();
+//        nip52.close();
     }
 
     @Test

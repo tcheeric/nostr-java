@@ -15,11 +15,8 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,7 +26,6 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 class ApiNIP52RequestIT {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
@@ -81,7 +77,6 @@ class ApiNIP52RequestIT {
   public String eventPubKey;
   public String signature;
 
-  @Order(1)
   @Test
   void testNIP99CalendarContentPreRequest() throws IOException {
     System.out.println("testNIP52CalendarContentEvent");
@@ -131,7 +126,7 @@ class ApiNIP52RequestIT {
     assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
     //assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is not required. The relay will always return false because we resending the same event, causing duplicates.
 
-    springWebSocketEventClient.closeSocket();
+//    springWebSocketEventClient.closeSocket();
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay

@@ -1,21 +1,18 @@
 package nostr.api.integration;
 
+import lombok.SneakyThrows;
 import nostr.api.NIP15;
-import nostr.config.RelayProperties;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.config.RelayProperties;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,22 +22,23 @@ import static nostr.api.integration.ApiEventIT.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(RelayProperties.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientIT {
-    private SpringWebSocketClient springWebSocketClient;
+    private final List<SpringWebSocketClient> springWebSocketClients;
 
     @Autowired
-    Map<String, String> relays;
-
-    @BeforeEach
-    void setupBeforeEach() {
-        relays.forEach((key, value) -> springWebSocketClient = new SpringWebSocketClient(value));
+    public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
+        this.springWebSocketClients = relays.values().stream().map(SpringWebSocketClient::new).toList();
     }
 
     @Test
-    void testNIP15SendProductEventUsingSpringWebSocketClient() throws IOException {
+    void doForEach() {
+        springWebSocketClients.forEach(this::testNIP15SendProductEventUsingSpringWebSocketClient);
+    }
+
+    @SneakyThrows
+    void testNIP15SendProductEventUsingSpringWebSocketClient(SpringWebSocketClient springWebSocketClient) {
         System.out.println("testNIP15CreateProductEventUsingSpringWebSocketClient");
         var product = createProduct(createStall());
 
@@ -68,7 +66,7 @@ class ApiEventTestUsingSpringWebSocketClientIT {
         assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
         assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-        springWebSocketClient.closeSocket();
+//        springWebSocketClient.closeSocket();
     }
 
     private String expectedResponseJson(String sha256) {

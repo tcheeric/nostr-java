@@ -13,9 +13,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +22,6 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 class ApiNIP52EventIT {
   private static final String RELAY_URI = "ws://localhost:5555";
@@ -66,7 +63,7 @@ class ApiNIP52EventIT {
                 .add(actualJson.get(1))
                 .add(actualJson.get(2))));
 
-    springWebSocketClient.closeSocket();
+//    springWebSocketClient.closeSocket();
   }
 
   private String expectedResponseJson(String sha256) {
