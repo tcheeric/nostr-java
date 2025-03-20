@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.IEvent;
 import nostr.base.ITag;
@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
 @JsonDeserialize(using = TagDeserializer.class)
 @JsonSerialize(using = TagSerializer.class)
 public abstract class BaseTag implements ITag {
@@ -43,7 +42,7 @@ public abstract class BaseTag implements ITag {
     private IEvent parent;
 
     @Override
-    public void setParent(IEvent event) {
+    public void setParent(@NonNull IEvent event) {
         this.parent = event;
     }
 
@@ -68,11 +67,11 @@ public abstract class BaseTag implements ITag {
 
     public List<Field> getSupportedFields() throws NostrException {
         return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
-                .filter(f ->
-                        Objects.nonNull(f.getAnnotation(Key.class)))
-                .filter(f ->
-                        Objects.nonNull(getFieldValue(f)))
-                .collect(Collectors.toList());
+            .filter(f ->
+                Objects.nonNull(f.getAnnotation(Key.class)))
+            .filter(f ->
+                Objects.nonNull(getFieldValue(f)))
+            .collect(Collectors.toList());
     }
 
     protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {

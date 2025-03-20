@@ -121,14 +121,14 @@ public class EntityFactory {
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
             GenericTag tag = new GenericTag("devil");
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").nip(666).build());
+            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
-            GenericTag tag = new GenericTag("devil", tagNip);
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").nip(666).build());
+            GenericTag tag = new GenericTag("devil");
+            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
             ((GenericEvent) event).addTag(tag);
             return tag;
         }

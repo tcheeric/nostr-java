@@ -23,16 +23,16 @@ public class CanonicalAuthenticationEvent extends GenericEvent {
 
         // Challenge tag
         List<ElementAttribute> chAttributes = new ArrayList<>();
-        var attribute = ElementAttribute.builder().nip(42).name("challenge").value(challenge).build();
+        var attribute = ElementAttribute.builder().name("challenge").value(challenge).build();
         chAttributes.add(attribute);
-        BaseTag challengeTag = new GenericTag("challenge", 42, chAttributes);
+        BaseTag challengeTag = new GenericTag("challenge", chAttributes);
         this.addTag(challengeTag);
 
         // Relay tag
         final List<ElementAttribute> relayAttributes = new ArrayList<>();
-        final ElementAttribute relayAttribute = ElementAttribute.builder().nip(42).name("uri").value(relay.getUri()).build();
+        final ElementAttribute relayAttribute = ElementAttribute.builder().name("uri").value(relay.getUri()).build();
         relayAttributes.add(relayAttribute);
-        final BaseTag relayTag = new GenericTag("relay", 42, relayAttributes);
+        final BaseTag relayTag = new GenericTag("relay", relayAttributes);
         this.addTag(relayTag);
     }
 }

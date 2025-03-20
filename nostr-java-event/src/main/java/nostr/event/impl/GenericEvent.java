@@ -119,12 +119,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags,
-            @NonNull String content) {
+        @NonNull String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags,
-            @NonNull String content) {
+        @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
         this.tags = tags;
@@ -196,8 +196,13 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     @Override
-    public void addAttribute(ElementAttribute attribute) {
-        this.attributes.add(attribute);
+    public void addAttribute(ElementAttribute... attribute) {
+        addAttributes(List.of(attribute));
+    }
+
+    @Override
+    public void addAttributes(List<ElementAttribute> attributes) {
+        this.attributes.addAll(attributes);
     }
 
     protected void validate() {

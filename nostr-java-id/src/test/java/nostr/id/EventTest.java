@@ -55,10 +55,6 @@ public class EventTest {
         Relay relay = new Relay("wss://secret.relay.com");
         relay.addNipSupport(1);
         relay.addNipSupport(genericTag.getNip());
-        var attrs = genericTag.getAttributes();
-        for (var a : attrs) {
-            relay.addNipSupport(a.getNip());
-        }
 
         var encoder = new BaseTagEncoder(genericTag, relay);
         var strJsonEvent = encoder.encode();

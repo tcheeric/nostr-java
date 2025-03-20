@@ -29,10 +29,4 @@ public class ElementAttribute {
     @JsonProperty
     @EqualsAndHashCode.Include
     private final Object value;
-    
-    @JsonProperty
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @EqualsAndHashCode.Exclude
-    private final Integer nip;
-
 }

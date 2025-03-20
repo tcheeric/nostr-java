@@ -93,7 +93,7 @@ public class NIP42Impl {
         @Override
         public GenericMessage create() {
             final List<ElementAttribute> attributes = new ArrayList<>();
-            final var attr = new ElementAttribute("challenge", challenge, 42);
+            final var attr = new ElementAttribute("challenge", challenge);
             attributes.add(attr);
             return new GenericMessage(Command.AUTH.name(), attributes, 42);
         }
