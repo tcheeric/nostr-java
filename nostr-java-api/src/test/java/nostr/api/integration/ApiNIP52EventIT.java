@@ -13,6 +13,9 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +24,8 @@ import java.util.List;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(SpringExtension.class)
+@ActiveProfiles("test")
 class ApiNIP52EventIT {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
@@ -47,7 +52,7 @@ class ApiNIP52EventIT {
     EventMessage message = new EventMessage(event);
 
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId()));
-    var actualJson = MAPPER_AFTERBURNER.readTree(springWebSocketClient.send(message).stream().findFirst().get());
+    var actualJson = MAPPER_AFTERBURNER.readTree(springWebSocketClient.send(message).stream().findFirst().orElseThrow());
 
     // Compare only first 3 elements of the JSON arrays
     assertTrue(

@@ -84,15 +84,12 @@ configurations {
 tasks.test {
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
-}
-
-test {
-    retry {
-        maxRetries.set(2)
-//        maxFailures.set(20)
-        failOnPassedAfterRetry.set(false)
-//        failOnSkippedAfterRetry.set(true)
-    }
+//    retry {
+//        maxRetries.set(1)
+////        maxFailures.set(20)
+////        failOnPassedAfterRetry.set(false)
+////        failOnSkippedAfterRetry.set(true)
+//    }
 }
 
 tasks.bootJar {
