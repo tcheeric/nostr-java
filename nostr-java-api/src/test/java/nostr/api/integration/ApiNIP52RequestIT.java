@@ -131,8 +131,12 @@ class ApiNIP52RequestIT {
 //    springWebSocketEventClient.closeSocket();
 
 
-    // TODO - This assertion fails with superdonductor and nostr-rs-relay
-///*
+    /* TODO - This assertion fails with superdonductor and nostr-rs-relay
+          above, supplemental:  SpringWebSocketClient api updated to properly handle this use/use-case
+          integration testing successful against superconductor.  
+          integration testing against nostr-rs-relay still pending   
+    */
+    
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
@@ -145,7 +149,6 @@ class ApiNIP52RequestIT {
             MAPPER_AFTERBURNER.readTree(reqResponse)));
 
 //    springWebSocketRequestClient.closeSocket();
-//*/
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

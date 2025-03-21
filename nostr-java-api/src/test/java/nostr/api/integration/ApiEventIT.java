@@ -56,7 +56,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringJUnitConfig(RelayProperties.class)
-@ActiveProfiles("test")
 public class ApiEventIT {
     @Autowired
     private Map<String, String> relays;
@@ -293,6 +292,35 @@ public class ApiEventIT {
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
 //        nip01.close();
+    }
+
+    @Test
+    public void testCreateUnsupportedGenericTagAttribute() {
+        System.out.println("testCreateUnsupportedGenericTagAttribute");
+
+        String aCustomTagKey = "a-custom-tag";
+        String aCustomTagValue = "a custom tag value";
+        GenericTag genericTag1 = GenericTag.create(aCustomTagKey, aCustomTagValue);
+
+        String anotherCustomTagKey = "another-custom-tag";
+        String anotherCustomTagValue = "another custom tag value";
+        GenericTag genericTag2 = GenericTag.create(anotherCustomTagKey, anotherCustomTagValue);
+
+        NIP01<NIP01Event> nip01 = new NIP01<>(Identity.generateRandomIdentity());
+
+        nip01.createTextNoteEvent(List.of(genericTag1, genericTag2), "Multiple Generic Tags").signAndSend(relays);
+
+        Filters filters1 = new Filters(
+            new GenericTagQueryFilter<>(new GenericTagQuery(aCustomTagKey, aCustomTagValue)));
+        Filters filters2 = new Filters(
+            new GenericTagQueryFilter<>(new GenericTagQuery(anotherCustomTagKey, anotherCustomTagValue)));
+
+        List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(s -> s.contains(aCustomTagValue)));
+        assertTrue(result.stream().anyMatch(s -> s.contains(anotherCustomTagValue)));
     }
 
     @Test
