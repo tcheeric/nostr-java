@@ -12,7 +12,7 @@ class BaseTagTest {
 
     @Test
     void testToString() {
-        String result = "GenericTag(code=id, nip=1, attributes=[ElementAttribute(name=param0, value=value)])";
+        String result = "GenericTag(code=id, attributes=[ElementAttribute(name=param0, value=value)])";
         assertEquals(result, genericTag.toString());
     }
 
