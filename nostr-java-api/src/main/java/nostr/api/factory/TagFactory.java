@@ -7,7 +7,7 @@ package nostr.api.factory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 
 /**
  *

@@ -7,7 +7,7 @@ import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;

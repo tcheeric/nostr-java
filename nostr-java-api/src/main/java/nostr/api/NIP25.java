@@ -11,8 +11,7 @@ import nostr.event.BaseTag;
 import nostr.event.NIP25Event;
 import nostr.event.Reaction;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.EmojiTag;
 import nostr.id.Identity;
 

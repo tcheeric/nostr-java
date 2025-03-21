@@ -13,7 +13,7 @@ import nostr.base.Wallet;
 import nostr.event.BaseTag;
 import nostr.event.Marker;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;

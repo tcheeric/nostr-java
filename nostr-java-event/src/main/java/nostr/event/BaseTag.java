@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
+
 @JsonDeserialize(using = TagDeserializer.class)
 @JsonSerialize(using = TagSerializer.class)
 public abstract class BaseTag implements ITag {

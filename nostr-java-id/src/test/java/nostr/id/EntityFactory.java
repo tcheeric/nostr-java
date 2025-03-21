@@ -12,7 +12,7 @@ import nostr.event.Reaction;
 import nostr.event.impl.DirectMessageEvent;
 import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
 import nostr.event.impl.MentionsEvent;
 import nostr.event.impl.MetadataEvent;

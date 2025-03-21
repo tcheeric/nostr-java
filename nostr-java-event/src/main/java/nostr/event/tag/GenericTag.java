@@ -1,4 +1,4 @@
-package nostr.event.impl;
+package nostr.event.tag;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
