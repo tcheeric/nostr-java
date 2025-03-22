@@ -21,9 +21,11 @@ abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T>
 	public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
 		try {
 			final ObjectNode node = BASETAG_ENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
-			Streams.failableStream(value.getSupportedFields().stream()).forEach(f -> node.put(f.getName(), value.getFieldValue(f)));
+			Streams.failableStream(
+          value.getSupportedFields().stream()).forEach(f ->
+              node.put(f.getName(), value.getFieldValue(f)));
 
-			processNode(node, value);
+			applyCustomAttributes(node, value);
 
 			ArrayNode arrayNode = node.objectNode().putArray("values").add(value.getCode());
 			node.fields().forEachRemaining(entry -> arrayNode.add(entry.getValue().asText()));
@@ -33,5 +35,5 @@ abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T>
 		}
 	}
 
-	protected void processNode(ObjectNode node, T value) {}
+	protected void applyCustomAttributes(ObjectNode node, T value) {}
 }

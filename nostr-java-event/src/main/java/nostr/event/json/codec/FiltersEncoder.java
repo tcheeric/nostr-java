@@ -6,21 +6,19 @@ import nostr.event.filter.Filters;
 
 public record FiltersEncoder(Filters filters) implements Encoder {
 
-	@Override
-	public String encode() {
-		ObjectNode root = ENCODER_MAPPED_AFTERBURNER.createObjectNode();
+  @Override
+  public String encode() {
+    ObjectNode root = ENCODER_MAPPED_AFTERBURNER.createObjectNode();
 
-		filters.getFiltersMap().forEach((key, filterableList) -> {
-			final ObjectNode objectNode = ENCODER_MAPPED_AFTERBURNER.createObjectNode();
-			root.setAll(
-					filterableList
-							.stream()
-							.map(filterable ->
-										 filterable.toObjectNode(objectNode))
-							.toList()
-							.getFirst());
-		});
+    filters.getFiltersMap().forEach((key, filterableList) ->
+        root.setAll(
+            filterableList
+                .stream()
+                .map(filterable ->
+                         filterable.toObjectNode(root))
+                .toList()
+                .getFirst()));
 
-		return root.toString();
-	}
+    return root.toString();
+  }
 }
