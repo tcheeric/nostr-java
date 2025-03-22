@@ -1,10 +1,8 @@
 package nostr.event.json.serializer;
 
-import nostr.base.ElementAttribute;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import nostr.event.tag.GenericTag;
-
 import java.io.Serial;
-import java.util.List;
 
 public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSerializer<T> {
 
@@ -16,8 +14,7 @@ public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSeria
 	}
 
 	@Override
-	public void processNode(T value) {
-		List<ElementAttribute> attrs = genericTag.getAttributes();
-		attrs.forEach(a -> node.put(a.getName(), a.getValue().toString()));
+	protected void processNode(ObjectNode node, T value) {
+		value.getAttributes().forEach(a -> node.put(a.getName(), a.getValue().toString()));
 	}
 }

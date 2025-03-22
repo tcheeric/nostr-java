@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPED_AFTERBURNER;
 
-public abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T> {
+abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T> {
 	protected AbstractTagSerializer(Class<T> t) {
 		super(t);
 	}
@@ -23,7 +23,7 @@ public abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerial
 			final ObjectNode node = BASETAG_ENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
 			Streams.failableStream(value.getSupportedFields().stream()).forEach(f -> node.put(f.getName(), value.getFieldValue(f)));
 
-			processNode(value);
+			processNode(node, value);
 
 			ArrayNode arrayNode = node.objectNode().putArray("values").add(value.getCode());
 			node.fields().forEachRemaining(entry -> arrayNode.add(entry.getValue().asText()));
@@ -33,5 +33,5 @@ public abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerial
 		}
 	}
 
-	public void processNode(T value) {}
+	protected void processNode(ObjectNode node, T value) {}
 }
