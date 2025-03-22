@@ -9,44 +9,54 @@ import nostr.base.ElementAttribute;
 import nostr.base.IElement;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.IntStream;
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
-
-/**
- *
- * @author squirrel
- */
+import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 
 @Setter
 @Getter
 public class GenericMessage extends BaseMessage implements IGenericElement, IElement {
-
     @JsonIgnore
     private final List<ElementAttribute> attributes;
 
-    public GenericMessage(String command) {
-        this(command, new ArrayList<>(), 1);
+    public GenericMessage(@NonNull String command) {
+        this(command, new ArrayList<>());
     }
 
-    public GenericMessage(String command, Integer nip) {
-        this(command, new ArrayList<>(), nip);
+    /**
+     * nip ctor parameter to be removed
+     *
+     * @deprecated use any available proper constructor variant instead
+     */
+    @Deprecated(forRemoval = true)
+    public GenericMessage(@NonNull String command, @NonNull Integer nip) {
+        this(command, new ArrayList<>());
     }
 
-    public GenericMessage(String command, List<ElementAttribute> attributes, Integer nip) {
+    public GenericMessage(@NonNull String command, @NonNull List<ElementAttribute> attributes) {
         super(command);
         this.attributes = attributes;
     }
 
+    /**
+     * nip ctor parameter to be removed
+     *
+     * @deprecated use any available proper constructor variant instead
+     */
+    @Deprecated(forRemoval = true)
+    public GenericMessage(@NonNull String command, @NonNull List<ElementAttribute> attributes, @NonNull Integer nip) {
+        this(command, attributes);
+    }
+
     @Override
-    public void addAttribute(ElementAttribute... attribute) {
+    public void addAttribute(@NonNull ElementAttribute... attribute) {
         addAttributes(List.of(attribute));
     }
 
     @Override
-    public void addAttributes(List<ElementAttribute> attributes) {
+    public void addAttributes(@NonNull List<ElementAttribute> attributes) {
         this.attributes.addAll(attributes);
     }
 
@@ -57,13 +67,34 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
-    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
-        GenericMessage gm = new GenericMessage(msgArr[0].toString());
-        for (int i = 1; i < msgArr.length; i++) {
-            if (msgArr[i] instanceof String) {
-                gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
+        try {
+            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
+            GenericMessage gm = new GenericMessage(msgArr[0].toString());
+            for (int i = 1; i < msgArr.length; i++) {
+//                TODO: does below ever resolve to String?  because RxR stream says it'll always be false.  check eric's tests and see what's happening there
+                if (msgArr[i] instanceof String) {
+                    gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+                }
             }
+            return (T) gm;
+        } catch (Exception e) {
+            throw new AssertionError(e);
         }
-        return (T) gm;
+    }
+
+    public static <T extends BaseMessage> T decodeRxR(@NonNull String json) {
+        try {
+            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(json, Object[].class);
+            GenericMessage gm = new GenericMessage(
+                msgArr[0].toString(),
+                IntStream.of(1, msgArr.length-1)
+                    .mapToObj(i -> ElementAttribute.builder().value(msgArr[i]).build())
+                    .distinct()
+                    .toList());
+            return (T) gm;
+        } catch (Exception ex) {
+            throw new AssertionError(ex);
+        }
     }
 }

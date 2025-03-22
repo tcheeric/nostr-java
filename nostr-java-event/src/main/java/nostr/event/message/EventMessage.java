@@ -33,12 +33,12 @@ public class EventMessage extends BaseMessage {
     private String subscriptionId;
 
     public EventMessage(@NonNull IEvent event) {
-        this(event, null);
-    }
-
-    public EventMessage(@NonNull IEvent event, String subscriptionId) {
         super(Command.EVENT.name());
         this.event = event;
+    }
+
+    public EventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
+        this(event);
         this.subscriptionId = subscriptionId;
     }
 

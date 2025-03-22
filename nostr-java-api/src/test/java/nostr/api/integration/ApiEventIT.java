@@ -82,7 +82,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() throws IOException {
+    public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
         var nip01 = new NIP01<TextNoteEvent>(Identity.generateRandomIdentity());
@@ -96,7 +96,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP04SendDirectMessage() throws IOException {
+    public void testNIP04SendDirectMessage() {
         System.out.println("testNIP04SendDirectMessage");
 
         var nip04 = new NIP04<DirectMessageEvent>(
@@ -116,7 +116,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP44SendDirectMessage() throws IOException {
+    public void testNIP44SendDirectMessage() {
         System.out.println("testNIP44SendDirectMessage");
 
         var nip44 = new NIP44<EncryptedPayloadEvent>(
@@ -133,7 +133,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
+    public void testNIP01SendTextNoteEventGeoHashTag() {
         System.out.println("testNIP01SendTextNoteEventGeoHashTag");
 
         String targetString = "geohash_tag-location-testNIP01SendTextNoteEventGeoHashTag";
@@ -155,7 +155,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventHashtagTag() throws IOException {
+    public void testNIP01SendTextNoteEventHashtagTag() {
         System.out.println("testNIP01SendTextNoteEventHashtagTag");
 
         String targetString = "hashtag-tag-value-testNIP01SendTextNoteEventHashtagTag";
@@ -177,7 +177,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventCustomGenericTag() throws IOException {
+    public void testNIP01SendTextNoteEventCustomGenericTag() {
         System.out.println("testNIP01SendTextNoteEventCustomGenericTag");
 
         String targetString = "custom-generic-tag-testNIP01SendTextNoteEventCustomGenericTag";
@@ -203,7 +203,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testFiltersListReturnSameSingularEvent() throws IOException {
+    public void testFiltersListReturnSameSingularEvent() {
         System.out.println("testFiltersListReturnSameSingularEvent");
 
         String geoHashTagTarget = "geohash_tag-location_SameSingularEvent";
@@ -231,7 +231,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testFiltersListReturnTwoDifferentEvents() throws IOException {
+    public void testFiltersListReturnTwoDifferentEvents() {
         System.out.println("testFiltersListReturnTwoDifferentEvents");
 
 //    first event
@@ -268,7 +268,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testMultipleFiltersDifferentTypesReturnSameEvent() throws IOException {
+    public void testMultipleFiltersDifferentTypesReturnSameEvent() {
         System.out.println("testMultipleFilters");
 
         String geoHashTagTarget = "geohash_tag-location-DifferentTypesReturnSameEvent";
@@ -371,7 +371,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP15UpdateStallEvent() throws IOException {
+    public void testNIP15UpdateStallEvent() {
         System.out.println("testNIP15UpdateStallEvent");
 
         var stall = createStall();
@@ -399,7 +399,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP15CreateProductEvent() throws IOException {
+    public void testNIP15CreateProductEvent() {
 
         System.out.println("testNIP15CreateProductEvent");
 
@@ -423,7 +423,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP15UpdateProductEvent() throws IOException {
+    public void testNIP15UpdateProductEvent() {
 
         System.out.println("testNIP15UpdateProductEvent");
 
@@ -497,7 +497,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP52CalendarTimeBasedEventEvent() throws IOException {
+    public void testNIP52CalendarTimeBasedEventEvent() {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
         CalendarContent calendarContent = CalendarContent.builder(
