@@ -13,11 +13,10 @@ import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
-
 import java.util.Map;
 import java.util.Optional;
-
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 
 @Setter
 @Getter
@@ -43,26 +42,27 @@ public class EventMessage extends BaseMessage {
     public String encode() throws JsonProcessingException {
         var arrayNode = getArrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
-            .ifPresent(arrayNode::add);
+          .ifPresent(arrayNode::add);
         arrayNode.add(ENCODER_MAPPED_AFTERBURNER.readTree(
-            new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
+          new BaseEventEncoder<>((BaseEvent)getEvent()).encode()));
         return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(arrayNode);
     }
 
-//    TODO: refactor into stream returning optional
-    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {
+    //    TODO: refactor into stream returning optional
+    public static <T extends BaseMessage> T decode(@NonNull String jsonString) throws JsonProcessingException {
+        Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
         var arg = msgArr[1];
         if (msgArr.length == 2 && arg instanceof Map map) {
             return (T) new EventMessage(
-                convertValue(mapper, map)
+              convertValue(I_DECODER_MAPPER_AFTERBURNER, map)
             );
         }
 
         if (msgArr.length == 3 && arg instanceof String) {
             if (msgArr[2] instanceof Map map) {
                 return (T) new EventMessage(
-                    convertValue(mapper, map),
-                    arg.toString()
+                  convertValue(I_DECODER_MAPPER_AFTERBURNER, map),
+                  arg.toString()
                 );
             }
         }

@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     public static final int COMMAND_INDEX = 0;
     public static final int ARG_INDEX = 1;
-    public static final int FILTERS_START_INDEX = 2;
 
     @Override
     public T decode(@NonNull String jsonString) throws JsonProcessingException {
@@ -35,7 +34,8 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         String command = validJsonNodeFirstPair.formerly_strCmd();
         Object subscriptionId = validJsonNodeFirstPair.formerly_arg();
 
-        Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class); // TODO: replace with jsonNode after ReqMessage.decode() is finished
+        // TODO: replace with jsonNode after ReqMessage.decode() is finished
+        Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class); 
 
         return switch (command) {
             case "AUTH" -> subscriptionId instanceof Map map ?
@@ -43,10 +43,10 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
                 RelayAuthenticationMessage.decode(subscriptionId);
             case "CLOSE" -> CloseMessage.decode(subscriptionId);
             case "EOSE" -> EoseMessage.decode(subscriptionId);
-            case "EVENT" -> EventMessage.decode(msgArr, I_DECODER_MAPPER_AFTERBURNER);
+            case "EVENT" -> EventMessage.decode(jsonString);
             case "NOTICE" -> NoticeMessage.decode(subscriptionId);
             case "OK" -> OkMessage.decode(msgArr);
-            case "REQ" -> ReqMessage.decode(subscriptionId, json_msgArr(jsonString));
+            case "REQ" -> ReqMessage.decode(subscriptionId, jsonString);
             default -> GenericMessage.decode(msgArr);
         };
     }
@@ -55,16 +55,6 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         return new ValidJsonNodeFirstPair(
             I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(COMMAND_INDEX).asText(),
             I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(ARG_INDEX).asText());
-    }
-
-    private List<String> json_msgArr(@NonNull String jsonString) throws JsonProcessingException {
-        return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).size())
-            .mapToObj(idx -> readTree(jsonString, idx)).toList();
-    }
-
-    @SneakyThrows
-    private String readTree(String jsonString, int idx) {
-        return I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(idx).toString();
     }
 
     private record ValidJsonNodeFirstPair(
