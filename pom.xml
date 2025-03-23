@@ -100,7 +100,6 @@
         <maven-failsafe-plugin.version>3.3.0</maven-failsafe-plugin.version>
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <spring-retry.version>2.0.10</spring-retry.version>
     </properties>
 
     <dependencies>
@@ -147,18 +146,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-            <version>${spring-retry.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
-            <version>6.2.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -304,6 +291,9 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
+                        <configuration>
+                            <rerunFailingTestsCount>1</rerunFailingTestsCount>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
