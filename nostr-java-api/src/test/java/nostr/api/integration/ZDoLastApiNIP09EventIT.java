@@ -3,7 +3,7 @@ package nostr.api.integration;
 import nostr.api.NIP01;
 import nostr.api.NIP09;
 import nostr.base.Relay;
-import nostr.config.RelayProperties;
+import nostr.config.RelayConfig;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
@@ -31,8 +31,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(RelayProperties.class)
+@SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
+@Retry
 public class ZDoLastApiNIP09EventIT {
     @Autowired
     private Map<String, String> relays;

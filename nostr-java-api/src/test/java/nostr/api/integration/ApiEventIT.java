@@ -12,7 +12,7 @@ import nostr.api.NIP57;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
-import nostr.config.RelayProperties;
+import nostr.config.RelayConfig;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
@@ -42,7 +42,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(RelayProperties.class)
+@SpringJUnitConfig(RelayConfig.class)
 public class ApiEventIT {
     @Autowired
     private Map<String, String> relays;

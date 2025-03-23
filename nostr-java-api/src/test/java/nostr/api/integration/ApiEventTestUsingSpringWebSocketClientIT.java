@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.config.RelayProperties;
+import nostr.config.RelayConfig;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
@@ -22,7 +22,7 @@ import static nostr.api.integration.ApiEventIT.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringJUnitConfig(RelayProperties.class)
+@SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientIT {
     private final List<SpringWebSocketClient> springWebSocketClients;
