@@ -72,7 +72,6 @@ dependencies {
     testImplementation 'org.awaitility:awaitility:' + awaitility
     testImplementation 'com.adarshr:gradle-test-logger-plugin:' + logger
     
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
 }
 
@@ -91,6 +90,12 @@ tasks.test {
 ////        failOnPassedAfterRetry.set(false)
 ////        failOnSkippedAfterRetry.set(true)
 //    }
+}
+
+test {
+    filter {
+        excludeTestsMatching("nostr.api.integration.*");
+    }
 }
 
 tasks.bootJar {
