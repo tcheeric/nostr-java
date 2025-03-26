@@ -8,3 +8,23 @@ dependencies {
     api project(':nostr-java-client')
     api project(':nostr-java-encryption')
 }
+
+tasks.register('integrationTest', Test) {
+    description = 'api integration tests.'
+    group = 'verification'
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    filter {
+        excludeTestsMatching("nostr.api.unit.*");
+        includeTestsMatching("nostr.api.integration.*");
+    }
+}
+
+integrationTest {
+    retry {
+        failOnPassedAfterRetry = false
+        maxRetries = 1
+    }
+}
+
+check.dependsOn integrationTest
