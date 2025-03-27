@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log
-public class BaseMessageCommandMapperTest {
+public class BaseMessageDecoderTest {
     //  TODO: flesh out remaining commands
     public final static String REQ_JSON =
         "[\"REQ\", " +
