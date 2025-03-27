@@ -15,7 +15,7 @@ plugins {
     id 'org.gradle.test-retry'
 }
 
-group = version = rootProject.property("nostr-java.group")
+group = rootProject.property("nostr-java.group")
 version = rootProject.property("nostr-java.version")
 description = rootProject.property("nostr-java.description")
 
@@ -37,7 +37,6 @@ publishing {
 //        someRemoteRepo()
     }
 }
-
 
 dependencies {
     def springBootVersion = rootProject.property("nostr-java.springBootVersion")
@@ -75,21 +74,9 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 tasks.test {
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
-//    retry {
-//        maxRetries.set(1)
-////        maxFailures.set(20)
-////        failOnPassedAfterRetry.set(false)
-////        failOnSkippedAfterRetry.set(true)
-//    }
 }
 
 test {
