@@ -32,16 +32,26 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         Object subscriptionId = validNostrJsonStructure.getSubscriptionId();
 
         return switch (command) {
+//          client <-> relay messages
             case "AUTH" -> subscriptionId instanceof Map map ?
                 CanonicalAuthenticationMessage.decode(map) :
                 RelayAuthenticationMessage.decode(subscriptionId);
-            case "CLOSE" -> CloseMessage.decode(subscriptionId);
-            case "EOSE" -> EoseMessage.decode(subscriptionId);
             case "EVENT" -> EventMessage.decode(jsonString);
+//            missing client <-> relay handlers
+//            case "COUNT" -> CountMessage.decode(subscriptionId);
+            
+//            client -> relay messages
+            case "CLOSE" -> CloseMessage.decode(subscriptionId);
+            case "REQ" -> ReqMessage.decode(subscriptionId, jsonString);
+            
+//            relay -> client handlers
+            case "EOSE" -> EoseMessage.decode(subscriptionId);
             case "NOTICE" -> NoticeMessage.decode(subscriptionId);
             case "OK" -> OkMessage.decode(jsonString);
-            case "REQ" -> ReqMessage.decode(subscriptionId, jsonString);
-            default -> GenericMessage.decode(jsonString);
+//            missing relay -> client handlers
+//            case "CLOSED" -> Closed.message.decode(subscriptionId);
+            
+            default -> throw new IllegalArgumentException(String.format("Invalid JSON command [%s] in JSON string [%s] ", command, jsonString));
         };
     }
 

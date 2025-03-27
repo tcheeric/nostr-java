@@ -34,42 +34,43 @@ import java.util.stream.Collectors;
 @JsonSerialize(using = BaseTagSerializer.class)
 public abstract class BaseTag implements ITag {
 
-	@JsonIgnore
-	private IEvent parent;
+    @JsonIgnore
+    private IEvent parent;
 
-	@Override
-	public void setParent(@NonNull IEvent event) {
-		this.parent = event;
-	}
+    @Override
+    public void setParent(@NonNull IEvent event) {
+        this.parent = event;
+    }
 
-	@Override
-	public String getCode() {
-		return this.getClass().getAnnotation(Tag.class).code();
-	}
+    @Override
+    public String getCode() {
+        return this.getClass().getAnnotation(Tag.class).code();
+    }
 
-	public String getFieldValue(Field field) throws NostrException {
-		try {
-			Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
-			return f != null ? f.toString() : null;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-			throw new NostrException(ex);
-		}
-	}
+//    TODO: refactor into Optional<String>
+    public String getFieldValue(Field field) throws NostrException {
+        try {
+            Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
+            return f != null ? f.toString() : null;
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
+            throw new NostrException(ex);
+        }
+    }
 
-	public List<Field> getSupportedFields() throws NostrException {
-		return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
-					   .filter(f ->
-									   Objects.nonNull(f.getAnnotation(Key.class)))
-					   .filter(f ->
-									   Objects.nonNull(getFieldValue(f)))
-					   .collect(Collectors.toList());
-	}
+    public List<Field> getSupportedFields() {
+        return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
+                   .filter(f ->
+                               Objects.nonNull(f.getAnnotation(Key.class)))
+                   .filter(f ->
+                               Objects.nonNull(getFieldValue(f)))
+                   .collect(Collectors.toList());
+    }
 
-	protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
-		Optional.ofNullable(node).ifPresent(n -> con.accept(n, tag));
-	}
+    protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+        Optional.ofNullable(node).ifPresent(n -> con.accept(n, tag));
+    }
 
-	protected static <T extends BaseTag> void setRequiredField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
-		con.accept(Optional.ofNullable(node).orElseThrow(), tag);
-	}
+    protected static <T extends BaseTag> void setRequiredField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+        con.accept(Optional.ofNullable(node).orElseThrow(), tag);
+    }
 }

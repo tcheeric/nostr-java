@@ -67,23 +67,23 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
-    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
-        try {
-            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
-            GenericMessage gm = new GenericMessage(msgArr[0].toString());
-            for (int i = 1; i < msgArr.length; i++) {
-//                TODO: does below ever resolve to String?  because RxR stream says it'll always be false.  check eric's tests and see what's happening there
-                if (msgArr[i] instanceof String) {
-                    gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
-                }
-            }
-            return (T) gm;
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
+//    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
+//        try {
+//            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
+//            GenericMessage gm = new GenericMessage(msgArr[0].toString());
+//            for (int i = 1; i < msgArr.length; i++) {
+////                TODO: does below ever resolve to String?  because RxR stream says it'll always be false.  check eric's tests and see what's happening there
+//                if (msgArr[i] instanceof String) {
+//                    gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+//                }
+//            }
+//            return (T) gm;
+//        } catch (Exception e) {
+//            throw new AssertionError(e);
+//        }
+//    }
 
-    public static <T extends BaseMessage> T decodeRxR(@NonNull String json) {
+    public static <T extends BaseMessage> T decode(@NonNull String json) {
         try {
             Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(json, Object[].class);
             GenericMessage gm = new GenericMessage(
