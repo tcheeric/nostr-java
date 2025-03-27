@@ -14,7 +14,6 @@ group = 'xyz.tcheeric'
 version = '0.6.5-SNAPSHOT'
 
 repositories {
-    gradlePluginPortal()
     mavenCentral()
     gradlePluginPortal {
         url = 'https://plugins.gradle.org/m2/'
