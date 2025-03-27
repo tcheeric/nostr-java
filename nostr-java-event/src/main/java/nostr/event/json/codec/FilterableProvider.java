@@ -2,7 +2,7 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
@@ -25,7 +25,7 @@ public class FilterableProvider {
     return switch (type) {
       case ReferencedPublicKeyFilter.FILTER_KEY -> getFilterable(node, ReferencedPublicKeyFilter.fxn);
       case ReferencedEventFilter.FILTER_KEY -> getFilterable(node, ReferencedEventFilter.fxn);
-      case AddressableTagFilter.FILTER_KEY -> getFilterable(node, AddressableTagFilter.fxn);
+      case AddressTagFilter.FILTER_KEY -> getFilterable(node, AddressTagFilter.fxn);
       case IdentifierTagFilter.FILTER_KEY -> getFilterable(node, IdentifierTagFilter.fxn);
       case GeohashTagFilter.FILTER_KEY -> getFilterable(node, GeohashTagFilter.fxn);
       case HashtagTagFilter.FILTER_KEY -> getFilterable(node, HashtagTagFilter.fxn);

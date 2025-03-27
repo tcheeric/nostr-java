@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
-public class AddressableTagFilter<T extends AddressTag> extends AbstractFilterable<T> {
+public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T> {
     public final static String FILTER_KEY = "#a";
 
-    public AddressableTagFilter(T addressableTag) {
+    public AddressTagFilter(T addressableTag) {
         super(addressableTag, FILTER_KEY);
     }
 
@@ -73,5 +73,5 @@ public class AddressableTagFilter<T extends AddressTag> extends AbstractFilterab
         return super.getFilterable();
     }
 
-    public static Function<JsonNode, Filterable> fxn = node -> new AddressableTagFilter<>(AddressableTagFilter.createAddressTag(node));
+    public static Function<JsonNode, Filterable> fxn = node -> new AddressTagFilter<>(AddressTagFilter.createAddressTag(node));
 }
