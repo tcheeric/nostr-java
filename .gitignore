@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/java,eclipse,java-web,code-java,intellij+all,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=java,eclipse,java-web,code-java,intellij+all,visualstudiocode
 
@@ -211,6 +210,14 @@ hs_err_pid*
 ### Java-Web ###
 ## ignoring target file
 target/
+
+# Gradle files
+.gradle/
+build/
+gradle/
+gradlew
+gradlew.bat
+buildSrc/build
 
 ### VisualStudioCode ###
 .vscode

@@ -32,6 +32,7 @@ public class Nip05Validator {
     
     private static final String LOCAL_PART_PATTERN = "^[a-zA-Z0-9-_\\.]+$";
 
+//    TODO: refactor
     public void validate() throws NostrException {
         if (this.nip05 != null) {
         	var splited = nip05.split("@");
@@ -53,6 +54,7 @@ public class Nip05Validator {
         }
     }
 
+//    TODO: refactor    
     private void validatePublicKey(String domain, String localPart) throws NostrException, IOException, URISyntaxException {
 
         // Set up and estgetPublicKeyablish the HTTP connection

@@ -33,11 +33,7 @@ public final class SubjectTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         SubjectTag tag = new SubjectTag();
-
-        final JsonNode nodeSubject = node.get(1);
-        if (nodeSubject != null) {
-            tag.setSubject(nodeSubject.asText());
-        }
+        setOptionalField(node.get(1), (n, t) -> tag.setSubject(n.asText()), tag);
         return (T) tag;
     }
 }

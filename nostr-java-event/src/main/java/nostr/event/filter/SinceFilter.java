@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+
 @EqualsAndHashCode(callSuper = true)
 public class SinceFilter extends AbstractFilterable<Long> {
   public final static String FILTER_KEY = "since";
@@ -25,7 +27,7 @@ public class SinceFilter extends AbstractFilterable<Long> {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return mapper.createObjectNode().put(FILTER_KEY, getSince());
+    return MAPPER_AFTERBURNER.createObjectNode().put(FILTER_KEY, getSince());
   }
 
   @Override

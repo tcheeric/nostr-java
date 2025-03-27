@@ -1,0 +1,10 @@
+plugins {
+    id 'nostr-java.conventions'
+}
+
+description = 'nostr-java-base'
+
+dependencies {
+    api project(':nostr-java-util')
+    api project(':nostr-java-crypto')
+}

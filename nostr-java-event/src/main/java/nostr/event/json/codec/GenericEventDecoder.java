@@ -2,7 +2,6 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.impl.GenericEvent;
@@ -26,8 +25,7 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
 
   @Override
   public T decode(String jsonEvent) throws JsonProcessingException {
-    var mapper = new ObjectMapper();
-    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-    return mapper.readValue(jsonEvent, clazz);
+    I_DECODER_MAPPER_AFTERBURNER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    return I_DECODER_MAPPER_AFTERBURNER.readValue(jsonEvent, clazz);
   }
 }

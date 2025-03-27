@@ -3,8 +3,6 @@ package nostr.event.impl;
 import static nostr.util.NostrUtil.escapeJsonString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -45,8 +43,7 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
     private void setContent(UserProfile profile) {
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonString = objectMapper.writeValueAsString(new Nip05Obj(profile.getName(), profile.getNip05()));
+            String jsonString = MAPPER_AFTERBURNER.writeValueAsString(new Nip05Obj(profile.getName(), profile.getNip05()));
 
             // Escape the JSON string
             String escapedJsonString = escapeJsonString(jsonString);

@@ -36,6 +36,9 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +60,8 @@ import java.util.logging.LogManager;
  * @author eric
  */
 @Log
-public class NostrApiExamples {
+@SpringBootApplication
+public class NostrApiExamples implements ApplicationRunner {
 
     private static final Identity RECIPIENT = Identity.generateRandomIdentity();
     private static final Identity SENDER = Identity.generateRandomIdentity();
@@ -82,7 +86,8 @@ public class NostrApiExamples {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
         try {
             log.log(Level.FINE, "================= The Beginning");
             logAccountsData();

@@ -5,7 +5,6 @@
 package nostr.api.factory.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +13,7 @@ import nostr.api.factory.TagFactory;
 
 import java.util.Map;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
@@ -65,7 +65,7 @@ public class NIP32Impl {
                     result = new String[3];
                     result[0] =  value;
                     result[1] = nameSpace.getValue();
-                    result[2] = escapeJsonString(new ObjectMapper().writeValueAsString(metadata));
+                    result[2] = escapeJsonString(MAPPER_AFTERBURNER.writeValueAsString(metadata));
                 } else {
                     result = new String[2];
                     result[0] =  value;

@@ -20,17 +20,17 @@ import java.util.Optional;
 @Tag(code = "relays", nip = 57)
 @JsonSerialize(using = RelaysTagSerializer.class)
 public class RelaysTag extends BaseTag {
-  private final List<Relay> relays;
+    private final List<Relay> relays;
 
-  public RelaysTag(@NonNull List<Relay> relays) {
-    this.relays = relays;
-  }
+    public RelaysTag(@NonNull List<Relay> relays) {
+        this.relays = relays;
+    }
 
-  public RelaysTag(@NonNull Relay... relays) {
-    this(List.of(relays));
-  }
+    public RelaysTag(@NonNull Relay... relays) {
+        this(List.of(relays));
+    }
 
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-    return (T) new RelaysTag(Optional.of(node).stream().map(jsonNode -> new Relay(jsonNode.get(1).asText())).toList());
-  }
+    public static <T extends BaseTag> T deserialize(JsonNode node) {
+        return (T) new RelaysTag(Optional.ofNullable(node).map(jsonNode -> new Relay(jsonNode.get(1).asText())).orElseThrow());
+    }
 }

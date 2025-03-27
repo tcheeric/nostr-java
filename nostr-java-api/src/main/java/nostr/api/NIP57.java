@@ -11,7 +11,11 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericTag;
 import nostr.event.impl.ZapRequest;
-import nostr.event.tag.*;
+import nostr.event.tag.AddressTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.IdentifierTag;
+import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 
 import java.util.ArrayList;
@@ -54,7 +58,7 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
     }
 
     public NIP57<T> createZapReceiptEvent(@NonNull PubKeyTag zapRequestPubKeyTag, List<BaseTag> baseTags, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
-            @NonNull String descriptionSha256, @NonNull String preimage) {
+        @NonNull String descriptionSha256, @NonNull String preimage) {
         setEvent((T) new ZapReceiptEventFactory(getSender(), baseTags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, bolt11, descriptionSha256, preimage).create());
         return this;
     }
@@ -169,16 +173,16 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
         List<ElementAttribute> attributes = new ArrayList<>();
-        var receiverAttr = new ElementAttribute("receiver", receiver.toString(), 57);
-        var relayAttrs = relays.stream().map(relay -> new ElementAttribute("relay", relay.getUri(), 57)).toList();
+        var receiverAttr = new ElementAttribute("receiver", receiver.toString());
+        var relayAttrs = relays.stream().map(relay -> new ElementAttribute("relay", relay.getUri())).toList();
         if (weight != null) {
-            var weightAttr = new ElementAttribute("weight", weight, 57);
+            var weightAttr = new ElementAttribute("weight", weight);
             attributes.add(weightAttr);
         }
 
         attributes.add(receiverAttr);
         attributes.addAll(relayAttrs);
-        return new GenericTag(ZAP_TAG_NAME, 57, attributes);
+        return new GenericTag(ZAP_TAG_NAME, attributes);
     }
 
     /**

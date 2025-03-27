@@ -6,8 +6,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
-import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
+
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  *
@@ -35,7 +36,7 @@ public class OkMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return IEncoder.MAPPER.writeValueAsString(
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
             getArrayNode()
                 .add(getCommand())
                 .add(getEventId())
@@ -43,6 +44,7 @@ public class OkMessage extends BaseMessage {
                 .add(getMessage()));
     }
 
+    //    TODO: refactor into stream returning optional
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
         if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
             String msgArg = msgArr[3].toString();

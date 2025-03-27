@@ -1,7 +1,6 @@
 package nostr.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +15,8 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
 
@@ -70,8 +71,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
 
         public String toString() {
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.writeValueAsString(this);
+                return MAPPER_AFTERBURNER.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
                 log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
@@ -80,9 +80,8 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
         }
 
         public static Request fromString(@NonNull String jsonString) {
-            ObjectMapper objectMapper = new ObjectMapper();
             try {
-                return objectMapper.readValue(jsonString, Request.class);
+                return MAPPER_AFTERBURNER.readValue(jsonString, Request.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -100,8 +99,7 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
 
         public String toString() {
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.writeValueAsString(this);
+                return MAPPER_AFTERBURNER.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 // Handle the exception if needed
                 log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
@@ -110,9 +108,8 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
         }
 
         public static Response fromString(@NonNull String jsonString) {
-            ObjectMapper objectMapper = new ObjectMapper();
             try {
-                return objectMapper.readValue(jsonString, Response.class);
+                return MAPPER_AFTERBURNER.readValue(jsonString, Response.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

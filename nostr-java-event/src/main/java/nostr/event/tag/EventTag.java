@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,7 +16,6 @@ import nostr.event.BaseTag;
 import nostr.event.Marker;
 
 /**
- *
  * @author squirrel
  */
 @Builder
@@ -57,21 +51,9 @@ public class EventTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         EventTag tag = new EventTag();
-
-        final JsonNode nodeIdEvent = node.get(1);
-        if (nodeIdEvent != null) {
-            tag.setIdEvent(nodeIdEvent.asText());
-        }
-
-        final JsonNode nodeRelay = node.get(2);
-        if (nodeRelay != null) {
-            tag.setRecommendedRelayUrl(nodeRelay.asText());
-        }
-
-        final JsonNode nodeMarker = node.get(3);
-        if (nodeMarker != null) {
-            tag.setMarker(Marker.valueOf(nodeMarker.asText().toUpperCase()));
-        }
+        setRequiredField(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);
+        setOptionalField(node.get(2), (n, t) -> tag.setRecommendedRelayUrl(n.asText()), tag);
+        setOptionalField(node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
         return (T) tag;
     }
 }

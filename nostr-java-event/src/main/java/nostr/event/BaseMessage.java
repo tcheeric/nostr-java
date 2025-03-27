@@ -19,10 +19,5 @@ public abstract class BaseMessage implements IElement {
         this.command = command;
     }
 
-    @Override
-    public Integer getNip() {
-        return 1;
-    }
-
     public abstract String encode() throws JsonProcessingException;
 }

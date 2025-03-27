@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.Command;
-import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
 import nostr.event.filter.Filters;
 import nostr.event.json.codec.FiltersDecoder;
@@ -16,6 +15,8 @@ import nostr.event.json.codec.FiltersEncoder;
 
 import java.time.temporal.ValueRange;
 import java.util.List;
+
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author squirrel
@@ -31,7 +32,6 @@ public class ReqMessage extends BaseMessage {
     private final List<Filters> filtersList;
 
     public ReqMessage(@NonNull String subscriptionId, Filters... filtersList) {
-//    TODO: complete logic for a list of filters
         this(subscriptionId, List.of(filtersList));
     }
 
@@ -45,25 +45,25 @@ public class ReqMessage extends BaseMessage {
     @Override
     public String encode() throws JsonProcessingException {
         getArrayNode()
-                .add(getCommand())
-                .add(getSubscriptionId());
+            .add(getCommand())
+            .add(getSubscriptionId());
 
         filtersList.stream()
-                .map(FiltersEncoder::new)
-                .map(FiltersEncoder::encode)
-                .map(ReqMessage::createJsonNode)
-                .forEach(jsonNode ->
-                        getArrayNode().add(jsonNode));
+            .map(FiltersEncoder::new)
+            .map(FiltersEncoder::encode)
+            .map(ReqMessage::createJsonNode)
+            .forEach(jsonNode ->
+                getArrayNode().add(jsonNode));
 
-        return IEncoder.MAPPER.writeValueAsString(getArrayNode());
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull List<String> jsonFiltersList) {
         validateSubscriptionId(subscriptionId.toString());
         ReqMessage reqMessage = new ReqMessage(
-                subscriptionId.toString(),
-                jsonFiltersList.stream().map(filtersList ->
-                        new FiltersDecoder().decode(filtersList)).toList());
+            subscriptionId.toString(),
+            jsonFiltersList.stream().map(filtersList ->
+                new FiltersDecoder().decode(filtersList)).toList());
         return (T) reqMessage;
     }
 
@@ -75,7 +75,7 @@ public class ReqMessage extends BaseMessage {
 
     private static JsonNode createJsonNode(String jsonNode) {
         try {
-            return IEncoder.MAPPER.readTree(jsonNode);
+            return ENCODER_MAPPED_AFTERBURNER.readTree(jsonNode);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
         }

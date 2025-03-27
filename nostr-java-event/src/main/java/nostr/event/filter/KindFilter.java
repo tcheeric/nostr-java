@@ -9,6 +9,8 @@ import nostr.event.impl.GenericEvent;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+
 @EqualsAndHashCode(callSuper = true)
 public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
   public final static String FILTER_KEY = "kinds";
@@ -26,7 +28,7 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
   @Override
   public void addToArrayNode(ArrayNode arrayNode) {
     arrayNode.addAll(
-        mapper.createArrayNode().add(
+        MAPPER_AFTERBURNER.createArrayNode().add(
             getFilterableValue()));
   }
 

@@ -13,7 +13,6 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
 /**
- *
  * @author eric
  */
 @Builder
@@ -30,12 +29,7 @@ public class IdentifierTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         IdentifierTag tag = new IdentifierTag();
-
-        final JsonNode nodePubKey = node.get(1);
-        if (nodePubKey != null) {
-            tag.setId(nodePubKey.asText());
-        }
-
+        setRequiredField(node.get(1), (n, t) -> tag.setId(n.asText()), tag);
         return (T) tag;
     }
 }

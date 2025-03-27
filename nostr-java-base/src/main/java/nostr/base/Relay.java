@@ -2,7 +2,6 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,8 +33,6 @@ public class Relay {
     @ToString.Include
     private String host;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private RelayInformationDocument informationDocument;
 
     public Relay(@NonNull String uri) {
@@ -60,25 +57,6 @@ public class Relay {
     // Helper method
     public void addNipSupport(int nip) {
         this.getSupportedNips().add(nip);
-    }
-
-    // Helper method
-    public String printSupportedNips() {
-        return convertToJsonArray(this.getInformationDocument().getSupportedNips());
-    }
-
-    private static String convertToJsonArray(List<Integer> list) {
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("[");
-        for (int i = 0; i < list.size(); i++) {
-            jsonBuilder.append("\"").append(list.get(i)).append("\"");
-            if (i != list.size() - 1) {
-                jsonBuilder.append(",");
-            }
-        }
-        jsonBuilder.append("]");
-
-        return jsonBuilder.toString();
     }
 
     // Helper method

@@ -20,7 +20,6 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
 /**
- *
  * @author squirrel
  */
 @JsonPropertyOrder({"pubKey", "mainRelayUrl", "petName"})
@@ -57,22 +56,9 @@ public class PubKeyTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         PubKeyTag tag = new PubKeyTag();
-
-        final JsonNode nodePubKey = node.get(1);
-        if (nodePubKey != null) {
-            tag.setPublicKey(new PublicKey(nodePubKey.asText()));
-        }
-
-        final JsonNode nodeMainUrl = node.get(2);
-        if (nodeMainUrl != null) {
-            tag.setMainRelayUrl(nodeMainUrl.asText());
-        }
-
-        final JsonNode nodePetName = node.get(3);
-        if (nodePetName != null) {
-            tag.setPetName(nodePetName.asText());
-        }
-
+        setRequiredField(node.get(1), (n, t) -> tag.setPublicKey(new PublicKey(n.asText())), tag);
+        setOptionalField(node.get(2), (n, t) -> tag.setMainRelayUrl(n.asText()), tag);
+        setOptionalField(node.get(3), (n, t) -> tag.setPetName(n.asText()), tag);
         return (T) tag;
     }
 }

@@ -1,11 +1,12 @@
 package nostr.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.IEvent;
 import nostr.base.ITag;
@@ -14,22 +15,25 @@ import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.TagSerializer;
 import nostr.util.NostrException;
+import org.apache.commons.lang3.stream.Streams;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author squirrel
  */
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
 @JsonDeserialize(using = TagDeserializer.class)
 @JsonSerialize(using = TagSerializer.class)
 public abstract class BaseTag implements ITag {
@@ -38,19 +42,13 @@ public abstract class BaseTag implements ITag {
     private IEvent parent;
 
     @Override
-    public void setParent(IEvent event) {
+    public void setParent(@NonNull IEvent event) {
         this.parent = event;
     }
 
     @Override
     public String getCode() {
-        var tag = this.getClass().getAnnotation(Tag.class);
-        return tag.code();
-    }
-
-    @Override
-    public Integer getNip() {
-        return 1;
+        return this.getClass().getAnnotation(Tag.class).code();
     }
 
     public String getFieldValue(Field field) throws NostrException {
@@ -63,14 +61,19 @@ public abstract class BaseTag implements ITag {
     }
 
     public List<Field> getSupportedFields() throws NostrException {
-        var fields = this.getClass().getDeclaredFields();
-        List<Field> fieldList = new ArrayList<>();
-        for (Field f : fields) {
-            if (null != f.getAnnotation(Key.class) && null != getFieldValue(f)) {
-                fieldList.add(f);
-            }
-        }
+        return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
+            .filter(f ->
+                Objects.nonNull(f.getAnnotation(Key.class)))
+            .filter(f ->
+                Objects.nonNull(getFieldValue(f)))
+            .collect(Collectors.toList());
+    }
 
-        return fieldList;
+    protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+        Optional.ofNullable(node).ifPresent(n -> con.accept(n, tag));
+    }
+
+    protected static <T extends BaseTag> void setRequiredField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
+        con.accept(Optional.ofNullable(node).orElseThrow(), tag);
     }
 }

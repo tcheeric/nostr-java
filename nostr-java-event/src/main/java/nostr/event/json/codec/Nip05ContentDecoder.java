@@ -1,10 +1,11 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.Nip05Content;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 /**
  *
@@ -22,7 +23,7 @@ public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> 
     @Override
     public T decode(String jsonContent) {
         try {
-            return new ObjectMapper().readValue(jsonContent, clazz);
+            return MAPPER_AFTERBURNER.readValue(jsonContent, clazz);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }

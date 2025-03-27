@@ -7,12 +7,13 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.ElementAttribute;
 import nostr.base.IElement;
-import nostr.base.IEncoder;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  *
@@ -26,9 +27,6 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     @JsonIgnore
     private final List<ElementAttribute> attributes;
 
-    @JsonIgnore
-    private final Integer nip;
-
     public GenericMessage(String command) {
         this(command, new ArrayList<>(), 1);
     }
@@ -40,19 +38,23 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     public GenericMessage(String command, List<ElementAttribute> attributes, Integer nip) {
         super(command);
         this.attributes = attributes;
-        this.nip = nip;
     }
 
     @Override
-    public void addAttribute(ElementAttribute attribute) {
-        this.attributes.add(attribute);
+    public void addAttribute(ElementAttribute... attribute) {
+        addAttributes(List.of(attribute));
+    }
+
+    @Override
+    public void addAttributes(List<ElementAttribute> attributes) {
+        this.attributes.addAll(attributes);
     }
 
     @Override
     public String encode() throws JsonProcessingException {
         getArrayNode().add(getCommand());
         getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> getArrayNode().add(v.toString()));
-        return IEncoder.MAPPER.writeValueAsString(getArrayNode());
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {

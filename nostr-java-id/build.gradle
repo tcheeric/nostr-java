@@ -1,0 +1,9 @@
+plugins {
+    id 'nostr-java.conventions'
+}
+
+description = 'nostr-java-id'
+
+dependencies {
+    api project(':nostr-java-event')
+}

@@ -1,0 +1,10 @@
+plugins {
+    id 'nostr-java.conventions'
+}
+
+description = 'nostr-java-encryption'
+
+dependencies {
+    api project(':nostr-java-crypto')
+    api project(':nostr-java-util')
+}

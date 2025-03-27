@@ -1,16 +1,14 @@
 package nostr.base;
 
-import com.fasterxml.jackson.annotation.JsonKey;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.ToString;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 @Data
 @NoArgsConstructor
@@ -33,6 +31,6 @@ public class Proof {
     @SneakyThrows
     @Override
     public String toString() {
-        return new ObjectMapper().writeValueAsString(this);
+        return MAPPER_AFTERBURNER.writeValueAsString(this);
     }
 }

@@ -2,20 +2,24 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import nostr.base.ISignable;
-import nostr.base.annotation.Key;
-import nostr.event.BaseTag;
-import nostr.base.PublicKey;
-import nostr.base.Signature;
-import java.beans.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import nostr.base.ISignable;
+import nostr.base.PublicKey;
+import nostr.base.Signature;
+import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
+import nostr.event.BaseTag;
+
+import java.beans.Transient;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
- *
  * @author squirrel
  */
 @Data
@@ -46,5 +50,15 @@ public class DelegationTag extends BaseTag implements ISignable {
     @Transient
     public String getToken() {
         return "nostr:" + getCode() + ":" + delegator.toString() + ":" + conditions;
+    }
+
+    @Override
+    public Consumer<Signature> getSignatureConsumer() {
+        return this::setSignature;
+    }
+
+    @Override
+    public Supplier<ByteBuffer> getByeArraySupplier() {
+        return () -> ByteBuffer.wrap(this.getToken().getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -74,7 +73,7 @@ public class CalendarTimeBasedEvent extends NIP52Event {
           .map(
               JsonNode::elements)
           .map(element ->
-              new ObjectMapper().convertValue(element, BaseTag.class)).toList();
+              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
 
       List<GenericTag> genericTags = baseTags.stream()
           .filter(GenericTag.class::isInstance)

@@ -6,8 +6,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
-import nostr.base.IEncoder;
 import nostr.event.BaseMessage;
+
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  *
@@ -27,7 +28,7 @@ public class NoticeMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return IEncoder.MAPPER.writeValueAsString(
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
             getArrayNode()
                 .add(getCommand())
                 .add(getMessage()));

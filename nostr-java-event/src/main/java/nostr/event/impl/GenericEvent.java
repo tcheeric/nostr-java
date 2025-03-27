@@ -1,26 +1,15 @@
 package nostr.event.impl;
 
-import java.beans.Transient;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
-import nostr.base.IEncoder;
 import nostr.base.IGenericElement;
 import nostr.base.ISignable;
 import nostr.base.ITag;
@@ -39,8 +28,21 @@ import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.thread.HexStringValidator;
 
+import java.beans.Transient;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+
+import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+
 /**
- *
  * @author squirrel
  */
 @Log
@@ -117,12 +119,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags,
-            @NonNull String content) {
+        @NonNull String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags,
-            @NonNull String content) {
+        @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
         this.tags = tags;
@@ -146,8 +148,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         try {
             return Bech32.toBech32(Bech32Prefix.NOTE, this.getId());
-        } catch (NostrException ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -194,8 +196,13 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     @Override
-    public void addAttribute(ElementAttribute attribute) {
-        this.attributes.add(attribute);
+    public void addAttribute(ElementAttribute... attribute) {
+        addAttributes(List.of(attribute));
+    }
+
+    @Override
+    public void addAttributes(List<ElementAttribute> attributes) {
+        this.attributes.addAll(attributes);
     }
 
     protected void validate() {
@@ -203,7 +210,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     private String serialize() throws NostrException {
-        var mapper = IEncoder.MAPPER;
+        var mapper = ENCODER_MAPPED_AFTERBURNER;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {
@@ -218,6 +225,20 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         } catch (JsonProcessingException e) {
             throw new NostrException(e);
         }
+    }
+
+    @Transient
+    @Override
+    public Consumer<Signature> getSignatureConsumer() {
+        return this::setSignature;
+    }
+
+    @Transient
+    @Override
+    public Supplier<ByteBuffer> getByeArraySupplier() {
+        this.update();
+        log.log(Level.FINER, "Serialized event: {0}", new String(this.get_serializedEvent()));
+        return () -> ByteBuffer.wrap(this.get_serializedEvent());
     }
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
@@ -237,10 +258,10 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     protected void addGenericTag(String key, Integer nip, Object value) {
-        Optional.ofNullable(value).ifPresent(s -> addTag(GenericTag.create(key, nip, s.toString())));
+        Optional.ofNullable(value).ifPresent(s -> addTag(GenericTag.create(key, s.toString())));
     }
 
     protected void addStringListTag(String label, Integer nip, List<String> tag) {
-        Optional.ofNullable(tag).ifPresent(tagList -> addGenericTag(label, nip, tagList));
+        Optional.ofNullable(tag).ifPresent(tagList -> GenericTag.create(label, tagList));
     }
 }

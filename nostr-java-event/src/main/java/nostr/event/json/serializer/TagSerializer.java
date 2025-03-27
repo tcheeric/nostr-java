@@ -16,6 +16,8 @@ import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import static nostr.event.json.codec.BaseTagEncoder.BASETAGENCODER_MAPPED_AFTERBURNER;
+
 /**
  * @author guilhermegps
  *
@@ -33,7 +35,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
     public void serialize(BaseTag value, JsonGenerator gen, SerializerProvider serializers) {
         try {
             // -- Create the node
-            final ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            final ObjectNode node = BASETAGENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
             List<Field> fields = value.getSupportedFields();
 
             // Populate the node with the fields data
