@@ -19,7 +19,7 @@ class PubkeyTagTest {
             Field field = pubKeyTag.getSupportedFields().stream().findFirst().orElseThrow();
             assertEquals("nostr.base.PublicKey", field.getAnnotatedType().toString());
             assertEquals("publicKey", field.getName());
-            assertEquals(sha256, pubKeyTag.getFieldValue(field));
+            assertEquals(sha256, pubKeyTag.getFieldValue(field).orElseThrow());
         });
     }
 

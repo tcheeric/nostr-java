@@ -14,7 +14,6 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.BaseTagSerializer;
-import nostr.util.NostrException;
 import org.apache.commons.lang3.stream.Streams;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -47,23 +46,24 @@ public abstract class BaseTag implements ITag {
         return this.getClass().getAnnotation(Tag.class).code();
     }
 
-//    TODO: refactor into Optional<String>
-    public String getFieldValue(Field field) throws NostrException {
+    public Optional<String> getFieldValue(Field field) {
         try {
-            Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
-            return f != null ? f.toString() : null;
+            return Optional.ofNullable(
+                new PropertyDescriptor(field.getName(), this.getClass())
+                    .getReadMethod().invoke(this))
+                .map(Object::toString);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-            throw new NostrException(ex);
+            return Optional.empty();
         }
     }
 
     public List<Field> getSupportedFields() {
         return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
-                   .filter(f ->
-                               Objects.nonNull(f.getAnnotation(Key.class)))
-                   .filter(f ->
-                               Objects.nonNull(getFieldValue(f)))
-                   .collect(Collectors.toList());
+            .filter(f ->
+                Objects.nonNull(f.getAnnotation(Key.class)))
+            .filter(f ->
+                getFieldValue(f).isPresent())
+            .collect(Collectors.toList());
     }
 
     protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {

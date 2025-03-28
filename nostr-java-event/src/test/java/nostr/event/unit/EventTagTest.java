@@ -2,15 +2,13 @@ package nostr.event.unit;
 
 import nostr.event.Marker;
 import nostr.event.tag.EventTag;
-import org.apache.commons.lang3.function.FailablePredicate;
-import org.apache.commons.lang3.stream.Streams;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventTagTest {
 
@@ -23,7 +21,6 @@ class EventTagTest {
         eventTag.setMarker(Marker.REPLY);
         eventTag.setRecommendedRelayUrl(recommendedRelayUrl);
 
-//        TODO: refactor below to use baseTag.getFieldValue() instead (after refactoring ref'd method in BaseTag to Optional<String>
         List<Field> fields = eventTag.getSupportedFields();
         anyFieldNameMatch(fields, field -> field.getName().equals("idEvent"));
         anyFieldNameMatch(fields, field -> field.getName().equals("recommendedRelayUrl"));
@@ -34,14 +31,14 @@ class EventTagTest {
         anyFieldValueMatch(fields, eventTag, fieldValue -> fieldValue.equals(recommendedRelayUrl));
 
         assertFalse(fields.stream().anyMatch(field -> field.getName().equals("idEventXXX")));
-        assertFalse(Streams.failableStream(fields.stream()).map(eventTag::getFieldValue).anyMatch(fieldValue -> fieldValue.equals(eventId + "x")));
+        assertFalse(fields.stream().flatMap(field -> eventTag.getFieldValue(field).stream()).anyMatch(fieldValue -> fieldValue.equals(eventId + "x")));
     }
 
     private static void anyFieldNameMatch(List<Field> fields, Predicate<Field> predicate) {
         assertTrue(fields.stream().anyMatch(predicate));
     }
 
-    private static void anyFieldValueMatch(List<Field> fields, EventTag eventTag, FailablePredicate<String, Throwable> predicate) {
-        assertTrue(Streams.failableStream(fields.stream()).map(eventTag::getFieldValue).anyMatch(predicate));
+    private static void anyFieldValueMatch(List<Field> fields, EventTag eventTag, Predicate<String> predicate) {
+        assertTrue(fields.stream().flatMap(field -> eventTag.getFieldValue(field).stream()).anyMatch(predicate));
     }
 }
