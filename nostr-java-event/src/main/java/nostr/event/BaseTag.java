@@ -58,7 +58,7 @@ public abstract class BaseTag implements ITag {
     }
 
     public List<Field> getSupportedFields() {
-        return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
+        return Streams.failableStream(Arrays.stream(this.getClass().getDeclaredFields()))
             .filter(f ->
                 Objects.nonNull(f.getAnnotation(Key.class)))
             .filter(f ->
