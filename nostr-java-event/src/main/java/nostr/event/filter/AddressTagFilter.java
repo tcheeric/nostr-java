@@ -1,19 +1,18 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import nostr.base.PublicKey;
-import nostr.event.impl.GenericEvent;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.IdentifierTag;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import nostr.base.PublicKey;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.AddressTag;
+import nostr.event.tag.IdentifierTag;
 
 @EqualsAndHashCode(callSuper = true)
 public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T> {
@@ -40,7 +39,7 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
             return addressTag;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
-                    String.format("Malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
+                String.format("Malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
         }
     }
 
@@ -52,21 +51,21 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
         String id = addressableTag.getIdentifierTag().getId();
 
         return Stream.of(kind, hexString, id)
-                .map(Object::toString)
-                .collect(Collectors.joining(":"));
+            .map(Object::toString)
+            .collect(Collectors.joining(":"));
     }
 
     private boolean compare(@NonNull GenericEvent genericEvent) {
         T addressableTag = getAddressableTag();
         return
-                !genericEvent.getPubKey().toHexString().equals(
-                        addressableTag.getPublicKey().toHexString()) ||
-                        !genericEvent.getKind().equals(
-                                addressableTag.getKind()) ||
-                        Filterable.getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
-                                .anyMatch(identifierTag ->
-                                        identifierTag.getId().equals(
-                                                addressableTag.getIdentifierTag().getId()));
+            !genericEvent.getPubKey().toHexString().equals(
+                addressableTag.getPublicKey().toHexString()) ||
+                !genericEvent.getKind().equals(
+                    addressableTag.getKind()) ||
+                Filterable.getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
+                    .anyMatch(identifierTag ->
+                        identifierTag.getId().equals(
+                            addressableTag.getIdentifierTag().getId()));
     }
 
     private T getAddressableTag() {
