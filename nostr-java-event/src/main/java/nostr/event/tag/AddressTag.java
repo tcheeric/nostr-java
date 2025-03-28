@@ -33,19 +33,19 @@ import nostr.event.json.serializer.AddressTagSerializer;
 public class AddressTag extends BaseTag {
 
     @Key
-    @JsonProperty
+    @JsonProperty("kind")
     private Integer kind;
 
     @Key
-    @JsonProperty
+    @JsonProperty("publicKey")
     private PublicKey publicKey;
 
     @Key
-    @JsonProperty
+    @JsonProperty("identifierTag")
     private IdentifierTag identifierTag;
 
     @Key
-    @JsonProperty
+    @JsonProperty("relay")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Relay relay;
 
