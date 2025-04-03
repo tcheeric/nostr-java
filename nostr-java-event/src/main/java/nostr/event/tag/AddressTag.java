@@ -19,7 +19,6 @@ import nostr.event.BaseTag;
 import nostr.event.json.serializer.AddressTagSerializer;
 
 /**
- *
  * @author eric
  */
 @Builder
@@ -33,19 +32,23 @@ import nostr.event.json.serializer.AddressTagSerializer;
 public class AddressTag extends BaseTag {
 
     @Key
-    @JsonProperty("kind")
+//    @JsonProperty("kind")
+    @JsonProperty
     private Integer kind;
 
     @Key
-    @JsonProperty("publicKey")
+//    @JsonProperty("publicKey")
+    @JsonProperty
     private PublicKey publicKey;
 
     @Key
-    @JsonProperty("identifierTag")
+//    @JsonProperty("identifierTag")
+    @JsonProperty
     private IdentifierTag identifierTag;
 
     @Key
-    @JsonProperty("relay")
+//    @JsonProperty("relay")
+    @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Relay relay;
 
