@@ -18,6 +18,7 @@ import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
 
 import java.io.IOException;
+import nostr.event.tag.VoteTag;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
@@ -39,6 +40,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
                 case "g" -> GeohashTag.deserialize(node);
                 case "p" -> PubKeyTag.deserialize(node);
                 case "t" -> HashtagTag.deserialize(node);
+                case "v" -> VoteTag.deserialize(node);
 
                 case "nonce" -> NonceTag.deserialize(node);
                 case "price" -> PriceTag.deserialize(node);
