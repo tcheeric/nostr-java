@@ -21,12 +21,12 @@ public class IdentifierTagFilter<T extends IdentifierTag> extends AbstractFilter
         return (genericEvent) ->
                 Filterable.getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
                         .anyMatch(genericEventIdentifierTag ->
-                                genericEventIdentifierTag.getId().equals(getFilterableValue()));
+                                genericEventIdentifierTag.getUuid().equals(getFilterableValue()));
     }
 
     @Override
     public String getFilterableValue() {
-        return getIdentifierTag().getId();
+        return getIdentifierTag().getUuid();
     }
 
     private T getIdentifierTag() {

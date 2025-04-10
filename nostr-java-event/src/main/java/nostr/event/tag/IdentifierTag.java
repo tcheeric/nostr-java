@@ -24,12 +24,12 @@ import nostr.event.BaseTag;
 public class IdentifierTag extends BaseTag {
 
     @Key
-    @JsonProperty("d")
-    private String id;
+    @JsonProperty
+    private String uuid;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         IdentifierTag tag = new IdentifierTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setId(n.asText()), tag);
+        setRequiredField(node.get(1), (n, t) -> tag.setUuid(n.asText()), tag);
         return (T) tag;
     }
 }

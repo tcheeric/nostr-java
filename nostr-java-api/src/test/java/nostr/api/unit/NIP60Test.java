@@ -138,7 +138,7 @@ public class NIP60Test {
         AddressTag aTag = (AddressTag) tags.get(0);
         Assertions.assertEquals("a", aTag.getCode());
         // Assertions.assertEquals("<pubkey>", aTag.getPublicKey());
-        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
+        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getUuid());
         Assertions.assertEquals(37375, aTag.getKind().intValue());
 
         // Decrypt and verify content
@@ -190,7 +190,7 @@ public class NIP60Test {
 
         // Assert a-tag
         AddressTag aTag = (AddressTag) tags.get(0);
-        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
+        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getUuid());
         Assertions.assertEquals(37375, aTag.getKind().intValue());
 
         // Decrypt and verify content
@@ -258,7 +258,7 @@ public class NIP60Test {
 
         // Assert a-tag
         AddressTag aTag = (AddressTag) tags.get(2);
-        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
+        Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getUuid());
         Assertions.assertEquals(37375, aTag.getKind().intValue());
 
     }

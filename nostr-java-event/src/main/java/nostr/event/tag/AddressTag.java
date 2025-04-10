@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +26,7 @@ import nostr.event.json.serializer.AddressTagSerializer;
  */
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Tag(code = "a", nip = 33)
 @JsonPropertyOrder({"kind", "publicKey", "identifierTag", "relay"})
 @NoArgsConstructor
@@ -32,32 +35,32 @@ import nostr.event.json.serializer.AddressTagSerializer;
 public class AddressTag extends BaseTag {
 
     @Key
-//    @JsonProperty("kind")
     @JsonProperty
     private Integer kind;
 
     @Key
-//    @JsonProperty("publicKey")
     @JsonProperty
     private PublicKey publicKey;
 
     @Key
-//    @JsonProperty("identifierTag")
     @JsonProperty
     private IdentifierTag identifierTag;
 
     @Key
-//    @JsonProperty("relay")
     @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Relay relay;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        AddressTag tag = new AddressTag();
-        setRequiredField(node.get(1), (n, a) -> tag.setKind(n.asInt()), tag);
-        setRequiredField(node.get(2), (n, a) -> tag.setPublicKey(new PublicKey(n.asText())), tag);
-        setRequiredField(node.get(3), (n, a) -> tag.setIdentifierTag(new IdentifierTag(n.asText())), tag);
-        setOptionalField(node.get(4), (n, a) -> tag.setRelay(new Relay(n.asText())), tag);
-        return (T) tag;
+        List<String> list = Arrays.stream(node.get(1).asText().split(":")).toList();
+
+        final AddressTag addressTag = new AddressTag();
+        addressTag.setKind(Integer.valueOf(list.get(0)));
+        addressTag.setPublicKey(new PublicKey(list.get(1)));
+        addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
+
+        Optional.ofNullable(node.get(2)).ifPresent(relay -> addressTag.setRelay(new Relay(relay.asText())));
+
+        return (T) addressTag;
     }
 }

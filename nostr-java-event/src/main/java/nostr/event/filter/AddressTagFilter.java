@@ -3,6 +3,7 @@ package nostr.event.filter;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -10,6 +11,8 @@ import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
@@ -24,53 +27,38 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
 
     @Override
     public Predicate<GenericEvent> getPredicate() {
-        return this::compare;
-    }
-
-    public static AddressTag createAddressTag(@NonNull JsonNode addressableTag) throws IllegalArgumentException {
-        try {
-            List<String> list = Arrays.stream(addressableTag.asText().split(":")).toList();
-
-            AddressTag addressTag = new AddressTag();
-            addressTag.setKind(Integer.valueOf(list.getFirst()));
-            addressTag.setPublicKey(new PublicKey(list.get(1)));
-            addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
-
-            return addressTag;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                String.format("Malformed JsonNode addressable tag: [%s]", addressableTag.asText()), e);
-        }
+        return (genericEvent) ->
+            Filterable.getTypeSpecificTags(AddressTag.class, genericEvent).stream()
+                .anyMatch(addressTag ->
+                    addressTag.equals(getAddressableTag()));
     }
 
     @Override
     public String getFilterableValue() {
-        T addressableTag = getAddressableTag();
-        Integer kind = addressableTag.getKind();
-        String hexString = addressableTag.getPublicKey().toHexString();
-        String id = addressableTag.getIdentifierTag().getId();
-
-        return Stream.of(kind, hexString, id)
-            .map(Object::toString)
-            .collect(Collectors.joining(":"));
-    }
-
-    private boolean compare(@NonNull GenericEvent genericEvent) {
-        T addressableTag = getAddressableTag();
-        return
-            !genericEvent.getPubKey().toHexString().equals(
-                addressableTag.getPublicKey().toHexString()) ||
-                !genericEvent.getKind().equals(
-                    addressableTag.getKind()) ||
-                Filterable.getTypeSpecificTags(IdentifierTag.class, genericEvent).stream()
-                    .anyMatch(identifierTag ->
-                        identifierTag.getId().equals(
-                            addressableTag.getIdentifierTag().getId()));
+        return Stream.of(
+                getAddressableTag().getKind(),
+                getAddressableTag().getPublicKey().toHexString(),
+                getAddressableTag().getIdentifierTag().getUuid())
+            .map(Object::toString).collect(Collectors.joining(":"));
     }
 
     private T getAddressableTag() {
         return super.getFilterable();
     }
 
-    public static Function<JsonNode, Filterable> fxn = node -> new AddressTagFilter<>(AddressTagFilter.createAddressTag(node));
+    public static Function<JsonNode, Filterable> fxn = node ->
+        new AddressTagFilter<>(createAddressTag(node));
+
+    protected static <T extends BaseTag> T createAddressTag(@NonNull JsonNode node) {
+        List<String> list = Arrays.stream(node.asText().split(":")).toList();
+
+        final AddressTag addressTag = new AddressTag();
+        addressTag.setKind(Integer.valueOf(list.get(0)));
+        addressTag.setPublicKey(new PublicKey(list.get(1)));
+        addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
+
+        Optional.ofNullable(node.get(2)).ifPresent(relay -> addressTag.setRelay(new Relay(relay.asText())));
+
+        return (T) addressTag;
+    }
 }

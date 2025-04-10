@@ -39,7 +39,7 @@ class ZapReceiptEventTest {
 
         assertTrue(instance.getTags().stream().filter(AddressTag.class::isInstance).map(AddressTag.class::cast).map(addressTag -> addressTag.getRelay().getUri()).anyMatch(ZAP_RECEIPT_RELAY_URI::equals));
 
-        assertTrue(instance.getTags().stream().filter(AddressTag.class::isInstance).map(AddressTag.class::cast).map(addressTag -> addressTag.getIdentifierTag().getId()).anyMatch(ZAP_RECEIPT_IDENTIFIER::equals));
+        assertTrue(instance.getTags().stream().filter(AddressTag.class::isInstance).map(AddressTag.class::cast).map(addressTag -> addressTag.getIdentifierTag().getUuid()).anyMatch(ZAP_RECEIPT_IDENTIFIER::equals));
 
         assertEquals(BOLT_11, instance.getZapReceipt().getBolt11());
         assertEquals(DESCRIPTION_SHA256, instance.getZapReceipt().getDescriptionSha256());

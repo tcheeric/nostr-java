@@ -118,7 +118,7 @@ public class ZDoLastApiNIP09EventIT {
 
         AddressTag addressTag = (AddressTag) addressTags.get(0);
         assertEquals(10_001, addressTag.getKind());
-        assertEquals(replaceableEvent.getId(), addressTag.getIdentifierTag().getId());
+        assertEquals(replaceableEvent.getId(), addressTag.getIdentifierTag().getUuid());
         assertEquals(identity.getPublicKey(), addressTag.getPublicKey());
 
         List<BaseTag> kindTags = deletedEvent.getTags()
