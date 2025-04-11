@@ -3,10 +3,9 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import nostr.event.tag.AddressTag;
+
+import java.io.IOException;
 
 /**
  *
@@ -15,19 +14,16 @@ import nostr.event.tag.AddressTag;
 public class AddressTagSerializer extends JsonSerializer<AddressTag> {
 
     @Override
-    public void serialize(AddressTag addressTag, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
+    public void serialize(AddressTag value, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeString("a");
-        
         jsonGenerator.writeString(
-            Stream.of(
-                    addressTag.getKind(),
-                    addressTag.getPublicKey().toHexString(),
-                    addressTag.getIdentifierTag().getUuid())
-                .map(Object::toString).collect(Collectors.joining(":")));
+            value.getKind() + ":" + 
+                value.getPublicKey().toString() + ":" +
+                value.getIdentifierTag().getUuid());
 
-        if (addressTag.getRelay() != null) {
-            jsonGenerator.writeString("," + addressTag.getRelay().getUri());
+        if (value.getRelay() != null) {
+            jsonGenerator.writeString("," + value.getRelay().getUri());
         }
         jsonGenerator.writeEndArray();
     }
