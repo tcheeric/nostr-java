@@ -2,6 +2,7 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,16 +12,18 @@ import lombok.NonNull;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
+import nostr.event.json.serializer.IdentifierTagSerializer;
 
 /**
  * @author eric
  */
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Tag(code = "d", nip = 33)
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonSerialize(using = IdentifierTagSerializer.class)
 public class IdentifierTag extends BaseTag {
 
     @Key
