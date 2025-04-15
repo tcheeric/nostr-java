@@ -18,7 +18,6 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
-import org.apache.commons.lang3.stream.Streams;
 
 @EqualsAndHashCode(callSuper = true)
 public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T> {
@@ -38,13 +37,13 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
 
   @Override
   public Object getFilterableValue() {
-    String collect = Stream.of(
+    String requiredAttributes = Stream.of(
             getAddressableTag().getKind(),
             getAddressableTag().getPublicKey().toHexString(),
             getAddressableTag().getIdentifierTag().getUuid())
         .map(Object::toString).collect(Collectors.joining(":"));
     return Optional.ofNullable(getAddressableTag().getRelay()).map(relay ->
-        String.join("\",\"", collect, relay.getUri())).orElse(collect);
+        String.join("\",\"", requiredAttributes, relay.getUri())).orElse(requiredAttributes);
   }
 
   private T getAddressableTag() {
@@ -63,12 +62,13 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
     addressTag.setPublicKey(new PublicKey(list.get(1)));
     addressTag.setIdentifierTag(new IdentifierTag(list.get(2)));
 
-    if (Objects.equals(2, nodes.length)) {
-      String identifierString = CharMatcher.is('"').trimTrailingFrom(list.get(2));
-      addressTag.setIdentifierTag(new IdentifierTag(identifierString));
-      String relayString = CharMatcher.is('"').trimLeadingFrom(nodes[1]);
-      addressTag.setRelay(new Relay(relayString));
-    }
+    if (!Objects.equals(2, nodes.length))
+      return (T) addressTag;
+
+    String identifierString = CharMatcher.is('"').trimTrailingFrom(list.get(2));
+    addressTag.setIdentifierTag(new IdentifierTag(identifierString));
+    String relayString = CharMatcher.is('"').trimLeadingFrom(nodes[1]);
+    addressTag.setRelay(new Relay(relayString));
 
     return (T) addressTag;
   }
