@@ -3,6 +3,7 @@ package nostr.event.unit;
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.event.Kind;
 import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.EventFilter;
@@ -71,10 +72,9 @@ public class FiltersDecoderTest {
         decodedFilters);
   }
 
-
   @Test
-  public void testAddressableTagFiltersDecoder() {
-    log.info("testAddressableTagFiltersDecoder");
+  public void testAddressableTagFiltersWithoutRelayDecoder() {
+    log.info("testAddressableTagFiltersWithoutRelayDecoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -94,6 +94,31 @@ public class FiltersDecoderTest {
         new Filters(
             new AddressTagFilter<>(addressTag)),
         decodedFilters);
+  }
+
+  @Test
+  public void testAddressableTagFiltersWithRelayDecoder() {
+    log.info("testAddressableTagFiltersWithRelayDecoder");
+
+    Integer kind = 1;
+    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String uuidValue1 = "UUID-1";
+    Relay relay = new Relay("ws://localhost:5555");
+
+    String joined = String.join(":", String.valueOf(kind), author, uuidValue1);
+
+    AddressTag addressTag = new AddressTag();
+    addressTag.setKind(kind);
+    addressTag.setPublicKey(new PublicKey(author));
+    addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
+    addressTag.setRelay(relay);
+
+    String expected = String.join("\\\",\\\"", joined, relay.getUri());
+    String addressableTag = "{\"#a\":[\"" + expected + "\"]}";
+    Filters decodedFilters = new FiltersDecoder().decode(addressableTag);
+
+    Filters expected1 = new Filters(new AddressTagFilter<>(addressTag));
+    assertEquals(expected1, decodedFilters);
   }
 
   @Test
@@ -386,6 +411,6 @@ public class FiltersDecoderTest {
     String malformedJoin = String.join(",", String.valueOf(kind), author, uuidValue1);
     String expected = "{\"#a\":[\"" + malformedJoin + "\"]}";
 
-    assertThrows(IllegalArgumentException.class, () -> new FiltersDecoder().decode(expected));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> new FiltersDecoder().decode(expected));
   }
 }

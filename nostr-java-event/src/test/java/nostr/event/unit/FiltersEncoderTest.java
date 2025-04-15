@@ -3,6 +3,7 @@ package nostr.event.unit;
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.event.Kind;
 import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
@@ -125,8 +126,8 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testAddressableTagFilterEncoder() {
-    log.info("testAddressableTagFilterEncoder");
+  public void testAddressableTagFilterWithoutRelayEncoder() {
+    log.info("testAddressableTagFilterWithoutRelayEncoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -142,6 +143,30 @@ public class FiltersEncoderTest {
     String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
 
     assertEquals("{\"#a\":[\"" + addressableTag + "\"]}", encodedFilters);
+  }
+
+  @Test
+  public void testAddressableTagWithRelayFilterEncoder() {
+    log.info("testAddressableTagWithRelayFilterEncoder");
+
+    Integer kind = 1;
+    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    String uuidValue1 = "UUID-1";
+    Relay relay = new Relay("ws://localhost:5555");
+
+    AddressTag addressTag = new AddressTag();
+    addressTag.setKind(kind);
+    addressTag.setPublicKey(new PublicKey(author));
+    addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
+    addressTag.setRelay(relay);
+
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AddressTagFilter<>(addressTag)));
+    String encodedFilters = encoder.encode();
+    String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
+    String joined = String.join("\\\",\\\"", addressableTag, relay.getUri());
+
+    String expected = "{\"#a\":[\"" + joined + "\"]}";
+    assertEquals(expected, encodedFilters);
   }
 
   @Test
