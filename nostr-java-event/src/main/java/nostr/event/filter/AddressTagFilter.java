@@ -1,7 +1,6 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.CharMatcher;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -64,11 +63,13 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
 
     if (!Objects.equals(2, nodes.length))
       return (T) addressTag;
-
-    String identifierString = CharMatcher.is('"').trimTrailingFrom(list.get(2));
-    addressTag.setIdentifierTag(new IdentifierTag(identifierString));
-    String relayString = CharMatcher.is('"').trimLeadingFrom(nodes[1]);
-    addressTag.setRelay(new Relay(relayString));
+    
+    addressTag.setIdentifierTag(
+        new IdentifierTag(
+            list.get(2).replaceAll("\"$", "")));
+    addressTag.setRelay(
+        new Relay(
+            nodes[1].replaceAll("^\"", "")));
 
     return (T) addressTag;
   }

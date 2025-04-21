@@ -60,7 +60,6 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:' + bouncyCastle
 
     implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
-    implementation 'com.google.guava:guava:' + googleGuava
     implementation 'org.awaitility:awaitility:' + awaitility
     implementation 'org.projectlombok:lombok:' + lombok
     annotationProcessor 'org.awaitility:awaitility:' + awaitility
@@ -70,6 +69,7 @@ dependencies {
     testImplementation 'org.projectlombok:lombok:' + lombok
     testImplementation 'org.awaitility:awaitility:' + awaitility
     testImplementation 'com.adarshr:gradle-test-logger-plugin:' + logger
+    testImplementation 'com.google.guava:guava:' + googleGuava
     
     testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
 }
