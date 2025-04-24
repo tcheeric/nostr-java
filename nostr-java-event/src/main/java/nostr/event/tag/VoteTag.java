@@ -21,7 +21,7 @@ import nostr.event.BaseTag;
 public class VoteTag extends BaseTag {
 
     @Key
-    @JsonProperty("v")
+    @JsonProperty
     private Integer vote;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
