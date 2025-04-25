@@ -26,6 +26,7 @@ import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
+import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -42,6 +43,7 @@ import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
@@ -749,4 +751,25 @@ public class JsonParseTest {
     assertEquals(subscriptionId, ((ReqMessage) message).getSubscriptionId());
     assertEquals(2, ((ReqMessage) message).getFiltersList().size());
   }
+
+    @Test
+    public void testReqMessageVoteTagFilterDecoder() {
+        log.info("testReqMessageVoteTagFilterDecoder");
+
+        String subscriptionId = "npub333k6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+        String voteTagKey = "#v";
+        Integer voteTagValue = 1;
+        String reqJsonWithVoteTagFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + voteTagKey + "\":[\"" + voteTagValue + "\"]}]";
+
+        assertDoesNotThrow(() -> {
+            ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithVoteTagFilterToDecode);
+
+            ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+                new Filters(
+                    new VoteTagFilter<>(new VoteTag(voteTagValue))));
+
+            assertEquals(reqJsonWithVoteTagFilterToDecode, decodedReqMessage.encode());
+            assertEquals(expectedReqMessage, decodedReqMessage);
+        });
+    }
 }

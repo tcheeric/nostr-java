@@ -21,6 +21,7 @@ import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
 import nostr.event.filter.HashtagTagFilter;
+import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.CalendarContent;
 import nostr.event.impl.CreateOrUpdateStallEvent;
 import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
@@ -37,6 +38,7 @@ import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -642,5 +644,27 @@ public class ApiEventIT {
         product.setStall(stall);
 
         return product;
+    }
+
+    @Test
+    public void testNIP01SendTextNoteEventVoteTag() {
+        System.out.println("testNIP01SendTextNoteEventVoteTag");
+
+        Integer targetVote = 1;
+        VoteTag voteTag = new VoteTag(targetVote);
+
+        NIP01<NIP01Event> nip01 = new NIP01<>(Identity.generateRandomIdentity());
+        nip01.createTextNoteEvent(List.of(voteTag), "Vote Tag Test value testNIP01SendTextNoteEventVoteTag").signAndSend(relays);
+
+        Filters filters = new Filters(
+            new VoteTagFilter<>(new VoteTag(targetVote)));
+
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(s -> s.contains(targetVote.toString())));
+
+//        nip01.close();
     }
 }

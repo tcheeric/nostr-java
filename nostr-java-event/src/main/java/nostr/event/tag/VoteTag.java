@@ -14,7 +14,7 @@ import nostr.event.BaseTag;
 
 @Builder
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Tag(code = "v", nip = 2112)
 @NoArgsConstructor
 @AllArgsConstructor

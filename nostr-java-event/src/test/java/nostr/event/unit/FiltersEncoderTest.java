@@ -18,6 +18,7 @@ import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
+import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.message.ReqMessage;
@@ -27,6 +28,7 @@ import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.VoteTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -369,6 +371,19 @@ public class FiltersEncoderTest {
     String addressableTags = String.join("\",\"", addressableTag1, addressableTag2);
     assertEquals("{\"#a\":[\"" + addressableTags + "\"]}", encoded);
   }
+
+    @Test
+    public void testVoteTagFiltersEncoder() {
+        log.info("testVoteTagFiltersEncoder");
+
+        Integer vote = 1;
+
+        FiltersEncoder encoder = new FiltersEncoder(
+            new Filters(new VoteTagFilter<>(new VoteTag(vote))));
+
+        String encodedFilters = encoder.encode();
+        assertEquals("{\"#v\":[\"1\"]}", encodedFilters);
+    }
 
   @Test
   public void testSinceFiltersEncoder() {

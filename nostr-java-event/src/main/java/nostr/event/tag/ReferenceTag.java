@@ -28,7 +28,7 @@ import nostr.event.json.serializer.ReferenceTagSerializer;
 public class ReferenceTag extends BaseTag {
 
     @Key
-    @JsonProperty("r")
+    @JsonProperty("uri")
     private URI uri;
 
 }
