@@ -25,7 +25,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
  * @author squirrel
  */
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @Log

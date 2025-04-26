@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @JsonSerialize(using = ProductSerializer.class)
 public class Product extends NIP15Content.MerchantContent {
 
