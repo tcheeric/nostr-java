@@ -21,7 +21,7 @@ import nostr.event.BaseTag;
 @Tag(code = "t", nip = 12)
 @NoArgsConstructor
 @AllArgsConstructor
-public class HashtagTag extends BaseTag {
+public class HashtagTag extends GenericTag {
 
     @Key
     @JsonProperty("t")
@@ -31,5 +31,23 @@ public class HashtagTag extends BaseTag {
         HashtagTag tag = new HashtagTag();
         setRequiredField(node.get(1), (n, t) -> tag.setHashTag(n.asText()), tag);
         return (T) tag;
+    }
+
+    public static HashtagTag updateFields(@NonNull GenericTag genericTag) {
+        if (genericTag instanceof HashtagTag) {
+            return (HashtagTag) genericTag;
+        }
+
+        if (!"t".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for HashtagTag");
+        }
+
+        if (genericTag.getAttributes().size() != 1) {
+            throw new IllegalArgumentException("Invalid number of attributes for HashtagTag");
+        }
+
+        HashtagTag tag = new HashtagTag();
+        tag.setHashTag(genericTag.getAttributes().get(0).getValue().toString());
+        return tag;
     }
 }

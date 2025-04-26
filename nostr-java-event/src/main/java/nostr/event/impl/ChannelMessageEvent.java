@@ -1,25 +1,81 @@
 package nostr.event.impl;
 
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
-import nostr.event.Kind;
-import nostr.event.Marker;
+import nostr.event.BaseTag;
+import nostr.base.Kind;
+import nostr.base.Marker;
 import nostr.event.tag.EventTag;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author guilhermegps
- *
  */
 @Event(name = "Channel Message", nip = 28)
+@NoArgsConstructor
 public class ChannelMessageEvent extends GenericEvent {
 
-    public ChannelMessageEvent(@NonNull PublicKey pubKey, @NonNull ChannelCreateEvent rootEvent, String content) {
-        super(pubKey, Kind.CHANNEL_MESSAGE, new ArrayList<>(), content);
-        this.addTag(EventTag.builder().idEvent(rootEvent.getId()).marker(Marker.ROOT).build());
+    public ChannelMessageEvent(PublicKey pubKey, List<BaseTag> baseTags, String content) {
+        super(pubKey, Kind.CHANNEL_MESSAGE, baseTags, content);
+    }
+
+    public String getChannelCreateEventId() {
+        return getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .filter(tag -> tag.getMarker() == Marker.ROOT)
+                .map(EventTag::getIdEvent)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public String getChannelMessageReplyEventId() {
+        return getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .filter(tag -> tag.getMarker() == Marker.REPLY)
+                .map(EventTag::getIdEvent)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Relay getRootRecommendedRelay() {
+        return getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .filter(tag -> tag.getMarker() == Marker.ROOT)
+                .map(EventTag::getRecommendedRelayUrl)
+                .map(Relay::new)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Relay getReplyRecommendedRelay(@NonNull String eventId) {
+        return getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .filter(tag -> tag.getMarker() == Marker.REPLY && tag.getIdEvent().equals(eventId))
+                .map(EventTag::getRecommendedRelayUrl)
+                .map(Relay::new)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void validate() {
+        super.validate();
+
+        // Check 'e' root - tag
+        EventTag rootTag = getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .filter(tag -> tag.getMarker() == Marker.ROOT)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));
     }
 
     public ChannelMessageEvent(@NonNull PublicKey pubKey, @NonNull ChannelCreateEvent rootEvent, String content, Relay recommendedRelay) {

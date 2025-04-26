@@ -22,7 +22,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({"number", "currency", "frequency"})
-public class PriceTag extends BaseTag {
+public class PriceTag extends GenericTag {
 
     @Key
     @JsonProperty
@@ -51,14 +51,37 @@ public class PriceTag extends BaseTag {
         if (!super.equals(o)) return false;
         PriceTag priceTag = (PriceTag) o;
         return Objects.equals(
-                        number.stripTrailingZeros(),
-                        priceTag.number.stripTrailingZeros()
-                )
-                && Objects.equals(currency, priceTag.currency) && Objects.equals(frequency, priceTag.frequency);
+                number.stripTrailingZeros(),
+                priceTag.number.stripTrailingZeros()
+        )
+               && Objects.equals(currency, priceTag.currency) && Objects.equals(frequency, priceTag.frequency);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), number.stripTrailingZeros(), currency, frequency);
+    }
+
+    public static PriceTag updateFields(@NonNull GenericTag genericTag) {
+        if (genericTag instanceof PriceTag) {
+            return (PriceTag) genericTag;
+        }
+
+        if (!"price".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for PriceTag");
+        }
+
+        if (genericTag.getAttributes().size() < 2 || genericTag.getAttributes().size() > 3) {
+            throw new IllegalArgumentException("Invalid number of attributes for PriceTag");
+        }
+
+        PriceTag tag = new PriceTag();
+        tag.setNumber(new BigDecimal(genericTag.getAttributes().get(0).getValue().toString()));
+        tag.setCurrency(genericTag.getAttributes().get(1).getValue().toString());
+
+        if (genericTag.getAttributes().size() > 2) {
+            tag.setFrequency(genericTag.getAttributes().get(2).getValue().toString());
+        }
+        return tag;
     }
 }

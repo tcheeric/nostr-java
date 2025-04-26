@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.IEvent;
 import nostr.base.ITag;
@@ -42,7 +41,7 @@ public abstract class BaseTag implements ITag {
     private IEvent parent;
 
     @Override
-    public void setParent(@NonNull IEvent event) {
+    public void setParent(IEvent event) {
         this.parent = event;
     }
 
@@ -56,7 +55,7 @@ public abstract class BaseTag implements ITag {
             Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
             return f != null ? f.toString() : null;
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-            throw new NostrException(ex);
+            throw new NostrException(ex.getMessage());
         }
     }
 

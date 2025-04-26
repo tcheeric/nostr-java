@@ -3,7 +3,6 @@ package nostr.api;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.filter.Filters;
@@ -48,17 +47,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  public <T extends GenericEvent> List<String> sendEvent(T event, Map<String, String> relays) {
-    setRelays(relays);
-    return relays.keySet().stream().map(s ->
-            clientMap.get(s).sendEvent(event))
-        .flatMap(List::stream)
-        .distinct().toList();
-  }
-
   @Override
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
-    relays.entrySet().stream().forEach(relayEntry ->
+    relays.entrySet().forEach(relayEntry ->
         clientMap.putIfAbsent(relayEntry.getKey(),
             new WebSocketClientHandler(
                 relayEntry.getKey(),
@@ -67,13 +58,13 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> sendEvent(@NonNull IEvent event) {
+  public List<String> sendEvent(@NonNull GenericEvent event) {
     return clientMap.values().stream().map(client ->
         client.sendEvent(event)).flatMap(List::stream).distinct().toList();
   }
 
   @Override
-  public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
+  public List<String> sendEvent(@NonNull GenericEvent event, Map<String, String> relays) {
     setRelays(relays);
     return sendEvent(event);
   }

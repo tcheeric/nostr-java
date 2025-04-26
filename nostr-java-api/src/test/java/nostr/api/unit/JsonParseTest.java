@@ -12,9 +12,9 @@ import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.Marker;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.base.Kind;
+import nostr.base.Marker;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
@@ -27,7 +27,7 @@ import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
@@ -566,7 +566,7 @@ public class JsonParseTest {
             new AuthorFilter<>(new PublicKey(author)),
             new ReferencedEventFilter<>(new EventTag(referencedEventId)),
             new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(author))),
-            new AddressableTagFilter<>(addressTag1)));
+            new AddressTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
@@ -674,7 +674,7 @@ public class JsonParseTest {
     addressTag1.setPublicKey(new PublicKey(author));
     addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(new AddressableTagFilter<>(addressTag1)));
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(new AddressTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);

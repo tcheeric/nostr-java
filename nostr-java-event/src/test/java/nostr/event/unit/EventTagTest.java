@@ -1,6 +1,6 @@
 package nostr.event.unit;
 
-import nostr.event.Marker;
+import nostr.base.Marker;
 import nostr.event.tag.EventTag;
 import org.junit.jupiter.api.Test;
 

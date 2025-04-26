@@ -21,7 +21,7 @@ import nostr.event.BaseTag;
 @Tag(code = "g", nip = 12)
 @NoArgsConstructor
 @AllArgsConstructor
-public class GeohashTag extends BaseTag {
+public class GeohashTag extends GenericTag {
 
     @Key
     @JsonProperty("g")
@@ -31,5 +31,23 @@ public class GeohashTag extends BaseTag {
         GeohashTag tag = new GeohashTag();
         setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
         return (T) tag;
+    }
+
+    public static GeohashTag updateFields(@NonNull GenericTag genericTag) {
+        if (genericTag instanceof GeohashTag) {
+            return (GeohashTag) genericTag;
+        }
+
+        if (!"g".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for GeohashTag");
+        }
+
+        if (genericTag.getAttributes().size() != 1) {
+            throw new IllegalArgumentException("Invalid number of attributes for GeohashTag");
+        }
+
+        GeohashTag tag = new GeohashTag();
+        tag.setLocation(genericTag.getAttributes().get(0).getValue().toString());
+        return tag;
     }
 }

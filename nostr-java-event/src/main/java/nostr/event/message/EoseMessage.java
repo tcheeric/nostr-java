@@ -17,7 +17,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
  */
 @Setter
 @Getter
-public class EoseMessage extends BaseMessage {
+public class EoseMessage extends GenericMessage {
 
     @JsonProperty
     private final String subscriptionId;

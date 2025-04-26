@@ -1,21 +1,30 @@
 package nostr.event.impl;
 
 import java.util.ArrayList;
-import lombok.NonNull;
-import nostr.base.ChannelProfile;
+
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import nostr.event.entities.ChannelProfile;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.Kind;
-import static nostr.util.NostrUtil.escapeJsonString;
+import nostr.base.Kind;
 
 /**
  * @author guilhermegps
  *
  */
 @Event(name = "Create Channel", nip = 28)
+@NoArgsConstructor
 public class ChannelCreateEvent extends GenericEvent {
 
-    public ChannelCreateEvent(@NonNull PublicKey pubKey, ChannelProfile profile) {
-        super(pubKey, Kind.CHANNEL_CREATE, new ArrayList<>(), escapeJsonString(profile.toString()));
+    public ChannelCreateEvent(PublicKey pubKey, String content) {
+        super(pubKey, Kind.CHANNEL_CREATE, new ArrayList<>(), content);
     }
+
+    @SneakyThrows
+    public ChannelProfile getChannelProfile() {
+        String content = getContent();
+        return MAPPER_AFTERBURNER.readValue(content, ChannelProfile.class);
+    }
+
 }

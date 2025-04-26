@@ -15,7 +15,6 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
 /**
- *
  * @author squirrel
  */
 @Builder
@@ -25,7 +24,7 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "subject", nip = 14)
 @JsonPropertyOrder({"subject"})
-public final class SubjectTag extends BaseTag {
+public final class SubjectTag extends GenericTag {
 
     @Key
     @JsonProperty("subject")
@@ -35,5 +34,19 @@ public final class SubjectTag extends BaseTag {
         SubjectTag tag = new SubjectTag();
         setOptionalField(node.get(1), (n, t) -> tag.setSubject(n.asText()), tag);
         return (T) tag;
+    }
+
+
+    public static SubjectTag updateFields(@NonNull GenericTag genericTag) {
+        if (genericTag instanceof SubjectTag) {
+            return (SubjectTag) genericTag;
+        }
+
+        if (!"subject".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for SubjectTag");
+        }
+
+        SubjectTag subjectTag = new SubjectTag(genericTag.getAttributes().get(0).getValue().toString());
+        return subjectTag;
     }
 }

@@ -3,18 +3,17 @@ package nostr.id;
 import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 
+import nostr.util.validator.Nip05Validator;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.PublicKey;
-import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericMessage;
-import nostr.event.impl.GenericTag;
+import nostr.event.message.GenericMessage;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseTagEncoder;
-import nostr.event.util.Nip05Validator;
 import nostr.util.NostrUtil;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
@@ -130,7 +129,7 @@ public class EventTest {
             var nip05 = "nostr-java@nostr.band";
             var publicKey = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub126klq89p42wk78p4j5ur8wlxmxdqepdh8tez9e4axpd4run5nahsmff27j")));
 
-            var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey).build();
+            var nip05Validator = Nip05Validator.builder().nip05(nip05).publicKey(publicKey.toString()).build();
 
             nip05Validator.validate();
         } catch (Exception ex) {
@@ -143,7 +142,7 @@ public class EventTest {
     public void testAuthMessage() {
         System.out.println("testAuthMessage");
 
-        GenericMessage msg = new GenericMessage("AUTH", 42);
+        GenericMessage msg = new GenericMessage("AUTH");
         String attr = "challenge-string";
         msg.addAttribute(ElementAttribute.builder().name("challenge").value(attr).build());
 

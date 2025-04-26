@@ -1,132 +1,133 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
-import nostr.base.Signature;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
+import nostr.base.Kind;
 import nostr.event.NIP99Event;
-import nostr.event.impl.ClassifiedListingEvent.ClassifiedListingEventDeserializer;
+import nostr.event.json.deserializer.ClassifiedListingEventDeserializer;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.StreamSupport;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
 @JsonDeserialize(using = ClassifiedListingEventDeserializer.class)
+@NoArgsConstructor
 public class ClassifiedListingEvent extends NIP99Event {
-  @Getter
-  @JsonIgnore
-  private ClassifiedListing classifiedListing;
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, @NonNull Kind kind, List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
-    super(sender, kind, baseTags, content);
-    this.classifiedListing = classifiedListing;
-    mapCustomTags();
-  }
+    public ClassifiedListingEvent(PublicKey pubKey, Kind kind, List<BaseTag> tags, String content) {
+        super(pubKey, kind, tags, content);
+    }
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull ClassifiedListing classifiedListing) {
-    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, classifiedListing);
-  }
+    @Getter
+    public enum Status {
+        ACTIVE("active"),
+        SOLD("sold");
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
-    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, ClassifiedListing.builder(title, summary, priceTag).build());
-  }
+        private final String value;
 
-  public ClassifiedListingEvent(@NonNull PublicKey sender, List<BaseTag> baseTags, String content, @NonNull String title, @NonNull String summary, @NonNull BigDecimal number, @NonNull String currency, @NonNull String frequency) {
-    this(sender, Kind.CLASSIFIED_LISTING, baseTags, content, ClassifiedListing.builder(title, summary, new PriceTag(number, currency, frequency)).build());
-  }
+        Status(@NonNull String value) {
+            this.value = value;
+        }
 
-  @Override
-  protected void validate() {
-    var n = getKind();
-    if (30402 <= n && n <= 30403)
-      return;
+    }
 
-    throw new AssertionError(String.format("Invalid kind value [%s]. Classified Listing must be either 30402 or 30403", n), null);
-  }
+    public Instant getPublishedAt() {
+        GenericTag publishedAtTag = getTag("published_at");
+        return Instant.ofEpochSecond(Long.parseLong(publishedAtTag.getAttributes().get(0).getValue().toString()));
+    }
 
-  private void mapCustomTags() {
-    addGenericTag("title", getNip(), classifiedListing.getTitle());
-    addGenericTag("summary", getNip(), classifiedListing.getSummary());
-    addGenericTag("published_at", getNip(), classifiedListing.getPublishedAt());
-    addGenericTag("location", getNip(), classifiedListing.getLocation());
-    addStandardTag(classifiedListing.getPriceTag());
-  }
+    public String getLocation() {
+        GenericTag locationTag = getTag("location");
+        return locationTag.getAttributes().get(0).getValue().toString();
+    }
 
-  public static class ClassifiedListingEventDeserializer extends StdDeserializer<ClassifiedListingEvent> {
-    public ClassifiedListingEventDeserializer() {
-      super(ClassifiedListingEvent.class);
+    public String getTitle() {
+        GenericTag titleTag = getTag("title");
+        return titleTag.getAttributes().get(0).getValue().toString();
+    }
+
+    public String getSummary() {
+        GenericTag summaryTag = getTag("summary");
+        return summaryTag.getAttributes().get(0).getValue().toString();
+    }
+
+    public String getImage() {
+        GenericTag imageTag = getTag("image");
+        return imageTag.getAttributes().get(0).getValue().toString();
+    }
+
+    public Status getStatus() {
+        GenericTag statusTag = getTag("status");
+        String status = statusTag.getAttributes().get(0).getValue().toString();
+        return Status.valueOf(status);
+    }
+
+    public String getPrice() {
+        PriceTag priceTag = (PriceTag) getTags().stream()
+                .filter(tag -> tag instanceof PriceTag)
+                .findFirst()
+                .orElseThrow();
+
+        return priceTag.getNumber().toString() + " " + priceTag.getCurrency() +
+               (priceTag.getFrequency() != null ? " " + priceTag.getFrequency() : "");
     }
 
     @Override
-    public ClassifiedListingEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-      JsonNode classifiedListingEventNode = jsonParser.getCodec().readTree(jsonParser);
-      ArrayNode tags = (ArrayNode) classifiedListingEventNode.get("tags");
+    protected void validateTags() {
+        super.validateTags();
 
-      List<BaseTag> baseTags = StreamSupport.stream(
-              tags.spliterator(), false).toList().stream()
-          .map(
-              JsonNode::elements)
-          .map(element ->
-              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+        // Validate published_at
+        GenericTag publishedAtTag = getTag("published_at");
+        if (publishedAtTag == null) {
+            throw new AssertionError("Missing `published_at` tag for the publication date/time.");
+        }
+        try {
+            Long.parseLong(publishedAtTag.getAttributes().get(0).getValue().toString());
+        } catch (NumberFormatException e) {
+            throw new AssertionError("Invalid `published_at` tag value: must be a numeric timestamp.");
+        }
 
-      List<GenericTag> genericTags = baseTags.stream()
-          .filter(GenericTag.class::isInstance)
-          .map(GenericTag.class::cast)
-          .toList();
+        // Validate location
+        if (getTag("location") == null) {
+            throw new AssertionError("Missing `location` tag for the listing location.");
+        }
 
-      PriceTag priceTag = getBaseTagCastFromString(baseTags, PriceTag.class);
-      ClassifiedListing classifiedListing = ClassifiedListing.builder(
-              getTagValueFromString(genericTags, "title"),
-              getTagValueFromString(genericTags, "summary"),
-              priceTag)
-          .build();
+        // Validate title
+        if (getTag("title") == null) {
+            throw new AssertionError("Missing `title` tag for the listing title.");
+        }
 
-      Map<String, String> generalMap = new HashMap<>();
-      classifiedListingEventNode.fields().forEachRemaining(generalTag ->
-          generalMap.put(
-              generalTag.getKey(),
-              generalTag.getValue().asText()));
+        // Validate summary
+        if (getTag("summary") == null) {
+            throw new AssertionError("Missing `summary` tag for the listing summary.");
+        }
 
-      ClassifiedListingEvent classifiedListingEvent = new ClassifiedListingEvent(
-          new PublicKey(generalMap.get("pubkey")),
-          Kind.valueOf(Integer.parseInt(generalMap.get("kind"))),
-          baseTags,
-          generalMap.get("content"),
-          classifiedListing
-      );
-      classifiedListingEvent.setId(generalMap.get("id"));
-      classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
-      classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
+        // Validate image
+        if (getTag("image") == null) {
+            throw new AssertionError("Missing `image` tag for the listing image.");
+        }
 
-      return classifiedListingEvent;
+        // Validate status
+        if (getTag("status") == null) {
+            throw new AssertionError("Missing `status` tag for the listing status.");
+        }
     }
 
-    private String getTagValueFromString(List<GenericTag> genericTags, String code) {
-      return genericTags.stream()
-          .filter(tag -> tag.getCode().equalsIgnoreCase(code))
-          .findFirst().get().getAttributes().get(0).getValue().toString();
-    }
+    @Override
+    public void validateKind() {
+        var n = getKind();
+        if (30402 <= n && n <= 30403)
+            return;
 
-    private <T extends BaseTag> T getBaseTagCastFromString(List<BaseTag> baseTags, Class<T> type) {
-      return baseTags.stream().filter(type::isInstance).map(type::cast).findFirst().get();
+        throw new AssertionError(String.format("Invalid kind value [%s]. Classified Listing must be either 30402 or 30403", n), null);
     }
-  }
 }

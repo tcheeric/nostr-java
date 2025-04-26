@@ -4,17 +4,26 @@
  */
 package nostr.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP05Impl.InternetIdentifierMetadataEventFactory;
-import nostr.base.UserProfile;
-import nostr.event.NIP05Event;
+import lombok.SneakyThrows;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.event.entities.UserProfile;
+import nostr.config.Constants;
+import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+import nostr.util.validator.Nip05Validator;
+
+import java.util.ArrayList;
+
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  *
  * @author eric
  */
-public class NIP05<T extends NIP05Event> extends EventNostr<T> {
+public class NIP05 extends EventNostr {
 	
 	public NIP05(@NonNull Identity sender) {
 		setSender(sender);
@@ -25,10 +34,22 @@ public class NIP05<T extends NIP05Event> extends EventNostr<T> {
      * @param profile the associate user profile
      * @return the IIM event
      */
-    public NIP05<T> createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
-    	var event = new InternetIdentifierMetadataEventFactory(getSender(), profile).create();
-		this.setEvent((T) event);
-
+    @SneakyThrows
+	public NIP05 createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
+		String content = getContent(profile);
+		GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.USER_METADATA, new ArrayList<>(), content).create();
+		this.updateEvent(genericEvent);
 		return this;
     }
+
+	private String getContent(UserProfile profile) {
+		try {
+			String jsonString = MAPPER_AFTERBURNER.writeValueAsString(new Nip05Validator.Nip05Obj(profile.getName(), profile.getNip05()));
+			return escapeJsonString(jsonString);
+		} catch (JsonProcessingException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+
 }

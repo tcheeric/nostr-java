@@ -16,7 +16,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
  */
 @Setter
 @Getter
-public class OkMessage extends BaseMessage {
+public class OkMessage extends GenericMessage {
 
     @JsonProperty
     private final String eventId;

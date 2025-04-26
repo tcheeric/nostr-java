@@ -11,7 +11,6 @@ import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
-import nostr.event.BaseTag;
 
 import java.beans.Transient;
 import java.nio.ByteBuffer;
@@ -28,7 +27,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder({"pubkey", "conditions", "signature"})
-public class DelegationTag extends BaseTag implements ISignable {
+public class DelegationTag extends GenericTag implements ISignable {
 
     @Key
     @JsonProperty("delegator")

@@ -9,30 +9,20 @@ import nostr.api.NIP09;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.NIP30;
-import nostr.base.ChannelProfile;
+import nostr.event.entities.ChannelProfile;
 import nostr.base.PublicKey;
-import nostr.base.UserProfile;
+import nostr.base.Relay;
+import nostr.event.entities.UserProfile;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.Reaction;
+import nostr.base.Kind;
+import nostr.event.entities.Reaction;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.SinceFilter;
-import nostr.event.impl.ChannelCreateEvent;
-import nostr.event.impl.ChannelMessageEvent;
-import nostr.event.impl.DeletionEvent;
-import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.HideMessageEvent;
-import nostr.event.impl.InternetIdentifierMetadataEvent;
-import nostr.event.impl.MentionsEvent;
-import nostr.event.impl.MetadataEvent;
-import nostr.event.impl.MuteUserEvent;
-import nostr.event.impl.ReactionEvent;
-import nostr.event.impl.TextNoteEvent;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
@@ -67,8 +57,7 @@ public class NostrApiExamples implements ApplicationRunner {
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
-    private final static Map<String, String> RELAYS = Map.of("lol", "nos.lol", "damus", "relay.damus.io", "ZBD",
-        "nostr.zebedee.cloud", "taxi", "relay.taxi", "mom", "nostr.mom");
+    private final static Map<String, String> RELAYS = Map.of("local", "localhost:5555");
 
     static {
         final LogManager logManager = LogManager.getLogManager();
@@ -191,12 +180,12 @@ public class NostrApiExamples implements ApplicationRunner {
         }
     }
 
-    private static TextNoteEvent sendTextNoteEvent() {
+    private static GenericEvent sendTextNoteEvent() {
         logHeader("sendTextNoteEvent");
 
         List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
-        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        var nip01 = new NIP01(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
             .sign()
             .send(RELAYS);
@@ -207,7 +196,7 @@ public class NostrApiExamples implements ApplicationRunner {
     private static void sendEncryptedDirectMessage() {
         logHeader("sendEncryptedDirectMessage");
 
-        var nip04 = new NIP04<DirectMessageEvent>(SENDER, RECIPIENT.getPublicKey());
+        var nip04 = new NIP04(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
             .sign()
             .send(RELAYS);
@@ -218,8 +207,8 @@ public class NostrApiExamples implements ApplicationRunner {
 
         List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
 
-        var nip08 = new NIP08<MentionsEvent>(SENDER);
-        nip08.createMentionsEvent(tags, "Hello #[0]")
+        var nip08 = new NIP08(SENDER);
+        nip08.createMentionsEvent(1, tags, "Hello #[0]")
             .sign()
             .send(RELAYS);
     }
@@ -230,16 +219,16 @@ public class NostrApiExamples implements ApplicationRunner {
         var event = sendTextNoteEvent();
         List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
-        var nip09 = new NIP09<DeletionEvent>(SENDER);
+        var nip09 = new NIP09(SENDER);
         nip09.createDeletionEvent(event)
             .sign()
             .send();
     }
 
-    private static MetadataEvent metaDataEvent() {
+    private static GenericEvent metaDataEvent() {
         logHeader("metaDataEvent");
 
-        var nip01 = new NIP01<MetadataEvent>(SENDER);
+        var nip01 = new NIP01(SENDER);
         nip01.createMetadataEvent(PROFILE)
             .sign()
             .send(RELAYS);
@@ -250,7 +239,7 @@ public class NostrApiExamples implements ApplicationRunner {
     private static void ephemerealEvent() {
         logHeader("ephemeralEvent");
 
-        var nip01 = new NIP01<EphemeralEvent>(SENDER);
+        var nip01 = new NIP01(SENDER);
         nip01.createEphemeralEvent(Kind.EPHEMEREAL_EVENT.getValue(), "An ephemeral event")
             .sign()
             .send(RELAYS);
@@ -259,32 +248,35 @@ public class NostrApiExamples implements ApplicationRunner {
     private static void reactionEvent() {
         logHeader("reactionEvent");
 
-        List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createCustomEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
-        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
+        var nip01 = new NIP01(SENDER);
         var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:");
         event.signAndSend(RELAYS);
 
-        var nip25 = new NIP25<ReactionEvent>(RECIPIENT);
-        var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE);
+        var nip25 = new NIP25(RECIPIENT);
+        var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE, new Relay("localhost:5555"));
         reactionEvent.signAndSend(RELAYS);
-        nip25.createReactionEvent(event.getEvent(), "💩").signAndSend();
-//        Using Custom Emoji as reaction
+        nip25.createReactionEvent(event.getEvent(), "💩", new Relay("localhost:5555")).signAndSend();
+
+        //Using Custom Emoji as reaction
+        GenericTag eventTag = NIP01.createEventTag(event.getEvent().getId());
         nip25.createReactionEvent(
-                event.getEvent(),
-                NIP30.createCustomEmojiTag(
+                eventTag,
+                NIP30.createEmojiTag(
                     "ablobcatrainbow",
-                    "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"))
-            .signAndSend();
+                    "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"
+                )
+        ).signAndSend();
     }
 
     private static void replaceableEvent() {
         logHeader("replaceableEvent");
 
-        var nip01 = new NIP01<TextNoteEvent>(SENDER);
+        var nip01 = new NIP01(SENDER);
         var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
         event.signAndSend(RELAYS);
 
-        nip01.createReplaceableEvent(List.of(new EventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend();
+        nip01.createReplaceableEvent(List.of(NIP01.createEventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend();
     }
 
     private static void internetIdMetadata() {
@@ -295,7 +287,7 @@ public class NostrApiExamples implements ApplicationRunner {
             .nip05("me@guilhermegps.com.br")
             .build();
 
-        var nip05 = new NIP05<InternetIdentifierMetadataEvent>(SENDER);
+        var nip05 = new NIP05(SENDER);
         nip05.createInternetIdentifierMetadataEvent(profile)
             .sign()
             .send(RELAYS);
@@ -324,7 +316,7 @@ public class NostrApiExamples implements ApplicationRunner {
             logHeader("createChannel");
 
             var channel = new ChannelProfile("JNostr Channel", "This is a channel to test NIP28 in nostr-java", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
-            var nip28 = new NIP28<ChannelCreateEvent>(SENDER);
+            var nip28 = new NIP28(SENDER);
             nip28.setSender(SENDER);
             nip28.createChannelCreateEvent(channel).sign().send();
             return nip28.getEvent();
@@ -338,15 +330,11 @@ public class NostrApiExamples implements ApplicationRunner {
             logHeader("updateChannelMetadata");
 
             var channelCreateEvent = createChannel();
-
-            BaseTag tag = EventTag.builder()
-                .idEvent(channelCreateEvent.getId())
-                .recommendedRelayUrl("localhost:5555")
-                .build();
-
             var channel = new ChannelProfile("test change name", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
-            var nip28 = new NIP28<ChannelCreateEvent>(SENDER);
-            nip28.createChannelCreateEvent(channel).addTag(tag).sign().send();
+
+            var nip28 = new NIP28(SENDER);
+            nip28.updateChannelMetadataEvent(channelCreateEvent, channel, null).sign().send();
+
         } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
@@ -357,8 +345,8 @@ public class NostrApiExamples implements ApplicationRunner {
 
         var channelCreateEvent = createChannel();
 
-        var nip28 = new NIP28<ChannelMessageEvent>(SENDER);
-        nip28.createChannelMessageEvent((ChannelCreateEvent) channelCreateEvent, "Hello everybody!").sign().send();
+        var nip28 = new NIP28(SENDER);
+        nip28.createChannelMessageEvent(channelCreateEvent, new Relay("localhost:5555"),"Hello everybody!").sign().send();
 
         return nip28.getEvent();
     }
@@ -368,8 +356,8 @@ public class NostrApiExamples implements ApplicationRunner {
 
         var channelMessageEvent = sendChannelMessage();
 
-        var nip28 = new NIP28<HideMessageEvent>(SENDER);
-        nip28.createHideMessageEvent((ChannelMessageEvent) channelMessageEvent, "Dick pic").sign().send();
+        var nip28 = new NIP28(SENDER);
+        nip28.createHideMessageEvent(channelMessageEvent, "Dick pic").sign().send();
 
         return nip28.getEvent();
     }
@@ -377,7 +365,7 @@ public class NostrApiExamples implements ApplicationRunner {
     private static GenericEvent muteUser() {
         logHeader("muteUser");
 
-        var nip28 = new NIP28<MuteUserEvent>(SENDER);
+        var nip28 = new NIP28(SENDER);
         nip28.createMuteUserEvent(RECIPIENT.getPublicKey(), "Posting dick pics").sign().send();
 
         return nip28.getEvent();

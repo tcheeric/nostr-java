@@ -6,7 +6,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
-import nostr.event.impl.GenericMessage;
+import nostr.event.message.GenericMessage;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;

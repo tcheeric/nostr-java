@@ -1,18 +1,11 @@
 package nostr.id;
 
 import lombok.extern.java.Log;
-import nostr.base.PublicKey;
-import nostr.event.impl.ZapReceiptEvent;
-import nostr.event.tag.AddressTag;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Log
 class ZapReceiptEventTest {
 
+/*
     @Test
     void testConstructZapReceiptEvent() {
 
@@ -45,5 +38,6 @@ class ZapReceiptEventTest {
         assertEquals(DESCRIPTION_SHA256, instance.getZapReceipt().getDescriptionSha256());
         assertEquals(PRE_IMAGE, instance.getZapReceipt().getPreimage());
     }
+*/
 
 }

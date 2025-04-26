@@ -5,18 +5,29 @@
 package nostr.api;
 
 import lombok.NonNull;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * @author eric
  */
-public class NIP02<T extends GenericEvent> extends EventNostr<T> {
+public class NIP02 extends EventNostr {
 
     public NIP02(@NonNull Identity sender) {
         setSender(sender);
+    }
+
+    public NIP02 createContactListEvent(List<BaseTag> pubKeyTags) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.CONTACT_LIST, pubKeyTags, "").create();
+        updateEvent(genericEvent);
+        return this;
     }
 
     /**
@@ -24,7 +35,10 @@ public class NIP02<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param tag the pubkey tag
      */
-    public NIP02<T> addContactTag(@NonNull PubKeyTag tag) {
+    public NIP02 addContactTag(@NonNull GenericTag tag) {
+        if (!tag.getCode().equals(Constants.Tag.PUBKEY_CODE)) {
+            throw new IllegalArgumentException("Tag must be a pubkey tag");
+        }
         getEvent().addTag(tag);
         return this;
     }
@@ -34,7 +48,7 @@ public class NIP02<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param publicKey the public key to add to the contact list
      */
-    public NIP02<T> addContactTag(@NonNull PublicKey publicKey) {
+    public NIP02 addContactTag(@NonNull PublicKey publicKey) {
         return addContactTag(NIP01.createPubKeyTag(publicKey));
     }
 }

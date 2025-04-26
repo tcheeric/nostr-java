@@ -22,7 +22,7 @@ import nostr.event.BaseTag;
 @Tag(code = "nonce", nip = 13)
 @JsonPropertyOrder({"nonce", "difficulty"})
 @NoArgsConstructor
-public class NonceTag extends BaseTag {
+public class NonceTag extends GenericTag {
 
     @Key
     @JsonProperty("nonce")
@@ -42,5 +42,23 @@ public class NonceTag extends BaseTag {
         setRequiredField(node.get(1), (n, t) -> tag.setNonce(Integer.valueOf(n.asText())), tag);
         setRequiredField(node.get(2), (n, t) -> tag.setDifficulty(Integer.valueOf(n.asText())), tag);
         return (T) tag;
+    }
+
+    public static NonceTag updateFields(@NonNull GenericTag genericTag) {
+        if (genericTag instanceof NonceTag) {
+            return (NonceTag) genericTag;
+        }
+
+        if (!"nonce".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for NonceTag");
+        }
+        if (genericTag.getAttributes().size() != 2) {
+            throw new IllegalArgumentException("Invalid number of attributes for NonceTag");
+        }
+
+        NonceTag tag = new NonceTag();
+        tag.setNonce(Integer.valueOf(genericTag.getAttributes().get(0).getValue().toString()));
+        tag.setDifficulty(Integer.valueOf(genericTag.getAttributes().get(1).getValue().toString()));
+        return tag;
     }
 }

@@ -21,12 +21,13 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseEvent;
 import nostr.event.BaseTag;
 import nostr.event.Deleteable;
-import nostr.event.Kind;
+import nostr.base.Kind;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
+import nostr.event.tag.GenericTag;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
-import nostr.util.thread.HexStringValidator;
+import nostr.util.validator.HexStringValidator;
 
 import java.beans.Transient;
 import java.nio.ByteBuffer;
@@ -94,6 +95,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    @Deprecated
     private final List<ElementAttribute> attributes;
 
     public GenericEvent() {
@@ -119,12 +121,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Kind kind, @NonNull List<BaseTag> tags,
-        @NonNull String content) {
+                        @NonNull String content) {
         this(pubKey, kind.getValue(), tags, content);
     }
 
     public GenericEvent(@NonNull PublicKey pubKey, @NonNull Integer kind, @NonNull List<BaseTag> tags,
-        @NonNull String content) {
+                        @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
         this.tags = tags;
@@ -157,12 +159,31 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
         this.tags = tags;
 
-        for (ITag o : tags) {
-            o.setParent(this);
+        for (BaseTag tag : tags) {
+            tag.setParent(this);
         }
     }
 
+    @Transient
+    public boolean isReplaceable() {
+        return this.kind != null && this.kind >= 10000 && this.kind < 20000;
+    }
+
+    @Transient
+    public boolean isEphemeral() {
+        return this.kind != null && this.kind >= 20000 && this.kind < 30000;
+    }
+
+    @Transient
+    public boolean isAddressable() {
+        return this.kind != null && this.kind >= 30000 && this.kind < 40000;
+    }
+
     public void addTag(BaseTag tag) {
+        if (tag == null) {
+            return;
+        }
+
         if (tags == null)
             tags = new ArrayList<>();
 
@@ -174,13 +195,16 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     public void update() {
 
-        try {
-            this.validate();
+        if (id != null) {
+            return;
+        }
 
-            this.createdAt = Instant.now().getEpochSecond();
+        try {
+            if (this.createdAt == null) {
+                this.createdAt = Instant.now().getEpochSecond();
+            }
 
             this._serializedEvent = this.serialize().getBytes(StandardCharsets.UTF_8);
-
             this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
         } catch (NostrException | NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
@@ -195,18 +219,57 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         return this.signature != null;
     }
 
+    @Deprecated
     @Override
     public void addAttribute(ElementAttribute... attribute) {
         addAttributes(List.of(attribute));
     }
 
+    @Deprecated
     @Override
     public void addAttributes(List<ElementAttribute> attributes) {
         this.attributes.addAll(attributes);
     }
 
-    protected void validate() {
+    public void validate() {
 
+        // Validate `id` field
+        HexStringValidator.validateHex(this.id, 64);
+
+        // Validate `pubkey` field
+        HexStringValidator.validateHex(this.pubKey.toString(), 64);
+
+        // Validate `sig` field
+        HexStringValidator.validateHex(this.signature.toString(), 128);
+
+        // Validate `created_at` field
+        if (this.createdAt == null || this.createdAt < 0) {
+            throw new AssertionError("Invalid `created_at`: Must be a non-negative integer.");
+        }
+
+        validateKind();
+
+        validateTags();
+
+        validateContent();
+    }
+
+    protected void validateKind() {
+        if (this.kind == null || this.kind < 0) {
+            throw new AssertionError("Invalid `kind`: Must be a non-negative integer.");
+        }
+    }
+
+    protected void validateTags() {
+        if (this.tags == null) {
+            throw new AssertionError("Invalid `tags`: Must be a non-null array.");
+        }
+    }
+
+    protected void validateContent() {
+        if (this.content == null) {
+            throw new AssertionError("Invalid `content`: Must be a string.");
+        }
     }
 
     private String serialize() throws NostrException {
@@ -223,7 +286,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
             return mapper.writeValueAsString(arrayNode);
         } catch (JsonProcessingException e) {
-            throw new NostrException(e);
+            throw new NostrException(e.getMessage());
         }
     }
 
@@ -239,6 +302,14 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this.update();
         log.log(Level.FINER, "Serialized event: {0}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
+    }
+
+    @Deprecated
+    public ElementAttribute getAttribute(@NonNull String name) {
+        return this.attributes.stream()
+                .filter(a -> a.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
@@ -263,5 +334,38 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     protected void addStringListTag(String label, Integer nip, List<String> tag) {
         Optional.ofNullable(tag).ifPresent(tagList -> GenericTag.create(label, tagList));
+    }
+
+    protected GenericTag getTag(@NonNull String code) {
+        return (GenericTag) getTags().stream()
+                .filter(tag -> code.equals(tag.getCode()))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    protected List<GenericTag> getTags(@NonNull String code) {
+        return getTags().stream()
+                .filter(tag -> code.equals(tag.getCode()))
+                .map(GenericTag.class::cast)
+                .toList();
+    }
+
+
+    public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) {
+        try {
+            T event = clazz.getConstructor().newInstance();
+            event.setContent(genericEvent.getContent());
+            event.setTags(genericEvent.getTags());
+            event.setPubKey(genericEvent.getPubKey());
+            event.setId(genericEvent.getId());
+            event.set_serializedEvent(genericEvent.get_serializedEvent());
+            event.setNip(genericEvent.getNip());
+            event.setKind(genericEvent.getKind());
+            event.setSignature(genericEvent.getSignature());
+            event.setCreatedAt(genericEvent.getCreatedAt());
+            return event;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

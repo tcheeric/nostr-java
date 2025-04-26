@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import nostr.base.Command;
-import nostr.base.IEvent;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
@@ -21,19 +21,20 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 @Setter
 @Getter
-public class EventMessage extends BaseMessage {
+@Log
+public class EventMessage extends GenericMessage {
 
     @JsonProperty
-    private final IEvent event;
+    private final GenericEvent event;
 
     @JsonProperty
     private String subscriptionId;
 
-    public EventMessage(@NonNull IEvent event) {
+    public EventMessage(@NonNull GenericEvent event) {
         this(event, null);
     }
 
-    public EventMessage(@NonNull IEvent event, String subscriptionId) {
+    public EventMessage(@NonNull GenericEvent event, String subscriptionId) {
         super(Command.EVENT.name());
         this.event = event;
         this.subscriptionId = subscriptionId;
@@ -53,6 +54,7 @@ public class EventMessage extends BaseMessage {
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr, ObjectMapper mapper) {
         var arg = msgArr[1];
         if (msgArr.length == 2 && arg instanceof Map map) {
+            //log.log(Level.INFO, ">>> MsgArr {0}", msgArr[1]);
             return (T) new EventMessage(
                 convertValue(mapper, map)
             );
@@ -60,6 +62,7 @@ public class EventMessage extends BaseMessage {
 
         if (msgArr.length == 3 && arg instanceof String) {
             if (msgArr[2] instanceof Map map) {
+                //log.log(Level.INFO, ">>> MsgArr {0}", msgArr[2]);
                 return (T) new EventMessage(
                     convertValue(mapper, map),
                     arg.toString()

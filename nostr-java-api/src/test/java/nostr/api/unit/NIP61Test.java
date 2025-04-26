@@ -1,22 +1,23 @@
 package nostr.api.unit;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import nostr.api.NIP60;
+import lombok.SneakyThrows;
 import nostr.api.NIP61;
-import nostr.base.Mint;
-import nostr.base.Proof;
+import nostr.event.entities.Amount;
+import nostr.event.entities.CashuMint;
+import nostr.event.entities.CashuProof;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 public class NIP61Test {
 
@@ -24,16 +25,16 @@ public class NIP61Test {
     public void createNutzapInformationalEvent() {
         // Prepare
         Identity sender = Identity.generateRandomIdentity();
-        NIP61<GenericEvent> nip61 = new NIP61<>(sender);
+        NIP61 nip61 = new NIP61(sender);
 
         // Create test data
         List<String> pubkeys = Arrays.asList("pubkey1", "pubkey2");
         List<Relay> relays = Arrays.asList(
                 new Relay("wss://relay1.example.com"),
                 new Relay("wss://relay2.example.com"));
-        List<Mint> mints = Arrays.asList(
-                new Mint("https://mint1.example.com"),
-                new Mint("https://mint2.example.com"));
+        List<CashuMint> mints = Arrays.asList(
+                new CashuMint("https://mint1.example.com"),
+                new CashuMint("https://mint2.example.com"));
 
         // Create event
         GenericEvent event = nip61.createNutzapInformationalEvent(pubkeys, relays, mints).getEvent();
@@ -70,36 +71,43 @@ public class NIP61Test {
         Assertions.assertEquals("https://mint2.example.com", mintTags.get(1).getAttributes().get(0).getValue());
     }
 
+    @SneakyThrows
     @Test
     public void createNutzapEvent() {
         // Prepare
         Identity sender = Identity.generateRandomIdentity();
-        NIP61<GenericEvent> nip61 = new NIP61<>(sender);
+        NIP61 nip61 = new NIP61(sender);
 
         Identity recipientId = Identity.generateRandomIdentity();
 
         // Create test data
-        NIP60.SpendingHistory.Amount amount = new NIP60.SpendingHistory.Amount(100, "sat");
-        Mint mint = new Mint("https://mint.example.com");
+        Amount amount = new Amount(100, "sat");
+        CashuMint mint = new CashuMint("https://mint.example.com");
         // PublicKey recipient = new PublicKey("recipient-pubkey");
         String content = "Test content";
 
         // Optional proofs and events
-        Proof proof = new Proof();
+        CashuProof proof = new CashuProof();
         proof.setId("test-proof-id");
-        List<Proof> proofs = Arrays.asList(proof);
+        List<CashuProof> proofs = List.of(proof);
 
         EventTag eventTag = new EventTag();
         eventTag.setIdEvent("test-event-id");
-        List<EventTag> events = Arrays.asList(eventTag);
+        List<EventTag> events = List.of(eventTag);
 
         // Create event
-        GenericEvent event = nip61.createNutzapEvent(amount, proofs, mint, events, recipientId.getPublicKey(), content)
+        GenericEvent event = nip61.createNutzapEvent(
+                        amount,
+                        proofs,
+                        URI.create(mint.getUrl()).toURL(),
+                        events,
+                        recipientId.getPublicKey(),
+                        content)
                 .getEvent();
         List<BaseTag> tags = event.getTags();
 
         // Assert tags
-        Assertions.assertEquals(4, tags.size()); // url + amount + unit + pubkey
+        Assertions.assertEquals(6, tags.size()); // url + amount + unit + pubkey
 
         // Verify url tag
         List<GenericTag> urlTags = tags.stream()
@@ -128,7 +136,7 @@ public class NIP61Test {
         // Verify pubkey tag
         List<PubKeyTag> pubkeyTags = tags.stream()
                 .filter(tag -> tag.getCode().equals("p"))
-                .map(tag -> (PubKeyTag) tag)
+                .map(tag -> GenericTag.convert((GenericTag) tag, PubKeyTag.class))
                 .toList();
         Assertions.assertEquals(1, pubkeyTags.size());
         Assertions.assertEquals(recipientId.getPublicKey().toString(), pubkeyTags.get(0).getPublicKey().toString());
@@ -141,20 +149,20 @@ public class NIP61Test {
     public void createTags() {
         // Test P2PK tag creation
         String pubkey = "test-pubkey";
-        GenericTag p2pkTag = (GenericTag) NIP61.createP2pkTag(pubkey);
+        GenericTag p2pkTag = NIP61.createP2pkTag(pubkey);
         Assertions.assertEquals("pubkey", p2pkTag.getCode());
         Assertions.assertEquals(pubkey, p2pkTag.getAttributes().get(0).getValue());
 
         // Test URL tag creation
         String url = "https://example.com";
-        GenericTag urlTag = (GenericTag) NIP61.createUrlTag(url);
+        GenericTag urlTag = NIP61.createUrlTag(url);
         Assertions.assertEquals("u", urlTag.getCode());
         Assertions.assertEquals(url, urlTag.getAttributes().get(0).getValue());
 
-        // Test Proof tag creation
-        Proof proof = new Proof();
+        // Test CashuProof tag creation
+        CashuProof proof = new CashuProof();
         proof.setId("test-proof-id");
-        GenericTag proofTag = (GenericTag) NIP61.createProofTag(proof);
+        GenericTag proofTag = NIP61.createProofTag(proof);
         Assertions.assertEquals("proof", proofTag.getCode());
         Assertions.assertTrue(proofTag.getAttributes().get(0).getValue().toString().contains("test-proof-id"));
     }

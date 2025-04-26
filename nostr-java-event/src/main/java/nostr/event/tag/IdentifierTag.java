@@ -21,7 +21,7 @@ import nostr.event.BaseTag;
 @Tag(code = "d", nip = 33)
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentifierTag extends BaseTag {
+public class IdentifierTag extends GenericTag {
 
     @Key
     @JsonProperty("d")
@@ -32,4 +32,13 @@ public class IdentifierTag extends BaseTag {
         setRequiredField(node.get(1), (n, t) -> tag.setId(n.asText()), tag);
         return (T) tag;
     }
+
+    public static IdentifierTag updateFields(@NonNull GenericTag tag) {
+        if (tag instanceof IdentifierTag) {
+            return (IdentifierTag) tag;
+        }
+        IdentifierTag identifierTag = new IdentifierTag(tag.getAttributes().get(0).getValue().toString());
+        return identifierTag;
+    }
+
 }

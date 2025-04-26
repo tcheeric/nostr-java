@@ -6,10 +6,9 @@ import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
-import nostr.event.NIP52Event;
-import nostr.event.impl.CalendarContent;
+import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -63,7 +62,7 @@ class CalendarTimeBasedEventTest {
     public static final String END_CODE = "end";
     public static final String LOCATION_CODE = "location";
 
-    private NIP52Event instance;
+    private GenericEvent instance;
     String expectedEncodedJson;
     Signature signature;
 
@@ -89,7 +88,7 @@ class CalendarTimeBasedEventTest {
         URI uri = new URI(str);
         // calendarContent.setReferenceTags(List.of(new ReferenceTag(uri)));
 
-        instance = new NIP52<>(identity)
+        instance = new NIP52(identity)
             .createCalendarTimeBasedEvent(tags, CALENDAR_TIME_BASED_EVENT_CONTENT, calendarContent).getEvent();
         signature = identity.sign(instance);
         instance.setSignature(signature);

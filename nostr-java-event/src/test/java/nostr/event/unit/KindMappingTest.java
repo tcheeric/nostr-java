@@ -1,6 +1,6 @@
 package nostr.event.unit;
 
-import nostr.event.Kind;
+import nostr.base.Kind;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

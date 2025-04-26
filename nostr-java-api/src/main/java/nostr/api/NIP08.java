@@ -5,9 +5,9 @@
 package nostr.api;
 
 import lombok.NonNull;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.event.BaseTag;
-import nostr.event.NIP08Event;
-import nostr.event.impl.MentionsEvent;
+import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * @author eric
  */
 @Deprecated(since = "NIP-27")
-public class NIP08 <T extends NIP08Event> extends EventNostr<T> {
+public class NIP08 extends EventNostr {
 	
 	public NIP08(@NonNull Identity sender) {
 		setSender(sender);
@@ -29,9 +29,9 @@ public class NIP08 <T extends NIP08Event> extends EventNostr<T> {
      * @param content the note's content containing the references to the public keys
      * @return the mentions event
      */
-    public NIP08<T> createMentionsEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-    	var event = new MentionsEvent(getSender().getPublicKey(), tags, content);
-    	this.setEvent((T) event);
+    public NIP08 createMentionsEvent(@NonNull Integer kind, @NonNull List<BaseTag> tags, @NonNull String content) {
+		GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, tags, content).create();
+    	this.updateEvent(genericEvent);
         
         return this;
     }

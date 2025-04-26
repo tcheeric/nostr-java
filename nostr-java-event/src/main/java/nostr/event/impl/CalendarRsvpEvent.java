@@ -1,116 +1,138 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
-import nostr.base.Signature;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.NIP52Event;
-import nostr.event.impl.CalendarRsvpEvent.CalendarRsvpEventDeserializer;
+import nostr.base.Kind;
+import nostr.event.entities.CalendarRsvpContent;
+import nostr.event.json.deserializer.CalendarRsvpEventDeserializer;
 import nostr.event.tag.AddressTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.StreamSupport;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "CalendarRsvpEvent", nip = 52)
 @JsonDeserialize(using = CalendarRsvpEventDeserializer.class)
-public class CalendarRsvpEvent extends NIP52Event {
-  @Getter
-  @JsonIgnore
-  private CalendarRsvpContent calendarRsvpContent;
+@NoArgsConstructor
+public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpContent> {
 
-  public CalendarRsvpEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarRsvpContent calendarRsvpContent) {
-    super(sender, Kind.CALENDAR_RSVP_EVENT, baseTags, content);
-    this.calendarRsvpContent = calendarRsvpContent;
-    mapCustomTags();
-  }
+    public enum Status {
+        ACCEPTED("accepted"),
+        TENTATIVE("tentative"),
+        DECLINED("declined");
 
-  private void mapCustomTags() {
-    addStandardTag(calendarRsvpContent.getIdentifierTag());
-    addStandardTag(calendarRsvpContent.getAddressTag());
-    addGenericTag("status", getNip(), calendarRsvpContent.getStatus());
-    addStandardTag(calendarRsvpContent.getParticipantPubKeys());
-  }
+        private final String status;
 
-  public static class CalendarRsvpEventDeserializer extends StdDeserializer<CalendarRsvpEvent> {
-    public CalendarRsvpEventDeserializer() {
-      super(CalendarRsvpEvent.class);
+        Status(String status) {
+            this.status = status;
+        }
+
+        @JsonValue
+        public String getStatus() {
+            return status;
+        }
     }
 
-    //    TODO: below methods needs comprehensive tags assignment completion
+    public enum FB {
+        FREE("free"),
+        BUSY("busy");
+
+        private final String value;
+
+        FB(String fb) {
+            this.value = fb;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public CalendarRsvpEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content) {
+        super(sender, Kind.CALENDAR_RSVP_EVENT, baseTags, content);
+    }
+
+    public Status getStatus() {
+        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
+        return Status.valueOf(calendarRsvpContent.getStatus().toUpperCase());
+    }
+
+    public FB getFB() {
+        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
+        return FB.valueOf(calendarRsvpContent.getFbTag().getAttributes().get(0).getValue().toString().toUpperCase());
+    }
+
+    public String getEventId() {
+        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
+        return calendarRsvpContent.getEventTag().getIdEvent();
+    }
+
+    public String getId() {
+        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
+        return calendarRsvpContent.getIdentifierTag().getId();
+    }
+
+    public PublicKey getAuthor() {
+        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
+        return calendarRsvpContent.getAuthorPubKeyTag().getPublicKey();
+    }
+
     @Override
-    public CalendarRsvpEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-      JsonNode calendarTimeBasedEventNode = jsonParser.getCodec().readTree(jsonParser);
-      ArrayNode tags = (ArrayNode) calendarTimeBasedEventNode.get("tags");
+    protected CalendarRsvpContent getCalendarContent() {
+        GenericTag aTag = getTag("a");
+        GenericTag identifierTag = getTag("d");
 
-      List<BaseTag> baseTags = StreamSupport.stream(
-              tags.spliterator(), false).toList().stream()
-          .map(
-              JsonNode::elements)
-          .map(element ->
-              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+        GenericTag eTag = getTag("e");
+        GenericTag fb = getTag("fb");
+        GenericTag p = getTag("p");
 
-      List<GenericTag> genericTags = baseTags.stream()
-          .filter(GenericTag.class::isInstance)
-          .map(GenericTag.class::cast)
-          .toList();
+        CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
+                GenericTag.convert(identifierTag, IdentifierTag.class),
+                GenericTag.convert(aTag, AddressTag.class),
+                getTag("status").getAttributes().get(0).getValue().toString()
+        ).build();
 
-      IdentifierTag identifierTag = getBaseTagCastFromString(baseTags, IdentifierTag.class).getFirst();
+        if (eTag != null) {
+            calendarRsvpContent.setEventTag(GenericTag.convert(eTag, EventTag.class));
+        }
 
-      AddressTag addressTag = getBaseTagCastFromString(baseTags, AddressTag.class).getFirst();
+        if (fb != null) {
+            calendarRsvpContent.setFbTag(fb);
+        }
 
-      CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
-              identifierTag,
-              addressTag,
-              getTagValueFromString(genericTags, "status"))
-          .build();
+        if (p != null) {
+            calendarRsvpContent.setAuthorPubKeyTag(GenericTag.convert(p, PubKeyTag.class));
+        }
 
-      calendarRsvpContent.setParticipantPubKeys(getBaseTagCastFromString(baseTags, PubKeyTag.class));
-
-      Map<String, String> generalMap = new HashMap<>();
-      calendarTimeBasedEventNode.fields().forEachRemaining(generalTag ->
-          generalMap.put(
-              generalTag.getKey(),
-              generalTag.getValue().asText()));
-
-
-      CalendarRsvpEvent calendarTimeBasedEvent = new CalendarRsvpEvent(
-          new PublicKey(generalMap.get("pubkey")),
-          baseTags,
-          generalMap.get("content"),
-          calendarRsvpContent
-      );
-      calendarTimeBasedEvent.setId(generalMap.get("id"));
-      calendarTimeBasedEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
-      calendarTimeBasedEvent.setSignature(Signature.fromString(generalMap.get("sig")));
-
-      return calendarTimeBasedEvent;
+        return calendarRsvpContent;
     }
 
-    private String getTagValueFromString(List<GenericTag> genericTags, String code) {
-      return genericTags.stream()
-          .filter(tag -> tag.getCode().equalsIgnoreCase(code))
-          .findFirst().get().getAttributes().get(0).getValue().toString();
-    }
+    public void validateTags() {
+        super.validateTags();
 
-    private <T extends BaseTag> List<T> getBaseTagCastFromString(List<BaseTag> baseTags, Class<T> type) {
-      return baseTags.stream().filter(type::isInstance).map(type::cast).toList();
+        GenericTag dTag = getTag("d");
+        if (dTag == null) {
+            throw new AssertionError("Missing \\`d\\` tag for the event identifier.");
+        }
+
+        GenericTag aTag = getTag("a");
+        if (aTag == null) {
+            throw new AssertionError("Missing \\`a\\` tag for the address.");
+        }
+
+        GenericTag statusTag = getTag("status");
+        if (statusTag == null) {
+            throw new AssertionError("Missing \\`status\\` tag for the RSVP status.");
+        }
     }
-  }
 }

@@ -1,38 +1,57 @@
 package nostr.event.impl;
 
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
+import nostr.base.Kind;
+import nostr.event.tag.GenericTag;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author squirrel
  */
 @Event(name = "Canonical authentication event", nip = 42)
-public class CanonicalAuthenticationEvent extends GenericEvent {
+@NoArgsConstructor
+public class CanonicalAuthenticationEvent extends EphemeralEvent {
 
-    public CanonicalAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull String challenge, @NonNull Relay relay) {
-        super(pubKey, Kind.CLIENT_AUTH);
-        this.setNip(42);
+    public CanonicalAuthenticationEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
+        super(pubKey, Kind.CLIENT_AUTH, tags, content);
+    }
 
-        // Challenge tag
-        List<ElementAttribute> chAttributes = new ArrayList<>();
-        var attribute = ElementAttribute.builder().name("challenge").value(challenge).build();
-        chAttributes.add(attribute);
-        BaseTag challengeTag = new GenericTag("challenge", chAttributes);
-        this.addTag(challengeTag);
+    public String getChallenge() {
+        GenericTag challengeTag = getTag("challenge");
+        if (challengeTag != null && !challengeTag.getAttributes().isEmpty()) {
+            return challengeTag.getAttributes().get(0).getValue().toString();
+        }
+        return null;
+    }
 
-        // Relay tag
-        final List<ElementAttribute> relayAttributes = new ArrayList<>();
-        final ElementAttribute relayAttribute = ElementAttribute.builder().name("uri").value(relay.getUri()).build();
-        relayAttributes.add(relayAttribute);
-        final BaseTag relayTag = new GenericTag("relay", relayAttributes);
-        this.addTag(relayTag);
+    public Relay getRelay() {
+        GenericTag relayTag = getTag("relay");
+        if (relayTag != null && !relayTag.getAttributes().isEmpty()) {
+            return new Relay(relayTag.getAttributes().get(0).getValue().toString());
+        }
+        return null;
+    }
+
+    @Override
+    protected void validateTags() {
+        super.validateTags();
+
+        // Check 'challenge' tag
+        GenericTag challengeTag = getTag("challenge");
+        if (challengeTag == null || challengeTag.getAttributes().isEmpty()) {
+            throw new AssertionError("Missing or invalid `challenge` tag.");
+        }
+
+        // Check 'relay' tag
+        GenericTag relayTag = getTag("relay");
+        if (relayTag == null || relayTag.getAttributes().isEmpty()) {
+            throw new AssertionError("Missing or invalid `relay` tag.");
+        }
     }
 }

@@ -1,21 +1,44 @@
 package nostr.event.impl;
 
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.Kind;
+import nostr.event.BaseTag;
+import nostr.base.Kind;
 import nostr.event.tag.EventTag;
+
+import java.util.List;
 
 /**
  * @author guilhermegps
  *
  */
 @Event(name = "Hide Message on Channel", nip = 28)
+@NoArgsConstructor
 public class HideMessageEvent extends GenericEvent {
 
-    public HideMessageEvent(@NonNull PublicKey pubKey, @NonNull ChannelMessageEvent event, String content) {
-        super(pubKey, Kind.HIDE_MESSAGE);
-        this.setContent(content);
-        this.addTag(EventTag.builder().idEvent(event.getId()).build());
+    public HideMessageEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
+        super(pubKey, Kind.HIDE_MESSAGE, tags, content);
+    }
+
+    public String getHiddenMessageEventId() {
+        return getTags().stream()
+                .filter(tag -> "e".equals(tag.getCode()))
+                .map(tag -> (EventTag) tag)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."))
+                .getIdEvent();
+    }
+
+    @Override
+    protected void validateTags() {
+        super.validateTags();
+
+        // Validate `tags` field for at least one `e` tag
+        boolean hasEventTag = this.getTags().stream()
+                .anyMatch(tag -> tag instanceof EventTag);
+        if (!hasEventTag) {
+            throw new AssertionError("Invalid `tags`: Must include at least one `e` tag.");
+        }
     }
 }

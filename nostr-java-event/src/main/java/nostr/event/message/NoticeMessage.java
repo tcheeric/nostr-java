@@ -16,7 +16,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
  */
 @Setter
 @Getter
-public class NoticeMessage extends BaseMessage {
+public class NoticeMessage extends GenericMessage {
 
     @JsonProperty
     private final String message;

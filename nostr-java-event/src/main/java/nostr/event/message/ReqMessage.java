@@ -24,7 +24,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
-public class ReqMessage extends BaseMessage {
+public class ReqMessage extends GenericMessage {
     @JsonProperty
     private final String subscriptionId;
 

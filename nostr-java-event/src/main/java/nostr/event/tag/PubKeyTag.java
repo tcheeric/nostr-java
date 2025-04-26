@@ -28,7 +28,7 @@ import nostr.event.BaseTag;
 @EqualsAndHashCode(callSuper = true)
 @Tag(code = "p")
 @NoArgsConstructor
-public class PubKeyTag extends BaseTag {
+public class PubKeyTag extends GenericTag {
 
     @Key
     @JsonProperty("publicKey")
@@ -60,5 +60,22 @@ public class PubKeyTag extends BaseTag {
         setOptionalField(node.get(2), (n, t) -> tag.setMainRelayUrl(n.asText()), tag);
         setOptionalField(node.get(3), (n, t) -> tag.setPetName(n.asText()), tag);
         return (T) tag;
+    }
+
+    public static PubKeyTag updateFields(@NonNull GenericTag tag) {
+        if (tag instanceof PubKeyTag) {
+            return (PubKeyTag) tag;
+        }
+
+        if (!"p".equals(tag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for PubKeyTag");
+        }
+
+        PublicKey pubKey = new PublicKey(tag.getAttributes().get(0).getValue().toString());
+
+        String mainRelayUrl = tag.getAttributes().size() > 1 ? tag.getAttributes().get(1).getValue().toString() : null;
+        String petName = tag.getAttributes().size() > 2 ? tag.getAttributes().get(2).getValue().toString() : null;
+        PubKeyTag pubKeyTag = new PubKeyTag(pubKey, mainRelayUrl, petName);
+        return pubKeyTag;
     }
 }

@@ -4,16 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
 import nostr.api.NIP44;
 import nostr.api.NIP60;
-import nostr.base.Mint;
-import nostr.base.Proof;
-import nostr.base.Quote;
+import nostr.event.entities.Amount;
+import nostr.event.entities.CashuMint;
+import nostr.event.entities.CashuProof;
+import nostr.event.entities.CashuQuote;
 import nostr.base.Relay;
-import nostr.base.Token;
-import nostr.base.Wallet;
+import nostr.event.entities.CashuToken;
+import nostr.event.entities.CashuWallet;
 import nostr.event.BaseTag;
-import nostr.event.Marker;
+import nostr.base.Marker;
+import nostr.event.entities.SpendingHistory;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.ExpirationTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
@@ -32,19 +35,19 @@ public class NIP60Test {
     public void createWalletEvent() throws JsonProcessingException {
 
         // Prepare
-        Mint mint1 = new Mint("https://mint1");
-        mint1.setUnits(Arrays.asList("sat"));
+        CashuMint mint1 = new CashuMint("https://mint1");
+        mint1.setUnits(List.of("sat"));
 
-        Mint mint2 = new Mint("https://mint2");
-        mint2.setUnits(Arrays.asList("sat"));
+        CashuMint mint2 = new CashuMint("https://mint2");
+        mint2.setUnits(List.of("sat"));
 
-        Mint mint3 = new Mint("https://mint3");
-        mint3.setUnits(Arrays.asList("sat"));
+        CashuMint mint3 = new CashuMint("https://mint3");
+        mint3.setUnits(List.of("sat"));
 
         Relay relay1 = new Relay("wss://relay1");
         Relay relay2 = new Relay("wss://relay2");
 
-        Wallet wallet = new Wallet();
+        CashuWallet wallet = new CashuWallet();
         wallet.setId("my-wallet");
         wallet.setName("my shitposting wallet");
         wallet.setDescription("a wallet for my day-to-day shitposting");
@@ -55,14 +58,14 @@ public class NIP60Test {
         wallet.setRelays(Set.of(relay1, relay2));
 
         Identity sender = Identity.generateRandomIdentity();
-        NIP60<GenericEvent> nip60 = new NIP60<>(sender);
+        NIP60 nip60 = new NIP60(sender);
 
         // Create
         GenericEvent event = nip60.createWalletEvent(wallet).getEvent();
         List<BaseTag> tags = event.getTags();
 
         // Assert kind
-        Assertions.assertEquals(37375, event.getKind().intValue());
+        Assertions.assertEquals(17375, event.getKind());
 
         // Assert tags
         Assertions.assertEquals(10, tags.size());
@@ -99,10 +102,10 @@ public class NIP60Test {
     public void createTokenEvent() throws JsonProcessingException {
 
         // Prepare
-        Mint mint = new Mint("https://stablenut.umint.cash");
-        mint.setUnits(Arrays.asList("sat"));
+        CashuMint mint = new CashuMint("https://stablenut.umint.cash");
+        mint.setUnits(List.of("sat"));
 
-        Wallet wallet = new Wallet();
+        CashuWallet wallet = new CashuWallet();
         wallet.setId("my-wallet");
         wallet.setName("my shitposting wallet");
         wallet.setDescription("a wallet for my day-to-day shitposting");
@@ -111,18 +114,18 @@ public class NIP60Test {
         wallet.setUnit("sat");
         wallet.setMints(Set.of(mint));
 
-        Proof proof = new Proof();
+        CashuProof proof = new CashuProof();
         proof.setId("005c2502034d4f12");
         proof.setAmount(1);
         proof.setSecret("z+zyxAVLRqN9lEjxuNPSyRJzEstbl69Jc1vtimvtkPg=");
         proof.setC("0241d98a8197ef238a192d47edf191a9de78b657308937b4f7dd0aa53beae72c46");
 
-        Token token = new Token();
+        CashuToken token = new CashuToken();
         token.setMint(mint);
-        token.setProofs(Arrays.asList(proof));
+        token.setProofs(List.of(proof));
 
         Identity sender = Identity.generateRandomIdentity();
-        NIP60<GenericEvent> nip60 = new NIP60<>(sender);
+        NIP60 nip60 = new NIP60(sender);
 
         // Create
         GenericEvent event = nip60.createTokenEvent(token, wallet).getEvent();
@@ -135,18 +138,18 @@ public class NIP60Test {
         Assertions.assertEquals(1, tags.size());
 
         // Assert a-tag
-        AddressTag aTag = (AddressTag) tags.get(0);
+        AddressTag aTag = GenericTag.convert((GenericTag) tags.get(0), AddressTag.class);
         Assertions.assertEquals("a", aTag.getCode());
         // Assertions.assertEquals("<pubkey>", aTag.getPublicKey());
         Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
-        Assertions.assertEquals(37375, aTag.getKind().intValue());
+        Assertions.assertEquals(17375, aTag.getKind().intValue());
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        Token contentToken = MAPPER_AFTERBURNER.readValue(decryptedContent, Token.class);
+        CashuToken contentToken = MAPPER_AFTERBURNER.readValue(decryptedContent, CashuToken.class);
         Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
-        Proof proofContent = contentToken.getProofs().get(0);
+        CashuProof proofContent = contentToken.getProofs().get(0);
         Assertions.assertEquals(proof.getId(), proofContent.getId());
         Assertions.assertEquals(proof.getAmount(), proofContent.getAmount());
         Assertions.assertEquals(proof.getSecret(), proofContent.getSecret());
@@ -156,7 +159,7 @@ public class NIP60Test {
     @Test
     public void createSpendingHistoryEvent() throws JsonProcessingException {
 
-        NIP60.SpendingHistory.Amount amount = new NIP60.SpendingHistory.Amount();
+        Amount amount = new Amount();
         amount.setAmount(1);
         amount.setUnit("sat");
 
@@ -165,15 +168,15 @@ public class NIP60Test {
         eventTag.setRecommendedRelayUrl("<relay-hint>");
         eventTag.setMarker(Marker.CREATED);
 
-        NIP60.SpendingHistory spendingHistory = new NIP60.SpendingHistory();
-        spendingHistory.setDirection(NIP60.SpendingHistory.Direction.RECEIVED);
+        SpendingHistory spendingHistory = new SpendingHistory();
+        spendingHistory.setDirection(SpendingHistory.Direction.RECEIVED);
         spendingHistory.setAmount(amount);
-        spendingHistory.setEventTags(Arrays.asList(eventTag));
+        spendingHistory.setEventTags(List.of(eventTag));
 
         Identity sender = Identity.generateRandomIdentity();
-        NIP60<GenericEvent> nip60 = new NIP60<>(sender);
+        NIP60 nip60 = new NIP60(sender);
 
-        Wallet wallet = new Wallet();
+        CashuWallet wallet = new CashuWallet();
         wallet.setId("my-wallet");
         wallet.setName("my shitposting wallet");
         wallet.setDescription("a wallet for my day-to-day shitposting");
@@ -189,9 +192,9 @@ public class NIP60Test {
         Assertions.assertEquals(7376, event.getKind().intValue());
 
         // Assert a-tag
-        AddressTag aTag = (AddressTag) tags.get(0);
+        AddressTag aTag = GenericTag.convert((GenericTag) tags.get(0), AddressTag.class);
         Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
-        Assertions.assertEquals(37375, aTag.getKind().intValue());
+        Assertions.assertEquals(17375, aTag.getKind().intValue());
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
@@ -200,8 +203,7 @@ public class NIP60Test {
         // Assert direction
         GenericTag directionTag = (GenericTag) contentTags[0];
         Assertions.assertEquals("direction", directionTag.getCode());
-        Assertions.assertEquals("in",
-            directionTag.getAttributes().get(0).getValue().toString());
+        Assertions.assertEquals("in", directionTag.getAttributes().get(0).getValue().toString());
 
         // Assert amount
         GenericTag amountTag = (GenericTag) contentTags[1];
@@ -220,7 +222,7 @@ public class NIP60Test {
     @Test
     public void createRedemptionQuoteEvent() {
 
-        Wallet wallet = new Wallet();
+        CashuWallet wallet = new CashuWallet();
         wallet.setId("my-wallet");
         wallet.setName("my shitposting wallet");
         wallet.setDescription("a wallet for my day-to-day shitposting");
@@ -228,14 +230,14 @@ public class NIP60Test {
         wallet.setPrivateKey("hexkey");
         wallet.setUnit("sat");
 
-        Quote quote = new Quote();
+        CashuQuote quote = new CashuQuote();
         quote.setId("quote-id");
         quote.setExpiration(1728883200L);
-        quote.setMint(new Mint("<mint-url>"));
+        quote.setMint(new CashuMint("<mint-url>"));
         quote.setWallet(wallet);
 
         Identity sender = Identity.generateRandomIdentity();
-        NIP60<GenericEvent> nip60 = new NIP60<>(sender);
+        NIP60 nip60 = new NIP60(sender);
 
         GenericEvent event = nip60.createRedemptionQuoteEvent(quote).getEvent();
         List<BaseTag> tags = event.getTags();
@@ -247,11 +249,11 @@ public class NIP60Test {
         Assertions.assertEquals(3, tags.size());
 
         // Assert Expiration tag
-        GenericTag expirationTag = (GenericTag) tags.get(0);
+        ExpirationTag expirationTag = (ExpirationTag) tags.get(0);
         Assertions.assertEquals("expiration", expirationTag.getCode());
-        Assertions.assertEquals("1728883200", expirationTag.getAttributes().get(0).getValue());
+        Assertions.assertEquals(1728883200, expirationTag.getExpiration());
 
-        // Assert Mint tag
+        // Assert CashuMint tag
         GenericTag mintTag = (GenericTag) tags.get(1);
         Assertions.assertEquals("mint", mintTag.getCode());
         Assertions.assertEquals("<mint-url>", mintTag.getAttributes().get(0).getValue());
@@ -259,7 +261,7 @@ public class NIP60Test {
         // Assert a-tag
         AddressTag aTag = (AddressTag) tags.get(2);
         Assertions.assertEquals("my-wallet", aTag.getIdentifierTag().getId());
-        Assertions.assertEquals(37375, aTag.getKind().intValue());
+        Assertions.assertEquals(17375, aTag.getKind().intValue());
 
     }
 

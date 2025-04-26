@@ -3,8 +3,8 @@ package nostr.event.unit;
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
-import nostr.event.Kind;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.base.Kind;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
@@ -137,7 +137,7 @@ public class FiltersEncoderTest {
     addressTag.setPublicKey(new PublicKey(author));
     addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AddressableTagFilter<>(addressTag)));
+    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AddressTagFilter<>(addressTag)));
     String encodedFilters = encoder.encode();
     String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
 
@@ -337,8 +337,8 @@ public class FiltersEncoderTest {
     addressTag2.setIdentifierTag(new IdentifierTag(uuidValue2));
 
     FiltersEncoder encoder = new FiltersEncoder(new Filters(
-        new AddressableTagFilter<>(addressTag1),
-        new AddressableTagFilter<>(addressTag2)));
+        new AddressTagFilter<>(addressTag1),
+        new AddressTagFilter<>(addressTag2)));
 
     String encoded = encoder.encode();
     String addressableTags = String.join("\",\"", addressableTag1, addressableTag2);

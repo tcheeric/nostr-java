@@ -3,8 +3,8 @@ package nostr.event.unit;
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
-import nostr.event.Kind;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.base.Kind;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
@@ -92,7 +92,7 @@ public class FiltersDecoderTest {
 
     assertEquals(
         new Filters(
-            new AddressableTagFilter<>(addressTag)),
+            new AddressTagFilter<>(addressTag)),
         decodedFilters);
   }
 
@@ -128,8 +128,8 @@ public class FiltersDecoderTest {
 
     assertEquals(
         new Filters(
-            new AddressableTagFilter<>(addressTag1),
-            new AddressableTagFilter<>(addressTag2)),
+            new AddressTagFilter<>(addressTag1),
+            new AddressTagFilter<>(addressTag2)),
         decodedFilters);
   }
 

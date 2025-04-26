@@ -1,22 +1,20 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.TagFactory;
-import nostr.api.factory.impl.NIP57Impl.ZapReceiptEventFactory;
-import nostr.api.factory.impl.NIP57Impl.ZapRequestEventFactory;
-import nostr.base.ElementAttribute;
+import lombok.SneakyThrows;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.factory.impl.GenericTagFactory;
+import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.event.BaseTag;
+import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
-import nostr.event.impl.ZapRequest;
-import nostr.event.tag.AddressTag;
+import nostr.event.entities.ZapRequest;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.IdentifierTag;
-import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,108 +22,201 @@ import java.util.List;
 /**
  * @author eric
  */
-public class NIP57<T extends GenericEvent> extends EventNostr<T> {
-    private static final String LNURL_TAG_NAME = "lnurl";
-    private static final String BOLT11_TAG_NAME = "bolt11";
-    private static final String PREIMAGE_TAG_NAME = "preimage";
-    private static final String DESCRIPTION_TAG_NAME = "description";
-    private static final String AMOUNT_TAG_NAME = "amount";
-    private static final String ZAP_TAG_NAME = "zap";
+public class NIP57 extends EventNostr {
 
     public NIP57(@NonNull Identity sender) {
         setSender(sender);
     }
 
-    public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull ZapRequest zapRequest) {
-        setEvent((T) new ZapRequestEventFactory(getSender(), recipientPubKey, baseTags, content, zapRequest).create());
+    public NIP57 createZapRequestEvent(
+            @NonNull ZapRequest zapRequest,
+            @NonNull String content,
+            PublicKey recipientPubKey,
+            GenericEvent zappedEvent,
+            GenericTag addressTag) {
+
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ZAP_REQUEST, content).create();
+
+        genericEvent.addTag(zapRequest.getRelaysTag());
+        genericEvent.addTag(createAmountTag(zapRequest.getAmount()));
+        genericEvent.addTag(createLnurlTag(zapRequest.getLnUrl()));
+
+        if (recipientPubKey != null) {
+            genericEvent.addTag(NIP01.createPubKeyTag(recipientPubKey));
+        }
+
+        if (zappedEvent != null) {
+            genericEvent.addTag(NIP01.createEventTag(zappedEvent.getId()));
+        }
+
+        if (addressTag != null) {
+            if (!Constants.Tag.ADDRESS_CODE.equals(addressTag.getCode())) { // Sanity check
+                throw new IllegalArgumentException("tag must be of type AddressTag");
+            }
+            genericEvent.addTag(addressTag);
+        }
+
+        this.updateEvent(genericEvent);
         return this;
     }
 
-    public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull RelaysTag relaysTags) {
-        return createZapRequestEvent(recipientPubKey, baseTags, content, new ZapRequest(relaysTags, amount, lnUrl));
-    }
+    public NIP57 createZapRequestEvent(
+            @NonNull Long amount,
+            @NonNull String lnUrl,
+            @NonNull GenericTag relaysTags,
+            @NonNull String content,
+            PublicKey recipientPubKey,
+            GenericEvent zappedEvent,
+            GenericTag addressTag) {
 
-    public NIP57<T> createZapRequestEventFromList(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<Relay> relays) {
-        return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, new RelaysTag(relays));
-    }
+        if (!relaysTags.getCode().equals(Constants.Tag.RELAYS_CODE)) {
+            throw new IllegalArgumentException("tag must be of type RelaysTag");
+        }
 
-    public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull List<String> relays) {
-        return createZapRequestEventFromList(recipientPubKey, baseTags, content, amount, lnUrl, relays.stream().map(Relay::new).toList());
-    }
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ZAP_REQUEST, content).create();
 
-    public NIP57<T> createZapRequestEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> baseTags, String content, @NonNull Long amount, @NonNull String lnUrl, @NonNull String... relaysTags) {
-        return createZapRequestEvent(recipientPubKey, baseTags, content, amount, lnUrl, List.of(relaysTags));
-    }
+        genericEvent.addTag(relaysTags);
+        genericEvent.addTag(createAmountTag(amount));
+        genericEvent.addTag(createLnurlTag(lnUrl));
 
-    public NIP57<T> createZapReceiptEvent(@NonNull PubKeyTag zapRequestPubKeyTag, List<BaseTag> baseTags, EventTag zapRequestEventTag, AddressTag zapRequestAddressTag, @NonNull String bolt11,
-        @NonNull String descriptionSha256, @NonNull String preimage) {
-        setEvent((T) new ZapReceiptEventFactory(getSender(), baseTags, zapRequestPubKeyTag, zapRequestEventTag, zapRequestAddressTag, bolt11, descriptionSha256, preimage).create());
+        if (recipientPubKey != null) {
+            genericEvent.addTag(NIP01.createPubKeyTag(recipientPubKey));
+        }
+
+        if (zappedEvent != null) {
+            genericEvent.addTag(NIP01.createEventTag(zappedEvent.getId()));
+        }
+
+        if (addressTag != null) {
+            if (!addressTag.getCode().equals(Constants.Tag.ADDRESS_CODE)) { // Sanity check
+                throw new IllegalArgumentException("Address tag must be of type AddressTag");
+            }
+            genericEvent.addTag(addressTag);
+        }
+
+        this.updateEvent(genericEvent);
         return this;
     }
 
-    public NIP57<T> createZapReceiptEvent(@NonNull String zapRequestPubKeyTag, List<BaseTag> baseTags, String zapRequestEventTag, String zapReceiptAddressTag, String zapReceiptIdentifier, String zapReceiptRelayUri, String bolt11, String descriptionSha256, String preimage) {
-        return createZapReceiptEvent(new PubKeyTag(new PublicKey(zapRequestPubKeyTag)), baseTags, new EventTag(zapRequestEventTag), new AddressTag(null, new PublicKey(zapReceiptAddressTag), new IdentifierTag(zapReceiptIdentifier), new Relay(zapReceiptRelayUri)), bolt11, descriptionSha256, preimage);
+    public NIP57 createZapRequestEvent(
+            @NonNull Long amount,
+            @NonNull String lnUrl,
+            @NonNull List<Relay> relays,
+            @NonNull String content,
+            PublicKey recipientPubKey,
+            GenericEvent zappedEvent,
+            GenericTag addressTag) {
+
+        return createZapRequestEvent(amount, lnUrl, new RelaysTag(relays), content, recipientPubKey, zappedEvent, addressTag);
     }
 
-    public NIP57<T> addLnurlTag(@NonNull String lnurl) {
+    public NIP57 createZapRequestEvent(
+            @NonNull Long amount,
+            @NonNull String lnUrl,
+            @NonNull List<String> relays,
+            @NonNull String content,
+            PublicKey recipientPubKey) {
+
+        return createZapRequestEvent(amount, lnUrl, relays.stream().map(Relay::new).toList(), content, recipientPubKey, null, null);
+    }
+
+    @SneakyThrows
+    public NIP57 createZapReceiptEvent(
+            @NonNull GenericEvent zapRequestEvent,
+            @NonNull String bolt11,
+            @NonNull String preimage,
+            @NonNull PublicKey zapRecipient) {
+
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ZAP_RECEIPT, "").create();
+
+        // Add the tags
+        genericEvent.addTag(NIP01.createPubKeyTag(zapRecipient));
+
+        // Zap receipt tags
+        String descriptionSha256 = IEvent.MAPPER_AFTERBURNER.writeValueAsString(zapRequestEvent);
+        genericEvent.addTag(createDescriptionTag(StringEscapeUtils.escapeJson(descriptionSha256)));
+        genericEvent.addTag(createBolt11Tag(bolt11));
+        genericEvent.addTag(createPreImageTag(preimage));
+        genericEvent.addTag(createZapSenderPubKeyTag(zapRequestEvent.getPubKey()));
+        genericEvent.addTag(NIP01.createEventTag(zapRequestEvent.getId()));
+
+        GenericTag addressTag = (GenericTag) zapRequestEvent.getTags().stream()
+                .filter(tag -> tag.getCode().equals(Constants.Tag.ADDRESS_CODE))
+                .findFirst()
+                .orElse(null);
+
+        if (addressTag != null) {
+            genericEvent.addTag(addressTag);
+        }
+
+        genericEvent.setCreatedAt(zapRequestEvent.getCreatedAt());
+
+        // Set the event
+        this.updateEvent(genericEvent);
+
+        // Return this
+        return this;
+    }
+
+    public NIP57 addLnurlTag(@NonNull String lnurl) {
         getEvent().addTag(createLnurlTag(lnurl));
         return this;
     }
 
-    public NIP57<T> addEventTag(@NonNull EventTag tag) {
+    public NIP57 addEventTag(@NonNull EventTag tag) {
         getEvent().addTag(tag);
         return this;
     }
 
-    public NIP57<T> addBolt11Tag(@NonNull String bolt11) {
+    public NIP57 addBolt11Tag(@NonNull String bolt11) {
         getEvent().addTag(createBolt11Tag(bolt11));
         return this;
     }
 
-    public NIP57<T> addPreImageTag(@NonNull String preimage) {
+    public NIP57 addPreImageTag(@NonNull String preimage) {
         getEvent().addTag(createPreImageTag(preimage));
         return this;
     }
 
-    public NIP57<T> addDescriptionTag(@NonNull String description) {
+    public NIP57 addDescriptionTag(@NonNull String description) {
         getEvent().addTag(createDescriptionTag(description));
         return this;
     }
 
-    public NIP57<T> addAmountTag(@NonNull Integer amount) {
+    public NIP57 addAmountTag(@NonNull Integer amount) {
         getEvent().addTag(createAmountTag(amount));
         return this;
     }
 
-    public NIP57<T> addRecipientTag(@NonNull PublicKey recipient) {
+    public NIP57 addRecipientTag(@NonNull PublicKey recipient) {
         getEvent().addTag(NIP01.createPubKeyTag(recipient));
         return this;
     }
 
-    public NIP57<T> addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
+    public NIP57 addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
         getEvent().addTag(createZapTag(receiver, relays, weight));
         return this;
     }
 
-    public NIP57<T> addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays) {
+    public NIP57 addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays) {
         getEvent().addTag(createZapTag(receiver, relays));
         return this;
     }
 
-    public NIP57<T> addRelaysTag(@NonNull RelaysTag relaysTag) {
+    public NIP57 addRelaysTag(@NonNull RelaysTag relaysTag) {
         getEvent().addTag(relaysTag);
         return this;
     }
 
-    public NIP57<T> addRelaysList(@NonNull List<Relay> relays) {
+    public NIP57 addRelaysList(@NonNull List<Relay> relays) {
         return addRelaysTag(new RelaysTag(relays));
     }
 
-    public NIP57<T> addRelays(@NonNull List<String> relays) {
+    public NIP57 addRelays(@NonNull List<String> relays) {
         return addRelaysList(relays.stream().map(Relay::new).toList());
     }
 
-    public NIP57<T> addRelays(@NonNull String... relays) {
+    public NIP57 addRelays(@NonNull String... relays) {
         return addRelays(List.of(relays));
     }
 
@@ -134,7 +225,7 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      * @return
      */
     public static GenericTag createLnurlTag(@NonNull String lnurl) {
-        return new TagFactory(LNURL_TAG_NAME, 57, lnurl).create();
+        return new GenericTagFactory(Constants.Tag.LNURL_CODE, lnurl).create();
     }
 
     /**
@@ -142,28 +233,35 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      * @return
      */
     public static GenericTag createBolt11Tag(@NonNull String bolt11) {
-        return new TagFactory(BOLT11_TAG_NAME, 57, bolt11).create();
+        return new GenericTagFactory(Constants.Tag.BOLT11_CODE, bolt11).create();
     }
 
     /**
      * @param preimage
      */
     public static GenericTag createPreImageTag(@NonNull String preimage) {
-        return new TagFactory(PREIMAGE_TAG_NAME, 57, preimage).create();
+        return new GenericTagFactory(Constants.Tag.PREIMAGE_CODE, preimage).create();
     }
 
     /**
      * @param description
      */
     public static GenericTag createDescriptionTag(@NonNull String description) {
-        return new TagFactory(DESCRIPTION_TAG_NAME, 57, description).create();
+        return new GenericTagFactory(Constants.Tag.DESCRIPTION_CODE, description).create();
     }
 
     /**
      * @param amount
      */
-    public static GenericTag createAmountTag(@NonNull Integer amount) {
-        return new TagFactory(AMOUNT_TAG_NAME, 57, amount.toString()).create();
+    public static GenericTag createAmountTag(@NonNull Number amount) {
+        return new GenericTagFactory(Constants.Tag.AMOUNT_CODE, amount.toString()).create();
+    }
+
+    /**
+     * @param publicKey
+     */
+    public static GenericTag createZapSenderPubKeyTag(@NonNull PublicKey publicKey) {
+        return new GenericTagFactory(Constants.Tag.RECIPIENT_PUBKEY_CODE, publicKey.toString()).create();
     }
 
     /**
@@ -172,17 +270,15 @@ public class NIP57<T extends GenericEvent> extends EventNostr<T> {
      * @param weight
      */
     public static GenericTag createZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
-        List<ElementAttribute> attributes = new ArrayList<>();
-        var receiverAttr = new ElementAttribute("receiver", receiver.toString());
-        var relayAttrs = relays.stream().map(relay -> new ElementAttribute("relay", relay.getUri())).toList();
+        List<String> params = new ArrayList<>();
+        params.add(receiver.toString());
+        relays.stream()
+                .map(Relay::getUri)
+                .forEach(params::add);
         if (weight != null) {
-            var weightAttr = new ElementAttribute("weight", weight);
-            attributes.add(weightAttr);
+            params.add(weight.toString());
         }
-
-        attributes.add(receiverAttr);
-        attributes.addAll(relayAttrs);
-        return new GenericTag(ZAP_TAG_NAME, attributes);
+        return GenericTag.create(Constants.Tag.ZAP_CODE, params);
     }
 
     /**

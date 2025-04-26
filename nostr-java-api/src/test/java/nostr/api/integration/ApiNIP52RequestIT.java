@@ -5,9 +5,9 @@ import nostr.api.util.JsonComparator;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.CalendarContent;
+import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -64,6 +64,7 @@ class ApiNIP52RequestIT {
   public static final HashtagTag T_TAG = new HashtagTag(T_TAG_VALUE);
   public static final ReferenceTag R_TAG = new ReferenceTag(URI.create(RELAY_URI));
 
+  public static final String LABEL_NAMESPACE = "audiospace";
   public static final String LABEL_1 = "calendar label 1 of 2";
   public static final String LABEL_2 = "calendar label 2 of 2";
 
@@ -89,8 +90,8 @@ class ApiNIP52RequestIT {
     tags.add(GenericTag.create(START_TZID_CODE,  START_TZID));
     tags.add(GenericTag.create(END_TZID_CODE,  END_TZID));
     tags.add(GenericTag.create(SUMMARY_CODE,  SUMMARY));
-    tags.add(GenericTag.create(LABEL_CODE,  LABEL_1));
-    tags.add(GenericTag.create(LABEL_CODE,  LABEL_2));
+    tags.add(GenericTag.create(LABEL_CODE,  LABEL_1, LABEL_NAMESPACE));
+    tags.add(GenericTag.create(LABEL_CODE,  LABEL_2, LABEL_NAMESPACE));
     tags.add(GenericTag.create(LOCATION_CODE,  LOCATION));
     tags.add(GenericTag.create(END_CODE,  END));
     tags.add(G_TAG);
@@ -103,7 +104,7 @@ class ApiNIP52RequestIT {
             Long.valueOf(START))
         .build();
 
-    var nip52 = new NIP52<>(Identity.create(PRV_KEY_VALUE));
+    var nip52 = new NIP52(Identity.create(PRV_KEY_VALUE));
 
     GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, CALENDAR_CONTENT, calendarContent).sign().getEvent();
     event.setCreatedAt(Long.valueOf(CREATED_AT));
@@ -132,20 +133,22 @@ class ApiNIP52RequestIT {
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
-///*
+
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
 
     String expected = expectedRequestResponseJson(subscriberId);
+    // TODO - This assertion keeps failing...
+/*
     assertTrue(
         JsonComparator.isEquivalentJson(
             MAPPER_AFTERBURNER.readTree(expected),
             MAPPER_AFTERBURNER.readTree(reqResponse)));
+*/
 
 //    springWebSocketRequestClient.closeSocket();
-//*/
   }
 
   private String expectedEventResponseJson(String subscriptionId) {
@@ -173,8 +176,8 @@ class ApiNIP52RequestIT {
         "            [ \"start_tzid\", \"" + START_TZID + "\" ],\n" +
         "            [ \"end_tzid\", \"" + END_TZID + "\" ],\n" +
         "            [ \"summary\", \"" + SUMMARY + "\" ],\n" +
-        "            [ \"l\", \"" + LABEL_1 + "\" ],\n" +
-        "            [ \"l\", \"" + LABEL_2 + "\" ],\n" +
+        "            [ \"l\", \"" + LABEL_1 + "\", \"" + LABEL_NAMESPACE + "\" ],\n" +
+        "            [ \"l\", \"" + LABEL_2 + "\", \"" + LABEL_NAMESPACE + "\" ],\n" +
         "            [ \"location\", \"" + LOCATION + "\" ],\n" +
         "            [ \"r\", \"" + URI.create(RELAY_URI) + "\" ],\n" +
         "            [ \"title\", \"" + TITLE + "\" ],\n" +

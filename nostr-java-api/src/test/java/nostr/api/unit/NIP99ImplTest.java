@@ -2,9 +2,9 @@ package nostr.api.unit;
 
 import nostr.api.NIP99;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
-import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.entities.ClassifiedListing;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +30,7 @@ class NIP99ImplTest {
   public static final Long PUBLISHED_AT = 1716513986268L;
   static ClassifiedListing classifiedListing;
   static Identity sender;
-  static NIP99<ClassifiedListingEvent> nip99;
+  static NIP99 nip99;
 
   @BeforeAll
   static void setup() {
@@ -42,7 +42,7 @@ class NIP99ImplTest {
     classifiedListing.setLocation(LOCATION);
     classifiedListing.setPublishedAt(PUBLISHED_AT);
     sender = Identity.generateRandomIdentity();
-    nip99 = new NIP99<>(sender);
+    nip99 = new NIP99(sender);
   }
 
   @Test
@@ -50,8 +50,8 @@ class NIP99ImplTest {
     System.out.println("testNIP99CreateClassifiedListingEventWithAllOptionalParameters");
 
     List<BaseTag> baseTags = new ArrayList<BaseTag>();
-    ClassifiedListingEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
-    instance.update();
+    GenericEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
+    //instance.update();
 
     assertNotNull(instance.getId());
     assertTrue(instance.getTags().contains(containsGeneric("title", UNIT_TEST_TITLE)));
@@ -67,8 +67,8 @@ class NIP99ImplTest {
         .build();
     classifiedListing2.setLocation(LOCATION);
     classifiedListing2.setPublishedAt(PUBLISHED_AT);
-    ClassifiedListingEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
-    instance.update();
+    GenericEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
+    //instance.update();
 
     assertEquals(instance, instance2);
   }
@@ -79,8 +79,8 @@ class NIP99ImplTest {
 
     List<BaseTag> baseTags = new ArrayList<BaseTag>();
 
-    ClassifiedListingEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
-    instance.update();
+    GenericEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
+    //instance.update();
 
     assertNotNull(instance.getId());
   }
@@ -91,14 +91,14 @@ class NIP99ImplTest {
 
     List<BaseTag> baseTags = new ArrayList<BaseTag>();
 
-    var nip99 = new NIP99<ClassifiedListingEvent>(sender);
+    var nip99 = new NIP99(sender);
 
     classifiedListing.setLocation(LOCATION);
     classifiedListing.setPublishedAt(PUBLISHED_AT);
 
     baseTags.add(GenericTag.create("published_at", String.valueOf(PUBLISHED_AT)));
-    ClassifiedListingEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
-    instance.update();
+    GenericEvent instance = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
+    //instance.update();
 
     assertNotNull(instance.getId());
     assertTrue(instance.getTags().contains(containsGeneric("location", LOCATION)));

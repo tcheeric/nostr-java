@@ -3,10 +3,11 @@ package nostr.event.impl;
 import java.util.List;
 
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
+import nostr.base.Kind;
 import nostr.event.NIP04Event;
 import nostr.event.tag.PubKeyTag;
 
@@ -22,9 +23,22 @@ public class DirectMessageEvent extends NIP04Event {
         super(sender, Kind.ENCRYPTED_DIRECT_MESSAGE, tags, content);
     }
     
-    public DirectMessageEvent(PublicKey sender, PublicKey recipient, String content) {
+    public DirectMessageEvent(@NonNull PublicKey sender, @NonNull PublicKey recipient, @NonNull String content) {
         super(sender, Kind.ENCRYPTED_DIRECT_MESSAGE);
         this.setContent(content);        
         this.addTag(PubKeyTag.builder().publicKey(recipient).build());        
+    }
+
+    @Override
+    protected void validateTags() {
+
+        super.validateTags();
+
+        // Validate `tags` field for recipient's public key
+        boolean hasRecipientTag = this.getTags().stream()
+                .anyMatch(tag -> tag instanceof PubKeyTag);
+        if (!hasRecipientTag) {
+            throw new AssertionError("Invalid `tags`: Must include a PubKeyTag for the recipient.");
+        }
     }
 }

@@ -5,9 +5,9 @@ import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
+import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
@@ -86,7 +86,10 @@ class ApiNIP99RequestIT {
             priceTag)
         .build();
 
-    var nip99 = new NIP99<>(Identity.create(PRV_KEY_VALUE));
+    classifiedListing.setPublishedAt(Long.parseLong(CREATED_AT));
+    classifiedListing.setLocation(LOCATION);
+
+    var nip99 = new NIP99(Identity.create(PRV_KEY_VALUE));
 
     GenericEvent event = nip99.createClassifiedListingEvent(tags, CLASSIFIED_CONTENT, classifiedListing).sign().getEvent();
     eventId = event.getId();

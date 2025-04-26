@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Marker;
+import nostr.base.Marker;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EventMessage;
@@ -48,7 +48,7 @@ public class DecodeTest {
         EventMessage eventMessage = (EventMessage) message;
 
         assertEquals("temp20230627", eventMessage.getSubscriptionId());
-        GenericEvent eventImpl = (GenericEvent) eventMessage.getEvent();
+        GenericEvent eventImpl = eventMessage.getEvent();
 
         assertEquals("28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a", eventImpl.getId());
         assertEquals(1, eventImpl.getKind());

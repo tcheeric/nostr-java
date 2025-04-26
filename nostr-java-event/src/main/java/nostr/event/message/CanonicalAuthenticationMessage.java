@@ -8,11 +8,11 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import nostr.base.Command;
-import nostr.base.Relay;
 import nostr.event.BaseMessage;
+import nostr.event.BaseTag;
 import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 
 import java.util.List;
@@ -45,18 +45,17 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   }
 
   @SneakyThrows
+  // TODO - This needs to be reviewed
   public static <T extends BaseMessage> T decode(@NonNull Map map) {
     var event = I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<GenericEvent>() {});
 
-    List<GenericTag> genericTags = event.getTags().stream()
+    List<BaseTag> baseTags = event.getTags().stream()
         .filter(GenericTag.class::isInstance)
-        .map(GenericTag.class::cast).toList();
+        .toList();
 
     CanonicalAuthenticationEvent canonEvent = new CanonicalAuthenticationEvent(
-        event.getPubKey(),
-        getAttributeValue(genericTags, "challenge"),
-        new Relay(
-            getAttributeValue(genericTags, "relay")));
+        event.getPubKey(), baseTags, "");
+
     canonEvent.setId(map.get("id").toString());
 
     return (T) new CanonicalAuthenticationMessage(canonEvent);

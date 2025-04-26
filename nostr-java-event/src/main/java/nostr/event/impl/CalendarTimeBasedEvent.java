@@ -1,122 +1,116 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
-import nostr.base.Signature;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.NIP52Event;
-import nostr.event.impl.CalendarTimeBasedEvent.CalendarTimeBasedEventDeserializer;
-import nostr.event.tag.IdentifierTag;
-import nostr.event.tag.PubKeyTag;
+import nostr.base.Kind;
+import nostr.event.entities.CalendarContent;
+import nostr.event.json.deserializer.CalendarTimeBasedEventDeserializer;
+import nostr.event.tag.GenericTag;
+import nostr.event.tag.LabelTag;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.StreamSupport;
 
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "CalendarTimeBasedEvent", nip = 52)
+@Event(name = "Time-Based Calendar Event", nip = 52)
 @JsonDeserialize(using = CalendarTimeBasedEventDeserializer.class)
-public class CalendarTimeBasedEvent extends NIP52Event {
-  @Getter
-  @JsonIgnore
-  private CalendarContent calendarContent;
+@NoArgsConstructor
+public class CalendarTimeBasedEvent extends CalendarDateBasedEvent {
 
-  public CalendarTimeBasedEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content, @NonNull CalendarContent calendarContent) {
-    super(sender, Kind.CALENDAR_TIME_BASED_EVENT, baseTags, content);
-    this.calendarContent = calendarContent;
-    mapCustomTags();
-  }
-
-  private void mapCustomTags() {
-    addStandardTag(calendarContent.getIdentifierTag());
-    addGenericTag("title", getNip(), calendarContent.getTitle());
-    addGenericTag("start", getNip(), calendarContent.getStart());
-    addGenericTag("end", getNip(), calendarContent.getEnd());
-    addGenericTag("start_tzid", getNip(), calendarContent.getStartTzid());
-    addGenericTag("end_tzid", getNip(), calendarContent.getEndTzid());
-    addGenericTag("summary", getNip(), calendarContent.getSummary());
-    addGenericTag("image", getNip(), calendarContent.getImage());
-    addGenericTag("location", getNip(), calendarContent.getLocation());
-    addStandardTag(calendarContent.getGeohashTag());
-    addStandardTag(calendarContent.getParticipantPubKeys());
-    addStringListTag("l", getNip(), calendarContent.getLabels());
-    addStandardTag(calendarContent.getHashtagTags());
-    addStandardTag(calendarContent.getReferenceTags());
-  }
-
-  public static class CalendarTimeBasedEventDeserializer extends StdDeserializer<CalendarTimeBasedEvent> {
-    public CalendarTimeBasedEventDeserializer() {
-      super(CalendarTimeBasedEvent.class);
+    public CalendarTimeBasedEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content) {
+        super(sender, baseTags, content);
+        this.setKind(Kind.CALENDAR_TIME_BASED_EVENT.getValue());
     }
 
-//    TODO: below methods needs comprehensive tags assignment completion
+    public String getStartTzid() {
+        CalendarContent calendarContent = getCalendarContent();
+        return calendarContent.getStartTzid();
+    }
+
+    public String getEndTzid() {
+        CalendarContent calendarContent = getCalendarContent();
+        return calendarContent.getEndTzid();
+    }
+
+    public String getSummary() {
+        CalendarContent calendarContent = getCalendarContent();
+        return calendarContent.getSummary();
+    }
+
+    public String getLocation() {
+        CalendarContent calendarContent = getCalendarContent();
+        return calendarContent.getLocation();
+    }
+
+    public List<String> getLabels() {
+        CalendarContent calendarContent = getCalendarContent();
+        return calendarContent.getLabelTags() != null ? calendarContent.getLabelTags().stream().map(l -> "#" + l.getNameSpace() + "." + l.getLabel()).toList() : null;
+    }
+
     @Override
-    public CalendarTimeBasedEvent deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-      JsonNode calendarTimeBasedEventNode = jsonParser.getCodec().readTree(jsonParser);
-      ArrayNode tags = (ArrayNode) calendarTimeBasedEventNode.get("tags");
+    protected CalendarContent getCalendarContent() {
 
-      List<BaseTag> baseTags = StreamSupport.stream(
-              tags.spliterator(), false).toList().stream()
-          .map(
-              JsonNode::elements)
-          .map(element ->
-              MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+        CalendarContent calendarContent = super.getCalendarContent();
 
-      List<GenericTag> genericTags = baseTags.stream()
-          .filter(GenericTag.class::isInstance)
-          .map(GenericTag.class::cast)
-          .toList();
+        GenericTag start_tzidTag = getTag("start_tzid");
+        GenericTag end_tzidTag = getTag("end_tzid");
+        GenericTag summaryTag = getTag("summary");
+        GenericTag locationTag = getTag("location");
+        List<GenericTag> lTags = getTags("l");
 
-      IdentifierTag identifierTag = getBaseTagCastFromString(baseTags, IdentifierTag.class).getFirst();
-      CalendarContent calendarContent = CalendarContent.builder(
-              identifierTag,
-              getTagValueFromString(genericTags, "title"),
-              Long.valueOf(getTagValueFromString(genericTags, "start")))
-          .build();
+        // Update the calendarContent object with the values from the tags
+        if (start_tzidTag != null) {
+            calendarContent.setStartTzid(start_tzidTag.getAttributes().get(0).getValue().toString());
+        }
 
-      calendarContent.setParticipantPubKeys(getBaseTagCastFromString(baseTags, PubKeyTag.class));
+        if (end_tzidTag != null) {
+            calendarContent.setEndTzid(end_tzidTag.getAttributes().get(0).getValue().toString());
+        }
 
-      Map<String, String> generalMap = new HashMap<>();
-      calendarTimeBasedEventNode.fields().forEachRemaining(generalTag ->
-          generalMap.put(
-              generalTag.getKey(),
-              generalTag.getValue().asText()));
+        if (summaryTag != null) {
+            calendarContent.setSummary(summaryTag.getAttributes().get(0).getValue().toString());
+        }
 
+        if (locationTag != null) {
+            calendarContent.setLocation(locationTag.getAttributes().get(0).getValue().toString());
+        }
 
-      CalendarTimeBasedEvent calendarTimeBasedEvent = new CalendarTimeBasedEvent(
-          new PublicKey(generalMap.get("pubkey")),
-          baseTags,
-          generalMap.get("content"),
-          calendarContent
-      );
-      calendarTimeBasedEvent.setId(generalMap.get("id"));
-      calendarTimeBasedEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
-      calendarTimeBasedEvent.setSignature(Signature.fromString(generalMap.get("sig")));
+        if (lTags != null) {
+            for (GenericTag lTag : lTags) {
+                calendarContent.addLabelTag(GenericTag.convert(lTag, LabelTag.class));
+            }
+        }
 
-      return calendarTimeBasedEvent;
+        return calendarContent;
     }
 
-    private String getTagValueFromString(List<GenericTag> genericTags, String code) {
-      return genericTags.stream()
-          .filter(tag -> tag.getCode().equalsIgnoreCase(code))
-          .findFirst().get().getAttributes().get(0).getValue().toString();
-    }
+    @Override
+    protected void validateTags() {
+        super.validateTags();
 
-    private <T extends BaseTag> List<T> getBaseTagCastFromString(List<BaseTag> baseTags, Class<T> type) {
-      return baseTags.stream().filter(type::isInstance).map(type::cast).toList();
+        GenericTag dTag = getTag("d");
+        if (dTag == null) {
+            throw new AssertionError("Missing \\`d\\` tag for the event identifier.");
+        }
+
+        GenericTag titleTag = getTag("title");
+        if (titleTag == null) {
+            throw new AssertionError("Missing \\`title\\` tag for the event title.");
+        }
+
+        GenericTag startTag = getTag("start");
+        if (startTag == null) {
+            throw new AssertionError("Missing \\`start\\` tag for the event start.");
+        }
+
+        try {
+            Long.parseLong(startTag.getAttributes().get(0).getValue().toString());
+        } catch (NumberFormatException e) {
+            throw new AssertionError("Invalid \\`start\\` tag value: must be a numeric timestamp.");
+        }
     }
-  }
 }

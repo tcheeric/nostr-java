@@ -8,12 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-import nostr.event.Marker;
+import nostr.base.Marker;
 
 /**
  * @author squirrel
@@ -24,8 +23,7 @@ import nostr.event.Marker;
 @AllArgsConstructor
 @Tag(code = "e", name = "event")
 @JsonPropertyOrder({"idEvent", "recommendedRelayUrl", "marker"})
-@NoArgsConstructor
-public class EventTag extends BaseTag {
+public class EventTag extends GenericTag {
 
     @Key
     @JsonProperty("idEvent")
@@ -40,6 +38,10 @@ public class EventTag extends BaseTag {
     @JsonProperty("marker")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Marker marker;
+
+    public EventTag() {
+        super("e");
+    }
 
     public EventTag(String idEvent) {
         this.recommendedRelayUrl = null;
@@ -56,4 +58,23 @@ public class EventTag extends BaseTag {
         setOptionalField(node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
         return (T) tag;
     }
+
+    public static EventTag updateFields(@NonNull GenericTag tag) {
+        if (tag instanceof EventTag) {
+            return (EventTag) tag;
+        }
+        if (!"e".equals(tag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for EventTag");
+        }
+        EventTag eventTag = new EventTag(tag.getAttributes().get(0).getValue().toString());
+        if (tag.getAttributes().size() > 1) {
+            eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).getValue().toString());
+        }
+        if (tag.getAttributes().size() > 2) {
+            eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).getValue().toString()));
+        }
+
+        return eventTag;
+    }
+
 }

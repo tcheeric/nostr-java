@@ -6,16 +6,15 @@ import nostr.base.Relay;
 import nostr.config.RelayProperties;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
+import nostr.base.Kind;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.ReplaceableEvent;
-import nostr.event.impl.TextNoteEvent;
 import nostr.event.message.OkMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -41,9 +40,10 @@ public class ZDoLastApiNIP09EventIT {
     public void deleteEvent() throws IOException {
 
         Identity identity = Identity.generateRandomIdentity();
-        NIP09<?> nip09 = new NIP09<>(identity);
 
-        NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
+        NIP09 nip09 = new NIP09(identity);
+        NIP01 nip01 = new NIP01(identity);
+
         nip01.createTextNoteEvent("Delete me!").signAndSend(relays);
 
         Filters filters = new Filters(
@@ -72,7 +72,7 @@ public class ZDoLastApiNIP09EventIT {
         final String RELAY_URI = "ws://localhost:5555";
         Identity identity = Identity.generateRandomIdentity();
 
-        NIP01<ReplaceableEvent> nip011 = new NIP01<>(identity);
+        NIP01 nip011 = new NIP01(identity);
         BaseMessage replaceableMessage = nip011.createReplaceableEvent(10_001, "replaceable event").signAndSend(relays);
 
         assertNotNull(replaceableMessage);
@@ -81,7 +81,7 @@ public class ZDoLastApiNIP09EventIT {
         GenericEvent replaceableEvent = nip011.getEvent();
         IdentifierTag identifierTag = new IdentifierTag(replaceableEvent.getId());
 
-        NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
+        NIP01 nip01 = new NIP01(identity);
         nip01
             .createTextNoteEvent("Reference me!")
             .getEvent()
@@ -94,7 +94,7 @@ public class ZDoLastApiNIP09EventIT {
 
         GenericEvent event = nip01.getEvent();
 
-        NIP09<?> nip09 = new NIP09<>(identity);
+        NIP09 nip09 = new NIP09(identity);
         GenericEvent deletedEvent = nip09.createDeletionEvent(event).getEvent();
 
         assertEquals(4, deletedEvent.getTags().size());
@@ -116,7 +116,7 @@ public class ZDoLastApiNIP09EventIT {
 
         assertEquals(1, addressTags.size());
 
-        AddressTag addressTag = (AddressTag) addressTags.get(0);
+        AddressTag addressTag = GenericTag.convert((GenericTag) addressTags.get(0), AddressTag.class);
         assertEquals(10_001, addressTag.getKind());
         assertEquals(replaceableEvent.getId(), addressTag.getIdentifierTag().getId());
         assertEquals(identity.getPublicKey(), addressTag.getPublicKey());

@@ -1,7 +1,7 @@
 package nostr.event.unit;
 
 import nostr.event.BaseTag;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,4 +16,5 @@ class BaseTagTest {
         assertEquals(result, genericTag.toString());
     }
 
+    // TODO : test GenericEvent.convert()
 }

@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
 import nostr.event.NIP08Event;
 import nostr.event.tag.PubKeyTag;
 
@@ -19,16 +19,15 @@ import nostr.event.tag.PubKeyTag;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Handling Mentions", nip = 8)
+@NoArgsConstructor
 public final class MentionsEvent extends NIP08Event {
 
-    public MentionsEvent(PublicKey pubKey, List<BaseTag> tags, String content) {
-        super(pubKey, Kind.TEXT_NOTE, tags, content);
+    public MentionsEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {
+        super(pubKey, kind, tags, content);
     }
 
     @Override
     public void update() {
-        super.update();
-
         AtomicInteger counter = new AtomicInteger(0);
 
         // TODO - Refactor with the EntityAttributeUtil class
@@ -36,5 +35,19 @@ public final class MentionsEvent extends NIP08Event {
             String replacement = "#[" + counter.getAndIncrement() + "]";
             setContent(this.getContent().replace(((PubKeyTag) tag).getPublicKey().toString(), replacement));
         });
+
+        super.update();
+    }
+
+    @Override
+    protected void validateTags() {
+        super.validateTags();
+
+        // Validate `tags` field for at least one PubKeyTag
+        boolean hasValidPubKeyTag = this.getTags().stream()
+                .anyMatch(tag -> tag instanceof PubKeyTag);
+        if (!hasValidPubKeyTag) {
+            throw new AssertionError("Invalid `tags`: Must include at least one valid PubKeyTag.");
+        }
     }
 }
