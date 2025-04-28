@@ -14,7 +14,7 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.Marker;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filterable;
@@ -26,8 +26,9 @@ import nostr.event.filter.IdentifierTagFilter;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
+import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
@@ -42,6 +43,7 @@ import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
@@ -566,7 +568,7 @@ public class JsonParseTest {
             new AuthorFilter<>(new PublicKey(author)),
             new ReferencedEventFilter<>(new EventTag(referencedEventId)),
             new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(author))),
-            new AddressableTagFilter<>(addressTag1)));
+            new AddressTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
@@ -674,7 +676,7 @@ public class JsonParseTest {
     addressTag1.setPublicKey(new PublicKey(author));
     addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(new AddressableTagFilter<>(addressTag1)));
+    ReqMessage expectedReqMessage = new ReqMessage(subscriptionId, new Filters(new AddressTagFilter<>(addressTag1)));
 
     assertEquals(expectedReqMessage.encode(), decodedReqMessage.encode());
     assertEquals(expectedReqMessage, decodedReqMessage);
@@ -749,4 +751,25 @@ public class JsonParseTest {
     assertEquals(subscriptionId, ((ReqMessage) message).getSubscriptionId());
     assertEquals(2, ((ReqMessage) message).getFiltersList().size());
   }
+
+    @Test
+    public void testReqMessageVoteTagFilterDecoder() {
+        log.info("testReqMessageVoteTagFilterDecoder");
+
+        String subscriptionId = "npub333k6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+        String voteTagKey = "#v";
+        Integer voteTagValue = 1;
+        String reqJsonWithVoteTagFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + voteTagKey + "\":[\"" + voteTagValue + "\"]}]";
+
+        assertDoesNotThrow(() -> {
+            ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithVoteTagFilterToDecode);
+
+            ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+                new Filters(
+                    new VoteTagFilter<>(new VoteTag(voteTagValue))));
+
+            assertEquals(reqJsonWithVoteTagFilterToDecode, decodedReqMessage.encode());
+            assertEquals(expectedReqMessage, decodedReqMessage);
+        });
+    }
 }

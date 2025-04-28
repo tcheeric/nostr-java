@@ -11,7 +11,7 @@ import nostr.api.factory.impl.NIP23Impl.PublishedAtTagFactory;
 import nostr.api.factory.impl.NIP23Impl.SummaryTagFactory;
 import nostr.api.factory.impl.NIP23Impl.TitleTagFactory;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;

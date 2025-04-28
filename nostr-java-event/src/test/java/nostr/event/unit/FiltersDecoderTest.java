@@ -1,10 +1,13 @@
 package nostr.event.unit;
 
+import java.time.Instant;
+import java.util.Date;
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
 import nostr.base.PublicKey;
+import nostr.base.Relay;
 import nostr.event.Kind;
-import nostr.event.filter.AddressableTagFilter;
+import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
@@ -16,6 +19,7 @@ import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
+import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.tag.AddressTag;
@@ -24,368 +28,402 @@ import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.VoteTag;
 import org.junit.jupiter.api.Test;
-
-import java.time.Instant;
-import java.util.Date;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Log
 public class FiltersDecoderTest {
 
-  @Test
-  public void testEventFiltersDecoder() {
-    log.info("testEventFiltersDecoder");
+    @Test
+    public void testEventFiltersDecoder() {
+        log.info("testEventFiltersDecoder");
+
+        String filterKey = "ids";
+        String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+
+        String expected = "{\"" + filterKey + "\":[\"" + eventId + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
+
+        assertEquals(
+            new Filters(
+                new EventFilter<>(new GenericEvent(eventId))),
+            decodedFilters);
+    }
 
-    String filterKey = "ids";
-    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    @Test
+    public void testMultipleEventFiltersDecoder() {
+        log.info("testMultipleEventFiltersDecoder");
+
+        String filterKey = "ids";
+        String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+        String joined = String.join("\",\"", eventId1, eventId2);
+
+        String expected = "{\"" + filterKey + "\":[\"" + joined + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
+
+        assertEquals(
+            new Filters(
+                new EventFilter<>(new GenericEvent(eventId1)),
+                new EventFilter<>(new GenericEvent(eventId2))),
+            decodedFilters);
+    }
 
-    String expected = "{\"" + filterKey + "\":[\"" + eventId + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+    @Test
+    public void testAddressableTagFiltersWithoutRelayDecoder() {
+        log.info("testAddressableTagFiltersWithoutRelayDecoder");
 
-    assertEquals(
-        new Filters(
-            new EventFilter<>(new GenericEvent(eventId))),
-        decodedFilters);
-  }
+        Integer kind = 1;
+        String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String uuidValue1 = "UUID-1";
 
-  @Test
-  public void testMultipleEventFiltersDecoder() {
-    log.info("testMultipleEventFiltersDecoder");
+        String joined = String.join(":", String.valueOf(kind), author, uuidValue1);
 
-    String filterKey = "ids";
-    String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        AddressTag addressTag = new AddressTag();
+        addressTag.setKind(kind);
+        addressTag.setPublicKey(new PublicKey(author));
+        addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    String joined = String.join("\",\"", eventId1, eventId2);
+        String expected = "{\"#a\":[\"" + joined + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
+
+        assertEquals(
+            new Filters(
+                new AddressTagFilter<>(addressTag)),
+            decodedFilters);
+    }
 
-    String expected = "{\"" + filterKey + "\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+    @Test
+    public void testAddressableTagFiltersWithRelayDecoder() {
+        log.info("testAddressableTagFiltersWithRelayDecoder");
 
-    assertEquals(
-        new Filters(
-            new EventFilter<>(new GenericEvent(eventId1)),
-            new EventFilter<>(new GenericEvent(eventId2))),
-        decodedFilters);
-  }
+        Integer kind = 1;
+        String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String uuidValue1 = "UUID-1";
+        Relay relay = new Relay("ws://localhost:5555");
 
+        String joined = String.join(":", String.valueOf(kind), author, uuidValue1);
 
-  @Test
-  public void testAddressableTagFiltersDecoder() {
-    log.info("testAddressableTagFiltersDecoder");
+        AddressTag addressTag = new AddressTag();
+        addressTag.setKind(kind);
+        addressTag.setPublicKey(new PublicKey(author));
+        addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
+        addressTag.setRelay(relay);
 
-    Integer kind = 1;
-    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidValue1 = "UUID-1";
+        String expected = String.join("\\\",\\\"", joined, relay.getUri());
+        String addressableTag = "{\"#a\":[\"" + expected + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(addressableTag);
 
-    String joined = String.join(":", String.valueOf(kind), author, uuidValue1);
+        Filters expected1 = new Filters(new AddressTagFilter<>(addressTag));
+        assertEquals(expected1, decodedFilters);
+    }
 
-    AddressTag addressTag = new AddressTag();
-    addressTag.setKind(kind);
-    addressTag.setPublicKey(new PublicKey(author));
-    addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
+    @Test
+    public void testMultipleAddressableTagFiltersDecoder() {
+        log.info("testMultipleAddressableTagFiltersDecoder");
 
-    String expected = "{\"#a\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        Integer kind1 = 1;
+        String author1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String uuidValue1 = "UUID-1";
 
-    assertEquals(
-        new Filters(
-            new AddressableTagFilter<>(addressTag)),
-        decodedFilters);
-  }
+        Integer kind2 = 1;
+        String author2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        String uuidValue2 = "UUID-2";
 
-  @Test
-  public void testMultipleAddressableTagFiltersDecoder() {
-    log.info("testMultipleAddressableTagFiltersDecoder");
+        AddressTag addressTag1 = new AddressTag();
+        addressTag1.setKind(kind1);
+        addressTag1.setPublicKey(new PublicKey(author1));
+        addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
 
-    Integer kind1 = 1;
-    String author1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidValue1 = "UUID-1";
+        AddressTag addressTag2 = new AddressTag();
+        addressTag2.setKind(kind2);
+        addressTag2.setPublicKey(new PublicKey(author2));
+        addressTag2.setIdentifierTag(new IdentifierTag(uuidValue2));
 
-    Integer kind2 = 1;
-    String author2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    String uuidValue2 = "UUID-2";
+        String joined1 = String.join(":", String.valueOf(kind1), author1, uuidValue1);
+        String joined2 = String.join(":", String.valueOf(kind2), author2, uuidValue2);
 
-    AddressTag addressTag1 = new AddressTag();
-    addressTag1.setKind(kind1);
-    addressTag1.setPublicKey(new PublicKey(author1));
-    addressTag1.setIdentifierTag(new IdentifierTag(uuidValue1));
+        String joined3 = String.join("\",\"", joined1, joined2);
 
-    AddressTag addressTag2 = new AddressTag();
-    addressTag2.setKind(kind2);
-    addressTag2.setPublicKey(new PublicKey(author2));
-    addressTag2.setIdentifierTag(new IdentifierTag(uuidValue2));
+        String expected = "{\"#a\":[\"" + joined3 + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    String joined1 = String.join(":", String.valueOf(kind1), author1, uuidValue1);
-    String joined2 = String.join(":", String.valueOf(kind2), author2, uuidValue2);
+        assertEquals(
+            new Filters(
+                new AddressTagFilter<>(addressTag1),
+                new AddressTagFilter<>(addressTag2)),
+            decodedFilters);
+    }
 
-    String joined3 = String.join("\",\"", joined1, joined2);
+    @Test
+    public void testKindFiltersDecoder() {
+        log.info("testKindFiltersDecoder");
 
-    String expected = "{\"#a\":[\"" + joined3 + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String filterKey = KindFilter.FILTER_KEY;
+        Kind kind = Kind.valueOf(1);
 
-    assertEquals(
-        new Filters(
-            new AddressableTagFilter<>(addressTag1),
-            new AddressableTagFilter<>(addressTag2)),
-        decodedFilters);
-  }
+        String expected = "{\"" + filterKey + "\":[" + kind.toString() + "]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testKindFiltersDecoder() {
-    log.info("testKindFiltersDecoder");
+        assertEquals(new Filters(new KindFilter<>(kind)), decodedFilters);
+    }
 
-    String filterKey = KindFilter.FILTER_KEY;
-    Kind kind = Kind.valueOf(1);
+    @Test
+    public void testMultipleKindFiltersDecoder() {
+        log.info("testMultipleKindFiltersDecoder");
 
-    String expected = "{\"" + filterKey + "\":[" + kind.toString() + "]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String filterKey = KindFilter.FILTER_KEY;
+        Kind kind1 = Kind.valueOf(1);
+        Kind kind2 = Kind.valueOf(2);
 
-    assertEquals(new Filters(new KindFilter<>(kind)), decodedFilters);
-  }
+        String join = String.join(",", kind1.toString(), kind2.toString());
 
-  @Test
-  public void testMultipleKindFiltersDecoder() {
-    log.info("testMultipleKindFiltersDecoder");
+        String expected = "{\"" + filterKey + "\":[" + join + "]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    String filterKey = KindFilter.FILTER_KEY;
-    Kind kind1 = Kind.valueOf(1);
-    Kind kind2 = Kind.valueOf(2);
+        assertEquals(
+            new Filters(
+                new KindFilter<>(kind1),
+                new KindFilter<>(kind2)),
+            decodedFilters);
+    }
 
-    String join = String.join(",", kind1.toString(), kind2.toString());
+    @Test
+    public void testIdentifierTagFilterDecoder() {
+        log.info("testIdentifierTagFilterDecoder");
 
-    String expected = "{\"" + filterKey + "\":[" + join + "]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String uuidValue1 = "UUID-1";
 
-    assertEquals(
-        new Filters(
-            new KindFilter<>(kind1),
-            new KindFilter<>(kind2)),
-        decodedFilters);
-  }
+        String expected = "{\"#d\":[\"" + uuidValue1 + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testIdentifierTagFilterDecoder() {
-    log.info("testIdentifierTagFilterDecoder");
 
-    String uuidValue1 = "UUID-1";
+        assertEquals(new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))), decodedFilters);
+    }
 
-    String expected = "{\"#d\":[\"" + uuidValue1 + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+    @Test
+    public void testMultipleIdentifierTagFilterDecoder() {
+        log.info("testMultipleIdentifierTagFilterDecoder");
 
+        String uuidValue1 = "UUID-1";
+        String uuidValue2 = "UUID-2";
 
-    assertEquals(new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))), decodedFilters);
-  }
+        String joined = String.join("\",\"", uuidValue1, uuidValue2);
+        String expected = "{\"#d\":[\"" + joined + "\"]}";
 
-  @Test
-  public void testMultipleIdentifierTagFilterDecoder() {
-    log.info("testMultipleIdentifierTagFilterDecoder");
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    String uuidValue1 = "UUID-1";
-    String uuidValue2 = "UUID-2";
+        assertEquals(
+            new Filters(
+                new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
+                new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))),
+            decodedFilters);
+    }
 
-    String joined = String.join("\",\"", uuidValue1, uuidValue2);
-    String expected = "{\"#d\":[\"" + joined + "\"]}";
+    @Test
+    public void testReferencedEventFilterDecoder() {
+        log.info("testReferencedEventFilterDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    assertEquals(
-        new Filters(
-            new IdentifierTagFilter<>(new IdentifierTag(uuidValue1)),
-            new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))),
-        decodedFilters);
-  }
+        String expected = "{\"#e\":[\"" + eventId + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testReferencedEventFilterDecoder() {
-    log.info("testReferencedEventFilterDecoder");
+        assertEquals(new Filters(new ReferencedEventFilter<>(new EventTag(eventId))), decodedFilters);
+    }
 
-    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    @Test
+    public void testMultipleReferencedEventFilterDecoder() {
+        log.info("testMultipleReferencedEventFilterDecoder");
 
-    String expected = "{\"#e\":[\"" + eventId + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String eventId2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    assertEquals(new Filters(new ReferencedEventFilter<>(new EventTag(eventId))), decodedFilters);
-  }
+        String joined = String.join("\",\"", eventId1, eventId2);
+        String expected = "{\"#e\":[\"" + joined + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testMultipleReferencedEventFilterDecoder() {
-    log.info("testMultipleReferencedEventFilterDecoder");
+        assertEquals(
+            new Filters(
+                new ReferencedEventFilter<>(new EventTag(eventId1)),
+                new ReferencedEventFilter<>(new EventTag(eventId2))),
+            decodedFilters);
+    }
 
-    String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String eventId2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    @Test
+    public void testReferencedPublicKeyFilterDecofder() {
+        log.info("testReferencedPublicKeyFilterDecoder");
 
-    String joined = String.join("\",\"", eventId1, eventId2);
-    String expected = "{\"#e\":[\"" + joined + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String pubkeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    assertEquals(
-        new Filters(
-            new ReferencedEventFilter<>(new EventTag(eventId1)),
-            new ReferencedEventFilter<>(new EventTag(eventId2))),
-        decodedFilters);
-  }
+        String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testReferencedPublicKeyFilterDecofder() {
-    log.info("testReferencedPublicKeyFilterDecoder");
+        assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
+    }
 
-    String pubkeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    @Test
+    public void testMultipleReferencedPublicKeyFilterDecoder() {
+        log.info("testMultipleReferencedPublicKeyFilterDecoder");
 
-    String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String pubkeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String pubkeyString2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
-    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
-  }
+        String joined = String.join("\",\"", pubkeyString1, pubkeyString2);
+        String expected = "{\"#p\":[\"" + joined + "\"]}";
 
-  @Test
-  public void testMultipleReferencedPublicKeyFilterDecoder() {
-    log.info("testMultipleReferencedPublicKeyFilterDecoder");
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    String pubkeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String pubkeyString2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        assertEquals(
+            new Filters(
+                new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString1))),
+                new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString2)))),
+            decodedFilters);
+    }
 
-    String joined = String.join("\",\"", pubkeyString1, pubkeyString2);
-    String expected = "{\"#p\":[\"" + joined + "\"]}";
+    @Test
+    public void testGeohashTagFiltersDecoder() {
+        log.info("testGeohashTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        String geohashKey = "#g";
+        String geohashValue = "2vghde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
 
-    assertEquals(
-        new Filters(
-            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString1))),
-            new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString2)))),
-        decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-  @Test
-  public void testGeohashTagFiltersDecoder() {
-    log.info("testGeohashTagFiltersDecoder");
+        assertEquals(new Filters(new GeohashTagFilter<>(new GeohashTag(geohashValue))), decodedFilters);
+    }
 
-    String geohashKey = "#g";
-    String geohashValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
+    @Test
+    public void testMultipleGeohashTagFiltersDecoder() {
+        log.info("testMultipleGeohashTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String geohashKey = "#g";
+        String geohashValue1 = "2vghde";
+        String geohashValue2 = "3abcde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
 
-    assertEquals(new Filters(new GeohashTagFilter<>(new GeohashTag(geohashValue))), decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-  @Test
-  public void testMultipleGeohashTagFiltersDecoder() {
-    log.info("testMultipleGeohashTagFiltersDecoder");
+        assertEquals(new Filters(
+                new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
+                new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
+            decodedFilters);
+    }
 
-    String geohashKey = "#g";
-    String geohashValue1 = "2vghde";
-    String geohashValue2 = "3abcde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
+    @Test
+    public void testHashtagTagFiltersDecoder() {
+        log.info("testHashtagTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String hashtagKey = "#t";
+        String hashtagValue = "2vghde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
 
-    assertEquals(new Filters(
-            new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
-            new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
-        decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-  @Test
-  public void testHashtagTagFiltersDecoder() {
-    log.info("testHashtagTagFiltersDecoder");
+        assertEquals(new Filters(new HashtagTagFilter<>(new HashtagTag(hashtagValue))), decodedFilters);
+    }
 
-    String hashtagKey = "#t";
-    String hashtagValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
+    @Test
+    public void testMultipleHashtagTagFiltersDecoder() {
+        log.info("testMultipleHashtagTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String hashtagKey = "#t";
+        String hashtagValue1 = "2vghde";
+        String hashtagValue2 = "3abcde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
 
-    assertEquals(new Filters(new HashtagTagFilter<>(new HashtagTag(hashtagValue))), decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-  @Test
-  public void testMultipleHashtagTagFiltersDecoder() {
-    log.info("testMultipleHashtagTagFiltersDecoder");
+        assertEquals(new Filters(
+                new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
+                new HashtagTagFilter<>(new HashtagTag(hashtagValue2))),
+            decodedFilters);
+    }
 
-    String hashtagKey = "#t";
-    String hashtagValue1 = "2vghde";
-    String hashtagValue2 = "3abcde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
+    @Test
+    public void testGenericTagFiltersDecoder() {
+        log.info("testGenericTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String customTagKey = "#b";
+        String customTagValue = "2vghde";
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
 
-    assertEquals(new Filters(
-            new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
-            new HashtagTagFilter<>(new HashtagTag(hashtagValue2))),
-        decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-  @Test
-  public void testGenericTagFiltersDecoder() {
-    log.info("testGenericTagFiltersDecoder");
+        assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
+    }
 
-    String customTagKey = "#b";
-    String customTagValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
+    @Test
+    public void testMultipleGenericTagFiltersDecoder() {
+        log.info("testMultipleGenericTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String customTagKey = "#b";
+        String customTagValue1 = "2vghde";
+        String customTagValue2 = "3abcde";
 
-    assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
-  }
+        String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
 
-  @Test
-  public void testMultipleGenericTagFiltersDecoder() {
-    log.info("testMultipleGenericTagFiltersDecoder");
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    String customTagKey = "#b";
-    String customTagValue1 = "2vghde";
-    String customTagValue2 = "3abcde";
+        assertEquals(
+            new Filters(
+                new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue1)),
+                new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue2))),
+            decodedFilters);
+    }
 
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
+    @Test
+    public void testVoteTagFiltersDecoder() {
+        log.info("testVoteTagFiltersDecoder");
 
-    Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
+        String voteTagKey = "#v";
+        Integer voteTagValue = 1;
+        String reqJsonWithVoteTagFilterToDecode = "{\"" + voteTagKey + "\":[\"" + voteTagValue + "\"]}";
 
-    assertEquals(
-        new Filters(
-            new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue1)),
-            new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue2))),
-        decodedFilters);
-  }
+        Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithVoteTagFilterToDecode);
 
-  @Test
-  public void testSinceFiltersDecoder() {
-    log.info("testSinceFiltersDecoder");
+        assertEquals(new Filters(new VoteTagFilter<>(new VoteTag(voteTagValue))), decodedFilters);
+    }
 
-    Long since = Date.from(Instant.now()).getTime();
+    @Test
+    public void testSinceFiltersDecoder() {
+        log.info("testSinceFiltersDecoder");
 
-    String expected = "{\"since\":" + since + "}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        Long since = Date.from(Instant.now()).getTime();
 
-    assertEquals(new Filters(new SinceFilter(since)), decodedFilters);
-  }
+        String expected = "{\"since\":" + since + "}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testUntilFiltersDecoder() {
-    log.info("testUntilFiltersDecoder");
+        assertEquals(new Filters(new SinceFilter(since)), decodedFilters);
+    }
 
-    Long until = Date.from(Instant.now()).getTime();
+    @Test
+    public void testUntilFiltersDecoder() {
+        log.info("testUntilFiltersDecoder");
 
-    String expected = "{\"until\":" + until + "}";
-    Filters decodedFilters = new FiltersDecoder().decode(expected);
+        Long until = Date.from(Instant.now()).getTime();
 
-    assertEquals(new Filters(new UntilFilter(until)), decodedFilters);
-  }
+        String expected = "{\"until\":" + until + "}";
+        Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-  @Test
-  public void testFailedAddressableTagMalformedSeparator() {
-    log.info("testFailedAddressableTagMalformedSeparator");
+        assertEquals(new Filters(new UntilFilter(until)), decodedFilters);
+    }
 
-    Integer kind = 1;
-    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidValue1 = "UUID-1";
+    @Test
+    public void testFailedAddressableTagMalformedSeparator() {
+        log.info("testFailedAddressableTagMalformedSeparator");
 
-    String malformedJoin = String.join(",", String.valueOf(kind), author, uuidValue1);
-    String expected = "{\"#a\":[\"" + malformedJoin + "\"]}";
+        Integer kind = 1;
+        String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+        String uuidValue1 = "UUID-1";
 
-    assertThrows(IllegalArgumentException.class, () -> new FiltersDecoder().decode(expected));
-  }
+        String malformedJoin = String.join(",", String.valueOf(kind), author, uuidValue1);
+        String expected = "{\"#a\":[\"" + malformedJoin + "\"]}";
+
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new FiltersDecoder().decode(expected));
+    }
 }

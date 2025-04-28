@@ -17,11 +17,10 @@ public class AddressTagSerializer extends JsonSerializer<AddressTag> {
     public void serialize(AddressTag value, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeString("a");
-        jsonGenerator.writeString(value.getKind() + ":" + value.getPublicKey().toString() + ":");
-
-        if(value.getIdentifierTag() != null) {
-            jsonGenerator.writeString(value.getIdentifierTag().getId());
-        }
+        jsonGenerator.writeString(
+            value.getKind() + ":" + 
+                value.getPublicKey().toString() + ":" +
+                value.getIdentifierTag().getUuid());
 
         if (value.getRelay() != null) {
             jsonGenerator.writeString("," + value.getRelay().getUri());

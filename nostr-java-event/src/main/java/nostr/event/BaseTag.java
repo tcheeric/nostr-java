@@ -13,10 +13,8 @@ import nostr.base.ITag;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
-import nostr.event.json.serializer.TagSerializer;
-import nostr.util.NostrException;
+import nostr.event.json.serializer.BaseTagSerializer;
 import org.apache.commons.lang3.stream.Streams;
-
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -28,14 +26,11 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-/**
- * @author squirrel
- */
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @JsonDeserialize(using = TagDeserializer.class)
-@JsonSerialize(using = TagSerializer.class)
+@JsonSerialize(using = BaseTagSerializer.class)
 public abstract class BaseTag implements ITag {
 
     @JsonIgnore
@@ -51,21 +46,23 @@ public abstract class BaseTag implements ITag {
         return this.getClass().getAnnotation(Tag.class).code();
     }
 
-    public String getFieldValue(Field field) throws NostrException {
+    public Optional<String> getFieldValue(Field field) {
         try {
-            Object f = new PropertyDescriptor(field.getName(), this.getClass()).getReadMethod().invoke(this);
-            return f != null ? f.toString() : null;
+            return Optional.ofNullable(
+                new PropertyDescriptor(field.getName(), this.getClass())
+                    .getReadMethod().invoke(this))
+                .map(Object::toString);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
-            throw new NostrException(ex);
+            return Optional.empty();
         }
     }
 
-    public List<Field> getSupportedFields() throws NostrException {
-        return new Streams.FailableStream<>(Arrays.stream(this.getClass().getDeclaredFields()))
+    public List<Field> getSupportedFields() {
+        return Streams.failableStream(Arrays.stream(this.getClass().getDeclaredFields()))
             .filter(f ->
                 Objects.nonNull(f.getAnnotation(Key.class)))
             .filter(f ->
-                Objects.nonNull(getFieldValue(f)))
+                getFieldValue(f).isPresent())
             .collect(Collectors.toList());
     }
 

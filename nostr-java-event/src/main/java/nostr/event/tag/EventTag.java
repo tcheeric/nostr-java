@@ -21,23 +21,23 @@ import nostr.event.Marker;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @Tag(code = "e", name = "event")
 @JsonPropertyOrder({"idEvent", "recommendedRelayUrl", "marker"})
 @NoArgsConstructor
+@AllArgsConstructor
 public class EventTag extends BaseTag {
 
     @Key
-    @JsonProperty("idEvent")
+    @JsonProperty
     private String idEvent;
 
     @Key
-    @JsonProperty("recommendedRelayUrl")
+    @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String recommendedRelayUrl;
 
     @Key(nip = 10)
-    @JsonProperty("marker")
+    @JsonProperty
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Marker marker;
 
@@ -57,3 +57,4 @@ public class EventTag extends BaseTag {
         return (T) tag;
     }
 }
+

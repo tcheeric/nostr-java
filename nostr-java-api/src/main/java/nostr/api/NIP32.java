@@ -9,7 +9,7 @@ import nostr.api.factory.impl.NIP32Impl.Label;
 import nostr.api.factory.impl.NIP32Impl.LabelTagFactory;
 import nostr.api.factory.impl.NIP32Impl.NameSpace;
 import nostr.api.factory.impl.NIP32Impl.NamespaceTagFactory;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 
 import java.util.Map;
 

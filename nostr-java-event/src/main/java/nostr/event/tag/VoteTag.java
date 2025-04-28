@@ -2,7 +2,6 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,27 +11,22 @@ import lombok.NonNull;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-import nostr.event.json.serializer.IdentifierTagSerializer;
 
-/**
- * @author eric
- */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Tag(code = "d", nip = 33)
+@Tag(code = "v", nip = 2112)
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonSerialize(using = IdentifierTagSerializer.class)
-public class IdentifierTag extends BaseTag {
+public class VoteTag extends BaseTag {
 
     @Key
     @JsonProperty
-    private String uuid;
+    private Integer vote;
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        IdentifierTag tag = new IdentifierTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setUuid(n.asText()), tag);
+        VoteTag tag = new VoteTag();
+        setRequiredField(node.get(1), (n, t) -> tag.setVote(n.asInt()), tag);
         return (T) tag;
     }
 }

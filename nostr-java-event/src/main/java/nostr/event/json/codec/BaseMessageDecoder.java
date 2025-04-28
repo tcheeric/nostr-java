@@ -3,7 +3,6 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericMessage;
@@ -16,9 +15,7 @@ import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 /**
  * @author eric
@@ -27,47 +24,44 @@ import java.util.stream.IntStream;
 public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     public static final int COMMAND_INDEX = 0;
     public static final int ARG_INDEX = 1;
-    public static final int FILTERS_START_INDEX = 2;
 
     @Override
     public T decode(@NonNull String jsonString) throws JsonProcessingException {
-        ValidJsonNodeFirstPair validJsonNodeFirstPair = json_strCmd_arg(jsonString);
-        String command = validJsonNodeFirstPair.formerly_strCmd();
-        Object subscriptionId = validJsonNodeFirstPair.formerly_arg();
-
-        Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class); // TODO: replace with jsonNode after ReqMessage.decode() is finished
+        ValidNostrJsonStructure validNostrJsonStructure = validateProperlyFormedJson(jsonString);
+        String command = validNostrJsonStructure.getCommand();
+        Object subscriptionId = validNostrJsonStructure.getSubscriptionId();
 
         return switch (command) {
+//          client <-> relay messages
             case "AUTH" -> subscriptionId instanceof Map map ?
                 CanonicalAuthenticationMessage.decode(map) :
                 RelayAuthenticationMessage.decode(subscriptionId);
+            case "EVENT" -> EventMessage.decode(jsonString);
+//            missing client <-> relay handlers
+//            case "COUNT" -> CountMessage.decode(subscriptionId);
+            
+//            client -> relay messages
             case "CLOSE" -> CloseMessage.decode(subscriptionId);
+            case "REQ" -> ReqMessage.decode(subscriptionId, jsonString);
+            
+//            relay -> client handlers
             case "EOSE" -> EoseMessage.decode(subscriptionId);
-            case "EVENT" -> EventMessage.decode(msgArr, I_DECODER_MAPPER_AFTERBURNER);
             case "NOTICE" -> NoticeMessage.decode(subscriptionId);
-            case "OK" -> OkMessage.decode(msgArr);
-            case "REQ" -> ReqMessage.decode(subscriptionId, json_msgArr(jsonString));
-            default -> GenericMessage.decode(msgArr);
+            case "OK" -> OkMessage.decode(jsonString);
+//            missing relay -> client handlers
+//            case "CLOSED" -> Closed.message.decode(subscriptionId);
+            
+            default -> throw new IllegalArgumentException(String.format("Invalid JSON command [%s] in JSON string [%s] ", command, jsonString));
         };
     }
 
-    private ValidJsonNodeFirstPair json_strCmd_arg(@NonNull String jsonString) throws JsonProcessingException {
-        return new ValidJsonNodeFirstPair(
+    private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws JsonProcessingException {
+        return new ValidNostrJsonStructure(
             I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(COMMAND_INDEX).asText(),
             I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(ARG_INDEX).asText());
     }
 
-    private List<String> json_msgArr(@NonNull String jsonString) throws JsonProcessingException {
-        return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).size())
-            .mapToObj(idx -> readTree(jsonString, idx)).toList();
-    }
-
-    @SneakyThrows
-    private String readTree(String jsonString, int idx) {
-        return I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(idx).toString();
-    }
-
-    private record ValidJsonNodeFirstPair(
-        @NonNull String formerly_strCmd,
-        @NonNull Object formerly_arg) {}
+    private record ValidNostrJsonStructure(
+        @NonNull String getCommand,
+        @NonNull Object getSubscriptionId) {}
 }
