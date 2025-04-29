@@ -61,15 +61,15 @@ public class EventMessage extends BaseMessage {
         }
     }
 
-    public static <T extends BaseMessage> T processEvent(Object o) {
+    private static <T extends BaseMessage> T processEvent(Object o) {
         return (T) new EventMessage(convertValue((Map<String, String>) o));
     }
 
-    public static <T extends BaseMessage> T processEvent(Object[] msgArr) {
+    private static <T extends BaseMessage> T processEvent(Object[] msgArr) {
         return (T) new EventMessage(convertValue((Map<String, String>) msgArr[2]), msgArr[1].toString());
     }
 
     private static GenericEvent convertValue(Map<String, String> map) {
-        return nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<>() {});
+        return I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<>() {});
     }
 }
