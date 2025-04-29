@@ -4,43 +4,72 @@
 Nostr-java is a library for generating, signing, and publishing nostr events to relays.
 
 ## Requirements
-- Maven
+- Maven (3.9.4+) or Gradle (8.10+)
 - Java 21+
 
 ## Usage
-To use it in your project, add the following to your pom.xml file.
+To use it in your project: 
+
+```bash
+$ cd <your_git_home_dir>
+$ git clone git@github.com:avlo/nostr-java-avlo-fork.git
+$ cd nostr-java-avlo-fork
+$ git checkout develop
+```
+
+<details>
+  <summary>unit-tested build (does not require a nostr-relay for testing)</summary>
+
+    (maven)
+    $ mvn test
+    $ mvn install -Dmaven.test.skip=true  
+
+or
+
+    (gradle)
+    $ ./gradlew clean test
+    $ ./gradlew publishToMavenLocal
+</details>
+
+<details>
+  <summary>integration-tested build (requires a nostr-relay for testing)</summary>
+
+valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
+
+    (maven)
+    $ mvn clean install  
+
+or
+
+    (gradle)
+    $ ./gradlew clean check
+    $ ./gradlew publishToMavenLocal
+</details>
+
+add the build dependency to your pom.xml file.
 
 ```xml
-    <properties>
-        <nostr-java.version>v0.007.1-alpha</nostr-java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+<properties>
+    <nostr-java.version>0.6.6-SNAPSHOT</nostr-java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
 ```
 
 ```xml
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-```
-
-```xml
-    <dependencies>
-         <dependency>
-            <groupId>nostr-java</groupId>
-            <artifactId>nostr-java-api</artifactId>
-            <version>${nostr-java.version}</version>
-        </dependency>
-    </dependencies>
+<dependencies>
+     <dependency>
+        <groupId>nostr-java</groupId>
+        <artifactId>nostr-java-api</artifactId>
+        <version>${nostr-java.version}</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Examples
 I recommend having a look at these repositories/module for examples:
   - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-  - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
-  - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
+  - [subdivisions](https://github.com/avlo/subdivisions/tree/master) nostr web-socket client & client-complementary utilities
+  - [superconductor](https://github.com/avlo/superconductor) nostr relay
 
 
 ## Supported NIPs
