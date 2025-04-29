@@ -39,8 +39,8 @@ To use it in your project, add the following to your pom.xml file.
 ## Examples
 I recommend having a look at these repositories/module for examples:
   - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-  - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
-  - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
+  - [subdivisions](https://github.com/avlo/subdivisions/tree/master) nostr web-socket client & client-complementary utilities
+  - [superconductor](https://github.com/avlo/superconductor) nostr relay
 
 
 ## Supported NIPs
