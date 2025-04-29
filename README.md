@@ -21,7 +21,7 @@ $ git checkout develop
   <summary>unit-tested build (does not require a nostr-relay for testing)</summary>
 
     (maven)
-    $ mvn test
+    $ mvn clean test
     $ mvn install -Dmaven.test.skip=true  
 
 or
