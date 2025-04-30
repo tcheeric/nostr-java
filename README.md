@@ -8,39 +8,99 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
 - Java 21+
 
 ## Usage
-To use it in your project, add the following to your pom.xml file.
+### To use nostr-java in your project, two options:
+
+#### Option 1 - add release version and jitpack.io repository to your pom.xml file
 
 ```xml
-    <properties>
-        <nostr-java.version>v0.007.1-alpha</nostr-java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+<properties>
+    <nostr-java.version>v0.007.1-alpha</nostr-java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
 ```
 
 ```xml
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+#### Option 2 - Check out and build project directly from source
+
+```bash
+$ cd <your_git_home_dir>
+$ git clone git@github.com:tcheeric/nostr-java.git
+$ cd nostr-java
+$ git checkout <your_chosen_branch>
 ```
 
+<details>
+  <summary>unit-tested build (does not require a nostr-relay for testing)</summary>
+
+###### maven
+    (unix)
+      $ ./mvnw clean test
+      $ ./mvnw install -Dmaven.test.skip=true
+
+    (windows)
+      $ ./mvnw.cmd clean test
+      $ ./mvnw.cmd install -Dmaven.test.skip=true
+
+
+###### gradle
+
+    (unix)
+      $ ./gradlew clean test
+      $ ./gradlew publishToMavenLocal
+
+    (windows)
+      $ ./gradlew.bat clean test
+      $ ./gradlew.bat publishToMavenLocal
+</details>
+
+<details>
+  <summary>integration-tested build (requires a nostr-relay for testing)</summary>
+
+valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
+
+###### maven
+    (unix)
+      $ ./mvnw clean install
+
+    (windows)
+      $ ./mvnw.cmd clean install
+
+###### gradle
+    (unix)
+      $ ./gradlew clean check
+      $ ./gradlew publishToMavenLocal
+
+    (windows)
+      $ ./gradlew.bat clean check
+      $ ./gradlew.bat publishToMavenLocal        
+</details>
+
+#### add dependency to your pom.xml
+
 ```xml
-    <dependencies>
-         <dependency>
-            <groupId>nostr-java</groupId>
-            <artifactId>nostr-java-api</artifactId>
-            <version>${nostr-java.version}</version>
-        </dependency>
-    </dependencies>
+<dependencies>
+     <dependency>
+        <groupId>nostr-java</groupId>
+        <artifactId>nostr-java-api</artifactId>
+        <version>${nostr-java.version}</version>
+    </dependency>
+</dependencies>
 ```
+
+
 
 ## Examples
 I recommend having a look at these repositories/module for examples:
-  - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-  - [subdivisions](https://github.com/avlo/subdivisions/tree/master) nostr web-socket client & client-complementary utilities
-  - [superconductor](https://github.com/avlo/superconductor) nostr relay
+- [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
+- [nostr-client](https://github.com/tcheeric/nostr-client) github repository
+- [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
 
 ## Supported NIPs
