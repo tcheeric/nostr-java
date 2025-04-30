@@ -8,40 +8,33 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
 - Java 21+
 
 ## Usage
-To use it in your project, add the following to your pom.xml file.
+To use nostr-java in your project, two options:
+
+Option 1 - add release version and jitpack.io repository to your pom.xml file
 
 ```xml
-    <properties>
-        <nostr-java.version>v0.007.1-alpha</nostr-java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+<properties>
+    <nostr-java.version>v0.007.1-alpha</nostr-java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
 ```
 
 ```xml
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 ```
+Option 2 - Check out and build project directly from source  
 
-```xml
-    <dependencies>
-         <dependency>
-            <groupId>nostr-java</groupId>
-            <artifactId>nostr-java-api</artifactId>
-            <version>${nostr-java.version}</version>
-        </dependency>
-    </dependencies>
+```bash
+$ cd <your_git_home_dir>
+$ git clone git@github.com:tcheeric/nostr-java.git
+$ cd nostr-java
+$ git checkout <your_chosen_branch>
 ```
-
-## Build from source
-
-    $ cd <your_git_home_dir>
-    $ git clone git@github.com:tcheeric/nostr-java.git
-    $ cd nostr-java
-    $ git checkout <your_chosen_branch>
 
 <details>
   <summary>unit-tested build (does not require a nostr-relay for testing)</summary>
@@ -54,7 +47,7 @@ To use it in your project, add the following to your pom.xml file.
     (windows)
         $ ./mvnw.cmd clean test
         $ ./mvnw.cmd install -Dmaven.test.skip=true
-      
+
 
 ###### gradle
 
@@ -88,6 +81,19 @@ valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api
         $ ./gradlew.bat clean check
         $ ./gradlew.bat publishToMavenLocal        
 </details>
+
+3. add dependency to your pom.xml
+
+```xml
+<dependencies>
+     <dependency>
+        <groupId>nostr-java</groupId>
+        <artifactId>nostr-java-api</artifactId>
+        <version>${nostr-java.version}</version>
+    </dependency>
+</dependencies>
+```
+
 
 
 ## Examples
