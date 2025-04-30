@@ -8,9 +8,9 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
 - Java 21+
 
 ## Usage
-To use nostr-java in your project, two options:
+### To use nostr-java in your project, two options:
 
-Option 1 - add release version and jitpack.io repository to your pom.xml file
+#### Option 1 - add release version and jitpack.io repository to your pom.xml file
 
 ```xml
 <properties>
@@ -27,7 +27,7 @@ Option 1 - add release version and jitpack.io repository to your pom.xml file
     </repository>
 </repositories>
 ```
-Option 2 - Check out and build project directly from source  
+#### Option 2 - Check out and build project directly from source  
 
 ```bash
 $ cd <your_git_home_dir>
@@ -41,23 +41,23 @@ $ git checkout <your_chosen_branch>
 
 ###### maven
     (unix)
-        $ ./mvnw clean test
-        $ ./mvnw install -Dmaven.test.skip=true
+      $ ./mvnw clean test
+      $ ./mvnw install -Dmaven.test.skip=true
 
     (windows)
-        $ ./mvnw.cmd clean test
-        $ ./mvnw.cmd install -Dmaven.test.skip=true
+      $ ./mvnw.cmd clean test
+      $ ./mvnw.cmd install -Dmaven.test.skip=true
 
 
 ###### gradle
 
     (unix)
-        $ ./gradlew clean test
-        $ ./gradlew publishToMavenLocal
+      $ ./gradlew clean test
+      $ ./gradlew publishToMavenLocal
 
     (windows)
-        $ ./gradlew.bat clean test
-        $ ./gradlew.bat publishToMavenLocal
+      $ ./gradlew.bat clean test
+      $ ./gradlew.bat publishToMavenLocal
 </details>
 
 <details>
@@ -67,22 +67,22 @@ valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api
 
 ###### maven
     (unix)
-        $ ./mvnw clean install
+      $ ./mvnw clean install
 
     (windows)
-        $ ./mvnw.cmd clean install
+      $ ./mvnw.cmd clean install
 
 ###### gradle
     (unix)
-        $ ./gradlew clean check
-        $ ./gradlew publishToMavenLocal
+      $ ./gradlew clean check
+      $ ./gradlew publishToMavenLocal
 
     (windows)
-        $ ./gradlew.bat clean check
-        $ ./gradlew.bat publishToMavenLocal        
+      $ ./gradlew.bat clean check
+      $ ./gradlew.bat publishToMavenLocal        
 </details>
 
-3. add dependency to your pom.xml
+#### add dependency to your pom.xml
 
 ```xml
 <dependencies>
