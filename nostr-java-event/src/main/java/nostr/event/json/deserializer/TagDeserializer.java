@@ -13,6 +13,7 @@ import nostr.event.tag.ExpirationTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
+import nostr.event.tag.LabelNamespaceTag;
 import nostr.event.tag.LabelTag;
 import nostr.event.tag.NonceTag;
 import nostr.event.tag.PriceTag;
@@ -43,6 +44,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
             case "e" -> EventTag.deserialize(node);
             case "g" -> GeohashTag.deserialize(node);
             case "l" -> LabelTag.deserialize(node);
+            case "L" -> LabelNamespaceTag.deserialize(node);
             case "p" -> PubKeyTag.deserialize(node);
             case "r" -> ReferenceTag.deserialize(node);
             case "t" -> HashtagTag.deserialize(node);
