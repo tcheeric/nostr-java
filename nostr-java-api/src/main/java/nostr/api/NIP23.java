@@ -28,7 +28,7 @@ public class NIP23 extends EventNostr {
      *
      * @param content a text in Markdown syntax
      */
-    public NIP23 creatLongFormTextNoteEvent(@NonNull String content) {
+    public NIP23 createLongFormTextNoteEvent(@NonNull String content) {
         GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_TEXT_NOTE, content).create();
         this.updateEvent(genericEvent);
         return this;
