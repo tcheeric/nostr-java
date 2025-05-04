@@ -61,8 +61,6 @@ public class NIP09 extends EventNostr {
                 .map(d -> (GenericEvent) d)
                 .map(GenericEvent::getTags)
                 .forEach(t -> t.stream()
-                        //.filter(tag -> "a".equals(tag.getCode()))
-                        //.filter(tag -> tag instanceof AddressTag)
                         .map(tag -> (AddressTag) tag)
                         .forEach(tag -> {
                             tags.add(tag);
