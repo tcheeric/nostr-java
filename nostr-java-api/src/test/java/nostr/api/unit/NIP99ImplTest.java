@@ -67,7 +67,7 @@ class NIP99ImplTest {
         .build();
     classifiedListing2.setLocation(LOCATION);
     classifiedListing2.setPublishedAt(PUBLISHED_AT);
-    GenericEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
+    GenericEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing2).getEvent();
     //instance.update();
 
     assertEquals(instance, instance2);
