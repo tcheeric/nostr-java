@@ -38,7 +38,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             // -- Create the node
             final ObjectNode node = BASETAGENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
 
-            log.log(Level.INFO, ">>>>>>>>>> Serializing tag: {0}", value);
+            log.log(Level.FINE, ">>>>>>>>>> Serializing tag: {0}", value);
 
             if (value instanceof GenericTag && value.getClass() != GenericTag.class) {
                 // value is a subclass of GenericTag
@@ -60,7 +60,7 @@ public class TagSerializer extends StdSerializer<BaseTag> {
                 attrs.forEach(a -> node.put(a.getName(), a.getValue().toString()));
             }
 
-            log.log(Level.INFO, ">>>>>>>>> Serialized node: {0}", node);
+            log.log(Level.FINE, ">>>>>>>>> Serialized node: {0}", node);
 
             // Extract the property values from the node and serialize them as an array
             if (node.isObject()) {
