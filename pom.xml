@@ -88,7 +88,7 @@
         <!-- Annotation Dependency Versions -->
         <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
