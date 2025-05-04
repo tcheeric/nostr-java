@@ -106,7 +106,7 @@ public class NIP01 extends EventNostr {
      */
     public NIP01 createReplaceableEvent(List<GenericTag> tags, Integer kind, String content) {
         var sender = getSender();
-        GenericEvent genericEvent = new GenericEventFactory(sender, kind, (List<BaseTag>) (List<?>) tags, content).create();
+        GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
         this.updateEvent(genericEvent);
         return this;
     }
