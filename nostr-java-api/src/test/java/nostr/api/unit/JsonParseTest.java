@@ -92,6 +92,26 @@ public class JsonParseTest {
   }
 
   @Test
+  public void testAbsentFilter() throws JsonProcessingException {
+      final String parseTarget =
+          "[\"REQ\", " +
+              "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+              "{\"kinds\": [1], " +
+              "\"#p\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+      final var message = new BaseMessageDecoder<>().decode(parseTarget);
+
+      assertEquals(Command.REQ.toString(), message.getCommand());
+      assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
+      assertEquals(1, ((ReqMessage) message).getFiltersList().size());
+
+      Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
+      
+      List<Filterable> kindFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
+      assertEquals(0, kindFilters.size());
+  }
+  
+  @Test
   public void testBaseMessageDecoderKindsAuthorsReferencedPublicKey() throws JsonProcessingException {
     log.info("testBaseMessageDecoderKindsAuthorsReferencedPublicKey");
 
