@@ -1,6 +1,7 @@
 package nostr.api.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Optional;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.util.JsonComparator;
@@ -107,8 +108,7 @@ public class JsonParseTest {
 
       Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
       
-      List<Filterable> kindFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
-      assertEquals(0, kindFilters.size());
+      assertTrue(Optional.ofNullable(filters.getFilterByType(AuthorFilter.FILTER_KEY)).isEmpty());
   }
   
   @Test
