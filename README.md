@@ -27,7 +27,11 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
     </repository>
 </repositories>
 ```
+<<<<<<< HEAD
 #### Option 2 - Check out and build project directly from source  
+=======
+#### Option 2 - Check out and build project directly from source
+>>>>>>> develop
 
 ```bash
 $ cd <your_git_home_dir>

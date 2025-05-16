@@ -2,6 +2,7 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -62,9 +63,10 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
 
     @Override
     public String encode() throws JsonProcessingException {
-        getArrayNode().add(getCommand());
-        getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> getArrayNode().add(v.toString()));
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
+        var encoderArrayNode = JsonNodeFactory.instance.arrayNode();
+        encoderArrayNode.add(getCommand());
+        getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> encoderArrayNode.add(v.toString()));
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(encoderArrayNode);
     }
 
 //    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {

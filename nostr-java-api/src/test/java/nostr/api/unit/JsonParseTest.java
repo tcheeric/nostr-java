@@ -1,6 +1,7 @@
 package nostr.api.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Optional;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.util.JsonComparator;
@@ -91,6 +92,25 @@ public class JsonParseTest {
     assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
   }
 
+  @Test
+  public void testAbsentFilter() throws JsonProcessingException {
+      final String parseTarget =
+          "[\"REQ\", " +
+              "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
+              "{\"kinds\": [1], " +
+              "\"#p\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
+
+      final var message = new BaseMessageDecoder<>().decode(parseTarget);
+
+      assertEquals(Command.REQ.toString(), message.getCommand());
+      assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
+      assertEquals(1, ((ReqMessage) message).getFiltersList().size());
+
+      Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
+      
+      assertTrue(filters.getFilterByType(AuthorFilter.FILTER_KEY).isEmpty());
+  }
+  
   @Test
   public void testBaseMessageDecoderKindsAuthorsReferencedPublicKey() throws JsonProcessingException {
     log.info("testBaseMessageDecoderKindsAuthorsReferencedPublicKey");
