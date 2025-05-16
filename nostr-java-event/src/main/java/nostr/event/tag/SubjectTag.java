@@ -1,4 +1,3 @@
-
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

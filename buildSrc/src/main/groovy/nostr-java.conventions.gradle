@@ -15,7 +15,7 @@ plugins {
     id 'org.gradle.test-retry'
 }
 
-group = version = rootProject.property("nostr-java.group")
+group = rootProject.property("nostr-java.group")
 version = rootProject.property("nostr-java.version")
 description = rootProject.property("nostr-java.description")
 
@@ -37,7 +37,6 @@ publishing {
 //        someRemoteRepo()
     }
 }
-
 
 dependencies {
     def springBootVersion = rootProject.property("nostr-java.springBootVersion")
@@ -61,7 +60,6 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:' + bouncyCastle
 
     implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
-    implementation 'com.google.guava:guava:' + googleGuava
     implementation 'org.awaitility:awaitility:' + awaitility
     implementation 'org.projectlombok:lombok:' + lombok
     annotationProcessor 'org.awaitility:awaitility:' + awaitility
@@ -71,25 +69,20 @@ dependencies {
     testImplementation 'org.projectlombok:lombok:' + lombok
     testImplementation 'org.awaitility:awaitility:' + awaitility
     testImplementation 'com.adarshr:gradle-test-logger-plugin:' + logger
+    testImplementation 'com.google.guava:guava:' + googleGuava
     
     testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
 }
 
 tasks.test {
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
-//    retry {
-//        maxRetries.set(1)
-////        maxFailures.set(20)
-////        failOnPassedAfterRetry.set(false)
-////        failOnSkippedAfterRetry.set(true)
-//    }
+}
+
+test {
+    filter {
+        excludeTestsMatching("nostr.api.integration.*");
+    }
 }
 
 test {

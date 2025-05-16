@@ -29,6 +29,7 @@ public enum Kind {
     MUTE_USER(44, "mute_user"),
     ENCRYPTED_PAYLOADS(44, "encrypted_payloads"),
     OTS_EVENT(1040, "ots_event"),
+    VOTE(2112, "vote"),
     RESERVED_CASHU_WALLET_TOKENS(7_374, "reserved_cashu_wallet_tokens"),
     WALLET_UNSPENT_PROOF(7_375, "wallet_unspent_proof"),
     WALLET_TX_HISTORY(7_376, "wallet_tx_history"),

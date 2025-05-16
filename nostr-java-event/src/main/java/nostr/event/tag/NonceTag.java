@@ -1,4 +1,3 @@
-
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,8 +38,8 @@ public class NonceTag extends BaseTag {
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
         NonceTag tag = new NonceTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setNonce(Integer.valueOf(n.asText())), tag);
-        setRequiredField(node.get(2), (n, t) -> tag.setDifficulty(Integer.valueOf(n.asText())), tag);
+        setRequiredField(node.get(1), (n, t) -> tag.setNonce(n.asInt()), tag);
+        setRequiredField(node.get(2), (n, t) -> tag.setDifficulty(n.asInt()), tag);
         return (T) tag;
     }
 }

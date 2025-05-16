@@ -4,7 +4,7 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.impl.ClassifiedListingEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;

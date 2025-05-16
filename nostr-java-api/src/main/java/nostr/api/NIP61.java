@@ -13,7 +13,7 @@ import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 

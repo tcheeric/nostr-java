@@ -17,6 +17,7 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP52Event;
 import nostr.event.impl.CalendarTimeBasedEvent.CalendarTimeBasedEventDeserializer;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 

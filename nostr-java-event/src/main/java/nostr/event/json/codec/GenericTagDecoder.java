@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NonNull;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 
 import java.util.stream.IntStream;
 

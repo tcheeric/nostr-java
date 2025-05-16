@@ -18,6 +18,7 @@ import nostr.event.BaseTag;
 import nostr.event.Kind;
 import nostr.event.NIP99Event;
 import nostr.event.impl.ClassifiedListingEvent.ClassifiedListingEventDeserializer;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 
 import java.io.IOException;

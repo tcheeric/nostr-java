@@ -2,7 +2,7 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.TagFactory;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 
 public class NIP31 {
 

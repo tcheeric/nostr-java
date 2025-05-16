@@ -6,13 +6,12 @@ import nostr.base.ElementAttribute;
 import org.junit.jupiter.api.Test;
 
 import nostr.base.PublicKey;
-import nostr.base.Relay;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.GenericMessage;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.util.Nip05Validator;
 import nostr.util.NostrUtil;
@@ -63,65 +62,10 @@ public class EventTest {
 
     @Test
     public void testCreateUnsupportedGenericTagAttribute() {
-//        try {
-//            System.out.println("testCreateUnsupportedGenericTagAttribute");
-//            PublicKey publicKey = this.identity.getPublicKey();
-//            GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
-//
-//            Relay relay = Relay.builder().uri("wss://secret.relay.com").build();
-//            relay.addNipSupport(1);
-//            relay.addNipSupport(genericTag.getNip());
-//
-//            BaseEventEncoder marshaller = new BaseEventEncoder(genericTag.getParent(), relay);
-//            var strJsonEvent = marshaller.marshall();
-//
-//            var jsonValue = new JsonObjectUnmarshaller(strJsonEvent).unmarshall();
-//
-//            IValue tags = ((ObjectValue) jsonValue).get("tags").get();
-//
-//            Assertions.assertEquals(2, ((ArrayValue) tags).length());
-//
-//            IValue tag = ((ArrayValue) tags).get(1).get();
-//
-//            Assertions.assertTrue(tag instanceof ArrayValue);
-//
-//            IValue code = ((ArrayValue) tag).get(0).get();
-//
-//            Assertions.assertTrue(code instanceof StringValue);
-//
-//            Assertions.assertEquals("devil", code.getValue());
-//            Assertions.assertEquals(1, ((ArrayValue) tag).length());
-//
-//        } catch (NostrException ex) {
-//            Assertions.fail(ex);
-//        }
+        /**
+         * test of this functionality relocated to nostr-java-api {@link nostr.api.integration.ApiEventIT#testCreateUnsupportedGenericTagAttribute()}
+         */
     }
-
-    // TODO - Rewrite the test class after implementing the configuration
-/*
-    @Test
-    public void testCreateUnsupportedGenericTag() {
-        System.out.println("testCreateUnsupportedGenericTag");
-        //PublicKey publicKey = this.identity.getPublicKey();
-        PublicKey publicKey = Identity.getInstance().getPublicKey();
-        IEvent event = EntityFactory.Events.createOtsEvent(publicKey);
-        GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey, event, 7);
-
-        Relay relay = new Relay("wss://secret.relay.com");
-        relay.addNipSupport(0);
-
-        var encoder = new BaseEventEncoder((BaseEvent) genericTag.getParent(), relay);
-
-        RuntimeException thrown = Assertions.assertThrows(RuntimeException.class,
-                () -> {
-                    encoder.encode();
-                },
-                "This event is not supported. List of relay supported NIP(s): " + relay.printSupportedNips()
-        );
-
-        Assertions.assertNotNull(thrown);
-    }
-*/
 
     @Test
     public void testNip05Validator() {

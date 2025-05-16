@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @PropertySource("classpath:relays.properties")
-public class RelayProperties {
+public class RelayConfig {
 
     @Bean
     public Map<String, String> relays() {

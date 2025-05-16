@@ -7,6 +7,7 @@ import nostr.base.Relay;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.Kind;
+import nostr.event.tag.GenericTag;
 
 import java.util.ArrayList;
 import java.util.List;

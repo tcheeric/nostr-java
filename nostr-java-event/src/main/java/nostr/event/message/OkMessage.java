@@ -7,13 +7,9 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
-
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 
-/**
- *
- * @author squirrel
- */
 @Setter
 @Getter
 public class OkMessage extends BaseMessage {
@@ -44,13 +40,12 @@ public class OkMessage extends BaseMessage {
                 .add(getMessage()));
     }
 
-    //    TODO: refactor into stream returning optional
-    public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
-        if (msgArr.length == 4 && msgArr[2] instanceof Boolean duplicate) {
-            String msgArg = msgArr[3].toString();
-            return (T) new OkMessage(msgArr[1].toString(), duplicate, msgArg);
-        } else {
-            throw new AssertionError("Invalid argument: " + msgArr[2]);
+    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
+        try {
+            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
+            return (T) new OkMessage(msgArr[1].toString(), (Boolean) msgArr[2], msgArr[3].toString());
+        } catch (JsonProcessingException e) {
+            throw new AssertionError(e);
         }
     }
 }

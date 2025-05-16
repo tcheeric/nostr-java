@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.event.BaseTag;
 import nostr.event.json.codec.GenericTagDecoder;
+import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -17,6 +18,7 @@ import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
 
 import java.io.IOException;
+import nostr.event.tag.VoteTag;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
@@ -32,11 +34,13 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
         } else // Perform custom deserialization logic based on the concrete class
         {
             return switch (code) {
+                case "a" -> AddressTag.deserialize(node);
                 case "d" -> IdentifierTag.deserialize(node);
                 case "e" -> EventTag.deserialize(node);
                 case "g" -> GeohashTag.deserialize(node);
                 case "p" -> PubKeyTag.deserialize(node);
                 case "t" -> HashtagTag.deserialize(node);
+                case "v" -> VoteTag.deserialize(node);
 
                 case "nonce" -> NonceTag.deserialize(node);
                 case "price" -> PriceTag.deserialize(node);

@@ -8,7 +8,7 @@ import nostr.event.BaseTag;
 import nostr.event.Deleteable;
 import nostr.event.NIP09Event;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
@@ -75,7 +75,7 @@ public class NIP09<T extends NIP09Event> extends EventNostr<T> {
 
     private AddressTag toAddressTag(@NonNull GenericTag genericTag) {
         IdentifierTag identifierTag = new IdentifierTag();
-        identifierTag.setId(genericTag.getAttributes().get(1).getValue().toString());
+        identifierTag.setUuid(genericTag.getAttributes().get(1).getValue().toString());
 
         AddressTag addressTag = new AddressTag();
         addressTag.setIdentifierTag(identifierTag);

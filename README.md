@@ -98,9 +98,9 @@ valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api
 
 ## Examples
 I recommend having a look at these repositories/module for examples:
-  - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-  - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
-  - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
+- [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
+- [nostr-client](https://github.com/tcheeric/nostr-client) github repository
+- [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
 
 ## Supported NIPs
