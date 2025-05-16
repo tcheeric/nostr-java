@@ -108,7 +108,7 @@ public class JsonParseTest {
 
       Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
       
-      assertTrue(Optional.ofNullable(filters.getFilterByType(AuthorFilter.FILTER_KEY)).isEmpty());
+      assertTrue(filters.getFilterByType(AuthorFilter.FILTER_KEY).isEmpty());
   }
   
   @Test

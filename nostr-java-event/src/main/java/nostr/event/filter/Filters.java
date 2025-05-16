@@ -32,8 +32,7 @@ public class Filters {
     }
 
     public List<Filterable> getFilterByType(@NonNull String type) {
-//        return Objects.nonNull(filtersMap.get(type)) ?  filtersMap.get(type) : List.of();
-        return filtersMap.get(type);
+        return Objects.nonNull(filtersMap.get(type)) ?  filtersMap.get(type) : List.of();
     }
 
     private static void validateFiltersMap(Map<String, List<Filterable>> filtersMap) throws IllegalArgumentException {
