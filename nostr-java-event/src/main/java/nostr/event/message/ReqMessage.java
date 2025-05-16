@@ -3,6 +3,7 @@ package nostr.event.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -47,7 +48,8 @@ public class ReqMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        getArrayNode()
+        var encoderArrayNode = JsonNodeFactory.instance.arrayNode();
+        encoderArrayNode
           .add(getCommand())
           .add(getSubscriptionId());
 
@@ -55,9 +57,9 @@ public class ReqMessage extends BaseMessage {
           .map(FiltersEncoder::new)
           .map(FiltersEncoder::encode)
           .map(ReqMessage::createJsonNode)
-          .forEach(jsonNode -> getArrayNode().add(jsonNode));
+          .forEach(encoderArrayNode::add);
 
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(getArrayNode());
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(encoderArrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull String jsonString) throws JsonProcessingException {

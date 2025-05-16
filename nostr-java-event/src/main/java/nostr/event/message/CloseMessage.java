@@ -2,6 +2,7 @@ package nostr.event.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -33,7 +34,7 @@ public class CloseMessage extends BaseMessage {
     @Override
     public String encode() throws JsonProcessingException {
         return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
-            getArrayNode()
+            JsonNodeFactory.instance.arrayNode()
                 .add(getCommand())
                 .add(getSubscriptionId()));
     }
