@@ -1,10 +1,11 @@
 package nostr.event;
 
-import java.util.List;
-
 import lombok.NoArgsConstructor;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
+
+import java.util.List;
 
 /**
  * @author guilhermegps
@@ -17,4 +18,7 @@ public abstract class NIP08Event extends GenericEvent {
 		super(pubKey, kind, tags, content);
 	}
 
+	public NIP08Event(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {
+		super(pubKey, kind, tags, content);
+	}
 }

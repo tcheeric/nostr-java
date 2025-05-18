@@ -1,20 +1,20 @@
 package nostr.event.impl;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.base.UserProfile;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
 import nostr.event.NIP01Event;
+import nostr.event.entities.UserProfile;
+
+import java.util.ArrayList;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
@@ -25,6 +25,8 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Metadata")
+@Deprecated(forRemoval = true, since = "0.6.6-SNAPSHOT")
+@NoArgsConstructor
 public final class MetadataEvent extends NIP01Event {
 
     private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
@@ -38,7 +40,10 @@ public final class MetadataEvent extends NIP01Event {
     }
 
     @Override
-    protected void validate() {
+    protected void validateContent() {
+
+        super.validateContent();
+
         boolean valid = true;
         
         var strNameArr = this.profile.getNip05().split("@");
@@ -72,5 +77,4 @@ public final class MetadataEvent extends NIP01Event {
             throw new RuntimeException(e);
         }
     }
-
 }
