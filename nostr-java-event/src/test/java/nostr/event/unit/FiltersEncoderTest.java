@@ -2,9 +2,8 @@ package nostr.event.unit;
 
 import lombok.extern.java.Log;
 import nostr.base.GenericTagQuery;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.base.Relay;
-import nostr.event.Kind;
 import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
@@ -18,7 +17,6 @@ import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
-import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.FiltersEncoder;
 import nostr.event.message.ReqMessage;
@@ -28,7 +26,6 @@ import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.VoteTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -128,8 +125,8 @@ public class FiltersEncoderTest {
   }
 
   @Test
-  public void testAddressableTagFilterWithoutRelayEncoder() {
-    log.info("testAddressableTagFilterWithoutRelayEncoder");
+  public void testAddressableTagFilterEncoder() {
+    log.info("testAddressableTagFilterEncoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -145,30 +142,6 @@ public class FiltersEncoderTest {
     String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
 
     assertEquals("{\"#a\":[\"" + addressableTag + "\"]}", encodedFilters);
-  }
-
-  @Test
-  public void testAddressableTagWithRelayFilterEncoder() {
-    log.info("testAddressableTagWithRelayFilterEncoder");
-
-    Integer kind = 1;
-    String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-    String uuidValue1 = "UUID-1";
-    Relay relay = new Relay("ws://localhost:5555");
-
-    AddressTag addressTag = new AddressTag();
-    addressTag.setKind(kind);
-    addressTag.setPublicKey(new PublicKey(author));
-    addressTag.setIdentifierTag(new IdentifierTag(uuidValue1));
-    addressTag.setRelay(relay);
-
-    FiltersEncoder encoder = new FiltersEncoder(new Filters(new AddressTagFilter<>(addressTag)));
-    String encodedFilters = encoder.encode();
-    String addressableTag = String.join(":", String.valueOf(kind), author, uuidValue1);
-    String joined = String.join("\\\",\\\"", addressableTag, relay.getUri());
-
-    String expected = "{\"#a\":[\"" + joined + "\"]}";
-    assertEquals(expected, encodedFilters);
   }
 
   @Test
@@ -371,19 +344,6 @@ public class FiltersEncoderTest {
     String addressableTags = String.join("\",\"", addressableTag1, addressableTag2);
     assertEquals("{\"#a\":[\"" + addressableTags + "\"]}", encoded);
   }
-
-    @Test
-    public void testVoteTagFiltersEncoder() {
-        log.info("testVoteTagFiltersEncoder");
-
-        Integer vote = 1;
-
-        FiltersEncoder encoder = new FiltersEncoder(
-            new Filters(new VoteTagFilter<>(new VoteTag(vote))));
-
-        String encodedFilters = encoder.encode();
-        assertEquals("{\"#v\":[\"1\"]}", encodedFilters);
-    }
 
   @Test
   public void testSinceFiltersEncoder() {
