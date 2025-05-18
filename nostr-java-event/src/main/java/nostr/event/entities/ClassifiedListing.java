@@ -1,4 +1,4 @@
-package nostr.event.impl;
+package nostr.event.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -6,14 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.event.AbstractEventContent;
+import nostr.event.JsonContent;
 import nostr.event.tag.PriceTag;
 
 @Data
 @Builder
 @JsonDeserialize(builder = ClassifiedListing.ClassifiedListingBuilder.class)
 @EqualsAndHashCode(callSuper = false)
-public class ClassifiedListing extends AbstractEventContent<ClassifiedListingEvent> {
+public class ClassifiedListing implements JsonContent {
   private String id;
   private final String title;
   private final String summary;
