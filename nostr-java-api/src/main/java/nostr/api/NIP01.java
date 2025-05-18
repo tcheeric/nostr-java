@@ -5,28 +5,16 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP01Impl.AddressTagFactory;
-import nostr.api.factory.impl.NIP01Impl.CloseMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EoseMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EphemeralEventFactory;
-import nostr.api.factory.impl.NIP01Impl.EventMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.EventTagFactory;
-import nostr.api.factory.impl.NIP01Impl.IdentifierTagFactory;
-import nostr.api.factory.impl.NIP01Impl.MetadataEventFactory;
-import nostr.api.factory.impl.NIP01Impl.NoticeMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.ParameterizedReplaceableEventFactory;
-import nostr.api.factory.impl.NIP01Impl.PubKeyTagFactory;
-import nostr.api.factory.impl.NIP01Impl.ReplaceableEventFactory;
-import nostr.api.factory.impl.NIP01Impl.ReqMessageFactory;
-import nostr.api.factory.impl.NIP01Impl.TextNoteEventFactory;
-import nostr.base.IEvent;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.base.UserProfile;
+import nostr.config.Constants;
 import nostr.event.BaseTag;
-import nostr.event.Marker;
-import nostr.event.NIP01Event;
+import nostr.event.entities.UserProfile;
 import nostr.event.filter.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
@@ -34,19 +22,21 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- *
  * @author eric
  */
-public class NIP01<T extends NIP01Event> extends EventNostr<T> {
+public class NIP01 extends EventNostr {
 
-    public NIP01(@NonNull Identity sender) {
+    public NIP01(Identity sender) {
         setSender(sender);
     }
 
@@ -56,39 +46,43 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param content the content of the note
      * @return the text note without tags
      */
-    public NIP01<T> createTextNoteEvent(@NonNull String content) {
-        var event = new TextNoteEventFactory(getSender(), content).create();
-        this.setEvent((T) event);
-
+    public NIP01 createTextNoteEvent(String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
     @Deprecated
-    public NIP01<T> createTextNoteEvent(@NonNull Identity sender, @NonNull String content) {
-        var event = new TextNoteEventFactory(sender, content).create();
-        this.setEvent((T) event);
+    public NIP01 createTextNoteEvent(Identity sender, String content) {
+        GenericEvent genericEvent = new GenericEventFactory(sender, Constants.Kind.SHORT_TEXT_NOTE, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
 
+    public NIP01 createTextNoteEvent(Identity sender, String content, List<PubKeyTag> recipients) {
+        GenericEvent genericEvent = new GenericEventFactory(sender, Constants.Kind.SHORT_TEXT_NOTE, (List<BaseTag>) (List<?>) recipients, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
     /**
-     * Create a NIP01 text note event with tags
+     * Create a NIP01 text note event with recipients
      *
-     * @param tags    the note tags
+     * @param tags    the tags
      * @param content the content of the note
      * @return a text note event
      */
-    public NIP01<T> createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-        setEvent((T) new TextNoteEventFactory(getSender(), tags, content).create());
+    public NIP01 createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, tags, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
-    public NIP01<T> createMetadataEvent(@NonNull UserProfile profile) {
+    public NIP01 createMetadataEvent(@NonNull UserProfile profile) {
         var sender = getSender();
-        var event = (sender != null) ? new MetadataEventFactory(sender, profile).create()
-                : new MetadataEventFactory(profile).create();
-
-        this.setEvent((T) event);
+        GenericEvent genericEvent = (sender != null) ? new GenericEventFactory(sender, Constants.Kind.USER_METADATA, profile.toString()).create()
+                : new GenericEventFactory(Constants.Kind.USER_METADATA, profile.toString()).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
@@ -98,10 +92,10 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the content
      */
-    public NIP01<T> createReplaceableEvent(@NonNull Integer kind, String content) {
-        var event = new ReplaceableEventFactory(getSender(), kind, content).create();
-
-        this.setEvent((T) event);
+    public NIP01 createReplaceableEvent(Integer kind, String content) {
+        var sender = getSender();
+        GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
@@ -112,10 +106,23 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param kind    the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
      * @param content the note's content
      */
-    public NIP01<T> createReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind, String content) {
-        var event = new ReplaceableEventFactory(getSender(), tags, kind, content).create();
-
-        this.setEvent((T) event);
+    public NIP01 createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
+        var sender = getSender();
+        GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
+    /**
+     * Create an ephemeral event
+     *
+     * @param kind    the kind (20000 <= n < 30000)
+     * @param tags    the note's tags
+     * @param content the note's content
+     */
+    public NIP01 createEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
+        var sender = getSender();
+        GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
@@ -125,37 +132,102 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param kind    the kind (20000 <= n < 30000)
      * @param content the note's content
      */
-    public NIP01<T> createEphemeralEvent(@NonNull Integer kind, String content) {
-        var event = new EphemeralEventFactory(getSender(), kind, content).create();
+    public NIP01 createEphemeralEvent(Integer kind, String content) {
+        var sender = getSender();
+        GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
 
-        this.setEvent((T) event);
+
+    /**
+     * @param content the event's comment
+     */
+    public NIP01 createAddressableEvent(Integer kind, String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
+
+    /**
+     * @param tags
+     * @param kind
+     * @param content
+     * @return
+     */
+    public NIP01 createAddressableEvent(@NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, (List<BaseTag>) (List<?>) tags, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
     /**
      * Create a NIP01 event tag
      *
-     * @param relateEventId the related event id
+     * @param relatedEventId the related event id
      * @return an event tag with the id of the related event
      */
-    public static EventTag createEventTag(@NonNull String relateEventId) {
-        return new EventTagFactory(relateEventId).create();
+    public static BaseTag createEventTag(@NonNull String relatedEventId) {
+        List<String> params = List.of(relatedEventId);
+        return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
     }
 
     /**
      * Create a NIP01 event tag with additional recommended relay and marker
      *
-     * @param relateEventId       the related event id
-     * @param recommendedRelayUrl the recommended relay
+     * @param idEvent             the related event id
+     * @param recommendedRelayUrl the recommended relay url
      * @param marker              the marker
      * @return an event tag with the id of the related event and optional
-     *         recommended relay and marker
+     * recommended relay and marker
      */
-    public static EventTag createEventTag(@NonNull String relateEventId, String recommendedRelayUrl, Marker marker) {
-        var result = new EventTagFactory(relateEventId).create();
-        result.setMarker(marker);
-        result.setRecommendedRelayUrl(recommendedRelayUrl);
-        return result;
+    public static BaseTag createEventTag(@NonNull String idEvent, String recommendedRelayUrl, Marker marker) {
+
+        List<String> params = new ArrayList<>();
+        params.add(idEvent);
+        if (recommendedRelayUrl != null) {
+            params.add(recommendedRelayUrl);
+        }
+        if (marker != null) {
+            params.add(marker.getValue());
+        }
+
+        return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
+    }
+
+    /**
+     * Create a NIP01 event tag with additional recommended relay and marker
+     *
+     * @param idEvent             the related event id
+     * @param marker              the marker
+     * @return an event tag with the id of the related event and optional
+     * recommended relay and marker
+     */
+    public static BaseTag createEventTag(@NonNull String idEvent, Marker marker) {
+        return createEventTag(idEvent, (String) null, marker);
+    }
+
+    /**
+     * Create a NIP01 event tag with additional recommended relay and marker
+     *
+     * @param idEvent             the related event id
+     * @param recommendedRelay    the recommended relay
+     * @param marker              the marker
+     * @return an event tag with the id of the related event and optional
+     * recommended relay and marker
+     */
+    public static BaseTag createEventTag(@NonNull String idEvent, Relay recommendedRelay, Marker marker) {
+
+        List<String> params = new ArrayList<>();
+        params.add(idEvent);
+        if (recommendedRelay != null) {
+            params.add(recommendedRelay.getUri());
+        }
+        if (marker != null) {
+            params.add(marker.getValue());
+        }
+
+        return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
     }
 
     /**
@@ -163,10 +235,13 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      *
      * @param publicKey the associated public key
      * @return a pubkey tag with the hex representation of the associated public
-     *         key
+     * key
      */
-    public static PubKeyTag createPubKeyTag(@NonNull PublicKey publicKey) {
-        return new PubKeyTagFactory(publicKey).create();
+    public static BaseTag createPubKeyTag(@NonNull PublicKey publicKey) {
+        List<String> params = new ArrayList<>();
+        params.add(publicKey.toString());
+
+        return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
     }
 
     /**
@@ -177,13 +252,84 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param mainRelayUrl the recommended relay
      * @param petName      the petname
      * @return a pubkey tag with the hex representation of the associated public
-     *         key and the optional recommended relay and petname
+     * key and the optional recommended relay and petname
      */
-    public static PubKeyTag createPubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl, String petName) {
-        var result = new PubKeyTagFactory(publicKey).create();
-        result.setMainRelayUrl(mainRelayUrl);
-        result.setPetName(petName);
-        return result;
+    // TODO - Method overloading with Relay as second parameter
+    public static BaseTag createPubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl, String petName) {
+        List<String> params = new ArrayList<>();
+        params.add(publicKey.toString());
+        params.add(mainRelayUrl);
+        params.add(petName);
+
+        return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
+    }
+
+    /**
+     * Create a NIP01 pubkey tag with additional recommended relay and petname
+     * (as defined in NIP02)
+     *
+     * @param publicKey    the associated public key
+     * @param mainRelayUrl the recommended relay
+     * @return a pubkey tag with the hex representation of the associated public
+     * key and the optional recommended relay and petname
+     */
+    // TODO - Method overloading with Relay as second parameter
+    public static BaseTag createPubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl) {
+        List<String> params = new ArrayList<>();
+        params.add(publicKey.toString());
+        params.add(mainRelayUrl);
+
+        return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    public static BaseTag createIdentifierTag(@NonNull String id) {
+        List<String> params = new ArrayList<>();
+        params.add(id);
+
+        return new BaseTagFactory(Constants.Tag.IDENTITY_CODE, params).create();
+    }
+
+    /**
+     * @param kind
+     * @param publicKey
+     * @param idTag
+     * @param relay
+     * @return
+     */
+    public static BaseTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, BaseTag idTag, Relay relay) {
+        if (idTag != null && !idTag.getCode().equals(Constants.Tag.IDENTITY_CODE)) {
+            throw new IllegalArgumentException("idTag must be an identifier tag");
+        }
+
+        List<String> params = new ArrayList<>();
+        String param = kind + ":" + publicKey + ":";
+        if (idTag != null) {
+            if (idTag instanceof IdentifierTag) {
+                param += ((IdentifierTag) idTag).getUuid();
+            } else {
+                // Should hopefully never happen
+                throw new IllegalArgumentException("idTag must be an identifier tag");
+            }
+        }
+        params.add(param);
+
+        if (relay != null) {
+            params.add(relay.getUri());
+        }
+
+        return new BaseTagFactory(Constants.Tag.ADDRESS_CODE, params).create();
+    }
+
+    public static BaseTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, String id, Relay relay) {
+        return createAddressTag(kind, publicKey, createIdentifierTag(id), relay);
+    }
+
+    public static BaseTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey, String id) {
+        return createAddressTag(kind, publicKey, createIdentifierTag(id), null);
     }
 
     /**
@@ -193,8 +339,10 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @param subscriptionId the related subscription id
      * @return an event message
      */
-    public static EventMessage createEventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
-        return new EventMessageFactory(event, subscriptionId).create();
+    public static EventMessage createEventMessage(@NonNull GenericEvent event, String subscriptionId) {
+        return Optional.ofNullable(subscriptionId)
+                .map(subId -> new EventMessage(event, subId))
+                .orElse(new EventMessage(event));
     }
 
     /**
@@ -205,7 +353,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return a REQ message
      */
     public static ReqMessage createReqMessage(@NonNull String subscriptionId, @NonNull List<Filters> filtersList) {
-        return new ReqMessageFactory(subscriptionId, filtersList).create();
+        return new ReqMessage(subscriptionId, filtersList);
     }
 
     /**
@@ -215,7 +363,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return a CLOSE message
      */
     public static CloseMessage createCloseMessage(@NonNull String subscriptionId) {
-        return new CloseMessageFactory(subscriptionId).create();
+        return new CloseMessage(subscriptionId);
     }
 
     /**
@@ -226,7 +374,7 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return an EOSE message
      */
     public static EoseMessage createEoseMessage(@NonNull String subscriptionId) {
-        return new EoseMessageFactory(subscriptionId).create();
+        return new EoseMessage(subscriptionId);
     }
 
     /**
@@ -237,60 +385,6 @@ public class NIP01<T extends NIP01Event> extends EventNostr<T> {
      * @return a NOTICE message
      */
     public static NoticeMessage createNoticeMessage(@NonNull String message) {
-        return new NoticeMessageFactory(message).create();
-    }
-
-    /**
-     *
-     * @param comment the event's comment
-     */
-    public NIP01<T> createParameterizedReplaceableEvent(@NonNull Integer kind, String comment) {
-        var event = new ParameterizedReplaceableEventFactory(getSender(), kind, comment).create();
-
-        this.setEvent((T) event);
-        return this;
-    }
-
-    /**
-     *
-     * @param tags
-     * @param kind
-     * @param comment
-     * @return
-     */
-    public NIP01<T> createParameterizedReplaceableEvent(@NonNull List<BaseTag> tags, @NonNull Integer kind,
-            String comment) {
-        var event = new ParameterizedReplaceableEventFactory(getSender(), tags, kind, comment).create();
-
-        this.setEvent((T) event);
-        return this;
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public static IdentifierTag createIdentifierTag(@NonNull String id) {
-        return new IdentifierTagFactory(id).create();
-    }
-
-    /**
-     *
-     * @param kind
-     * @param publicKey
-     * @param idTag
-     * @param relay
-     * @return
-     */
-    public static AddressTag createAddressTag(@NonNull Integer kind, @NonNull PublicKey publicKey,
-            IdentifierTag idTag, Relay relay) {
-        var result = new AddressTagFactory(publicKey).create();
-        if(idTag != null) {
-            result.setIdentifierTag(idTag);
-        }
-        result.setKind(kind);
-        result.setRelay(relay);
-        return result;
+        return new NoticeMessage(message);
     }
 }
