@@ -1,22 +1,20 @@
-package nostr.base;
+package nostr.event.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
+import nostr.base.Relay;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @Builder
-public class Wallet {
+public class CashuWallet {
 
     @EqualsAndHashCode.Include
     private String id;
@@ -30,11 +28,11 @@ public class Wallet {
 
     @EqualsAndHashCode.Include
     private String unit;
-    private Set<Mint> mints;
+    private Set<CashuMint> mints;
     private Set<Relay> relays;
-    private Set<Token> tokens;
+    private Set<CashuToken> tokens;
 
-    public Wallet() {
+    public CashuWallet() {
         this.balance = 0;
         this.mints = new HashSet<>();
         this.relays = new HashSet<>();
@@ -58,19 +56,19 @@ public class Wallet {
         this.balance -= amount;
     }
 
-    public void addToken(@NonNull Token token) {
+    public void addToken(@NonNull CashuToken token) {
         this.tokens.add(token);
         this.refreshBalance();
     }
 
-    public void removeToken(@NonNull Token token) {
+    public void removeToken(@NonNull CashuToken token) {
         this.tokens.remove(token);
         this.refreshBalance();
     }
 
     public void refreshBalance() {
         int total = 0;
-        for (Token token : this.tokens) {
+        for (CashuToken token : this.tokens) {
             total += token.calculateAmount();
         }
         this.setBalance(total);

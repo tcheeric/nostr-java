@@ -1,4 +1,4 @@
-package nostr.base;
+package nostr.event.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Proof {
+public class CashuProof {
 
     @EqualsAndHashCode.Include
     private String id;

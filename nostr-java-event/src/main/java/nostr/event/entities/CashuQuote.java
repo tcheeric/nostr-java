@@ -1,4 +1,4 @@
-package nostr.base;
+package nostr.event.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Quote {
+public class CashuQuote {
     private String id;
     private Long expiration;
-    private Mint mint;
-    private Wallet wallet;
+    private CashuMint mint;
+    private CashuWallet wallet;
 }
