@@ -1,53 +1,35 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractEventContent;
-import nostr.event.impl.CustomerOrderEvent.Customer;
+import nostr.event.BaseTag;
+import nostr.event.entities.PaymentShipmentStatus;
+
+import java.util.List;
 
 /**
- *
  * @author eric
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "", nip = 15)
-public class VerifyPaymentOrShippedEvent extends CheckoutEvent {
+@Event(name = "Verify Payment Or Shipped Event", nip = 15)
+@NoArgsConstructor
+public class VerifyPaymentOrShippedEvent extends CheckoutEvent<PaymentShipmentStatus> {
 
-    public VerifyPaymentOrShippedEvent(PublicKey sender, Customer customer, PaymentShipmentStatus status) {
-        super(sender, customer.getContact().getPublicKey(), status);
+    public VerifyPaymentOrShippedEvent(PublicKey sender, List<BaseTag> tags, @NonNull String content) {
+        super(sender, tags, content, MessageType.ORDER_STATUS_UPDATE);
     }
-    
-    @Getter
-    @Setter
-    @EqualsAndHashCode(callSuper = false)
-    @ToString(callSuper = true)
-    public static class PaymentShipmentStatus extends AbstractEventContent<VerifyPaymentOrShippedEvent> {
 
-        @JsonProperty
-        private final String id;
-        
-        @JsonProperty
-        private MessageType type;
-        
-        @JsonProperty
-        private String message;
-        
-        @JsonProperty
-        private boolean paid;
-        
-        @JsonProperty
-        private boolean shipped;
+    public PaymentShipmentStatus getPaymentShipmentStatus() {
+        return IEvent.MAPPER_AFTERBURNER.convertValue(getContent(), PaymentShipmentStatus.class);
+    }
 
-        public PaymentShipmentStatus() {
-            this.id = UUID.randomUUID().toString();
-        }
+    protected PaymentShipmentStatus getEntity() {
+        return getPaymentShipmentStatus();
     }
 }
