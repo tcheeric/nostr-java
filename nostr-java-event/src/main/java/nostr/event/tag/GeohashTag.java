@@ -32,4 +32,18 @@ public class GeohashTag extends BaseTag {
         setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
         return (T) tag;
     }
+
+    public static GeohashTag updateFields(@NonNull GenericTag genericTag) {
+        if (!"g".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for GeohashTag");
+        }
+
+        if (genericTag.getAttributes().size() != 1) {
+            throw new IllegalArgumentException("Invalid number of attributes for GeohashTag");
+        }
+
+        GeohashTag tag = new GeohashTag();
+        tag.setLocation(genericTag.getAttributes().get(0).getValue().toString());
+        return tag;
+    }
 }

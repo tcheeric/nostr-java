@@ -29,4 +29,13 @@ public class VoteTag extends BaseTag {
         setRequiredField(node.get(1), (n, t) -> tag.setVote(n.asInt()), tag);
         return (T) tag;
     }
+
+    public static VoteTag updateFields(@NonNull GenericTag genericTag) {
+        if (!"v".equals(genericTag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for VoteTag");
+        }
+
+        VoteTag voteTag = new VoteTag(Integer.valueOf(genericTag.getAttributes().get(0).getValue().toString()));
+        return voteTag;
+    }
 }

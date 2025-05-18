@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import nostr.base.Marker;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-import nostr.event.Marker;
 
 /**
  * @author squirrel
@@ -56,5 +56,20 @@ public class EventTag extends BaseTag {
         setOptionalField(node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
         return (T) tag;
     }
-}
 
+    public static EventTag updateFields(@NonNull GenericTag tag) {
+        if (!"e".equals(tag.getCode())) {
+            throw new IllegalArgumentException("Invalid tag code for EventTag");
+        }
+        EventTag eventTag = new EventTag(tag.getAttributes().get(0).getValue().toString());
+        if (tag.getAttributes().size() > 1) {
+            eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).getValue().toString());
+        }
+        if (tag.getAttributes().size() > 2) {
+            eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).getValue().toString()));
+        }
+
+        return eventTag;
+    }
+
+}
