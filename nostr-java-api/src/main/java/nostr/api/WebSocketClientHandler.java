@@ -2,9 +2,9 @@ package nostr.api;
 
 import lombok.Getter;
 import lombok.NonNull;
-import nostr.base.IEvent;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.filter.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
@@ -30,7 +30,8 @@ public class WebSocketClientHandler {
     this.eventClient = new SpringWebSocketClient(relayUri);
   }
 
-  protected List<String> sendEvent(@NonNull IEvent event) {
+  protected List<String> sendEvent(@NonNull GenericEvent event) {
+    event.validate();
     return eventClient.send(new EventMessage(event)).stream().toList();
   }
 
