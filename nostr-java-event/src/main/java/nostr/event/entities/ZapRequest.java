@@ -1,27 +1,26 @@
-package nostr.event.impl;
+package nostr.event.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.event.AbstractEventContent;
+import nostr.event.JsonContent;
 import nostr.event.tag.RelaysTag;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ZapRequest extends AbstractEventContent<ZapRequestEvent> {
-  @JsonIgnore
-  private String id;
+public class ZapRequest implements JsonContent {
+    //@JsonIgnore
+    //private String id;
 
-  @JsonProperty("relays")
-  private RelaysTag relaysTag;
+    @JsonProperty("relays")
+    private RelaysTag relaysTag;
 
   @JsonProperty
   private Long amount;
 
-  @JsonProperty("lnurl")
-  private String lnUrl;
+    @JsonProperty("lnurl")
+    private String lnUrl;
 
   public ZapRequest(@NonNull RelaysTag relaysTag, @NonNull Long amount, @NonNull String lnUrl) {
     this.relaysTag = relaysTag;
