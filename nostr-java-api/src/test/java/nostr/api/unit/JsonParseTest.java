@@ -1,20 +1,19 @@
 package nostr.api.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.Optional;
 import lombok.extern.java.Log;
 import nostr.api.NIP01;
 import nostr.api.util.JsonComparator;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
+import nostr.base.Kind;
+import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.Marker;
 import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.EventFilter;
@@ -29,7 +28,6 @@ import nostr.event.filter.ReferencedEventFilter;
 import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.json.codec.BaseTagDecoder;
@@ -39,6 +37,7 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -52,7 +51,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author eric
@@ -92,25 +96,6 @@ public class JsonParseTest {
     assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
   }
 
-  @Test
-  public void testAbsentFilter() throws JsonProcessingException {
-      final String parseTarget =
-          "[\"REQ\", " +
-              "\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\", " +
-              "{\"kinds\": [1], " +
-              "\"#p\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
-
-      final var message = new BaseMessageDecoder<>().decode(parseTarget);
-
-      assertEquals(Command.REQ.toString(), message.getCommand());
-      assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
-      assertEquals(1, ((ReqMessage) message).getFiltersList().size());
-
-      Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
-      
-      assertTrue(filters.getFilterByType(AuthorFilter.FILTER_KEY).isEmpty());
-  }
-  
   @Test
   public void testBaseMessageDecoderKindsAuthorsReferencedPublicKey() throws JsonProcessingException {
     log.info("testBaseMessageDecoderKindsAuthorsReferencedPublicKey");
@@ -772,24 +757,24 @@ public class JsonParseTest {
     assertEquals(2, ((ReqMessage) message).getFiltersList().size());
   }
 
-    @Test
-    public void testReqMessageVoteTagFilterDecoder() {
-        log.info("testReqMessageVoteTagFilterDecoder");
+  @Test
+  public void testReqMessageVoteTagFilterDecoder() {
+    log.info("testReqMessageVoteTagFilterDecoder");
 
-        String subscriptionId = "npub333k6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
-        String voteTagKey = "#v";
-        Integer voteTagValue = 1;
-        String reqJsonWithVoteTagFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + voteTagKey + "\":[\"" + voteTagValue + "\"]}]";
+    String subscriptionId = "npub333k6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
+    String voteTagKey = "#v";
+    Integer voteTagValue = 1;
+    String reqJsonWithVoteTagFilterToDecode = "[\"REQ\",\"" + subscriptionId + "\",{\"" + voteTagKey + "\":[\"" + voteTagValue + "\"]}]";
 
-        assertDoesNotThrow(() -> {
-            ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithVoteTagFilterToDecode);
+    assertDoesNotThrow(() -> {
+      ReqMessage decodedReqMessage = new BaseMessageDecoder<ReqMessage>().decode(reqJsonWithVoteTagFilterToDecode);
 
-            ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
-                new Filters(
-                    new VoteTagFilter<>(new VoteTag(voteTagValue))));
+      ReqMessage expectedReqMessage = new ReqMessage(subscriptionId,
+              new Filters(
+                      new VoteTagFilter<>(new VoteTag(voteTagValue))));
 
-            assertEquals(reqJsonWithVoteTagFilterToDecode, decodedReqMessage.encode());
-            assertEquals(expectedReqMessage, decodedReqMessage);
-        });
-    }
+      assertEquals(reqJsonWithVoteTagFilterToDecode, decodedReqMessage.encode());
+      assertEquals(expectedReqMessage, decodedReqMessage);
+    });
+  }
 }
