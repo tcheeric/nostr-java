@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import lombok.Getter;
-import nostr.api.factory.impl.NIP01Impl;
-import nostr.api.factory.impl.NIP99Impl;
+import nostr.api.NIP01;
+import nostr.api.NIP99;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
+import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.tag.EventTag;
@@ -27,10 +27,9 @@ public class CommonTestObjectsFactory {
   }
 
   public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) {
-    TextNoteEvent textNoteEvent = new NIP01Impl.TextNoteEventFactory(identity, tags, content).create();
-//    NIP01<NIP01Event> nip01_1 = new NIP01<>(identity);
-//    EventNostr sign = nip01_1.createTextNoteEvent(tags, content).sign();
-//    return sign;
+    NIP01 nip01 = new NIP01(identity);
+    GenericEvent genericEvent = nip01.createTextNoteEvent(tags, content).getEvent();
+    TextNoteEvent textNoteEvent = GenericEvent.convert(genericEvent, TextNoteEvent.class);
     return (T) textNoteEvent;
   }
 
@@ -40,7 +39,8 @@ public class CommonTestObjectsFactory {
       String content,
       ClassifiedListing cl) {
 
-    return (T) new NIP99Impl.ClassifiedListingEventFactory(identity, tags, content, cl).create();
+    NIP99 nip99 = new NIP99(identity);
+    return (T) nip99.createClassifiedListingEvent (tags, content, cl).getEvent();
   }
 
   public static GenericEvent createGenericEvent() {
