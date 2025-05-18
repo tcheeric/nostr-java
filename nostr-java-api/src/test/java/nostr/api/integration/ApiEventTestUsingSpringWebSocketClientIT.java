@@ -46,7 +46,7 @@ class ApiEventTestUsingSpringWebSocketClientIT {
         categories.add("bijoux");
         categories.add("Hommes");
 
-        var nip15 = new NIP15<>(Identity.create(PrivateKey.generateRandomPrivKey()));
+        var nip15 = new NIP15(Identity.create(PrivateKey.generateRandomPrivKey()));
 
         GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
         EventMessage message = new EventMessage(event);
