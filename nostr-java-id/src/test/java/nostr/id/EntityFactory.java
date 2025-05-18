@@ -5,22 +5,19 @@ import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
-import nostr.base.UserProfile;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
-import nostr.event.Reaction;
+import nostr.event.entities.Reaction;
+import nostr.event.entities.UserProfile;
 import nostr.event.impl.DirectMessageEvent;
-import nostr.event.impl.EphemeralEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.impl.InternetIdentifierMetadataEvent;
 import nostr.event.impl.MentionsEvent;
-import nostr.event.impl.MetadataEvent;
 import nostr.event.impl.OtsEvent;
 import nostr.event.impl.ReactionEvent;
 import nostr.event.impl.ReplaceableEvent;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 
 import java.net.MalformedURLException;
@@ -41,6 +38,7 @@ public class EntityFactory {
     @Log
     public static class Events {
 
+/*
         public static EphemeralEvent createEphemeralEvent(PublicKey publicKey) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("eric").build());
@@ -48,6 +46,7 @@ public class EntityFactory {
             event.update();
             return event;
         }
+*/
 
         public static DirectMessageEvent createDirectMessageEvent(PublicKey senderPublicKey, PublicKey rcptPublicKey, String content) {
             List<BaseTag> tagList = new ArrayList<>();
@@ -59,12 +58,12 @@ public class EntityFactory {
 
         public static InternetIdentifierMetadataEvent createInternetIdentifierMetadataEvent(UserProfile profile) {
             final PublicKey publicKey = profile.getPublicKey();
-            InternetIdentifierMetadataEvent event = new InternetIdentifierMetadataEvent(publicKey, profile);
+            InternetIdentifierMetadataEvent event = new InternetIdentifierMetadataEvent(publicKey, profile.toString());
             event.update();
             return event;
         }
 
-        public static MentionsEvent createMentionsEvent(PublicKey publicKey) {
+        public static MentionsEvent createMentionsEvent(PublicKey publicKey, Integer kind) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(PubKeyTag.builder().publicKey(publicKey).petName("charlie").build());
             String content = generateRamdomAlpha(32);
@@ -73,22 +72,24 @@ public class EntityFactory {
             int len = tagList.size();
             for (BaseTag baseTag : tagList) {
                 sbContent.append(", ").append(((PubKeyTag) baseTag).getPublicKey().toString());
-
             }
-            MentionsEvent event = new MentionsEvent(publicKey, tagList, sbContent.toString());
+
+            MentionsEvent event = new MentionsEvent(publicKey, kind, tagList, sbContent.toString());
             event.update();
             return event;
         }
 
+/*
         public static MetadataEvent createMetadataEvent(UserProfile profile) {
             final PublicKey publicKey = profile.getPublicKey();
             return new MetadataEvent(publicKey, profile);
         }
+*/
 
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(EventTag.builder().idEvent(original.getId()).build());
-            return new ReactionEvent(publicKey, tagList, Reaction.LIKE);
+            return new ReactionEvent(publicKey, tagList, Reaction.LIKE.getEmoji());
         }
 
         public static ReplaceableEvent createReplaceableEvent(PublicKey publicKey) {
