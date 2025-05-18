@@ -1,29 +1,24 @@
-package nostr.event.impl;
+package nostr.event.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import nostr.event.AbstractEventContent;
-import nostr.event.impl.CalendarContent.CalendarContentBuilder;
-import nostr.event.impl.CalendarRsvpContent.CalendarRsvpContentBuilder;
+import nostr.event.entities.CalendarRsvpContent.CalendarRsvpContentBuilder;
 import nostr.event.tag.AddressTag;
-import nostr.event.tag.GeohashTag;
-import nostr.event.tag.HashtagTag;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.ReferenceTag;
-
-import java.util.List;
 
 @Data
 @Builder
 @JsonDeserialize(builder = CalendarRsvpContentBuilder.class)
 @EqualsAndHashCode(callSuper = false)
-public class CalendarRsvpContent extends AbstractEventContent<CalendarRsvpEvent> {
+public class CalendarRsvpContent extends NIP42Content {
   //@JsonProperty
-  private final String id;
+  //private final String id;
 
   // below fields mandatory
   private final IdentifierTag identifierTag;
@@ -31,7 +26,9 @@ public class CalendarRsvpContent extends AbstractEventContent<CalendarRsvpEvent>
   private final String status;
 
   // below fields optional
-  private List<PubKeyTag> participantPubKeys;
+  private PubKeyTag authorPubKeyTag;
+  private EventTag eventTag;
+  private GenericTag fbTag;
 
   public static CalendarRsvpContentBuilder builder(@NonNull IdentifierTag identifierTag, @NonNull AddressTag addressTag, @NonNull String status) {
     return new CalendarRsvpContentBuilder()
