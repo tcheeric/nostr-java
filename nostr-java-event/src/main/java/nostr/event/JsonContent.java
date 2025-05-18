@@ -1,18 +1,15 @@
 package nostr.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import nostr.base.IEvent;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
 /**
- * @param <T>
  * @author eric
  */
-public abstract class AbstractEventContent<T extends IEvent> implements IContent {
+public interface JsonContent {
 
-  @Override
-  public String toString() {
+  default String value() {
     try {
       return MAPPER_AFTERBURNER.writeValueAsString(this);
     } catch (JsonProcessingException ex) {
