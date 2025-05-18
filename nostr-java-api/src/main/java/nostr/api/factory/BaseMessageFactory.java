@@ -4,15 +4,17 @@
  */
 package nostr.api.factory;
 
-import nostr.base.ITag;
+import lombok.NoArgsConstructor;
+import nostr.event.BaseMessage;
+import nostr.event.message.GenericMessage;
 
 /**
  *
  * @author eric
  * @param <T>
  */
-public abstract class AbstractTagFactory<T extends ITag> {
+@NoArgsConstructor
+public abstract class BaseMessageFactory<T extends BaseMessage> {
 
     public abstract T create();
-    
 }
