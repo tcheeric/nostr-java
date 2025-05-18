@@ -1,12 +1,13 @@
-package nostr.base;
+package nostr.event.entities;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  *
@@ -15,7 +16,7 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ChannelProfile extends Profile {    
+public class ChannelProfile extends Profile {
 
     public ChannelProfile(String name, String about, URL picture) {
         super(name, about, picture);
