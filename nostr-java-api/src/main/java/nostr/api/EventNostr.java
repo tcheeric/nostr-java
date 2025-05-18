@@ -8,12 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.message.GenericMessage;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
 
@@ -26,10 +26,10 @@ import java.util.Objects;
  */
 @Getter
 @NoArgsConstructor
-public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebSocketClient {
+public abstract class EventNostr extends NostrSpringWebSocketClient {
 
     @Setter
-    private T event;
+    private GenericEvent event;
 
     private PublicKey recipient;
 
@@ -81,29 +81,13 @@ public abstract class EventNostr<T extends GenericEvent> extends NostrSpringWebS
         return this;
     }
 
+    public void updateEvent(@NonNull GenericEvent event) {
+        this.setEvent(event);
+        this.event.update();
+    }
+
     public EventNostr addTag(@NonNull BaseTag tag) {
         getEvent().addTag(tag);
         return this;
-    }
-
-    @NoArgsConstructor
-    public static class GenericEventNostr<T extends GenericEvent> extends EventNostr<T> {
-
-        public GenericEventNostr(@NonNull Identity sender) {
-            super.setSender(sender);
-        }
-
-        /**
-         * @param content
-         * @return
-         */
-        public GenericEventNostr createGenericEvent(@NonNull Integer kind, @NonNull String content) {
-            var factory = new GenericEventFactory(getSender(), kind, content);
-            var event = factory.create();
-            setEvent((T) event);
-
-            return this;
-        }
-
     }
 }
