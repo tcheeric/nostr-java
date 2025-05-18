@@ -1,4 +1,4 @@
-package nostr.util.thread;
+package nostr.util.validator;
 
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
