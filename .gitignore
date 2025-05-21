@@ -213,9 +213,9 @@ target/
 
 # Gradle files
 .gradle/
-gradle/
-gradlew
-gradlew.bat
+#gradle/
+#gradlew
+#gradlew.bat
 buildSrc/build
 
 ### VisualStudioCode ###
