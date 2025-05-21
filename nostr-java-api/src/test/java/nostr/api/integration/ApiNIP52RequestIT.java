@@ -98,11 +98,10 @@ class ApiNIP52RequestIT {
     tags.add(T_TAG);
     tags.add(R_TAG);
 
-    CalendarContent calendarContent = CalendarContent.builder(
+    CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
             new IdentifierTag(UUID_CALENDAR_TIME_BASED_EVENT_TEST),
             TITLE,
-            Long.valueOf(START))
-        .build();
+            Long.valueOf(START));
 
     var nip52 = new NIP52(Identity.create(PRV_KEY_VALUE));
 

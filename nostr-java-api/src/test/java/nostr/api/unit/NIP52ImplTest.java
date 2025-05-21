@@ -27,7 +27,7 @@ class NIP52ImplTest {
   public static final String CALENDAR_TIME_BASED_EVENT_SUMMARY = "Calendar Time-Based Event listing summary";
   public static final String CALENDAR_TIME_BASED_EVENT_START_TZID = "1687765220";
   public static final Long START = 1716513986268L;
-  public static CalendarContent timeBasedCalendarContent;
+  public static CalendarContent<BaseTag> timeBasedCalendarContent;
   public static Identity timeBasedSender;
   public static NIP52 nip52;
   public static final String CALENDAR_TIME_BASED_EVENT_LOCATION = "Calendar Time-Based Event location";
@@ -47,15 +47,14 @@ class NIP52ImplTest {
 
   @BeforeAll
   static void setup() {
-    timeBasedCalendarContent = CalendarContent.builder(
+    timeBasedCalendarContent = new CalendarContent<>(
             identifierTag,
             TIME_BASED_TITLE,
-            START)
-        .build();
+            START);
 
-    timeBasedCalendarContent.setParticipantPubKeys(List.of(P_1_TAG, P_2_TAG));
+    timeBasedCalendarContent.addParticipantPubKeyTags(List.of(P_1_TAG, P_2_TAG));
     timeBasedCalendarContent.setGeohashTag(G_TAG);
-    timeBasedCalendarContent.setHashtagTags(List.of(T_TAG));
+    timeBasedCalendarContent.addHashtagTags(List.of(T_TAG));
     timeBasedCalendarContent.setStartTzid(CALENDAR_TIME_BASED_EVENT_START_TZID);
     timeBasedCalendarContent.setEndTzid(START.toString());
     Long l = START + 100L;
@@ -92,11 +91,10 @@ class NIP52ImplTest {
     // Remove assertions for G_TAG and T_TAG since they weren't set in setup
 
     // Test equality with minimal required fields
-    CalendarContent calendarContent = CalendarContent.builder(
+    CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
             identifierTag,
             TIME_BASED_TITLE,
-            START)
-        .build();
+            START);
 
     calendarContent.setLocation(CALENDAR_TIME_BASED_EVENT_LOCATION);
     GenericEvent instance2 = nip52.createCalendarTimeBasedEvent(

@@ -438,15 +438,15 @@ public class ApiEventIT {
     public void testNIP52CalendarTimeBasedEventEvent() throws IOException {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
-        CalendarContent calendarContent = CalendarContent.builder(
-                new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
-                "Calendar Time-Based Event title",
-                1716513986268L).build();
+        CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
+            new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
+            "Calendar Time-Based Event title",
+            1716513986268L);
 
         calendarContent.setStartTzid("1687765220");
         calendarContent.setEndTzid("1687765230");
-        calendarContent.setLabelNamespaceTags(List.of(new LabelNamespaceTag("audiospace")));
-        calendarContent.setLabelTags(List.of(new LabelTag("english", "audiospace"), new LabelTag("mycenaean greek", "audiospace")));
+        calendarContent.addLabelNamespaceTags(List.of(new LabelNamespaceTag("audiospace")));
+        calendarContent.addLabelTags(List.of(new LabelTag("english", "audiospace"), new LabelTag("mycenaean greek", "audiospace")));
 
         List<BaseTag> tags = new ArrayList<>();
         tags.add(new PubKeyTag(Identity.generateRandomIdentity().getPublicKey(),

@@ -7,6 +7,7 @@ import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
+import nostr.event.JsonContent;
 import nostr.event.entities.CalendarContent;
 import nostr.event.json.deserializer.CalendarEventDeserializer;
 import nostr.event.tag.AddressTag;
@@ -19,46 +20,42 @@ import java.util.Optional;
 @Event(name = "Calendar Event", nip = 52)
 @JsonDeserialize(using = CalendarEventDeserializer.class)
 @NoArgsConstructor
-public class CalendarEvent extends AbstractBaseCalendarEvent {
+public class CalendarEvent extends AbstractBaseCalendarEvent<JsonContent> {
 
     public CalendarEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content) {
         super(sender, Kind.CALENDAR_EVENT, baseTags, content);
     }
 
     public String getId() {
-        CalendarContent calendarContent = getCalendarContent();
-        return calendarContent.getIdentifierTag().getUuid();
+        return getCalendarContent().getIdentifierTag().getUuid();
     }
 
     public String getTitle() {
-        CalendarContent calendarContent = getCalendarContent();
-        return calendarContent.getTitle();
+        return getCalendarContent().getTitle();
     }
 
     public List<String> getCalendarEventIds() {
-        CalendarContent calendarContent = getCalendarContent();
-        return calendarContent.getAddressTags().stream()
+        return getCalendarContent().getAddressTags().stream()
                 .map(tag -> tag.getIdentifierTag().getUuid())
                 .toList();
     }
 
     public List<PublicKey> getCalendarEventAuthors() {
-        CalendarContent calendarContent = getCalendarContent();
-        return calendarContent.getAddressTags().stream()
-                .map(tag -> tag.getPublicKey())
+        return getCalendarContent().getAddressTags().stream()
+                .map(AddressTag::getPublicKey)
                 .toList();
     }
 
     @Override
-    protected CalendarContent getCalendarContent() {
+    protected CalendarContent<BaseTag> getCalendarContent() {
 
         BaseTag identifierTag = getTag("d");
         BaseTag titleTag = getTag("title");
 
-        CalendarContent calendarContent = CalendarContent.builder(
+        CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
                 (IdentifierTag) identifierTag,
                 ((GenericTag)titleTag).getAttributes().get(0).getValue().toString(),
-                -1L).build();
+                -1L);
 
         List<BaseTag> aTags = getTags("a");
 

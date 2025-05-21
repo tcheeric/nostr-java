@@ -81,8 +81,7 @@ class CalendarTimeBasedEventTest {
         Long l = START + 100L;
         tags.add(BaseTag.create(END_CODE, l.toString()));
 
-        CalendarContent calendarContent = CalendarContent.builder(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START)
-            .build();
+        CalendarContent<BaseTag> calendarContent = new CalendarContent<>(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START);
         // a random set of calendar tags
         // calendarContent.setEndTzid(CALENDAR_TIME_BASED_EVENT_END_TZID);
         calendarContent.setSummary(CALENDAR_TIME_BASED_EVENT_SUMMARY);

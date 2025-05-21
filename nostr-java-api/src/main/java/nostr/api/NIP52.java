@@ -1,20 +1,21 @@
 package nostr.api;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.entities.CalendarRsvpContent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
+import nostr.event.tag.GeohashTag;
 import nostr.id.Identity;
-
-import java.net.URI;
-import java.util.List;
-
+import org.apache.commons.lang3.stream.Streams;
 import static nostr.api.NIP01.createIdentifierTag;
 import static nostr.api.NIP23.createImageTag;
 import static nostr.api.NIP23.createSummaryTag;
@@ -27,11 +28,10 @@ public class NIP52 extends EventNostr {
         setSender(sender);
     }
 
-    @SneakyThrows
     public NIP52 createCalendarTimeBasedEvent(
-            @NonNull List<BaseTag> baseTags,
-            @NonNull String content,
-            @NonNull CalendarContent calendarContent) {
+        @NonNull List<BaseTag> baseTags,
+        @NonNull String content,
+        @NonNull CalendarContent<BaseTag> calendarContent) {
 
         GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, baseTags, content).create();
 
@@ -39,47 +39,24 @@ public class NIP52 extends EventNostr {
         genericEvent.addTag(createTitleTag(calendarContent.getTitle()));
         genericEvent.addTag(createStartTag(calendarContent.getStart()));
 
-        if (calendarContent.getGeohashTag() != null) {
-            genericEvent.addTag(calendarContent.getGeohashTag());
-        }
-        if (calendarContent.getEnd() != null) {
-            genericEvent.addTag(createEndTag(calendarContent.getEnd()));
-        }
-        if (calendarContent.getStartTzid() != null) {
-            genericEvent.addTag(createStartTzidTag(calendarContent.getStartTzid()));
-        }
-        if (calendarContent.getEndTzid() != null) {
-            genericEvent.addTag(createEndTzidTag(calendarContent.getEndTzid()));
-        }
-        if (calendarContent.getSummary() != null) {
-            genericEvent.addTag(createSummaryTag(calendarContent.getSummary()));
-        }
-        if (calendarContent.getImage() != null) {
-            genericEvent.addTag(createImageTag(URI.create(calendarContent.getImage()).toURL()));
-        }
-        if (calendarContent.getParticipantPubKeys() != null) {
-            calendarContent.getParticipantPubKeys().forEach(p -> {
-                genericEvent.addTag(p);
-            });
-        }
-        if (calendarContent.getLocation() != null) {
-            genericEvent.addTag(createLocationTag(calendarContent.getLocation()));
-        }
-        if (calendarContent.getHashtagTags() != null) {
-            calendarContent.getHashtagTags().forEach(h -> {
-                genericEvent.addTag(h);
-            });
-        }
-        if (calendarContent.getReferenceTags() != null) {
-            calendarContent.getReferenceTags().forEach(r -> {
-                genericEvent.addTag(r);
-            });
-        }
-        if (calendarContent.getLabelTags() != null) {
-            calendarContent.getLabelTags().forEach(l -> {
-                genericEvent.addTag(l);
-            });
-        }
+        Optional<GeohashTag> geohashTag = calendarContent.getGeohashTag();
+        geohashTag.ifPresent(genericEvent::addTag);
+        calendarContent.getEnd().ifPresent(aLong -> genericEvent.addTag(createEndTag(aLong)));
+        calendarContent.getStartTzid().ifPresent(s -> genericEvent.addTag(createStartTzidTag(s)));
+        calendarContent.getEndTzid().ifPresent(s -> genericEvent.addTag(createEndTzidTag(s)));
+        calendarContent.getSummary().ifPresent(s -> genericEvent.addTag(createSummaryTag(s)));
+
+        calendarContent.getImage().ifPresent(s ->
+            genericEvent.addTag(createImageTag(
+                Streams.failableStream(URI.create(s))
+                    .map(URI::toURL)
+                    .stream().findFirst().orElseThrow())));
+
+        calendarContent.getParticipantPubKeyTags().forEach(genericEvent::addTag);
+        calendarContent.getLocation().ifPresent(s -> genericEvent.addTag(createLocationTag(s)));
+        calendarContent.getHashtagTags().forEach(genericEvent::addTag);
+        calendarContent.getReferenceTags().forEach(genericEvent::addTag);
+        calendarContent.getLabelTags().forEach(genericEvent::addTag);
 
         this.updateEvent(genericEvent);
 
@@ -87,56 +64,43 @@ public class NIP52 extends EventNostr {
     }
 
     public NIP52 createCalendarRsvpEvent(
-            @NonNull String content,
-            @NonNull CalendarRsvpContent calendarRsvpContent) {
+        @NonNull String content,
+        @NonNull CalendarRsvpContent calendarRsvpContent) {
 
         GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.CALENDAR_EVENT_RSVP, content).create();
 
+//        mandatory tags
         genericEvent.addTag(calendarRsvpContent.getIdentifierTag());
         genericEvent.addTag(calendarRsvpContent.getAddressTag());
         genericEvent.addTag(createStatusTag(calendarRsvpContent.getStatus()));
 
-        if (calendarRsvpContent.getAuthorPubKeyTag() != null) {
-            genericEvent.addTag(calendarRsvpContent.getAuthorPubKeyTag());
-        }
-        if (calendarRsvpContent.getEventTag() != null) {
-            genericEvent.addTag(calendarRsvpContent.getEventTag());
-        }
-        if (calendarRsvpContent.getFbTag() != null) {
-            genericEvent.addTag(calendarRsvpContent.getFbTag());
-        }
+//        optional tags
+        calendarRsvpContent.getAuthorPubKeyTag().ifPresent(genericEvent::addTag);
+        calendarRsvpContent.getEventTag().ifPresent(genericEvent::addTag);
+        calendarRsvpContent.getFbTag().ifPresent(genericEvent::addTag);
 
         this.updateEvent(genericEvent);
 
         return this;
     }
 
-    public NIP52 createDateBasedCalendarEvent(@NonNull String content, @NonNull CalendarContent calendarContent) {
+    public NIP52 createDateBasedCalendarEvent(@NonNull String content, @NonNull CalendarContent<BaseTag> calendarContent) {
 
         GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, content).create();
 
+//        mandatory tags
         genericEvent.addTag(calendarContent.getIdentifierTag());
         genericEvent.addTag(createTitleTag(calendarContent.getTitle()));
         genericEvent.addTag(createStartTag(calendarContent.getStart()));
 
-        if (calendarContent.getGeohashTag() != null) {
-            genericEvent.addTag(calendarContent.getGeohashTag());
-        }
-        if (calendarContent.getEnd() != null) {
-            genericEvent.addTag(createEndTag(calendarContent.getEnd()));
-        }
-        if (calendarContent.getStartTzid() != null) {
-            genericEvent.addTag(createStartTzidTag(calendarContent.getStartTzid()));
-        }
-        if (calendarContent.getEndTzid() != null) {
-            genericEvent.addTag(createEndTzidTag(calendarContent.getEndTzid()));
-        }
-        if (calendarContent.getSummary() != null) {
-            genericEvent.addTag(createSummaryTag(calendarContent.getSummary()));
-        }
+//        optional tags
+        calendarContent.getGeohashTag().ifPresent(genericEvent::addTag);
+        calendarContent.getEnd().ifPresent(s -> genericEvent.addTag(createEndTag(s)));
+        calendarContent.getStartTzid().ifPresent(s -> genericEvent.addTag(createStartTzidTag(s)));
+        calendarContent.getEndTzid().ifPresent(s -> genericEvent.addTag(createEndTzidTag(s)));
+        calendarContent.getSummary().ifPresent(s -> genericEvent.addTag(createSummaryTag(s)));
 
         this.updateEvent(genericEvent);
-
         return this;
     }
 

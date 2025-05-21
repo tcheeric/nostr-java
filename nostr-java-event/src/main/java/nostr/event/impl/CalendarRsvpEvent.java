@@ -2,6 +2,7 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -63,77 +64,37 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
     }
 
     public Status getStatus() {
-        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
-        return Status.valueOf(calendarRsvpContent.getStatus().toUpperCase());
+        return Status.valueOf(getCalendarContent().getStatus().toUpperCase());
     }
 
-    public FB getFB() {
-        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
-        return FB.valueOf(calendarRsvpContent.getFbTag().getAttributes().get(0).getValue().toString().toUpperCase());
+    public Optional<FB> getFB() {
+        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).getValue().toString().toUpperCase()).map(FB::valueOf);
     }
 
-    public String getEventId() {
-        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
-        return calendarRsvpContent.getEventTag().getIdEvent();
+    public Optional<String> getEventId() {
+        return getCalendarContent().getEventTag().map(EventTag::getIdEvent);
     }
 
     public String getId() {
-        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
-        return calendarRsvpContent.getIdentifierTag().getUuid();
+        return getCalendarContent().getIdentifierTag().getUuid();
     }
 
-    public PublicKey getAuthor() {
-        CalendarRsvpContent calendarRsvpContent = getCalendarContent();
-        return calendarRsvpContent.getAuthorPubKeyTag().getPublicKey();
+    public Optional<PublicKey> getAuthor() {
+        return getCalendarContent().getAuthorPubKeyTag().map(PubKeyTag::getPublicKey);
     }
 
     @Override
     protected CalendarRsvpContent getCalendarContent() {
-        BaseTag aTag = getTag("a");
-        BaseTag identifierTag = getTag("d");
-
-        BaseTag eTag = getTag("e");
-        BaseTag fb = getTag("fb");
-        BaseTag p = getTag("p");
-        BaseTag status = getTag("status");
-
         CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
-                (IdentifierTag) identifierTag,
-                (AddressTag) aTag,
-                ((GenericTag) status).getAttributes().get(0).getValue().toString()
+                (IdentifierTag) getTag("d"),
+                (AddressTag) getTag("a"),
+                ((GenericTag) getTag("status")).getAttributes().get(0).getValue().toString()
         ).build();
 
-        if (eTag != null) {
-            calendarRsvpContent.setEventTag((EventTag) eTag);
-        }
-
-        if (fb != null) {
-            calendarRsvpContent.setFbTag((GenericTag) fb);
-        }
-
-        if (p != null) {
-            calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) p);
-        }
+        Optional.ofNullable(getTag("e")).ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));
+        Optional.ofNullable(getTag("fb")).ifPresent(baseTag -> calendarRsvpContent.setFbTag((GenericTag) baseTag));
+        Optional.ofNullable(getTag("p")).ifPresent(baseTag -> calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) baseTag));
 
         return calendarRsvpContent;
-    }
-
-    public void validateTags() {
-        super.validateTags();
-
-        BaseTag dTag = getTag("d");
-        if (dTag == null) {
-            throw new AssertionError("Missing \\`d\\` tag for the event identifier.");
-        }
-
-        BaseTag aTag = getTag("a");
-        if (aTag == null) {
-            throw new AssertionError("Missing \\`a\\` tag for the address.");
-        }
-
-        BaseTag statusTag = getTag("status");
-        if (statusTag == null) {
-            throw new AssertionError("Missing \\`status\\` tag for the RSVP status.");
-        }
     }
 }

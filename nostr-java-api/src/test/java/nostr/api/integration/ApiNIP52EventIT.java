@@ -70,10 +70,10 @@ class ApiNIP52EventIT {
     return "[\"OK\",\"" + sha256 + "\",true,\"success: request processed\"]";
   }
 
-  private CalendarContent createCalendarContent() {
-    return CalendarContent.builder(
+  private CalendarContent<BaseTag> createCalendarContent() {
+    return new CalendarContent<>(
         new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
         "Calendar Time-Based Event title",
-        1716513986268L).build();
+        1716513986268L);
   }
 }
