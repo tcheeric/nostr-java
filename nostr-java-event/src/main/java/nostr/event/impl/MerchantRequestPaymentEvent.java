@@ -1,79 +1,35 @@
 package nostr.event.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
-import lombok.ToString;
+import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
-import nostr.event.AbstractEventContent;
-import nostr.event.impl.CustomerOrderEvent.Customer;
+import nostr.event.BaseTag;
+import nostr.event.entities.PaymentRequest;
+
+import java.util.List;
 
 /**
- *
  * @author eric
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Event(name = "", nip = 15)
-public class MerchantRequestPaymentEvent extends CheckoutEvent {
+@Event(name = "Merchant Request Payment Event", nip = 15)
+@NoArgsConstructor
+public class MerchantRequestPaymentEvent extends CheckoutEvent<PaymentRequest> {
 
-    public MerchantRequestPaymentEvent(PublicKey sender, Customer customer, @NonNull Payment payment) {
-        super(sender, customer.getContact().getPublicKey(), payment);
+    public MerchantRequestPaymentEvent(PublicKey sender, List<BaseTag> tags, @NonNull String content) {
+        super(sender, tags, content, MessageType.PAYMENT_REQUEST);
     }
-    
-    @Getter
-    @Setter
-    @EqualsAndHashCode(callSuper = false)
-    @ToString(callSuper = true)
-    public static class Payment extends AbstractEventContent<MerchantRequestPaymentEvent> { 
 
-        @JsonProperty
-        private final String id;
-        
-        @JsonProperty
-        private MessageType type;
-        
-        @JsonProperty
-        private String message;
-        
-        @JsonProperty("payment_options")
-        private List<PaymentOptions> paymentOptions;
+    public PaymentRequest getPaymentRequest() {
+        return IEvent.MAPPER_AFTERBURNER.convertValue(getContent(), PaymentRequest.class);
+    }
 
-        public Payment() {
-            this.paymentOptions = new ArrayList<>();
-            this.id = UUID.randomUUID().toString();
-        }
-
-        @Data
-        @NoArgsConstructor
-        public static class PaymentOptions {
-
-            public enum Type {
-                URL,
-                BTC,
-                LN,
-                LNURL;
-                
-                @JsonValue
-                public String getValue() {
-                    return name().toLowerCase();
-                }
-            }
-
-            @JsonProperty
-            private Type type;
-            
-            @JsonProperty
-            private String link;
-        }
+    protected PaymentRequest getEntity() {
+        return getPaymentRequest();
     }
 }

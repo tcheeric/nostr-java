@@ -5,7 +5,9 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.event.tag.EmojiTag;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
 
 public class NIP30 {
     
@@ -14,7 +16,7 @@ public class NIP30 {
      * @param shortcode
      * @param imageUrl
      */
-    public static EmojiTag createCustomEmojiTag(@NonNull String shortcode, @NonNull String  imageUrl) {
-        return new EmojiTag(shortcode, imageUrl);
-    }    
+    public static BaseTag createEmojiTag(@NonNull String shortcode, @NonNull String imageUrl) {
+        return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, imageUrl).create();
+    }
 }

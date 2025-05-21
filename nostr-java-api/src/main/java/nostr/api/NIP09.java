@@ -1,17 +1,13 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP09Impl.DeletionEventFactory;
-import nostr.base.PublicKey;
-import nostr.base.Relay;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.Deleteable;
-import nostr.event.NIP09Event;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 
 import java.util.ArrayList;
@@ -20,23 +16,37 @@ import java.util.List;
 /**
  * @author eric
  */
-public class NIP09<T extends NIP09Event> extends EventNostr<T> {
+public class NIP09 extends EventNostr {
 
     public NIP09(@NonNull Identity sender) {
         setSender(sender);
     }
 
-    public NIP09<T> createDeletionEvent(@NonNull Deleteable deleteable) {
-        return this.createDeletionEvent(List.of(deleteable));
+    /**
+     * Create a NIP09 Deletion Event
+     *
+     * @param deleteables an array of event or address tags to be deleted
+     * @return
+     */
+    public NIP09 createDeletionEvent(@NonNull Deleteable... deleteables) {
+        return this.createDeletionEvent(List.of(deleteables));
     }
 
     /**
      * Create a NIP09 Deletion Event
      *
      * @param deleteables list of event or address tags to be deleted
-     * @return the deletion event
+     * @return
      */
-    public NIP09<T> createDeletionEvent(@NonNull List<Deleteable> deleteables) {
+    public NIP09 createDeletionEvent(@NonNull List<Deleteable> deleteables) {
+        List<BaseTag> tags = getTags(deleteables);
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION, tags, "").create();
+        this.updateEvent(genericEvent);
+
+        return this;
+    }
+
+    private List<BaseTag> getTags(List<Deleteable> deleteables) {
         List<BaseTag> tags = new ArrayList<>();
 
         // Handle GenericEvents
@@ -51,45 +61,17 @@ public class NIP09<T extends NIP09Event> extends EventNostr<T> {
                 .map(d -> (GenericEvent) d)
                 .map(GenericEvent::getTags)
                 .forEach(t -> t.stream()
-                        .filter(tag -> "a".equals(tag.getCode()))
+                        //.filter(tag -> "a".equals(tag.getCode()))
+                        //.filter(tag -> tag instanceof AddressTag)
+                        .map(tag -> (AddressTag) tag)
                         .forEach(tag -> {
-                            if (tag instanceof GenericTag) {
-                                AddressTag addressTag = toAddressTag((GenericTag) tag);
-                                tags.add(addressTag);
-                                tags.add(NIP25.createKindTag(addressTag.getKind()));
-                            } else if (tag instanceof AddressTag) {
-                                tags.add(tag);
-                                tags.add(NIP25.createKindTag(((AddressTag) tag).getKind()));
-                            } else {
-                                throw new IllegalArgumentException("Unsupported tag type: " + tag.getClass());
-                            }
+                            tags.add(tag);
+                            tags.add(NIP25.createKindTag(tag.getKind()));
                         }));
 
         // Add kind tags for all deleteables
         deleteables.forEach(d -> tags.add(NIP25.createKindTag(d.getKind())));
 
-        var event = new DeletionEventFactory(getSender(), tags).create();
-        this.setEvent((T) event);
-        return this;
-    }
-
-    private AddressTag toAddressTag(@NonNull GenericTag genericTag) {
-        IdentifierTag identifierTag = new IdentifierTag();
-        identifierTag.setUuid(genericTag.getAttributes().get(1).getValue().toString());
-
-        AddressTag addressTag = new AddressTag();
-        addressTag.setIdentifierTag(identifierTag);
-
-        String value = genericTag.getAttributes().get(0).getValue().toString();
-        String[] parts = value.split(":");
-        addressTag.setKind(Integer.decode(parts[0]));
-        addressTag.setPublicKey(new PublicKey(parts[1]));
-        if (parts.length == 3) {
-            addressTag.setRelay(new Relay(parts[2]));
-        }
-
-        addressTag.setParent(genericTag.getParent());
-
-        return addressTag;
+        return tags;
     }
 }

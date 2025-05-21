@@ -6,11 +6,10 @@ import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
-import nostr.event.NIP52Event;
-import nostr.event.impl.CalendarContent;
+import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -63,7 +63,7 @@ class CalendarTimeBasedEventTest {
     public static final String END_CODE = "end";
     public static final String LOCATION_CODE = "location";
 
-    private NIP52Event instance;
+    private GenericEvent instance;
     String expectedEncodedJson;
     Signature signature;
 
@@ -73,23 +73,22 @@ class CalendarTimeBasedEventTest {
         List<BaseTag> tags = new ArrayList<>();
         tags.add(P_1_TAG);
         tags.add(P_2_TAG);
-        tags.add(GenericTag.create(LOCATION_CODE, CALENDAR_TIME_BASED_EVENT_LOCATION));
+        tags.add(BaseTag.create(LOCATION_CODE, CALENDAR_TIME_BASED_EVENT_LOCATION));
         tags.add(SUBJECT_TAG);
         tags.add(G_TAG);
         tags.add(T_TAG);
-        tags.add(GenericTag.create(START_TZID_CODE, CALENDAR_TIME_BASED_EVENT_START_TZID));
+        tags.add(BaseTag.create(START_TZID_CODE, CALENDAR_TIME_BASED_EVENT_START_TZID));
         Long l = START + 100L;
-        tags.add(GenericTag.create(END_CODE, l.toString()));
+        tags.add(BaseTag.create(END_CODE, l.toString()));
 
-        CalendarContent calendarContent = CalendarContent.builder(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START)
-            .build();
+        CalendarContent<BaseTag> calendarContent = new CalendarContent<>(identifierTag, CALENDAR_TIME_BASED_EVENT_TITLE, START);
         // a random set of calendar tags
         // calendarContent.setEndTzid(CALENDAR_TIME_BASED_EVENT_END_TZID);
         calendarContent.setSummary(CALENDAR_TIME_BASED_EVENT_SUMMARY);
         URI uri = new URI(str);
         // calendarContent.setReferenceTags(List.of(new ReferenceTag(uri)));
 
-        instance = new NIP52<>(identity)
+        instance = new NIP52(identity)
             .createCalendarTimeBasedEvent(tags, CALENDAR_TIME_BASED_EVENT_CONTENT, calendarContent).getEvent();
         signature = identity.sign(instance);
         instance.setSignature(signature);
@@ -135,12 +134,9 @@ class CalendarTimeBasedEventTest {
         };
 
         // Verify required fields match
-        assertTrue(findTagArray.apply(instanceJson.get("tags"), "d").get(1).asText()
-            .equals(findTagArray.apply(expectedJson.get("tags"), "d").get(1).asText()));
-        assertTrue(findTagArray.apply(instanceJson.get("tags"), "title").get(1).asText()
-            .equals(findTagArray.apply(expectedJson.get("tags"), "title").get(1).asText()));
-        assertTrue(findTagArray.apply(instanceJson.get("tags"), "start").get(1).asText()
-            .equals(findTagArray.apply(expectedJson.get("tags"), "start").get(1).asText()));
+        assertEquals(findTagArray.apply(instanceJson.get("tags"), "d").get(1).asText(), findTagArray.apply(expectedJson.get("tags"), "d").get(1).asText());
+        assertEquals(findTagArray.apply(instanceJson.get("tags"), "title").get(1).asText(), findTagArray.apply(expectedJson.get("tags"), "title").get(1).asText());
+        assertEquals(findTagArray.apply(instanceJson.get("tags"), "start").get(1).asText(), findTagArray.apply(expectedJson.get("tags"), "start").get(1).asText());
     }
 
     @Test
@@ -165,11 +161,8 @@ class CalendarTimeBasedEventTest {
         var decodedTags = decodedJson.get("tags");
         var instanceTags = instanceJson.get("tags");
 
-        assertTrue(findTagArray.apply(decodedTags, "d").get(1).asText()
-            .equals(findTagArray.apply(instanceTags, "d").get(1).asText()));
-        assertTrue(findTagArray.apply(decodedTags, "title").get(1).asText()
-            .equals(findTagArray.apply(instanceTags, "title").get(1).asText()));
-        assertTrue(findTagArray.apply(decodedTags, "start").get(1).asText()
-            .equals(findTagArray.apply(instanceTags, "start").get(1).asText()));
+        assertEquals(findTagArray.apply(decodedTags, "d").get(1).asText(), findTagArray.apply(instanceTags, "d").get(1).asText());
+        assertEquals(findTagArray.apply(decodedTags, "title").get(1).asText(), findTagArray.apply(instanceTags, "title").get(1).asText());
+        assertEquals(findTagArray.apply(decodedTags, "start").get(1).asText(), findTagArray.apply(instanceTags, "start").get(1).asText());
     }
 }

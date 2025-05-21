@@ -3,7 +3,7 @@ package nostr.event.filter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.EqualsAndHashCode;
-import nostr.event.Kind;
+import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 
 import java.util.function.Function;

@@ -6,27 +6,26 @@ package nostr.api;
 
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.api.factory.impl.NIP04Impl.DirectMessageEventFactory;
-import nostr.base.ITag;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
+import nostr.config.Constants;
 import nostr.encryption.MessageCipher;
 import nostr.encryption.MessageCipher04;
-import nostr.event.NIP04Event;
-import nostr.event.impl.DirectMessageEvent;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.logging.Level;
 
 /**
  * @author eric
  */
 @Log
-@Deprecated(since = "NIP-44")
-public class NIP04<T extends NIP04Event> extends EventNostr<T> {
+public class NIP04 extends EventNostr {
 
     public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
         setSender(sender);
@@ -35,29 +34,32 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
     /**
      * Create a NIP04 Encrypted Direct Message
+     *
      * @param content the DM content in clear-text
      */
-    public NIP04<T> createDirectMessageEvent(@NonNull String content) {
+    public NIP04 createDirectMessageEvent(@NonNull String content) {
         var encryptedContent = encrypt(getSender(), content, getRecipient());
-        var event = new DirectMessageEventFactory(getSender(), getRecipient(), encryptedContent).create();
-        this.setEvent((T) event);
+        List<BaseTag> tags = List.of(new PubKeyTag(getRecipient()));
+
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, tags, encryptedContent).create();
+        this.updateEvent(genericEvent);
 
         return this;
     }
 
     /**
      * Encrypt the direct message
+     *
      * @return the current instance with an encrypted message
      */
-    private NIP04<T> encrypt() {
-        encryptDirectMessage(getSender(), (DirectMessageEvent) getEvent());
+    public NIP04 encrypt() {
+        encryptDirectMessage(getSender(), getEvent());
         return this;
     }
 
     /**
-     *
-     * @param senderId the sender identity
-     * @param message the message to be encrypted
+     * @param senderId  the sender identity
+     * @param message   the message to be encrypted
      * @param recipient the recipient public key
      * @return the encrypted message
      */
@@ -69,19 +71,9 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
     /**
      * Decrypt an encrypted direct message
      *
-     * @param rcptId
-     * @param dm     the encrypted direct message
-     * @return the DM content in clear-text
-     */
-    public static String decrypt(@NonNull Identity rcptId, @NonNull DirectMessageEvent dm) {
-        return NIP04.decrypt(rcptId, (GenericEvent) dm);
-    }
-
-    /**
-     * Decrypt an encrypted direct message
-     * @param identity the sender identity
+     * @param identity         the sender identity
      * @param encryptedMessage the encrypted message
-     * @param recipient the recipient public key
+     * @param recipient        the recipient public key
      * @return the DM content in clear-text
      */
     public static String decrypt(@NonNull Identity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
@@ -89,18 +81,39 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
         return cipher.decrypt(encryptedMessage);
     }
 
-    private static void encryptDirectMessage(@NonNull Identity senderId, @NonNull DirectMessageEvent directMessageEvent) {
+    private static void encryptDirectMessage(@NonNull Identity senderId, @NonNull GenericEvent directMessageEvent) {
 
-        ITag pkTag = directMessageEvent.getTags().get(0);
-        if (pkTag instanceof PubKeyTag pubKeyTag) {
-            var rcptPublicKey = pubKeyTag.getPublicKey();
-            MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), rcptPublicKey.getRawData());
-            var encryptedContent = cipher.encrypt(directMessageEvent.getContent());
-            directMessageEvent.setContent(encryptedContent);
+        if (directMessageEvent.getKind() != Constants.Kind.ENCRYPTED_DIRECT_MESSAGE) {
+            throw new IllegalArgumentException("Event is not an encrypted direct message");
         }
+
+        GenericTag recipient = directMessageEvent.getTags()
+                .stream()
+                .filter(t -> t.getCode().equalsIgnoreCase("p"))
+                .map(tag -> (GenericTag) tag)
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
+
+        PubKeyTag pubKeyTag = GenericTag.convert(recipient, PubKeyTag.class);
+        PublicKey rcptPublicKey = pubKeyTag.getPublicKey();
+        MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), rcptPublicKey.getRawData());
+        var encryptedContent = cipher.encrypt(directMessageEvent.getContent());
+        directMessageEvent.setContent(encryptedContent);
     }
 
+    /**
+     * Decrypt an encrypted direct message
+     *
+     * @param rcptId
+     * @param event  the encrypted direct message
+     * @return the DM content in clear-text
+     */
     public static String decrypt(@NonNull Identity rcptId, @NonNull GenericEvent event) {
+
+        if (event.getKind() != Constants.Kind.ENCRYPTED_DIRECT_MESSAGE) {
+            throw new IllegalArgumentException("Event is not an encrypted direct message");
+        }
+
         var recipient = event.getTags()
                 .stream()
                 .filter(t -> t.getCode().equalsIgnoreCase("p"))
@@ -117,7 +130,6 @@ public class NIP04<T extends NIP04Event> extends EventNostr<T> {
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
         MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }

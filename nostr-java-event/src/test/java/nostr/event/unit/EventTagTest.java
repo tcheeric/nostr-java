@@ -1,12 +1,14 @@
 package nostr.event.unit;
 
-import nostr.event.Marker;
+import nostr.base.Marker;
 import nostr.event.tag.EventTag;
 import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

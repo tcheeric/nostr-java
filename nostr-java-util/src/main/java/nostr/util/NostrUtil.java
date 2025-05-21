@@ -1,6 +1,6 @@
 package nostr.util;
 
-import nostr.util.thread.HexStringValidator;
+import nostr.util.validator.HexStringValidator;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

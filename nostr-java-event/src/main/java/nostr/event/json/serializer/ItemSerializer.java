@@ -3,13 +3,15 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import nostr.event.entities.CustomerOrder.Item;
+
 import java.io.IOException;
-import nostr.event.impl.CustomerOrderEvent.Customer.Item;
 
 /**
  *
  * @author eric
  */
+@Deprecated
 public class ItemSerializer extends JsonSerializer<Item> {
 
     @Override

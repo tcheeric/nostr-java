@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.base.Signature;
 import nostr.util.NostrUtil;
+
 import java.io.IOException;
 
 public class SignatureDeserializer extends JsonDeserializer<Signature> {

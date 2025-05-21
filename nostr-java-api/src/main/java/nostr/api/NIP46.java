@@ -6,8 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nostr.api.factory.impl.NIP46Impl;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
+import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -18,7 +19,7 @@ import java.util.logging.Level;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
-public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
+public final class NIP46 extends EventNostr {
 
     public NIP46(@NonNull Identity sender) {
         setSender(sender);
@@ -30,11 +31,11 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
      * @param signer
      * @return
      */
-    public NIP46<T> createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
-        var factory = new NIP46Impl.NostrConnectEventFactory(getSender(), request, signer);
-        var event = factory.create();
-        setEvent((T) event);
-
+    public NIP46 createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
+        String content = NIP44.encrypt(getSender(), request.toString(), signer);
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        genericEvent.addTag(NIP01.createPubKeyTag(signer));
+        this.updateEvent(genericEvent);
         return this;
     }
 
@@ -43,16 +44,12 @@ public final class NIP46<T extends GenericEvent> extends EventNostr<T> {
      * @param app
      * @return
      */
-    public NIP46<T> createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
-        var factory = new NIP46Impl.NostrConnectEventFactory(getSender(), response, app);
-        var event = factory.create();
-        setEvent((T) event);
-
+    public NIP46 createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
+        String content = NIP44.encrypt(getSender(), response.toString(), app);
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        genericEvent.addTag(NIP01.createPubKeyTag(app));
+        this.updateEvent(genericEvent);
         return this;
-    }
-
-    public interface NIP46ReqRes {
-        String getId();
     }
 
     @Data

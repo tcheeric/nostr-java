@@ -1,6 +1,7 @@
 package nostr.event;
 
 import lombok.NoArgsConstructor;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 

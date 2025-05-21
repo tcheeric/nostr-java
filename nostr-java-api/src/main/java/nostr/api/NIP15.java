@@ -5,12 +5,13 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP15Impl;
-import nostr.event.impl.CreateOrUpdateStallEvent.Stall;
-import nostr.event.impl.CustomerOrderEvent.Customer;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.config.Constants;
+import nostr.event.entities.CustomerOrder;
+import nostr.event.entities.PaymentRequest;
+import nostr.event.entities.Product;
+import nostr.event.entities.Stall;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.MerchantRequestPaymentEvent.Payment;
-import nostr.event.impl.NostrMarketplaceEvent.Product;
 import nostr.id.Identity;
 
 import java.util.List;
@@ -18,60 +19,63 @@ import java.util.List;
 /**
  * @author eric
  */
-public class NIP15<T extends GenericEvent> extends EventNostr<T> {
+public class NIP15 extends EventNostr {
 
     public NIP15(@NonNull Identity sender) {
         setSender(sender);
     }
 
     /**
-     * @param payment
-     * @param customer
+     * @param paymentRequest
+     * @param customerOrder
      */
-    public NIP15<T> createMerchantRequestPaymentEvent(@NonNull Payment payment, @NonNull Customer customer) {
-        var factory = new NIP15Impl.MerchantRequestPaymentEventFactory(getSender(), customer, payment);
-        var event = factory.create();
-        setEvent((T) event);
-
+    public NIP15 createMerchantRequestPaymentEvent(@NonNull PaymentRequest paymentRequest, @NonNull CustomerOrder customerOrder) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, paymentRequest.value()).create();
+        genericEvent.addTag(NIP01.createPubKeyTag(customerOrder.getContact().getPublicKey()));
+        this.updateEvent(genericEvent);
         return this;
     }
 
     /**
-     *
-     * @param customer
+     * @param customerOrder
      * @return
      */
-    public NIP15<T> createCustomerOrderEvent(@NonNull Customer customer) {
-        var factory = new NIP15Impl.CustomerOrderEventFactory(getSender(), customer);
-        var event = factory.create();
-        setEvent((T) event);
+    public NIP15 createCustomerOrderEvent(@NonNull CustomerOrder customerOrder) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, customerOrder.value()).create();
+        genericEvent.addTag(NIP01.createPubKeyTag(customerOrder.getContact().getPublicKey()));
+        this.updateEvent(genericEvent);
 
         return this;
     }
 
     /**
-     *
      * @param stall
      * @return
      */
-    public NIP15<T> createCreateOrUpdateStallEvent(@NonNull Stall stall) {
-        var factory = new NIP15Impl.CreateOrUpdateStallEventFactory(getSender(), stall);
-        var event = factory.create();
-        setEvent((T) event);
+    public NIP15 createCreateOrUpdateStallEvent(@NonNull Stall stall) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SET_STALL, stall.value()).create();
+        genericEvent.addTag(NIP01.createIdentifierTag(stall.getId()));
+        this.updateEvent(genericEvent);
 
         return this;
     }
 
     /**
-     *
      * @param product
      * @param categories
      * @return
      */
-    public NIP15<T> createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
-        var factory = new NIP15Impl.CreateOrUpdateProductEventFactory(getSender(), product, categories);
-        var event = factory.create();
-        setEvent((T) event);
+    public NIP15 createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SET_PRODUCT, product.value()).create();
+        genericEvent.addTag(NIP01.createIdentifierTag(product.getId()));
+
+        if (categories != null && !categories.isEmpty()) {
+            categories.forEach(category -> {
+                genericEvent.addTag(NIP12.createHashtagTag(category));
+            });
+        }
+
+        this.updateEvent(genericEvent);
 
         return this;
     }

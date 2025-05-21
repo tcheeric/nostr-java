@@ -5,11 +5,11 @@ import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
+import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.PriceTag;
@@ -73,8 +73,8 @@ class ApiNIP99RequestIT {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
     tags.add(P_TAG);
-    tags.add(GenericTag.create(PUBLISHED_AT_CODE,  CREATED_AT));
-    tags.add(GenericTag.create(LOCATION_CODE,  LOCATION));
+    tags.add(BaseTag.create(PUBLISHED_AT_CODE,  CREATED_AT));
+    tags.add(BaseTag.create(LOCATION_CODE,  LOCATION));
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);
@@ -86,7 +86,10 @@ class ApiNIP99RequestIT {
             priceTag)
         .build();
 
-    var nip99 = new NIP99<>(Identity.create(PRV_KEY_VALUE));
+    classifiedListing.setPublishedAt(Long.parseLong(CREATED_AT));
+    classifiedListing.setLocation(LOCATION);
+
+    var nip99 = new NIP99(Identity.create(PRV_KEY_VALUE));
 
     GenericEvent event = nip99.createClassifiedListingEvent(tags, CLASSIFIED_CONTENT, classifiedListing).sign().getEvent();
     eventId = event.getId();
@@ -131,8 +134,8 @@ class ApiNIP99RequestIT {
 
     // Verify only required fields
 	  assertEquals(3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
-    assertTrue(actualJson.get(2).get("id").asText().equals(expectedJson.get(2).get("id").asText()), "ID should match");
-    assertTrue(actualJson.get(2).get("kind").asInt() == expectedJson.get(2).get("kind").asInt(), "Kind should match");
+      assertEquals(actualJson.get(2).get("id").asText(), expectedJson.get(2).get("id").asText(), "ID should match");
+      assertEquals(actualJson.get(2).get("kind").asInt(), expectedJson.get(2).get("kind").asInt(), "Kind should match");
 
     // Verify required tags
     var actualTags = actualJson.get(2).get("tags");

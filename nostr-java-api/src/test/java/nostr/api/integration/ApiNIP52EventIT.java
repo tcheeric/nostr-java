@@ -6,7 +6,7 @@ import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.CalendarContent;
+import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.IdentifierTag;
@@ -43,7 +43,7 @@ class ApiNIP52EventIT {
         null,
         "PAYEE"));
 
-    var nip52 = new NIP52<>(Identity.create(PrivateKey.generateRandomPrivKey()));
+    var nip52 = new NIP52(Identity.create(PrivateKey.generateRandomPrivKey()));
 
     GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, "content", createCalendarContent()).sign().getEvent();
     EventMessage message = new EventMessage(event);
@@ -70,10 +70,10 @@ class ApiNIP52EventIT {
     return "[\"OK\",\"" + sha256 + "\",true,\"success: request processed\"]";
   }
 
-  private CalendarContent createCalendarContent() {
-    return CalendarContent.builder(
+  private CalendarContent<BaseTag> createCalendarContent() {
+    return new CalendarContent<>(
         new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
         "Calendar Time-Based Event title",
-        1716513986268L).build();
+        1716513986268L);
   }
 }

@@ -2,20 +2,19 @@ package nostr.api.integration;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.RelayConfig;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
-import nostr.event.Kind;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.ReplaceableEvent;
-import nostr.event.impl.TextNoteEvent;
 import nostr.event.message.OkMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
@@ -41,9 +44,10 @@ public class ZDoLastApiNIP09EventIT {
     public void deleteEvent() throws IOException {
 
         Identity identity = Identity.generateRandomIdentity();
-        NIP09<?> nip09 = new NIP09<>(identity);
 
-        NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
+        NIP09 nip09 = new NIP09(identity);
+        NIP01 nip01 = new NIP01(identity);
+
         nip01.createTextNoteEvent("Delete me!").signAndSend(relays);
 
         Filters filters = new Filters(
@@ -72,16 +76,16 @@ public class ZDoLastApiNIP09EventIT {
         final String RELAY_URI = "ws://localhost:5555";
         Identity identity = Identity.generateRandomIdentity();
 
-        NIP01<ReplaceableEvent> nip011 = new NIP01<>(identity);
+        NIP01 nip011 = new NIP01(identity);
         BaseMessage replaceableMessage = nip011.createReplaceableEvent(10_001, "replaceable event").signAndSend(relays);
 
         assertNotNull(replaceableMessage);
-        assertTrue(replaceableMessage instanceof OkMessage);
+        assertInstanceOf(OkMessage.class, replaceableMessage);
 
         GenericEvent replaceableEvent = nip011.getEvent();
         IdentifierTag identifierTag = new IdentifierTag(replaceableEvent.getId());
 
-        NIP01<TextNoteEvent> nip01 = new NIP01<>(identity);
+        NIP01 nip01 = new NIP01(identity);
         nip01
             .createTextNoteEvent("Reference me!")
             .getEvent()
@@ -90,11 +94,11 @@ public class ZDoLastApiNIP09EventIT {
         BaseMessage message = nip01.signAndSend(relays);
 
         assertNotNull(message);
-        assertTrue(message instanceof OkMessage);
+        assertInstanceOf(OkMessage.class, message);
 
         GenericEvent event = nip01.getEvent();
 
-        NIP09<?> nip09 = new NIP09<>(identity);
+        NIP09 nip09 = new NIP09(identity);
         GenericEvent deletedEvent = nip09.createDeletionEvent(event).getEvent();
 
         assertEquals(4, deletedEvent.getTags().size());
@@ -102,7 +106,7 @@ public class ZDoLastApiNIP09EventIT {
         List<BaseTag> eventTags = deletedEvent.getTags()
             .stream()
             .filter(t -> "e".equals(t.getCode()))
-            .collect(Collectors.toList());
+            .toList();
 
         assertEquals(1, eventTags.size());
 
@@ -112,7 +116,7 @@ public class ZDoLastApiNIP09EventIT {
         List<BaseTag> addressTags = deletedEvent.getTags()
             .stream()
             .filter(t -> "a".equals(t.getCode()))
-            .collect(Collectors.toList());
+            .toList();
 
         assertEquals(1, addressTags.size());
 
@@ -124,7 +128,7 @@ public class ZDoLastApiNIP09EventIT {
         List<BaseTag> kindTags = deletedEvent.getTags()
             .stream()
             .filter(t -> "k".equals(t.getCode()))
-            .collect(Collectors.toList());
+            .toList();
 
         assertEquals(2, kindTags.size());
 

@@ -1,11 +1,12 @@
 package nostr.id;
 
+import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.event.impl.ZapRequest;
 import nostr.event.impl.ZapRequestEvent;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.PubKeyTag;
@@ -51,7 +52,16 @@ class ZapRequestEventTest {
     tags.add(G_TAG);
     tags.add(T_TAG);
     tags.add(relaysTag);
-    instance = new ZapRequestEvent(sender, recipient, tags, ZAP_REQUEST_CONTENT, new ZapRequest(relaysTag, AMOUNT, LNURL));
+
+    GenericTag amountTag = new GenericTag("amount");
+    amountTag.addAttribute(new ElementAttribute("amount", AMOUNT.toString()));
+    tags.add(amountTag);
+
+    GenericTag lnUrlTag = new GenericTag("lnurl");
+    lnUrlTag.addAttribute(new ElementAttribute("lnurl", LNURL));
+    tags.add(lnUrlTag);
+
+    instance = new ZapRequestEvent(sender, tags, ZAP_REQUEST_CONTENT);
     instance.setSignature(Identity.generateRandomIdentity().sign(instance));
   }
 
@@ -63,9 +73,9 @@ class ZapRequestEventTest {
     Assertions.assertNotNull(instance.getContent());
     Assertions.assertNotNull(instance.getZapRequest());
 
-    Assertions.assertTrue(instance.getZapRequest().getRelaysTag().getRelays().stream().anyMatch(relay -> relay.getUri().equals(relaysTag.getRelays().stream().map(Relay::getUri).collect(Collectors.joining()))));
+    Assertions.assertTrue(instance.getRelays().stream().anyMatch(relay -> relay.getUri().equals(relaysTag.getRelays().stream().map(Relay::getUri).collect(Collectors.joining()))));
     Assertions.assertEquals(ZAP_REQUEST_CONTENT, instance.getContent());
-    Assertions.assertEquals(LNURL, instance.getZapRequest().getLnUrl());
-    Assertions.assertEquals(AMOUNT, instance.getZapRequest().getAmount());
+    Assertions.assertEquals(LNURL, instance.getLnUrl());
+    Assertions.assertEquals(AMOUNT, instance.getAmount());
   }
 }

@@ -48,14 +48,6 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  public <T extends GenericEvent> List<String> sendEvent(T event, Map<String, String> relays) {
-    setRelays(relays);
-    return relays.keySet().stream().map(s ->
-            clientMap.get(s).sendEvent(event))
-        .flatMap(List::stream)
-        .distinct().toList();
-  }
-
   @Override
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
     relays.entrySet().stream().forEach(relayEntry ->

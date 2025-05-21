@@ -5,15 +5,11 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP23Impl;
-import nostr.api.factory.impl.NIP23Impl.ImageTagFactory;
-import nostr.api.factory.impl.NIP23Impl.PublishedAtTagFactory;
-import nostr.api.factory.impl.NIP23Impl.SummaryTagFactory;
-import nostr.api.factory.impl.NIP23Impl.TitleTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
 import java.net.URL;
@@ -21,7 +17,7 @@ import java.net.URL;
 /**
  * @author eric
  */
-public class NIP23<T extends GenericEvent> extends EventNostr<T> {
+public class NIP23 extends EventNostr {
 
     public NIP23(@NonNull Identity sender) {
         setSender(sender);
@@ -32,51 +28,46 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param content a text in Markdown syntax
      */
-    public NIP23<T> creatLongFormContentEvent(@NonNull String content) {
-        var factory = new NIP23Impl.LongFormContentEventFactory(getSender(), content);
-        var event = factory.create();
-        setEvent((T) event);
-
+    public NIP23 creatLongFormTextNoteEvent(@NonNull String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_TEXT_NOTE, content).create();
+        this.updateEvent(genericEvent);
         return this;
     }
 
-    public NIP23<T> addTitleTag(@NonNull String title) {
+    NIP23 createLongFormDraftEvent(@NonNull String content) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_DRAFT, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
+
+    public NIP23 addTitleTag(@NonNull String title) {
         getEvent().addTag(createTitleTag(title));
         return this;
     }
 
-    public NIP23<T> addImageTag(@NonNull URL url) {
+    public NIP23 addImageTag(@NonNull URL url) {
         getEvent().addTag(createImageTag(url));
         return this;
     }
 
-    public NIP23<T> addSummaryTag(@NonNull String summary) {
+    public NIP23 addSummaryTag(@NonNull String summary) {
         getEvent().addTag(createSummaryTag(summary));
         return this;
     }
 
-    public NIP23<T> addPublishedAtTag(@NonNull Integer date) {
+    public NIP23 addPublishedAtTag(@NonNull Long date) {
         getEvent().addTag(createPublishedAtTag(date));
         return this;
     }
 
-    public NIP23<T> addEventTag(@NonNull EventTag tag) {
-        getEvent().addTag(tag);
-        return this;
-    }
-
-    public NIP23<T> addAddressTag(@NonNull AddressTag tag) {
-        getEvent().addTag(tag);
-        return this;
-    }
 
     /**
      * Create a title tag
      *
      * @param title the article title
      */
-    public static GenericTag createTitleTag(@NonNull String title) {
-        return new TitleTagFactory(title).create();
+    public static BaseTag createTitleTag(@NonNull String title) {
+        return new BaseTagFactory("title", title).create();
     }
 
     /**
@@ -84,8 +75,18 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param url a URL pointing to an image to be shown along with the title
      */
-    public static GenericTag createImageTag(@NonNull URL url) {
-        return new ImageTagFactory(url).create();
+    public static BaseTag createImageTag(@NonNull URL url) {
+        return new BaseTagFactory(Constants.Tag.IMAGE_CODE, url.toString()).create();
+    }
+
+    /**
+     * Create an image tag
+     *
+     * @param url a URL pointing to an image to be shown along with the title
+     * @param size the size of the image
+     */
+    public static BaseTag createImageTag(@NonNull URL url, String size) {
+        return new BaseTagFactory(Constants.Tag.IMAGE_CODE, url.toString(), size).create();
     }
 
     /**
@@ -93,8 +94,8 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param summary the article summary
      */
-    public static GenericTag createSummaryTag(@NonNull String summary) {
-        return new SummaryTagFactory(summary).create();
+    public static BaseTag createSummaryTag(@NonNull String summary) {
+        return new BaseTagFactory(Constants.Tag.SUMMARY_CODE, summary).create();
     }
 
     /**
@@ -102,7 +103,7 @@ public class NIP23<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param date the timestamp in unix seconds (stringified) of the first time the article was published
      */
-    public static GenericTag createPublishedAtTag(@NonNull Integer date) {
-        return new PublishedAtTagFactory(date).create();
+    public static BaseTag createPublishedAtTag(@NonNull Long date) {
+        return new BaseTagFactory(Constants.Tag.PUBLISHED_AT_CODE, date.toString()).create();
     }
 }

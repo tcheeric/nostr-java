@@ -5,23 +5,25 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.NIP42Impl;
-import nostr.api.factory.impl.NIP42Impl.ChallengeTagFactory;
-import nostr.api.factory.impl.NIP42Impl.ClientAuthenticationMessageFactory;
-import nostr.api.factory.impl.NIP42Impl.RelayAuthenticationMessageFactory;
-import nostr.api.factory.impl.NIP42Impl.RelaysTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.base.Command;
+import nostr.base.ElementAttribute;
 import nostr.base.Relay;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
 import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.impl.GenericMessage;
-import nostr.event.tag.GenericTag;
 import nostr.event.message.CanonicalAuthenticationMessage;
+import nostr.event.message.GenericMessage;
 
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author eric
  */
-public class NIP42<T extends GenericEvent> extends EventNostr<T> {
+public class NIP42 extends EventNostr {
 
     /**
      *
@@ -29,26 +31,25 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      * @param relay
      * @return
      */
-    public NIP42<T> createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
-        var factory = new NIP42Impl.CanonicalAuthenticationEventFactory(getSender(), challenge, relay);
-        var event = factory.create();
-        setEvent((T) event);
+    public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION,"").create();
+        this.addChallengeTag(challenge);
+        this.addRelayTag(relay);
+        this.updateEvent(genericEvent);
 
         return this;
     }
 
 
-    public NIP42<T> addRelayTag(@NonNull Relay relay) {
+    public NIP42 addRelayTag(@NonNull Relay relay) {
         var tag = createRelayTag(relay);
-        var event = (CanonicalAuthenticationEvent) getEvent();
-        event.addTag(tag);
+        getEvent().addTag(tag);
         return this;
     }
 
-    public NIP42<T> addChallengeTag(@NonNull String challenge) {
+    public NIP42 addChallengeTag(@NonNull String challenge) {
         var tag = createChallengeTag(challenge);
-        var event = (CanonicalAuthenticationEvent) getEvent();
-        event.addTag(tag);
+        getEvent().addTag(tag);
         return this;
     }
 
@@ -56,16 +57,16 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      *
      * @param relay
      */
-    public static GenericTag createRelayTag(@NonNull Relay relay) {
-        return new RelaysTagFactory(relay).create();
+    public static BaseTag createRelayTag(@NonNull Relay relay) {
+        return new BaseTagFactory(Constants.Tag.RELAY_CODE, relay.getUri()).create();
     }
 
     /**
      *
      * @param challenge
      */
-    public static GenericTag createChallengeTag(@NonNull String challenge) {
-        return new ChallengeTagFactory(challenge).create();
+    public static BaseTag createChallengeTag(@NonNull String challenge) {
+        return new BaseTagFactory(Constants.Tag.CHALLENGE_CODE, challenge).create();
     }
 
     /**
@@ -73,7 +74,7 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      * @param event
      */
     public static CanonicalAuthenticationMessage createClientAuthenticationMessage(@NonNull CanonicalAuthenticationEvent event) {
-        return new ClientAuthenticationMessageFactory(event).create();
+        return new CanonicalAuthenticationMessage(event);
     }
 
     /**
@@ -81,6 +82,9 @@ public class NIP42<T extends GenericEvent> extends EventNostr<T> {
      * @param challenge
      */
     public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
-        return new RelayAuthenticationMessageFactory(challenge).create();
+        final List<ElementAttribute> attributes = new ArrayList<>();
+        final var attr = new ElementAttribute("challenge", challenge);
+        attributes.add(attr);
+        return new GenericMessage(Command.AUTH.name(), attributes);
     }
 }

@@ -5,11 +5,11 @@ import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListing;
+import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.PriceTag;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
@@ -66,8 +67,8 @@ class ApiNIP99EventIT {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
     tags.add(P_TAG);
-    tags.add(GenericTag.create(PUBLISHED_AT_CODE,  CLASSIFIED_LISTING_PUBLISHED_AT));
-    tags.add(GenericTag.create(LOCATION_CODE,  CLASSIFIED_LISTING_LOCATION));
+    tags.add(BaseTag.create(PUBLISHED_AT_CODE,  CLASSIFIED_LISTING_PUBLISHED_AT));
+    tags.add(BaseTag.create(LOCATION_CODE,  CLASSIFIED_LISTING_LOCATION));
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);
@@ -79,7 +80,9 @@ class ApiNIP99EventIT {
             priceTag)
         .build();
 
-    var nip99 = new NIP99<>(Identity.create(PrivateKey.generateRandomPrivKey()));
+    classifiedListing.setPublishedAt(Long.parseLong(CLASSIFIED_LISTING_PUBLISHED_AT));
+
+    var nip99 = new NIP99(Identity.create(PrivateKey.generateRandomPrivKey()));
 
     GenericEvent event = nip99.createClassifiedListingEvent(tags, CLASSIFIED_LISTING_CONTENT, classifiedListing).sign().getEvent();
     EventMessage message = new EventMessage(event);
@@ -94,9 +97,9 @@ class ApiNIP99EventIT {
     var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
     var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
-    assertTrue(expectedArray.equals(actualArray), "First element should match");
-    assertTrue(expectedSubscriptionId.equals(actualSubscriptionId), "Subscription ID should match");
-    assertTrue(expectedSuccess == actualSuccess, "Success flag should match");
+      assertEquals(expectedArray, actualArray, "First element should match");
+      assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+      assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
 //    springWebSocketClient.closeSocket();
   }
