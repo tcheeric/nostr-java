@@ -3,13 +3,17 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.tag.GenericTag;
 
+import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 @Data
+@Log
 public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
     private final Class<T> clazz;
@@ -27,13 +31,33 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
         try {
             String[] jsonElements = I_DECODER_MAPPER_AFTERBURNER.readValue(json, String[].class);
             GenericTag genericTag = new GenericTag(
-                jsonElements[0], 
-                IntStream.of(1, jsonElements.length-1)
-                    .mapToObj(i -> new ElementAttribute(
-                        "param".concat(String.valueOf(i - 1)),
-                        jsonElements[i]))
-                    .distinct()
-                    .toList());
+                    jsonElements[0],
+                    new ArrayList<>() {
+                        {
+                            for (int i = 1; i < jsonElements.length; i++) {
+                                ElementAttribute attribute = new ElementAttribute(
+                                        "param" + (i - 1),
+                                        jsonElements[i]);
+                                if (!contains(attribute)) {
+                                    add(attribute);
+                                }
+                            }
+                        }
+                    });
+            /*
+            GenericTag genericTag = new GenericTag(
+                    jsonElements[0],
+                    IntStream.of(1, jsonElements.length - 1)
+                            .mapToObj(i ->
+                                    new ElementAttribute(
+                                            "param".concat(String.valueOf(i - 1)),
+                                            jsonElements[i]))
+                            .distinct()
+                            .toList());
+*/
+
+            log.log(Level.INFO, ">>> Decoded GenericTag: {0}", genericTag);
+
             return (T) genericTag;
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
