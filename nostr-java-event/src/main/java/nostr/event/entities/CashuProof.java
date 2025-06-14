@@ -1,5 +1,6 @@
 package nostr.event.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,10 @@ public class CashuProof {
     @JsonProperty("C")
     @EqualsAndHashCode.Include
     private String C;
+
+    @EqualsAndHashCode.Include
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String witness;
 
     @SneakyThrows
     @Override
