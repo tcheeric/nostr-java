@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import nostr.base.ElementAttribute;
 import nostr.base.IElement;
+import nostr.base.IEvent;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
 
@@ -17,7 +19,6 @@ import java.util.List;
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
- *
  * @author squirrel
  */
 
