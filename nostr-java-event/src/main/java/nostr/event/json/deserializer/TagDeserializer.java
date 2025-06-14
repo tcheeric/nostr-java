@@ -21,6 +21,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
+import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 
 import java.io.IOException;
@@ -49,6 +50,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
             case "p" -> PubKeyTag.deserialize(node);
             case "r" -> ReferenceTag.deserialize(node);
             case "t" -> HashtagTag.deserialize(node);
+            case "u" -> UrlTag.deserialize(node);
             case "v" -> VoteTag.deserialize(node);
             case "emoji" -> EmojiTag.deserialize(node);
             case "expiration" -> ExpirationTag.deserialize(node);
