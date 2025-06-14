@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -77,7 +77,7 @@
     </modules>
 
     <properties>
-        <nostr-java.version>0.7-SNAPSHOT</nostr-java.version>
+        <nostr-java.version>0.7.1-SNAPSHOT</nostr-java.version>
         <java.version>21</java.version>
         
         <spring-boot.version>3.4.3</spring-boot.version>
@@ -88,7 +88,7 @@
         <!-- Annotation Dependency Versions -->
         <jackson-module-afterburner.version>2.18.3</jackson-module-afterburner.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
@@ -124,6 +124,13 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-blackbird</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-afterburner</artifactId>
