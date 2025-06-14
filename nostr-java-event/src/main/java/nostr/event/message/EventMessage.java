@@ -7,21 +7,26 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import nostr.base.Command;
 import nostr.base.IEvent;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
+
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 
 @Setter
 @Getter
+@Log
 public class EventMessage extends BaseMessage {
     private static final int SIZE_JSON_EVENT_wo_SIG_ID = 2;
     private static final Function<Object[], Boolean> isEventWoSig = (objArr) ->
@@ -47,9 +52,9 @@ public class EventMessage extends BaseMessage {
     public String encode() throws JsonProcessingException {
         var arrayNode = JsonNodeFactory.instance.arrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
-            .ifPresent(arrayNode::add);
+                .ifPresent(arrayNode::add);
         arrayNode.add(ENCODER_MAPPED_AFTERBURNER.readTree(
-            new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
+                new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
         return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(arrayNode);
     }
 
@@ -71,6 +76,7 @@ public class EventMessage extends BaseMessage {
     }
 
     private static GenericEvent convertValue(Map<String, String> map) {
+        log.log(Level.INFO, "Converting map to GenericEvent: {0}", map);
         return I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<>() {});
     }
 }
