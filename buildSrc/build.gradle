@@ -11,7 +11,7 @@ plugins {
 }
 
 group = 'xyz.tcheeric'
-version = '0.7-SNAPSHOT'
+version = '0.7.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
