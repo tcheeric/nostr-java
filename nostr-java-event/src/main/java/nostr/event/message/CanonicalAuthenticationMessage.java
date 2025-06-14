@@ -29,42 +29,44 @@ import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 @Getter
 public class CanonicalAuthenticationMessage extends BaseAuthMessage {
 
-  @JsonProperty
-  private final CanonicalAuthenticationEvent event;
+    @JsonProperty
+    private final CanonicalAuthenticationEvent event;
 
-  public CanonicalAuthenticationMessage(CanonicalAuthenticationEvent event) {
-    super(Command.AUTH.name());
-    this.event = event;
-  }
-  @Override
-  public String encode() throws JsonProcessingException {
-    return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
-            JsonNodeFactory.instance.arrayNode()
-            .add(getCommand())
-            .add(ENCODER_MAPPED_AFTERBURNER.readTree(
-                new BaseEventEncoder<>(getEvent()).encode())));
-  }
+    public CanonicalAuthenticationMessage(CanonicalAuthenticationEvent event) {
+        super(Command.AUTH.name());
+        this.event = event;
+    }
 
-  @SneakyThrows
-  // TODO - This needs to be reviewed
-  public static <T extends BaseMessage> T decode(@NonNull Map map) {
-    var event = I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<GenericEvent>() {});
+    @Override
+    public String encode() throws JsonProcessingException {
+        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
+                JsonNodeFactory.instance.arrayNode()
+                        .add(getCommand())
+                        .add(ENCODER_MAPPED_AFTERBURNER.readTree(
+                                new BaseEventEncoder<>(getEvent()).encode())));
+    }
 
-    List<BaseTag> baseTags = event.getTags().stream()
-        .filter(GenericTag.class::isInstance)
-        .toList();
+    @SneakyThrows
+    // TODO - This needs to be reviewed
+    public static <T extends BaseMessage> T decode(@NonNull Map map) {
+        var event = I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<GenericEvent>() {
+        });
 
-    CanonicalAuthenticationEvent canonEvent = new CanonicalAuthenticationEvent(
-        event.getPubKey(), baseTags, "");
+        List<BaseTag> baseTags = event.getTags().stream()
+                .filter(GenericTag.class::isInstance)
+                .toList();
 
-    canonEvent.setId(map.get("id").toString());
+        CanonicalAuthenticationEvent canonEvent = new CanonicalAuthenticationEvent(
+                event.getPubKey(), baseTags, "");
 
-    return (T) new CanonicalAuthenticationMessage(canonEvent);
-  }
+        canonEvent.setId(map.get("id").toString());
 
-  private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
+        return (T) new CanonicalAuthenticationMessage(canonEvent);
+    }
+
+    private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
 //    TODO: stream optional
-    return genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName)).map(GenericTag::getAttributes).toList().get(0).get(0).getValue().toString();
-  }
+        return genericTags.stream()
+                .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName)).map(GenericTag::getAttributes).toList().get(0).get(0).getValue().toString();
+    }
 }
