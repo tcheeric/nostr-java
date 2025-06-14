@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 
