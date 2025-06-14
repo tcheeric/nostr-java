@@ -42,6 +42,7 @@ dependencies {
     def springBootVersion = rootProject.property("nostr-java.springBootVersion")
     def apacheCommonsLang3 = rootProject.property("nostr-java.apacheCommonsLang3")
     def jacksonModuleAfterburner = rootProject.property("nostr-java.jacksonModuleAfterburner")
+    def jacksonModuleBlackbird = rootProject.property("nostr-java.jacksonModuleBlackbird")
     def googleGuava = rootProject.property("nostr-java.googleGuava")
     def bouncyCastle = rootProject.property("nostr-java.bouncyCastle")
     def awaitility = rootProject.property("nostr-java.awaitility")
@@ -57,6 +58,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket:' + springBootVersion
 
     implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:' + jacksonModuleAfterburner
+    implementation 'com.fasterxml.jackson.module:jackson-module-blackbird:' + jacksonModuleBlackbird
     implementation 'org.bouncycastle:bcprov-jdk18on:' + bouncyCastle
 
     implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
