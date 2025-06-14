@@ -7,10 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
+
 import static java.util.stream.Collectors.groupingBy;
 
 @Getter
 @EqualsAndHashCode
+@ToString
 public class Filters {
     public static final int DEFAULT_FILTERS_LIMIT = 10;
     private final Map<String, List<Filterable>> filtersMap;
