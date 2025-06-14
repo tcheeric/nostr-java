@@ -15,6 +15,7 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CashuMint {
+
     @EqualsAndHashCode.Include
     private final String url;
     private List<String> units;
