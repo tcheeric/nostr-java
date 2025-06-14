@@ -14,7 +14,9 @@ public enum Marker {
     FORK("fork"),
     CREATED("created"),
     DESTROYED("destroyed"),
-    REDEEMED("redeemed");
+    REDEEMED("redeemed"),
+    READ("read"),
+    WRITE("write");
 
     private final String value;
 
