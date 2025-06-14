@@ -43,6 +43,7 @@ public interface Constants {
         int REACTION_TO_WEBSITE = 17;
         int REQUEST_EVENTS = 24133;
         int CLASSIFIED_LISTING = 30_402;
+        int RELAY_LIST_METADATA_EVENT = 10_002;
     }
 
     interface Tag {
