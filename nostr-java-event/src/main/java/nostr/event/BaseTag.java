@@ -31,8 +31,10 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
+import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import org.apache.commons.lang3.stream.Streams;
+
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -69,21 +71,22 @@ public abstract class BaseTag implements ITag {
     public Optional<String> getFieldValue(Field field) {
         try {
             return Optional.ofNullable(
-                new PropertyDescriptor(field.getName(), this.getClass())
-                    .getReadMethod().invoke(this))
-                .map(Object::toString);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException ex) {
+                            new PropertyDescriptor(field.getName(), this.getClass())
+                                    .getReadMethod().invoke(this))
+                    .map(Object::toString);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException |
+                 IntrospectionException ex) {
             return Optional.empty();
         }
     }
 
     public List<Field> getSupportedFields() {
         return Streams.failableStream(Arrays.stream(this.getClass().getDeclaredFields()))
-            .filter(f ->
-                Objects.nonNull(f.getAnnotation(Key.class)))
-            .filter(f ->
-                getFieldValue(f).isPresent())
-            .collect(Collectors.toList());
+                .filter(f ->
+                        Objects.nonNull(f.getAnnotation(Key.class)))
+                .filter(f ->
+                        getFieldValue(f).isPresent())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -127,6 +130,7 @@ public abstract class BaseTag implements ITag {
             case "p" -> convert(genericTag, PubKeyTag.class);
             case "r" -> convert(genericTag, ReferenceTag.class);
             case "t" -> convert(genericTag, HashtagTag.class);
+            case "u" -> convert(genericTag, UrlTag.class);
             case "v" -> convert(genericTag, VoteTag.class);
             case "emoji" -> convert(genericTag, EmojiTag.class);
             case "expiration" -> convert(genericTag, ExpirationTag.class);
