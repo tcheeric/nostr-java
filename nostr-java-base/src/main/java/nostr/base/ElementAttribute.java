@@ -22,7 +22,7 @@ public class ElementAttribute {
 
     @JsonProperty    
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Include
     @NonNull
     private final String name;
     
