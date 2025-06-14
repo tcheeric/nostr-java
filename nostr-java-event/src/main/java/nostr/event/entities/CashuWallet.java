@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.Relay;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -26,16 +28,18 @@ public class CashuWallet {
     @EqualsAndHashCode.Include
     private String privateKey;
 
+/*
     @EqualsAndHashCode.Include
     private String unit;
+*/
     private Set<CashuMint> mints;
-    private Set<Relay> relays;
+    private Map<String, Set<Relay>> relays;
     private Set<CashuToken> tokens;
 
     public CashuWallet() {
         this.balance = 0;
         this.mints = new HashSet<>();
-        this.relays = new HashSet<>();
+        this.relays = new HashMap<>();
         this.tokens = new HashSet<>();
     }
 
@@ -64,6 +68,48 @@ public class CashuWallet {
     public void removeToken(@NonNull CashuToken token) {
         this.tokens.remove(token);
         this.refreshBalance();
+    }
+
+    public void addMint(@NonNull CashuMint mint) {
+        this.mints.add(mint);
+    }
+
+    public void removeMint(@NonNull CashuMint mint) {
+        this.mints.remove(mint);
+    }
+
+    public CashuMint getMint(@NonNull String mintUrl) {
+        return this.mints.stream()
+                .filter(mint -> mint.getUrl().equals(mintUrl))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void addRelay(@NonNull String unit, @NonNull Relay relay) {
+        Set<Relay> relaySet = this.relays.get(unit);
+        if (relaySet == null) {
+            relaySet = new HashSet<>();
+        }
+        relaySet.add(relay);
+        this.relays.put(unit, relaySet);
+    }
+
+    public void removeRelay(@NonNull String unit, @NonNull Relay relay) {
+        Set<Relay> relaySet = this.relays.get(unit);
+        if (relaySet == null) {
+            return;
+        }
+
+        relaySet.remove(relay);
+        if (relaySet.isEmpty()) {
+            this.relays.remove(unit);
+        } else {
+            this.relays.put(unit, relaySet);
+        }
+    }
+
+    public Set<Relay> getRelays(@NonNull String unit) {
+        return this.relays.get(unit);
     }
 
     public void refreshBalance() {
