@@ -1,8 +1,9 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.GenericEventFactory;
+import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
@@ -10,10 +11,13 @@ import nostr.event.BaseTag;
 import nostr.event.entities.Amount;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.CashuProof;
+import nostr.event.entities.NutZap;
+import nostr.event.entities.NutZapInformation;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -21,6 +25,11 @@ public class NIP61 extends EventNostr {
 
     public NIP61(@NonNull Identity sender) {
         setSender(sender);
+    }
+
+    public NIP61 createNutzapInformationalEvent(@NonNull NutZapInformation nutZapInformation) {
+        return createNutzapInformationalEvent(List.of(nutZapInformation.getP2pkPubkey()),
+                nutZapInformation.getRelays(), nutZapInformation.getMints());
     }
 
     public NIP61 createNutzapInformationalEvent
@@ -39,6 +48,37 @@ public class NIP61 extends EventNostr {
         return this;
     }
 
+    @SneakyThrows
+    public NIP61 createNutzapEvent(
+            @NonNull NutZap nutZap,
+            @NonNull String content) {
+
+        return createNutzapEvent(nutZap.getProofs(), URI.create(nutZap.getMint().getUrl()).toURL(), nutZap.getNutZappedEvent(), nutZap.getRecipient(), content);
+    }
+
+    public NIP61 createNutzapEvent(
+            List<CashuProof> proofs,
+            @NonNull URL url,
+            EventTag nutzappedEventTag,
+            @NonNull PublicKey recipient,
+            @NonNull String content) {
+
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_EVENT, content).create();
+
+        proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));
+
+        if (nutzappedEventTag != null) {
+            genericEvent.addTag(nutzappedEventTag);
+        }
+        genericEvent.addTag(NIP61.createUrlTag(url.toString()));
+        genericEvent.addTag(NIP01.createPubKeyTag(recipient));
+
+        updateEvent(genericEvent);
+
+        return this;
+    }
+
+    @Deprecated
     public NIP61 createNutzapEvent(
             @NonNull Amount amount,
             List<CashuProof> proofs,

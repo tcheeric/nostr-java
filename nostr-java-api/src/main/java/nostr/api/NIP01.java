@@ -65,6 +65,12 @@ public class NIP01 extends EventNostr {
         return this;
     }
 
+    public NIP01 createTextNoteEvent(String content, List<PubKeyTag> recipients) {
+        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, (List<BaseTag>) (List<?>) recipients, content).create();
+        this.updateEvent(genericEvent);
+        return this;
+    }
+
     /**
      * Create a NIP01 text note event with recipients
      *

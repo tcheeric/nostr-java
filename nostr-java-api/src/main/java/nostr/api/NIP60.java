@@ -2,8 +2,9 @@ package nostr.api;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.entities.Amount;
@@ -19,6 +20,8 @@ import nostr.id.Identity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
@@ -128,7 +131,9 @@ public class NIP60 extends EventNostr {
     @SneakyThrows
     private String getWalletEventContent(@NonNull CashuWallet wallet) {
         List<BaseTag> tags = new ArrayList<>();
-        tags.add(NIP60.createBalanceTag(wallet.getBalance(), wallet.getUnit()));
+        Map<String, Set<Relay>> relayMap = wallet.getRelays();
+        Set<String> unitSet = relayMap.keySet();
+        unitSet.stream().forEach(u -> tags.add(NIP60.createBalanceTag(wallet.getBalance(), u)));
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
         return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(tags), getSender().getPublicKey());
@@ -166,19 +171,28 @@ public class NIP60 extends EventNostr {
     private List<BaseTag> getWalletEventTags(@NonNull CashuWallet wallet) {
         List<BaseTag> tags = new ArrayList<>();
 
-        tags.add(NIP60.createUnitTag(wallet.getUnit()));
+        Map<String, Set<Relay>> relayMap = wallet.getRelays();
+        Set<String> unitSet = relayMap.keySet();
+        unitSet.stream().forEach(u -> {
+            tags.add(NIP60.createUnitTag(u));
+            tags.add(NIP60.createBalanceTag(wallet.getBalance(), u));
+        });
+
         tags.add(NIP01.createIdentifierTag(wallet.getId()));
         tags.add(NIP57.createDescriptionTag(wallet.getDescription()));
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
-        tags.add(NIP60.createBalanceTag(wallet.getBalance(), wallet.getUnit()));
 
         if (wallet.getMints() != null) {
             wallet.getMints().forEach(mint -> tags.add(NIP60.createMintTag(mint)));
         }
 
-        if (wallet.getRelays() != null) {
-            wallet.getRelays().forEach(relay -> tags.add(NIP42.createRelayTag(relay)));
-        }
+        Map<String, Set<Relay>> relays = wallet.getRelays();
+        relays.keySet().forEach(unit -> {
+            Set<Relay> relaySet = wallet.getRelays(unit);
+            relaySet.forEach(relay -> {
+                tags.add(NIP42.createRelayTag(relay));
+            });
+        });
 
         return tags;
     }
