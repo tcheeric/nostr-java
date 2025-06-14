@@ -49,7 +49,10 @@ public enum Kind {
     CALENDAR_DATE_BASED_EVENT(31_922, "calendar_date_based_event"),
     CALENDAR_TIME_BASED_EVENT(31_923, "calendar_time_based_event"),
     CALENDAR_EVENT(31_924, "calendar_event"),
-    CALENDAR_RSVP_EVENT(31_925, "calendar_rsvp_event");
+    CALENDAR_RSVP_EVENT(31_925, "calendar_rsvp_event"),
+    NUTZAP_INFORMATIONAL(10_019, "nutzap_informational"),
+    NUTZAP(9_321, "nutzap"),
+    RELAY_LIST_METADATA(10_002, "relay_list_metadata");
 
     @JsonValue
     private final int value;
