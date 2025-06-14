@@ -23,7 +23,9 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
@@ -52,9 +54,9 @@ public class NIP60Test {
         wallet.setDescription("a wallet for my day-to-day shitposting");
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
-        wallet.setUnit("sat");
+        //wallet.setUnit("sat");
         wallet.setMints(Set.of(mint1, mint2, mint3));
-        wallet.setRelays(Set.of(relay1, relay2));
+        wallet.setRelays(Map.of("sat", Set.of(relay1, relay2)));
 
         Identity sender = Identity.generateRandomIdentity();
         NIP60 nip60 = new NIP60(sender);
@@ -110,7 +112,7 @@ public class NIP60Test {
         wallet.setDescription("a wallet for my day-to-day shitposting");
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
-        wallet.setUnit("sat");
+        //wallet.setUnit("sat");
         wallet.setMints(Set.of(mint));
 
         CashuProof proof = new CashuProof();
@@ -181,7 +183,7 @@ public class NIP60Test {
         wallet.setDescription("a wallet for my day-to-day shitposting");
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
-        wallet.setUnit("sat");
+        //wallet.setUnit("sat");
 
         GenericEvent event = nip60.createSpendingHistoryEvent(spendingHistory, wallet).getEvent();
         List<BaseTag> tags = event.getTags();
@@ -227,7 +229,7 @@ public class NIP60Test {
         wallet.setDescription("a wallet for my day-to-day shitposting");
         wallet.setBalance(100);
         wallet.setPrivateKey("hexkey");
-        wallet.setUnit("sat");
+        //wallet.setUnit("sat");
 
         CashuQuote quote = new CashuQuote();
         quote.setId("quote-id");

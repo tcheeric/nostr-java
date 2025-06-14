@@ -11,6 +11,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.UrlTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -115,9 +116,9 @@ public class NIP61Test {
         List<BaseTag> urlTags = tags.stream()
                 .filter(tag -> tag.getCode().equals("u"))
                 .toList();
-        assertInstanceOf(GenericTag.class, urlTags.get(0));
+        assertInstanceOf(UrlTag.class, urlTags.get(0));
         Assertions.assertEquals(1, urlTags.size());
-        Assertions.assertEquals("https://mint.example.com", ((GenericTag) urlTags.get(0)).getAttributes().get(0).getValue());
+        Assertions.assertEquals("https://mint.example.com", ((UrlTag) urlTags.get(0)).getUrl());
 
         // Verify amount tag
         List<BaseTag> amountTags = tags.stream()
@@ -159,9 +160,9 @@ public class NIP61Test {
         // Test URL tag creation
         String url = "https://example.com";
         BaseTag urlTag = NIP61.createUrlTag(url);
-        assertInstanceOf(GenericTag.class, urlTag);
+        assertInstanceOf(UrlTag.class, urlTag);
         Assertions.assertEquals("u", urlTag.getCode());
-        Assertions.assertEquals(url, ((GenericTag) urlTag).getAttributes().get(0).getValue());
+        Assertions.assertEquals(url, ((UrlTag) urlTag).getUrl());
 
         // Test CashuProof tag creation
         CashuProof proof = new CashuProof();
