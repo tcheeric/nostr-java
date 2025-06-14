@@ -8,7 +8,6 @@ import nostr.event.tag.ReferenceTag;
 import java.io.IOException;
 
 /**
- *
  * @author eric
  */
 public class ReferenceTagSerializer extends JsonSerializer<ReferenceTag> {
@@ -18,7 +17,10 @@ public class ReferenceTagSerializer extends JsonSerializer<ReferenceTag> {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeString("r");
         jsonGenerator.writeString(refTag.getUri().toString());
+        if (refTag.getMarker() != null) {
+            jsonGenerator.writeString(refTag.getMarker().getValue());
+        }
         jsonGenerator.writeEndArray();
     }
-    
+
 }
