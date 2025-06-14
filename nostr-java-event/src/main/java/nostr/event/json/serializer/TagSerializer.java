@@ -37,8 +37,6 @@ public class TagSerializer extends StdSerializer<BaseTag> {
             // -- Create the node
             final ObjectNode node = BASETAG_ENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
 
-            log.log(Level.INFO, ">>>>>>>>>> Serializing tag: {0}", value);
-
             if (value instanceof GenericTag && value.getClass() != GenericTag.class) {
                 // value is a subclass of GenericTag
                 List<Field> fields = value.getSupportedFields();
@@ -54,8 +52,6 @@ public class TagSerializer extends StdSerializer<BaseTag> {
                 List<ElementAttribute> attrs = genericTag.getAttributes();
                 attrs.forEach(a -> node.put(a.getName(), a.getValue().toString()));
             }
-
-            log.log(Level.INFO, ">>>>>>>>> Serialized node: {0}", node);
 
             // Extract the property values from the node and serialize them as an array
             if (node.isObject()) {
