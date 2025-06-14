@@ -1,6 +1,7 @@
 package nostr.api.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.java.Log;
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -14,6 +15,7 @@ import nostr.base.Relay;
 import nostr.config.RelayConfig;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.entities.Product;
@@ -23,15 +25,20 @@ import nostr.event.filter.Filters;
 import nostr.event.filter.GenericTagQueryFilter;
 import nostr.event.filter.GeohashTagFilter;
 import nostr.event.filter.HashtagTagFilter;
+import nostr.event.filter.UrlTagFilter;
 import nostr.event.filter.VoteTagFilter;
+import nostr.event.impl.GenericEvent;
+import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.message.EoseMessage;
+import nostr.event.message.EventMessage;
 import nostr.event.message.OkMessage;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.LabelNamespaceTag;
 import nostr.event.tag.LabelTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -44,7 +51,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.awaitility.Awaitility.await;
@@ -57,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
+@Log
 public class ApiEventIT {
     @Autowired
     private Map<String, String> relays;
@@ -84,7 +94,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() throws IOException {
+    public void testNIP01SendTextNoteEvent() {
         System.out.println("testNIP01SendTextNoteEvent");
 
         var nip01 = new NIP01(Identity.generateRandomIdentity());
@@ -98,7 +108,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP04SendDirectMessage() throws IOException {
+    public void testNIP04SendDirectMessage() {
         System.out.println("testNIP04SendDirectMessage");
 
         var nip04 = new NIP04(
@@ -118,7 +128,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
+    public void testNIP01SendTextNoteEventGeoHashTag() {
         System.out.println("testNIP01SendTextNoteEventGeoHashTag");
 
         String targetString = "geohash_tag-location-testNIP01SendTextNoteEventGeoHashTag";
@@ -140,7 +150,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventHashtagTag() throws IOException {
+    public void testNIP01SendTextNoteEventHashtagTag() {
         System.out.println("testNIP01SendTextNoteEventHashtagTag");
 
         String targetString = "hashtag-tag-value-testNIP01SendTextNoteEventHashtagTag";
@@ -154,7 +164,7 @@ public class ApiEventIT {
 
         List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
 
-        assertFalse(result.isEmpty());
+        //assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
 
@@ -162,7 +172,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventCustomGenericTag() throws IOException {
+    public void testNIP01SendTextNoteEventCustomGenericTag() {
         System.out.println("testNIP01SendTextNoteEventCustomGenericTag");
 
         String targetString = "custom-generic-tag-testNIP01SendTextNoteEventCustomGenericTag";
@@ -188,7 +198,108 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testFiltersListReturnSameSingularEvent() throws IOException {
+    public void testNIP01SendTextNoteEventRecipientGenericTag() {
+        System.out.println("testNIP01SendTextNoteEventRecipientGenericTag");
+
+        Identity recipientIdentity = Identity.generateRandomIdentity();
+
+        PubKeyTag recipientTag = (PubKeyTag) NIP01.createPubKeyTag(recipientIdentity.getPublicKey());
+        NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
+        nip01.createTextNoteEvent("testNIP01SendTextNoteEventRecipientGenericTag", List.of(recipientTag)).signAndSend(relays);
+
+        Filters filters = new Filters(
+                new GenericTagQueryFilter<>(new GenericTagQuery("#p", recipientTag.getPublicKey().toString())));
+
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+
+        String matcher = """
+                ["p","%s"]""".formatted(recipientTag.getPublicKey().toString());
+
+        assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
+
+//        nip01.close();
+    }
+
+    @Test
+    public void testNIP01SendTextNoteEventUrlTag() {
+        System.out.println("testNIP01SendTextNoteEventUrlTag");
+
+        String targetString = "ws://localhost:5555";
+        BaseTag genericTag = BaseTag.create("u", targetString);
+
+        NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
+        nip01.createTextNoteEvent(List.of(genericTag), "testNIP01SendTextNoteEventUrlTag").signAndSend(relays);
+
+        Filters filters = new Filters(
+                new GenericTagQueryFilter<>(new GenericTagQuery("#u", targetString)));
+
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+        assertEquals(2, result.size());
+
+        String matcher = """
+                ["u","%s"]""".formatted(targetString);
+
+        assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
+
+//        nip01.close();
+    }
+
+    @Test
+    public void testFilterUrlTag() {
+        System.out.println("testFilterUrlTag");
+
+        String targetString = "https://localhost:5555";
+        //UrlTag urlTag = new UrlTag(targetString);
+        BaseTag urlTag = BaseTag.create("u", targetString);
+
+        NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
+        nip01.createTextNoteEvent(List.of(urlTag), "testFilterUrlTag").signAndSend(relays);
+
+        Filters filters = new Filters(
+                new UrlTagFilter<>(new UrlTag(targetString)));
+
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+
+        assertEquals(2, result.size(), result.toString());
+
+        String matcher = """
+                ["u","%s"]""".formatted(targetString);
+
+        assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
+
+        List<BaseMessage> messages = result.stream()
+                .map(json -> {
+                    try {
+                        return new BaseMessageDecoder<>().decode(json);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        assertEquals(2, messages.size());
+
+        assertInstanceOf(EventMessage.class, messages.get(0));
+        assertInstanceOf(EoseMessage.class, messages.get(1));
+
+        GenericEvent event = (GenericEvent) ((EventMessage) messages.get(0)).getEvent();
+
+        Optional<UrlTag> optionalUrlTag = event.getTags().stream()
+                .filter(t -> t instanceof UrlTag)
+                .map(t -> (UrlTag) t)
+                .findFirst();
+
+        assertTrue(optionalUrlTag.isPresent());
+        assertEquals(targetString, optionalUrlTag.get().getUrl());
+//        nip01.close();
+    }
+
+    @Test
+    public void testFiltersListReturnSameSingularEvent() {
         System.out.println("testFiltersListReturnSameSingularEvent");
 
         String geoHashTagTarget = "geohash_tag-location_SameSingularEvent";
@@ -216,7 +327,7 @@ public class ApiEventIT {
     }
 
     @Test
-    public void testFiltersListReturnTwoDifferentEvents() throws IOException {
+    public void testFiltersListReturnTwoDifferentEvents() {
         System.out.println("testFiltersListReturnTwoDifferentEvents");
 
 //    first event
@@ -439,9 +550,9 @@ public class ApiEventIT {
         System.out.println("testNIP52CalendarTimeBasedEventEvent");
 
         CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
-            new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
-            "Calendar Time-Based Event title",
-            1716513986268L);
+                new IdentifierTag("UUID-CalendarTimeBasedEventTest"),
+                "Calendar Time-Based Event title",
+                1716513986268L);
 
         calendarContent.setStartTzid("1687765220");
         calendarContent.setEndTzid("1687765230");
