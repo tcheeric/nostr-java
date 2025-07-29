@@ -62,7 +62,10 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         JsonNode argNode = root.get(ARG_INDEX);
 
         if (commandNode == null || argNode == null) {
-            throw new IllegalArgumentException("Invalid JSON structure: " + jsonString);
+            String missingFields = (commandNode == null ? "commandNode" : "") +
+                                   (commandNode == null && argNode == null ? " and " : "") +
+                                   (argNode == null ? "argNode" : "");
+            throw new IllegalArgumentException(String.format("Invalid JSON structure: Missing %s in JSON string [%s]", missingFields, jsonString));
         }
 
         return new ValidNostrJsonStructure(
