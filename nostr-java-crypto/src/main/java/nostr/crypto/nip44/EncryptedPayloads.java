@@ -1,7 +1,7 @@
 package nostr.crypto.nip44;
 
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -28,9 +28,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.logging.Level;
 
-@Log
+@Slf4j
 public class EncryptedPayloads {
 
     public static String encrypt(String plaintext, byte[] conversationKey, byte[] nonce) throws Exception {
@@ -78,7 +77,7 @@ public class EncryptedPayloads {
         byte[] calculatedMac = hmac.doFinal();
 
         if (!MessageDigest.isEqual(calculatedMac, mac)) {
-            log.log(Level.FINE, "Calculated MAC = {0} --- Mac = {1}", new Object[]{Arrays.toString(calculatedMac), Arrays.toString(mac)});
+            log.debug("Calculated MAC {} does not match expected {}", Arrays.toString(calculatedMac), Arrays.toString(mac));
             throw new Exception("Invalid MAC");
         }
 

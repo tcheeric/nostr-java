@@ -3,17 +3,16 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.tag.GenericTag;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 @Data
-@Log
+@Slf4j
 public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
     private final Class<T> clazz;
@@ -56,7 +55,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
                             .toList());
 */
 
-            log.log(Level.INFO, ">>> Decoded GenericTag: {0}", genericTag);
+            log.info("Decoded GenericTag: {}", genericTag);
 
             return (T) genericTag;
         } catch (JsonProcessingException ex) {

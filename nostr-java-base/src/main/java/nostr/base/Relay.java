@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
-@Log
+@Slf4j
 public class Relay {
 
     @EqualsAndHashCode.Include
@@ -47,6 +47,7 @@ public class Relay {
         }
         this.scheme = s[0];
         this.host = s[1];
+        log.debug("Created relay with scheme {} and host {}", this.scheme, this.host);
     }
 
     // Helper method

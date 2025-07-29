@@ -1,7 +1,7 @@
 package nostr.api;
 
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
 import nostr.encryption.MessageCipher44;
@@ -13,9 +13,8 @@ import nostr.id.Identity;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.logging.Level;
 
-@Log
+@Slf4j
 public class NIP44 extends EventNostr {
 
     public static String encrypt(@NonNull Identity sender, @NonNull String message, @NonNull PublicKey recipient) {
@@ -47,7 +46,7 @@ public class NIP44 extends EventNostr {
 
         // I am the message recipient
         var sender = event.getPubKey();
-        log.log(Level.FINE, "The message is being decrypted for {0}", sender);
+        log.debug("Decrypting message for {}", sender);
         MessageCipher cipher = new MessageCipher44(recipient.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }

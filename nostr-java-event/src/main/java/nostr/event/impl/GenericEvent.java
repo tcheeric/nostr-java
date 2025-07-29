@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.base.ISignable;
@@ -39,14 +39,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author squirrel
  */
-@Log
+@Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class GenericEvent extends BaseEvent implements ISignable, IGenericElement, Deleteable {
@@ -204,7 +203,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         } catch (NostrException | NoSuchAlgorithmException ex) {
             throw new RuntimeException(ex);
         } catch (AssertionError ex) {
-            log.log(Level.WARNING, ex.getMessage());
+            log.warn(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -295,7 +294,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @Override
     public Supplier<ByteBuffer> getByeArraySupplier() {
         this.update();
-        log.log(Level.FINER, "Serialized event: {0}", new String(this.get_serializedEvent()));
+        log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
     }
 

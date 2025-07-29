@@ -1,6 +1,6 @@
 package nostr.util;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author squirrel
  */
-@Log
+@Slf4j
 public class NostrUtilTest {
   /**
    * test intended to confirm conversion routines:
