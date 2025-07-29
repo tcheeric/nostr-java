@@ -17,6 +17,7 @@ import java.util.Arrays;
 public class NostrUtil {
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static String bytesToHex(byte[] b) {
         char[] hexChars = new char[b.length * 2];
@@ -98,7 +99,7 @@ public class NostrUtil {
 
     public static byte[] createRandomByteArray(int len) {
         byte[] b = new byte[len];
-        new SecureRandom().nextBytes(b);
+        RANDOM.nextBytes(b);
         return b;
     }
 
