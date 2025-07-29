@@ -14,7 +14,7 @@ Nostr-java is a library for generating, signing, and publishing nostr events to 
 
 ```xml
 <properties>
-    <nostr-java.version>v0.007.1-alpha</nostr-java.version>
+    <nostr-java.version>v0.007.2-alpha</nostr-java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 </properties>
 ```
