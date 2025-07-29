@@ -17,6 +17,7 @@ public enum Kind {
     SET_METADATA(0, "set_metadata"),
     TEXT_NOTE(1, "text_note"),
     RECOMMEND_SERVER(2, "recommend_server"),
+    COINJOIN_POOL(2022, "coinjoin_pool"),
     CONTACT_LIST(3, "contact_list"),
     ENCRYPTED_DIRECT_MESSAGE(4, "encrypted_direct_message"),
     DELETION(5, "deletion"),
