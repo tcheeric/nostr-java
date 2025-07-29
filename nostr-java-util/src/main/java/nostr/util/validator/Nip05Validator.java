@@ -73,6 +73,9 @@ public class Nip05Validator {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.error("HTTP request error", ex);
             throw new NostrException(String.format("Failed to connect to %s: %s", strUrl, ex.getMessage()));
         }
