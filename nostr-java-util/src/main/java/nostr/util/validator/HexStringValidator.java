@@ -16,12 +16,19 @@ public class HexStringValidator {
 
     public static void validateHex(@NonNull String hexString, int targetLength) {
         // split into distinct checks per unique/specific error message
-        assert lengthCheck.test(hexString, targetLength) :
-                String.format("Invalid hex string: [%s], length: [%d], target length: [%d]", hexString, hexString.length(), targetLength);
-        assert hexCharsCheck.test(hexString) :
-                String.format("Invalid hex string: [%s] has non-hex characters", hexString);
-        assert upperCaseCheck.test(hexString) :
-                String.format("Invalid hex string: [%s] has upper-case characters", hexString);
+        if (!lengthCheck.test(hexString, targetLength)) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid hex string: [%s], length: [%d], target length: [%d]",
+                            hexString, hexString.length(), targetLength));
+        }
+        if (!hexCharsCheck.test(hexString)) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid hex string: [%s] has non-hex characters", hexString));
+        }
+        if (!upperCaseCheck.test(hexString)) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid hex string: [%s] has upper-case characters", hexString));
+        }
     }
 
     private static Boolean validHex(String aHexString) {

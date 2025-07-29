@@ -32,25 +32,25 @@ class BaseKeyTest {
     @Test
     public void testInValidNullPublicKeyString() {
         System.out.println("testInValidNullPublicKeyString");
-        assertThrows(AssertionError.class, () -> new PublicKey(""));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(""));
     }
 
     @Test
     public void testInValidPublicKeyNonHexDigits() {
         System.out.println("testInValidPublicKeyNonHexDigits");
-        assertThrows(AssertionError.class, () -> new PublicKey(INVALID_HEXPUBKEY_NON_HEX_DIGITS));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_NON_HEX_DIGITS));
     }
 
     @Test
     public void testInValidPublicKeyLengthTooShort() {
         System.out.println("testInValidPublicKeyLengthTooShort");
-        assertThrows(AssertionError.class, () -> new PublicKey(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_LENGTH_TOO_SHORT));
     }
 
     @Test
     public void testInValidPublicKeyLengthTooLong() {
         System.out.println("testInValidPublicKeyLengthTooShort");
-        assertThrows(AssertionError.class, () -> new PublicKey(INVALID_HEXPUBKEY_LENGTH_TOO_LONG));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_LENGTH_TOO_LONG));
     }
 
     @Test
@@ -68,12 +68,12 @@ class BaseKeyTest {
     @Test
     public void testInvalidPublicKeyMultipleUppercase() {
         System.out.println("testInvalidPublicKeyMultipleUppercase");
-        assertThrows(AssertionError.class, () -> new PublicKey(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_HAS_MULTIPLE_UPPERCASE));
     }
 
     @Test
     public void testInvalidPublicKeySingleUppercase() {
         System.out.println("testInvalidPublicKeySingleUppercase");
-        assertThrows(AssertionError.class, () -> new PublicKey(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE));
     }
 }
