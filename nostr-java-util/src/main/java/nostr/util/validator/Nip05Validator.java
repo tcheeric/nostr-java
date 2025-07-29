@@ -72,9 +72,11 @@ public class Nip05Validator {
 
         HttpResponse<String> response;
         try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
+            response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
+        } catch (Exception ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new NostrException(ex.getMessage());
         }
 
