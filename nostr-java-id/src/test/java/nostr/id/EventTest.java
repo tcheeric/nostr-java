@@ -13,6 +13,7 @@ import nostr.event.tag.GenericTag;
 import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -72,6 +73,7 @@ public class EventTest {
     }
 
     @Test
+    @Disabled("Requires network access for nip05 validation")
     public void testNip05Validator() {
         System.out.println("testNip05Validator");
         try {

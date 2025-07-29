@@ -9,6 +9,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
+@Disabled("Requires running relays at ws://localhost:5555")
 class ApiEventTestUsingSpringWebSocketClientIT {
     private final List<SpringWebSocketClient> springWebSocketClients;
 
