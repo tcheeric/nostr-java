@@ -1,6 +1,6 @@
 package nostr.api.unit;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP57;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Log
+@Slf4j
 public class NIP57ImplTest {
 
     @Test

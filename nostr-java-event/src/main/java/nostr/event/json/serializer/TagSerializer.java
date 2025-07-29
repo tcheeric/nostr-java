@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
@@ -14,14 +14,13 @@ import java.io.IOException;
 import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.logging.Level;
 
 import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPED_AFTERBURNER;
 
 /**
  * @author guilhermegps
  */
-@Log
+@Slf4j
 public class TagSerializer extends StdSerializer<BaseTag> {
 
     @Serial

@@ -1,6 +1,6 @@
 package nostr.id;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.base.IEvent;
@@ -31,11 +31,11 @@ import java.util.Random;
  *
  * @author squirrel
  */
-@Log
+@Slf4j
 //TODO - Add the sender PK to all createEvents.
 public class EntityFactory {
 
-    @Log
+    @Slf4j
     public static class Events {
 
 /*

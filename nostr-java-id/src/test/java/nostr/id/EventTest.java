@@ -1,6 +1,6 @@
 package nostr.id;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @author squirrel
  */
-@Log
+@Slf4j
 public class EventTest {
 
     public EventTest() {

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.Command;
 import nostr.base.IEvent;
 import nostr.event.BaseEvent;
@@ -19,14 +19,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
 
 @Setter
 @Getter
-@Log
+@Slf4j
 public class EventMessage extends BaseMessage {
     private static final int SIZE_JSON_EVENT_wo_SIG_ID = 2;
     private static final Function<Object[], Boolean> isEventWoSig = (objArr) ->
@@ -76,7 +75,7 @@ public class EventMessage extends BaseMessage {
     }
 
     private static GenericEvent convertValue(Map<String, String> map) {
-        log.log(Level.INFO, "Converting map to GenericEvent: {0}", map);
+        log.info("Converting map to GenericEvent: {}", map);
         return I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<>() {});
     }
 }
