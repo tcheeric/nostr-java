@@ -1,6 +1,6 @@
 package nostr.event.unit;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.GenericTagQuery;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Log
+@Slf4j
 public class FiltersEncoderTest {
 
   @Test

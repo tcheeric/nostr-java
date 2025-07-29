@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.config.Constants;
@@ -15,10 +15,10 @@ import nostr.id.Identity;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
+@Slf4j
 public final class NIP46 extends EventNostr {
 
     public NIP46(@NonNull Identity sender) {
@@ -55,7 +55,7 @@ public final class NIP46 extends EventNostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @Log
+    @Slf4j
     public static final class Request implements Serializable {
         private String id;
         private String method;
@@ -70,8 +70,7 @@ public final class NIP46 extends EventNostr {
             try {
                 return MAPPER_AFTERBURNER.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
-                // Handle the exception if needed
-                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
+                log.warn("Error converting request to JSON: {}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }
@@ -88,7 +87,7 @@ public final class NIP46 extends EventNostr {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @Log
+    @Slf4j
     public static final class Response implements Serializable {
         private String id;
         private String error;
@@ -98,8 +97,7 @@ public final class NIP46 extends EventNostr {
             try {
                 return MAPPER_AFTERBURNER.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
-                // Handle the exception if needed
-                log.log(Level.WARNING, "Error converting to JSON: {0}", ex.getMessage());
+                log.warn("Error converting response to JSON: {}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
             }
         }

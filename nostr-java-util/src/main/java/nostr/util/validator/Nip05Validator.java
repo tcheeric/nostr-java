@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.util.NostrException;
 
 import java.io.BufferedReader;
@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
-import java.util.logging.Level;
 
 /**
  *
@@ -28,7 +27,7 @@ import java.util.logging.Level;
 @Builder
 @RequiredArgsConstructor
 @Data
-@Log
+@Slf4j
 public class Nip05Validator {
 
     private final String nip05;
@@ -49,10 +48,10 @@ public class Nip05Validator {
 
             // Verify the public key
             try {
-                log.log(Level.FINE, "Validating {0}@{1}", new Object[]{localPart, domain});
+                log.debug("Validating {}@{}", localPart, domain);
                 validatePublicKey(domain, localPart);
             } catch (IOException | URISyntaxException ex) {
-                log.log(Level.SEVERE, ex.getMessage());
+                log.error("Validation error", ex);
                 throw new NostrException(ex);
             }
         }
@@ -78,7 +77,7 @@ public class Nip05Validator {
 
             // (2)
             String pubKey = getPublicKey(content, localPart);
-            log.log(Level.FINE, "Public key for {0} returned by the server: [{1}]", new Object[]{localPart, pubKey});
+            log.debug("Public key for {} returned by the server: [{}]", localPart, pubKey);
 
             if (pubKey != null && !pubKey.equals(publicKey)) {
                 throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));

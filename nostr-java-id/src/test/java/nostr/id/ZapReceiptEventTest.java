@@ -1,8 +1,8 @@
 package nostr.id;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
-@Log
+@Slf4j
 class ZapReceiptEventTest {
 
 /*

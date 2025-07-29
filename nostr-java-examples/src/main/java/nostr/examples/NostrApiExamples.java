@@ -1,6 +1,6 @@
 package nostr.examples;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP05;
@@ -31,7 +31,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,14 +41,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author eric
  */
-@Log
+@Slf4j
 @SpringBootApplication
 public class NostrApiExamples implements ApplicationRunner {
 
@@ -60,14 +58,6 @@ public class NostrApiExamples implements ApplicationRunner {
     private final static Map<String, String> RELAYS = Map.of("local", "localhost:5555");
 
     static {
-        final LogManager logManager = LogManager.getLogManager();
-        try (final InputStream is = NostrApiExamples.class
-                .getResourceAsStream("/logging.properties")) {
-            logManager.readConfiguration(is);
-        } catch (IOException ex) {
-            System.exit(-1000);
-        }
-
         try {
             PROFILE.setPicture(new URI("https://images.unsplash.com/photo-1462888210965-cdf193fb74de").toURL());
         } catch (MalformedURLException | URISyntaxException e) {
@@ -78,7 +68,7 @@ public class NostrApiExamples implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         try {
-            log.log(Level.FINE, "================= The Beginning");
+            log.debug("================= The Beginning");
             logAccountsData();
 
             ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -92,7 +82,7 @@ public class NostrApiExamples implements ApplicationRunner {
             executor.submit(() -> {
                 try {
                     sendTextNoteEvent();
-                } catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
+                } catch(Throwable t) { log.error(t.getMessage(), t); }
             });
 
 //            executor.submit(() -> {
@@ -171,11 +161,11 @@ public class NostrApiExamples implements ApplicationRunner {
             stop(executor);
 
             if (executor.isTerminated()) {
-                log.log(Level.FINE, "================== The End");
+                log.debug("================== The End");
             }
 
         } catch (IllegalArgumentException ex) {
-            log.log(Level.SEVERE, null, ex);
+            log.error("", ex);
             throw new NostrException(ex);
         }
     }
@@ -385,7 +375,7 @@ public class NostrApiExamples implements ApplicationRunner {
                      '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
                      '\n' + '\n' + "################################ ACCOUNTS END ################################";
 
-        log.log(Level.INFO, msg);
+        log.info(msg);
     }
 
     private static void logHeader(String header) {
@@ -405,10 +395,10 @@ public class NostrApiExamples implements ApplicationRunner {
             executor.shutdown();
             executor.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            log.log(Level.SEVERE, "termination interrupted");
+            log.error("termination interrupted");
         } finally {
             if (!executor.isTerminated()) {
-                log.log(Level.SEVERE, "killing non-finished tasks");
+                log.error("killing non-finished tasks");
             }
             executor.shutdownNow();
         }

@@ -1,7 +1,7 @@
 package nostr.event.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EoseMessage;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Log
+@Slf4j
 public class BaseMessageCommandMapperTest {
 //  TODO: flesh out remaining commands
   public final static String REQ_JSON =

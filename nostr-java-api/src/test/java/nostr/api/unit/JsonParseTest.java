@@ -1,7 +1,7 @@
 package nostr.api.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP01;
 import nostr.api.util.JsonComparator;
 import nostr.base.Command;
@@ -61,7 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author eric
  */
-@Log
+@Slf4j
 public class JsonParseTest {
   @Test
   public void testBaseMessageDecoderEventFilter() throws JsonProcessingException {

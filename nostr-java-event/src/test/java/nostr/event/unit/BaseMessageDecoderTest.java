@@ -1,7 +1,7 @@
 package nostr.event.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EoseMessage;
@@ -9,7 +9,7 @@ import nostr.event.message.ReqMessage;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Log
+@Slf4j
 public class BaseMessageDecoderTest {
     //  TODO: flesh out remaining commands
     public final static String REQ_JSON =

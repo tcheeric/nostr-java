@@ -1,7 +1,7 @@
 package nostr.api.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
@@ -42,6 +42,7 @@ import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.awaitility.Awaitility.await;
@@ -65,8 +65,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
-@ActiveProfiles("test")
-@Log
+@Slf4j
+@Disabled("Requires running relay at ws://localhost:5555")
 public class ApiEventIT {
     @Autowired
     private Map<String, String> relays;

@@ -1,6 +1,6 @@
 package nostr.id;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
@@ -14,6 +14,7 @@ import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  * @author squirrel
  */
-@Log
+@Slf4j
 public class EventTest {
 
     public EventTest() {
@@ -73,6 +74,7 @@ public class EventTest {
     }
 
     @Test
+    @Disabled("Requires network access for nip05 validation")
     public void testNip05Validator() throws Exception {
         System.out.println("testNip05Validator");
         var nip05 = "nostr-java@nostr.band";

@@ -1,6 +1,6 @@
 package nostr.examples;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.base.Relay;
 
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * @author guilhermegps
  *
  */
-@Log
+@Slf4j
 public class FilterRelays {
 	
 	private final static Map<String, String> relaysURLs = Stream.of(new String[][] {
@@ -145,7 +145,7 @@ public class FilterRelays {
             var connection = new Connection(relay, context, new ArrayList<>());
             //connection.updateRelayMetadata(relay);
         } catch (Exception ex) {
-			log.log(Level.WARNING, "Error updating relay metadata: " + relay.getHostname());
+            log.warn("Error updating relay metadata: {}", relay.getHostname());
         }
         
         return relay;

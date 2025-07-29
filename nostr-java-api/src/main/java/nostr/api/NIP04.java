@@ -5,7 +5,7 @@
 package nostr.api;
 
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
 import nostr.config.Constants;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * @author eric
  */
-@Log
+@Slf4j
 public class NIP04 extends EventNostr {
 
     public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
@@ -38,6 +38,7 @@ public class NIP04 extends EventNostr {
      * @param content the DM content in clear-text
      */
     public NIP04 createDirectMessageEvent(@NonNull String content) {
+        log.debug("Creating direct message event");
         var encryptedContent = encrypt(getSender(), content, getRecipient());
         List<BaseTag> tags = List.of(new PubKeyTag(getRecipient()));
 
@@ -64,6 +65,7 @@ public class NIP04 extends EventNostr {
      * @return the encrypted message
      */
     public static String encrypt(@NonNull Identity senderId, @NonNull String message, @NonNull PublicKey recipient) {
+        log.debug("Encrypting message from {} to {}", senderId.getPublicKey(), recipient);
         MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
     }
@@ -77,6 +79,7 @@ public class NIP04 extends EventNostr {
      * @return the DM content in clear-text
      */
     public static String decrypt(@NonNull Identity identity, @NonNull String encryptedMessage, @NonNull PublicKey recipient) {
+        log.debug("Decrypting message for {}", identity.getPublicKey());
         MessageCipher cipher = new MessageCipher04(identity.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.decrypt(encryptedMessage);
     }
@@ -124,12 +127,14 @@ public class NIP04 extends EventNostr {
         boolean rcptFlag = amITheRecipient(rcptId, event);
 
         if (!rcptFlag) { // I am the message sender
+            log.debug("Decrypting own sent message");
             MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), pTag.getPublicKey().getRawData());
             return cipher.decrypt(event.getContent());
         }
 
         // I am the message recipient
         var sender = event.getPubKey();
+        log.debug("Decrypting message from {}", sender);
         MessageCipher cipher = new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
         return cipher.decrypt(event.getContent());
     }
