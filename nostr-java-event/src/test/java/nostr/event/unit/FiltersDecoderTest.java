@@ -376,6 +376,25 @@ public class FiltersDecoderTest {
   }
 
   @Test
+  public void testDecoderMultipleFilterTypes() {
+    log.info("testDecoderMultipleFilterTypes");
+
+    String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
+    Kind kind = Kind.valueOf(1);
+    Long since = Date.from(Instant.now()).getTime();
+
+    String expected = "{\"ids\":[\"" + eventId + "\"],\"kinds\":[" + kind.toString() + "],\"since\":" + since + "}";
+    Filters decodedFilters = new FiltersDecoder().decode(expected);
+
+    assertEquals(
+        new Filters(
+            new EventFilter<>(new GenericEvent(eventId)),
+            new KindFilter<>(kind),
+            new SinceFilter(since)),
+        decodedFilters);
+  }
+
+  @Test
   public void testFailedAddressableTagMalformedSeparator() {
     log.info("testFailedAddressableTagMalformedSeparator");
 

@@ -1,5 +1,7 @@
 package nostr.event.json.codec;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -8,6 +10,7 @@ import nostr.event.filter.Filters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 
@@ -21,11 +24,16 @@ public class FiltersDecoder implements FDecoder<Filters> {
   public Filters decode(@NonNull String jsonFiltersList) {
     final List<Filterable> filterables = new ArrayList<>();
 
-    MAPPER_AFTERBURNER.readTree(jsonFiltersList).fields().forEachRemaining(node ->
-        filterables.addAll(
-            FilterableProvider.getFilterFunction(
-                node.getValue(),
-                node.getKey())));
+    Map<String, JsonNode> filtersMap = MAPPER_AFTERBURNER.readValue(
+        jsonFiltersList,
+        new TypeReference<Map<String, JsonNode>>() {});
+
+    for (Map.Entry<String, JsonNode> entry : filtersMap.entrySet()) {
+      filterables.addAll(
+          FilterableProvider.getFilterFunction(
+              entry.getValue(),
+              entry.getKey()));
+    }
 
     return new Filters(filterables);
   }
