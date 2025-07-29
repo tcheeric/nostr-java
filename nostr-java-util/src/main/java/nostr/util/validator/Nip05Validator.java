@@ -11,13 +11,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.util.NostrException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 /**
@@ -50,7 +49,7 @@ public class Nip05Validator {
             try {
                 log.debug("Validating {}@{}", localPart, domain);
                 validatePublicKey(domain, localPart);
-            } catch (IOException | URISyntaxException ex) {
+            } catch (URISyntaxException ex) {
                 log.error("Validation error", ex);
                 throw new NostrException(ex);
             }
@@ -58,36 +57,42 @@ public class Nip05Validator {
     }
 
     //    TODO: refactor
-    private void validatePublicKey(String domain, String localPart) throws NostrException, IOException, URISyntaxException {
+    private void validatePublicKey(String domain, String localPart) throws NostrException, URISyntaxException {
 
-        // Set up and estgetPublicKeyablish the HTTP connection
-        String strUrl = "https://<domain>/.well-known/nostr.json?name=<localPart>".replace("<domain>", domain).replace("<localPart>", localPart);
-        URL url = new URI(strUrl).toURL();
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        String strUrl = "https://<domain>/.well-known/nostr.json?name=<localPart>"
+                .replace("<domain>", domain)
+                .replace("<localPart>", localPart);
 
-        // Read the connection response (1) and validate (2)
-        if (connection.getResponseCode() == 200) { // (1)
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(strUrl))
+                .GET()
+                .build();
+
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
+            log.error("HTTP request error", ex);
+            throw new NostrException(String.format("Failed to connect to %s: %s", strUrl, ex.getMessage()));
+        }
 
-            // (2)
+        if (response.statusCode() == 200) {
+            StringBuilder content = new StringBuilder(response.body());
+
             String pubKey = getPublicKey(content, localPart);
             log.debug("Public key for {} returned by the server: [{}]", localPart, pubKey);
 
             if (pubKey != null && !pubKey.equals(publicKey)) {
                 throw new NostrException(String.format("Public key mismatch. Expected %s - Received: %s", publicKey, pubKey));
             }
-
-            // All well!
             return;
         }
 
-        throw new NostrException(String.format("Failed to connect to %s. Error message: %s", strUrl, connection.getResponseMessage()));
+        throw new NostrException(String.format("Failed to connect to %s. Status: %d", strUrl, response.statusCode()));
     }
 
     @SneakyThrows
