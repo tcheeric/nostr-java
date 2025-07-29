@@ -13,6 +13,11 @@ import nostr.event.tag.GenericTag;
 import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assumptions;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -74,6 +79,8 @@ public class EventTest {
     @Test
     public void testNip05Validator() {
         System.out.println("testNip05Validator");
+        Assumptions.assumeTrue(canConnect("nostr.band", 443), "Network not available, skipping nip05 validation");
+
         try {
             var nip05 = "nostr-java@nostr.band";
             var publicKey = new PublicKey(NostrUtil.hexToBytes(Bech32.fromBech32("npub126klq89p42wk78p4j5ur8wlxmxdqepdh8tez9e4axpd4run5nahsmff27j")));
@@ -85,6 +92,15 @@ public class EventTest {
             fail(ex);
         }
         assertTrue(true);
+    }
+
+    private boolean canConnect(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 2000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Test
