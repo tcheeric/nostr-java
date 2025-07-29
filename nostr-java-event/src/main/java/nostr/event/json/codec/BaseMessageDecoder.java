@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IDecoder;
@@ -56,9 +57,20 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     }
 
     private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws JsonProcessingException {
+        JsonNode root = I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString);
+        JsonNode commandNode = root.get(COMMAND_INDEX);
+        JsonNode argNode = root.get(ARG_INDEX);
+
+        if (commandNode == null || argNode == null) {
+            String missingFields = (commandNode == null ? "commandNode" : "") +
+                                   (commandNode == null && argNode == null ? " and " : "") +
+                                   (argNode == null ? "argNode" : "");
+            throw new IllegalArgumentException(String.format("Invalid JSON structure: Missing %s in JSON string [%s]", missingFields, jsonString));
+        }
+
         return new ValidNostrJsonStructure(
-            I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(COMMAND_INDEX).asText(),
-            I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(ARG_INDEX).asText());
+            commandNode.asText(),
+            argNode.asText());
     }
 
     private record ValidNostrJsonStructure(

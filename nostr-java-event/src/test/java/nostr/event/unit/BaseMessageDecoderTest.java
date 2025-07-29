@@ -26,6 +26,8 @@ public class BaseMessageDecoderTest {
             "\"authors\": [\"f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75\"]," +
             "\"#e\": [\"fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712\"]}]";
 
+    public final static String MALFORMED_JSON = "[\"REQ\"]";
+
     @Test
     void testReqMessageDecoder() throws JsonProcessingException {
         log.info("testReqMessageDecoder");
@@ -80,6 +82,15 @@ public class BaseMessageDecoderTest {
 
         assertThrows(IllegalArgumentException.class, () -> {
             new BaseMessageDecoder<EoseMessage>().decode(INVALID_COMMAND_JSON);
+        });
+    }
+
+    @Test
+    void testMalformedJsonThrows() {
+        log.info("testMalformedJsonThrows");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new BaseMessageDecoder<>().decode(MALFORMED_JSON);
         });
     }
 
