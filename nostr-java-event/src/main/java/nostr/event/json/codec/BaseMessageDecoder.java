@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IDecoder;
@@ -56,9 +57,10 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     }
 
     private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws JsonProcessingException {
+        JsonNode root = I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString);
         return new ValidNostrJsonStructure(
-            I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(COMMAND_INDEX).asText(),
-            I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(ARG_INDEX).asText());
+            root.get(COMMAND_INDEX).asText(),
+            root.get(ARG_INDEX).asText());
     }
 
     private record ValidNostrJsonStructure(
