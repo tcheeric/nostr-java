@@ -17,8 +17,8 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.test.context.ActiveProfiles;
+import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,8 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-@Disabled("Requires running relay at ws://localhost:5555")
-class ApiNIP99EventIT {
+class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   private static final String RELAY_URI = "ws://localhost:5555";
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
