@@ -25,18 +25,34 @@ public class NostrSpringWebSocketClient implements NostrIF {
   @Getter
   private Identity sender;
 
-  private static NostrSpringWebSocketClient INSTANCE;
+  private static volatile NostrSpringWebSocketClient INSTANCE;
 
   public NostrSpringWebSocketClient(String relayName, String relayUri) {
     setRelays(Map.of(relayName, relayUri));
   }
 
   public static NostrIF getInstance() {
-    return (INSTANCE == null) ? new NostrSpringWebSocketClient() : INSTANCE;
+    if (INSTANCE == null) {
+      synchronized (NostrSpringWebSocketClient.class) {
+        if (INSTANCE == null) {
+          INSTANCE = new NostrSpringWebSocketClient();
+        }
+      }
+    }
+    return INSTANCE;
   }
 
   public static NostrIF getInstance(@NonNull Identity sender) {
-    return (INSTANCE == null) ? new NostrSpringWebSocketClient(sender) : INSTANCE;
+    if (INSTANCE == null) {
+      synchronized (NostrSpringWebSocketClient.class) {
+        if (INSTANCE == null) {
+          INSTANCE = new NostrSpringWebSocketClient(sender);
+        } else if (INSTANCE.getSender() == null) {
+          INSTANCE.sender = sender; // Initialize sender if not already set
+        }
+      }
+    }
+    return INSTANCE;
   }
 
   public NostrSpringWebSocketClient(@NonNull Identity sender) {
@@ -95,14 +111,15 @@ public class NostrSpringWebSocketClient implements NostrIF {
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     createRequestClient(subscriptionId);
 
-    return clientMap.entrySet().stream().filter(entry ->
-            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))
+    return clientMap.entrySet().stream()
+        .filter(entry -> entry.getKey().endsWith(":" + subscriptionId))
         .map(Entry::getValue)
         .map(webSocketClientHandler ->
             webSocketClientHandler.sendRequest(
                 filters,
                 webSocketClientHandler.getRelayName()))
-        .flatMap(List::stream).toList();
+        .flatMap(List::stream)
+        .toList();
   }
 
 
@@ -141,17 +158,17 @@ public class NostrSpringWebSocketClient implements NostrIF {
     }
   }
 
+  protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri) {
+    return new WebSocketClientHandler(relayName, relayUri);
+  }
+
   private void createRequestClient(String subscriptionId) {
-    if (clientMap.entrySet().stream() // if a request client doesn't yet exist for subscriptionId...
-        .noneMatch(entry ->
-            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))) {
-      clientMap.keySet().forEach(clientMapKey -> // ... create one for each relay and add it to the client map
-          clientMap.entrySet().stream().map(entry ->
-                  new WebSocketClientHandler(
-                      String.join(entry.getKey(), subscriptionId),
-                      entry.getValue().getRelayUri()))
-              .toList().forEach(webSocketClientHandler ->
-                  clientMap.put(clientMapKey, webSocketClientHandler)));
-    }
+    clientMap.entrySet().stream()
+        .filter(entry -> !entry.getKey().contains(":"))
+        .forEach(entry -> {
+          String requestKey = entry.getKey() + ":" + subscriptionId;
+          clientMap.computeIfAbsent(requestKey,
+              key -> newWebSocketClientHandler(requestKey, entry.getValue().getRelayUri()));
+        });
   }
 }

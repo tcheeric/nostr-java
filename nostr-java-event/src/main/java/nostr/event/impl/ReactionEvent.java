@@ -23,23 +23,14 @@ public class ReactionEvent extends NIP25Event {
     }
 
     public String getReactedEventId() {
-        return this.getTags().stream()
-                .filter(tag -> tag instanceof EventTag)
-                .map(tag -> ((EventTag) tag).getIdEvent())
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Invalid `tags`: Must include at least one `EventTag` (`e` tag)."));
+        return requireTagInstance(EventTag.class).getIdEvent();
     }
 
     @Override
     protected void validateTags() {
         super.validateTags();
 
-        // Validate `tags` field for at least one `EventTag` (`e` tag)
-        boolean hasEventTag = this.getTags().stream()
-                .anyMatch(tag -> tag instanceof EventTag);
-        if (!hasEventTag) {
-            throw new AssertionError("Invalid `tags`: Must include at least one `EventTag` (`e` tag).");
-        }
+        requireTagInstance(EventTag.class);
     }
 
     @Override

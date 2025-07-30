@@ -22,19 +22,14 @@ public class MuteUserEvent extends GenericEvent {
     }
 
     public PublicKey getMutedUser() {
-        return ((PubKeyTag) getTags().get(0)).getPublicKey();
+        return requireTagInstance(PubKeyTag.class).getPublicKey();
     }
 
     @Override
     protected void validateTags() {
         super.validateTags();
 
-        // Validate `tags` field for at least one PubKeyTag
-        boolean hasValidPubKeyTag = this.getTags().stream()
-                .anyMatch(tag -> tag instanceof PubKeyTag);
-        if (!hasValidPubKeyTag) {
-            throw new AssertionError("Invalid `tags`: Must include at least one valid PubKeyTag.");
-        }
+        requireTagInstance(PubKeyTag.class);
     }
 
     @Override

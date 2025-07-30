@@ -2,6 +2,7 @@
 [![](https://jitpack.io/v/xyz.tcheeric/nostr-java.svg)](https://jitpack.io/#xyz.tcheeric/nostr-java)
 
 Nostr-java is a library for generating, signing, and publishing nostr events to relays.
+It provides helper methods such as `requireTag` and `requireTagInstance` on `GenericEvent` to assert required tags are present.
 
 ## Requirements
 - Maven
@@ -63,7 +64,7 @@ $ git checkout <your_chosen_branch>
 <details>
   <summary>integration-tested build (requires a nostr-relay for testing)</summary>
 
-valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
+valid relay(s) must **_first_** be defined using the `relays.<name>=<uri>` format in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
 
 ###### maven
     (unix)

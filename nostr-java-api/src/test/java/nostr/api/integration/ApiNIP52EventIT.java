@@ -13,8 +13,8 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.test.context.ActiveProfiles;
+import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,8 +24,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-@Disabled("Requires running relay at ws://localhost:5555")
-class ApiNIP52EventIT {
+class ApiNIP52EventIT extends BaseRelayIntegrationTest {
   private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
 

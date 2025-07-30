@@ -42,10 +42,10 @@ import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -66,8 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @Slf4j
-@Disabled("Requires running relay at ws://localhost:5555")
-public class ApiEventIT {
+public class ApiEventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;
 

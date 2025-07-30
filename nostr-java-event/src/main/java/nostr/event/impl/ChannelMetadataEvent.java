@@ -30,6 +30,29 @@ public class ChannelMetadataEvent extends GenericEvent {
         return MAPPER_AFTERBURNER.readValue(content, ChannelProfile.class);
     }
 
+    @Override
+    protected void validateContent() {
+        super.validateContent();
+
+        try {
+            ChannelProfile profile = getChannelProfile();
+
+            if (profile.getName() == null || profile.getName().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `name` field is required.");
+            }
+
+            if (profile.getAbout() == null || profile.getAbout().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `about` field is required.");
+            }
+
+            if (profile.getPicture() == null) {
+                throw new AssertionError("Invalid `content`: `picture` field is required.");
+            }
+        } catch (Exception e) {
+            throw new AssertionError("Invalid `content`: Must be a valid ChannelProfile JSON object.", e);
+        }
+    }
+
     public String getChannelCreateEventId() {
         return getTags().stream()
                 .filter(tag -> "e".equals(tag.getCode()))
