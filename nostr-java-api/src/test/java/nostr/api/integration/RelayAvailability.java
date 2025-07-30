@@ -37,7 +37,7 @@ public class RelayAvailability {
                 }
             }
             try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(host, port), 1000);
+                socket.connect(new InetSocketAddress(host, port), DEFAULT_TIMEOUT_MS);
             }
             return true;
         } catch (Exception e) {
