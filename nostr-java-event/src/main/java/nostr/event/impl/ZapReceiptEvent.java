@@ -99,4 +99,11 @@ public class ZapReceiptEvent extends GenericEvent {
             throw new AssertionError("Invalid `tags`: Must include a `preimage` tag for the payment preimage.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.ZAP_RECEIPT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ZAP_RECEIPT.getValue());
+        }
+    }
 }

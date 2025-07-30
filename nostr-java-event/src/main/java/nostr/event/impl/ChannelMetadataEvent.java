@@ -59,4 +59,11 @@ public class ChannelMetadataEvent extends GenericEvent {
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.CHANNEL_METADATA.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CHANNEL_METADATA.getValue());
+        }
+    }
 }

@@ -75,6 +75,13 @@ public class NutZapInformationalEvent extends ReplaceableEvent {
         }
     }
 
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.NUTZAP_INFORMATIONAL.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.NUTZAP_INFORMATIONAL.getValue());
+        }
+    }
+
     private Relay getRelayFromTag(@NonNull GenericTag tag) {
         String url = tag.getAttributes().get(0).getValue().toString();
         return new Relay(url);

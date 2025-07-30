@@ -36,4 +36,11 @@ public class MuteUserEvent extends GenericEvent {
             throw new AssertionError("Invalid `tags`: Must include at least one valid PubKeyTag.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.MUTE_USER.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.MUTE_USER.getValue());
+        }
+    }
 }

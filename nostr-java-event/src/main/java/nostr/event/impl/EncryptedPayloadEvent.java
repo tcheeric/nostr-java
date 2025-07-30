@@ -23,4 +23,11 @@ public class EncryptedPayloadEvent extends GenericEvent {
         this.setContent(content);
         this.addTag(PubKeyTag.builder().publicKey(recipient).build());
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.ENCRYPTED_PAYLOADS.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_PAYLOADS.getValue());
+        }
+    }
 }

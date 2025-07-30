@@ -41,4 +41,11 @@ public class HideMessageEvent extends GenericEvent {
             throw new AssertionError("Invalid `tags`: Must include at least one `e` tag.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.HIDE_MESSAGE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.HIDE_MESSAGE.getValue());
+        }
+    }
 }

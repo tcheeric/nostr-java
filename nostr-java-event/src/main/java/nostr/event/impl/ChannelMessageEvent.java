@@ -112,4 +112,11 @@ public class ChannelMessageEvent extends GenericEvent {
         }
         this.addTag(replyEventTag);
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.CHANNEL_MESSAGE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CHANNEL_MESSAGE.getValue());
+        }
+    }
 }

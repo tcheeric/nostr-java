@@ -33,4 +33,11 @@ public class ContactListEvent extends GenericEvent {
             throw new AssertionError("Missing `p` tag for contact list entries.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.CONTACT_LIST.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CONTACT_LIST.getValue());
+        }
+    }
 }

@@ -60,4 +60,11 @@ public class CalendarTimeBasedEvent<T extends BaseTag> extends CalendarDateBased
 
         return calendarContent;
     }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.CALENDAR_TIME_BASED_EVENT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CALENDAR_TIME_BASED_EVENT.getValue());
+        }
+    }
 }

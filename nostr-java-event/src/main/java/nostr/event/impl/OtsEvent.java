@@ -21,4 +21,11 @@ public class OtsEvent extends GenericEvent {
     public OtsEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
         super(pubKey, Kind.OTS_EVENT, tags, content);
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.OTS_EVENT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.OTS_EVENT.getValue());
+        }
+    }
 }

@@ -97,4 +97,11 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
 
         return calendarRsvpContent;
     }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.CALENDAR_RSVP_EVENT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CALENDAR_RSVP_EVENT.getValue());
+        }
+    }
 }

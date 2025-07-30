@@ -53,4 +53,11 @@ public class DeletionEvent extends NIP09Event {
             throw new AssertionError("Invalid `tags`: Should include a `k` tag for the kind of each event being requested for deletion.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.DELETION.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.DELETION.getValue());
+        }
+    }
 }

@@ -27,4 +27,11 @@ public class ChannelCreateEvent extends GenericEvent {
         return MAPPER_AFTERBURNER.readValue(content, ChannelProfile.class);
     }
 
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.CHANNEL_CREATE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CHANNEL_CREATE.getValue());
+        }
+    }
+
 }

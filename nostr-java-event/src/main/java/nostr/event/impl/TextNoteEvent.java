@@ -37,4 +37,11 @@ public class TextNoteEvent extends NIP01Event {
                 .map(PubKeyTag::getPublicKey)
                 .toList();
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.TEXT_NOTE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.TEXT_NOTE.getValue());
+        }
+    }
 }
