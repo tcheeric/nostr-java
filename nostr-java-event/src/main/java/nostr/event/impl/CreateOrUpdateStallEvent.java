@@ -37,4 +37,25 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
     protected Stall getEntity() {
         return getStall();
     }
+
+    @Override
+    protected void validateContent() {
+        super.validateContent();
+
+        try {
+            Stall stall = getStall();
+
+            if (stall.getName() == null || stall.getName().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `name` field is required.");
+            }
+
+            if (stall.getCurrency() == null || stall.getCurrency().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `currency` field is required.");
+            }
+        } catch (AssertionError e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AssertionError("Invalid `content`: Must be a valid Stall JSON object.", e);
+        }
+    }
 }
