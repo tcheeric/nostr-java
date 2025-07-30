@@ -37,6 +37,7 @@ public abstract class BaseRelayIntegrationTest {
     static void ensureDockerAvailable() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
                 "Docker is required to run nostr-rs-relay container");
+        relayUri = String.format("ws://localhost:%d", RELAY.getMappedPort(RELAY_PORT));
     }
 
     @DynamicPropertySource
