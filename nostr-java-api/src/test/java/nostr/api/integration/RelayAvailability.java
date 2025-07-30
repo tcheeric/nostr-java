@@ -6,9 +6,11 @@ import java.net.URI;
 import java.util.ResourceBundle;
 
 public class RelayAvailability {
+    private static final String RESOURCE_BUNDLE_NAME = "relays";
+
     public static boolean areRelaysAvailable() {
         try {
-            ResourceBundle bundle = ResourceBundle.getBundle("relays");
+            ResourceBundle bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_NAME);
             for (String key : bundle.keySet()) {
                 String uri = bundle.getString(key);
                 if (!isRelayAvailable(uri)) {
