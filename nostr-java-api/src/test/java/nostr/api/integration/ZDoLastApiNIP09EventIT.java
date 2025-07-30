@@ -57,15 +57,12 @@ public class ZDoLastApiNIP09EventIT {
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(identity.getPublicKey()));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
-
         nip09.createDeletionEvent(nip01.getEvent()).signAndSend(relays);
 
-        result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
 

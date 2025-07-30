@@ -115,7 +115,7 @@ class ApiNIP52RequestIT {
     EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
-    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
+    String eventResponse = springWebSocketEventClient.send(eventMessage).blockFirst();
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
@@ -138,7 +138,7 @@ class ApiNIP52RequestIT {
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
-    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
+    String reqResponse = springWebSocketRequestClient.send(reqJson).blockFirst();
 
     String expected = expectedRequestResponseJson(subscriberId);
     // TODO - This assertion keeps failing...

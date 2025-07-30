@@ -101,7 +101,7 @@ class ApiNIP99RequestIT {
     EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
-    List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
+    List<String> eventResponses = springWebSocketEventClient.send(eventMessage).collectList().block();
 
 	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
 
@@ -125,7 +125,7 @@ class ApiNIP99RequestIT {
 ///*
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
-    List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
+    List<String> reqResponses = springWebSocketRequestClient.send(reqJson).collectList().block();
 //    springWebSocketRequestClient.closeSocket();
 
     var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());

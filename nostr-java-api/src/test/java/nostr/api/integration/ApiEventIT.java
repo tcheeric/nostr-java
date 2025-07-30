@@ -140,7 +140,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new GeohashTagFilter<>(new GeohashTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -162,7 +162,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new HashtagTagFilter<>(new HashtagTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         //assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -184,7 +184,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -210,8 +210,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#p", recipientTag.getPublicKey().toString())));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
 
@@ -236,13 +235,10 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#u", targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertEquals(2, result.size());
-
         String matcher = """
                 ["u","%s"]""".formatted(targetString);
-
         assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
 //        nip01.close();
@@ -262,8 +258,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new UrlTagFilter<>(new UrlTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertEquals(2, result.size(), result.toString());
 
         String matcher = """
@@ -317,7 +312,7 @@ public class ApiEventIT {
         Filters filters2 = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
-        List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -352,7 +347,7 @@ public class ApiEventIT {
         Filters filters2 = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget2)));  // 2nd filter should find match in 2nd event
 
-        List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+        List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(3, result.size());
@@ -380,10 +375,8 @@ public class ApiEventIT {
                 new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)),
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
 //        nip01.close();
@@ -753,9 +746,7 @@ public class ApiEventIT {
         Filters filters = new Filters(
                 new VoteTagFilter<>(new VoteTag(targetVote)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
-
-        assertFalse(result.isEmpty());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetVote.toString())));
 

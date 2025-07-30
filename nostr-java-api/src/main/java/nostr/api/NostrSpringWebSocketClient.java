@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import reactor.core.publisher.Flux;
 
 @NoArgsConstructor
 public class NostrSpringWebSocketClient implements NostrIF {
@@ -59,50 +60,49 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
-  public List<String> sendEvent(@NonNull IEvent event) {
-    return clientMap.values().stream().map(client ->
-        client.sendEvent(event)).flatMap(List::stream).distinct().toList();
+  public Flux<String> sendEvent(@NonNull IEvent event) {
+    return Flux.merge(clientMap.values().stream()
+        .map(client -> client.sendEvent(event))
+        .toList()).distinct();
   }
 
   @Override
-  public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
+  public Flux<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
     return sendEvent(event);
   }
 
   @Override
-  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
+  public Flux<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
     return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
   @Override
-  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
+  public Flux<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId, Map<String, String> relays) {
     setRelays(relays);
     return sendRequest(filtersList, subscriptionId);
   }
 
   @Override
-  public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
-    return filtersList.stream().map(filters -> sendRequest(
-            filters,
-            subscriptionId
-        ))
-        .flatMap(List::stream)
-        .distinct().toList();
+  public Flux<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+    return Flux.merge(filtersList.stream()
+            .map(filters -> sendRequest(filters, subscriptionId))
+            .toList())
+        .distinct();
   }
 
   @Override
-  public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+  public Flux<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     createRequestClient(subscriptionId);
 
-    return clientMap.entrySet().stream().filter(entry ->
-            entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))
-        .map(Entry::getValue)
-        .map(webSocketClientHandler ->
-            webSocketClientHandler.sendRequest(
-                filters,
-                webSocketClientHandler.getRelayName()))
-        .flatMap(List::stream).toList();
+    return Flux.merge(clientMap.entrySet().stream()
+            .filter(entry -> entry.getValue().getRelayName().equals(String.join(entry.getKey(), subscriptionId)))
+            .map(Entry::getValue)
+            .map(webSocketClientHandler ->
+                webSocketClientHandler.sendRequest(
+                    filters,
+                    webSocketClientHandler.getRelayName()))
+            .toList());
   }
 
 

@@ -47,7 +47,7 @@ public abstract class EventNostr extends NostrSpringWebSocketClient {
     }
 
     public <U extends BaseMessage> U send(Map<String, String> relays) {
-        List<String> messages = super.sendEvent(this.event, relays);
+        List<String> messages = super.sendEvent(this.event, relays).collectList().block();
         BaseMessageDecoder<U> decoder = new BaseMessageDecoder<>();
 
         return new FailableStream<>(messages.stream())

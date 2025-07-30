@@ -102,6 +102,16 @@ I recommend having a look at these repositories/module for examples:
 - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
 - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
+## Reactive WebSocket Client
+The `StandardWebSocketClient` now exposes a non-blocking API using Reactor's `Flux`.
+Messages are sent asynchronously and events can be consumed reactively:
+
+```java
+StandardWebSocketClient client = new StandardWebSocketClient("ws://localhost:5555");
+client.send("[\"PING\"]")
+      .subscribe(System.out::println);
+```
+
 
 ## Supported NIPs
 The following NIPs are supported by the API out-of-the-box:
