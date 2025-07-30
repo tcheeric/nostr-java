@@ -103,8 +103,4 @@ public final class Constants {
         public static final String FREE_BUSY_CODE = "fb";
     }
 
-    interface NIP {
-        int ONE = 1;
-        int TWO = 2;
-    }
 }
