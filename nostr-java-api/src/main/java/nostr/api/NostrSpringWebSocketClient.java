@@ -47,6 +47,8 @@ public class NostrSpringWebSocketClient implements NostrIF {
       synchronized (NostrSpringWebSocketClient.class) {
         if (INSTANCE == null) {
           INSTANCE = new NostrSpringWebSocketClient(sender);
+        } else if (INSTANCE.getSender() == null) {
+          INSTANCE.sender = sender; // Initialize sender if not already set
         }
       }
     }
