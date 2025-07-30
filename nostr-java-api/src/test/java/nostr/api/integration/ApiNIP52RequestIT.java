@@ -58,11 +58,8 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   public static final String LOCATION = "calendar location";
 
   public static final EventTag E_TAG = new EventTag(E_TAG_HEX);
-  public static final PubKeyTag P1_TAG = new PubKeyTag(new PublicKey(P1_TAG_HEX), getRelayUri(), P1_ROLE);
-  public static final PubKeyTag P2_TAG = new PubKeyTag(new PublicKey(P2_TAG_HEX), getRelayUri(), P2_ROLE);
   public static final GeohashTag G_TAG = new GeohashTag(G_TAG_VALUE);
   public static final HashtagTag T_TAG = new HashtagTag(T_TAG_VALUE);
-  public static final ReferenceTag R_TAG = new ReferenceTag(URI.create(getRelayUri()));
 
   public static final String LABEL_NAMESPACE = "audiospace";
   public static final String LABEL_1 = "calendar label 1 of 2";
@@ -85,8 +82,10 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
-    tags.add(P1_TAG);
-    tags.add(P2_TAG);
+    PubKeyTag p1Tag = new PubKeyTag(new PublicKey(P1_TAG_HEX), getRelayUri(), P1_ROLE);
+    PubKeyTag p2Tag = new PubKeyTag(new PublicKey(P2_TAG_HEX), getRelayUri(), P2_ROLE);
+    tags.add(p1Tag);
+    tags.add(p2Tag);
     tags.add(BaseTag.create(START_TZID_CODE,  START_TZID));
     tags.add(BaseTag.create(END_TZID_CODE,  END_TZID));
     tags.add(BaseTag.create(SUMMARY_CODE,  SUMMARY));
@@ -96,7 +95,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     tags.add(BaseTag.create(END_CODE,  END));
     tags.add(G_TAG);
     tags.add(T_TAG);
-    tags.add(R_TAG);
+    tags.add(new ReferenceTag(URI.create(getRelayUri())));
 
     CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
             new IdentifierTag(UUID_CALENDAR_TIME_BASED_EVENT_TEST),
@@ -170,8 +169,8 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
         "            [ \"g\", \"" + G_TAG.getLocation() + "\" ],\n" +
         "            [ \"t\", \"" + T_TAG.getHashTag() + "\" ],\n" +
         "            [ \"d\", \"" + UUID_CALENDAR_TIME_BASED_EVENT_TEST + "\" ],\n" +
-        "            [ \"p\", \"" + P1_TAG.getPublicKey() + "\", \"" + getRelayUri() + "\", \"" + P1_ROLE + "\" ],\n" +
-        "            [ \"p\", \"" + P2_TAG.getPublicKey() + "\", \"" + getRelayUri() + "\", \"" + P2_ROLE + "\" ],\n" +
+        "            [ \"p\", \"" + P1_TAG_HEX + "\", \"" + getRelayUri() + "\", \"" + P1_ROLE + "\" ],\n" +
+        "            [ \"p\", \"" + P2_TAG_HEX + "\", \"" + getRelayUri() + "\", \"" + P2_ROLE + "\" ],\n" +
         "            [ \"start_tzid\", \"" + START_TZID + "\" ],\n" +
         "            [ \"end_tzid\", \"" + END_TZID + "\" ],\n" +
         "            [ \"summary\", \"" + SUMMARY + "\" ],\n" +
