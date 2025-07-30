@@ -27,7 +27,14 @@ public class RelayAvailability {
             String host = uri.getHost();
             int port = uri.getPort();
             if (port == -1) {
-                port = "wss".equalsIgnoreCase(uri.getScheme()) ? 443 : 80;
+                String scheme = uri.getScheme();
+                if ("wss".equalsIgnoreCase(scheme)) {
+                    port = 443;
+                } else if ("ws".equalsIgnoreCase(scheme)) {
+                    port = 80;
+                } else {
+                    throw new IllegalArgumentException("Unsupported URI scheme: " + scheme);
+                }
             }
             try (Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress(host, port), 1000);
