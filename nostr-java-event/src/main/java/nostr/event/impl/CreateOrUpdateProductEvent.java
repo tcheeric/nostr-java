@@ -30,4 +30,29 @@ public class CreateOrUpdateProductEvent extends MerchantEvent<Product> {
     protected Product getEntity() {
         return getProduct();
     }
+
+    @Override
+    protected void validateContent() {
+        super.validateContent();
+
+        try {
+            Product product = getProduct();
+
+            if (product.getName() == null || product.getName().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `name` field is required.");
+            }
+
+            if (product.getCurrency() == null || product.getCurrency().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `currency` field is required.");
+            }
+
+            if (product.getPrice() == null) {
+                throw new AssertionError("Invalid `content`: `price` field is required.");
+            }
+        } catch (AssertionError e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AssertionError("Invalid `content`: Must be a valid Product JSON object.", e);
+        }
+    }
 }
