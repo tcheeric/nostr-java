@@ -18,11 +18,11 @@ import java.util.List;
  * @author eric
  */
 @Data
-public abstract class EventFactory {
+public abstract class EventFactory<E extends GenericEvent, T extends BaseTag> {
 
     private final Identity identity;
     private final String content;
-    private final List<BaseTag> tags;
+    private final List<T> tags;
 
     public EventFactory(Identity identity) {
         this(identity, new ArrayList<>(), "");
@@ -38,15 +38,15 @@ public abstract class EventFactory {
         this(sender, new ArrayList<>(), content);
     }
 
-    public EventFactory(Identity sender, List<BaseTag> tags, String content) {
+    public EventFactory(Identity sender, List<T> tags, String content) {
         this.content = content;
         this.tags = tags;
         this.identity = sender;
     }
 
-    public abstract GenericEvent create();
-    
-    protected void addTag(BaseTag tag) {
+    public abstract E create();
+
+    protected void addTag(T tag) {
         this.tags.add(tag);
     }
 
