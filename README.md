@@ -64,6 +64,7 @@ $ git checkout <your_chosen_branch>
   <summary>integration-tested build (requires a nostr-relay for testing)</summary>
 
 valid relay(s) must **_first_** be defined in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
+integration tests will automatically be skipped when no relay is reachable.
 
 ###### maven
     (unix)
