@@ -25,18 +25,34 @@ public class NostrSpringWebSocketClient implements NostrIF {
   @Getter
   private Identity sender;
 
-  private static NostrSpringWebSocketClient INSTANCE;
+  private static volatile NostrSpringWebSocketClient INSTANCE;
 
   public NostrSpringWebSocketClient(String relayName, String relayUri) {
     setRelays(Map.of(relayName, relayUri));
   }
 
   public static NostrIF getInstance() {
-    return (INSTANCE == null) ? new NostrSpringWebSocketClient() : INSTANCE;
+    if (INSTANCE == null) {
+      synchronized (NostrSpringWebSocketClient.class) {
+        if (INSTANCE == null) {
+          INSTANCE = new NostrSpringWebSocketClient();
+        }
+      }
+    }
+    return INSTANCE;
   }
 
   public static NostrIF getInstance(@NonNull Identity sender) {
-    return (INSTANCE == null) ? new NostrSpringWebSocketClient(sender) : INSTANCE;
+    if (INSTANCE == null) {
+      synchronized (NostrSpringWebSocketClient.class) {
+        if (INSTANCE == null) {
+          INSTANCE = new NostrSpringWebSocketClient(sender);
+        } else if (INSTANCE.getSender() == null) {
+          INSTANCE.sender = sender; // Initialize sender if not already set
+        }
+      }
+    }
+    return INSTANCE;
   }
 
   public NostrSpringWebSocketClient(@NonNull Identity sender) {
