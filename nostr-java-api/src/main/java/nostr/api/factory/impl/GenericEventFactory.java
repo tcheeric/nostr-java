@@ -43,7 +43,7 @@ public class GenericEventFactory<T extends BaseTag> extends EventFactory<Generic
     }
 
     public GenericEvent create() {
-        return new GenericEvent(getIdentity().getPublicKey(), getKind(), new ArrayList<BaseTag>(getTags()), getContent());
+        return new GenericEvent(getIdentity().getPublicKey(), getKind(), getTags(), getContent());
     }
 
 }
