@@ -64,6 +64,13 @@ public final class MetadataEvent extends NIP01Event {
         super.update();
     }
 
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.SET_METADATA.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.SET_METADATA.getValue());
+        }
+    }
+
     private void setContent() {
         var mapper = ENCODER_MAPPED_AFTERBURNER;
         try {

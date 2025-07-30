@@ -103,6 +103,11 @@ I recommend having a look at these repositories/module for examples:
 - [nostr-client](https://github.com/tcheeric/nostr-client) github repository
 - [SuperConductor](https://github.com/avlo/superconductor) nostr relay
 
+### Event validation
+Every concrete event now verifies that its `kind` matches the expected value from
+the `Kind` enum. Calling `validate()` on an event with an incorrect `kind` will
+throw an `AssertionError`.
+
 
 ## Supported NIPs
 The following NIPs are supported by the API out-of-the-box:

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.base.IEvent;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
@@ -34,5 +35,12 @@ public class CustomerOrderEvent extends CheckoutEvent<CustomerOrder> {
 
     protected CustomerOrder getEntity() {
         return getCustomerOrder();
+    }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
+        }
     }
 }

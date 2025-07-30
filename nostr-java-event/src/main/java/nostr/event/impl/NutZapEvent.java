@@ -87,6 +87,13 @@ public class NutZapEvent extends GenericEvent {
         }
     }
 
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.NUTZAP.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.NUTZAP.getValue());
+        }
+    }
+
     private CashuMint getMintFromTag(GenericTag mintTag) {
         String url = mintTag.getAttributes().get(0).getValue().toString();
         CashuMint mint = new CashuMint(url);

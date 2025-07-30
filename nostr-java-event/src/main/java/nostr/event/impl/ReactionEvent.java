@@ -32,4 +32,11 @@ public class ReactionEvent extends NIP25Event {
 
         requireTagInstance(EventTag.class);
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.REACTION.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.REACTION.getValue());
+        }
+    }
 }

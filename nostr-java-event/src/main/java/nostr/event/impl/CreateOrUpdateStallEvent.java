@@ -39,6 +39,12 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
     }
 
     @Override
+    public void validateKind() {
+        if (getKind() != Kind.STALL_CREATE_OR_UPDATE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.STALL_CREATE_OR_UPDATE.getValue());
+        }
+    }
+  
     protected void validateContent() {
         super.validateContent();
 

@@ -89,4 +89,11 @@ public class ZapRequestEvent extends GenericEvent {
             throw new AssertionError("Invalid `tags`: Must include an `lnurl` tag containing the Lightning Network URL.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.ZAP_REQUEST.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ZAP_REQUEST.getValue());
+        }
+    }
 }

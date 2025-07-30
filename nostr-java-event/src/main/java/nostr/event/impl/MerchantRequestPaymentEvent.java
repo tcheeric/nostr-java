@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IEvent;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
@@ -31,5 +32,12 @@ public class MerchantRequestPaymentEvent extends CheckoutEvent<PaymentRequest> {
 
     protected PaymentRequest getEntity() {
         return getPaymentRequest();
+    }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
+        }
     }
 }

@@ -81,4 +81,11 @@ public class CalendarEvent extends AbstractBaseCalendarEvent<JsonContent> {
             throw new AssertionError("Missing `title` tag for the event title.");
         }
     }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.CALENDAR_EVENT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CALENDAR_EVENT.getValue());
+        }
+    }
 }

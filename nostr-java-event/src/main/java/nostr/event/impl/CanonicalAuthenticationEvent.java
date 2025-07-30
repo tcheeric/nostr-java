@@ -54,4 +54,11 @@ public class CanonicalAuthenticationEvent extends EphemeralEvent {
             throw new AssertionError("Missing or invalid `relay` tag.");
         }
     }
+
+    @Override
+    public void validateKind() {
+        if (getKind() != Kind.CLIENT_AUTH.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CLIENT_AUTH.getValue());
+        }
+    }
 }

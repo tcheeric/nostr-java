@@ -28,6 +28,12 @@ public class ChannelCreateEvent extends GenericEvent {
     }
 
     @Override
+    protected void validateKind() {
+        if (getKind() != Kind.CHANNEL_CREATE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.CHANNEL_CREATE.getValue());
+        }
+    }
+  
     protected void validateContent() {
         super.validateContent();
 

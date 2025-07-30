@@ -31,4 +31,11 @@ public class MuteUserEvent extends GenericEvent {
 
         requireTagInstance(PubKeyTag.class);
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.MUTE_USER.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.MUTE_USER.getValue());
+        }
+    }
 }

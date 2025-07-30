@@ -57,4 +57,11 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
         // Validate the NIP-05 identifier
         // NOTE: This is now up to the client to perform this validation
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.SET_METADATA.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.SET_METADATA.getValue());
+        }
+    }
 }

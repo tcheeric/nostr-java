@@ -83,4 +83,11 @@ public class ZapReceiptEvent extends GenericEvent {
         requireTag("description");
         requireTag("preimage");
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.ZAP_RECEIPT.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ZAP_RECEIPT.getValue());
+        }
+    }
 }

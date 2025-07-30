@@ -41,4 +41,11 @@ public class DirectMessageEvent extends NIP04Event {
             throw new AssertionError("Invalid `tags`: Must include a PubKeyTag for the recipient.");
         }
     }
+
+    @Override
+    protected void validateKind() {
+        if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
+            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
+        }
+    }
 }
