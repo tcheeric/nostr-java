@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 public class RelayAvailability {
     private static final String RESOURCE_BUNDLE_NAME = "relays";
+    private static final int DEFAULT_TIMEOUT_MS = 1000;
 
     public static boolean areRelaysAvailable() {
         try {
