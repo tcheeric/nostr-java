@@ -60,13 +60,13 @@ public class NIP01 extends EventNostr {
     }
 
     public NIP01 createTextNoteEvent(Identity sender, String content, List<PubKeyTag> recipients) {
-        GenericEvent genericEvent = new GenericEventFactory(sender, Constants.Kind.SHORT_TEXT_NOTE, (List<BaseTag>) (List<?>) recipients, content).create();
+        GenericEvent genericEvent = new GenericEventFactory<PubKeyTag>(sender, Constants.Kind.SHORT_TEXT_NOTE, recipients, content).create();
         this.updateEvent(genericEvent);
         return this;
     }
 
     public NIP01 createTextNoteEvent(String content, List<PubKeyTag> recipients) {
-        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, (List<BaseTag>) (List<?>) recipients, content).create();
+        GenericEvent genericEvent = new GenericEventFactory<PubKeyTag>(getSender(), Constants.Kind.SHORT_TEXT_NOTE, recipients, content).create();
         this.updateEvent(genericEvent);
         return this;
     }
@@ -162,7 +162,7 @@ public class NIP01 extends EventNostr {
      * @return
      */
     public NIP01 createAddressableEvent(@NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-        GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, (List<BaseTag>) (List<?>) tags, content).create();
+        GenericEvent genericEvent = new GenericEventFactory<GenericTag>(getSender(), kind, tags, content).create();
         this.updateEvent(genericEvent);
         return this;
     }

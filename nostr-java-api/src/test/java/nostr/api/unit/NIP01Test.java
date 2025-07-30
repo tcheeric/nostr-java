@@ -73,6 +73,21 @@ public class NIP01Test {
     }
 
     @Test
+    public void testCreateTextNoteEventWithRecipientListParameter() {
+        Identity sender = Identity.generateRandomIdentity();
+        Identity recipient = Identity.generateRandomIdentity();
+        NIP01 nip01 = new NIP01(sender);
+
+        PubKeyTag recipientTag = new PubKeyTag(recipient.getPublicKey());
+        GenericEvent genericEvent = nip01.createTextNoteEvent("Generic", List.of(recipientTag)).sign().getEvent();
+
+        TextNoteEvent textNoteEvent = GenericEvent.convert(genericEvent, TextNoteEvent.class);
+
+        assertEquals(1, textNoteEvent.getRecipients().size());
+        assertEquals(recipient.getPublicKey(), textNoteEvent.getRecipients().get(0));
+    }
+
+    @Test
     public void testGenerateSignValidateAndConvertMetadataEvent() throws MalformedURLException {
         // Step 1: Prepare
         Identity sender = Identity.generateRandomIdentity();
@@ -154,6 +169,18 @@ public class NIP01Test {
         assertEquals(kind, genericEvent.getKind(), "The kind of the parameterized replaceable event should match the specified kind.");
         assertEquals(content, genericEvent.getContent(), "The content of the parameterized replaceable event should match the original content.");
         assertEquals(sender.getPublicKey(), genericEvent.getPubKey(), "The public key of the parameterized replaceable event should match the sender's public key.");
+    }
+
+    @Test
+    public void testCreateAddressableEventWithTagList() {
+        Identity sender = Identity.generateRandomIdentity();
+        NIP01 nip01 = new NIP01(sender);
+
+        GenericTag tag = new GenericTag("test");
+        GenericEvent event = nip01.createAddressableEvent(List.of(tag), 30001, "addr").sign().getEvent();
+
+        assertEquals(1, event.getTags().size());
+        assertEquals("addr", event.getContent());
     }
 
     @Test

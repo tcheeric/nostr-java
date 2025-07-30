@@ -18,10 +18,10 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,13 +37,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
-@Disabled("Requires running relay at ws://localhost:5555")
-public class ZDoLastApiNIP09EventIT {
+public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;
 
     @Test
-    @Disabled("Requires running relay at ws://127.0.0.1:5555")
     public void deleteEvent() throws IOException {
 
         Identity identity = Identity.generateRandomIdentity();
@@ -75,7 +73,6 @@ public class ZDoLastApiNIP09EventIT {
 
 
     @Test
-    @Disabled("Requires running relay at ws://127.0.0.1:5555")
     public void deleteEventWithRef() throws IOException {
         final String RELAY_URI = "ws://localhost:5555";
         Identity identity = Identity.generateRandomIdentity();
