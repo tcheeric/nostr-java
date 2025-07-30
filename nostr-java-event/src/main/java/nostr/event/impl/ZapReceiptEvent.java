@@ -24,9 +24,9 @@ public class ZapReceiptEvent extends GenericEvent {
     }
 
     public ZapReceipt getZapReceipt() {
-        BaseTag preimageTag = getTag("preimage");
-        BaseTag descriptionTag = getTag("description");
-        BaseTag bolt11Tag = getTag("bolt11");
+        BaseTag preimageTag = requireTag("preimage");
+        BaseTag descriptionTag = requireTag("description");
+        BaseTag bolt11Tag = requireTag("bolt11");
 
         return new ZapReceipt(
                 ((GenericTag) bolt11Tag).getAttributes().get(0).getValue().toString(),
@@ -51,8 +51,7 @@ public class ZapReceiptEvent extends GenericEvent {
     }
 
     public PublicKey getRecipient() {
-        BaseTag recipientTag = getTag("p");
-        PubKeyTag recipientPubKeyTag = (PubKeyTag) recipientTag;
+        PubKeyTag recipientPubKeyTag = (PubKeyTag) requireTag("p");
         return recipientPubKeyTag.getPublicKey();
     }
 
@@ -79,24 +78,9 @@ public class ZapReceiptEvent extends GenericEvent {
 
         // Validate `tags` field
         // Check for required tags
-        boolean hasRecipientTag = this.getTags().stream().anyMatch(tag -> "p".equals(tag.getCode()));
-        if (!hasRecipientTag) {
-            throw new AssertionError("Invalid `tags`: Must include a `p` tag for the recipient's public key.");
-        }
-
-        boolean hasBolt11Tag = this.getTags().stream().anyMatch(tag -> "bolt11".equals(tag.getCode()));
-        if (!hasBolt11Tag) {
-            throw new AssertionError("Invalid `tags`: Must include a `bolt11` tag for the Lightning invoice.");
-        }
-
-        boolean hasDescriptionTag = this.getTags().stream().anyMatch(tag -> "description".equals(tag.getCode()));
-        if (!hasDescriptionTag) {
-            throw new AssertionError("Invalid `tags`: Must include a `description` tag for the description hash.");
-        }
-
-        boolean hasPreimageTag = this.getTags().stream().anyMatch(tag -> "preimage".equals(tag.getCode()));
-        if (!hasPreimageTag) {
-            throw new AssertionError("Invalid `tags`: Must include a `preimage` tag for the payment preimage.");
-        }
+        requireTag("p");
+        requireTag("bolt11");
+        requireTag("description");
+        requireTag("preimage");
     }
 }

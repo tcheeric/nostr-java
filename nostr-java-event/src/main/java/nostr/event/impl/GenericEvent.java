@@ -343,6 +343,36 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
                 .toList();
     }
 
+    /**
+     * Ensure that a tag with the provided code exists.
+     *
+     * @param code the tag code to search for
+     * @return the first matching tag
+     * @throws AssertionError if no tag with the given code is present
+     */
+    protected BaseTag requireTag(@NonNull String code) {
+        return getTags().stream()
+                .filter(tag -> code.equals(tag.getCode()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing required `" + code + "` tag."));
+    }
+
+    /**
+     * Ensure that at least one tag instance of the provided class exists.
+     *
+     * @param clazz the tag class to search for
+     * @param <T>   tag type
+     * @return the first matching tag instance
+     * @throws AssertionError if no matching tag is present
+     */
+    protected <T extends BaseTag> T requireTagInstance(@NonNull Class<T> clazz) {
+        return getTags().stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing required `" + clazz.getSimpleName() + "` tag."));
+    }
+
 
     public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) {
         try {
