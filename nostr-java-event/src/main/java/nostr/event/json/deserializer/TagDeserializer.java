@@ -25,41 +25,43 @@ import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.function.Function;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
+
+    private static final Map<String, Function<JsonNode, ? extends BaseTag>> TAG_DECODERS = Map.ofEntries(
+            Map.entry("a", AddressTag::deserialize),
+            Map.entry("d", IdentifierTag::deserialize),
+            Map.entry("e", EventTag::deserialize),
+            Map.entry("g", GeohashTag::deserialize),
+            Map.entry("l", LabelTag::deserialize),
+            Map.entry("L", LabelNamespaceTag::deserialize),
+            Map.entry("p", PubKeyTag::deserialize),
+            Map.entry("r", ReferenceTag::deserialize),
+            Map.entry("t", HashtagTag::deserialize),
+            Map.entry("u", UrlTag::deserialize),
+            Map.entry("v", VoteTag::deserialize),
+            Map.entry("emoji", EmojiTag::deserialize),
+            Map.entry("expiration", ExpirationTag::deserialize),
+            Map.entry("nonce", NonceTag::deserialize),
+            Map.entry("price", PriceTag::deserialize),
+            Map.entry("relays", RelaysTag::deserialize),
+            Map.entry("subject", SubjectTag::deserialize)
+    );
 
     @Override
     public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-        // Extract relevant data from the JSON node
-        var code = node.get(0);
+        String code = node.get(0).asText();
 
-        if (code == null) {
-            throw new IOException("Unknown tag code: " + null);
-        }
+        Function<JsonNode, ? extends BaseTag> decoder = TAG_DECODERS.get(code);
+        BaseTag tag = decoder != null
+                ? decoder.apply(node)
+                : new GenericTagDecoder<>().decode(node.toString());
 
-        // Perform custom deserialization logic based on the concrete class
-        return switch (code.asText()) {
-            case "a" -> AddressTag.deserialize(node);
-            case "d" -> IdentifierTag.deserialize(node);
-            case "e" -> EventTag.deserialize(node);
-            case "g" -> GeohashTag.deserialize(node);
-            case "l" -> LabelTag.deserialize(node);
-            case "L" -> LabelNamespaceTag.deserialize(node);
-            case "p" -> PubKeyTag.deserialize(node);
-            case "r" -> ReferenceTag.deserialize(node);
-            case "t" -> HashtagTag.deserialize(node);
-            case "u" -> UrlTag.deserialize(node);
-            case "v" -> VoteTag.deserialize(node);
-            case "emoji" -> EmojiTag.deserialize(node);
-            case "expiration" -> ExpirationTag.deserialize(node);
-            case "nonce" -> NonceTag.deserialize(node);
-            case "price" -> PriceTag.deserialize(node);
-            case "relays" -> RelaysTag.deserialize(node);
-            case "subject" -> SubjectTag.deserialize(node);
-            default -> (T) new GenericTagDecoder<>().decode(node.toString());
-        };
+        return (T) tag;
 
     }
 }
