@@ -25,11 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
-  private static final String RELAY_URI = "ws://localhost:5555";
   private final SpringWebSocketClient springWebSocketClient;
 
   public ApiNIP52EventIT() {
-    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+    springWebSocketClient = new SpringWebSocketClient(getRelayUri());
   }
 
   @Test

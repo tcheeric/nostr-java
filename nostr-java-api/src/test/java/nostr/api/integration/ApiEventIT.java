@@ -226,7 +226,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     public void testNIP01SendTextNoteEventUrlTag() {
         System.out.println("testNIP01SendTextNoteEventUrlTag");
 
-        String targetString = "ws://localhost:5555";
+        String targetString = getRelayUri();
         BaseTag genericTag = BaseTag.create("u", targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
@@ -251,7 +251,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     public void testFilterUrlTag() {
         System.out.println("testFilterUrlTag");
 
-        String targetString = "https://localhost:5555";
+        String targetString = getRelayUri().replace("ws://", "https://");
         //UrlTag urlTag = new UrlTag(targetString);
         BaseTag urlTag = BaseTag.create("u", targetString);
 
@@ -560,7 +560,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         List<BaseTag> tags = new ArrayList<>();
         tags.add(new PubKeyTag(Identity.generateRandomIdentity().getPublicKey(),
-                "ws://localhost:5555",
+                getRelayUri(),
                 "ISSUER"));
         tags.add(new PubKeyTag(Identity.generateRandomIdentity().getPublicKey(),
                 "",
@@ -583,7 +583,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         final String ZAP_REQUEST_CONTENT = "zap request content";
         final Long AMOUNT = 1232456L;
         final String LNURL = "lnUrl";
-        final String RELAYS_TAG = "ws://localhost:5555";
+        final String RELAYS_TAG = getRelayUri();
 
         var instance = nip57.createZapRequestEvent(
                 AMOUNT,
@@ -630,7 +630,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         String zapSender = Identity.generateRandomIdentity().getPublicKey().toString();
         PublicKey zapRecipient = Identity.generateRandomIdentity().getPublicKey();
         final String ZAP_RECEIPT_IDENTIFIER = "ipsum";
-        final String ZAP_RECEIPT_RELAY_URI = "ws://localhost:5555";
+        final String ZAP_RECEIPT_RELAY_URI = getRelayUri();
         final String BOLT_11 = "bolt11";
         final String DESCRIPTION_SHA256 = "descriptionSha256";
         final String PRE_IMAGE = "preimage";
@@ -652,7 +652,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         final String ZAP_REQUEST_CONTENT = "zap request content";
         final Long AMOUNT = 1232456L;
         final String LNURL = "lnUrl";
-        final String RELAYS_TAG = "ws://localhost:5555";
+        final String RELAYS_TAG = getRelayUri();
 
         var zapRequestEvent = nip57.createZapRequestEvent(
                 AMOUNT,

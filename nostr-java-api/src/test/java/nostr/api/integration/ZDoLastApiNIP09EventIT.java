@@ -74,7 +74,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
     @Test
     public void deleteEventWithRef() throws IOException {
-        final String RELAY_URI = "ws://localhost:5555";
+        final String RELAY_URI = getRelayUri();
         Identity identity = Identity.generateRandomIdentity();
 
         NIP01 nip011 = new NIP01(identity);
