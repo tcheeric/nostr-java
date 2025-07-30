@@ -5,6 +5,8 @@ package nostr.config;
  * Collection of common constants used across the API.
  */
 public final class Constants {
+    private Constants() {
+    }
 
     public static final class Kind {
         private Kind() {
