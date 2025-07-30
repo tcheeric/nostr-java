@@ -54,6 +54,9 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
     public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+        if (!node.isArray() || node.size() == 0 || node.get(0) == null) {
+            throw new IOException("Malformed JSON: Expected a non-empty array.");
+        }
         String code = node.get(0).asText();
 
         Function<JsonNode, ? extends BaseTag> decoder = TAG_DECODERS.get(code);
