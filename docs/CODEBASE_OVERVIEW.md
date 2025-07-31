@@ -48,18 +48,20 @@ nostr.websocket.poll-interval-ms=500
 ## Creating and sending events
 The examples module shows how to create built-in and custom events. Below is an excerpt from the examples illustrating the creation of a `TextNoteEvent`:
 ```java
-private static final Identity SENDER = Identity.generateRandomIdentity();
-private final static Map<String, String> RELAYS = Map.of(
-    "lol", "nos.lol",
-    "damus", "relay.damus.io",
-    "ZBD", "nostr.zebedee.cloud",
-    "taxi", "relay.taxi",
-    "mom", "nostr.mom");
+    private static final Identity RECIPIENT = Identity.generateRandomIdentity();
+    private static final Identity SENDER = Identity.generateRandomIdentity();
 
-List<BaseTag> tags = List.of(new PubKeyTag(RECIPIENT.getPublicKey()));
-var nip01 = new NIP01<TextNoteEvent>(SENDER);
-nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
-    .sign()
-    .send(RELAYS);
+    private static GenericEvent sendTextNoteEvent() {
+ 
+        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
+
+        var nip01 = new NIP01(SENDER);
+        nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
+                .sign()
+                .send(RELAYS);
+
+        return nip01.getEvent();
+    }
 ```
-Custom events can be created using `GenericEventNostr.createGenericEvent(kind, content)` and custom tags with `TagFactory`.
+## Creating custom events and tags
+ TODO

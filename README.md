@@ -46,8 +46,6 @@ See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about r
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
-Each concrete event verifies that its `kind` matches the expected value from the `Kind` enum. Calling `validate()` on an event with an incorrect kind throws an `AssertionError`.
-
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md)
