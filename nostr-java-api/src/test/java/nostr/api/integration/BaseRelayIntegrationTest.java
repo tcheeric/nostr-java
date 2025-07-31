@@ -28,7 +28,7 @@ public abstract class BaseRelayIntegrationTest {
         String image = bundle.getString(IMAGE_KEY);
         RELAY = new GenericContainer<>(image)
                 .withExposedPorts(RELAY_PORT)
-                .waitingFor(Wait.forListeningPort());
+                .waitingFor(Wait.forHealthcheck());
     }
 
     private static String relayUri;
