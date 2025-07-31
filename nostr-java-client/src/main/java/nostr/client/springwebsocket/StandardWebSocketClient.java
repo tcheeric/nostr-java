@@ -17,12 +17,22 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
+  private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(500);
+
+  @Value("${nostr.websocket.await-timeout-ms:60000}")
+  private long awaitTimeoutMs;
+
+  @Value("${nostr.websocket.poll-interval-ms:500}")
+  private long pollIntervalMs;
+
   private final WebSocketSession clientSession;
   private List<String> events = new ArrayList<>();
   private final AtomicBoolean completed = new AtomicBoolean(false);
@@ -46,8 +56,11 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   public List<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
+    Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
+    Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
     await()
-//        .timeout(66, TimeUnit.MINUTES)
+        .atMost(awaitTimeout)
+        .pollInterval(pollInterval)
         .untilTrue(completed);
     List<String> eventList = List.copyOf(events);
     events = new ArrayList<>();
