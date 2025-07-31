@@ -12,6 +12,7 @@ import nostr.event.message.EventMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import nostr.api.integration.BaseRelayIntegrationTest;
@@ -25,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
-  private static final String RELAY_URI = "ws://localhost:5555";
-  private final SpringWebSocketClient springWebSocketClient;
+  private SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP52EventIT() {
-    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+  @BeforeEach
+  void setUp() {
+    springWebSocketClient = new SpringWebSocketClient(getRelayUri());
   }
 
   @Test

@@ -16,6 +16,8 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import nostr.api.integration.BaseRelayIntegrationTest;
@@ -31,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {
-  private static final String RELAY_URI = "ws://localhost:5555";
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
   public static final String PTAG_HEX = "2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985";
@@ -55,10 +56,11 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   public static final String SUMMARY_CODE = "summary";
   public static final String PUBLISHED_AT_CODE = "published_at";
   public static final String LOCATION_CODE = "location";
-  private final SpringWebSocketClient springWebSocketClient;
+  private SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP99EventIT() {
-    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+  @BeforeEach
+  void setUp() {
+    springWebSocketClient = new SpringWebSocketClient(getRelayUri());
   }
 
   @Test
