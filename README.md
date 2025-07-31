@@ -7,33 +7,7 @@
 - Java 21+
 
 ## Getting Started
-### Using JitPack
-Add the dependency and repository to your `pom.xml`:
-
-```xml
-<properties>
-    <nostr-java.version>v0.007.2-alpha</nostr-java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-</properties>
-
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-
-<dependencies>
-    <dependency>
-        <groupId>nostr-java</groupId>
-        <artifactId>nostr-java-api</artifactId>
-        <version>${nostr-java.version}</version>
-    </dependency>
-</dependencies>
-```
-
-### Building from source
-Clone the repository and build the modules:
+Clone the repository and build the modules. Installing them locally allows you to add the artifacts as dependencies in your own projects:
 
 ```bash
 $ git clone https://github.com/tcheeric/nostr-java.git
