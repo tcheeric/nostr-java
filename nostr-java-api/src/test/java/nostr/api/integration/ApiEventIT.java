@@ -8,6 +8,7 @@ import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
+import nostr.api.util.IntegrationTestExtension;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -42,6 +43,7 @@ import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -66,6 +68,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @Slf4j
+@ExtendWith(IntegrationTestExtension.class)
 public class ApiEventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;

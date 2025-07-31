@@ -2,6 +2,7 @@ package nostr.api.integration;
 
 import lombok.SneakyThrows;
 import nostr.api.NIP15;
+import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.config.RelayConfig;
@@ -9,6 +10,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
+@ExtendWith(IntegrationTestExtension.class)
 class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest {
     private final List<SpringWebSocketClient> springWebSocketClients;
 

@@ -1,6 +1,7 @@
 package nostr.api.integration;
 
 import nostr.api.NIP52;
+import nostr.api.util.IntegrationTestExtension;
 import nostr.api.util.JsonComparator;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -14,6 +15,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import nostr.api.integration.BaseRelayIntegrationTest;
 
@@ -25,6 +27,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
+@ExtendWith(IntegrationTestExtension.class)
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
   private SpringWebSocketClient springWebSocketClient;
 

@@ -2,6 +2,7 @@ package nostr.api.integration;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
+import nostr.api.util.IntegrationTestExtension;
 import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.RelayConfig;
@@ -18,6 +19,7 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -37,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
+@ExtendWith(IntegrationTestExtension.class)
 public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;

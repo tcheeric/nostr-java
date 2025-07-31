@@ -2,6 +2,7 @@ package nostr.api.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.api.NIP99;
+import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
@@ -17,6 +18,7 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import nostr.api.integration.BaseRelayIntegrationTest;
 
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
+@ExtendWith(IntegrationTestExtension.class)
 class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   public static final String PUBLISHED_AT_CODE = "published_at";
