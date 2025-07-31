@@ -17,12 +17,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
+  private static final Duration AWAIT_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration POLL_INTERVAL = Duration.ofMillis(200);
+
   private final WebSocketSession clientSession;
   private List<String> events = new ArrayList<>();
   private final AtomicBoolean completed = new AtomicBoolean(false);
@@ -47,7 +51,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   public List<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
     await()
-//        .timeout(66, TimeUnit.MINUTES)
+        .atMost(AWAIT_TIMEOUT)
+        .pollInterval(POLL_INTERVAL)
         .untilTrue(completed);
     List<String> eventList = List.copyOf(events);
     events = new ArrayList<>();
