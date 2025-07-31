@@ -11,31 +11,17 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.time.Duration;
-
-import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
-  private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(60);
-  private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(500);
-
-  @Value("${nostr.websocket.await-timeout-ms:60000}")
-  private long awaitTimeoutMs;
-
-  @Value("${nostr.websocket.poll-interval-ms:500}")
-  private long pollIntervalMs;
-
   private final WebSocketSession clientSession;
-  private List<String> events = new ArrayList<>();
-  private final AtomicBoolean completed = new AtomicBoolean(false);
+  private final Sinks.Many<String> sink = Sinks.many().multicast().onBackpressureBuffer();
 
   @SneakyThrows
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri) {
@@ -44,28 +30,18 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
-    events.add(message.getPayload());
-    completed.setRelease(true);
+    sink.tryEmitNext(message.getPayload());
   }
 
   @Override
-  public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
+  public <T extends BaseMessage> Flux<String> send(T eventMessage) throws IOException {
     return send(eventMessage.encode());
   }
 
   @Override
-  public List<String> send(String json) throws IOException {
+  public Flux<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
-    Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
-    Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
-    await()
-        .atMost(awaitTimeout)
-        .pollInterval(pollInterval)
-        .untilTrue(completed);
-    List<String> eventList = List.copyOf(events);
-    events = new ArrayList<>();
-    completed.setRelease(false);
-    return eventList;
+    return sink.asFlux();
   }
 
   @Override

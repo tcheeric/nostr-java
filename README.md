@@ -97,15 +97,16 @@ Specify your own container image by setting `relay.container.image=<image>` in t
 ```
 
 ### Configuring WebSocket client
-`StandardWebSocketClient` awaits responses from the relay when sending messages.
-The wait duration and polling interval can be customized using the following
-properties (values in milliseconds):
+`StandardWebSocketClient` now streams relay responses using Reactor. Messages are
+sent asynchronously and results can be consumed without blocking:
 
+```java
+SpringWebSocketClient client = new SpringWebSocketClient("wss://relay.example");
+client.send(message)
+      .subscribe(System.out::println);
 ```
-nostr.websocket.await-timeout-ms=60000
-nostr.websocket.poll-interval-ms=500
-```
-By default the client waits up to 60 seconds with a poll interval of 500&nbsp;ms.
+
+The previous blocking configuration properties are no longer used.
 
 ## Examples
 I recommend having a look at these repositories/module for examples:

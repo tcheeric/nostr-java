@@ -82,7 +82,7 @@ public class NostrApiExamples {
         var nip01 = new NIP01(SENDER);
         nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
 
         return nip01.getEvent();
     }
@@ -93,7 +93,7 @@ public class NostrApiExamples {
         var nip04 = new NIP04(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
     }
 
     private static void mentionsEvent() {
@@ -104,7 +104,7 @@ public class NostrApiExamples {
         var nip08 = new NIP08(SENDER);
         nip08.createMentionsEvent(1, tags, "Hello #[0]")
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
     }
 
     private static void deletionEvent() {
@@ -115,7 +115,7 @@ public class NostrApiExamples {
         var nip09 = new NIP09(SENDER);
         nip09.createDeletionEvent(event)
                 .sign()
-                .send();
+                .send().block();
     }
 
     private static GenericEvent metaDataEvent() {
@@ -124,7 +124,7 @@ public class NostrApiExamples {
         var nip01 = new NIP01(SENDER);
         nip01.createMetadataEvent(PROFILE)
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
 
         return nip01.getEvent();
     }
@@ -135,7 +135,7 @@ public class NostrApiExamples {
         var nip01 = new NIP01(SENDER);
         nip01.createEphemeralEvent(Kind.EPHEMEREAL_EVENT.getValue(), "An ephemeral event")
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
     }
 
     private static void reactionEvent() {
@@ -144,12 +144,12 @@ public class NostrApiExamples {
         List<BaseTag> tags = new ArrayList<>(List.of(NIP30.createEmojiTag("soapbox", "https://gleasonator.com/emoji/Gleasonator/soapbox.png")));
         var nip01 = new NIP01(SENDER);
         var event = nip01.createTextNoteEvent(tags, "Hello Astral, Please like me! :soapbox:");
-        event.signAndSend(RELAYS);
+        event.signAndSend(RELAYS).block();
 
         var nip25 = new NIP25(RECIPIENT);
         var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE, new Relay("localhost:5555"));
-        reactionEvent.signAndSend(RELAYS);
-        nip25.createReactionEvent(event.getEvent(), "\uD83D\uDCA9", new Relay("localhost:5555")).signAndSend();
+        reactionEvent.signAndSend(RELAYS).block();
+        nip25.createReactionEvent(event.getEvent(), "\uD83D\uDCA9", new Relay("localhost:5555")).signAndSend().block();
 
         BaseTag eventTag = NIP01.createEventTag(event.getEvent().getId());
         nip25.createReactionEvent(
@@ -158,7 +158,7 @@ public class NostrApiExamples {
                         "ablobcatrainbow",
                         "https://gleasonator.com/emoji/blobcat/ablobcatrainbow.png"
                 )
-        ).signAndSend();
+        ).signAndSend().block();
     }
 
     private static void replaceableEvent() {
@@ -166,9 +166,9 @@ public class NostrApiExamples {
 
         var nip01 = new NIP01(SENDER);
         var event = nip01.createTextNoteEvent("Hello Astral, Please replace me!");
-        event.signAndSend(RELAYS);
+        event.signAndSend(RELAYS).block();
 
-        nip01.createReplaceableEvent(List.of(NIP01.createEventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend();
+        nip01.createReplaceableEvent(List.of(NIP01.createEventTag(event.getEvent().getId())), Kind.REPLACEABLE_EVENT.getValue(), "New content").signAndSend().block();
     }
 
     private static void internetIdMetadata() {
@@ -182,7 +182,7 @@ public class NostrApiExamples {
         var nip05 = new NIP05(SENDER);
         nip05.createInternetIdentifierMetadataEvent(profile)
                 .sign()
-                .send(RELAYS);
+                .send(RELAYS).block();
     }
 
     private static void filters() throws InterruptedException {
@@ -210,7 +210,7 @@ public class NostrApiExamples {
             var channel = new ChannelProfile("JNostr Channel", "This is a channel to test NIP28 in nostr-java", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
             var nip28 = new NIP28(SENDER);
             nip28.setSender(SENDER);
-            nip28.createChannelCreateEvent(channel).sign().send();
+            nip28.createChannelCreateEvent(channel).sign().send().block();
             return nip28.getEvent();
         } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
@@ -225,7 +225,7 @@ public class NostrApiExamples {
             var channel = new ChannelProfile("test change name", "This is a channel to test NIP28 in nostr-java | changed", "https://cdn.pixabay.com/photo/2020/05/19/13/48/cartoon-5190942_960_720.jpg");
 
             var nip28 = new NIP28(SENDER);
-            nip28.updateChannelMetadataEvent(channelCreateEvent, channel, null).sign().send();
+            nip28.updateChannelMetadataEvent(channelCreateEvent, channel, null).sign().send().block();
 
         } catch (MalformedURLException | URISyntaxException ex) {
             throw new RuntimeException(ex);
@@ -238,7 +238,7 @@ public class NostrApiExamples {
         var channelCreateEvent = createChannel();
 
         var nip28 = new NIP28(SENDER);
-        nip28.createChannelMessageEvent(channelCreateEvent, new Relay("localhost:5555"),"Hello everybody!").sign().send();
+        nip28.createChannelMessageEvent(channelCreateEvent, new Relay("localhost:5555"),"Hello everybody!").sign().send().block();
 
         return nip28.getEvent();
     }
@@ -249,7 +249,7 @@ public class NostrApiExamples {
         var channelMessageEvent = sendChannelMessage();
 
         var nip28 = new NIP28(SENDER);
-        nip28.createHideMessageEvent(channelMessageEvent, "Dick pic").sign().send();
+        nip28.createHideMessageEvent(channelMessageEvent, "Dick pic").sign().send().block();
 
         return nip28.getEvent();
     }
@@ -258,7 +258,7 @@ public class NostrApiExamples {
         logHeader("muteUser");
 
         var nip28 = new NIP28(SENDER);
-        nip28.createMuteUserEvent(RECIPIENT.getPublicKey(), "Posting dick pics").sign().send();
+        nip28.createMuteUserEvent(RECIPIENT.getPublicKey(), "Posting dick pics").sign().send().block();
 
         return nip28.getEvent();
     }

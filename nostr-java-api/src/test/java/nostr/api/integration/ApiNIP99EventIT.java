@@ -91,7 +91,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
     var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
     var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-    String eventResponse = springWebSocketClient.send(message).stream().findFirst().get();
+    String eventResponse = springWebSocketClient.send(message).blockFirst();
     var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
     var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
     var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
