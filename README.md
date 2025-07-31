@@ -1,94 +1,30 @@
 # nostr-java
-[![](https://jitpack.io/v/xyz.tcheeric/nostr-java.svg)](https://jitpack.io/#xyz.tcheeric/nostr-java)
 
-Nostr-java is a library for generating, signing, and publishing nostr events to relays.
-It provides helper methods such as `requireTag` and `requireTagInstance` on `GenericEvent` to assert required tags are present.
+`nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
 
 ## Requirements
 - Maven
 - Java 21+
 
-## Usage
-### To use nostr-java in your project, two options:
-
-#### Option 1 - add release version and jitpack.io repository to your pom.xml file
+## Getting Started
+### Using JitPack
+Add the dependency and repository to your `pom.xml`:
 
 ```xml
 <properties>
     <nostr-java.version>v0.007.2-alpha</nostr-java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 </properties>
-```
 
-```xml
 <repositories>
     <repository>
         <id>jitpack.io</id>
         <url>https://jitpack.io</url>
     </repository>
 </repositories>
-```
-#### Option 2 - Check out and build project directly from source  
 
-```bash
-$ cd <your_git_home_dir>
-$ git clone git@github.com:tcheeric/nostr-java.git
-$ cd nostr-java
-$ git checkout <your_chosen_branch>
-```
-
-<details>
-  <summary>unit-tested build (does not require a nostr-relay for testing)</summary>
-
-###### maven
-    (unix)
-      $ ./mvnw clean test
-      $ ./mvnw install -Dmaven.test.skip=true
-
-    (windows)
-      $ ./mvnw.cmd clean test
-      $ ./mvnw.cmd install -Dmaven.test.skip=true
-
-
-###### gradle
-
-    (unix)
-      $ ./gradlew clean test
-      $ ./gradlew publishToMavenLocal
-
-    (windows)
-      $ ./gradlew.bat clean test
-      $ ./gradlew.bat publishToMavenLocal
-</details>
-
-<details>
-  <summary>integration-tested build (requires Docker)</summary>
-
-Integration tests automatically start a `nostr-rs-relay` container using [Testcontainers](https://testcontainers.com/). Ensure Docker is installed and running before executing the build. The relay image can be overridden in `src/test/resources/relay-container.properties`.
-Specify your own container image by setting `relay.container.image=<image>` in that file.
-
-###### maven
-    (unix)
-      $ ./mvnw clean install
-
-    (windows)
-      $ ./mvnw.cmd clean install
-
-###### gradle
-    (unix)
-      $ ./gradlew clean check
-      $ ./gradlew publishToMavenLocal
-
-    (windows)
-      $ ./gradlew.bat clean check
-      $ ./gradlew.bat publishToMavenLocal        
-</details>
-
-#### add dependency to your pom.xml
-
-```xml
 <dependencies>
-     <dependency>
+    <dependency>
         <groupId>nostr-java</groupId>
         <artifactId>nostr-java-api</artifactId>
         <version>${nostr-java.version}</version>
@@ -96,31 +32,24 @@ Specify your own container image by setting `relay.container.image=<image>` in t
 </dependencies>
 ```
 
-### Configuring WebSocket client
-`StandardWebSocketClient` awaits responses from the relay when sending messages.
-The wait duration and polling interval can be customized using the following
-properties (values in milliseconds):
+### Building from source
+Clone the repository and build the modules:
 
+```bash
+$ git clone https://github.com/tcheeric/nostr-java.git
+$ cd nostr-java
+$ ./mvnw clean install
 ```
-nostr.websocket.await-timeout-ms=60000
-nostr.websocket.poll-interval-ms=500
-```
-By default the client waits up to 60 seconds with a poll interval of 500&nbsp;ms.
+
+See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
 ## Examples
-I recommend having a look at these repositories/module for examples:
-- [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
-- [nostr-client](https://github.com/tcheeric/nostr-client) github repository
-- [SuperConductor](https://github.com/avlo/superconductor) nostr relay
+Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
-### Event validation
-Every concrete event now verifies that its `kind` matches the expected value from
-the `Kind` enum. Calling `validate()` on an event with an incorrect `kind` will
-throw an `AssertionError`.
-
+Each concrete event verifies that its `kind` matches the expected value from the `Kind` enum. Calling `validate()` on an event with an incorrect kind throws an `AssertionError`.
 
 ## Supported NIPs
-The following NIPs are supported by the API out-of-the-box:
+The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md)
 - [NIP-2](https://github.com/nostr-protocol/nips/blob/master/02.md)
 - [NIP-3](https://github.com/nostr-protocol/nips/blob/master/03.md)
