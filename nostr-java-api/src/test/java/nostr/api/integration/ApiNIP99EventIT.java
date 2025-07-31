@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {
-  private static final String RELAY_URI = "ws://localhost:5555";
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
   public static final String PTAG_HEX = "2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985";
@@ -58,7 +57,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   private final SpringWebSocketClient springWebSocketClient;
 
   public ApiNIP99EventIT() {
-    springWebSocketClient = new SpringWebSocketClient(RELAY_URI);
+    springWebSocketClient = new SpringWebSocketClient(getRelayUri());
   }
 
   @Test

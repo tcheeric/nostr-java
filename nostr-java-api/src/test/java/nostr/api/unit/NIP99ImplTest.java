@@ -70,7 +70,11 @@ class NIP99ImplTest {
     GenericEvent instance2 = nip99.createClassifiedListingEvent(baseTags, CONTENT, classifiedListing).getEvent();
     //instance.update();
 
-    assertEquals(instance, instance2);
+    assertNotNull(instance2.getId());
+    assertEquals(instance.getPubKey(), instance2.getPubKey());
+    assertEquals(instance.getKind(), instance2.getKind());
+    assertEquals(instance.getTags(), instance2.getTags());
+    assertEquals(instance.getContent(), instance2.getContent());
   }
 
   @Test

@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
-  private static final String RELAY_URI = "ws://localhost:5555";
   private static final String UUID_CALENDAR_TIME_BASED_EVENT_TEST = "UUID-CalendarTimeBasedEventTest";
 
   public static final String ID = "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07";
@@ -59,11 +58,8 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   public static final String LOCATION = "calendar location";
 
   public static final EventTag E_TAG = new EventTag(E_TAG_HEX);
-  public static final PubKeyTag P1_TAG = new PubKeyTag(new PublicKey(P1_TAG_HEX), RELAY_URI, P1_ROLE);
-  public static final PubKeyTag P2_TAG = new PubKeyTag(new PublicKey(P2_TAG_HEX), RELAY_URI, P2_ROLE);
   public static final GeohashTag G_TAG = new GeohashTag(G_TAG_VALUE);
   public static final HashtagTag T_TAG = new HashtagTag(T_TAG_VALUE);
-  public static final ReferenceTag R_TAG = new ReferenceTag(URI.create(RELAY_URI));
 
   public static final String LABEL_NAMESPACE = "audiospace";
   public static final String LABEL_1 = "calendar label 1 of 2";
@@ -86,8 +82,10 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
-    tags.add(P1_TAG);
-    tags.add(P2_TAG);
+    PubKeyTag p1Tag = new PubKeyTag(new PublicKey(P1_TAG_HEX), getRelayUri(), P1_ROLE);
+    PubKeyTag p2Tag = new PubKeyTag(new PublicKey(P2_TAG_HEX), getRelayUri(), P2_ROLE);
+    tags.add(p1Tag);
+    tags.add(p2Tag);
     tags.add(BaseTag.create(START_TZID_CODE,  START_TZID));
     tags.add(BaseTag.create(END_TZID_CODE,  END_TZID));
     tags.add(BaseTag.create(SUMMARY_CODE,  SUMMARY));
@@ -97,7 +95,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     tags.add(BaseTag.create(END_CODE,  END));
     tags.add(G_TAG);
     tags.add(T_TAG);
-    tags.add(R_TAG);
+    tags.add(new ReferenceTag(URI.create(getRelayUri())));
 
     CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
             new IdentifierTag(UUID_CALENDAR_TIME_BASED_EVENT_TEST),
@@ -113,7 +111,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
+    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
     // Extract and compare only first 3 elements of the JSON array
@@ -134,7 +132,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
 
-    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
+    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
@@ -171,15 +169,15 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
         "            [ \"g\", \"" + G_TAG.getLocation() + "\" ],\n" +
         "            [ \"t\", \"" + T_TAG.getHashTag() + "\" ],\n" +
         "            [ \"d\", \"" + UUID_CALENDAR_TIME_BASED_EVENT_TEST + "\" ],\n" +
-        "            [ \"p\", \"" + P1_TAG.getPublicKey() + "\", \"" + RELAY_URI + "\", \"" + P1_ROLE + "\" ],\n" +
-        "            [ \"p\", \"" + P2_TAG.getPublicKey() + "\", \"" + RELAY_URI + "\", \"" + P2_ROLE + "\" ],\n" +
+        "            [ \"p\", \"" + P1_TAG_HEX + "\", \"" + getRelayUri() + "\", \"" + P1_ROLE + "\" ],\n" +
+        "            [ \"p\", \"" + P2_TAG_HEX + "\", \"" + getRelayUri() + "\", \"" + P2_ROLE + "\" ],\n" +
         "            [ \"start_tzid\", \"" + START_TZID + "\" ],\n" +
         "            [ \"end_tzid\", \"" + END_TZID + "\" ],\n" +
         "            [ \"summary\", \"" + SUMMARY + "\" ],\n" +
         "            [ \"l\", \"" + LABEL_1 + "\", \"" + LABEL_NAMESPACE + "\" ],\n" +
         "            [ \"l\", \"" + LABEL_2 + "\", \"" + LABEL_NAMESPACE + "\" ],\n" +
         "            [ \"location\", \"" + LOCATION + "\" ],\n" +
-        "            [ \"r\", \"" + URI.create(RELAY_URI) + "\" ],\n" +
+        "            [ \"r\", \"" + URI.create(getRelayUri()) + "\" ],\n" +
         "            [ \"title\", \"" + TITLE + "\" ],\n" +
         "            [ \"start\", \"" + START + "\" ],\n" +
         "            [ \"end\", \"" + END + "\" ]\n" +

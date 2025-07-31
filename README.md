@@ -62,9 +62,10 @@ $ git checkout <your_chosen_branch>
 </details>
 
 <details>
-  <summary>integration-tested build (requires a nostr-relay for testing)</summary>
+  <summary>integration-tested build (requires Docker)</summary>
 
-valid relay(s) must **_first_** be defined using the `relays.<name>=<uri>` format in [relays.properties](nostr-java-api/src/main/resources/relays.properties) file, then
+Integration tests automatically start a `nostr-rs-relay` container using [Testcontainers](https://testcontainers.com/). Ensure Docker is installed and running before executing the build. The relay image can be overridden in `src/test/resources/relay-container.properties`.
+Specify your own container image by setting `relay.container.image=<image>` in that file.
 
 ###### maven
     (unix)
