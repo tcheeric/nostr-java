@@ -10,6 +10,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.time.Duration;
 import java.util.ResourceBundle;
 
 @Testcontainers
@@ -28,7 +29,8 @@ public abstract class BaseRelayIntegrationTest {
         String image = bundle.getString(IMAGE_KEY);
         RELAY = new GenericContainer<>(image)
                 .withExposedPorts(RELAY_PORT)
-                .waitingFor(Wait.forHealthcheck());
+                .waitingFor(Wait.forListeningPort())
+                .withStartupTimeout(Duration.ofSeconds(60));
     }
 
     private static String relayUri;
