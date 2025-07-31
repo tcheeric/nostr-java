@@ -14,11 +14,10 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.id.Identity;
-import org.apache.commons.lang3.stream.Streams.FailableStream;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import reactor.core.publisher.Mono;
 
 /**
  * @author guilhermegps
@@ -41,28 +40,32 @@ public abstract class EventNostr extends NostrSpringWebSocketClient {
         return this;
     }
 
-    public <U extends BaseMessage> U send() {
+    public <U extends BaseMessage> Mono<U> send() {
         return this.send(getRelays());
     }
 
-    public <U extends BaseMessage> U send(Map<String, String> relays) {
-        List<String> messages = super.sendEvent(this.event, relays);
+    public <U extends BaseMessage> Mono<U> send(Map<String, String> relays) {
+        var messages = super.sendEvent(this.event, relays);
         BaseMessageDecoder<U> decoder = new BaseMessageDecoder<>();
-
-        return new FailableStream<>(messages.stream())
-                .map(msg -> (U) decoder.decode(msg))
+        return messages
+                .map(msg -> {
+                    try {
+                        return (U) decoder.decode(msg);
+                    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .filter(Objects::nonNull)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No message received"));
+                .next()
+                .switchIfEmpty(Mono.error(new RuntimeException("No message received")));
     }
 
-    public <U extends BaseMessage> U signAndSend() {
+    public <U extends BaseMessage> Mono<U> signAndSend() {
         return this.signAndSend(getRelays());
     }
 
-    public <U extends BaseMessage> U signAndSend(Map<String, String> relays) {
-        return (U) sign().send(relays);
+    public <U extends BaseMessage> Mono<U> signAndSend(Map<String, String> relays) {
+        return (Mono<U>) sign().send(relays);
     }
 
     public EventNostr setSender(@NonNull Identity sender) {

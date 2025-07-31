@@ -51,7 +51,7 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
         EventMessage message = new EventMessage(event);
 
-        String eventResponse = springWebSocketClient.send(message).stream().findFirst().orElseThrow();
+        String eventResponse = springWebSocketClient.send(message).blockFirst();
 
         // Extract and compare only first 3 elements of the JSON array
         var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();

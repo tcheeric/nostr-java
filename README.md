@@ -32,13 +32,14 @@ Add the dependency and repository to your `pom.xml`:
 </dependencies>
 ```
 
-### Building from source
-Clone the repository and build the modules:
+### Configuring WebSocket client
+`StandardWebSocketClient` now streams relay responses using Reactor. Messages are
+sent asynchronously and results can be consumed without blocking:
 
-```bash
-$ git clone https://github.com/tcheeric/nostr-java.git
-$ cd nostr-java
-$ ./mvnw clean install
+```java
+SpringWebSocketClient client = new SpringWebSocketClient("wss://relay.example");
+client.send(message)
+      .subscribe(System.out::println);
 ```
 
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.

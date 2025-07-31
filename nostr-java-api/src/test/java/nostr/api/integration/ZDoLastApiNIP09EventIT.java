@@ -57,22 +57,22 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
         GenericEvent event = nip01.createTextNoteEvent("Delete me!").sign().getEvent();
         EventMessage message = new EventMessage(event);
-        springWebSocketClient.send(message);
+        springWebSocketClient.send(message).blockLast();
 
         Filters filters = new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(identity.getPublicKey()));
 
-        List<String> result = NIP01.sendRequest(springWebSocketClient, filters, UUID.randomUUID().toString());
+        List<String> result = NIP01.sendRequest(springWebSocketClient, filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
 
         var nip09Event = nip09.createDeletionEvent(nip01.getEvent()).sign().getEvent();
         EventMessage nip09Message = new EventMessage(nip09Event);
-        springWebSocketClient.send(nip09Message);
+        springWebSocketClient.send(nip09Message).blockLast();
 
-        result = NIP01.sendRequest(springWebSocketClient, filters, UUID.randomUUID().toString());
+        result = NIP01.sendRequest(springWebSocketClient, filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
@@ -90,7 +90,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         NIP01 nip011 = new NIP01(identity);
         GenericEvent replaceableEvent = nip011.createReplaceableEvent(10_001, "replaceable event").sign().getEvent();
         EventMessage replaceableEventMessage = new EventMessage(replaceableEvent);
-        List<String> jsonReplaceableMessageList = springWebSocketClient.send(replaceableEventMessage);
+        List<String> jsonReplaceableMessageList = springWebSocketClient.send(replaceableEventMessage).collectList().block();
 
         BaseMessageDecoder<OkMessage> decoder = new BaseMessageDecoder<>();
         OkMessage okMessage = decoder.decode(jsonReplaceableMessageList.get(0));
@@ -108,7 +108,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
         GenericEvent nip01Event = nip01.sign().getEvent();
         EventMessage eventMessage = new EventMessage(nip01Event);
-        List<String> jsonMessageList = springWebSocketClient.send(eventMessage);
+        List<String> jsonMessageList = springWebSocketClient.send(eventMessage).collectList().block();
 
         decoder = new BaseMessageDecoder<>();
         okMessage = decoder.decode(jsonReplaceableMessageList.get(0));
