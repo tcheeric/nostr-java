@@ -51,7 +51,7 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
     EventMessage message = new EventMessage(event);
 
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId()));
-    var actualJson = MAPPER_AFTERBURNER.readTree(springWebSocketClient.send(message).stream().findFirst().orElseThrow());
+    var actualJson = MAPPER_AFTERBURNER.readTree(springWebSocketClient.send(message).next().block());
 
     // Compare only first 3 elements of the JSON arrays
     assertTrue(

@@ -67,6 +67,9 @@ $ git checkout <your_chosen_branch>
 Integration tests automatically start a `nostr-rs-relay` container using [Testcontainers](https://testcontainers.com/). Ensure Docker is installed and running before executing the build. The relay image can be overridden in `src/test/resources/relay-container.properties`.
 Specify your own container image by setting `relay.container.image=<image>` in that file.
 
+If you encounter `java.net.ConnectException: Connection refused` during integration tests,
+ensure Docker is running and the relay container starts correctly.
+
 ###### maven
     (unix)
       $ ./mvnw clean install
@@ -97,15 +100,10 @@ Specify your own container image by setting `relay.container.image=<image>` in t
 ```
 
 ### Configuring WebSocket client
-`StandardWebSocketClient` awaits responses from the relay when sending messages.
-The wait duration and polling interval can be customized using the following
-properties (values in milliseconds):
-
-```
-nostr.websocket.await-timeout-ms=60000
-nostr.websocket.poll-interval-ms=500
-```
-By default the client waits up to 60 seconds with a poll interval of 500&nbsp;ms.
+`StandardWebSocketClient` now exposes a reactive API using Project Reactor.
+Sending a message returns a `Flux<String>` that emits responses asynchronously
+from the relay. Event sends complete after the first response, while requests
+stream data until an `EOSE` message is received.
 
 Reactive utilities can help limit how many messages are consumed:
 

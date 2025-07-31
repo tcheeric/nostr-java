@@ -6,7 +6,8 @@ import lombok.SneakyThrows;
 import nostr.event.BaseMessage;
 
 import java.io.IOException;
-import java.util.List;
+
+import reactor.core.publisher.Flux;
 
 public class SpringWebSocketClient {
   private final WebSocketClientIF webSocketClientIF;
@@ -20,11 +21,11 @@ public class SpringWebSocketClient {
   }
 
   @SneakyThrows
-  public List<String> send(@NonNull BaseMessage eventMessage) {
+  public Flux<String> send(@NonNull BaseMessage eventMessage) {
     return webSocketClientIF.send(eventMessage.encode());
   }
 
-  public List<String> send(@NonNull String json) throws IOException {
+  public Flux<String> send(@NonNull String json) throws IOException {
     return webSocketClientIF.send(json);
   }
 

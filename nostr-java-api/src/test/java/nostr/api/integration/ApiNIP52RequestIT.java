@@ -112,7 +112,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
-    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
+    String eventResponse = springWebSocketEventClient.send(eventMessage).next().block();
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
@@ -135,7 +135,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
-    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
+    String reqResponse = springWebSocketRequestClient.send(reqJson).next().block();
 
     String expected = expectedRequestResponseJson(subscriberId);
     // TODO - This assertion keeps failing...

@@ -10,11 +10,11 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import reactor.core.publisher.Flux;
 
 public class WebSocketClientHandler {
     private final SpringWebSocketClient eventClient;
@@ -31,23 +31,16 @@ public class WebSocketClientHandler {
         this.eventClient = new SpringWebSocketClient(relayUri);
     }
 
-    protected List<String> sendEvent(@NonNull IEvent event) {
+    protected Flux<String> sendEvent(@NonNull IEvent event) {
         ((GenericEvent) event).validate();
-        return eventClient.send(new EventMessage(event)).stream().toList();
+        return eventClient.send(new EventMessage(event)).take(1);
     }
 
-    protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
-        return Optional
-                .ofNullable(
-                        requestClientMap.get(subscriptionId))
-                .map(client ->
-                        client.send(new ReqMessage(subscriptionId, filters))).or(() -> {
-                    requestClientMap.put(subscriptionId, new SpringWebSocketClient(relayUri));
-                    return Optional.ofNullable(
-                            requestClientMap.get(subscriptionId).send(
-                                    new ReqMessage(subscriptionId, filters)));
-                })
-                .orElse(new ArrayList<>());
+    protected Flux<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+        SpringWebSocketClient client = requestClientMap.computeIfAbsent(subscriptionId, key -> new SpringWebSocketClient(relayUri));
+        return client
+                .send(new ReqMessage(subscriptionId, filters))
+                .takeUntil(msg -> msg.contains("EOSE"));
     }
 
     public void close() throws IOException {
