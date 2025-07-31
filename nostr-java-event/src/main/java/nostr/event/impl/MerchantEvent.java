@@ -38,7 +38,7 @@ public abstract class MerchantEvent<T extends NIP15Content.MerchantContent> exte
 
         String id = ((GenericTag) dTag).getAttributes().getFirst().getValue().toString();
         String entityId = getEntity().getId();
-        if (id != entityId) {
+        if (!id.equals(entityId)) {
             throw new AssertionError("The d-tag value MUST be the same as the stall id.");
         }
     }

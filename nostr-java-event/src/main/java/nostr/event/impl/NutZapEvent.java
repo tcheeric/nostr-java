@@ -1,7 +1,7 @@
 package nostr.event.impl;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -16,6 +16,7 @@ import nostr.event.tag.PubKeyTag;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Event(name = "Nut Zap Event", nip = 61)
 @Data
 public class NutZapEvent extends GenericEvent {

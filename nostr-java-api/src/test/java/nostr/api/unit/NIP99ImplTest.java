@@ -4,7 +4,6 @@ import nostr.api.NIP99;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeAll;

@@ -9,7 +9,6 @@ import nostr.base.IDecoder;
 import nostr.event.tag.GenericTag;
 
 import java.util.ArrayList;
-import java.util.stream.IntStream;
 
 @Data
 @Slf4j

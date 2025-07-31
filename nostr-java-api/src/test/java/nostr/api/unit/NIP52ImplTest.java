@@ -5,7 +5,6 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;

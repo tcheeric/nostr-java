@@ -20,7 +20,6 @@ import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 

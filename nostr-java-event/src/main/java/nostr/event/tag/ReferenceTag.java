@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import nostr.base.Marker;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;

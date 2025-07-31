@@ -10,7 +10,6 @@ import nostr.base.PublicKey;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
 
 import java.util.List;

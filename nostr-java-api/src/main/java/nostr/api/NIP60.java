@@ -133,7 +133,7 @@ public class NIP60 extends EventNostr {
         List<BaseTag> tags = new ArrayList<>();
         Map<String, Set<Relay>> relayMap = wallet.getRelays();
         Set<String> unitSet = relayMap.keySet();
-        unitSet.stream().forEach(u -> tags.add(NIP60.createBalanceTag(wallet.getBalance(), u)));
+        unitSet.forEach(u -> tags.add(NIP60.createBalanceTag(wallet.getBalance(), u)));
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
         return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(tags), getSender().getPublicKey());
@@ -154,7 +154,7 @@ public class NIP60 extends EventNostr {
         List<BaseTag> tags = new ArrayList<>();
         tags.add(NIP60.createDirectionTag(spendingHistory.getDirection()));
         tags.add(NIP60.createAmountTag(spendingHistory.getAmount()));
-        spendingHistory.getEventTags().forEach(eventTag -> tags.add(eventTag));
+        tags.addAll(spendingHistory.getEventTags());
 
         String content = getContent(tags);
 
@@ -173,7 +173,7 @@ public class NIP60 extends EventNostr {
 
         Map<String, Set<Relay>> relayMap = wallet.getRelays();
         Set<String> unitSet = relayMap.keySet();
-        unitSet.stream().forEach(u -> {
+        unitSet.forEach(u -> {
             tags.add(NIP60.createUnitTag(u));
             tags.add(NIP60.createBalanceTag(wallet.getBalance(), u));
         });

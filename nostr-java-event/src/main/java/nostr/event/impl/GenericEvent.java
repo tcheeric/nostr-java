@@ -24,7 +24,6 @@ import nostr.event.BaseTag;
 import nostr.event.Deleteable;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
-import nostr.event.tag.GenericTag;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.validator.HexStringValidator;

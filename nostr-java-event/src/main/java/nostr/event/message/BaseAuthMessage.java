@@ -1,6 +1,5 @@
 package nostr.event.message;
 
-import lombok.NonNull;
 import nostr.event.BaseMessage;
 
 /**

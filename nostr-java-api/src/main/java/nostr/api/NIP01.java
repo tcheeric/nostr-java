@@ -20,8 +20,6 @@ import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;

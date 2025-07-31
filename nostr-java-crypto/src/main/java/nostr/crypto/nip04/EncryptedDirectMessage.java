@@ -21,11 +21,11 @@ import java.util.Base64;
 
 public class EncryptedDirectMessage {
 
-    public static String encrypt(@NonNull String message, @NonNull byte[] senderPrivKey, @NonNull byte[] rcptPubKey) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    public static String encrypt(@NonNull String message, byte[] senderPrivKey, byte[] rcptPubKey) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         return encryptMessage(senderPrivKey, rcptPubKey, message);
     }
 
-    public static String decryptMessage(@NonNull byte[] senderPrivKey, @NonNull String encContent, @NonNull byte[] rcptPubKey) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    public static String decryptMessage(byte[] senderPrivKey, @NonNull String encContent, byte[] rcptPubKey) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         SecretKeySpec sharedSecret = getSharedSecretKeySpec(senderPrivKey, rcptPubKey);
         return decryptMessage(sharedSecret, encContent);
     }

@@ -9,11 +9,8 @@ import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.GenericTagSerializer;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * @author squirrel

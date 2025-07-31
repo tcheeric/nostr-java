@@ -2,7 +2,6 @@ package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.EventTag;
 import nostr.event.tag.UrlTag;
 
 import java.util.function.Function;

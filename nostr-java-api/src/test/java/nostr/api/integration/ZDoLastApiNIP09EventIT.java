@@ -6,7 +6,6 @@ import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.config.RelayConfig;
-import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
@@ -21,7 +20,6 @@ import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -35,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
@@ -107,7 +104,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         nip01
             .createTextNoteEvent("Reference me!")
             .getEvent()
-            .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
+            .addTag(NIP01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
 
         GenericEvent nip01Event = nip01.sign().getEvent();
         EventMessage eventMessage = new EventMessage(nip01Event);

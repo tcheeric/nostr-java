@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import nostr.event.entities.CashuToken;
-import nostr.event.tag.ExpirationTag;
 
 public class CashuTokenSerializer extends JsonSerializer<CashuToken> {
 

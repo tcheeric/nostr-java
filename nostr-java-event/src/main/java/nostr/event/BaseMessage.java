@@ -2,12 +2,7 @@ package nostr.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
-import lombok.NonNull;
 import nostr.base.IElement;
-import nostr.event.message.GenericMessage;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  *

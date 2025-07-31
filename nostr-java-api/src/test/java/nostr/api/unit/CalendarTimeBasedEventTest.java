@@ -9,7 +9,6 @@ import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -28,7 +27,6 @@ import java.util.function.BiFunction;
 
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CalendarTimeBasedEventTest {

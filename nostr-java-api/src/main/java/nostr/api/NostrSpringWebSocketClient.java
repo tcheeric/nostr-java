@@ -68,7 +68,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
     @Override
     public NostrIF setRelays(@NonNull Map<String, String> relays) {
-        relays.entrySet().stream().forEach(relayEntry ->
+        relays.entrySet().forEach(relayEntry ->
                 clientMap.putIfAbsent(relayEntry.getKey(),
                         new WebSocketClientHandler(
                                 relayEntry.getKey(),

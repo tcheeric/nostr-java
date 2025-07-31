@@ -6,7 +6,6 @@ package nostr.api.factory;
 
 import lombok.NoArgsConstructor;
 import nostr.event.BaseMessage;
-import nostr.event.message.GenericMessage;
 
 /**
  *

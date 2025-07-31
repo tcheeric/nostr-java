@@ -3,7 +3,6 @@ package nostr.api.unit;
 import nostr.api.NIP02;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;

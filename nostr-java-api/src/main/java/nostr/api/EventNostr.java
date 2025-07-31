@@ -13,7 +13,6 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
-import nostr.event.message.GenericMessage;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
 

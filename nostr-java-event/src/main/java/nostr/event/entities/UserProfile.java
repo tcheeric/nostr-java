@@ -22,7 +22,7 @@ import static nostr.base.IEvent.MAPPER_AFTERBURNER;
  * @author squirrel
  */
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @SuperBuilder
 @NoArgsConstructor
 @Slf4j

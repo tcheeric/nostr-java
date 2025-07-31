@@ -92,7 +92,7 @@ public class Bech32 {
      *
      * @param bech32
      * @return
-     * @throws nostr.util.Exception
+     * @throws Exception
      */
     public static String encode(final Bech32Data bech32) throws Exception {
         return encode(bech32.encoding, bech32.hrp, bech32.data);
@@ -105,7 +105,7 @@ public class Bech32 {
      * @param hrp
      * @param values
      * @return
-     * @throws nostr.util.Exception
+     * @throws Exception
      */
     // Modified to throw Exceptions
     public static String encode(Encoding encoding, String hrp, final byte[] values) throws Exception {
@@ -132,7 +132,7 @@ public class Bech32 {
      *
      * @param str
      * @return
-     * @throws nostr.util.Exception
+     * @throws Exception
      */
     // Modified to throw Exceptions
     public static Bech32Data decode(final String str) throws Exception {
