@@ -33,17 +33,14 @@ public class WebSocketClientHandler {
 
     protected Flux<String> sendEvent(@NonNull IEvent event) {
         ((GenericEvent) event).validate();
-        return eventClient.send(new EventMessage(event));
+        return eventClient.send(new EventMessage(event)).take(1);
     }
 
     protected Flux<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
-        return Optional
-                .ofNullable(requestClientMap.get(subscriptionId))
-                .map(client -> client.send(new ReqMessage(subscriptionId, filters)))
-                .orElseGet(() -> {
-                    requestClientMap.put(subscriptionId, new SpringWebSocketClient(relayUri));
-                    return requestClientMap.get(subscriptionId).send(new ReqMessage(subscriptionId, filters));
-                });
+        SpringWebSocketClient client = requestClientMap.computeIfAbsent(subscriptionId, key -> new SpringWebSocketClient(relayUri));
+        return client
+                .send(new ReqMessage(subscriptionId, filters))
+                .takeUntil(msg -> msg.contains("EOSE"));
     }
 
     public void close() throws IOException {

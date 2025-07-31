@@ -99,7 +99,8 @@ Specify your own container image by setting `relay.container.image=<image>` in t
 ### Configuring WebSocket client
 `StandardWebSocketClient` now exposes a reactive API using Project Reactor.
 Sending a message returns a `Flux<String>` that emits responses asynchronously
-from the relay.
+from the relay. Event sends complete after the first response, while requests
+stream data until an `EOSE` message is received.
 
 ## Examples
 I recommend having a look at these repositories/module for examples:
