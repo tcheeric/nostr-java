@@ -23,6 +23,8 @@ import static nostr.api.integration.ApiEventIT.createStall;
 import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import reactor.test.StepVerifier;
+
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest {
@@ -52,20 +54,27 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
         EventMessage message = new EventMessage(event);
 
-        String eventResponse = springWebSocketClient.send(message).stream().findFirst().orElseThrow();
+        var responseFlux = springWebSocketClient.send(message).take(1);
 
-        // Extract and compare only first 3 elements of the JSON array
-        var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
-        var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
-        var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+        StepVerifier.create(responseFlux)
+                .assertNext(eventResponse -> {
+                    try {
+                        var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
+                        var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
+                        var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-        var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-        var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-        var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+                        var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
+                        var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
+                        var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
-        assertEquals(expectedArray, actualArray, "First element should match");
-        assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-        assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+                        assertEquals(expectedArray, actualArray, "First element should match");
+                        assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+                        assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+                    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .verifyComplete();
 
 //        springWebSocketClient.closeSocket();
     }

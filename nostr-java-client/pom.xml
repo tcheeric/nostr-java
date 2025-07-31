@@ -12,7 +12,6 @@
     <packaging>jar</packaging>
     
     <properties>
-        <awaitility.version>4.2.2</awaitility.version>
         <jakarta.websocket-api.version>2.2.0</jakarta.websocket-api.version>
         <reactor-netty-http.version>1.1.20</reactor-netty-http.version>
         <spring-webflux.version>6.1.10</spring-webflux.version>
@@ -56,11 +55,6 @@
             <artifactId>jakarta.websocket-client-api</artifactId>
             <!--  below uses same jakarta.websocket-api version as above-->
             <version>${jakarta.websocket-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
         </dependency>
     </dependencies>
 </project>

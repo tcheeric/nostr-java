@@ -97,15 +97,9 @@ Specify your own container image by setting `relay.container.image=<image>` in t
 ```
 
 ### Configuring WebSocket client
-`StandardWebSocketClient` awaits responses from the relay when sending messages.
-The wait duration and polling interval can be customized using the following
-properties (values in milliseconds):
-
-```
-nostr.websocket.await-timeout-ms=60000
-nostr.websocket.poll-interval-ms=500
-```
-By default the client waits up to 60 seconds with a poll interval of 500&nbsp;ms.
+`StandardWebSocketClient` now exposes a reactive API using Project Reactor.
+Sending a message returns a `Flux<String>` that emits responses asynchronously
+from the relay.
 
 ## Examples
 I recommend having a look at these repositories/module for examples:

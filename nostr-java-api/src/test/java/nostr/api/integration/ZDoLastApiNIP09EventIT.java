@@ -49,20 +49,20 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         NIP09 nip09 = new NIP09(identity);
         NIP01 nip01 = new NIP01(identity);
 
-        nip01.createTextNoteEvent("Delete me!").signAndSend(relays);
+        nip01.createTextNoteEvent("Delete me!").signAndSend(relays).block();
 
         Filters filters = new Filters(
             new KindFilter<>(Kind.TEXT_NOTE),
             new AuthorFilter<>(identity.getPublicKey()));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
 
-        nip09.createDeletionEvent(nip01.getEvent()).signAndSend(relays);
+        nip09.createDeletionEvent(nip01.getEvent()).signAndSend(relays).block();
 
-        result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
@@ -78,7 +78,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         Identity identity = Identity.generateRandomIdentity();
 
         NIP01 nip011 = new NIP01(identity);
-        BaseMessage replaceableMessage = nip011.createReplaceableEvent(10_001, "replaceable event").signAndSend(relays);
+        BaseMessage replaceableMessage = nip011.createReplaceableEvent(10_001, "replaceable event").signAndSend(relays).block();
 
         assertNotNull(replaceableMessage);
         assertInstanceOf(OkMessage.class, replaceableMessage);
@@ -92,7 +92,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
             .getEvent()
             .addTag(nip01.createAddressTag(10_001, identity.getPublicKey(), identifierTag, new Relay(RELAY_URI)));
 
-        BaseMessage message = nip01.signAndSend(relays);
+        BaseMessage message = nip01.signAndSend(relays).block();
 
         assertNotNull(message);
         assertInstanceOf(OkMessage.class, message);
@@ -133,7 +133,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
         assertEquals(2, kindTags.size());
 
-        nip09.signAndSend(relays);
+        nip09.signAndSend(relays).block();
 
 //        nip01.close();
 //        nip011.close();

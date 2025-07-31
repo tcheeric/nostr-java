@@ -99,7 +99,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         var nip01 = new NIP01(Identity.generateRandomIdentity());
         var instance = nip01.createTextNoteEvent("Hello simplified nostr-java!").sign();
 
-        var response = instance.setRelays(relays).send();
+        var response = instance.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip01.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -120,7 +120,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         var signature = instance.getEvent().getSignature();
         assertNotNull(signature);
-        var response = instance.setRelays(relays).send();
+        var response = instance.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip04.getEvent().getId(), ((OkMessage) response).getEventId());
 //        nip04.close();
@@ -134,12 +134,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         GeohashTag geohashTag = new GeohashTag(targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(geohashTag), "GeohashTag Test location testNIP01SendTextNoteEventGeoHashTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(geohashTag), "GeohashTag Test location testNIP01SendTextNoteEventGeoHashTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new GeohashTagFilter<>(new GeohashTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -156,12 +156,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         HashtagTag hashtagTag = new HashtagTag(targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(hashtagTag), "Hashtag Tag Test value testNIP01SendTextNoteEventHashtagTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(hashtagTag), "Hashtag Tag Test value testNIP01SendTextNoteEventHashtagTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new HashtagTagFilter<>(new HashtagTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         //assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -178,12 +178,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         BaseTag genericTag = BaseTag.create("m", targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test testNIP01SendTextNoteEventCustomGenericTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(genericTag), "Custom Generic Tag Test testNIP01SendTextNoteEventCustomGenericTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -204,12 +204,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         PubKeyTag recipientTag = (PubKeyTag) NIP01.createPubKeyTag(recipientIdentity.getPublicKey());
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent("testNIP01SendTextNoteEventRecipientGenericTag", List.of(recipientTag)).signAndSend(relays);
+        nip01.createTextNoteEvent("testNIP01SendTextNoteEventRecipientGenericTag", List.of(recipientTag)).signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#p", recipientTag.getPublicKey().toString())));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -230,12 +230,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         BaseTag genericTag = BaseTag.create("u", targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(genericTag), "testNIP01SendTextNoteEventUrlTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(genericTag), "testNIP01SendTextNoteEventUrlTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#u", targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertEquals(2, result.size());
 
@@ -256,12 +256,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         BaseTag urlTag = BaseTag.create("u", targetString);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(urlTag), "testFilterUrlTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(urlTag), "testFilterUrlTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new UrlTagFilter<>(new UrlTag(targetString)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertEquals(2, result.size(), result.toString());
 
@@ -309,14 +309,14 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
 
-        nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays).block();
 
         Filters filters1 = new Filters(
                 new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)));
         Filters filters2 = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
-        List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -335,7 +335,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         String genericTagTarget1 = "generic-tag-value-1";
         BaseTag genericTag1 = BaseTag.create("m", genericTagTarget1);
         NIP01 nip01_1 = new NIP01(Identity.generateRandomIdentity());
-        nip01_1.createTextNoteEvent(List.of(geohashTag1, genericTag1), "Multiple Filters 1").signAndSend(relays);
+        nip01_1.createTextNoteEvent(List.of(geohashTag1, genericTag1), "Multiple Filters 1").signAndSend(relays).block();
 
 //    second event
         String geoHashTagTarget2 = "geohash_tag-location-2";
@@ -343,7 +343,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         String genericTagTarget2 = "generic-tag-value-2";
         BaseTag genericTag2 = BaseTag.create("m", genericTagTarget2);
         NIP01 nip01_2 = new NIP01(Identity.generateRandomIdentity());
-        nip01_2.createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2").signAndSend(relays);
+        nip01_2.createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2").signAndSend(relays).block();
 
         Filters filters1 = new Filters(
                 new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget1)));  // 1st filter should find match in 1st event
@@ -351,7 +351,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         Filters filters2 = new Filters(
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget2)));  // 2nd filter should find match in 2nd event
 
-        List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString());
+        List<String> result = nip01_1.sendRequest(List.of(filters1, filters2), UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(3, result.size());
@@ -373,13 +373,13 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         BaseTag genericTag = BaseTag.create("m", genericTagTarget);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)),
                 new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -434,7 +434,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         var signature = instance.getEvent().getSignature();
         assertNotNull(signature);
 
-        var response = instance.setRelays(relays).send();
+        var response = instance.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -443,7 +443,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         shipping.setCost(20.00f);
 
         EventNostr event = nip15.createCreateOrUpdateStallEvent(stall).sign();
-        response = event.setRelays(relays).send();
+        response = event.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -467,7 +467,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         categories.add("Hommes");
 
         EventNostr event = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-        var response = event.setRelays(relays).send();
+        var response = event.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -491,7 +491,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         categories.add("Hommes");
 
         EventNostr event1 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-        var response = event1.setRelays(relays).send();
+        var response = event1.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -499,7 +499,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         categories.add("bagues");
 
         EventNostr event2 = nip15.createCreateOrUpdateProductEvent(product, categories).sign();
-        response = event2.setRelays(relays).send();
+        response = event2.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -568,7 +568,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         var nip52 = new NIP52(Identity.create(PrivateKey.generateRandomPrivKey()));
         EventNostr event = nip52.createCalendarTimeBasedEvent(tags, "content", calendarContent).sign();
-        var response = event.setRelays(relays).send();
+        var response = event.setRelays(relays).send().block();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip52.getEvent().getId(), ((OkMessage) response).getEventId());
 
@@ -747,12 +747,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         VoteTag voteTag = new VoteTag(targetVote);
 
         NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
-        nip01.createTextNoteEvent(List.of(voteTag), "Vote Tag Test value testNIP01SendTextNoteEventVoteTag").signAndSend(relays);
+        nip01.createTextNoteEvent(List.of(voteTag), "Vote Tag Test value testNIP01SendTextNoteEventVoteTag").signAndSend(relays).block();
 
         Filters filters = new Filters(
                 new VoteTagFilter<>(new VoteTag(targetVote)));
 
-        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
+        List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString()).collectList().block();
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
