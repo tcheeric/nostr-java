@@ -13,9 +13,6 @@
     
     <properties>
         <awaitility.version>4.2.2</awaitility.version>
-        <jakarta.websocket-api.version>2.2.0</jakarta.websocket-api.version>
-        <reactor-netty-http.version>1.1.20</reactor-netty-http.version>
-        <spring-webflux.version>6.1.10</spring-webflux.version>
         <spring-websocket.version>6.1.10</spring-websocket.version>
     </properties>
     
@@ -37,30 +34,21 @@
             <version>${spring-websocket.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webflux</artifactId>
-            <version>${spring-webflux.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty-http</artifactId>
-            <version>${reactor-netty-http.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.websocket</groupId>
-            <artifactId>jakarta.websocket-api</artifactId>
-            <version>${jakarta.websocket-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.websocket</groupId>
-            <artifactId>jakarta.websocket-client-api</artifactId>
-            <!--  below uses same jakarta.websocket-api version as above-->
-            <version>${jakarta.websocket-api.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
