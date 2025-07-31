@@ -2,7 +2,6 @@ package nostr.api.integration;
 
 import lombok.SneakyThrows;
 import nostr.api.NIP15;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.config.RelayConfig;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
-@ExtendWith(IntegrationTestExtension.class)
 class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest {
     private final List<SpringWebSocketClient> springWebSocketClients;
 
@@ -70,7 +67,7 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
         assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-//        springWebSocketClient.closeSocket();
+        springWebSocketClient.closeSocket();
     }
 
     private String expectedResponseJson(String sha256) {

@@ -2,7 +2,6 @@ package nostr.api.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import nostr.api.NIP99;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
@@ -10,7 +9,6 @@ import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.PriceTag;
@@ -20,7 +18,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-@ExtendWith(IntegrationTestExtension.class)
 class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   public static final String PUBLISHED_AT_CODE = "published_at";
@@ -119,7 +115,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
 	  assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
 	  assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-//    springWebSocketEventClient.closeSocket();
+    springWebSocketEventClient.closeSocket();
 
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
@@ -127,7 +123,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
-//    springWebSocketRequestClient.closeSocket();
+    springWebSocketRequestClient.closeSocket();
 
     var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson());

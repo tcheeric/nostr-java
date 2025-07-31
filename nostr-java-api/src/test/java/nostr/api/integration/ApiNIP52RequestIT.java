@@ -1,7 +1,6 @@
 package nostr.api.integration;
 
 import nostr.api.NIP52;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.BaseTag;
@@ -9,7 +8,6 @@ import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
@@ -19,7 +17,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-@ExtendWith(IntegrationTestExtension.class)
 class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
   private static final String UUID_CALENDAR_TIME_BASED_EVENT_TEST = "UUID-CalendarTimeBasedEventTest";
@@ -130,7 +126,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
     //assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is not required. The relay will always return false because we resending the same event, causing duplicates.
 
-//    springWebSocketEventClient.closeSocket();
+    springWebSocketEventClient.closeSocket();
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
@@ -149,7 +145,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
             MAPPER_AFTERBURNER.readTree(reqResponse)));
 */
 
-//    springWebSocketRequestClient.closeSocket();
+    springWebSocketRequestClient.closeSocket();
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

@@ -8,7 +8,6 @@ import nostr.api.NIP04;
 import nostr.api.NIP15;
 import nostr.api.NIP52;
 import nostr.api.NIP57;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.GenericTagQuery;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -45,9 +44,7 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -68,7 +65,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @Slf4j
-@ExtendWith(IntegrationTestExtension.class)
 public class ApiEventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;
@@ -96,7 +92,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     }
 
     @Test
-    public void testNIP01SendTextNoteEvent() {
+    public void testNIP01SendTextNoteEvent() throws IOException {
         System.out.println("testNIP01SendTextNoteEvent");
 
         var nip01 = new NIP01(Identity.generateRandomIdentity());
@@ -106,11 +102,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip01.getEvent().getId(), ((OkMessage) response).getEventId());
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testNIP04SendDirectMessage() {
+    public void testNIP04SendDirectMessage() throws IOException {
         System.out.println("testNIP04SendDirectMessage");
 
         var nip04 = new NIP04(
@@ -126,11 +122,12 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         var response = instance.setRelays(relays).send();
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip04.getEvent().getId(), ((OkMessage) response).getEventId());
-//        nip04.close();
+
+        nip04.close();
     }
 
     @Test
-    public void testNIP01SendTextNoteEventGeoHashTag() {
+    public void testNIP01SendTextNoteEventGeoHashTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventGeoHashTag");
 
         String targetString = "geohash_tag-location-testNIP01SendTextNoteEventGeoHashTag";
@@ -148,11 +145,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testNIP01SendTextNoteEventHashtagTag() {
+    public void testNIP01SendTextNoteEventHashtagTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventHashtagTag");
 
         String targetString = "hashtag-tag-value-testNIP01SendTextNoteEventHashtagTag";
@@ -170,11 +167,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetString)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testNIP01SendTextNoteEventCustomGenericTag() {
+    public void testNIP01SendTextNoteEventCustomGenericTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventCustomGenericTag");
 
         String targetString = "custom-generic-tag-testNIP01SendTextNoteEventCustomGenericTag";
@@ -196,11 +193,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testNIP01SendTextNoteEventRecipientGenericTag() {
+    public void testNIP01SendTextNoteEventRecipientGenericTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventRecipientGenericTag");
 
         Identity recipientIdentity = Identity.generateRandomIdentity();
@@ -222,11 +219,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testNIP01SendTextNoteEventUrlTag() {
+    public void testNIP01SendTextNoteEventUrlTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventUrlTag");
 
         String targetString = getRelayUri();
@@ -247,11 +244,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertTrue(result.stream().anyMatch(s -> s.contains(matcher)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testFilterUrlTag() {
+    public void testFilterUrlTag() throws IOException {
         System.out.println("testFilterUrlTag");
 
         String targetString = getRelayUri().replace("ws://", "https://");
@@ -297,11 +294,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertTrue(optionalUrlTag.isPresent());
         assertEquals(targetString, optionalUrlTag.get().getUrl());
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testFiltersListReturnSameSingularEvent() {
+    public void testFiltersListReturnSameSingularEvent() throws IOException {
         System.out.println("testFiltersListReturnSameSingularEvent");
 
         String geoHashTagTarget = "geohash_tag-location_SameSingularEvent";
@@ -325,11 +322,11 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
-    public void testFiltersListReturnTwoDifferentEvents() {
+    public void testFiltersListReturnTwoDifferentEvents() throws IOException {
         System.out.println("testFiltersListReturnTwoDifferentEvents");
 
 //    first event
@@ -361,8 +358,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget1)));
         assertTrue(result.stream().anyMatch(s -> s.contains(genericTagTarget2)));
 
-//        nip01_1.close();
-//        nip01_2.close();
+        nip01_1.close();
+        nip01_2.close();
     }
 
     @Test
@@ -388,7 +385,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(geoHashTagTarget)));
 
-//        nip01.close();
+        nip01.close();
     }
 
     @Test
@@ -450,7 +447,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-//        nip15.close();
+        nip15.close();
     }
 
     @Test
@@ -474,7 +471,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-//        nip15.close();
+        nip15.close();
     }
 
     @Test
@@ -506,7 +503,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip15.getEvent().getId(), ((OkMessage) response).getEventId());
 
-//        nip15.close();
+        nip15.close();
     }
 
 /*
@@ -575,7 +572,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertInstanceOf(OkMessage.class, response);
         assertEquals(nip52.getEvent().getId(), ((OkMessage) response).getEventId());
 
-//        nip52.close();
+        nip52.close();
     }
 
     @Test
@@ -743,7 +740,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     }
 
     @Test
-    public void testNIP01SendTextNoteEventVoteTag() {
+    public void testNIP01SendTextNoteEventVoteTag() throws IOException {
         System.out.println("testNIP01SendTextNoteEventVoteTag");
 
         Integer targetVote = 1;
@@ -761,6 +758,6 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(s -> s.contains(targetVote.toString())));
 
-//        nip01.close();
+        nip01.close();
     }
 }

@@ -2,7 +2,6 @@ package nostr.api.integration;
 
 import nostr.api.NIP01;
 import nostr.api.NIP09;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.RelayConfig;
@@ -15,7 +14,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.OkMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -23,13 +21,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
-@ExtendWith(IntegrationTestExtension.class)
 public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
     @Autowired
     private Map<String, String> relays;
@@ -70,8 +65,8 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
 
-//        nip01.close();
-//        nip09.close();
+        nip01.close();
+        nip09.close();
     }
 
 
@@ -138,8 +133,8 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
         nip09.signAndSend(relays);
 
-//        nip01.close();
-//        nip011.close();
-//        nip09.close();
+        nip01.close();
+        nip011.close();
+        nip09.close();
     }
 }

@@ -1,7 +1,6 @@
 package nostr.api.integration;
 
 import nostr.api.NIP99;
-import nostr.api.util.IntegrationTestExtension;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import nostr.api.integration.BaseRelayIntegrationTest;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-@ExtendWith(IntegrationTestExtension.class)
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
@@ -105,7 +102,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
       assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-//    springWebSocketClient.closeSocket();
+    springWebSocketClient.closeSocket();
   }
 
   private String expectedResponseJson(String sha256) {
