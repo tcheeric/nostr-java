@@ -42,11 +42,7 @@ public class EventTag extends BaseTag {
     private Marker marker;
 
     public EventTag(String idEvent) {
-        this.recommendedRelayUrl = null;
         this.idEvent = idEvent;
-
-        // TODO: This is a bug. The marker should not be set, or at least not like this.
-        //this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
     }
 
     public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {

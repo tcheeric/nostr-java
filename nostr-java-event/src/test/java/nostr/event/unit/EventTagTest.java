@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventTagTest {
@@ -34,6 +35,15 @@ class EventTagTest {
 
         assertFalse(fields.stream().anyMatch(field -> field.getName().equals("idEventXXX")));
         assertFalse(fields.stream().flatMap(field -> eventTag.getFieldValue(field).stream()).anyMatch(fieldValue -> fieldValue.equals(eventId + "x")));
+    }
+
+    @Test
+    void constructorDoesNotSetOptionalFields() {
+        String eventId = UUID.randomUUID().toString().concat(UUID.randomUUID().toString()).substring(0, 64);
+        EventTag eventTag = new EventTag(eventId);
+
+        assertNull(eventTag.getRecommendedRelayUrl());
+        assertNull(eventTag.getMarker());
     }
 
     private static void anyFieldNameMatch(List<Field> fields, Predicate<Field> predicate) {
