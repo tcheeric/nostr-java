@@ -119,7 +119,6 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
 
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
-///*
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
