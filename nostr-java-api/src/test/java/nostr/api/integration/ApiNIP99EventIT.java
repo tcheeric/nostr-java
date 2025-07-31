@@ -9,13 +9,13 @@ import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import nostr.api.integration.BaseRelayIntegrationTest;
@@ -54,9 +54,10 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   public static final String SUMMARY_CODE = "summary";
   public static final String PUBLISHED_AT_CODE = "published_at";
   public static final String LOCATION_CODE = "location";
-  private final SpringWebSocketClient springWebSocketClient;
+  private SpringWebSocketClient springWebSocketClient;
 
-  public ApiNIP99EventIT() {
+  @BeforeEach
+  void setup() {
     springWebSocketClient = new SpringWebSocketClient(getRelayUri());
   }
 

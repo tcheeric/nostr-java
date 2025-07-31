@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import reactor.core.publisher.Flux;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
@@ -99,7 +100,12 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     EventMessage eventMessage = new EventMessage(event);
 
     SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
-    List<String> eventResponses = springWebSocketEventClient.send(eventMessage).collectList().block();
+    // Collect only the first response from the relay
+    List<String> eventResponses = Flux
+        .fromIterable(springWebSocketEventClient.send(eventMessage))
+        .take(1)
+        .collectList()
+        .block();
 
 	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
 
@@ -123,7 +129,12 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
 ///*
     SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
-    List<String> reqResponses = springWebSocketRequestClient.send(reqJson).collectList().block();
+    // Stop collecting when EOSE is received
+    List<String> reqResponses = Flux
+        .fromIterable(springWebSocketRequestClient.send(reqJson))
+        .takeUntil(msg -> msg.contains("EOSE"))
+        .collectList()
+        .block();
 //    springWebSocketRequestClient.closeSocket();
 
     var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
