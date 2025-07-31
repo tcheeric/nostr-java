@@ -107,6 +107,20 @@ nostr.websocket.poll-interval-ms=500
 ```
 By default the client waits up to 60 seconds with a poll interval of 500&nbsp;ms.
 
+Reactive utilities can help limit how many messages are consumed:
+
+```java
+List<String> firstResponse = Flux.fromIterable(client.send(message))
+    .take(1)
+    .collectList()
+    .block();
+
+List<String> responsesUntilEose = Flux.fromIterable(client.send(request))
+    .takeUntil(msg -> msg.contains("EOSE"))
+    .collectList()
+    .block();
+```
+
 ## Examples
 I recommend having a look at these repositories/module for examples:
 - [nostr-example](https://github.com/tcheeric/nostr-java/tree/main/nostr-java-examples) module
