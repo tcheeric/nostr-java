@@ -1,6 +1,5 @@
 package nostr.examples;
 
-import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP05;
@@ -9,28 +8,22 @@ import nostr.api.NIP09;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.NIP30;
-import nostr.event.entities.ChannelProfile;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.event.entities.UserProfile;
 import nostr.event.BaseTag;
 import nostr.base.Kind;
+import nostr.event.entities.ChannelProfile;
 import nostr.event.entities.Reaction;
+import nostr.event.entities.UserProfile;
 import nostr.event.filter.AuthorFilter;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import nostr.util.NostrException;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,24 +31,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 
 /**
- *
- * @author eric
+ * Example demonstrating several nostr-java API calls.
  */
-@Slf4j
-@SpringBootApplication
-public class NostrApiExamples implements ApplicationRunner {
+public class NostrApiExamples {
 
     private static final Identity RECIPIENT = Identity.generateRandomIdentity();
     private static final Identity SENDER = Identity.generateRandomIdentity();
 
     private static final UserProfile PROFILE = new UserProfile(SENDER.getPublicKey(), "Nostr Guy", "guy@nostr-java.io", "It's me!", null);
-    private final static Map<String, String> RELAYS = Map.of("local", "localhost:5555");
+    private static final Map<String, String> RELAYS = Map.of("local", "localhost:5555");
 
     static {
         try {
@@ -65,109 +51,28 @@ public class NostrApiExamples implements ApplicationRunner {
         }
     }
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        try {
-            log.debug("================= The Beginning");
-            logAccountsData();
+    public static void main(String[] args) throws Exception {
+        new NostrApiExamples().run();
+    }
 
-            ExecutorService executor = Executors.newFixedThreadPool(10);
+    public void run() throws Exception {
+        logAccountsData();
 
-//			executor.submit(() -> {
-//	        	try {
-//					metaDataEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//			});
-
-            executor.submit(() -> {
-                try {
-                    sendTextNoteEvent();
-                } catch(Throwable t) { log.error(t.getMessage(), t); }
-            });
-
-//            executor.submit(() -> {
-//		    	try {
-//		            sendEncryptedDirectMessage();
-//		    	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-
-//            executor.submit(() -> {
-//	        	try {
-//	                mentionsEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-
-//            executor.submit(() -> {
-//	        	try {
-//	                deletionEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-//
-//            executor.submit(() -> {
-//	    		try {
-//		            ephemerealEvent();
-//				} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-//
-//            executor.submit(() -> {
-//            	try {
-//                	reactionEvent();
-//            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-//            });
-//
-//            executor.submit(() -> {
-//            	try {
-//                	reactionEvent();
-//            	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-
-//            executor.submit(() -> {
-//	        	try {
-//	        		replaceableEvent();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-//
-//            executor.submit(() -> {
-//	        	try {
-//	                internetIdMetadata();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); };
-//            });
-//
-//            executor.submit(() -> {
-//            	try {
-//            		filters();
-//	        	} catch(Throwable t) { log.log(Level.SEVERE, t.getMessage(), t); }
-//            });
-//
-//            executor.submit(() -> {
-//                createChannel();
-//            });
-//            executor.submit(() -> {
-//                updateChannelMetadata();
-//            });
-//
-//            executor.submit(() -> {
-//                sendChannelMessage();
-//            });
-//
-//            executor.submit(() -> {
-//                hideMessage();
-//            });
-//
-//            executor.submit(() -> {
-//                muteUser();
-//            });
-
-            stop(executor);
-
-            if (executor.isTerminated()) {
-                log.debug("================== The End");
-            }
-
-        } catch (IllegalArgumentException ex) {
-            log.error("", ex);
-            throw new NostrException(ex);
-        }
+        metaDataEvent();
+        sendTextNoteEvent();
+        sendEncryptedDirectMessage();
+        mentionsEvent();
+        deletionEvent();
+        ephemerealEvent();
+        reactionEvent();
+        replaceableEvent();
+        internetIdMetadata();
+        filters();
+        createChannel();
+        updateChannelMetadata();
+        sendChannelMessage();
+        hideMessage();
+        muteUser();
     }
 
     private static GenericEvent sendTextNoteEvent() {
@@ -207,7 +112,6 @@ public class NostrApiExamples implements ApplicationRunner {
         logHeader("deletionEvent");
 
         var event = sendTextNoteEvent();
-        List<BaseTag> tags = new ArrayList<>(List.of(new EventTag(event.getId())));
 
         var nip09 = new NIP09(SENDER);
         nip09.createDeletionEvent(event)
@@ -246,9 +150,8 @@ public class NostrApiExamples implements ApplicationRunner {
         var nip25 = new NIP25(RECIPIENT);
         var reactionEvent = nip25.createReactionEvent(event.getEvent(), Reaction.LIKE, new Relay("localhost:5555"));
         reactionEvent.signAndSend(RELAYS);
-        nip25.createReactionEvent(event.getEvent(), "💩", new Relay("localhost:5555")).signAndSend();
+        nip25.createReactionEvent(event.getEvent(), "\uD83D\uDCA9", new Relay("localhost:5555")).signAndSend();
 
-        //Using Custom Emoji as reaction
         BaseTag eventTag = NIP01.createEventTag(event.getEvent().getId());
         nip25.createReactionEvent(
                 eventTag,
@@ -283,7 +186,7 @@ public class NostrApiExamples implements ApplicationRunner {
                 .send(RELAYS);
     }
 
-    public static void filters() throws InterruptedException {
+    private static void filters() throws InterruptedException {
         logHeader("filters");
 
         var date = Calendar.getInstance();
@@ -375,7 +278,7 @@ public class NostrApiExamples implements ApplicationRunner {
                      '\n' + "* PublicKey HEX: " + SENDER.getPublicKey().toString() +
                      '\n' + '\n' + "################################ ACCOUNTS END ################################";
 
-        log.info(msg);
+        System.out.println(msg);
     }
 
     private static void logHeader(String header) {
@@ -388,19 +291,5 @@ public class NostrApiExamples implements ApplicationRunner {
             System.out.print("#");
         }
         System.out.println();
-    }
-
-    private static void stop(ExecutorService executor) {
-        try {
-            executor.shutdown();
-            executor.awaitTermination(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("termination interrupted");
-        } finally {
-            if (!executor.isTerminated()) {
-                log.error("killing non-finished tasks");
-            }
-            executor.shutdownNow();
-        }
     }
 }

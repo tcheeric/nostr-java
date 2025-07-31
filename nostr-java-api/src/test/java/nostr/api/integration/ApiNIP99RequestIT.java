@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
   private static final String PRV_KEY_VALUE = "23c011c4c02de9aa98d48c3646c70bb0e7ae30bdae1dfed4d251cbceadaeeb7b";
-  private static final String RELAY_URI = "ws://localhost:5555";
   public static final String PUBLISHED_AT_CODE = "published_at";
   public static final String LOCATION_CODE = "location";
 
@@ -99,7 +98,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(RELAY_URI);
+    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
     List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
 
 	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
@@ -122,7 +121,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
 ///*
-    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(RELAY_URI);
+    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
 //    springWebSocketRequestClient.closeSocket();
