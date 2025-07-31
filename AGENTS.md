@@ -10,7 +10,7 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Always run `mvn -q verify` from the repository root before committing your changes.
 - Include the command's output in the PR description.
 - If tests fail due to dependency or network issues, mention this in the PR.
-- Update the `README.md` file if you add or modify features.
+- Update the `README.md` and/or `docs/CODEBASE_OVERVIEW.md` file if you add or modify features.
 - Update the `pom.xml` file for new modules or dependencies, ensuring compatibility with Java 21.
 - Add unit tests for new functionality, covering edge cases.
 - Ensure modifications to existing code do not break functionality and pass all tests.
