@@ -35,7 +35,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     events.add(message.getPayload());
-    completed.setRelease(true);
+    completed.set(true);
   }
 
   @Override
@@ -51,7 +51,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
         .untilTrue(completed);
     List<String> eventList = List.copyOf(events);
     events = new ArrayList<>();
-    completed.setRelease(false);
+    completed.set(false);
     return eventList;
   }
 
