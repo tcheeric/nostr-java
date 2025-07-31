@@ -43,7 +43,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   public Flux<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
-    return sink.asFlux().take(1);
+    return sink.asFlux();
   }
 
   @Override
