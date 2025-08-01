@@ -31,7 +31,7 @@ public class WebSocketClientHandler {
         this.eventClient = new SpringWebSocketClient(relayUri);
     }
 
-    protected List<String> sendEvent(@NonNull IEvent event) {
+    public List<String> sendEvent(@NonNull IEvent event) {
         ((GenericEvent) event).validate();
         return eventClient.send(new EventMessage(event)).stream().toList();
     }
