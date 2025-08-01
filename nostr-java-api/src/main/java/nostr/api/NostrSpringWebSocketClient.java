@@ -12,6 +12,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
+import nostr.api.DefaultNoteService;
+import nostr.api.NoteService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,10 +29,21 @@ public class NostrSpringWebSocketClient implements NostrIF {
     @Getter
     private Identity sender;
 
+    private NoteService noteService = new DefaultNoteService();
+
     private static volatile NostrSpringWebSocketClient INSTANCE;
 
     public NostrSpringWebSocketClient(String relayName, String relayUri) {
         setRelays(Map.of(relayName, relayUri));
+    }
+
+    public NostrSpringWebSocketClient(@NonNull NoteService noteService) {
+        this.noteService = noteService;
+    }
+
+    public NostrSpringWebSocketClient(@NonNull Identity sender, @NonNull NoteService noteService) {
+        this.sender = sender;
+        this.noteService = noteService;
     }
 
     public static NostrIF getInstance() {
@@ -78,8 +91,13 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
     @Override
     public List<String> sendEvent(@NonNull IEvent event) {
-        return clientMap.values().stream().map(client ->
-                client.sendEvent(event)).flatMap(List::stream).distinct().toList();
+        if (event instanceof GenericEvent genericEvent) {
+            if (!verify(genericEvent)) {
+                throw new IllegalStateException("Event verification failed");
+            }
+        }
+
+        return noteService.send(event, clientMap);
     }
 
     @Override
