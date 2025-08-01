@@ -1,7 +1,7 @@
 package nostr.api.unit;
 
 import nostr.api.NostrSpringWebSocketClient;
-import nostr.api.NoteService;
+import nostr.api.service.NoteService;
 import org.mockito.Mockito;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;

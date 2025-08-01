@@ -1,6 +1,8 @@
-package nostr.api;
+package nostr.api.service.impl;
 
 import lombok.NonNull;
+import nostr.api.service.NoteService;
+import nostr.api.WebSocketClientHandler;
 import nostr.base.IEvent;
 
 import java.util.List;
