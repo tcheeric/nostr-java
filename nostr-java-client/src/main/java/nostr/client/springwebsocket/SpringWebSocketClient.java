@@ -48,8 +48,7 @@ public class SpringWebSocketClient {
   }
 
   @Recover
-  @SneakyThrows
-  public List<String> recover(IOException ex, BaseMessage eventMessage) {
+  public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
     log.error("Failed to send message after retries: {}", eventMessage, ex);
     throw ex;
   }
