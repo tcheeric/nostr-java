@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.config.RelayConfig;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
@@ -29,7 +30,9 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
 
     @Autowired
     public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
-        this.springWebSocketClients = relays.values().stream().map(SpringWebSocketClient::new).toList();
+        this.springWebSocketClients = relays.values().stream()
+            .map(uri -> new SpringWebSocketClient(new StandardWebSocketClient(uri), uri))
+            .toList();
     }
 
     @Test

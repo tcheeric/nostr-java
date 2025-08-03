@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
@@ -96,7 +97,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
+      SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
 
 	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
@@ -118,7 +119,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
 
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
-    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
+      SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
     springWebSocketRequestClient.closeSocket();

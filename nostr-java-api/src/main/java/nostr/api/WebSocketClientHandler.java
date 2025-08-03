@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
@@ -28,7 +29,7 @@ public class WebSocketClientHandler {
     protected WebSocketClientHandler(@NonNull String relayName, @NonNull String relayUri) {
         this.relayName = relayName;
         this.relayUri = relayUri;
-        this.eventClient = new SpringWebSocketClient(relayUri);
+        this.eventClient = new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
     }
 
     public List<String> sendEvent(@NonNull IEvent event) {
@@ -42,7 +43,7 @@ public class WebSocketClientHandler {
                         requestClientMap.get(subscriptionId))
                 .map(client ->
                         client.send(new ReqMessage(subscriptionId, filters))).or(() -> {
-                    requestClientMap.put(subscriptionId, new SpringWebSocketClient(relayUri));
+                      requestClientMap.put(subscriptionId, new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri));
                     return Optional.ofNullable(
                             requestClientMap.get(subscriptionId).send(
                                     new ReqMessage(subscriptionId, filters)));

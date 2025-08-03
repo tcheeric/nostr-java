@@ -5,6 +5,7 @@ import nostr.api.util.JsonComparator;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
@@ -28,9 +29,9 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
   private SpringWebSocketClient springWebSocketClient;
 
   @BeforeEach
-  void setup() {
-    springWebSocketClient = new SpringWebSocketClient(getRelayUri());
-  }
+    void setup() {
+      springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+    }
 
   @Test
   void testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient() throws IOException {

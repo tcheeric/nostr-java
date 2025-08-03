@@ -5,6 +5,7 @@ import nostr.api.NIP09;
 import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.config.RelayConfig;
 import nostr.event.BaseTag;
 import nostr.event.filter.AuthorFilter;
@@ -44,7 +45,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
     @BeforeEach
     void setup() {
-        springWebSocketClient = new SpringWebSocketClient(getRelayUri());
+        springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     }
 
     @Test
