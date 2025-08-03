@@ -3,6 +3,7 @@ package nostr.api.integration;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
@@ -108,7 +109,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
+      SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
     // Extract and compare only first 3 elements of the JSON array
@@ -129,7 +130,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
 
-    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
+      SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();

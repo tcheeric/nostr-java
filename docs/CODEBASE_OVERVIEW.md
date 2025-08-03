@@ -45,6 +45,9 @@ nostr.websocket.await-timeout-ms=60000
 nostr.websocket.poll-interval-ms=500
 ```
 
+## Retry behavior
+`SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
+
 ## Creating and sending events
 The examples module shows how to create built-in and custom events. Below is an excerpt from the examples illustrating the creation of a `TextNoteEvent`:
 ```java
