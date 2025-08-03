@@ -41,12 +41,32 @@ public class SpringWebSocketClient {
     return webSocketClientIF.send(json);
   }
 
+  /**
+   * This method is invoked by Spring Retry after all retry attempts for the
+   * {@link #send(String)} method are exhausted. It logs the failure and rethrows
+   * the exception.
+   *
+   * @param ex   the IOException that caused the retries to fail
+   * @param json the JSON message that failed to send
+   * @return nothing; always throws the exception
+   * @throws IOException always thrown to propagate the failure
+   */
   @Recover
   public List<String> recover(IOException ex, String json) throws IOException {
     log.error("Failed to send message after retries: {}", json, ex);
     throw ex;
   }
 
+  /**
+   * This method is invoked by Spring Retry after all retry attempts for the
+   * {@link #send(BaseMessage)} method are exhausted. It logs the failure and
+   * rethrows the exception.
+   *
+   * @param ex           the IOException that caused the retries to fail
+   * @param eventMessage the BaseMessage that failed to send
+   * @return nothing; always throws the exception
+   * @throws IOException always thrown to propagate the failure
+   */
   @Recover
   public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
     log.error("Failed to send message after retries: {}", eventMessage, ex);
