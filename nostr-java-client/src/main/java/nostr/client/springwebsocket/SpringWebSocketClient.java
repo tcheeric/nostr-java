@@ -6,9 +6,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -28,15 +26,13 @@ public class SpringWebSocketClient {
     this.relayUrl = relayUrl;
   }
 
-  @Retryable(value = IOException.class, maxAttempts = 3,
-      backoff = @Backoff(delay = 500, multiplier = 2))
+  @NostrRetryable
   @SneakyThrows
   public List<String> send(@NonNull BaseMessage eventMessage) {
     return webSocketClientIF.send(eventMessage.encode());
   }
 
-  @Retryable(value = IOException.class, maxAttempts = 3,
-      backoff = @Backoff(delay = 500, multiplier = 2))
+  @NostrRetryable
   public List<String> send(@NonNull String json) throws IOException {
     return webSocketClientIF.send(json);
   }
