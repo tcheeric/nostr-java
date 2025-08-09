@@ -1,4 +1,5 @@
 # nostr-java
+[![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
 
 `nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
 
@@ -16,6 +17,11 @@ $ ./mvnw clean install
 ```
 
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
+
+## CI and Releases
+The project uses GitHub Actions defined in [ci.yml](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml).
+This workflow runs `mvn -q verify` to build the project and execute all tests on each push and pull request.
+Releases are published using the [release.yml](https://github.com/tcheeric/nostr-java/actions/workflows/release.yml) workflow.
 
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
