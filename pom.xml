@@ -58,6 +58,10 @@
     </scm>
 
     <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/tcheeric/nostr-java</url>
+        </repository>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
