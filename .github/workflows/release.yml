@@ -18,6 +18,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Import GPG key
         env:
@@ -30,6 +33,13 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE"
+
+      - name: Deploy to GitHub Packages
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE" \
+            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/tcheeric/nostr-java
 
       - name: Collect JAR artifacts
         run: |
