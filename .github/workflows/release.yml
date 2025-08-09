@@ -35,6 +35,10 @@ jobs:
         run: |
           mkdir -p release-jars
           find . -name "*.jar" -path "*/target/*.jar" -not -name "*sources*" -not -name "*javadoc*" -exec cp {} release-jars/ \;
+          if ! ls release-jars/*.jar 1> /dev/null 2>&1; then
+            echo "Error: No JAR files found to upload."
+            exit 1
+          fi
 
       - name: Create GitHub release
         id: create_release
