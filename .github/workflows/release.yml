@@ -39,7 +39,12 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE" \
-            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/tcheeric/nostr-java
+        run: $MVN_DEPLOY_CMD
+
+      - name: Deploy to GitHub Packages
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: $MVN_DEPLOY_CMD -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/tcheeric/nostr-java
 
       - name: Collect JAR artifacts
         run: |
