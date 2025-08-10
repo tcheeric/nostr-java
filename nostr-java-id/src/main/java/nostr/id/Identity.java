@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.function.Consumer;
 import nostr.base.ISignable;
@@ -29,6 +28,9 @@ public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
+
+    @ToString.Exclude
+    private PublicKey cachedPublicKey;
 
     private Identity(@NonNull PrivateKey privateKey) {
         this.privateKey = privateKey;
@@ -71,15 +73,18 @@ public class Identity {
      * Derives the {@link PublicKey} associated with this identity's private key.
      *
      * @return the derived public key
-     * @throws RuntimeException if public key generation fails
+     * @throws IllegalStateException if public key generation fails
      */
     public PublicKey getPublicKey() {
-        try {
-            return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
-        } catch (Exception ex) {
-            log.error("Failed to derive public key", ex);
-            throw new RuntimeException(ex);
+        if (cachedPublicKey == null) {
+            try {
+                cachedPublicKey = new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
+            } catch (Exception ex) {
+                log.error("Failed to derive public key", ex);
+                throw new IllegalStateException("Failed to derive public key", ex);
+            }
         }
+        return cachedPublicKey;
     }
 
     //    TODO: exceptions refactor
@@ -108,12 +113,10 @@ public class Identity {
             return signature;
         } catch (NoSuchAlgorithmException ex) {
             log.error("SHA-256 algorithm not available for signing", ex);
-            throw new RuntimeException("SHA-256 algorithm not available", ex);
+            throw new IllegalStateException("SHA-256 algorithm not available", ex);
         } catch (Exception ex) {
-            InvalidKeyException ike = new InvalidKeyException("Failed to sign with provided key");
-            ike.initCause(ex);
-            log.error("Signing failed", ike);
-            throw new RuntimeException("Signing failed", ike);
+            log.error("Signing failed", ex);
+            throw new IllegalArgumentException("Failed to sign with provided key", ex);
         }
     }
 

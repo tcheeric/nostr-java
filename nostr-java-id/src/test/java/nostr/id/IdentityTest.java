@@ -97,30 +97,49 @@ public class IdentityTest {
     }
 
     @Test
-    public void testSignWithNullConsumer() {
+    public void testPublicKeyCaching() {
         Identity identity = Identity.generateRandomIdentity();
+        PublicKey first = identity.getPublicKey();
+        PublicKey second = identity.getPublicKey();
+        Assertions.assertSame(first, second);
+    }
+
+    @Test
+    public void testGetPublicKeyFailure() {
+        String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
+        Identity identity = Identity.create(invalidPriv);
+        Assertions.assertThrows(IllegalStateException.class, identity::getPublicKey);
+    }
+
+    @Test
+    public void testSignWithInvalidKeyFails() {
+        String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
+        Identity identity = Identity.create(invalidPriv);
+
         ISignable signable = new ISignable() {
+            private Signature signature;
+
             @Override
             public Signature getSignature() {
-                return null;
+                return signature;
             }
 
             @Override
             public void setSignature(Signature signature) {
+                this.signature = signature;
             }
 
             @Override
             public Consumer<Signature> getSignatureConsumer() {
-                return null;
+                return this::setSignature;
             }
 
             @Override
             public Supplier<ByteBuffer> getByteArraySupplier() {
-                return () -> ByteBuffer.wrap("payload".getBytes(StandardCharsets.UTF_8));
+                return () -> ByteBuffer.wrap("msg".getBytes(StandardCharsets.UTF_8));
             }
         };
-        Signature signature = Assertions.assertDoesNotThrow(() -> identity.sign(signable));
-        Assertions.assertNotNull(signature);
-        Assertions.assertNull(signable.getSignature());
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> identity.sign(signable));
     }
 }
