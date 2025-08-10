@@ -11,10 +11,6 @@
     <artifactId>nostr-java-examples</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <jacoco.skip>true</jacoco.skip>
-    </properties>
-
     <dependencies>
         <!-- Project Dependencies -->
         <dependency>
