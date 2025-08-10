@@ -1,7 +1,6 @@
 package nostr.client.springwebsocket;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,9 +36,21 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   private List<String> events = new ArrayList<>();
   private final AtomicBoolean completed = new AtomicBoolean(false);
 
-  @SneakyThrows
-  public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri) {
-    this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient().execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
+  /**
+   * Creates a new {@code StandardWebSocketClient} connected to the provided relay URI.
+   *
+   * @param relayUri the URI of the relay to connect to
+   * @throws java.util.concurrent.ExecutionException   if the WebSocket session fails to
+   *     establish
+   * @throws InterruptedException if the current thread is interrupted while waiting
+   *     for the WebSocket handshake to complete
+   */
+  public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri)
+      throws java.util.concurrent.ExecutionException, InterruptedException {
+    this.clientSession =
+        new org.springframework.web.socket.client.standard.StandardWebSocketClient()
+            .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri))
+            .get();
   }
 
   @Override
