@@ -19,15 +19,12 @@ import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,15 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
 public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
-    @Autowired
-    private Map<String, String> relays;
-
-    private SpringWebSocketClient springWebSocketClient;
-
-    @BeforeEach
-    void setup() {
-        springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
-    }
+    
 
     @Test
     public void deleteEvent() throws IOException {
@@ -56,6 +45,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         NIP09 nip09 = new NIP09(identity);
         NIP01 nip01 = new NIP01(identity);
 
+        try (SpringWebSocketClient springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
         GenericEvent event = nip01.createTextNoteEvent("Delete me!").sign().getEvent();
         EventMessage message = new EventMessage(event);
         springWebSocketClient.send(message);
@@ -77,6 +67,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
+        }
 
         nip01.close();
         nip09.close();
@@ -91,6 +82,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         NIP01 nip011 = new NIP01(identity);
         GenericEvent replaceableEvent = nip011.createReplaceableEvent(10_001, "replaceable event").sign().getEvent();
         EventMessage replaceableEventMessage = new EventMessage(replaceableEvent);
+        try (SpringWebSocketClient springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
         List<String> jsonReplaceableMessageList = springWebSocketClient.send(replaceableEventMessage);
 
         BaseMessageDecoder<OkMessage> decoder = new BaseMessageDecoder<>();
@@ -155,5 +147,6 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
         nip01.close();
         nip011.close();
         nip09.close();
+        }
     }
 }

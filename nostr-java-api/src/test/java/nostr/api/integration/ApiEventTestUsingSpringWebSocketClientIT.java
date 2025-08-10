@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,18 +27,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")
 class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest {
-    private final List<SpringWebSocketClient> springWebSocketClients;
+    private final Map<String, String> relays;
 
     @Autowired
     public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
-        this.springWebSocketClients = relays.values().stream()
-            .map(uri -> new SpringWebSocketClient(new StandardWebSocketClient(uri), uri))
-            .toList();
+        this.relays = relays;
     }
 
     @Test
     void doForEach() {
-        springWebSocketClients.forEach(this::testNIP15SendProductEventUsingSpringWebSocketClient);
+        relays.values().forEach(uri -> {
+            try (SpringWebSocketClient client = new SpringWebSocketClient(new StandardWebSocketClient(uri), uri)) {
+                testNIP15SendProductEventUsingSpringWebSocketClient(client);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @SneakyThrows
@@ -68,8 +73,6 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         assertEquals(expectedArray, actualArray, "First element should match");
         assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
         assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
-
-        springWebSocketClient.closeSocket();
     }
 
     private String expectedResponseJson(String sha256) {

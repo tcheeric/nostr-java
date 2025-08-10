@@ -54,6 +54,8 @@ Example usages are located in the [`nostr-java-examples`](./nostr-java-examples)
 ## Retry Support
 `SpringWebSocketClient` leverages Spring Retry so that failed WebSocket send operations are attempted up to three times with exponential backoff.
 
+Both `StandardWebSocketClient` and `SpringWebSocketClient` implement `AutoCloseable`, so they can be used with Java's try-with-resources for automatic cleanup.
+
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md)

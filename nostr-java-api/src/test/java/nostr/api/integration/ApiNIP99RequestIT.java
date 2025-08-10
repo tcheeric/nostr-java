@@ -97,10 +97,10 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-      SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+      try (SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     List<String> eventResponses = springWebSocketEventClient.send(eventMessage);
 
-	  assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
+          assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
@@ -111,27 +111,27 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(1).asText();
     var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(2).asBoolean();
 
-	  assertEquals(expectedArray, actualArray, "First element should match");
-	  assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-	  assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+          assertEquals(expectedArray, actualArray, "First element should match");
+          assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+          assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-    springWebSocketEventClient.closeSocket();
+    }
 
     // TODO - Investigate why EOSE, instead of EVENT, is returned from nostr-rs-relay, and not superconductor
 
-      SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+      try (SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
     List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
-    springWebSocketRequestClient.closeSocket();
+
 
     var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson());
 
     // Verify you receive the event
-	  assertEquals("EVENT", actualJson.get(0).asText(), "Event should be received, and not " + actualJson.get(0).asText());
+          assertEquals("EVENT", actualJson.get(0).asText(), "Event should be received, and not " + actualJson.get(0).asText());
 
     // Verify only required fields
-	  assertEquals(3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
+          assertEquals(3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
       assertEquals(actualJson.get(2).get("id").asText(), expectedJson.get(2).get("id").asText(), "ID should match");
       assertEquals(actualJson.get(2).get("kind").asInt(), expectedJson.get(2).get("kind").asInt(), "Kind should match");
 
@@ -141,6 +141,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
     assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");
     assertTrue(hasRequiredTag(actualTags, "summary", SUMMARY), "Summary tag should be present");
 //*/
+    }
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

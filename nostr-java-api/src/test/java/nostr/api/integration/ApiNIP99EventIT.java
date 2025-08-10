@@ -3,12 +3,12 @@ package nostr.api.integration;
 import nostr.api.NIP99;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
-import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
+import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -16,7 +16,6 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -53,12 +52,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   public static final String SUMMARY_CODE = "summary";
   public static final String PUBLISHED_AT_CODE = "published_at";
   public static final String LOCATION_CODE = "location";
-  private SpringWebSocketClient springWebSocketClient;
-
-  @BeforeEach
-    void setup() {
-      springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
-    }
+  
 
   @Test
   void testNIP99ClassifiedListingEvent() throws IOException {
@@ -92,6 +86,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
     var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
     var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
+    try (SpringWebSocketClient springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     String eventResponse = springWebSocketClient.send(message).stream().findFirst().get();
     var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
     var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
@@ -101,7 +96,7 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
       assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
 
-    springWebSocketClient.closeSocket();
+    }
   }
 
   private String expectedResponseJson(String sha256) {

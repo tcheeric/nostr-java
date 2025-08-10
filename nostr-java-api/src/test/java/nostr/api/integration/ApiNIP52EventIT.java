@@ -13,7 +13,6 @@ import nostr.event.message.EventMessage;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -26,12 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
-  private SpringWebSocketClient springWebSocketClient;
-
-  @BeforeEach
-    void setup() {
-      springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
-    }
+  
 
   @Test
   void testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient() throws IOException {
@@ -51,6 +45,7 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
     EventMessage message = new EventMessage(event);
 
     var expectedJson = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId()));
+    try (SpringWebSocketClient springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     var actualJson = MAPPER_AFTERBURNER.readTree(springWebSocketClient.send(message).stream().findFirst().orElseThrow());
 
     // Compare only first 3 elements of the JSON arrays
@@ -65,7 +60,7 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
                 .add(actualJson.get(1))
                 .add(actualJson.get(2))));
 
-    springWebSocketClient.closeSocket();
+    }
   }
 
   private String expectedResponseJson(String sha256) {

@@ -5,8 +5,10 @@ import nostr.event.BaseMessage;
 import java.io.IOException;
 import java.util.List;
 
-public interface WebSocketClientIF {
+public interface WebSocketClientIF extends AutoCloseable {
   <T extends BaseMessage> List<String> send(T eventMessage) throws IOException;
   List<String> send(String json) throws IOException;
-  void closeSocket() throws IOException;
+
+  @Override
+  void close() throws IOException;
 }

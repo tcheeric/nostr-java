@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class SpringWebSocketClient {
+public class SpringWebSocketClient implements AutoCloseable {
   private final WebSocketClientIF webSocketClientIF;
 
   @Getter
@@ -69,8 +69,14 @@ public class SpringWebSocketClient {
     throw ex;
   }
 
+  @Override
+  public void close() throws IOException {
+    webSocketClientIF.close();
+  }
+
+  @Deprecated(forRemoval = true)
   public void closeSocket() throws IOException {
-    webSocketClientIF.closeSocket();
+    close();
   }
 }
 

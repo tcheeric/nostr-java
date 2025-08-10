@@ -109,7 +109,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-      SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+    try (SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
     // Extract and compare only first 3 elements of the JSON array
@@ -125,12 +125,12 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
     //assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is not required. The relay will always return false because we resending the same event, causing duplicates.
 
-    springWebSocketEventClient.closeSocket();
+    }
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
 
-      SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+      try (SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
     String subscriberId = UUID.randomUUID().toString();
     String reqJson = createReqJson(subscriberId, eventId);
     String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
@@ -144,7 +144,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
             MAPPER_AFTERBURNER.readTree(reqResponse)));
 */
 
-    springWebSocketRequestClient.closeSocket();
+    }
   }
 
   private String expectedEventResponseJson(String subscriptionId) {
