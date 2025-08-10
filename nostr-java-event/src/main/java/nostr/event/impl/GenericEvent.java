@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -127,12 +128,12 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
                         @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
-        this.tags = tags;
+        this.tags = new ArrayList<>(tags);
         this.content = content;
         this.attributes = new ArrayList<>();
 
         // Update parents
-        updateTagsParents(tags);
+        updateTagsParents(this.tags);
     }
 
     public void setId(String id) {
@@ -154,12 +155,15 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void setTags(List<BaseTag> tags) {
+        this.tags = new ArrayList<>(tags);
 
-        this.tags = tags;
-
-        for (BaseTag tag : tags) {
+        for (BaseTag tag : this.tags) {
             tag.setParent(this);
         }
+    }
+
+    public List<BaseTag> getTags() {
+        return Collections.unmodifiableList(this.tags);
     }
 
     @Transient
