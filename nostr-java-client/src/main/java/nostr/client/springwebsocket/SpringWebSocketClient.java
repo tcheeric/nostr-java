@@ -29,12 +29,19 @@ public class SpringWebSocketClient {
   @NostrRetryable
   @SneakyThrows
   public List<String> send(@NonNull BaseMessage eventMessage) {
-    return webSocketClientIF.send(eventMessage.encode());
+    String payload = eventMessage.encode();
+    log.debug("Sending BaseMessage [{}] to relay {} (size: {} chars)", eventMessage.getCommand(), relayUrl, payload.length());
+    List<String> responses = webSocketClientIF.send(payload);
+    log.debug("Sent BaseMessage [{}] to relay {} (size: {} chars)", eventMessage.getCommand(), relayUrl, payload.length());
+    return responses;
   }
 
   @NostrRetryable
   public List<String> send(@NonNull String json) throws IOException {
-    return webSocketClientIF.send(json);
+    log.debug("Sending raw message to relay {} (size: {} chars)", relayUrl, json.length());
+    List<String> responses = webSocketClientIF.send(json);
+    log.debug("Sent raw message to relay {} (size: {} chars)", relayUrl, json.length());
+    return responses;
   }
 
   /**
@@ -70,7 +77,9 @@ public class SpringWebSocketClient {
   }
 
   public void closeSocket() throws IOException {
+    log.info("Closing WebSocket client for relay {}", relayUrl);
     webSocketClientIF.closeSocket();
+    log.info("WebSocket client closed for relay {}", relayUrl);
   }
 }
 
