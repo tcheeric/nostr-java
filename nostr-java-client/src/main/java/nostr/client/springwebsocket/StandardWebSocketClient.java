@@ -73,7 +73,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   public List<String> send(String json) throws IOException {
     try {
-      log.info("Sending message: {}", json);
+      log.info("Sending message: [hash={}, length={}]", sha256Hex(json), json.length());
       clientSession.sendMessage(new TextMessage(json));
     } catch (IOException e) {
       log.error("Error sending message", e);
