@@ -1,8 +1,11 @@
 package nostr.id;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,12 @@ public class Identity {
 
     @ToString.Exclude
     private final PrivateKey privateKey;
+
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private transient PublicKey cachedPublicKey;
 
     private Identity(@NonNull PrivateKey privateKey) {
         this.privateKey = privateKey;
@@ -54,11 +63,14 @@ public class Identity {
     }
 
     public PublicKey getPublicKey() {
-        try {
-            return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        if (cachedPublicKey == null) {
+            try {
+                cachedPublicKey = new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Invalid private key", ex);
+            }
         }
+        return cachedPublicKey;
     }
 
 //    TODO: exceptions refactor
