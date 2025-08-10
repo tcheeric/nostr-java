@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class SpringWebSocketClient {
+public class SpringWebSocketClient implements AutoCloseable {
   private final WebSocketClientIF webSocketClientIF;
 
   @Getter
@@ -82,10 +82,19 @@ public class SpringWebSocketClient {
     throw ex;
   }
 
-  public void closeSocket() throws IOException {
+  @Override
+  public void close() throws IOException {
     log.debug("Closing WebSocket client for relay {}", relayUrl);
-    webSocketClientIF.closeSocket();
+    webSocketClientIF.close();
     log.debug("WebSocket client closed for relay {}", relayUrl);
+  }
+
+  /**
+   * @deprecated use {@link #close()} instead.
+   */
+  @Deprecated
+  public void closeSocket() throws IOException {
+    close();
   }
 }
 

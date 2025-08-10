@@ -92,16 +92,16 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
     var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
     var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-    String eventResponse = springWebSocketClient.send(message).stream().findFirst().get();
-    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+    try (SpringWebSocketClient client = springWebSocketClient) {
+      String eventResponse = client.send(message).stream().findFirst().get();
+      var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
+      var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
+      var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
       assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
-
-    springWebSocketClient.closeSocket();
+    }
   }
 
   private String expectedResponseJson(String sha256) {
