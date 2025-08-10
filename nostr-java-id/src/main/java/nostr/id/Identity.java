@@ -28,18 +28,8 @@ public class Identity {
         this.privateKey = privateKey;
     }
 
-    @Deprecated(forRemoval = true)
-    public static Identity getInstance(@NonNull PrivateKey privateKey) {
-        return new Identity(privateKey);
-    }
-
     public static Identity create(@NonNull PrivateKey privateKey) {
         return new Identity(privateKey);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static Identity getInstance(@NonNull String privateKey) {
-        return new Identity(new PrivateKey(privateKey));
     }
 
     public static Identity create(@NonNull String privateKey) {
