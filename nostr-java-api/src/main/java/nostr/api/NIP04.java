@@ -97,7 +97,7 @@ public class NIP04 extends EventNostr {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
-        PubKeyTag pubKeyTag = GenericTag.convert(recipient, PubKeyTag.class);
+        PubKeyTag pubKeyTag = PubKeyTag.updateFields(recipient);
         PublicKey rcptPublicKey = pubKeyTag.getPublicKey();
         MessageCipher cipher = new MessageCipher04(senderId.getPrivateKey().getRawData(), rcptPublicKey.getRawData());
         var encryptedContent = cipher.encrypt(directMessageEvent.getContent());

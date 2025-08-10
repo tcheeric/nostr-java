@@ -15,32 +15,14 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.json.deserializer.TagDeserializer;
 import nostr.event.json.serializer.BaseTagSerializer;
-import nostr.event.tag.AddressTag;
-import nostr.event.tag.EmojiTag;
-import nostr.event.tag.EventTag;
-import nostr.event.tag.ExpirationTag;
 import nostr.event.tag.GenericTag;
-import nostr.event.tag.GeohashTag;
-import nostr.event.tag.HashtagTag;
-import nostr.event.tag.IdentifierTag;
-import nostr.event.tag.LabelNamespaceTag;
-import nostr.event.tag.LabelTag;
-import nostr.event.tag.NonceTag;
-import nostr.event.tag.PriceTag;
-import nostr.event.tag.PubKeyTag;
-import nostr.event.tag.ReferenceTag;
-import nostr.event.tag.RelaysTag;
-import nostr.event.tag.SubjectTag;
-import nostr.event.tag.UrlTag;
-import nostr.event.tag.VoteTag;
-import nostr.util.NostrException;
+import nostr.event.tag.TagRegistry;
 import org.apache.commons.lang3.stream.Streams;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -121,46 +103,9 @@ public abstract class BaseTag implements ITag {
                                 new ElementAttribute("param".concat(String.valueOf(i)), params.get(i)))
                         .toList());
 
-        try {
-            return switch (code) {
-                case "a" -> convert(genericTag, AddressTag.class);
-                case "d" -> convert(genericTag, IdentifierTag.class);
-                case "e" -> convert(genericTag, EventTag.class);
-                case "g" -> convert(genericTag, GeohashTag.class);
-                case "l" -> convert(genericTag, LabelTag.class);
-                case "L" -> convert(genericTag, LabelNamespaceTag.class);
-                case "p" -> convert(genericTag, PubKeyTag.class);
-                case "r" -> convert(genericTag, ReferenceTag.class);
-                case "t" -> convert(genericTag, HashtagTag.class);
-                case "u" -> convert(genericTag, UrlTag.class);
-                case "v" -> convert(genericTag, VoteTag.class);
-                case "emoji" -> convert(genericTag, EmojiTag.class);
-                case "expiration" -> convert(genericTag, ExpirationTag.class);
-                case "nonce" -> convert(genericTag, NonceTag.class);
-                case "price" -> convert(genericTag, PriceTag.class);
-                case "relays" -> convert(genericTag, RelaysTag.class);
-                case "subject" -> convert(genericTag, SubjectTag.class);
-                default -> genericTag;
-            };
-        } catch (NostrException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static <T extends BaseTag> T convert(@NonNull GenericTag genericTag, @NonNull Class<T> clazz) throws NostrException {
-        try {
-            T tag = clazz.getConstructor().newInstance();
-            if (genericTag.getParent() != null) {
-                tag.setParent(genericTag.getParent());
-            }
-
-            Method staticUpdateFields = clazz.getMethod("updateFields", GenericTag.class);
-            return (T) staticUpdateFields.invoke(null, genericTag);
-
-        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException |
-                 IllegalAccessException e) {
-            throw new NostrException("Failed to convert tag", e);
-        }
+        return Optional.ofNullable(TagRegistry.get(code))
+                .map(f -> (BaseTag) f.apply(genericTag))
+                .orElse(genericTag);
     }
 
     protected static <T extends BaseTag> void setOptionalField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {

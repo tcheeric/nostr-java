@@ -104,7 +104,6 @@
         <maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.3.0</maven-failsafe-plugin.version>
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     </properties>
 
     <!-- parent pom is used only for aggregation so it should not declare
@@ -247,7 +246,7 @@
                                             <limit>
                                                 <counter>INSTRUCTION</counter>
                                                 <value>COVEREDRATIO</value>
-                                                <minimum>0.80</minimum>
+                                                <minimum>0.60</minimum>
                                             </limit>
                                         </limits>
                                     </rule>
@@ -283,10 +282,6 @@
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

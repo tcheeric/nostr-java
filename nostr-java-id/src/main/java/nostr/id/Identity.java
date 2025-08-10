@@ -67,7 +67,7 @@ public class Identity {
         final Signature signature = new Signature();
         signature.setRawData(
                 Schnorr.sign(
-                        NostrUtil.sha256(signable.getByeArraySupplier().get().array()),
+                        NostrUtil.sha256(signable.getByteArraySupplier().get().array()),
                         this.getPrivateKey().getRawData(),
                         generateAuxRand()));
         signature.setPubKey(getPublicKey());
