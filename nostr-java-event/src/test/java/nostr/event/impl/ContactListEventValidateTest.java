@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,6 +31,16 @@ public class ContactListEventValidateTest {
         return event;
     }
 
+    private void setTagsRaw(ContactListEvent event, List<BaseTag> tags) {
+        try {
+            Field f = GenericEvent.class.getDeclaredField("tags");
+            f.setAccessible(true);
+            f.set(event, tags);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void testValidateSuccess() {
         ContactListEvent event = createValidEvent();
@@ -40,6 +51,15 @@ public class ContactListEventValidateTest {
     public void testValidateMissingPTag() {
         ContactListEvent event = createValidEvent();
         event.setTags(new ArrayList<>());
+        assertThrows(AssertionError.class, event::validate);
+    }
+
+    @Test
+    public void testValidateNullTagElement() {
+        ContactListEvent event = createValidEvent();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(null);
+        setTagsRaw(event, tags);
         assertThrows(AssertionError.class, event::validate);
     }
 

@@ -257,6 +257,22 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         if (this.tags == null) {
             throw new AssertionError("Invalid `tags`: Must be a non-null array.");
         }
+
+        if (this.tags.isEmpty()) {
+            throw new AssertionError("Invalid `tags`: Must contain at least one tag.");
+        }
+
+        for (BaseTag tag : this.tags) {
+            if (tag == null) {
+                throw new AssertionError("Invalid `tags`: Tag elements must not be null.");
+            }
+
+            try {
+                tag.validate();
+            } catch (NostrException ex) {
+                throw new AssertionError("Invalid tag: " + ex.getMessage(), ex);
+            }
+        }
     }
 
     protected void validateContent() {

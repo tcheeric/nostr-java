@@ -48,6 +48,8 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import nostr.util.NostrException;
+
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -165,5 +167,15 @@ public abstract class BaseTag implements ITag {
 
     protected static <T extends BaseTag> void setRequiredField(JsonNode node, BiConsumer<JsonNode, T> con, T tag) {
         con.accept(Optional.ofNullable(node).orElseThrow(), tag);
+    }
+
+    /**
+     * Validates this tag. Subclasses may override to enforce specific constraints.
+     *
+     * @throws NostrException if validation fails for a nostr specific reason
+     * @throws AssertionError if validation fails
+     */
+    public void validate() throws NostrException {
+        // Default implementation: no validation
     }
 }

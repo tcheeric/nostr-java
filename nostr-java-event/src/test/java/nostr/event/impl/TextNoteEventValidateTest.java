@@ -4,6 +4,7 @@ import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;
+import nostr.base.annotation.Tag;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +32,18 @@ public class TextNoteEventValidateTest {
         return event;
     }
 
-    private void clearTags(TextNoteEvent event) {
+    private void setTagsRaw(TextNoteEvent event, List<BaseTag> tags) {
         try {
             Field f = GenericEvent.class.getDeclaredField("tags");
             f.setAccessible(true);
-            f.set(event, null);
+            f.set(event, tags);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void clearTags(TextNoteEvent event) {
+        setTagsRaw(event, null);
     }
 
     @Test
@@ -55,6 +60,29 @@ public class TextNoteEventValidateTest {
     }
 
     @Test
+    public void testValidateEmptyTags() {
+        TextNoteEvent event = createValidEvent();
+        event.setTags(new ArrayList<>());
+        assertThrows(AssertionError.class, event::validate);
+    }
+
+    @Test
+    public void testValidateNullTagElement() {
+        TextNoteEvent event = createValidEvent();
+        List<BaseTag> tags = new ArrayList<>();
+        tags.add(null);
+        setTagsRaw(event, tags);
+        assertThrows(AssertionError.class, event::validate);
+    }
+
+    @Test
+    public void testValidateInvalidTag() {
+        TextNoteEvent event = createValidEvent();
+        event.getTags().add(new InvalidTag());
+        assertThrows(AssertionError.class, event::validate);
+    }
+
+    @Test
     public void testValidateWrongKind() {
         TextNoteEvent event = createValidEvent();
         event.setKind(-1);
@@ -66,5 +94,13 @@ public class TextNoteEventValidateTest {
         TextNoteEvent event = createValidEvent();
         event.setContent(null);
         assertThrows(AssertionError.class, event::validate);
+    }
+
+    @Tag(code = "invalid")
+    private static class InvalidTag extends BaseTag {
+        @Override
+        public void validate() {
+            throw new AssertionError("Invalid tag");
+        }
     }
 }
