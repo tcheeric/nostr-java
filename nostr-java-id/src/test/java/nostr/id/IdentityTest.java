@@ -142,6 +142,4 @@ public class IdentityTest {
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> identity.sign(signable));
     }
-
-
 }

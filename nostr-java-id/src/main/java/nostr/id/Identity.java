@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
 import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -105,7 +106,10 @@ public class Identity {
                             this.getPrivateKey().getRawData(),
                             generateAuxRand()));
             signature.setPubKey(getPublicKey());
-            signable.getSignatureConsumer().accept(signature);
+            Consumer<Signature> consumer = signable.getSignatureConsumer();
+            if (consumer != null) {
+                consumer.accept(signature);
+            }
             return signature;
         } catch (NoSuchAlgorithmException ex) {
             log.error("SHA-256 algorithm not available for signing", ex);

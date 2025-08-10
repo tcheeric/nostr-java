@@ -2,7 +2,6 @@ package nostr.client.springwebsocket;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +26,14 @@ public class SpringWebSocketClient {
   }
 
   @NostrRetryable
-  @SneakyThrows
-  public List<String> send(@NonNull BaseMessage eventMessage) {
+  /**
+   * Sends the provided {@link BaseMessage} over the WebSocket connection.
+   *
+   * @param eventMessage the message to send
+   * @return the list of responses from the relay
+   * @throws IOException if an I/O error occurs while sending the message
+   */
+  public List<String> send(@NonNull BaseMessage eventMessage) throws IOException {
     return webSocketClientIF.send(eventMessage.encode());
   }
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -81,11 +82,15 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
     @Override
     public NostrIF setRelays(@NonNull Map<String, String> relays) {
-        relays.entrySet().forEach(relayEntry ->
-                clientMap.putIfAbsent(relayEntry.getKey(),
-                        new WebSocketClientHandler(
-                                relayEntry.getKey(),
-                                relayEntry.getValue())));
+        relays.entrySet().forEach(relayEntry -> {
+            try {
+                clientMap.putIfAbsent(
+                    relayEntry.getKey(),
+                    new WebSocketClientHandler(relayEntry.getKey(), relayEntry.getValue()));
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException("Failed to initialize WebSocket client handler", e);
+            }
+        });
         return this;
     }
 
@@ -127,7 +132,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
                 .distinct().toList();
     }
 
-    public static List<String> sendRequest(@NonNull SpringWebSocketClient client, @NonNull Filters filters, @NonNull String subscriptionId) {
+    public static List<String> sendRequest(@NonNull SpringWebSocketClient client,
+                                           @NonNull Filters filters,
+                                           @NonNull String subscriptionId) throws IOException {
         return client.send(new ReqMessage(subscriptionId, filters));
     }
 
@@ -183,7 +190,8 @@ public class NostrSpringWebSocketClient implements NostrIF {
         }
     }
 
-    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri) {
+    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri)
+        throws ExecutionException, InterruptedException {
         return new WebSocketClientHandler(relayName, relayUri);
     }
 
@@ -192,8 +200,15 @@ public class NostrSpringWebSocketClient implements NostrIF {
                 .filter(entry -> !entry.getKey().contains(":"))
                 .forEach(entry -> {
                     String requestKey = entry.getKey() + ":" + subscriptionId;
-                    clientMap.computeIfAbsent(requestKey,
-                            key -> newWebSocketClientHandler(requestKey, entry.getValue().getRelayUri()));
+                    clientMap.computeIfAbsent(
+                        requestKey,
+                        key -> {
+                            try {
+                                return newWebSocketClientHandler(requestKey, entry.getValue().getRelayUri());
+                            } catch (ExecutionException | InterruptedException e) {
+                                throw new RuntimeException("Failed to create request client", e);
+                            }
+                        });
                 });
     }
 }
