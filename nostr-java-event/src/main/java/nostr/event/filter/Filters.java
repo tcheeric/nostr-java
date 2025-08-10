@@ -6,7 +6,6 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.ToString;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -16,9 +15,11 @@ import static java.util.stream.Collectors.groupingBy;
 @ToString
 public class Filters {
     public static final int DEFAULT_FILTERS_LIMIT = 10;
+    private static final String FILTERS_EMPTY_ERROR = "Filters cannot be empty.";
+    private static final String FILTER_KEY_ERROR = "Filter key for filterable [%s] is not defined";
+    private static final String POSITIVE_LIMIT_ERROR = "Limit must be positive.";
     private final Map<String, List<Filterable>> filtersMap;
 
-    @Setter
     private Integer limit = DEFAULT_FILTERS_LIMIT;
 
     public Filters(@NonNull Filterable... filterablesByDefaultType) {
@@ -35,23 +36,32 @@ public class Filters {
     }
 
     public List<Filterable> getFilterByType(@NonNull String type) {
-        return Objects.nonNull(filtersMap.get(type)) ?  filtersMap.get(type) : List.of();
+        return filtersMap.getOrDefault(type, List.of());
+    }
+
+    public void setLimit(@NonNull Integer limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException(POSITIVE_LIMIT_ERROR);
+        }
+        this.limit = limit;
     }
 
     private static void validateFiltersMap(Map<String, List<Filterable>> filtersMap) throws IllegalArgumentException {
         if (filtersMap.isEmpty()) {
-            throw new IllegalArgumentException("Filters cannot be empty.");
+            throw new IllegalArgumentException(FILTERS_EMPTY_ERROR);
         }
 
         filtersMap.values().forEach(filterables -> {
             if (filterables.isEmpty()) {
-                throw new IllegalArgumentException("Filters cannot be empty.");
+                throw new IllegalArgumentException(FILTERS_EMPTY_ERROR);
             }
         });
 
         filtersMap.forEach((key, value) -> {
-            if (key.isEmpty())
-                throw new IllegalArgumentException(String.format("Filter key for filterable [%s] is not defined", value.getFirst().getFilterKey()));
+            String filterKey = Objects.requireNonNullElse(key, "");
+            if (filterKey.isEmpty()) {
+                throw new IllegalArgumentException(String.format(FILTER_KEY_ERROR, value.getFirst().getFilterKey()));
+            }
         });
     }
 }

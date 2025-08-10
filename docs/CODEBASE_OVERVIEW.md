@@ -67,4 +67,7 @@ The examples module shows how to create built-in and custom events. Below is an 
     }
 ```
 ## Creating custom events and tags
- TODO
+Custom tag types can be introduced without modifying existing core code by
+registering them with the `TagRegistry`. The registry maps tag codes to factory
+functions responsible for creating concrete `BaseTag` implementations from a
+`GenericTag` representation.
