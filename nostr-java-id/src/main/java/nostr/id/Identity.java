@@ -24,6 +24,10 @@ public class Identity {
     @ToString.Exclude
     private final PrivateKey privateKey;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private PublicKey cachedPublicKey;
+
     private Identity(@NonNull PrivateKey privateKey) {
         this.privateKey = privateKey;
     }
@@ -54,11 +58,14 @@ public class Identity {
     }
 
     public PublicKey getPublicKey() {
-        try {
-            return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        if (cachedPublicKey == null) {
+            try {
+                cachedPublicKey = new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
+            } catch (Exception ex) {
+                throw new IllegalStateException("Unable to derive public key", ex);
+            }
         }
+        return cachedPublicKey;
     }
 
 //    TODO: exceptions refactor

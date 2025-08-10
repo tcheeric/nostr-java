@@ -1,5 +1,6 @@
 package nostr.id;
 
+import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.DelegationTag;
@@ -33,6 +34,20 @@ public class IdentityTest {
         DelegationTag delegationTag = new DelegationTag(publicKey, null);
         identity.sign(delegationTag);
         Assertions.assertNotNull(delegationTag.getSignature());
+    }
+
+    @Test
+    public void testPublicKeyCaching() {
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey first = identity.getPublicKey();
+        PublicKey second = identity.getPublicKey();
+        Assertions.assertSame(first, second, "Public key should be cached");
+    }
+
+    @Test
+    public void testGetPublicKeyInvalidPrivateKey() {
+        Identity identity = Identity.create(new PrivateKey(new byte[32]));
+        Assertions.assertThrows(IllegalStateException.class, identity::getPublicKey);
     }
 
 
