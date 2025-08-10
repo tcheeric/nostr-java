@@ -18,7 +18,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +74,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   public String signature;
 
   @Test
-  void testNIP99CalendarContentPreRequest() throws IOException {
+  void testNIP99CalendarContentPreRequest() throws Exception {
     System.out.println("testNIP52CalendarContentEvent");
 
     List<BaseTag> tags = new ArrayList<>();

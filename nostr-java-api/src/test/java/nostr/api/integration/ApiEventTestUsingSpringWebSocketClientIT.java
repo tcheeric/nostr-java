@@ -31,7 +31,13 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
     @Autowired
     public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
         this.springWebSocketClients = relays.values().stream()
-            .map(uri -> new SpringWebSocketClient(new StandardWebSocketClient(uri), uri))
+            .map(uri -> {
+                try {
+                    return new SpringWebSocketClient(new StandardWebSocketClient(uri), uri);
+                } catch (java.util.concurrent.ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            })
             .toList();
     }
 
