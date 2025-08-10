@@ -16,9 +16,9 @@ import nostr.util.NostrUtil;
 /**
  * @author squirrel
  */
+@Slf4j
 @EqualsAndHashCode
 @Data
-@Slf4j
 public class Identity {
 
     @ToString.Exclude
@@ -57,6 +57,7 @@ public class Identity {
         try {
             return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
         } catch (Exception ex) {
+            log.error("Failed to derive public key", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -64,15 +65,20 @@ public class Identity {
 //    TODO: exceptions refactor
     @SneakyThrows
     public Signature sign(@NonNull ISignable signable) {
-        final Signature signature = new Signature();
-        signature.setRawData(
-                Schnorr.sign(
-                        NostrUtil.sha256(signable.getByteArraySupplier().get().array()),
-                        this.getPrivateKey().getRawData(),
-                        generateAuxRand()));
-        signature.setPubKey(getPublicKey());
-        signable.getSignatureConsumer().accept(signature);
-        return signature;
+        try {
+            final Signature signature = new Signature();
+            signature.setRawData(
+                    Schnorr.sign(
+                            NostrUtil.sha256(signable.getByteArraySupplier().get().array()),
+                            this.getPrivateKey().getRawData(),
+                            generateAuxRand()));
+            signature.setPubKey(getPublicKey());
+            signable.getSignatureConsumer().accept(signature);
+            return signature;
+        } catch (Exception ex) {
+            log.error("Failed to sign message", ex);
+            throw ex;
+        }
     }
 
     private byte[] generateAuxRand() {
