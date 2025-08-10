@@ -51,7 +51,7 @@ class SpringWebSocketClientTest {
         }
 
         @Override
-        public void closeSocket() {
+        public void close() {
         }
     }
 

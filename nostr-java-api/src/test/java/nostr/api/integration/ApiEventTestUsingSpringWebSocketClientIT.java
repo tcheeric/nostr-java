@@ -60,22 +60,22 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
         EventMessage message = new EventMessage(event);
 
-        String eventResponse = springWebSocketClient.send(message).stream().findFirst().orElseThrow();
+        try (SpringWebSocketClient client = springWebSocketClient) {
+            String eventResponse = client.send(message).stream().findFirst().orElseThrow();
 
-        // Extract and compare only first 3 elements of the JSON array
-        var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
-        var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
-        var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+            // Extract and compare only first 3 elements of the JSON array
+            var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
+            var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
+            var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-        var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-        var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-        var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+            var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
+            var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
+            var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
 
-        assertEquals(expectedArray, actualArray, "First element should match");
-        assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-        assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
-
-        springWebSocketClient.closeSocket();
+            assertEquals(expectedArray, actualArray, "First element should match");
+            assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+            assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+        }
     }
 
     private String expectedResponseJson(String sha256) {

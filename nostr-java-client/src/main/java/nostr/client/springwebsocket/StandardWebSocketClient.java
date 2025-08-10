@@ -111,7 +111,17 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   @Override
+  public void close() throws IOException {
+    if (clientSession.isOpen()) {
+      clientSession.close();
+    }
+  }
+
+  /**
+   * @deprecated use {@link #close()} instead.
+   */
+  @Deprecated
   public void closeSocket() throws IOException {
-    clientSession.close();
+    close();
   }
 }
