@@ -1,7 +1,6 @@
 package nostr.id;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.ToString;
@@ -16,7 +15,6 @@ import nostr.util.NostrUtil;
 /**
  * @author squirrel
  */
-@EqualsAndHashCode
 @Data
 @Slf4j
 public class Identity {
