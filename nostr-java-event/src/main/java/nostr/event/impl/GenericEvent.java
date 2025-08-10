@@ -30,8 +30,10 @@ import java.beans.Transient;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -119,11 +121,11 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
                         @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
-        this.tags = tags;
+        this.tags = new ArrayList<>(tags);
         this.content = content;
 
         // Update parents
-        updateTagsParents(tags);
+        updateTagsParents(this.tags);
     }
 
     public void setId(String id) {
@@ -145,12 +147,15 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     }
 
     public void setTags(List<BaseTag> tags) {
+        this.tags = new ArrayList<>(tags);
 
-        this.tags = tags;
-
-        for (BaseTag tag : tags) {
+        for (BaseTag tag : this.tags) {
             tag.setParent(this);
         }
+    }
+
+    public List<BaseTag> getTags() {
+        return Collections.unmodifiableList(this.tags);
     }
 
     @Transient
@@ -270,7 +275,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
     @Transient
     @Override
-    public Supplier<ByteBuffer> getByeArraySupplier() {
+    public Supplier<ByteBuffer> getByteArraySupplier() {
         this.update();
         log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
@@ -344,7 +349,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     }
 
 
-    public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) {
+    public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) throws NostrException {
         try {
             T event = clazz.getConstructor().newInstance();
             event.setContent(genericEvent.getContent());
@@ -357,8 +362,8 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
             event.setSignature(genericEvent.getSignature());
             event.setCreatedAt(genericEvent.getCreatedAt());
             return event;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new NostrException("Failed to convert GenericEvent", e);
         }
     }
 }

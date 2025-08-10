@@ -54,14 +54,18 @@ public class ZapRequestEventValidateTest {
     @Test
     public void testValidateMissingAmountTag() {
         ZapRequestEvent event = createValidEvent();
-        event.getTags().removeIf(t -> "amount".equals(t.getCode()));
+        List<BaseTag> tags = new ArrayList<>(event.getTags());
+        tags.removeIf(t -> "amount".equals(t.getCode()));
+        event.setTags(tags);
         assertThrows(AssertionError.class, event::validate);
     }
 
     @Test
     public void testValidateMissingLnurlTag() {
         ZapRequestEvent event = createValidEvent();
-        event.getTags().removeIf(t -> "lnurl".equals(t.getCode()));
+        List<BaseTag> tags = new ArrayList<>(event.getTags());
+        tags.removeIf(t -> "lnurl".equals(t.getCode()));
+        event.setTags(tags);
         assertThrows(AssertionError.class, event::validate);
     }
 
