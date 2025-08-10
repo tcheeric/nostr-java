@@ -11,6 +11,7 @@ import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
+import nostr.util.NostrException;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -26,7 +27,7 @@ public class CommonTestObjectsFactory {
     return Identity.generateRandomIdentity();
   }
 
-  public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) {
+  public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) throws NostrException {
     NIP01 nip01 = new NIP01(identity);
     GenericEvent genericEvent = nip01.createTextNoteEvent(tags, content).getEvent();
     TextNoteEvent textNoteEvent = GenericEvent.convert(genericEvent, TextNoteEvent.class);

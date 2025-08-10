@@ -6,6 +6,7 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ZapRequestEvent;
+import nostr.util.NostrException;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NIP57ImplTest {
 
     @Test
-    void testNIP57CreateZapRequestEventFactory() {
+    void testNIP57CreateZapRequestEventFactory() throws NostrException {
         log.info("testNIP57CreateZapRequestEventFactories");
 
         Identity sender = Identity.generateRandomIdentity();

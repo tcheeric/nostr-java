@@ -33,6 +33,7 @@ import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
 import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
+import nostr.util.NostrException;
 import org.apache.commons.lang3.stream.Streams;
 
 import java.beans.IntrospectionException;
@@ -120,30 +121,33 @@ public abstract class BaseTag implements ITag {
                                 new ElementAttribute("param".concat(String.valueOf(i)), params.get(i)))
                         .toList());
 
-        return switch (code) {
-            case "a" -> convert(genericTag, AddressTag.class);
-            case "d" -> convert(genericTag, IdentifierTag.class);
-            case "e" -> convert(genericTag, EventTag.class);
-            case "g" -> convert(genericTag, GeohashTag.class);
-            case "l" -> convert(genericTag, LabelTag.class);
-            case "L" -> convert(genericTag, LabelNamespaceTag.class);
-            case "p" -> convert(genericTag, PubKeyTag.class);
-            case "r" -> convert(genericTag, ReferenceTag.class);
-            case "t" -> convert(genericTag, HashtagTag.class);
-            case "u" -> convert(genericTag, UrlTag.class);
-            case "v" -> convert(genericTag, VoteTag.class);
-            case "emoji" -> convert(genericTag, EmojiTag.class);
-            case "expiration" -> convert(genericTag, ExpirationTag.class);
-            case "nonce" -> convert(genericTag, NonceTag.class);
-            case "price" -> convert(genericTag, PriceTag.class);
-            case "relays" -> convert(genericTag, RelaysTag.class);
-            case "subject" -> convert(genericTag, SubjectTag.class);
-            default -> genericTag;
-        };
+        try {
+            return switch (code) {
+                case "a" -> convert(genericTag, AddressTag.class);
+                case "d" -> convert(genericTag, IdentifierTag.class);
+                case "e" -> convert(genericTag, EventTag.class);
+                case "g" -> convert(genericTag, GeohashTag.class);
+                case "l" -> convert(genericTag, LabelTag.class);
+                case "L" -> convert(genericTag, LabelNamespaceTag.class);
+                case "p" -> convert(genericTag, PubKeyTag.class);
+                case "r" -> convert(genericTag, ReferenceTag.class);
+                case "t" -> convert(genericTag, HashtagTag.class);
+                case "u" -> convert(genericTag, UrlTag.class);
+                case "v" -> convert(genericTag, VoteTag.class);
+                case "emoji" -> convert(genericTag, EmojiTag.class);
+                case "expiration" -> convert(genericTag, ExpirationTag.class);
+                case "nonce" -> convert(genericTag, NonceTag.class);
+                case "price" -> convert(genericTag, PriceTag.class);
+                case "relays" -> convert(genericTag, RelaysTag.class);
+                case "subject" -> convert(genericTag, SubjectTag.class);
+                default -> genericTag;
+            };
+        } catch (NostrException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static <T extends BaseTag> T convert(@NonNull GenericTag genericTag, @NonNull Class<T> clazz) {
-
+    public static <T extends BaseTag> T convert(@NonNull GenericTag genericTag, @NonNull Class<T> clazz) throws NostrException {
         try {
             T tag = clazz.getConstructor().newInstance();
             if (genericTag.getParent() != null) {
@@ -155,7 +159,7 @@ public abstract class BaseTag implements ITag {
 
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new NostrException("Failed to convert tag", e);
         }
     }
 
