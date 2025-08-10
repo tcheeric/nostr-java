@@ -3,9 +3,11 @@ package nostr.id;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -101,17 +103,29 @@ public class Identity {
      * @return the generated signature
      * @throws Exception if the signature cannot be created
      */
-    @SneakyThrows
     public Signature sign(@NonNull ISignable signable) {
         final Signature signature = new Signature();
-        signature.setRawData(
-                Schnorr.sign(
-                        NostrUtil.sha256(signable.getByteArraySupplier().get().array()),
-                        this.getPrivateKey().getRawData(),
-                        generateAuxRand()));
-        signature.setPubKey(getPublicKey());
-        signable.getSignatureConsumer().accept(signature);
-        return signature;
+        ByteBuffer buffer = signable.getByteArraySupplier().get();
+        byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+        try {
+            signature.setRawData(
+                    Schnorr.sign(
+                            NostrUtil.sha256(data),
+                            this.getPrivateKey().getRawData(),
+                            generateAuxRand()));
+            signature.setPubKey(getPublicKey());
+            signable.getSignatureConsumer().accept(signature);
+            return signature;
+        } catch (NoSuchAlgorithmException ex) {
+            log.error("SHA-256 algorithm not available for signing", ex);
+            throw new RuntimeException("SHA-256 algorithm not available", ex);
+        } catch (Exception ex) {
+            InvalidKeyException ike = new InvalidKeyException("Failed to sign with provided key");
+            ike.initCause(ex);
+            log.error("Signing failed", ike);
+            throw new RuntimeException("Signing failed", ike);
+        }
     }
 
     private byte[] generateAuxRand() {
