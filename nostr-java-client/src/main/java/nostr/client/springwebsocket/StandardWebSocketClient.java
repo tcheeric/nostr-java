@@ -112,7 +112,6 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public void close() throws IOException {
-    if (clientSession.isOpen()) {
     if (clientSession != null) {
       boolean open = false;
       try {
