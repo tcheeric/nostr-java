@@ -58,7 +58,7 @@ public class DelegationTag extends BaseTag implements ISignable {
     }
 
     @Override
-    public Supplier<ByteBuffer> getByeArraySupplier() {
+    public Supplier<ByteBuffer> getByteArraySupplier() {
         return () -> ByteBuffer.wrap(this.getToken().getBytes(StandardCharsets.UTF_8));
     }
 }
