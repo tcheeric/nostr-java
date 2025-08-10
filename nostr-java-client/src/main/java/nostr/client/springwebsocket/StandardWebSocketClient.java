@@ -2,7 +2,9 @@ package nostr.client.springwebsocket;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
+import org.awaitility.core.ConditionTimeoutException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -23,6 +25,7 @@ import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Slf4j
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
   private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(60);
   private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(500);
@@ -42,6 +45,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient().execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
   }
 
+  StandardWebSocketClient(WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
+    this.clientSession = clientSession;
+    this.awaitTimeoutMs = awaitTimeoutMs;
+    this.pollIntervalMs = pollIntervalMs;
+  }
+
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     events.add(message.getPayload());
@@ -58,10 +67,22 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     clientSession.sendMessage(new TextMessage(json));
     Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
-    await()
-        .atMost(awaitTimeout)
-        .pollInterval(pollInterval)
-        .untilTrue(completed);
+    try {
+      await()
+          .atMost(awaitTimeout)
+          .pollInterval(pollInterval)
+          .untilTrue(completed);
+    } catch (ConditionTimeoutException e) {
+      log.error("Timed out waiting for relay response", e);
+      try {
+        clientSession.close();
+      } catch (IOException closeEx) {
+        log.warn("Error closing session after timeout", closeEx);
+      }
+      events = new ArrayList<>();
+      completed.setRelease(false);
+      return List.of();
+    }
     List<String> eventList = List.copyOf(events);
     events = new ArrayList<>();
     completed.setRelease(false);

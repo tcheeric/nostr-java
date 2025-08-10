@@ -44,6 +44,7 @@ Integration tests start a `nostr-rs-relay` container automatically. The image us
 nostr.websocket.await-timeout-ms=60000
 nostr.websocket.poll-interval-ms=500
 ```
+If a relay response is not received before the timeout elapses, the client logs the failure, closes the WebSocket session, and returns an empty list of events.
 
 ## Retry behavior
 `SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
