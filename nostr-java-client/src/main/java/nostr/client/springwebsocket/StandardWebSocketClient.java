@@ -13,10 +13,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.time.Duration;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.awaitility.Awaitility.await;
 
@@ -33,8 +35,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   private long pollIntervalMs;
 
   private final WebSocketSession clientSession;
-  private List<String> events = new ArrayList<>();
-  private final AtomicBoolean completed = new AtomicBoolean(false);
+  private final BlockingQueue<SendContext> contexts = new LinkedBlockingQueue<>();
+
+  private static class SendContext {
+    final BlockingQueue<String> events = new LinkedBlockingQueue<>();
+    final CountDownLatch latch = new CountDownLatch(1);
+  }
 
   /**
    * Creates a new {@code StandardWebSocketClient} connected to the provided relay URI.
@@ -53,10 +59,19 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
             .get();
   }
 
+  StandardWebSocketClient(WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
+    this.clientSession = clientSession;
+    this.awaitTimeoutMs = awaitTimeoutMs;
+    this.pollIntervalMs = pollIntervalMs;
+  }
+
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
-    events.add(message.getPayload());
-    completed.setRelease(true);
+    SendContext context = contexts.poll();
+    if (context != null) {
+      context.events.offer(message.getPayload());
+      context.latch.countDown();
+    }
   }
 
   @Override
@@ -66,16 +81,20 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public List<String> send(String json) throws IOException {
+    SendContext context = new SendContext();
+    contexts.offer(context);
     clientSession.sendMessage(new TextMessage(json));
-    Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
-    Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
+    Duration awaitTimeout =
+        awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
+    Duration pollInterval =
+        pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
     await()
         .atMost(awaitTimeout)
         .pollInterval(pollInterval)
-        .untilTrue(completed);
-    List<String> eventList = List.copyOf(events);
-    events = new ArrayList<>();
-    completed.setRelease(false);
+        .until(() -> context.latch.getCount() == 0);
+    List<String> eventList = new ArrayList<>();
+    context.events.drainTo(eventList);
+    context.events.clear();
     return eventList;
   }
 

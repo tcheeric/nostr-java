@@ -39,7 +39,7 @@ The project can be built with Maven or Gradle. Unit tests do not require a runni
 Integration tests start a `nostr-rs-relay` container automatically. The image used can be overridden in `src/test/resources/relay-container.properties` by setting `relay.container.image=<image>`.
 
 ## WebSocket configuration
-`StandardWebSocketClient` waits for relay responses when sending messages. The timeout and polling interval are configured with the following properties (values in milliseconds):
+`StandardWebSocketClient` waits for relay responses when sending messages. It now uses a per-send `BlockingQueue` and `CountDownLatch` to coordinate responses, allowing multiple send operations to run concurrently. The timeout and polling interval are configured with the following properties (values in milliseconds):
 ```
 nostr.websocket.await-timeout-ms=60000
 nostr.websocket.poll-interval-ms=500
