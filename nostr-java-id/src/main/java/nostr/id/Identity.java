@@ -4,9 +4,9 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
 import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -23,8 +23,8 @@ import nostr.util.NostrUtil;
  *
  * @author squirrel
  */
-@Data
 @Slf4j
+@Data
 public class Identity {
 
     @ToString.Exclude
@@ -77,6 +77,7 @@ public class Identity {
         try {
             return new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
         } catch (Exception ex) {
+            log.error("Failed to derive public key", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -92,18 +93,18 @@ public class Identity {
      * @throws Exception if the signature cannot be created
      */
     public Signature sign(@NonNull ISignable signable) {
-        final Signature signature = new Signature();
-        ByteBuffer buffer = signable.getByteArraySupplier().get();
-        byte[] data = new byte[buffer.remaining()];
-        buffer.get(data);
         try {
+            final Signature signature = new Signature();
             signature.setRawData(
                     Schnorr.sign(
-                            NostrUtil.sha256(data),
+                            NostrUtil.sha256(signable.getByteArraySupplier().get().array()),
                             this.getPrivateKey().getRawData(),
                             generateAuxRand()));
             signature.setPubKey(getPublicKey());
-            signable.getSignatureConsumer().accept(signature);
+            Consumer<Signature> consumer = signable.getSignatureConsumer();
+            if (consumer != null) {
+                consumer.accept(signature);
+            }
             return signature;
         } catch (NoSuchAlgorithmException ex) {
             log.error("SHA-256 algorithm not available for signing", ex);

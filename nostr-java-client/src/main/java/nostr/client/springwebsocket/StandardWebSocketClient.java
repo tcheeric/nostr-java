@@ -1,7 +1,6 @@
 package nostr.client.springwebsocket;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
