@@ -291,7 +291,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Transient
     @Override
-    public Supplier<ByteBuffer> getByeArraySupplier() {
+    public Supplier<ByteBuffer> getByteArraySupplier() {
         this.update();
         log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
