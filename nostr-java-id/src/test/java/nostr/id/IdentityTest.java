@@ -96,5 +96,31 @@ public class IdentityTest {
         Assertions.assertTrue(verified);
     }
 
+    @Test
+    public void testSignWithNullConsumer() {
+        Identity identity = Identity.generateRandomIdentity();
+        ISignable signable = new ISignable() {
+            @Override
+            public Signature getSignature() {
+                return null;
+            }
 
+            @Override
+            public void setSignature(Signature signature) {
+            }
+
+            @Override
+            public Consumer<Signature> getSignatureConsumer() {
+                return null;
+            }
+
+            @Override
+            public Supplier<ByteBuffer> getByteArraySupplier() {
+                return () -> ByteBuffer.wrap("payload".getBytes(StandardCharsets.UTF_8));
+            }
+        };
+        Signature signature = Assertions.assertDoesNotThrow(() -> identity.sign(signable));
+        Assertions.assertNotNull(signature);
+        Assertions.assertNull(signable.getSignature());
+    }
 }
