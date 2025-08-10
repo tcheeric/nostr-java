@@ -2,6 +2,7 @@ package nostr.client.springwebsocket;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,6 +22,15 @@ import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
 
+/**
+ * WebSocket client using Spring's {@code StandardWebSocketClient}.
+ * <p>
+ * This implementation logs key lifecycle events such as connection
+ * establishment, message transmission and reception, and socket closure.
+ * Errors occurring during send and close operations are logged at the error
+ * level.
+ */
+@Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
@@ -39,11 +49,14 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @SneakyThrows
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri) {
-    this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient().execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
+    this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient()
+        .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
+    log.info("WebSocket connection established with relay {}", relayUri);
   }
 
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
+    log.info("Received message: {}", message.getPayload());
     events.add(message.getPayload());
     completed.setRelease(true);
   }
@@ -55,7 +68,14 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public List<String> send(String json) throws IOException {
-    clientSession.sendMessage(new TextMessage(json));
+    try {
+      log.info("Sending message: {}", json);
+      clientSession.sendMessage(new TextMessage(json));
+    } catch (IOException e) {
+      log.error("Error sending message", e);
+      throw e;
+    }
+
     Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
     await()
@@ -70,6 +90,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public void closeSocket() throws IOException {
-    clientSession.close();
+    try {
+      clientSession.close();
+      log.info("WebSocket connection closed");
+    } catch (IOException e) {
+      log.error("Error closing WebSocket connection", e);
+      throw e;
+    }
   }
 }
