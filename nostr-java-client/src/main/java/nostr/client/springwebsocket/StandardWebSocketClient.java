@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
@@ -34,18 +37,32 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   private long pollIntervalMs;
 
   private final WebSocketSession clientSession;
-  private List<String> events = new ArrayList<>();
-  private final AtomicBoolean completed = new AtomicBoolean(false);
+
+  private static class SendContext {
+    final BlockingQueue<String> events = new LinkedBlockingQueue<>();
+    final CountDownLatch latch = new CountDownLatch(1);
+  }
+
+  private final ConcurrentLinkedQueue<SendContext> contexts = new ConcurrentLinkedQueue<>();
 
   @SneakyThrows
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri) {
-    this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient().execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
+    this.clientSession = new org.springframework.web.socket.client.standard.StandardWebSocketClient()
+        .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri)).get();
+  }
+
+  // Constructor for testing purposes
+  public StandardWebSocketClient(WebSocketSession clientSession) {
+    this.clientSession = clientSession;
   }
 
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
-    events.add(message.getPayload());
-    completed.setRelease(true);
+    SendContext context = contexts.poll();
+    if (context != null) {
+      context.events.offer(message.getPayload());
+      context.latch.countDown();
+    }
   }
 
   @Override
@@ -55,16 +72,19 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public List<String> send(String json) throws IOException {
+    SendContext context = new SendContext();
+    contexts.offer(context);
     clientSession.sendMessage(new TextMessage(json));
     Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
     await()
         .atMost(awaitTimeout)
         .pollInterval(pollInterval)
-        .untilTrue(completed);
-    List<String> eventList = List.copyOf(events);
-    events = new ArrayList<>();
-    completed.setRelease(false);
+        .until(() -> context.latch.getCount() == 0);
+    List<String> eventList = new ArrayList<>();
+    context.events.drainTo(eventList);
+    context.events.clear();
+    contexts.remove(context);
     return eventList;
   }
 
