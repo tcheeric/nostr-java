@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -18,7 +17,6 @@ import nostr.util.NostrUtil;
  */
 @EqualsAndHashCode
 @Data
-@Slf4j
 public class Identity {
 
     @ToString.Exclude
