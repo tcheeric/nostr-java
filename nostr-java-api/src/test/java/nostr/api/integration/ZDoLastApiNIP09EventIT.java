@@ -44,7 +44,7 @@ public class ZDoLastApiNIP09EventIT extends BaseRelayIntegrationTest {
     private SpringWebSocketClient springWebSocketClient;
 
     @BeforeEach
-    void setup() {
+    void setup() throws Exception {
         springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
     }
 

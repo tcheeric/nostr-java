@@ -19,7 +19,6 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
   public String signature;
 
   @Test
-  void testNIP99ClassifiedListingPreRequest() throws IOException {
+  void testNIP99ClassifiedListingPreRequest() throws Exception {
     System.out.println("testNIP99ClassifiedListingEvent");
 
     List<BaseTag> tags = new ArrayList<>();
