@@ -57,7 +57,11 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     log.info("Received message: {}", message.getPayload());
-    events.add(message.getPayload());
+    String payload = message.getPayload();
+    String truncated = payload.length() > 100 ? payload.substring(0, 100) + "..." : payload;
+    String hash = hashPayload(payload);
+    log.info("Received message: [truncated] \"{}\" [SHA-256: {}]", truncated, hash);
+    events.add(payload);
     completed.setRelease(true);
   }
 
