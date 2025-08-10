@@ -58,6 +58,15 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   StandardWebSocketClient(WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
+    if (clientSession == null) {
+      throw new NullPointerException("clientSession must not be null");
+    }
+    if (awaitTimeoutMs <= 0) {
+      throw new IllegalArgumentException("awaitTimeoutMs must be positive");
+    }
+    if (pollIntervalMs <= 0) {
+      throw new IllegalArgumentException("pollIntervalMs must be positive");
+    }
     this.clientSession = clientSession;
     this.awaitTimeoutMs = awaitTimeoutMs;
     this.pollIntervalMs = pollIntervalMs;
