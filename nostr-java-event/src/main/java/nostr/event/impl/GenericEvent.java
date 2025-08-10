@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.Objects;
 
 import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 
@@ -209,14 +210,16 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     }
 
     public void validate() {
-
         // Validate `id` field
+        Objects.requireNonNull(this.id, "Missing required `id` field.");
         HexStringValidator.validateHex(this.id, 64);
 
         // Validate `pubkey` field
+        Objects.requireNonNull(this.pubKey, "Missing required `pubkey` field.");
         HexStringValidator.validateHex(this.pubKey.toString(), 64);
 
         // Validate `sig` field
+        Objects.requireNonNull(this.signature, "Missing required `sig` field.");
         HexStringValidator.validateHex(this.signature.toString(), 128);
 
         // Validate `created_at` field
