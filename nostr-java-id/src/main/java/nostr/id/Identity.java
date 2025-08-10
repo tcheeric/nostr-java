@@ -36,11 +36,6 @@ public class Identity {
         this.privateKey = privateKey;
     }
 
-    @Deprecated(forRemoval = true)
-    public static Identity getInstance(@NonNull PrivateKey privateKey) {
-        return new Identity(privateKey);
-    }
-
     /**
      * Creates a new identity from an existing {@link PrivateKey}.
      *
@@ -50,11 +45,6 @@ public class Identity {
      */
     public static Identity create(@NonNull PrivateKey privateKey) {
         return new Identity(privateKey);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static Identity getInstance(@NonNull String privateKey) {
-        return new Identity(new PrivateKey(privateKey));
     }
 
     /**
