@@ -67,4 +67,7 @@ The examples module shows how to create built-in and custom events. Below is an 
     }
 ```
 ## Creating custom events and tags
- TODO
+`GenericEvent` provides a flexible way to create custom event kinds. Metadata should be expressed through tags or the `content` field.
+
+> **Note**
+> Prior versions of the library exposed an `attributes` collection on `GenericEvent`. This field and the related helper methods have been removed. Use tags for any additional metadata.

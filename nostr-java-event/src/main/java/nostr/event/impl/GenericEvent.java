@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import nostr.base.ElementAttribute;
-import nostr.base.IGenericElement;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.Kind;
@@ -47,7 +45,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class GenericEvent extends BaseEvent implements ISignable, IGenericElement, Deleteable {
+public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
     @Key
     @EqualsAndHashCode.Include
@@ -91,13 +89,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Exclude
     private Integer nip;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    @Deprecated
-    private final List<ElementAttribute> attributes;
-
     public GenericEvent() {
-        this.attributes = new ArrayList<>();
         this.tags = new ArrayList<>();
     }
 
@@ -129,7 +121,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this.kind = Kind.valueOf(kind).getValue();
         this.tags = tags;
         this.content = content;
-        this.attributes = new ArrayList<>();
 
         // Update parents
         updateTagsParents(tags);
@@ -212,18 +203,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         return this.signature != null;
     }
 
-    @Deprecated
-    @Override
-    public void addAttribute(ElementAttribute... attribute) {
-        addAttributes(List.of(attribute));
-    }
-
-    @Deprecated
-    @Override
-    public void addAttributes(List<ElementAttribute> attributes) {
-        this.attributes.addAll(attributes);
-    }
-
     public void validate() {
 
         // Validate `id` field
@@ -295,14 +274,6 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         this.update();
         log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
-    }
-
-    @Deprecated
-    public ElementAttribute getAttribute(@NonNull String name) {
-        return this.attributes.stream()
-                .filter(a -> a.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
     }
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
