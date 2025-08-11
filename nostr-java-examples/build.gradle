@@ -5,5 +5,5 @@ plugins {
 description = 'nostr-java-examples'
 
 dependencies {
-    api project(':nostr-java-api')
+    implementation project(':nostr-java-api')
 }

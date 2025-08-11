@@ -5,5 +5,17 @@ plugins {
 description = 'nostr-java-crypto'
 
 dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${rootProject.property('nostr-java.springBootVersion')}")
+
     api project(':nostr-java-util')
+
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+
+    compileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+
+    implementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }

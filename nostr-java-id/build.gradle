@@ -5,5 +5,15 @@ plugins {
 description = 'nostr-java-id'
 
 dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${rootProject.property('nostr-java.springBootVersion')}")
+
     api project(':nostr-java-event')
+
+    compileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+
+    implementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }

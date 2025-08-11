@@ -1,9 +1,29 @@
 plugins {
+    id 'org.springframework.boot'
     id 'nostr-java.conventions'
 }
 
 description = 'nostr-java-client'
 
 dependencies {
-    api project(':nostr-java-id')
+    implementation project(':nostr-java-id')
+
+    implementation "org.springframework.boot:spring-boot-starter-websocket:${rootProject.property('nostr-java.springBootVersion')}"
+    implementation 'org.springframework:spring-websocket'
+    implementation 'org.awaitility:awaitility:4.2.2'
+
+    compileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.property('nostr-java.springBootVersion')}"
+    testImplementation 'org.springframework:spring-test'
+
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
 }
+
+tasks.named('bootJar') { enabled = false }
+tasks.named('jar') { archiveClassifier = '' }

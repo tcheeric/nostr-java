@@ -5,6 +5,15 @@ plugins {
 description = 'nostr-java-encryption'
 
 dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${rootProject.property('nostr-java.springBootVersion')}")
+
     api project(':nostr-java-crypto')
     api project(':nostr-java-util')
+
+    compileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }

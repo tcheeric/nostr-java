@@ -3,3 +3,19 @@ plugins {
 }
 
 description = 'nostr-java-util'
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${rootProject.property('nostr-java.springBootVersion')}")
+
+    implementation "org.apache.commons:commons-lang3:${rootProject.property('nostr-java.apacheCommonsLang3')}"
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "com.fasterxml.jackson.module:jackson-module-afterburner:${rootProject.property('nostr-java.jacksonModuleAfterburner')}"
+
+    compileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.property('nostr-java.lombok')}"
+
+    implementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
