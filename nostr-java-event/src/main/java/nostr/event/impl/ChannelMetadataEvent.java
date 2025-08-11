@@ -27,7 +27,7 @@ public class ChannelMetadataEvent extends GenericEvent {
     @SneakyThrows
     public ChannelProfile getChannelProfile() {
         String content = getContent();
-        return MAPPER_AFTERBURNER.readValue(content, ChannelProfile.class);
+        return MAPPER_BLACKBIRD.readValue(content, ChannelProfile.class);
     }
 
     @Override

@@ -16,7 +16,7 @@ import nostr.util.validator.Nip05Validator;
 
 import java.util.ArrayList;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
@@ -44,7 +44,7 @@ public class NIP05 extends EventNostr {
 
 	private String getContent(UserProfile profile) {
 		try {
-			String jsonString = MAPPER_AFTERBURNER.writeValueAsString(new Nip05Validator(profile.getNip05(), profile.getPublicKey().toString()));
+			String jsonString = MAPPER_BLACKBIRD.writeValueAsString(new Nip05Validator(profile.getNip05(), profile.getPublicKey().toString()));
 			return escapeJsonString(jsonString);
 		} catch (JsonProcessingException ex) {
 			throw new RuntimeException(ex);

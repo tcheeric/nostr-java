@@ -6,7 +6,7 @@ import nostr.event.json.codec.BaseEventEncoder;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConstantsTest {
@@ -35,6 +35,6 @@ public class ConstantsTest {
 
         String json = new BaseEventEncoder<>(event).encode();
         assertEquals(Constants.Kind.SHORT_TEXT_NOTE,
-                MAPPER_AFTERBURNER.readTree(json).get("kind").asInt());
+                MAPPER_BLACKBIRD.readTree(json).get("kind").asInt());
     }
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 public class NIP60 extends EventNostr {
 
@@ -136,12 +136,12 @@ public class NIP60 extends EventNostr {
         unitSet.forEach(u -> tags.add(NIP60.createBalanceTag(wallet.getBalance(), u)));
         tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
-        return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(tags), getSender().getPublicKey());
+        return NIP44.encrypt(getSender(), MAPPER_BLACKBIRD.writeValueAsString(tags), getSender().getPublicKey());
     }
 
     @SneakyThrows
     private String getTokenEventContent(@NonNull CashuToken token) {
-        return NIP44.encrypt(getSender(), MAPPER_AFTERBURNER.writeValueAsString(token), getSender().getPublicKey());
+        return NIP44.encrypt(getSender(), MAPPER_BLACKBIRD.writeValueAsString(token), getSender().getPublicKey());
     }
 
     @SneakyThrows

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -103,13 +103,13 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       assertEquals(1, eventResponses.size(), "Expected 1 event response, but got " + eventResponses.size());
 
       // Extract and compare only first 3 elements of the JSON array
-      var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
-      var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
-      var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+      var expectedArray = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+      var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+      var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-      var actualArray = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(0).asText();
-      var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(1).asText();
-      var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponses.getFirst()).get(2).asBoolean();
+      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(0).asText();
+      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(1).asText();
+      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
@@ -123,8 +123,8 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
       List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
 
-      var actualJson = MAPPER_AFTERBURNER.readTree(reqResponses.getFirst());
-      var expectedJson = MAPPER_AFTERBURNER.readTree(expectedRequestResponseJson());
+      var actualJson = MAPPER_BLACKBIRD.readTree(reqResponses.getFirst());
+      var expectedJson = MAPPER_BLACKBIRD.readTree(expectedRequestResponseJson());
 
       // Verify you receive the event
       assertEquals("EVENT", actualJson.get(0).asText(), "Event should be received, and not " + actualJson.get(0).asText());
