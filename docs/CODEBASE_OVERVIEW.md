@@ -14,27 +14,17 @@ This document provides an overview of the project structure and instructions for
 - **nostr-java-examples** – sample applications demonstrating how to use the API.
 
 ## Building and testing
-The project can be built with Maven or Gradle. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
+The project is built with Maven. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
 
 ### Unit-tested build
 ```bash
-# Maven
 ./mvnw clean test
 ./mvnw install -Dmaven.test.skip=true
-
-# Gradle
-./gradlew clean test
-./gradlew publishToMavenLocal
 ```
 
 ### Integration-tested build (requires Docker)
 ```bash
-# Maven
 ./mvnw clean install
-
-# Gradle
-./gradlew clean check
-./gradlew publishToMavenLocal
 ```
 Integration tests start a `nostr-rs-relay` container automatically. The image used can be overridden in `src/test/resources/relay-container.properties` by setting `relay.container.image=<image>`.
 
