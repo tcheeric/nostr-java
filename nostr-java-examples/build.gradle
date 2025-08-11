@@ -12,4 +12,6 @@ repositories {
 
 dependencies {
     api project(':nostr-java-api')
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
