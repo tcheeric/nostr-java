@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 @Slf4j
 public final class NIP46 extends EventNostr {
@@ -68,7 +68,7 @@ public final class NIP46 extends EventNostr {
 
         public String toString() {
             try {
-                return MAPPER_AFTERBURNER.writeValueAsString(this);
+                return MAPPER_BLACKBIRD.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 log.warn("Error converting request to JSON: {}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
@@ -77,7 +77,7 @@ public final class NIP46 extends EventNostr {
 
         public static Request fromString(@NonNull String jsonString) {
             try {
-                return MAPPER_AFTERBURNER.readValue(jsonString, Request.class);
+                return MAPPER_BLACKBIRD.readValue(jsonString, Request.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -95,7 +95,7 @@ public final class NIP46 extends EventNostr {
 
         public String toString() {
             try {
-                return MAPPER_AFTERBURNER.writeValueAsString(this);
+                return MAPPER_BLACKBIRD.writeValueAsString(this);
             } catch (JsonProcessingException ex) {
                 log.warn("Error converting response to JSON: {}", ex.getMessage());
                 return "{}"; // Return an empty JSON object as a fallback
@@ -104,7 +104,7 @@ public final class NIP46 extends EventNostr {
 
         public static Response fromString(@NonNull String jsonString) {
             try {
-                return MAPPER_AFTERBURNER.readValue(jsonString, Response.class);
+                return MAPPER_BLACKBIRD.readValue(jsonString, Response.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

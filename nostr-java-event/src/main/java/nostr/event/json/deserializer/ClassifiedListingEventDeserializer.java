@@ -31,7 +31,7 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
         List<BaseTag> baseTags = StreamSupport.stream(tags.spliterator(), false).toList()
                 .stream()
                 .map(JsonNode::elements)
-                .map(element -> IEvent.MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+                .map(element -> IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class)).toList();
         Map<String, String> generalMap = new HashMap<>();
         classifiedListingEventNode.fields().forEachRemaining(generalTag ->
                 generalMap.put(

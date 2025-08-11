@@ -27,7 +27,7 @@ public class VerifyPaymentOrShippedEvent extends CheckoutEvent<PaymentShipmentSt
     }
 
     public PaymentShipmentStatus getPaymentShipmentStatus() {
-        return IEvent.MAPPER_AFTERBURNER.convertValue(getContent(), PaymentShipmentStatus.class);
+        return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentShipmentStatus.class);
     }
 
     protected PaymentShipmentStatus getEntity() {

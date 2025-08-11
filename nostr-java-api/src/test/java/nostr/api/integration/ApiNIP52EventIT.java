@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
@@ -51,18 +51,18 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
     EventMessage message = new EventMessage(event);
 
     try (SpringWebSocketClient client = springWebSocketClient) {
-      var expectedJson = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId()));
+      var expectedJson = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId()));
       var actualJson =
-          MAPPER_AFTERBURNER.readTree(client.send(message).stream().findFirst().orElseThrow());
+          MAPPER_BLACKBIRD.readTree(client.send(message).stream().findFirst().orElseThrow());
 
       // Compare only first 3 elements of the JSON arrays
       assertTrue(
           JsonComparator.isEquivalentJson(
-              MAPPER_AFTERBURNER.createArrayNode()
+              MAPPER_BLACKBIRD.createArrayNode()
                   .add(expectedJson.get(0)) // OK Command
                   .add(expectedJson.get(1)) // event id
                   .add(expectedJson.get(2)), // Accepted?
-              MAPPER_AFTERBURNER.createArrayNode()
+              MAPPER_BLACKBIRD.createArrayNode()
                   .add(actualJson.get(0))
                   .add(actualJson.get(1))
                   .add(actualJson.get(2))));

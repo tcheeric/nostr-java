@@ -189,7 +189,7 @@ public class NIP28 extends EventNostr {
 
         public String toString() {
             try {
-                return IEvent.MAPPER_AFTERBURNER.writeValueAsString(this);
+                return IEvent.MAPPER_BLACKBIRD.writeValueAsString(this);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

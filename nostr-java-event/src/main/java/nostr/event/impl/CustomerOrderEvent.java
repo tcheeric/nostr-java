@@ -30,7 +30,7 @@ public class CustomerOrderEvent extends CheckoutEvent<CustomerOrder> {
 
     @SneakyThrows
     public CustomerOrder getCustomerOrder() {
-        return IEvent.MAPPER_AFTERBURNER.readValue(getContent(), CustomerOrder.class);
+        return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), CustomerOrder.class);
     }
 
     protected CustomerOrder getEntity() {
