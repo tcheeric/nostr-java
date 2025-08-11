@@ -67,10 +67,10 @@ public class PubKeyTag extends BaseTag {
             throw new IllegalArgumentException("Invalid tag code for PubKeyTag");
         }
 
-        PublicKey pubKey = new PublicKey(tag.getAttributes().get(0).getValue().toString());
+        PublicKey pubKey = new PublicKey(tag.getAttributes().get(0).value().toString());
 
-        String mainRelayUrl = tag.getAttributes().size() > 1 ? tag.getAttributes().get(1).getValue().toString() : null;
-        String petName = tag.getAttributes().size() > 2 ? tag.getAttributes().get(2).getValue().toString() : null;
+        String mainRelayUrl = tag.getAttributes().size() > 1 ? tag.getAttributes().get(1).value().toString() : null;
+        String petName = tag.getAttributes().size() > 2 ? tag.getAttributes().get(2).value().toString() : null;
         PubKeyTag pubKeyTag = new PubKeyTag(pubKey, mainRelayUrl, petName);
         return pubKeyTag;
     }

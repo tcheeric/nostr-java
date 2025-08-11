@@ -68,7 +68,7 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
     }
 
     public Optional<FB> getFB() {
-        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).getValue().toString().toUpperCase()).map(FB::valueOf);
+        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).value().toString().toUpperCase()).map(FB::valueOf);
     }
 
     public Optional<String> getEventId() {
@@ -88,7 +88,7 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
         CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
                 (IdentifierTag) getTag("d"),
                 (AddressTag) getTag("a"),
-                ((GenericTag) getTag("status")).getAttributes().get(0).getValue().toString()
+                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString()
         ).build();
 
         Optional.ofNullable(getTag("e")).ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));

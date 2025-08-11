@@ -61,12 +61,12 @@ public class EventTag extends BaseTag {
         if (!"e".equals(tag.getCode())) {
             throw new IllegalArgumentException("Invalid tag code for EventTag");
         }
-        EventTag eventTag = new EventTag(tag.getAttributes().get(0).getValue().toString());
+        EventTag eventTag = new EventTag(tag.getAttributes().get(0).value().toString());
         if (tag.getAttributes().size() > 1) {
-            eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).getValue().toString());
+            eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).value().toString());
         }
         if (tag.getAttributes().size() > 2) {
-            eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).getValue().toString()));
+            eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).value().toString()));
         }
 
         return eventTag;

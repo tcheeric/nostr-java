@@ -2,7 +2,7 @@ package nostr.event.impl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.IEvent;
+import static nostr.base.IEvent.MAPPER_AFTERBURNER;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
@@ -96,14 +96,14 @@ public class NutZapEvent extends GenericEvent {
     }
 
     private CashuMint getMintFromTag(GenericTag mintTag) {
-        String url = mintTag.getAttributes().get(0).getValue().toString();
+        String url = mintTag.getAttributes().get(0).value().toString();
         CashuMint mint = new CashuMint(url);
         return mint;
     }
 
     private CashuProof getProofFromTag(GenericTag proofTag) {
-        String proof = proofTag.getAttributes().get(0).getValue().toString();
-        CashuProof cashuProof = IEvent.MAPPER_AFTERBURNER.convertValue(proof, CashuProof.class);
+        String proof = proofTag.getAttributes().get(0).value().toString();
+        CashuProof cashuProof = MAPPER_AFTERBURNER.convertValue(proof, CashuProof.class);
         return cashuProof;
     }
 }

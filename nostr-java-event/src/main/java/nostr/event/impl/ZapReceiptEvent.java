@@ -29,9 +29,9 @@ public class ZapReceiptEvent extends GenericEvent {
         BaseTag bolt11Tag = requireTag("bolt11");
 
         return new ZapReceipt(
-                ((GenericTag) bolt11Tag).getAttributes().get(0).getValue().toString(),
-                ((GenericTag) descriptionTag).getAttributes().get(0).getValue().toString(),
-                ((GenericTag) preimageTag).getAttributes().get(0).getValue().toString()
+                ((GenericTag) bolt11Tag).getAttributes().get(0).value().toString(),
+                ((GenericTag) descriptionTag).getAttributes().get(0).value().toString(),
+                ((GenericTag) preimageTag).getAttributes().get(0).value().toString()
         );
     }
 
@@ -69,7 +69,7 @@ public class ZapReceiptEvent extends GenericEvent {
         if (eventTag == null) {
             return null;
         }
-        return ((GenericTag) eventTag).getAttributes().get(0).getValue().toString();
+        return ((GenericTag) eventTag).getAttributes().get(0).value().toString();
     }
 
     @Override

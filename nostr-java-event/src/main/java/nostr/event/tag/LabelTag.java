@@ -42,8 +42,8 @@ public class LabelTag extends BaseTag {
             throw new IllegalArgumentException("Invalid tag code for LabelTag");
         }
         LabelTag labelTag = new LabelTag();
-        labelTag.setLabel(tag.getAttributes().get(0).getValue().toString());
-        labelTag.setNameSpace(tag.getAttributes().get(1).getValue().toString());
+        labelTag.setLabel(tag.getAttributes().get(0).value().toString());
+        labelTag.setNameSpace(tag.getAttributes().get(1).value().toString());
         return labelTag;
     }
 }

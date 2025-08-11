@@ -38,7 +38,7 @@ public class UrlTag extends BaseTag {
         }
 
         UrlTag urlTag = new UrlTag();
-        urlTag.setUrl(tag.getAttributes().get(0).getValue().toString());
+        urlTag.setUrl(tag.getAttributes().get(0).value().toString());
 
         return urlTag;
     }

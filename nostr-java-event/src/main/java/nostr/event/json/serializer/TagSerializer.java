@@ -25,7 +25,7 @@ public class TagSerializer extends AbstractTagSerializer<BaseTag> {
     protected void applyCustomAttributes(ObjectNode node, BaseTag value) {
         if (value instanceof GenericTag genericTag) {
             genericTag.getAttributes()
-                    .forEach(a -> node.put(a.getName(), a.getValue().toString()));
+                    .forEach(a -> node.put(a.name(), a.value().toString()));
         }
     }
 

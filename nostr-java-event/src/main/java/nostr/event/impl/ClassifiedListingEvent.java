@@ -42,32 +42,32 @@ public class ClassifiedListingEvent extends NIP99Event {
 
     public Instant getPublishedAt() {
         BaseTag publishedAtTag = getTag("published_at");
-        return Instant.ofEpochSecond(Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).getValue().toString()));
+        return Instant.ofEpochSecond(Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).value().toString()));
     }
 
     public String getLocation() {
         BaseTag locationTag = getTag("location");
-        return ((GenericTag) locationTag).getAttributes().get(0).getValue().toString();
+        return ((GenericTag) locationTag).getAttributes().get(0).value().toString();
     }
 
     public String getTitle() {
         BaseTag titleTag = getTag("title");
-        return ((GenericTag) titleTag).getAttributes().get(0).getValue().toString();
+        return ((GenericTag) titleTag).getAttributes().get(0).value().toString();
     }
 
     public String getSummary() {
         BaseTag summaryTag = getTag("summary");
-        return ((GenericTag) summaryTag).getAttributes().get(0).getValue().toString();
+        return ((GenericTag) summaryTag).getAttributes().get(0).value().toString();
     }
 
     public String getImage() {
         BaseTag imageTag = getTag("image");
-        return ((GenericTag) imageTag).getAttributes().get(0).getValue().toString();
+        return ((GenericTag) imageTag).getAttributes().get(0).value().toString();
     }
 
     public Status getStatus() {
         BaseTag statusTag = getTag("status");
-        String status = ((GenericTag) statusTag).getAttributes().get(0).getValue().toString();
+        String status = ((GenericTag) statusTag).getAttributes().get(0).value().toString();
         return Status.valueOf(status);
     }
 
@@ -91,7 +91,7 @@ public class ClassifiedListingEvent extends NIP99Event {
             throw new AssertionError("Missing `published_at` tag for the publication date/time.");
         }
         try {
-            Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).getValue().toString());
+            Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).value().toString());
         } catch (NumberFormatException e) {
             throw new AssertionError("Invalid `published_at` tag value: must be a numeric timestamp.");
         }

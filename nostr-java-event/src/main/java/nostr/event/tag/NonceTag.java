@@ -53,8 +53,8 @@ public class NonceTag extends BaseTag {
         }
 
         NonceTag tag = new NonceTag();
-        tag.setNonce(Integer.valueOf(genericTag.getAttributes().get(0).getValue().toString()));
-        tag.setDifficulty(Integer.valueOf(genericTag.getAttributes().get(1).getValue().toString()));
+        tag.setNonce(Integer.valueOf(genericTag.getAttributes().get(0).value().toString()));
+        tag.setDifficulty(Integer.valueOf(genericTag.getAttributes().get(1).value().toString()));
         return tag;
     }
 }
