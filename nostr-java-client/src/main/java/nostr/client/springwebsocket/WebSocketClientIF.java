@@ -10,9 +10,9 @@ import java.util.List;
  *
  * <p>Implementations typically maintain a single active connection and are
  * not required to be thread-safe. Callers should serialize access and invoke
- * {@link #closeSocket()} when the client is no longer needed.</p>
+ * {@link #close()} when the client is no longer needed.</p>
  */
-public interface WebSocketClientIF {
+public interface WebSocketClientIF extends AutoCloseable {
 
   /**
    * Sends the provided Nostr message over the current WebSocket connection.
@@ -44,8 +44,7 @@ public interface WebSocketClientIF {
   List<String> send(String json) throws IOException;
 
   /**
-   * Closes the underlying WebSocket session and releases associated
-   * resources.
+   * Closes the underlying WebSocket session and releases associated resources.
    *
    * <p>The caller that created this client is responsible for invoking this
    * method when the connection is no longer required. After invocation, the
@@ -53,5 +52,14 @@ public interface WebSocketClientIF {
    *
    * @throws IOException if an I/O error occurs while closing the connection
    */
-  void closeSocket() throws IOException;
+  @Override
+  void close() throws IOException;
+
+  /**
+   * @deprecated use {@link #close()} instead.
+   */
+  @Deprecated
+  default void closeSocket() throws IOException {
+    close();
+  }
 }

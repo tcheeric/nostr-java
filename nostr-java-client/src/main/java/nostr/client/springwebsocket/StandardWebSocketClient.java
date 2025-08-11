@@ -1,7 +1,10 @@
 package nostr.client.springwebsocket;
 
 import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
+import org.awaitility.core.ConditionTimeoutException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -24,6 +27,7 @@ import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Slf4j
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
   private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(60);
   private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(500);
@@ -60,6 +64,15 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   StandardWebSocketClient(WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
+    if (clientSession == null) {
+      throw new NullPointerException("clientSession must not be null");
+    }
+    if (awaitTimeoutMs <= 0) {
+      throw new IllegalArgumentException("awaitTimeoutMs must be positive");
+    }
+    if (pollIntervalMs <= 0) {
+      throw new IllegalArgumentException("pollIntervalMs must be positive");
+    }
     this.clientSession = clientSession;
     this.awaitTimeoutMs = awaitTimeoutMs;
     this.pollIntervalMs = pollIntervalMs;
@@ -99,7 +112,25 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   @Override
+  public void close() throws IOException {
+    if (clientSession != null) {
+      boolean open = false;
+      try {
+        open = clientSession.isOpen();
+      } catch (Exception e) {
+        log.warn("Exception while checking if clientSession is open during close()", e);
+      }
+      if (open) {
+        clientSession.close();
+      }
+    }
+  }
+
+  /**
+   * @deprecated use {@link #close()} instead.
+   */
+  @Deprecated
   public void closeSocket() throws IOException {
-    clientSession.close();
+    close();
   }
 }

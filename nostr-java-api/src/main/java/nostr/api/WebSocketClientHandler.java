@@ -61,9 +61,9 @@ public class WebSocketClientHandler {
     }
 
     public void close() throws IOException {
-        eventClient.closeSocket();
+        eventClient.close();
         for (SpringWebSocketClient client : requestClientMap.values()) {
-            client.closeSocket();
+            client.close();
         }
     }
 }
