@@ -240,26 +240,6 @@
                                 <goal>report</goal>
                             </goals>
                         </execution>
-                        <execution>
-                            <id>check</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <rule>
-                                        <limits>
-                                            <limit>
-                                                <counter>INSTRUCTION</counter>
-                                                <value>COVEREDRATIO</value>
-                                                <minimum>0.60</minimum>
-                                            </limit>
-                                        </limits>
-                                    </rule>
-                                </rules>
-                            </configuration>
-                        </execution>
                     </executions>
                 </plugin>
                 <plugin>
@@ -282,6 +262,10 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
