@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.springframework.boot' version "${rootProject.findProperty('nostr-java.springBootVersion')}"
-    id 'org.springframework.boot' version rootProject.findProperty('nostr-java.springBootVersion')
+    id 'org.springframework.boot'
 }
 
 group = 'xyz.tcheeric'
@@ -15,7 +14,7 @@ repositories {
 dependencies {
     api project(':nostr-java-id')
 
-    implementation "org.springframework.boot:spring-boot-starter-websocket:${rootProject.findProperty('nostr-java.springBootVersion')}"
+    implementation "org.springframework.boot:spring-boot-starter-websocket:$springBootVersion"
     implementation 'org.springframework:spring-websocket'
     implementation "org.awaitility:awaitility:${rootProject.findProperty('nostr-java.awaitility')}"
     compileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
@@ -26,7 +25,7 @@ dependencies {
     implementation 'org.springframework:spring-aspects'
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.findProperty('nostr-java.springBootVersion')}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     testImplementation 'org.springframework:spring-test'
 }
 
