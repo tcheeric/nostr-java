@@ -32,8 +32,8 @@ public class ZapRequestEvent extends GenericEvent {
 
         return new ZapRequest(
                 (RelaysTag) relaysTag,
-                Long.parseLong(((GenericTag) amountTag).getAttributes().get(0).getValue().toString()),
-                ((GenericTag) lnUrlTag).getAttributes().get(0).getValue().toString()
+                Long.parseLong(((GenericTag) amountTag).getAttributes().get(0).value().toString()),
+                ((GenericTag) lnUrlTag).getAttributes().get(0).value().toString()
         );
     }
 
@@ -48,7 +48,7 @@ public class ZapRequestEvent extends GenericEvent {
     public String getEventId() {
         return this.getTags().stream()
                 .filter(tag -> "e".equals(tag.getCode()))
-                .map(tag -> ((GenericTag) tag).getAttributes().get(0).getValue().toString())
+                .map(tag -> ((GenericTag) tag).getAttributes().get(0).value().toString())
                 .findFirst()
                 .orElse(null);
     }

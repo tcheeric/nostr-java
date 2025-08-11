@@ -1,32 +1,9 @@
 package nostr.base;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.ToString;
-
 /**
+ * Element attribute consisting of a name and value.
  *
- * @author squirrel
+ * @param name attribute name
+ * @param value attribute value
  */
-@Builder
-@Data
-@ToString
-@EqualsAndHashCode
-@AllArgsConstructor
-public class ElementAttribute {
-
-    @JsonProperty    
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @EqualsAndHashCode.Include
-    @NonNull
-    private final String name;
-    
-    @JsonProperty
-    @EqualsAndHashCode.Include
-    private final Object value;
-}
+public record ElementAttribute(String name, Object value) {}

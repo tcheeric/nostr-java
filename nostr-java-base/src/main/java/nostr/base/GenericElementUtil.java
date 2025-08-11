@@ -26,11 +26,11 @@ public class GenericElementUtil {
 
     public Object getAttributeValue(int index) {
         var attribute = getAttribute(index);
-        return attribute.getValue();
+        return attribute.value();
     }
 
     public String getAttributeName(int index) {
         var attribute = getAttribute(index);
-        return attribute.getName();
+        return attribute.name();
     }
 }

@@ -52,8 +52,8 @@ public class NIP61Test {
                 .map(tag -> (GenericTag) tag)
                 .toList();
         Assertions.assertEquals(2, pubkeyTags.size());
-        Assertions.assertEquals("pubkey1", pubkeyTags.get(0).getAttributes().get(0).getValue());
-        Assertions.assertEquals("pubkey2", pubkeyTags.get(1).getAttributes().get(0).getValue());
+        Assertions.assertEquals("pubkey1", pubkeyTags.get(0).getAttributes().get(0).value());
+        Assertions.assertEquals("pubkey2", pubkeyTags.get(1).getAttributes().get(0).value());
 
         // Verify relay tags
         List<GenericTag> relayTags = tags.stream()
@@ -61,8 +61,8 @@ public class NIP61Test {
                 .map(tag -> (GenericTag) tag)
                 .toList();
         Assertions.assertEquals(2, relayTags.size());
-        Assertions.assertEquals("wss://relay1.example.com", relayTags.get(0).getAttributes().get(0).getValue());
-        Assertions.assertEquals("wss://relay2.example.com", relayTags.get(1).getAttributes().get(0).getValue());
+        Assertions.assertEquals("wss://relay1.example.com", relayTags.get(0).getAttributes().get(0).value());
+        Assertions.assertEquals("wss://relay2.example.com", relayTags.get(1).getAttributes().get(0).value());
 
         // Verify mint tags
         List<GenericTag> mintTags = tags.stream()
@@ -70,8 +70,8 @@ public class NIP61Test {
                 .map(tag -> (GenericTag) tag)
                 .toList();
         Assertions.assertEquals(2, mintTags.size());
-        Assertions.assertEquals("https://mint1.example.com", mintTags.get(0).getAttributes().get(0).getValue());
-        Assertions.assertEquals("https://mint2.example.com", mintTags.get(1).getAttributes().get(0).getValue());
+        Assertions.assertEquals("https://mint1.example.com", mintTags.get(0).getAttributes().get(0).value());
+        Assertions.assertEquals("https://mint2.example.com", mintTags.get(1).getAttributes().get(0).value());
     }
 
     @SneakyThrows
@@ -126,7 +126,7 @@ public class NIP61Test {
                 .toList();
         assertInstanceOf(GenericTag.class, amountTags.get(0));
         Assertions.assertEquals(1, amountTags.size());
-        Assertions.assertEquals("100", ((GenericTag) amountTags.get(0)).getAttributes().get(0).getValue());
+        Assertions.assertEquals("100", ((GenericTag) amountTags.get(0)).getAttributes().get(0).value());
 
         // Verify unit tag
         List<BaseTag> unitTags = tags.stream()
@@ -134,7 +134,7 @@ public class NIP61Test {
                 .toList();
         assertInstanceOf(GenericTag.class, unitTags.get(0));
         Assertions.assertEquals(1, unitTags.size());
-        Assertions.assertEquals("sat", ((GenericTag) unitTags.get(0)).getAttributes().get(0).getValue());
+        Assertions.assertEquals("sat", ((GenericTag) unitTags.get(0)).getAttributes().get(0).value());
 
         // Verify pubkey tag
         List<BaseTag> pubkeyTags = tags.stream()
@@ -155,7 +155,7 @@ public class NIP61Test {
         BaseTag p2pkTag = NIP61.createP2pkTag(pubkey);
         assertInstanceOf(GenericTag.class, p2pkTag);
         Assertions.assertEquals("pubkey", p2pkTag.getCode());
-        Assertions.assertEquals(pubkey, ((GenericTag) p2pkTag).getAttributes().get(0).getValue());
+        Assertions.assertEquals(pubkey, ((GenericTag) p2pkTag).getAttributes().get(0).value());
 
         // Test URL tag creation
         String url = "https://example.com";
@@ -170,6 +170,6 @@ public class NIP61Test {
         BaseTag proofTag = NIP61.createProofTag(proof);
         assertInstanceOf(GenericTag.class, proofTag);
         Assertions.assertEquals("proof", proofTag.getCode());
-        Assertions.assertTrue(((GenericTag) proofTag).getAttributes().get(0).getValue().toString().contains("test-proof-id"));
+        Assertions.assertTrue(((GenericTag) proofTag).getAttributes().get(0).value().toString().contains("test-proof-id"));
     }
 }

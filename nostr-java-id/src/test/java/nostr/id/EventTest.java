@@ -90,9 +90,9 @@ public class EventTest {
 
         GenericMessage msg = new GenericMessage("AUTH");
         String attr = "challenge-string";
-        msg.addAttribute(ElementAttribute.builder().name("challenge").value(attr).build());
+        msg.addAttribute(new ElementAttribute("challenge", attr));
 
-        var muattr = (msg.getAttributes().getFirst().getValue()).toString();
+        var muattr = (msg.getAttributes().getFirst().value()).toString();
         assertEquals(attr, muattr);
     }
 

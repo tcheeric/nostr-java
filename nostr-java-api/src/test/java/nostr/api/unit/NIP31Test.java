@@ -13,6 +13,6 @@ public class NIP31Test {
     public void testCreateAltTag() {
         BaseTag tag = NIP31.createAltTag("desc");
         assertEquals("alt", tag.getCode());
-        assertEquals("desc", ((GenericTag) tag).getAttributes().get(0).getValue());
+        assertEquals("desc", ((GenericTag) tag).getAttributes().get(0).value());
     }
 }

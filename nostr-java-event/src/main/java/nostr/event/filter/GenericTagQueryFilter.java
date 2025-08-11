@@ -27,7 +27,7 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFi
                         .anyMatch(genericTag ->
                                 genericTag
                                         .getAttributes().stream().map(
-                                                ElementAttribute::getValue).toList()
+                                                ElementAttribute::value).toList()
                                         .contains(
                                                 getFilterableValue()));
     }
