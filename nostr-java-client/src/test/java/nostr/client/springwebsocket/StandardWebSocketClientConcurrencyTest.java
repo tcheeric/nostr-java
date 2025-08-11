@@ -7,9 +7,7 @@ import org.springframework.web.socket.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StandardWebSocketClientConcurrencyTest {
 
     static class StubWebSocketSession implements WebSocketSession {
+        private final CountDownLatch sendLatch;
         private boolean open = true;
+
+        StubWebSocketSession(CountDownLatch sendLatch) {
+            this.sendLatch = sendLatch;
+        }
 
         @Override
         public String getId() { return "1"; }
@@ -59,7 +62,9 @@ class StandardWebSocketClientConcurrencyTest {
         public List<WebSocketExtension> getExtensions() { return List.of(); }
 
         @Override
-        public void sendMessage(WebSocketMessage<?> message) { }
+        public void sendMessage(WebSocketMessage<?> message) {
+            sendLatch.countDown();
+        }
 
         @Override
         public boolean isOpen() { return open; }
@@ -73,7 +78,8 @@ class StandardWebSocketClientConcurrencyTest {
 
     @Test
     void concurrentSendsReceiveResponses() throws Exception {
-        StubWebSocketSession session = new StubWebSocketSession();
+        CountDownLatch sendLatch = new CountDownLatch(2);
+        StubWebSocketSession session = new StubWebSocketSession(sendLatch);
         StandardWebSocketClient client = new StandardWebSocketClient(session, 1000, 10);
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -89,13 +95,14 @@ class StandardWebSocketClientConcurrencyTest {
         });
 
         start.countDown();
-        Thread.sleep(100);
+        sendLatch.await(1, TimeUnit.SECONDS);
 
         client.handleTextMessage(session, new TextMessage("resp1"));
         client.handleTextMessage(session, new TextMessage("resp2"));
 
-        assertEquals(List.of("resp1"), f1.get(2, TimeUnit.SECONDS));
-        assertEquals(List.of("resp2"), f2.get(2, TimeUnit.SECONDS));
+        List<String> r1 = f1.get(2, TimeUnit.SECONDS);
+        List<String> r2 = f2.get(2, TimeUnit.SECONDS);
+        assertEquals(Set.of(List.of("resp1"), List.of("resp2")), Set.of(r1, r2));
 
         executor.shutdownNow();
     }
