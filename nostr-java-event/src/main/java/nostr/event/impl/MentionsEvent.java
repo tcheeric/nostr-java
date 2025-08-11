@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
-import nostr.event.NIP08Event;
 import nostr.event.tag.PubKeyTag;
 
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Handling Mentions", nip = 8)
 @NoArgsConstructor
-public final class MentionsEvent extends NIP08Event {
+public final class MentionsEvent extends GenericEvent {
 
     public MentionsEvent(PublicKey pubKey, Integer kind, List<BaseTag> tags, String content) {
         super(pubKey, kind, tags, content);
