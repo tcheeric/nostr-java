@@ -1,9 +1,21 @@
 plugins {
-    id 'nostr-java.conventions'
+    id 'java-library'
 }
 
+group = 'xyz.tcheeric'
+version = '0.7.3-SNAPSHOT'
 description = 'nostr-java-crypto'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
+
     api project(':nostr-java-util')
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    implementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }

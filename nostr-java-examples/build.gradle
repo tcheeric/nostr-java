@@ -1,9 +1,17 @@
 plugins {
-    id 'nostr-java.conventions'
+    id 'java-library'
 }
 
+group = 'xyz.tcheeric'
+version = '0.7.3-SNAPSHOT'
 description = 'nostr-java-examples'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
+
     api project(':nostr-java-api')
 }

@@ -1,10 +1,25 @@
 plugins {
-    id 'nostr-java.conventions'
+    id 'java-library'
 }
 
+group = 'xyz.tcheeric'
+version = '0.7.3-SNAPSHOT'
 description = 'nostr-java-base'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
+
     api project(':nostr-java-util')
     api project(':nostr-java-crypto')
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.module:jackson-module-blackbird:2.17.2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:2.18.3'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    implementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }

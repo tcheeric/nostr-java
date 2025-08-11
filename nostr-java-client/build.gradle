@@ -1,9 +1,28 @@
 plugins {
-    id 'nostr-java.conventions'
+    id 'java-library'
 }
 
+group = 'xyz.tcheeric'
+version = '0.7.3-SNAPSHOT'
 description = 'nostr-java-client'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
+
     api project(':nostr-java-id')
+
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.4.3'
+    implementation 'org.springframework:spring-websocket'
+    implementation 'org.awaitility:awaitility:4.2.2'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.3'
+    testImplementation 'org.springframework:spring-test'
 }
