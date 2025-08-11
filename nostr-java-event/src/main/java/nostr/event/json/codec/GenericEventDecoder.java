@@ -25,7 +25,7 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
 
   @Override
   public T decode(String jsonEvent) throws JsonProcessingException {
-    I_DECODER_MAPPER_AFTERBURNER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-    return I_DECODER_MAPPER_AFTERBURNER.readValue(jsonEvent, clazz);
+    I_DECODER_MAPPER_BLACKBIRD.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    return I_DECODER_MAPPER_BLACKBIRD.readValue(jsonEvent, clazz);
   }
 }

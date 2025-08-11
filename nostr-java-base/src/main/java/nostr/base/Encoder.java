@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 
 public interface Encoder {
-    ObjectMapper ENCODER_MAPPED_AFTERBURNER = JsonMapper.builder().addModule(
+    ObjectMapper ENCODER_MAPPER_BLACKBIRD = JsonMapper.builder().addModule(
                     new BlackbirdModule()).build()
             .setSerializationInclusion(Include.NON_NULL);
 

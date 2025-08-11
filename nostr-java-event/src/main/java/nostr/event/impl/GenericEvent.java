@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.Objects;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 
 /**
  * @author squirrel
@@ -253,7 +253,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     }
 
     private String serialize() throws NostrException {
-        var mapper = ENCODER_MAPPED_AFTERBURNER;
+        var mapper = ENCODER_MAPPER_BLACKBIRD;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {

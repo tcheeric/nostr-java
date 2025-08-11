@@ -8,8 +8,8 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 @Setter
 @Getter
@@ -33,7 +33,7 @@ public class OkMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
             JsonNodeFactory.instance.arrayNode()
                 .add(getCommand())
                 .add(getEventId())
@@ -43,7 +43,7 @@ public class OkMessage extends BaseMessage {
 
     public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
         try {
-            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
+            Object[] msgArr = I_DECODER_MAPPER_BLACKBIRD.readValue(jsonString, Object[].class);
             return (T) new OkMessage(msgArr[1].toString(), (Boolean) msgArr[2], msgArr[3].toString());
         } catch (JsonProcessingException e) {
             throw new AssertionError(e);

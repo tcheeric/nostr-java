@@ -2,7 +2,7 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-com-fasterxml-jackson-module-jackson-module-afterburner = "2.18.3"
+com-fasterxml-jackson-module-jackson-module-blackbird = "2.17.2"
 com-google-guava-guava = "33.4.0-jre"
 io-projectreactor-netty-reactor-netty-http = "1.1.20"
 jakarta-websocket-jakarta-websocket-api = "2.2.0"
@@ -18,7 +18,7 @@ org-springframework-spring-webflux = "6.1.10"
 org-springframework-spring-websocket = "6.1.10"
 
 [libraries]
-com-fasterxml-jackson-module-jackson-module-afterburner = { module = "com.fasterxml.jackson.module:jackson-module-afterburner", version.ref = "com-fasterxml-jackson-module-jackson-module-afterburner" }
+com-fasterxml-jackson-module-jackson-module-blackbird = { module = "com.fasterxml.jackson.module:jackson-module-blackbird", version.ref = "com-fasterxml-jackson-module-jackson-module-blackbird" }
 com-google-guava-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava-guava" }
 io-projectreactor-netty-reactor-netty-http = { module = "io.projectreactor.netty:reactor-netty-http", version.ref = "io-projectreactor-netty-reactor-netty-http" }
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket-jakarta-websocket-api" }
