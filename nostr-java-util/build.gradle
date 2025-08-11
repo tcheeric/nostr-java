@@ -11,12 +11,13 @@ repositories {
 }
 
 dependencies {
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
-
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:2.18.3'
     compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     implementation 'org.slf4j:slf4j-api'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
