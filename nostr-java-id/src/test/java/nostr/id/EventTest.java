@@ -16,7 +16,7 @@ import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,7 +60,7 @@ public class EventTest {
         var strJsonEvent = encoder.encode();
 
         assertDoesNotThrow(() -> {
-            BaseTag tag = ENCODER_MAPPED_AFTERBURNER.readValue(strJsonEvent, BaseTag.class);
+            BaseTag tag = ENCODER_MAPPER_BLACKBIRD.readValue(strJsonEvent, BaseTag.class);
             assertEquals(genericTag, tag);
         });
     }

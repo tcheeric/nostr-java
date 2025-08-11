@@ -16,7 +16,7 @@ dependencies {
     api project(':nostr-java-util')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:2.18.3'
+    implementation "com.fasterxml.jackson.module:jackson-module-blackbird:${rootProject.findProperty('nostr-java.jacksonModuleBlackbird')}"
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     testCompileOnly 'org.projectlombok:lombok:1.18.36'

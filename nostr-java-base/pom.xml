@@ -34,11 +34,6 @@
             <artifactId>jackson-module-blackbird</artifactId>
             <version>${jackson-module-blackbird.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-afterburner</artifactId>
-            <version>${jackson-module-afterburner.version}</version>
-        </dependency>
 
         <!-- Lombok and Logging -->
         <dependency>

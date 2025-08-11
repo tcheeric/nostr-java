@@ -9,7 +9,7 @@ import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 
 /**
  *
@@ -33,7 +33,7 @@ public class CloseMessage extends BaseMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
             JsonNodeFactory.instance.arrayNode()
                 .add(getCommand())
                 .add(getSubscriptionId()));
