@@ -96,13 +96,13 @@ public class NutZapEvent extends GenericEvent {
     }
 
     private CashuMint getMintFromTag(GenericTag mintTag) {
-        String url = mintTag.getAttributes().get(0).getValue().toString();
+        String url = mintTag.getAttributes().get(0).value().toString();
         CashuMint mint = new CashuMint(url);
         return mint;
     }
 
     private CashuProof getProofFromTag(GenericTag proofTag) {
-        String proof = proofTag.getAttributes().get(0).getValue().toString();
+        String proof = proofTag.getAttributes().get(0).value().toString();
         CashuProof cashuProof = IEvent.MAPPER_BLACKBIRD.convertValue(proof, CashuProof.class);
         return cashuProof;
     }

@@ -21,7 +21,7 @@ class TagRegistryTest {
 
         static CustomTag updateFields(GenericTag genericTag) {
             CustomTag tag = new CustomTag();
-            tag.value = genericTag.getAttributes().get(0).getValue().toString();
+            tag.value = genericTag.getAttributes().get(0).value().toString();
             return tag;
         }
     }

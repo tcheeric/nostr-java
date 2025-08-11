@@ -515,7 +515,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertEquals("L", langNS.getCode());
         assertEquals(1, langNS.getAttributes().size());
-        assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
+        assertEquals("Languages", langNS.getAttributes().iterator().next().value());
     }
 
     @Test
