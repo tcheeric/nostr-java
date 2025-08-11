@@ -15,9 +15,14 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - uses: github/codeql-action/init@v3
         with:
           languages: 'java'
-      - uses: github/codeql-action/autobuild@v3
+      - name: Build
+        run: ./mvnw -B -DskipTests clean package
       - uses: github/codeql-action/analyze@v3
 
