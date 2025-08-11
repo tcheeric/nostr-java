@@ -1,30 +1,45 @@
 plugins {
-    id 'nostr-java.conventions'
+    id 'java-library'
 }
 
+group = 'xyz.tcheeric'
+version = '0.7.3-SNAPSHOT'
 description = 'nostr-java-api'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
+
     api project(':nostr-java-client')
     api project(':nostr-java-encryption')
+    api project(':nostr-java-id')
+    api project(':nostr-java-event')
+    api project(':nostr-java-util')
+    api project(':nostr-java-crypto')
+
+    implementation 'org.springframework.boot:spring-boot-starter:3.4.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.3'
+    testImplementation 'com.google.guava:guava:33.4.0-jre'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
 
 tasks.register('apiIntegrationTest', Test) {
     description = 'api integration tests.'
     group = 'verification'
-    systemProperty("spring.profiles.active", "test")
+    systemProperty('spring.profiles.active', 'test')
     useJUnitPlatform()
     filter {
-        excludeTestsMatching("nostr.api.unit.*");
-        includeTestsMatching("nostr.api.integration.*");
+        excludeTestsMatching('nostr.api.unit.*')
+        includeTestsMatching('nostr.api.integration.*')
     }
 }
 
-apiIntegrationTest {
-    retry {
-        failOnPassedAfterRetry = false
-        maxRetries = 1
-    }
-}
-
-check.dependsOn apiIntegrationTest
+check.dependsOn tasks.named('apiIntegrationTest')
