@@ -11,7 +11,5 @@ repositories {
 }
 
 dependencies {
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.3')
-
     api project(':nostr-java-api')
 }

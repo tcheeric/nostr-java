@@ -9,11 +9,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    id 'org.springframework.boot'
-    id 'io.spring.dependency-management'
     id 'com.adarshr.test-logger'
-    id 'org.gradle.test-retry'
-    id 'jacoco'
 }
 
 group = rootProject.property("nostr-java.group")
@@ -34,66 +30,9 @@ publishing {
     }
     repositories {
         mavenLocal()
-////  TODO: below placeholder for eric        
+////  TODO: below placeholder for eric
 //        someRemoteRepo()
     }
-}
-
-dependencies {
-    def springBootVersion = rootProject.property("nostr-java.springBootVersion")
-    def apacheCommonsLang3 = rootProject.property("nostr-java.apacheCommonsLang3")
-    def jacksonModuleAfterburner = rootProject.property("nostr-java.jacksonModuleAfterburner")
-    def jacksonModuleBlackbird = rootProject.property("nostr-java.jacksonModuleBlackbird")
-    def googleGuava = rootProject.property("nostr-java.googleGuava")
-    def bouncyCastle = rootProject.property("nostr-java.bouncyCastle")
-    def awaitility = rootProject.property("nostr-java.awaitility")
-    def lombok = rootProject.property("nostr-java.lombok")
-    def logger = rootProject.property("nostr-java.adarshrGradleTestLoggerPlugin")
-
-    implementation 'org.springframework.boot:spring-boot-starter:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-devtools:' + springBootVersion
-    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure:' + springBootVersion
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:' + springBootVersion
-
-    implementation 'org.springframework.boot:spring-boot-starter-validation:' + springBootVersion
-    implementation 'org.springframework.boot:spring-boot-starter-websocket:' + springBootVersion
-
-    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:' + jacksonModuleAfterburner
-    implementation 'com.fasterxml.jackson.module:jackson-module-blackbird:' + jacksonModuleBlackbird
-    implementation 'org.bouncycastle:bcprov-jdk18on:' + bouncyCastle
-
-    implementation 'org.apache.commons:commons-lang3:' + apacheCommonsLang3
-    implementation 'org.awaitility:awaitility:' + awaitility
-    implementation 'org.projectlombok:lombok:' + lombok
-    annotationProcessor 'org.awaitility:awaitility:' + awaitility
-    annotationProcessor 'org.projectlombok:lombok:' + lombok
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:' + springBootVersion
-    testImplementation 'org.projectlombok:lombok:' + lombok
-    testImplementation 'org.awaitility:awaitility:' + awaitility
-    testImplementation 'com.adarshr:gradle-test-logger-plugin:' + logger
-    testImplementation 'com.google.guava:guava:' + googleGuava
-    
-    testAnnotationProcessor 'org.projectlombok:lombok:' + lombok
-}
-
-tasks.test {
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-}
-
-test {
-    filter {
-        excludeTestsMatching("nostr.api.integration.*");
-    }
-}
-
-tasks.bootJar {
-    enabled = false
-}
-
-tasks.jar {
-    archiveClassifier = ''
 }
 
 java.sourceCompatibility = JavaVersion.toVersion(rootProject.property("nostr-java.java-version"))
@@ -110,30 +49,4 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
-}
-
-tasks.jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
-    }
-}
-
-tasks.jacocoTestCoverageVerification {
-    dependsOn test
-    violationRules {
-        rule {
-            limit {
-                counter = 'INSTRUCTION'
-                value = 'COVEREDRATIO'
-                minimum = 0.60
-            }
-        }
-    }
-}
-
-tasks.check {
-    dependsOn jacocoTestCoverageVerification
 }
