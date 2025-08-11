@@ -42,14 +42,6 @@ Artifacts are published to GitHub Packages and can be consumed from Maven by add
 
 Authenticating to GitHub Packages is required; provide a personal access token with the appropriate scopes or `GITHUB_TOKEN` credentials. See the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) for more details.
 
-## CI and Releases
-The project uses GitHub Actions defined in [ci.yml](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml).
-This workflow runs `mvn -q verify` to build the project and execute all tests on each push and pull request.
-Releases are published using the [release.yml](https://github.com/tcheeric/nostr-java/actions/workflows/release.yml) workflow.
-
-## Migration Notes
-- The `Identity.getInstance` factory methods have been removed. Use `Identity.create` instead.
-
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
