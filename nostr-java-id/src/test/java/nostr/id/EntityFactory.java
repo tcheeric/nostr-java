@@ -115,7 +115,7 @@ public class EntityFactory {
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
             GenericTag tag = new GenericTag("devil");
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
+            tag.addAttribute(new ElementAttribute("param0", "Lucifer"));
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
@@ -128,7 +128,7 @@ public class EntityFactory {
         @Deprecated(forRemoval = true)
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
             GenericTag tag = new GenericTag("devil");
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
+            tag.addAttribute(new ElementAttribute("param0", "Lucifer"));
             ((GenericEvent) event).addTag(tag);
             return tag;
         }

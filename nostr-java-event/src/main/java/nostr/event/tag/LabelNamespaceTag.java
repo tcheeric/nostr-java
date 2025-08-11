@@ -29,7 +29,7 @@ public class LabelNamespaceTag extends BaseTag {
     }
 
     public static LabelNamespaceTag updateFields(@NonNull GenericTag tag) {
-        LabelNamespaceTag labelNamespaceTag = new LabelNamespaceTag(tag.getAttributes().get(0).getValue().toString());
+        LabelNamespaceTag labelNamespaceTag = new LabelNamespaceTag(tag.getAttributes().get(0).value().toString());
         return labelNamespaceTag;
     }
 }

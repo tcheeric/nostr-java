@@ -34,7 +34,7 @@ public class IdentifierTag extends BaseTag {
     }
 
     public static IdentifierTag updateFields(@NonNull GenericTag tag) {
-        IdentifierTag identifierTag = new IdentifierTag(tag.getAttributes().get(0).getValue().toString());
+        IdentifierTag identifierTag = new IdentifierTag(tag.getAttributes().get(0).value().toString());
         return identifierTag;
     }
 

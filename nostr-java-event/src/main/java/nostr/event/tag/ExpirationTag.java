@@ -40,7 +40,7 @@ public class ExpirationTag extends BaseTag {
         if (!"expiration".equals(tag.getCode())) {
             throw new IllegalArgumentException("Invalid tag code for ExpirationTag");
         }
-        String expiration = tag.getAttributes().get(0).getValue().toString();
+        String expiration = tag.getAttributes().get(0).value().toString();
         ExpirationTag expirationTag = new ExpirationTag(Integer.parseInt(expiration));
         return expirationTag;
     }

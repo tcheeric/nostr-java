@@ -47,7 +47,7 @@ public class RelaysTag extends BaseTag {
 
         List<Relay> relays = new ArrayList<>();
         for (ElementAttribute attribute : genericTag.getAttributes()) {
-            relays.add(new Relay(attribute.getValue().toString()));
+            relays.add(new Relay(attribute.value().toString()));
         }
 
         RelaysTag relaysTag = new RelaysTag(relays);

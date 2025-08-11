@@ -66,6 +66,6 @@ class TagDeserializerTest {
         assertInstanceOf(GenericTag.class, tag);
         GenericTag gTag = (GenericTag) tag;
         assertEquals("unknown", gTag.getCode());
-        assertEquals("value", gTag.getAttributes().get(0).getValue());
+        assertEquals("value", gTag.getAttributes().get(0).value());
     }
 }

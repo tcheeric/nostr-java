@@ -42,7 +42,7 @@ public final class SubjectTag extends BaseTag {
             throw new IllegalArgumentException("Invalid tag code for SubjectTag");
         }
 
-        SubjectTag subjectTag = new SubjectTag(genericTag.getAttributes().get(0).getValue().toString());
+        SubjectTag subjectTag = new SubjectTag(genericTag.getAttributes().get(0).value().toString());
         return subjectTag;
     }
 }

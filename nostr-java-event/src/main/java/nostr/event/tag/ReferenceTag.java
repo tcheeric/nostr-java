@@ -57,9 +57,9 @@ public class ReferenceTag extends BaseTag {
         }
 
         ReferenceTag tag = new ReferenceTag();
-        tag.setUri(URI.create(genericTag.getAttributes().get(0).getValue().toString()));
+        tag.setUri(URI.create(genericTag.getAttributes().get(0).value().toString()));
         if (genericTag.getAttributes().size() == 2) {
-            tag.setMarker(Marker.valueOf(genericTag.getAttributes().get(1).getValue().toString().toUpperCase()));
+            tag.setMarker(Marker.valueOf(genericTag.getAttributes().get(1).value().toString().toUpperCase()));
         } else {
             tag.setMarker(null);
         }

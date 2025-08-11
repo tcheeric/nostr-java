@@ -44,7 +44,7 @@ public class NutZapInformationalEvent extends ReplaceableEvent {
         nutZapInformation.setMints(mintTags.stream()
                 .map(this::getMintFromTag)
                 .toList());
-        nutZapInformation.setP2pkPubkey(p2pkTag.getAttributes().get(0).getValue().toString());
+        nutZapInformation.setP2pkPubkey(p2pkTag.getAttributes().get(0).value().toString());
 
         return nutZapInformation;
     }
@@ -83,12 +83,12 @@ public class NutZapInformationalEvent extends ReplaceableEvent {
     }
 
     private Relay getRelayFromTag(@NonNull GenericTag tag) {
-        String url = tag.getAttributes().get(0).getValue().toString();
+        String url = tag.getAttributes().get(0).value().toString();
         return new Relay(url);
     }
 
     private CashuMint getMintFromTag(@NonNull GenericTag tag) {
-        String mintUrl = tag.getAttributes().get(0).getValue().toString();
+        String mintUrl = tag.getAttributes().get(0).value().toString();
         return new CashuMint(mintUrl);
     }
 }
