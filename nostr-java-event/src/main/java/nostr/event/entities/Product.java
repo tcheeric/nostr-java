@@ -1,14 +1,11 @@
 package nostr.event.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import nostr.event.json.serializer.ProductSerializer;
-import nostr.event.json.serializer.SpecSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +14,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-@JsonSerialize(using = ProductSerializer.class)
 public class Product extends NIP15Content.MerchantContent {
 
     @JsonProperty
@@ -55,7 +51,6 @@ public class Product extends NIP15Content.MerchantContent {
 
     @Data
     @AllArgsConstructor
-    @JsonSerialize(using = SpecSerializer.class)
     public static class Spec {
 
         @JsonProperty
