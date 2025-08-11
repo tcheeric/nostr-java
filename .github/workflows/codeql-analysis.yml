@@ -1,5 +1,8 @@
 name: CodeQL
 
+# Disable GitHub's default CodeQL setup in the repository settings to avoid
+# "advanced configuration" errors when using this workflow.
+
 on:
   push:
     branches: [main, develop]
@@ -22,7 +25,6 @@ jobs:
       - uses: github/codeql-action/init@v3
         with:
           languages: 'java'
-      - name: Build
-        run: ./mvnw -B -DskipTests clean package
+      - uses: github/codeql-action/autobuild@v3
       - uses: github/codeql-action/analyze@v3
 
