@@ -13,6 +13,7 @@ plugins {
     id 'io.spring.dependency-management'
     id 'com.adarshr.test-logger'
     id 'org.gradle.test-retry'
+    id 'jacoco'
 }
 
 group = rootProject.property("nostr-java.group")
@@ -109,4 +110,30 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn test
+    violationRules {
+        rule {
+            limit {
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn jacocoTestCoverageVerification
 }
