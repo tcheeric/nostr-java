@@ -2,14 +2,14 @@ package nostr.api.unit;
 
 import nostr.api.NIP12;
 import nostr.event.BaseTag;
+import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.ReferenceTag;
-import nostr.event.tag.GeohashTag;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP12Test {
 

@@ -1,7 +1,6 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Optional;
 import lombok.NoArgsConstructor;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -18,6 +17,7 @@ import nostr.event.tag.ReferenceTag;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Event(name = "Date-Based Calendar Event", nip = 52)
 @JsonDeserialize(using = CalendarDateBasedEventDeserializer.class)

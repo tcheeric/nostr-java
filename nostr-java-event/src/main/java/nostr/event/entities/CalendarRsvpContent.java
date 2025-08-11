@@ -1,7 +1,6 @@
 package nostr.event.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Optional;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,6 +11,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.Optional;
 
 @Builder
 @JsonDeserialize(builder = CalendarRsvpContentBuilder.class)

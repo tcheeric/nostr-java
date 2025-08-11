@@ -3,15 +3,16 @@ package nostr.event.unit;
 import nostr.event.BaseTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.UrlTag;
-import nostr.event.tag.GenericTag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class TagDeserializerTest {
 

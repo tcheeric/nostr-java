@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+
 import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 

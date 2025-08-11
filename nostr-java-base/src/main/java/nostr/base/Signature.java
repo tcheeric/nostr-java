@@ -2,13 +2,11 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import nostr.util.NostrUtil;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nostr.util.NostrUtil;
 
 /**
  *

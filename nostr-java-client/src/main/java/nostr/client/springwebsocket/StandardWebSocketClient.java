@@ -1,7 +1,6 @@
 package nostr.client.springwebsocket;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import org.awaitility.core.ConditionTimeoutException;
@@ -16,10 +15,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.time.Duration;
 
 import static org.awaitility.Awaitility.await;
 

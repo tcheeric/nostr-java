@@ -5,7 +5,7 @@ import nostr.event.BaseTag;
 import nostr.event.tag.EmojiTag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP30Test {
 

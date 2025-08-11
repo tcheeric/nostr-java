@@ -3,14 +3,13 @@ package nostr.api.unit;
 import nostr.api.NIP65;
 import nostr.base.Marker;
 import nostr.base.Relay;
-import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP65Test {
 

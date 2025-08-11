@@ -4,14 +4,15 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import java.security.NoSuchAlgorithmException;
-import java.util.function.Consumer;
 import nostr.base.ISignable;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.util.NostrUtil;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
 
 /**
  * Represents a Nostr identity backed by a private key.

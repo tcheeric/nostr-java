@@ -1,9 +1,5 @@
 package nostr.api.util;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 import lombok.Getter;
 import nostr.api.NIP01;
 import nostr.api.NIP99;
@@ -11,7 +7,6 @@ import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.TextNoteEvent;
-import nostr.util.NostrException;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.event.tag.HashtagTag;
@@ -19,7 +14,13 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import nostr.util.NostrException;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class CommonTestObjectsFactory {
 

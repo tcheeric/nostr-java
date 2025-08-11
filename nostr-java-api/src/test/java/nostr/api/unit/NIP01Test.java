@@ -11,8 +11,8 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
-import nostr.util.NostrException;
 import nostr.id.Identity;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;

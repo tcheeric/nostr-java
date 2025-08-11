@@ -5,8 +5,8 @@
 package nostr.api;
 
 import lombok.NonNull;
-import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;

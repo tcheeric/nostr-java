@@ -1,7 +1,5 @@
 package nostr.event.entities;
 
-import java.net.URL;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
@@ -14,6 +12,8 @@ import nostr.base.IBech32Encodable;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+
+import java.net.URL;
 
 import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 

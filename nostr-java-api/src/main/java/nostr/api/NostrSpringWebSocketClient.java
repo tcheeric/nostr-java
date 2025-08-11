@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.api.service.NoteService;
+import nostr.api.service.impl.DefaultNoteService;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -13,7 +14,6 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
-import nostr.api.service.impl.DefaultNoteService;
 
 import java.io.IOException;
 import java.util.HashMap;

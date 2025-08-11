@@ -1,8 +1,5 @@
 package nostr.api;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -15,6 +12,11 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.GeohashTag;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
 import static nostr.api.NIP01.createIdentifierTag;
 import static nostr.api.NIP23.createImageTag;
 import static nostr.api.NIP23.createSummaryTag;

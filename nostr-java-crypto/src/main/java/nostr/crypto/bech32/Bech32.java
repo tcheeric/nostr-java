@@ -1,11 +1,11 @@
 package nostr.crypto.bech32;
 
+import nostr.util.NostrUtil;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import nostr.util.NostrUtil;
 
 /**
  *
