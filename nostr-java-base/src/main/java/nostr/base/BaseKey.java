@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
@@ -16,6 +17,7 @@ import java.util.Arrays;
  */
 @AllArgsConstructor
 @Data
+@Slf4j
 public abstract class BaseKey implements IKey {
 
     @NonNull
@@ -30,8 +32,11 @@ public abstract class BaseKey implements IKey {
     @Override
     public String toBech32String() {
         try {
-            return Bech32.toBech32(prefix, rawData);
+            String bech32 = Bech32.toBech32(prefix, rawData);
+            log.debug("Converted key to Bech32 with prefix {}", prefix);
+            return bech32;
         } catch (Exception ex) {
+            log.error("Error converting key to Bech32", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -43,7 +48,9 @@ public abstract class BaseKey implements IKey {
     }
 
     public String toHexString() {
-        return NostrUtil.bytesToHex(rawData);
+        String hex = NostrUtil.bytesToHex(rawData);
+        log.debug("Converted key to hex string");
+        return hex;
     }
 
     @Override
