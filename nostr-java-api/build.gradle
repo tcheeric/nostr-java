@@ -20,12 +20,12 @@ dependencies {
     api project(':nostr-java-crypto')
 
     implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "com.fasterxml.jackson.core:jackson-databind:${rootProject.findProperty('nostr-java.jacksonDatabind')}"
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
-    implementation 'org.slf4j:slf4j-api'
+    implementation "org.slf4j:slf4j-api:${rootProject.findProperty('nostr-java.slf4j')}"
 
     testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
     testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"

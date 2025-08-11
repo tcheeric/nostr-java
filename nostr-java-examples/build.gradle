@@ -12,6 +12,6 @@ repositories {
 
 dependencies {
     api project(':nostr-java-api')
-    implementation 'org.slf4j:slf4j-api'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "org.slf4j:slf4j-api:${rootProject.findProperty('nostr-java.slf4j')}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${rootProject.findProperty('nostr-java.jacksonDatabind')}"
 }

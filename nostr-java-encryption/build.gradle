@@ -17,7 +17,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
-    implementation 'org.slf4j:slf4j-api'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "org.slf4j:slf4j-api:${rootProject.findProperty('nostr-java.slf4j')}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${rootProject.findProperty('nostr-java.jacksonDatabind')}"
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
 }

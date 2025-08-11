@@ -15,12 +15,12 @@ dependencies {
     api project(':nostr-java-crypto')
     api project(':nostr-java-util')
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "com.fasterxml.jackson.core:jackson-databind:${rootProject.findProperty('nostr-java.jacksonDatabind')}"
     implementation "com.fasterxml.jackson.module:jackson-module-blackbird:${rootProject.findProperty('nostr-java.jacksonModuleBlackbird')}"
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
-    implementation 'org.slf4j:slf4j-api'
+    implementation "org.slf4j:slf4j-api:${rootProject.findProperty('nostr-java.slf4j')}"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }

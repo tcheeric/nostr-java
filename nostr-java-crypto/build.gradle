@@ -17,6 +17,6 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
-    implementation 'org.slf4j:slf4j-api'
+    implementation "org.slf4j:slf4j-api:${rootProject.findProperty('nostr-java.slf4j')}"
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
 }
