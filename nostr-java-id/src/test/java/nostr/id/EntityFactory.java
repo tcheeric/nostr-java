@@ -151,12 +151,7 @@ public class EntityFactory {
             list.add(v2);
             list.add(v1);
 
-            return list.stream().map(item -> {
-                var result = new GenericTagQuery();
-                result.setTagName(c.toString());
-                result.setValue(item);
-                return result;
-            }).toList();
+            return list.stream().map(item -> new GenericTagQuery(c.toString(), item)).toList();
         }
     }
 

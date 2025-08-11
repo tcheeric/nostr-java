@@ -15,7 +15,7 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFi
     public static final String HASH_PREFIX = "#";
 
     public GenericTagQueryFilter(T genericTagQuery) {
-        super(genericTagQuery, genericTagQuery.getTagName());
+        super(genericTagQuery, genericTagQuery.tagName());
     }
 
     @Override
@@ -34,12 +34,12 @@ public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFi
 
     @Override
     public String getFilterKey() {
-        return getGenericTagQuery().getTagName();
+        return getGenericTagQuery().tagName();
     }
 
     @Override
     public String getFilterableValue() {
-        return getGenericTagQuery().getValue();
+        return getGenericTagQuery().value();
     }
 
     private T getGenericTagQuery() {
