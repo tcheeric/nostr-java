@@ -72,11 +72,11 @@ public class PriceTag extends BaseTag {
         }
 
         PriceTag tag = new PriceTag();
-        tag.setNumber(new BigDecimal(genericTag.getAttributes().get(0).getValue().toString()));
-        tag.setCurrency(genericTag.getAttributes().get(1).getValue().toString());
+        tag.setNumber(new BigDecimal(genericTag.getAttributes().get(0).value().toString()));
+        tag.setCurrency(genericTag.getAttributes().get(1).value().toString());
 
         if (genericTag.getAttributes().size() > 2) {
-            tag.setFrequency(genericTag.getAttributes().get(2).getValue().toString());
+            tag.setFrequency(genericTag.getAttributes().get(2).value().toString());
         }
         return tag;
     }

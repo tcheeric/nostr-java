@@ -42,8 +42,8 @@ public class EmojiTag extends BaseTag {
             throw new IllegalArgumentException("Invalid tag code for EmojiTag");
         }
 
-        String shortcode = tag.getAttributes().get(0).getValue().toString();
-        String url = tag.getAttributes().get(1).getValue().toString();
+        String shortcode = tag.getAttributes().get(0).value().toString();
+        String url = tag.getAttributes().get(1).value().toString();
         EmojiTag emojiTag = new EmojiTag(shortcode, url);
         return emojiTag;
     }
