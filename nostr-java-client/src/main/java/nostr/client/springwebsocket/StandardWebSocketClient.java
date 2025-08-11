@@ -1,7 +1,6 @@
 package nostr.client.springwebsocket;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import org.awaitility.core.ConditionTimeoutException;
@@ -16,10 +15,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.time.Duration;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import static org.awaitility.Awaitility.await;
 
@@ -37,8 +38,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   private long pollIntervalMs;
 
   private final WebSocketSession clientSession;
-  private List<String> events = new ArrayList<>();
-  private final AtomicBoolean completed = new AtomicBoolean(false);
+  private final Queue<SendContext> contexts = new ConcurrentLinkedQueue<>();
+
+  private static class SendContext {
+    final List<String> events = new CopyOnWriteArrayList<>();
+    final CountDownLatch latch = new CountDownLatch(1);
+  }
 
   /**
    * Creates a new {@code StandardWebSocketClient} connected to the provided relay URI.
@@ -74,8 +79,16 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
-    events.add(message.getPayload());
-    completed.setRelease(true);
+    SendContext context = contexts.peek();
+    if (context == null) {
+      return;
+    }
+    String payload = message.getPayload();
+    context.events.add(payload);
+    if (payload.contains("\"EOSE\"")) {
+      contexts.poll();
+      context.latch.countDown();
+    }
   }
 
   @Override
@@ -85,6 +98,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public List<String> send(String json) throws IOException {
+    SendContext context = new SendContext();
+    contexts.offer(context);
     clientSession.sendMessage(new TextMessage(json));
     Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
@@ -92,7 +107,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
       await()
           .atMost(awaitTimeout)
           .pollInterval(pollInterval)
-          .untilTrue(completed);
+          .until(() -> context.latch.getCount() == 0);
     } catch (ConditionTimeoutException e) {
       log.error("Timed out waiting for relay response", e);
       try {
@@ -100,13 +115,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
       } catch (IOException closeEx) {
         log.warn("Error closing session after timeout", closeEx);
       }
-      events = new ArrayList<>();
-      completed.setRelease(false);
+      contexts.remove(context);
       return List.of();
     }
-    List<String> eventList = List.copyOf(events);
-    events = new ArrayList<>();
-    completed.setRelease(false);
+    List<String> eventList = List.copyOf(context.events);
+    context.events.clear();
+    contexts.remove(context);
     return eventList;
   }
 
