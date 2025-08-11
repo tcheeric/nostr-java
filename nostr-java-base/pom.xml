@@ -12,6 +12,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- Project Modules -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-util</artifactId>
@@ -22,6 +23,8 @@
             <artifactId>nostr-java-crypto</artifactId>
             <version>${nostr-java.version}</version>
         </dependency>
+
+        <!-- JSON Processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -29,13 +32,15 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-blackbird</artifactId>
-            <version>2.17.2</version>
+            <version>${jackson-module-blackbird.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-afterburner</artifactId>
             <version>${jackson-module-afterburner.version}</version>
         </dependency>
+
+        <!-- Lombok and Logging -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -46,6 +51,8 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+
+        <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

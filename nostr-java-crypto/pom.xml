@@ -19,22 +19,22 @@
         https://github.com/unclebob/more-speech/tree/bdd2f32b37264f20bf6abb4887489e70d2b0fdf1
     </description>
 
-    <properties>
-        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
-    </properties>
-    
     <dependencies>
-        <!-- Project Dependencies -->
+        <!-- Bouncy Castle -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>${bcprov-jdk18on.version}</version>
         </dependency>
+
+        <!-- Project Modules -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-util</artifactId>
             <version>${nostr-java.version}</version>
         </dependency>
+
+        <!-- Lombok and Logging -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -45,6 +45,8 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+
+        <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
