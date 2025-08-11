@@ -15,7 +15,7 @@ import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 /**
  *
@@ -52,7 +52,7 @@ public final class UserProfile extends Profile implements IBech32Encodable {
     @Override
     public String toString() {
         try {
-            return MAPPER_AFTERBURNER.writeValueAsString(this);
+            return MAPPER_BLACKBIRD.writeValueAsString(this);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }

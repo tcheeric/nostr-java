@@ -33,7 +33,7 @@ public class CalendarRsvpEventDeserializer extends StdDeserializer<CalendarRsvpE
                 .map(
                         JsonNode::elements)
                 .map(element ->
-                        IEvent.MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+                        IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class)).toList();
 
         Map<String, String> generalMap = new HashMap<>();
         calendarTimeBasedEventNode.fields().forEachRemaining(generalTag ->

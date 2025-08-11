@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 public class NIP60Test {
 
@@ -86,7 +86,7 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        GenericTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, GenericTag[].class);
+        GenericTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, GenericTag[].class);
 
         // First tag should be balance
         Assertions.assertEquals("balance", contentTags[0].getCode());
@@ -146,7 +146,7 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        CashuToken contentToken = MAPPER_AFTERBURNER.readValue(decryptedContent, CashuToken.class);
+        CashuToken contentToken = MAPPER_BLACKBIRD.readValue(decryptedContent, CashuToken.class);
         Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
         CashuProof proofContent = contentToken.getProofs().get(0);
@@ -198,7 +198,7 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        BaseTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, BaseTag[].class);
+        BaseTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, BaseTag[].class);
 
         // Assert direction
         GenericTag directionTag = (GenericTag) contentTags[0];

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 @Data
 @NoArgsConstructor
@@ -36,6 +36,6 @@ public class CashuProof {
     @SneakyThrows
     @Override
     public String toString() {
-        return MAPPER_AFTERBURNER.writeValueAsString(this);
+        return MAPPER_BLACKBIRD.writeValueAsString(this);
     }
 }

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -118,8 +118,8 @@ class CalendarTimeBasedEventTest {
 
     @Test
     void testCalendarTimeBasedEventEncoding() throws JsonProcessingException {
-        var instanceJson = MAPPER_AFTERBURNER.readTree(new BaseEventEncoder<>(instance).encode());
-        var expectedJson = MAPPER_AFTERBURNER.readTree(expectedEncodedJson);
+        var instanceJson = MAPPER_BLACKBIRD.readTree(new BaseEventEncoder<>(instance).encode());
+        var expectedJson = MAPPER_BLACKBIRD.readTree(expectedEncodedJson);
 
         // Helper function to find tag value
         BiFunction<JsonNode, String, JsonNode> findTagArray = (tags, tagName) -> {
@@ -139,11 +139,11 @@ class CalendarTimeBasedEventTest {
 
     @Test
     void testCalendarTimeBasedEventDecoding() throws JsonProcessingException {
-        var decodedJson = MAPPER_AFTERBURNER.readTree(
+        var decodedJson = MAPPER_BLACKBIRD.readTree(
             new BaseEventEncoder<>(
-                MAPPER_AFTERBURNER.readValue(expectedEncodedJson, GenericEvent.class))
+                MAPPER_BLACKBIRD.readValue(expectedEncodedJson, GenericEvent.class))
                 .encode());
-        var instanceJson = MAPPER_AFTERBURNER.readTree(new BaseEventEncoder<>(instance).encode());
+        var instanceJson = MAPPER_BLACKBIRD.readTree(new BaseEventEncoder<>(instance).encode());
 
         // Helper function to find tag value
         BiFunction<JsonNode, String, JsonNode> findTagArray = (tags, tagName) -> {

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +33,7 @@ class RelaysTagTest {
     void testDeserialize() {
         final String EXPECTED = "[\"relays\",\"ws://localhost:5555\"]";
         assertDoesNotThrow(() -> {
-            JsonNode node = MAPPER_AFTERBURNER.readTree(EXPECTED);
+            JsonNode node = MAPPER_BLACKBIRD.readTree(EXPECTED);
             BaseTag deserialize = RelaysTag.deserialize(node);
             assertEquals(RELAYS_KEY, deserialize.getCode());
             assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().getFirst().getUri());

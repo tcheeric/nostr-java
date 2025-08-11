@@ -25,7 +25,7 @@ public class CreateOrUpdateProductEvent extends MerchantEvent<Product> {
 
     @SneakyThrows
     public Product getProduct() {
-        return IEvent.MAPPER_AFTERBURNER.readValue(getContent(), Product.class);
+        return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
     }
 
     protected Product getEntity() {
