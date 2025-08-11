@@ -98,8 +98,8 @@ public class Nip05Validator {
     @SneakyThrows
     private String getPublicKey(StringBuilder content, String localPart) {
 
-        ObjectMapper MAPPER_AFTERBURNER = JsonMapper.builder().addModule(new AfterburnerModule()).build();
-        Nip05Content nip05Content = MAPPER_AFTERBURNER.readValue(content.toString(), Nip05Content.class);
+        ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
+        Nip05Content nip05Content = mapper.readValue(content.toString(), Nip05Content.class);
 
         // Access the decoded data
         Map<String, String> names = nip05Content.getNames();

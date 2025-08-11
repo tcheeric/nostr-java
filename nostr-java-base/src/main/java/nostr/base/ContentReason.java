@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 /**
  * @author guilhermegps
@@ -23,7 +23,7 @@ public class ContentReason {
     @Override
     public String toString() {
         try {
-            return MAPPER_AFTERBURNER.writeValueAsString(this);
+            return MAPPER_BLACKBIRD.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

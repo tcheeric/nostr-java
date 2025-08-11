@@ -30,7 +30,7 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
 
     @SneakyThrows
     public Stall getStall() {
-        return IEvent.MAPPER_AFTERBURNER.readValue(getContent(), Stall.class);
+        return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Stall.class);
     }
 
     @Override

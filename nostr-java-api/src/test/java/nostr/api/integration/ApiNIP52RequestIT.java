@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
@@ -113,13 +113,13 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
       String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
       // Extract and compare only first 3 elements of the JSON array
-      var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
-      var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
-      var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+      var expectedArray = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+      var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+      var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-      var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-      var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-      var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
+      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
+      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
@@ -140,8 +140,8 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 /*
       assertTrue(
           JsonComparator.isEquivalentJson(
-              MAPPER_AFTERBURNER.readTree(expected),
-              MAPPER_AFTERBURNER.readTree(reqResponse)));
+              MAPPER_BLACKBIRD.readTree(expected),
+              MAPPER_BLACKBIRD.readTree(reqResponse)));
 */
     }
   }
