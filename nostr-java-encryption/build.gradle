@@ -13,9 +13,9 @@ repositories {
 dependencies {
     api project(':nostr-java-crypto')
     api project(':nostr-java-util')
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    compileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
 }

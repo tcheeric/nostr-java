@@ -14,18 +14,18 @@ repositories {
 dependencies {
     api project(':nostr-java-id')
 
-    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.4.3'
+    implementation "org.springframework.boot:spring-boot-starter-websocket:${rootProject.findProperty('nostr-java.springBootVersion')}"
     implementation 'org.springframework:spring-websocket'
-    implementation 'org.awaitility:awaitility:4.2.2'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    implementation "org.awaitility:awaitility:${rootProject.findProperty('nostr-java.awaitility')}"
+    compileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework:spring-aspects'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.3'
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${rootProject.findProperty('nostr-java.springBootVersion')}"
     testImplementation 'org.springframework:spring-test'
 }
 

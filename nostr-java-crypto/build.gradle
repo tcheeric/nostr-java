@@ -12,11 +12,11 @@ repositories {
 
 dependencies {
     api project(':nostr-java-util')
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    implementation "org.bouncycastle:bcprov-jdk18on:${rootProject.findProperty('nostr-java.bouncyCastle')}"
+    compileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     implementation 'org.slf4j:slf4j-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
 }

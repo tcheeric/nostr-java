@@ -15,12 +15,12 @@ dependencies {
     api project(':nostr-java-crypto')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.module:jackson-module-blackbird:2.17.2'
-    implementation 'com.fasterxml.jackson.module:jackson-module-afterburner:2.18.3'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    implementation "com.fasterxml.jackson.module:jackson-module-blackbird:${rootProject.findProperty('nostr-java.jacksonModuleBlackbird')}"
+    implementation "com.fasterxml.jackson.module:jackson-module-afterburner:${rootProject.findProperty('nostr-java.jacksonModuleAfterburner')}"
+    compileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testCompileOnly "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
+    testAnnotationProcessor "org.projectlombok:lombok:${rootProject.findProperty('nostr-java.lombok')}"
     implementation 'org.slf4j:slf4j-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.findProperty('nostr-java.junitJupiter')}"
 }
