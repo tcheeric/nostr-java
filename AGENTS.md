@@ -19,7 +19,6 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Maintain the versions in the configuration section of the pom.xml files.
 - Always make sure that the events are compliant with the Nostr protocol specifications, and that the events are valid according to the NIP specifications.
 - Always remove unused imports
-- Any change in pom files should be reflected in the corresponding graddle build files.
 
 ## Pull Requests
 
