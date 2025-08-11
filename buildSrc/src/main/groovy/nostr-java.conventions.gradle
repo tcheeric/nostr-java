@@ -87,12 +87,6 @@ test {
     }
 }
 
-test {
-    filter {
-        excludeTestsMatching("nostr.api.integration.*");
-    }
-}
-
 tasks.bootJar {
     enabled = false
 }
