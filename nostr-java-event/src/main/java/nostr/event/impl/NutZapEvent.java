@@ -102,8 +102,8 @@ public class NutZapEvent extends GenericEvent {
     }
 
     private CashuProof getProofFromTag(GenericTag proofTag) {
-        String proof = proofTag.getAttributes().get(0).value().toString();
-        CashuProof cashuProof = MAPPER_AFTERBURNER.convertValue(proof, CashuProof.class);
+        String proof = proofTag.getAttributes().get(0).getValue().toString();
+        CashuProof cashuProof = IEvent.MAPPER_BLACKBIRD.convertValue(proof, CashuProof.class);
         return cashuProof;
     }
 }

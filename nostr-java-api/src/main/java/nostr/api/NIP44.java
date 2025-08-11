@@ -6,7 +6,6 @@ import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
 import nostr.encryption.MessageCipher44;
 import nostr.event.filter.Filterable;
-import nostr.event.impl.EncryptedPayloadEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -20,11 +19,6 @@ public class NIP44 extends EventNostr {
     public static String encrypt(@NonNull Identity sender, @NonNull String message, @NonNull PublicKey recipient) {
         MessageCipher cipher = new MessageCipher44(sender.getPrivateKey().getRawData(), recipient.getRawData());
         return cipher.encrypt(message);
-    }
-
-    @Deprecated(forRemoval = true, since = "0.6.6-SNAPSHOT")
-    public static String decrypt(@NonNull Identity recipient, @NonNull EncryptedPayloadEvent ep) {
-        return NIP44.decrypt(recipient, (GenericEvent) ep);
     }
 
     public static String decrypt(@NonNull Identity identity, @NonNull String encrypteEPessage, @NonNull PublicKey recipient) {

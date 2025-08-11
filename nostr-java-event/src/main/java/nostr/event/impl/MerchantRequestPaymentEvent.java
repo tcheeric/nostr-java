@@ -27,7 +27,7 @@ public class MerchantRequestPaymentEvent extends CheckoutEvent<PaymentRequest> {
     }
 
     public PaymentRequest getPaymentRequest() {
-        return IEvent.MAPPER_AFTERBURNER.convertValue(getContent(), PaymentRequest.class);
+        return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentRequest.class);
     }
 
     protected PaymentRequest getEntity() {

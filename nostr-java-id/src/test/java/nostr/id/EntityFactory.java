@@ -79,13 +79,6 @@ public class EntityFactory {
             return event;
         }
 
-/*
-        public static MetadataEvent createMetadataEvent(UserProfile profile) {
-            final PublicKey publicKey = profile.getPublicKey();
-            return new MetadataEvent(publicKey, profile);
-        }
-*/
-
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(EventTag.builder().idEvent(original.getId()).build());

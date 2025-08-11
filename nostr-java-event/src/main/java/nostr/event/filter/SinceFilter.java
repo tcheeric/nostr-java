@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 @EqualsAndHashCode(callSuper = true)
 public class SinceFilter extends AbstractFilterable<Long> {
@@ -27,7 +27,7 @@ public class SinceFilter extends AbstractFilterable<Long> {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return MAPPER_AFTERBURNER.createObjectNode().put(FILTER_KEY, getSince());
+    return MAPPER_BLACKBIRD.createObjectNode().put(FILTER_KEY, getSince());
   }
 
   @Override

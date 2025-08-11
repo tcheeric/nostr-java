@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -652,11 +652,11 @@ public class JsonParseTest {
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
     assertTrue(JsonComparator.isEquivalentJson(
-        MAPPER_AFTERBURNER.createArrayNode()
-            .add(MAPPER_AFTERBURNER.readTree(
+        MAPPER_BLACKBIRD.createArrayNode()
+            .add(MAPPER_BLACKBIRD.readTree(
                 expectedReqMessage.encode())),
-        MAPPER_AFTERBURNER.createArrayNode()
-            .add(MAPPER_AFTERBURNER.readTree(decodedReqMessage.encode()))));
+        MAPPER_BLACKBIRD.createArrayNode()
+            .add(MAPPER_BLACKBIRD.readTree(decodedReqMessage.encode()))));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 

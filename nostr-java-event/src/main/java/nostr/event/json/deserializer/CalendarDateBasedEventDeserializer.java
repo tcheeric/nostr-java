@@ -34,7 +34,7 @@ public class CalendarDateBasedEventDeserializer extends StdDeserializer<Calendar
                 .map(
                         JsonNode::elements)
                 .map(element ->
-                        IEvent.MAPPER_AFTERBURNER.convertValue(element, BaseTag.class)).toList();
+                        IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class)).toList();
 
 
         Map<String, String> generalMap = new HashMap<>();
