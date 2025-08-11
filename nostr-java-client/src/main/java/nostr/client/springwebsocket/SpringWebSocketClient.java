@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class SpringWebSocketClient {
+public class SpringWebSocketClient implements AutoCloseable {
   private final WebSocketClientIF webSocketClientIF;
 
   @Getter
@@ -34,12 +34,19 @@ public class SpringWebSocketClient {
    * @throws IOException if an I/O error occurs while sending the message
    */
   public List<String> send(@NonNull BaseMessage eventMessage) throws IOException {
-    return webSocketClientIF.send(eventMessage.encode());
+    String json = eventMessage.encode();
+    log.debug("Sending {} to relay {} (size={} bytes)", eventMessage.getCommand(), relayUrl, json.length());
+    List<String> responses = webSocketClientIF.send(json);
+    log.debug("Sent {} to relay {} with {} responses", eventMessage.getCommand(), relayUrl, responses.size());
+    return responses;
   }
 
   @NostrRetryable
   public List<String> send(@NonNull String json) throws IOException {
-    return webSocketClientIF.send(json);
+    log.debug("Sending message to relay {} (size={} bytes)", relayUrl, json.length());
+    List<String> responses = webSocketClientIF.send(json);
+    log.debug("Sent message to relay {} with {} responses", relayUrl, responses.size());
+    return responses;
   }
 
   /**
@@ -54,7 +61,7 @@ public class SpringWebSocketClient {
    */
   @Recover
   public List<String> recover(IOException ex, String json) throws IOException {
-    log.error("Failed to send message after retries: {}", json, ex);
+    log.error("Failed to send message to relay {} after retries (size={} bytes)", relayUrl, json.length(), ex);
     throw ex;
   }
 
@@ -70,12 +77,24 @@ public class SpringWebSocketClient {
    */
   @Recover
   public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
-    log.error("Failed to send message after retries: {}", eventMessage, ex);
+    String json = eventMessage.encode();
+    log.error("Failed to send {} to relay {} after retries (size={} bytes)", eventMessage.getCommand(), relayUrl, json.length(), ex);
     throw ex;
   }
 
+  @Override
+  public void close() throws IOException {
+    log.debug("Closing WebSocket client for relay {}", relayUrl);
+    webSocketClientIF.close();
+    log.debug("WebSocket client closed for relay {}", relayUrl);
+  }
+
+  /**
+   * @deprecated use {@link #close()} instead.
+   */
+  @Deprecated
   public void closeSocket() throws IOException {
-    webSocketClientIF.closeSocket();
+    close();
   }
 }
 
