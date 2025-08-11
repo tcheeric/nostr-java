@@ -28,7 +28,6 @@ public enum Kind {
     CHANNEL_MESSAGE(42, "channel_message"),
     HIDE_MESSAGE(43, "hide_message"),
     MUTE_USER(44, "mute_user"),
-    ENCRYPTED_PAYLOADS(44, "encrypted_payloads"),
     OTS_EVENT(1040, "ots_event"),
     RESERVED_CASHU_WALLET_TOKENS(7_374, "reserved_cashu_wallet_tokens"),
     WALLET(17_375, "wallet"),
