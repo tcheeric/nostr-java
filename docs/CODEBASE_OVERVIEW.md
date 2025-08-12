@@ -63,6 +63,32 @@ client.createTextNoteEvent("Hello from NostrSpringWebSocketClient!\n")
       .signAndSend();
 ```
 
+## Requesting events with filters
+The `FilterExample` shows how to query a relay for events matching a set of filters.
+It builds filters for author and kind, sends them with `NIP01`, and prints each
+returned event:
+
+```java
+Identity sender = Identity.generateRandomIdentity();
+NIP01 client = new NIP01(sender);
+client.setRelays(Map.of("damus", "wss://relay.damus.io"));
+
+Filters filters = new Filters(
+        new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),
+        new KindFilter<>(Kind.TEXT_NOTE)
+);
+
+List<String> responses = client.sendRequest(filters, "filter-example-" + System.currentTimeMillis());
+var decoder = new BaseMessageDecoder<BaseMessage>();
+for (String json : responses) {
+    BaseMessage message = decoder.decode(json);
+    if (message instanceof EventMessage eventMessage) {
+        System.out.println(eventMessage.getEvent());
+    }
+}
+client.close();
+```
+
 ## Creating custom events and tags
 Custom tag types can be introduced without modifying existing core code by
 registering them with the `TagRegistry`. The registry maps tag codes to factory
