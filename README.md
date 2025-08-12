@@ -21,32 +21,6 @@ $ ./mvnw clean install
 
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
-## Using Published Artifacts
-Artifacts are published to GitHub Packages and can be consumed from Maven by adding the repository and desired dependency to your `pom.xml`:
-
-```xml
-<repositories>
-  <repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/tcheeric/nostr-java</url>
-  </repository>
-</repositories>
-
-<dependencies>
-  <dependency>
-    <groupId>xyz.tcheeric</groupId>
-    <artifactId>nostr-java-api</artifactId>
-    <version>${nostr-java.version}</version>
-  </dependency>
-</dependencies>
-```
-
-Authenticating to GitHub Packages is required; provide a personal access token with the appropriate scopes or `GITHUB_TOKEN` credentials. See the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) for more details.
-
-## Publishing Modules
-
-This repository includes a [GitHub Actions workflow](.github/workflows/publish-github-packages.yml) that publishes all Maven modules to GitHub Packages. The workflow runs on pushes to `main` that modify `pom.xml` files and can also be triggered manually from the Actions tab.
-
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
