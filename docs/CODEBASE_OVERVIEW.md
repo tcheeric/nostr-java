@@ -39,7 +39,7 @@ If a relay response is not received before the timeout elapses, the client logs 
 ## Retry behavior
 `SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
 
-## Expiration events (NIP-40)
+## Creating custom events
 The `ExpirationEventExample` demonstrates how to build a NIP-40 expiration event with `GenericEvent` and send it using both the `StandardWebSocketClient` and the `SpringWebSocketClient`:
 
 ```java
