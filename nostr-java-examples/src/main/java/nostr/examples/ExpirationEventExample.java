@@ -20,9 +20,6 @@ import nostr.id.Identity;
 public class ExpirationEventExample {
 
     private static final String RELAY_URI = "ws://localhost:5555";
-
-    private static GenericEvent createExpirationEvent() {
-        Identity identity = Identity.generateRandomIdentity();
     private static final long EXPIRATION_SECONDS = 3600; // 1 hour
 
     private static GenericEvent createExpirationEvent() {
