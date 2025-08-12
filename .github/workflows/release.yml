@@ -60,9 +60,3 @@ jobs:
             gh release upload "${{ github.ref_name }}" "$file" --clobber
           done
 
-  publish-packages:
-    needs: release
-    uses: ./.github/workflows/publish-github-packages.yml
-    secrets:
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
