@@ -3,13 +3,13 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.7.3</version>
+    <version>0.8</version>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.4</version>
     </parent>
 
     <name>${project.artifactId}</name>
@@ -57,17 +57,6 @@
         <tag>main</tag>
     </scm>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/tcheeric/nostr-java</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <modules>
         <module>nostr-java-base</module>
         <module>nostr-java-crypto</module>
@@ -81,19 +70,20 @@
     </modules>
 
     <properties>
-        <nostr-java.version>0.7.3</nostr-java.version>
+        <nostr-java.version>0.8</nostr-java.version>
         <java.version>21</java.version>
         
-        <spring-boot.version>3.4.3</spring-boot.version>
+        <spring-boot.version>3.5.4</spring-boot.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependency Versions -->
-        <awaitility.version>4.2.2</awaitility.version>
+        <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
+        <awaitility.version>4.3.0</awaitility.version>
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <jackson-module-blackbird.version>2.17.2</jackson-module-blackbird.version>
+        <jackson-module-blackbird.version>2.19.2</jackson-module-blackbird.version>
         <lombok.version>1.18.36</lombok.version>
 
         <!-- Test Dependency Versions -->
@@ -103,14 +93,14 @@
 
         <!-- Maven Plugin Versions -->
         <central-publishing-maven-plugin.version>0.6.0</central-publishing-maven-plugin.version>
-        <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-failsafe-plugin.version>3.3.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     </properties>
 
     <!-- parent pom is used only for aggregation so it should not declare
