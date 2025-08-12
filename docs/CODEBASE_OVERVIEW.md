@@ -51,6 +51,22 @@ GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE,
 identity.sign(event);
 ```
 
+## Creating text note events with TextNoteEvent
+The `TextNoteEventExample` illustrates constructing a text note directly with the
+out-of-the-box `TextNoteEvent` class and sending it to a relay using the
+`StandardWebSocketClient`:
+
+```java
+Identity identity = Identity.generateRandomIdentity();
+TextNoteEvent event = new TextNoteEvent(identity.getPublicKey(),
+        List.<BaseTag>of(),
+        "Hello from TextNoteEvent!\n");
+identity.sign(event);
+try (StandardWebSocketClient client = new StandardWebSocketClient("ws://localhost:5555")) {
+    client.send(new EventMessage(event));
+}
+```
+
 ## Sending text events with NostrSpringWebSocketClient
 The `SpringClientTextEventExample` demonstrates using the `NIP01` helper class to
 publish a simple text note via `NostrSpringWebSocketClient`:
