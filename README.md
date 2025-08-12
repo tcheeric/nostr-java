@@ -28,7 +28,7 @@ Artifacts are published to GitHub Packages and can be consumed from Maven by add
 <repositories>
   <repository>
     <id>github</id>
-    <url>https://maven.pkg.github.com/OWNER/REPO</url>
+    <url>https://maven.pkg.github.com/tcheeric/nostr-java</url>
   </repository>
 </repositories>
 
