@@ -23,7 +23,11 @@ public class ExpirationEventExample {
 
     private static GenericEvent createExpirationEvent() {
         Identity identity = Identity.generateRandomIdentity();
-        long expiration = Instant.now().plusSeconds(3600).getEpochSecond();
+    private static final long EXPIRATION_SECONDS = 3600; // 1 hour
+
+    private static GenericEvent createExpirationEvent() {
+        Identity identity = Identity.generateRandomIdentity();
+        long expiration = Instant.now().plusSeconds(EXPIRATION_SECONDS).getEpochSecond();
         BaseTag expirationTag = new GenericTag("expiration",
                 new ElementAttribute("param0", String.valueOf(expiration)));
         GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE,
