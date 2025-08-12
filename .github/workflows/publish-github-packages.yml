@@ -1,0 +1,31 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/pom.xml'
+      - '.github/workflows/publish-github-packages.yml'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish modules
+        run: ./mvnw -B -q deploy -DskipTests -Dgpg.skip=true \
+          -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
