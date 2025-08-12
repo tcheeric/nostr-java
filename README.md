@@ -43,6 +43,10 @@ Artifacts are published to GitHub Packages and can be consumed from Maven by add
 
 Authenticating to GitHub Packages is required; provide a personal access token with the appropriate scopes or `GITHUB_TOKEN` credentials. See the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) for more details.
 
+## Publishing Modules
+
+This repository includes a [GitHub Actions workflow](.github/workflows/publish-github-packages.yml) that publishes all Maven modules to GitHub Packages. The workflow runs on pushes to `main` that modify `pom.xml` files and can also be triggered manually from the Actions tab.
+
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
