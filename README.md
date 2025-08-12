@@ -46,9 +46,6 @@ Authenticating to GitHub Packages is required; provide a personal access token w
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
 
-## Retry Support
-`SpringWebSocketClient` leverages Spring Retry so that failed WebSocket send operations are attempted up to three times with exponential backoff.
-
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md)
