@@ -28,18 +28,10 @@ jobs:
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
-
       - name: Build and deploy
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE"
-
-      - name: Deploy to GitHub Packages
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE" \
-            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/tcheeric/nostr-java
 
       - name: Collect JAR artifacts
         run: |
@@ -67,3 +59,11 @@ jobs:
           for file in release-jars/*.jar; do
             gh release upload "${{ github.ref_name }}" "$file" --clobber
           done
+
+  publish-packages:
+    needs: release
+    uses: ./.github/workflows/publish-github-packages.yml
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
