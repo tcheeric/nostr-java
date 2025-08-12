@@ -39,24 +39,30 @@ If a relay response is not received before the timeout elapses, the client logs 
 ## Retry behavior
 `SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
 
-## Creating and sending events
-The examples module shows how to create built-in and custom events. Below is an excerpt from the examples illustrating the creation of a `TextNoteEvent`:
+## Expiration events (NIP-40)
+The `ExpirationEventExample` demonstrates how to build a NIP-40 expiration event with `GenericEvent` and send it using both the `StandardWebSocketClient` and the `SpringWebSocketClient`:
+
 ```java
-    private static final Identity RECIPIENT = Identity.generateRandomIdentity();
-    private static final Identity SENDER = Identity.generateRandomIdentity();
-
-    private static GenericEvent sendTextNoteEvent() {
- 
-        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
-
-        var nip01 = new NIP01(SENDER);
-        nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
-                .sign()
-                .send(RELAYS);
-
-        return nip01.getEvent();
-    }
+BaseTag expirationTag = new GenericTag("expiration",
+        new ElementAttribute("param0", String.valueOf(expiration)));
+GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE,
+        List.of(expirationTag),
+        "This message will expire at the specified timestamp and be deleted by relays.\n");
+identity.sign(event);
 ```
+
+## Sending text events with NostrSpringWebSocketClient
+The `SpringClientTextEventExample` demonstrates using the `NIP01` helper class to
+publish a simple text note via `NostrSpringWebSocketClient`:
+
+```java
+Identity sender = Identity.generateRandomIdentity();
+NIP01 client = new NIP01(sender);
+client.setRelays(Map.of("local", "ws://localhost:5555"));
+client.createTextNoteEvent("Hello from NostrSpringWebSocketClient!\n")
+      .signAndSend();
+```
+
 ## Creating custom events and tags
 Custom tag types can be introduced without modifying existing core code by
 registering them with the `TagRegistry`. The registry maps tag codes to factory
