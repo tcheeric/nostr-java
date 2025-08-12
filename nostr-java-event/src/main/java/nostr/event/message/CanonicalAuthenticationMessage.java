@@ -19,8 +19,8 @@ import nostr.event.tag.GenericTag;
 import java.util.List;
 import java.util.Map;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 /**
  * @author eric
@@ -39,17 +39,17 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
                 JsonNodeFactory.instance.arrayNode()
                         .add(getCommand())
-                        .add(ENCODER_MAPPED_AFTERBURNER.readTree(
+                        .add(ENCODER_MAPPER_BLACKBIRD.readTree(
                                 new BaseEventEncoder<>(getEvent()).encode())));
     }
 
     @SneakyThrows
     // TODO - This needs to be reviewed
     public static <T extends BaseMessage> T decode(@NonNull Map map) {
-        var event = I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<GenericEvent>() {
+        var event = I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {
         });
 
         List<BaseTag> baseTags = event.getTags().stream()
@@ -67,6 +67,6 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
     private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
 //    TODO: stream optional
         return genericTags.stream()
-                .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName)).map(GenericTag::getAttributes).toList().get(0).get(0).getValue().toString();
+                .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName)).map(GenericTag::getAttributes).toList().get(0).get(0).value().toString();
     }
 }

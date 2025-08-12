@@ -20,8 +20,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 @Setter
 @Getter
@@ -52,14 +52,14 @@ public class EventMessage extends BaseMessage {
         var arrayNode = JsonNodeFactory.instance.arrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
                 .ifPresent(arrayNode::add);
-        arrayNode.add(ENCODER_MAPPED_AFTERBURNER.readTree(
+        arrayNode.add(ENCODER_MAPPER_BLACKBIRD.readTree(
                 new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(arrayNode);
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(arrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
         try {
-            Object[] msgArr = I_DECODER_MAPPER_AFTERBURNER.readValue(jsonString, Object[].class);
+            Object[] msgArr = I_DECODER_MAPPER_BLACKBIRD.readValue(jsonString, Object[].class);
             return isEventWoSig.apply(msgArr) ? processEvent(msgArr[1]) : processEvent(msgArr);
         } catch (Exception e) {
             throw new AssertionError("Invalid argument: " + jsonString);
@@ -76,6 +76,6 @@ public class EventMessage extends BaseMessage {
 
     private static GenericEvent convertValue(Map<String, String> map) {
         log.info("Converting map to GenericEvent: {}", map);
-        return I_DECODER_MAPPER_AFTERBURNER.convertValue(map, new TypeReference<>() {});
+        return I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<>() {});
     }
 }

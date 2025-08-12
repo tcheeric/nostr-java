@@ -43,7 +43,7 @@ public class HashtagTag extends BaseTag {
         }
 
         HashtagTag tag = new HashtagTag();
-        tag.setHashTag(genericTag.getAttributes().get(0).getValue().toString());
+        tag.setHashTag(genericTag.getAttributes().get(0).value().toString());
         return tag;
     }
 }

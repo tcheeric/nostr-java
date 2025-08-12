@@ -2,8 +2,8 @@ package nostr.api;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -134,7 +134,7 @@ public class NIP57 extends EventNostr {
         genericEvent.addTag(NIP01.createPubKeyTag(zapRecipient));
 
         // Zap receipt tags
-        String descriptionSha256 = IEvent.MAPPER_AFTERBURNER.writeValueAsString(zapRequestEvent);
+        String descriptionSha256 = IEvent.MAPPER_BLACKBIRD.writeValueAsString(zapRequestEvent);
         genericEvent.addTag(createDescriptionTag(StringEscapeUtils.escapeJson(descriptionSha256)));
         genericEvent.addTag(createBolt11Tag(bolt11));
         genericEvent.addTag(createPreImageTag(preimage));

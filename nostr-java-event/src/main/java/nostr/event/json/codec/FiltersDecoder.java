@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 /**
  * @author eric
@@ -24,7 +24,7 @@ public class FiltersDecoder implements FDecoder<Filters> {
   public Filters decode(@NonNull String jsonFiltersList) {
     final List<Filterable> filterables = new ArrayList<>();
 
-    Map<String, JsonNode> filtersMap = MAPPER_AFTERBURNER.readValue(
+    Map<String, JsonNode> filtersMap = MAPPER_BLACKBIRD.readValue(
         jsonFiltersList,
         new TypeReference<Map<String, JsonNode>>() {});
 

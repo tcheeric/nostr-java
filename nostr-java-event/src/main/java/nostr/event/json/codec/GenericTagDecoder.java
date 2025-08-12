@@ -27,7 +27,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
     @Override
     public T decode(@NonNull String json) {
         try {
-            String[] jsonElements = I_DECODER_MAPPER_AFTERBURNER.readValue(json, String[].class);
+            String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
             GenericTag genericTag = new GenericTag(
                     jsonElements[0],
                     new ArrayList<>() {

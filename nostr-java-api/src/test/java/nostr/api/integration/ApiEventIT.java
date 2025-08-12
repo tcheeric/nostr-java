@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -416,7 +416,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         // Fetch the content and compare with the above original
         var content = instance.getEvent().getContent();
-        var expected = MAPPER_AFTERBURNER.readValue(content, Stall.class);
+        var expected = MAPPER_BLACKBIRD.readValue(content, Stall.class);
 
         assertEquals(expected, stall);
     }
@@ -515,7 +515,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         assertEquals("L", langNS.getCode());
         assertEquals(1, langNS.getAttributes().size());
-        assertEquals("Languages", langNS.getAttributes().iterator().next().getValue());
+        assertEquals("Languages", langNS.getAttributes().iterator().next().value());
     }
 
     @Test

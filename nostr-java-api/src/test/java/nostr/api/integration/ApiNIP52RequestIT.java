@@ -3,6 +3,7 @@ package nostr.api.integration;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.impl.GenericEvent;
@@ -17,13 +18,12 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
@@ -74,7 +74,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
   public String signature;
 
   @Test
-  void testNIP99CalendarContentPreRequest() throws IOException {
+  void testNIP99CalendarContentPreRequest() throws Exception {
     System.out.println("testNIP52CalendarContentEvent");
 
     List<BaseTag> tags = new ArrayList<>();
@@ -108,42 +108,42 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
     eventPubKey = event.getPubKey().toString();
     EventMessage eventMessage = new EventMessage(event);
 
-    SpringWebSocketClient springWebSocketEventClient = new SpringWebSocketClient(getRelayUri());
-    String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
+    try (SpringWebSocketClient springWebSocketEventClient =
+             new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
+      String eventResponse = springWebSocketEventClient.send(eventMessage).stream().findFirst().orElseThrow();
 
-    // Extract and compare only first 3 elements of the JSON array
-    var expectedArray = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
-    var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
-    var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+      // Extract and compare only first 3 elements of the JSON array
+      var expectedArray = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+      var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+      var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-    var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-    var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-    var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
+      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
+      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-    //assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is not required. The relay will always return false because we resending the same event, causing duplicates.
-
-    springWebSocketEventClient.closeSocket();
+      //assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is not required. The relay will always return false because we resending the same event, causing duplicates.
+    }
 
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
 
-    SpringWebSocketClient springWebSocketRequestClient = new SpringWebSocketClient(getRelayUri());
-    String subscriberId = UUID.randomUUID().toString();
-    String reqJson = createReqJson(subscriberId, eventId);
-    String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
+    try (SpringWebSocketClient springWebSocketRequestClient =
+             new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri())) {
+      String subscriberId = UUID.randomUUID().toString();
+      String reqJson = createReqJson(subscriberId, eventId);
+      String reqResponse = springWebSocketRequestClient.send(reqJson).stream().findFirst().orElseThrow();
 
-    String expected = expectedRequestResponseJson(subscriberId);
-    // TODO - This assertion keeps failing...
+      String expected = expectedRequestResponseJson(subscriberId);
+      // TODO - This assertion keeps failing...
 /*
-    assertTrue(
-        JsonComparator.isEquivalentJson(
-            MAPPER_AFTERBURNER.readTree(expected),
-            MAPPER_AFTERBURNER.readTree(reqResponse)));
+      assertTrue(
+          JsonComparator.isEquivalentJson(
+              MAPPER_BLACKBIRD.readTree(expected),
+              MAPPER_BLACKBIRD.readTree(reqResponse)));
 */
-
-    springWebSocketRequestClient.closeSocket();
+    }
   }
 
   private String expectedEventResponseJson(String subscriptionId) {

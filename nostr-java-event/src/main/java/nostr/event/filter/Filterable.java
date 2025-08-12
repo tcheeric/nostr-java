@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 public interface Filterable {
   Predicate<GenericEvent> getPredicate();
@@ -26,7 +26,7 @@ public interface Filterable {
   }
 
   default ObjectNode toObjectNode(ObjectNode objectNode) {
-    ArrayNode arrayNode = MAPPER_AFTERBURNER.createArrayNode();
+    ArrayNode arrayNode = MAPPER_BLACKBIRD.createArrayNode();
 
     Optional.ofNullable(objectNode.get(getFilterKey()))
         .ifPresent(jsonNode ->
@@ -39,7 +39,7 @@ public interface Filterable {
 
   default void addToArrayNode(ArrayNode arrayNode) {
     arrayNode.addAll(
-        MAPPER_AFTERBURNER.createArrayNode().add(
+        MAPPER_BLACKBIRD.createArrayNode().add(
             getFilterableValue().toString()));
   }
 }

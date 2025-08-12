@@ -57,7 +57,7 @@ public class AddressTag extends BaseTag {
 
         AddressTag addressTag = new AddressTag();
         List<ElementAttribute> attributes = tag.getAttributes();
-        String attr0 = attributes.get(0).getValue().toString();
+        String attr0 = attributes.get(0).value().toString();
         Integer kind = Integer.parseInt(attr0.split(":")[0]);
         PublicKey publicKey = new PublicKey(attr0.split(":")[1]);
         String id = attr0.split(":").length == 3 ? attr0.split(":")[2] : null;
@@ -66,7 +66,7 @@ public class AddressTag extends BaseTag {
         addressTag.setPublicKey(publicKey);
         addressTag.setIdentifierTag(id != null ? new IdentifierTag(id) : null);
         if (tag.getAttributes().size() == 2) {
-            addressTag.setRelay(new Relay(tag.getAttributes().get(1).getValue().toString()));
+            addressTag.setRelay(new Relay(tag.getAttributes().get(1).value().toString()));
         }
         return addressTag;
     }

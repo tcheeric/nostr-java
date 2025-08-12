@@ -5,7 +5,7 @@ import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP31Test {
 
@@ -13,6 +13,6 @@ public class NIP31Test {
     public void testCreateAltTag() {
         BaseTag tag = NIP31.createAltTag("desc");
         assertEquals("alt", tag.getCode());
-        assertEquals("desc", ((GenericTag) tag).getAttributes().get(0).getValue());
+        assertEquals("desc", ((GenericTag) tag).getAttributes().get(0).value());
     }
 }

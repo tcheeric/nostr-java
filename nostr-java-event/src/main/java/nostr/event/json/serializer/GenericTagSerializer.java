@@ -2,6 +2,7 @@ package nostr.event.json.serializer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import nostr.event.tag.GenericTag;
+
 import java.io.Serial;
 
 public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSerializer<T> {
@@ -15,6 +16,6 @@ public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSeria
 
 	@Override
 	protected void applyCustomAttributes(ObjectNode node, T value) {
-		value.getAttributes().forEach(a -> node.put(a.getName(), a.getValue().toString()));
-	}
+                value.getAttributes().forEach(a -> node.put(a.name(), a.value().toString()));
+        }
 }

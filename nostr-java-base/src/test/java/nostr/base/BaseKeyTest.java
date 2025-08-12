@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BaseKeyTest {
@@ -75,5 +78,32 @@ class BaseKeyTest {
     public void testInvalidPublicKeySingleUppercase() {
         System.out.println("testInvalidPublicKeySingleUppercase");
         assertThrows(IllegalArgumentException.class, () -> new PublicKey(INVALID_HEXPUBKEY_HAS_SINGLE_UPPERCASE));
+    }
+
+    @Test
+    public void testBaseKeyMethods() {
+        PublicKey key1 = new PublicKey(VALID_HEXPUBKEY);
+        PublicKey key2 = new PublicKey(VALID_HEXPUBKEY);
+        PublicKey key3 = new PublicKey(VALID_HEXPUBKEY_ALL_ZEROS);
+
+        assertNotNull(key1.toBech32String());
+        assertEquals(VALID_HEXPUBKEY, key1.toHexString());
+        assertEquals(key1.toHexString(), key1.toString());
+        assertEquals(key1, key2);
+        assertNotEquals(key1, key3);
+        assertNotEquals(key1, null);
+        assertNotEquals(key1, "");
+        assertEquals(key1.hashCode(), key2.hashCode());
+    }
+
+    @Test
+    public void testPrivateKeyMethods() {
+        PrivateKey priv = PrivateKey.generateRandomPrivKey();
+        PrivateKey privCopy = new PrivateKey(priv.toHexString());
+
+        assertEquals(priv, privCopy);
+        assertEquals(priv.hashCode(), privCopy.hashCode());
+        assertNotNull(priv.toBech32String());
+        assertEquals(priv.toHexString(), priv.toString());
     }
 }

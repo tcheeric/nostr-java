@@ -10,13 +10,13 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.message.GenericMessage;
 import nostr.event.tag.GenericTag;
+import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
-import nostr.util.NostrException;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,7 +60,7 @@ public class EventTest {
         var strJsonEvent = encoder.encode();
 
         assertDoesNotThrow(() -> {
-            BaseTag tag = ENCODER_MAPPED_AFTERBURNER.readValue(strJsonEvent, BaseTag.class);
+            BaseTag tag = ENCODER_MAPPER_BLACKBIRD.readValue(strJsonEvent, BaseTag.class);
             assertEquals(genericTag, tag);
         });
     }
@@ -90,9 +90,9 @@ public class EventTest {
 
         GenericMessage msg = new GenericMessage("AUTH");
         String attr = "challenge-string";
-        msg.addAttribute(ElementAttribute.builder().name("challenge").value(attr).build());
+        msg.addAttribute(new ElementAttribute("challenge", attr));
 
-        var muattr = (msg.getAttributes().getFirst().getValue()).toString();
+        var muattr = (msg.getAttributes().getFirst().value()).toString();
         assertEquals(attr, muattr);
     }
 

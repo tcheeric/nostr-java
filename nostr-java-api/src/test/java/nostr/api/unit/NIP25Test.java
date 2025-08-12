@@ -2,16 +2,14 @@ package nostr.api.unit;
 
 import nostr.api.NIP01;
 import nostr.api.NIP25;
-import nostr.event.BaseTag;
 import nostr.event.entities.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP25Test {
 

@@ -25,7 +25,7 @@ public class CanonicalAuthenticationEvent extends EphemeralEvent {
     public String getChallenge() {
         BaseTag challengeTag = getTag("challenge");
         if (challengeTag != null && !((GenericTag) challengeTag).getAttributes().isEmpty()) {
-            return ((GenericTag) challengeTag).getAttributes().get(0).getValue().toString();
+            return ((GenericTag) challengeTag).getAttributes().get(0).value().toString();
         }
         return null;
     }
@@ -33,7 +33,7 @@ public class CanonicalAuthenticationEvent extends EphemeralEvent {
     public Relay getRelay() {
         BaseTag relayTag = getTag("relay");
         if (relayTag != null && !((GenericTag) relayTag).getAttributes().isEmpty()) {
-            return new Relay(((GenericTag) relayTag).getAttributes().get(0).getValue().toString());
+            return new Relay(((GenericTag) relayTag).getAttributes().get(0).value().toString());
         }
         return null;
     }

@@ -14,11 +14,13 @@ import nostr.event.BaseMessage;
 import nostr.event.filter.Filters;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
+
 import java.time.temporal.ValueRange;
 import java.util.List;
 import java.util.stream.IntStream;
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_AFTERBURNER;
+
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 /**
  * @author squirrel
@@ -59,7 +61,7 @@ public class ReqMessage extends BaseMessage {
           .map(ReqMessage::createJsonNode)
           .forEach(encoderArrayNode::add);
 
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(encoderArrayNode);
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull String jsonString) throws JsonProcessingException {
@@ -72,7 +74,7 @@ public class ReqMessage extends BaseMessage {
 
     private static JsonNode createJsonNode(String jsonNode) {
         try {
-            return ENCODER_MAPPED_AFTERBURNER.readTree(jsonNode);
+            return ENCODER_MAPPER_BLACKBIRD.readTree(jsonNode);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
         }
@@ -85,12 +87,12 @@ public class ReqMessage extends BaseMessage {
     }
 
     private static List<String> getJsonFiltersList(String jsonString) throws JsonProcessingException {
-        return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).size())
+        return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).size())
                  .mapToObj(idx -> readTree(jsonString, idx)).toList();
     }
 
     @SneakyThrows
     private static String readTree(String jsonString, int idx) {
-        return I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString).get(idx).toString();
+        return I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).get(idx).toString();
     }
 }

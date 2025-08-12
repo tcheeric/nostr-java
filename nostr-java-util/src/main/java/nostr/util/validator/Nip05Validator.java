@@ -2,7 +2,7 @@ package nostr.util.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -98,8 +98,8 @@ public class Nip05Validator {
     @SneakyThrows
     private String getPublicKey(StringBuilder content, String localPart) {
 
-        ObjectMapper MAPPER_AFTERBURNER = JsonMapper.builder().addModule(new AfterburnerModule()).build();
-        Nip05Content nip05Content = MAPPER_AFTERBURNER.readValue(content.toString(), Nip05Content.class);
+        ObjectMapper MAPPER_BLACKBIRD = JsonMapper.builder().addModule(new BlackbirdModule()).build();
+        Nip05Content nip05Content = MAPPER_BLACKBIRD.readValue(content.toString(), Nip05Content.class);
 
         // Access the decoded data
         Map<String, String> names = nip05Content.getNames();

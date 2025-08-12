@@ -13,5 +13,5 @@ public interface ISignable {
     Signature getSignature();
     void setSignature(Signature signature);
     Consumer<Signature> getSignatureConsumer();
-    Supplier<ByteBuffer> getByeArraySupplier();
+    Supplier<ByteBuffer> getByteArraySupplier();
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.BaseTag;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 /**
  *
@@ -23,7 +23,7 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
     @Override
     public T decode(String jsonString) {
         try {
-            return MAPPER_AFTERBURNER.readValue(jsonString, clazz);
+            return MAPPER_BLACKBIRD.readValue(jsonString, clazz);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
         }

@@ -29,7 +29,7 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
     @SneakyThrows
     public UserProfile getProfile() {
         String content = getContent();
-        return MAPPER_AFTERBURNER.readValue(content, UserProfile.class);
+        return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
     }
 
     @Override

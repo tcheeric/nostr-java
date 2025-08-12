@@ -8,7 +8,7 @@ public record FiltersEncoder(Filters filters) implements Encoder {
 
   @Override
   public String encode() {
-    ObjectNode root = ENCODER_MAPPED_AFTERBURNER.createObjectNode();
+    ObjectNode root = ENCODER_MAPPER_BLACKBIRD.createObjectNode();
 
     filters.getFiltersMap().forEach((key, filterableList) ->
         root.setAll(

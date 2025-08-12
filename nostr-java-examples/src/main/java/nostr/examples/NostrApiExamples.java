@@ -3,15 +3,14 @@ package nostr.examples;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP05;
-import nostr.api.NIP08;
 import nostr.api.NIP09;
 import nostr.api.NIP25;
 import nostr.api.NIP28;
 import nostr.api.NIP30;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
-import nostr.base.Kind;
 import nostr.event.entities.ChannelProfile;
 import nostr.event.entities.Reaction;
 import nostr.event.entities.UserProfile;
@@ -60,7 +59,6 @@ public class NostrApiExamples {
         metaDataEvent();
         sendTextNoteEvent();
         sendEncryptedDirectMessage();
-        mentionsEvent();
         deletionEvent();
         ephemerealEvent();
         reactionEvent();
@@ -92,17 +90,6 @@ public class NostrApiExamples {
 
         var nip04 = new NIP04(SENDER, RECIPIENT.getPublicKey());
         nip04.createDirectMessageEvent("Hello Nakamoto!")
-                .sign()
-                .send(RELAYS);
-    }
-
-    private static void mentionsEvent() {
-        logHeader("mentionsEvent");
-
-        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
-
-        var nip08 = new NIP08(SENDER);
-        nip08.createMentionsEvent(1, tags, "Hello #[0]")
                 .sign()
                 .send(RELAYS);
     }

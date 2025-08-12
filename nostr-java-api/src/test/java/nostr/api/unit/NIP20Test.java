@@ -7,7 +7,8 @@ import nostr.event.message.OkMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP20Test {
 

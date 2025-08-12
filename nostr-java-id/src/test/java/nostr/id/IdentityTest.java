@@ -1,10 +1,19 @@
 package nostr.id;
 
+import nostr.base.ISignable;
 import nostr.base.PublicKey;
+import nostr.base.Signature;
+import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.DelegationTag;
+import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  *
@@ -35,5 +44,102 @@ public class IdentityTest {
         Assertions.assertNotNull(delegationTag.getSignature());
     }
 
+    @Test
+    public void testGenerateRandomIdentityProducesUniqueKeys() {
+        Identity id1 = Identity.generateRandomIdentity();
+        Identity id2 = Identity.generateRandomIdentity();
+        Assertions.assertNotEquals(id1.getPrivateKey(), id2.getPrivateKey());
+    }
 
+    @Test
+    public void testGetPublicKeyDerivation() {
+        String privHex = "0000000000000000000000000000000000000000000000000000000000000001";
+        Identity identity = Identity.create(privHex);
+        PublicKey expected = new PublicKey("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798");
+        Assertions.assertEquals(expected, identity.getPublicKey());
+    }
+
+    @Test
+    public void testSignProducesValidSignature() throws Exception {
+        String privHex = "0000000000000000000000000000000000000000000000000000000000000001";
+        Identity identity = Identity.create(privHex);
+        final byte[] message = "hello".getBytes(StandardCharsets.UTF_8);
+
+        ISignable signable = new ISignable() {
+            private Signature signature;
+
+            @Override
+            public Signature getSignature() {
+                return signature;
+            }
+
+            @Override
+            public void setSignature(Signature signature) {
+                this.signature = signature;
+            }
+
+            @Override
+            public Consumer<Signature> getSignatureConsumer() {
+                return this::setSignature;
+            }
+
+            @Override
+            public Supplier<ByteBuffer> getByteArraySupplier() {
+                return () -> ByteBuffer.wrap(message);
+            }
+        };
+
+        identity.sign(signable);
+
+        byte[] msgHash = NostrUtil.sha256(message);
+        boolean verified = Schnorr.verify(msgHash, identity.getPublicKey().getRawData(), signable.getSignature().getRawData());
+        Assertions.assertTrue(verified);
+    }
+
+    @Test
+    public void testPublicKeyCaching() {
+        Identity identity = Identity.generateRandomIdentity();
+        PublicKey first = identity.getPublicKey();
+        PublicKey second = identity.getPublicKey();
+        Assertions.assertSame(first, second);
+    }
+
+    @Test
+    public void testGetPublicKeyFailure() {
+        String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
+        Identity identity = Identity.create(invalidPriv);
+        Assertions.assertThrows(IllegalStateException.class, identity::getPublicKey);
+    }
+
+    @Test
+    public void testSignWithInvalidKeyFails() {
+        String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
+        Identity identity = Identity.create(invalidPriv);
+
+        ISignable signable = new ISignable() {
+            private Signature signature;
+
+            @Override
+            public Signature getSignature() {
+                return signature;
+            }
+
+            @Override
+            public void setSignature(Signature signature) {
+                this.signature = signature;
+            }
+
+            @Override
+            public Consumer<Signature> getSignatureConsumer() {
+                return this::setSignature;
+            }
+
+            @Override
+            public Supplier<ByteBuffer> getByteArraySupplier() {
+                return () -> ByteBuffer.wrap("msg".getBytes(StandardCharsets.UTF_8));
+            }
+        };
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> identity.sign(signable));
+    }
 }

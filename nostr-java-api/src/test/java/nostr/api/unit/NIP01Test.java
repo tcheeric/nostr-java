@@ -12,6 +12,7 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class NIP01Test {
 
     @Test
-    public void testGenerateSignValidateAndConvertTextNote() {
+    public void testGenerateSignValidateAndConvertTextNote() throws NostrException {
         // Step 1: Prepare
         Identity sender = Identity.generateRandomIdentity();
         NIP01 nip01 = new NIP01(sender);
@@ -47,7 +48,7 @@ public class NIP01Test {
     }
 
     @Test
-    public void testGenerateSignValidateAndConvertTextNoteWithRecipient() {
+    public void testGenerateSignValidateAndConvertTextNoteWithRecipient() throws NostrException {
         // Step 1: Prepare
         Identity sender = Identity.generateRandomIdentity();
         Identity recipient = Identity.generateRandomIdentity();
@@ -73,7 +74,7 @@ public class NIP01Test {
     }
 
     @Test
-    public void testCreateTextNoteEventWithRecipientListParameter() {
+    public void testCreateTextNoteEventWithRecipientListParameter() throws NostrException {
         Identity sender = Identity.generateRandomIdentity();
         Identity recipient = Identity.generateRandomIdentity();
         NIP01 nip01 = new NIP01(sender);
@@ -88,7 +89,7 @@ public class NIP01Test {
     }
 
     @Test
-    public void testGenerateSignValidateAndConvertMetadataEvent() throws MalformedURLException {
+    public void testGenerateSignValidateAndConvertMetadataEvent() throws MalformedURLException, NostrException {
         // Step 1: Prepare
         Identity sender = Identity.generateRandomIdentity();
         NIP01 nip01 = new NIP01(sender);

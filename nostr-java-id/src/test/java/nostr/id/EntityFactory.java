@@ -79,13 +79,6 @@ public class EntityFactory {
             return event;
         }
 
-/*
-        public static MetadataEvent createMetadataEvent(UserProfile profile) {
-            final PublicKey publicKey = profile.getPublicKey();
-            return new MetadataEvent(publicKey, profile);
-        }
-*/
-
         public static ReactionEvent createReactionEvent(PublicKey publicKey, GenericEvent original) {
             List<BaseTag> tagList = new ArrayList<>();
             tagList.add(EventTag.builder().idEvent(original.getId()).build());
@@ -122,7 +115,7 @@ public class EntityFactory {
 
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event) {
             GenericTag tag = new GenericTag("devil");
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
+            tag.addAttribute(new ElementAttribute("param0", "Lucifer"));
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
@@ -135,7 +128,7 @@ public class EntityFactory {
         @Deprecated(forRemoval = true)
         public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
             GenericTag tag = new GenericTag("devil");
-            tag.addAttribute(ElementAttribute.builder().name("param0").value("Lucifer").build());
+            tag.addAttribute(new ElementAttribute("param0", "Lucifer"));
             ((GenericEvent) event).addTag(tag);
             return tag;
         }
@@ -151,12 +144,7 @@ public class EntityFactory {
             list.add(v2);
             list.add(v1);
 
-            return list.stream().map(item -> {
-                var result = new GenericTagQuery();
-                result.setTagName(c.toString());
-                result.setValue(item);
-                return result;
-            }).toList();
+            return list.stream().map(item -> new GenericTagQuery(c.toString(), item)).toList();
         }
     }
 

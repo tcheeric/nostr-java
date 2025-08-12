@@ -54,7 +54,7 @@ public class CalendarEvent extends AbstractBaseCalendarEvent<JsonContent> {
 
         CalendarContent<BaseTag> calendarContent = new CalendarContent<>(
                 (IdentifierTag) identifierTag,
-                ((GenericTag)titleTag).getAttributes().get(0).getValue().toString(),
+                ((GenericTag)titleTag).getAttributes().get(0).value().toString(),
                 -1L);
 
         List<BaseTag> aTags = getTags("a");

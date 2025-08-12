@@ -4,13 +4,12 @@ import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;
-
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;

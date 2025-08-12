@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import nostr.base.ElementAttribute;
-import nostr.base.IGenericElement;
 import nostr.base.ISignable;
 import nostr.base.ITag;
 import nostr.base.Kind;
@@ -29,17 +27,20 @@ import nostr.util.NostrUtil;
 import nostr.util.validator.HexStringValidator;
 
 import java.beans.Transient;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 
 /**
  * @author squirrel
@@ -47,7 +48,7 @@ import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class GenericEvent extends BaseEvent implements ISignable, IGenericElement, Deleteable {
+public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
     @Key
     @EqualsAndHashCode.Include
@@ -91,13 +92,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     @EqualsAndHashCode.Exclude
     private Integer nip;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    @Deprecated
-    private final List<ElementAttribute> attributes;
-
     public GenericEvent() {
-        this.attributes = new ArrayList<>();
         this.tags = new ArrayList<>();
     }
 
@@ -127,12 +122,11 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
                         @NonNull String content) {
         this.pubKey = pubKey;
         this.kind = Kind.valueOf(kind).getValue();
-        this.tags = tags;
+        this.tags = new ArrayList<>(tags);
         this.content = content;
-        this.attributes = new ArrayList<>();
 
         // Update parents
-        updateTagsParents(tags);
+        updateTagsParents(this.tags);
     }
 
     public void setId(String id) {
@@ -154,12 +148,15 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     public void setTags(List<BaseTag> tags) {
+        this.tags = new ArrayList<>(tags);
 
-        this.tags = tags;
-
-        for (BaseTag tag : tags) {
+        for (BaseTag tag : this.tags) {
             tag.setParent(this);
         }
+    }
+
+    public List<BaseTag> getTags() {
+        return Collections.unmodifiableList(this.tags);
     }
 
     @Transient
@@ -212,27 +209,17 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
         return this.signature != null;
     }
 
-    @Deprecated
-    @Override
-    public void addAttribute(ElementAttribute... attribute) {
-        addAttributes(List.of(attribute));
-    }
-
-    @Deprecated
-    @Override
-    public void addAttributes(List<ElementAttribute> attributes) {
-        this.attributes.addAll(attributes);
-    }
-
     public void validate() {
-
         // Validate `id` field
+        Objects.requireNonNull(this.id, "Missing required `id` field.");
         HexStringValidator.validateHex(this.id, 64);
 
         // Validate `pubkey` field
+        Objects.requireNonNull(this.pubKey, "Missing required `pubkey` field.");
         HexStringValidator.validateHex(this.pubKey.toString(), 64);
 
         // Validate `sig` field
+        Objects.requireNonNull(this.signature, "Missing required `sig` field.");
         HexStringValidator.validateHex(this.signature.toString(), 128);
 
         // Validate `created_at` field
@@ -266,7 +253,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
     private String serialize() throws NostrException {
-        var mapper = ENCODER_MAPPED_AFTERBURNER;
+        var mapper = ENCODER_MAPPER_BLACKBIRD;
         var arrayNode = JsonNodeFactory.instance.arrayNode();
 
         try {
@@ -291,18 +278,10 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
 
     @Transient
     @Override
-    public Supplier<ByteBuffer> getByeArraySupplier() {
+    public Supplier<ByteBuffer> getByteArraySupplier() {
         this.update();
         log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
         return () -> ByteBuffer.wrap(this.get_serializedEvent());
-    }
-
-    @Deprecated
-    public ElementAttribute getAttribute(@NonNull String name) {
-        return this.attributes.stream()
-                .filter(a -> a.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
     }
 
     protected final void updateTagsParents(List<? extends BaseTag> tagList) {
@@ -373,7 +352,7 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
     }
 
 
-    public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) {
+    public static <T extends GenericEvent> T convert(@NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) throws NostrException {
         try {
             T event = clazz.getConstructor().newInstance();
             event.setContent(genericEvent.getContent());
@@ -386,8 +365,8 @@ public class GenericEvent extends BaseEvent implements ISignable, IGenericElemen
             event.setSignature(genericEvent.getSignature());
             event.setCreatedAt(genericEvent.getCreatedAt());
             return event;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new NostrException("Failed to convert GenericEvent", e);
         }
     }
 }

@@ -56,7 +56,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     }
 
     private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws JsonProcessingException {
-        JsonNode root = I_DECODER_MAPPER_AFTERBURNER.readTree(jsonString);
+        JsonNode root = I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString);
         JsonNode commandNode = root.get(COMMAND_INDEX);
         JsonNode argNode = root.get(ARG_INDEX);
 

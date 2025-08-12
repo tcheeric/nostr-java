@@ -1,9 +1,5 @@
 package nostr.api.util;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 import lombok.Getter;
 import nostr.api.NIP01;
 import nostr.api.NIP99;
@@ -18,7 +14,13 @@ import nostr.event.tag.PriceTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
+import nostr.util.NostrException;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class CommonTestObjectsFactory {
 
@@ -26,7 +28,7 @@ public class CommonTestObjectsFactory {
     return Identity.generateRandomIdentity();
   }
 
-  public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) {
+  public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) throws NostrException {
     NIP01 nip01 = new NIP01(identity);
     GenericEvent genericEvent = nip01.createTextNoteEvent(tags, content).getEvent();
     TextNoteEvent textNoteEvent = GenericEvent.convert(genericEvent, TextNoteEvent.class);

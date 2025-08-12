@@ -14,7 +14,7 @@ import nostr.event.BaseMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nostr.base.Encoder.ENCODER_MAPPED_AFTERBURNER;
+import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 
 /**
  * @author squirrel
@@ -50,15 +50,15 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     public String encode() throws JsonProcessingException {
         var encoderArrayNode = JsonNodeFactory.instance.arrayNode();
         encoderArrayNode.add(getCommand());
-        getAttributes().stream().map(ElementAttribute::getValue).forEach(v -> encoderArrayNode.add(v.toString()));
-        return ENCODER_MAPPED_AFTERBURNER.writeValueAsString(encoderArrayNode);
+        getAttributes().stream().map(ElementAttribute::value).forEach(v -> encoderArrayNode.add(v.toString()));
+        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
         GenericMessage gm = new GenericMessage(msgArr[0].toString());
         for (int i = 1; i < msgArr.length; i++) {
             if (msgArr[i] instanceof String) {
-                gm.addAttribute(ElementAttribute.builder().value(msgArr[i]).build());
+                gm.addAttribute(new ElementAttribute(null, msgArr[i]));
             }
         }
         return (T) gm;

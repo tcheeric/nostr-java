@@ -43,7 +43,7 @@ public class GeohashTag extends BaseTag {
         }
 
         GeohashTag tag = new GeohashTag();
-        tag.setLocation(genericTag.getAttributes().get(0).getValue().toString());
+        tag.setLocation(genericTag.getAttributes().get(0).value().toString());
         return tag;
     }
 }

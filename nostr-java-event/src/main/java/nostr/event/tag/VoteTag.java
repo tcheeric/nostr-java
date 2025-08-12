@@ -35,7 +35,7 @@ public class VoteTag extends BaseTag {
             throw new IllegalArgumentException("Invalid tag code for VoteTag");
         }
 
-        VoteTag voteTag = new VoteTag(Integer.valueOf(genericTag.getAttributes().get(0).getValue().toString()));
+        VoteTag voteTag = new VoteTag(Integer.valueOf(genericTag.getAttributes().get(0).value().toString()));
         return voteTag;
     }
 }

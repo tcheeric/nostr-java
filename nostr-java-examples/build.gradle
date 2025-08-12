@@ -1,9 +1,0 @@
-plugins {
-    id 'nostr-java.conventions'
-}
-
-description = 'nostr-java-examples'
-
-dependencies {
-    api project(':nostr-java-api')
-}

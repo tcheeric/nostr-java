@@ -4,9 +4,8 @@ import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
-import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.GenericTag;
-
+import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -54,14 +53,18 @@ public class ZapRequestEventValidateTest {
     @Test
     public void testValidateMissingAmountTag() {
         ZapRequestEvent event = createValidEvent();
-        event.getTags().removeIf(t -> "amount".equals(t.getCode()));
+        List<BaseTag> tags = new ArrayList<>(event.getTags());
+        tags.removeIf(t -> "amount".equals(t.getCode()));
+        event.setTags(tags);
         assertThrows(AssertionError.class, event::validate);
     }
 
     @Test
     public void testValidateMissingLnurlTag() {
         ZapRequestEvent event = createValidEvent();
-        event.getTags().removeIf(t -> "lnurl".equals(t.getCode()));
+        List<BaseTag> tags = new ArrayList<>(event.getTags());
+        tags.removeIf(t -> "lnurl".equals(t.getCode()));
+        event.setTags(tags);
         assertThrows(AssertionError.class, event::validate);
     }
 

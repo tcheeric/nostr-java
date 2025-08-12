@@ -7,7 +7,9 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP28Test {
 
@@ -21,5 +23,22 @@ public class NIP28Test {
 
         assertEquals(Constants.Kind.CHANNEL_CREATION, event.getKind());
         assertTrue(event.getContent().contains("channel"));
+    }
+
+    @Test
+    public void testUpdateChannelMetadataEvent() throws Exception {
+        Identity sender = Identity.generateRandomIdentity();
+        NIP28 nip28 = new NIP28(sender);
+        ChannelProfile profile = new ChannelProfile("channel","about", new java.net.URL("https://example.com"));
+        nip28.createChannelCreateEvent(profile);
+        GenericEvent channelCreate = nip28.getEvent();
+
+        ChannelProfile updated = new ChannelProfile("updated","changed", new java.net.URL("https://example.com/2"));
+        nip28.updateChannelMetadataEvent(channelCreate, updated, null);
+        GenericEvent metadataEvent = nip28.getEvent();
+
+        assertEquals(Constants.Kind.CHANNEL_METADATA, metadataEvent.getKind());
+        assertTrue(metadataEvent.getContent().contains("updated"));
+        assertFalse(metadataEvent.getTags().isEmpty());
     }
 }

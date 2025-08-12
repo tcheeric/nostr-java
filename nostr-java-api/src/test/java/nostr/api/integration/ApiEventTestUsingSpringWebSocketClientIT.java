@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.config.RelayConfig;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 import static nostr.api.integration.ApiEventIT.createProduct;
 import static nostr.api.integration.ApiEventIT.createStall;
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayConfig.class)
@@ -29,7 +30,15 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
 
     @Autowired
     public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
-        this.springWebSocketClients = relays.values().stream().map(SpringWebSocketClient::new).toList();
+        this.springWebSocketClients = relays.values().stream()
+            .map(uri -> {
+                try {
+                    return new SpringWebSocketClient(new StandardWebSocketClient(uri), uri);
+                } catch (java.util.concurrent.ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .toList();
     }
 
     @Test
@@ -51,22 +60,22 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
         GenericEvent event = nip15.createCreateOrUpdateProductEvent(product, categories).sign().getEvent();
         EventMessage message = new EventMessage(event);
 
-        String eventResponse = springWebSocketClient.send(message).stream().findFirst().orElseThrow();
+        try (SpringWebSocketClient client = springWebSocketClient) {
+            String eventResponse = client.send(message).stream().findFirst().orElseThrow();
 
-        // Extract and compare only first 3 elements of the JSON array
-        var expectedArray = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(0).asText();
-        var expectedSubscriptionId = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(1).asText();
-        var expectedSuccess = MAPPER_AFTERBURNER.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+            // Extract and compare only first 3 elements of the JSON array
+            var expectedArray = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(0).asText();
+            var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(1).asText();
+            var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
-        var actualArray = MAPPER_AFTERBURNER.readTree(eventResponse).get(0).asText();
-        var actualSubscriptionId = MAPPER_AFTERBURNER.readTree(eventResponse).get(1).asText();
-        var actualSuccess = MAPPER_AFTERBURNER.readTree(eventResponse).get(2).asBoolean();
+            var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
+            var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
+            var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
 
-        assertEquals(expectedArray, actualArray, "First element should match");
-        assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-        assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
-
-        springWebSocketClient.closeSocket();
+            assertEquals(expectedArray, actualArray, "First element should match");
+            assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
+            assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+        }
     }
 
     private String expectedResponseJson(String sha256) {

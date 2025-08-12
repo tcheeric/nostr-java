@@ -2,12 +2,11 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import nostr.util.NostrUtil;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nostr.util.NostrUtil;
 
 /**
  *
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@Slf4j
 public class Signature {
 
     @JsonProperty("rawData")
@@ -30,8 +30,9 @@ public class Signature {
     }
 
     public static Signature fromString(String sig) {
-      Signature signature = new Signature();
-      signature.setRawData(NostrUtil.hex128ToBytes(sig));
-      return signature;
+        log.debug("Creating signature from string");
+        Signature signature = new Signature();
+        signature.setRawData(NostrUtil.hex128ToBytes(sig));
+        return signature;
     }
 }

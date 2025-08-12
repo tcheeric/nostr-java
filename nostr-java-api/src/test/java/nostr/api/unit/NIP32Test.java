@@ -2,12 +2,11 @@ package nostr.api.unit;
 
 import nostr.api.NIP32;
 import nostr.event.BaseTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.tag.LabelNamespaceTag;
 import nostr.event.tag.LabelTag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP32Test {
 

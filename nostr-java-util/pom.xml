@@ -4,7 +4,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.7.2</version>
+        <version>0.7.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>    
     
@@ -23,8 +23,8 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-afterburner</artifactId>
-            <version>${jackson-module-afterburner.version}</version>
+            <artifactId>jackson-module-blackbird</artifactId>
+            <version>${jackson-module-blackbird.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 public class NIP60Test {
 
@@ -86,16 +86,16 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        GenericTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, GenericTag[].class);
+        GenericTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, GenericTag[].class);
 
         // First tag should be balance
         Assertions.assertEquals("balance", contentTags[0].getCode());
-        Assertions.assertEquals("100", contentTags[0].getAttributes().get(0).getValue());
-        Assertions.assertEquals("sat", contentTags[0].getAttributes().get(1).getValue());
+        Assertions.assertEquals("100", contentTags[0].getAttributes().get(0).value());
+        Assertions.assertEquals("sat", contentTags[0].getAttributes().get(1).value());
 
         // Second tag should be privkey
         Assertions.assertEquals("privkey", contentTags[1].getCode());
-        Assertions.assertEquals("hexkey", contentTags[1].getAttributes().get(0).getValue());
+        Assertions.assertEquals("hexkey", contentTags[1].getAttributes().get(0).value());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        CashuToken contentToken = MAPPER_AFTERBURNER.readValue(decryptedContent, CashuToken.class);
+        CashuToken contentToken = MAPPER_BLACKBIRD.readValue(decryptedContent, CashuToken.class);
         Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
         CashuProof proofContent = contentToken.getProofs().get(0);
@@ -198,18 +198,18 @@ public class NIP60Test {
 
         // Decrypt and verify content
         String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-        BaseTag[] contentTags = MAPPER_AFTERBURNER.readValue(decryptedContent, BaseTag[].class);
+        BaseTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, BaseTag[].class);
 
         // Assert direction
         GenericTag directionTag = (GenericTag) contentTags[0];
         Assertions.assertEquals("direction", directionTag.getCode());
-        Assertions.assertEquals("in", directionTag.getAttributes().get(0).getValue().toString());
+        Assertions.assertEquals("in", directionTag.getAttributes().get(0).value().toString());
 
         // Assert amount
         GenericTag amountTag = (GenericTag) contentTags[1];
         Assertions.assertEquals("amount", amountTag.getCode());
-        Assertions.assertEquals("1", amountTag.getAttributes().get(0).getValue());
-        Assertions.assertEquals("sat", amountTag.getAttributes().get(1).getValue());
+        Assertions.assertEquals("1", amountTag.getAttributes().get(0).value());
+        Assertions.assertEquals("sat", amountTag.getAttributes().get(1).value());
 
         // Assert event
         EventTag eTag = (EventTag) contentTags[2];
@@ -256,7 +256,7 @@ public class NIP60Test {
         // Assert CashuMint tag
         GenericTag mintTag = (GenericTag) tags.get(1);
         Assertions.assertEquals("mint", mintTag.getCode());
-        Assertions.assertEquals("<mint-url>", mintTag.getAttributes().get(0).getValue());
+        Assertions.assertEquals("<mint-url>", mintTag.getAttributes().get(0).value());
 
         // Assert a-tag
         AddressTag aTag = (AddressTag) tags.get(2);
@@ -267,14 +267,14 @@ public class NIP60Test {
 
     private String getMintUrl(@NonNull BaseTag tag) {
         if (tag instanceof GenericTag mintTag) {
-            return mintTag.getAttributes().get(0).getValue().toString();
+            return mintTag.getAttributes().get(0).value().toString();
         }
         return null;
     }
 
     private String getRelayUrl(@NonNull BaseTag tag) {
         if (tag instanceof GenericTag relayTag) {
-            return relayTag.getAttributes().get(0).getValue().toString();
+            return relayTag.getAttributes().get(0).value().toString();
         }
         return null;
     }

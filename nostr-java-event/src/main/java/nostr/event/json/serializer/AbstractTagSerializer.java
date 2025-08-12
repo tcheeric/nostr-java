@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import nostr.event.BaseTag;
+
 import java.io.IOException;
-import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPED_AFTERBURNER;
+
+import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPER_BLACKBIRD;
 
 abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T> {
     protected AbstractTagSerializer(Class<T> t) {
@@ -16,7 +18,7 @@ abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T>
 
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) {
         try {
-            final ObjectNode node = BASETAG_ENCODER_MAPPED_AFTERBURNER.getNodeFactory().objectNode();
+            final ObjectNode node = BASETAG_ENCODER_MAPPER_BLACKBIRD.getNodeFactory().objectNode();
             value.getSupportedFields().forEach(f ->
                 value.getFieldValue(f)
                     .ifPresent(s ->

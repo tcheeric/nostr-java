@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static nostr.base.IEvent.MAPPER_AFTERBURNER;
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -261,8 +261,8 @@ public class JsonParseTest {
 
     assertEquals("saturn", tag.getCode());
     assertEquals(2, tag.getAttributes().size());
-    assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).getValue());
-    assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).getValue().toString()));
+    assertEquals("jetpack", ((ElementAttribute) (tag.getAttributes().toArray())[0]).value());
+    assertEquals(false, Boolean.valueOf(((ElementAttribute) (tag.getAttributes().toArray())[1]).value().toString()));
   }
 
   @Test
@@ -320,16 +320,16 @@ public class JsonParseTest {
         .map(GenericTag.class::cast).toList();
 
     assertEquals("title ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
 
     assertEquals("summary ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
 
     assertEquals("1687765220", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
 
     assertEquals("location ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().getFirst().getFirst().getValue());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
   }
 
   @Test
@@ -652,11 +652,11 @@ public class JsonParseTest {
             new IdentifierTagFilter<>(new IdentifierTag(uuidValue2))));
 
     assertTrue(JsonComparator.isEquivalentJson(
-        MAPPER_AFTERBURNER.createArrayNode()
-            .add(MAPPER_AFTERBURNER.readTree(
+        MAPPER_BLACKBIRD.createArrayNode()
+            .add(MAPPER_BLACKBIRD.readTree(
                 expectedReqMessage.encode())),
-        MAPPER_AFTERBURNER.createArrayNode()
-            .add(MAPPER_AFTERBURNER.readTree(decodedReqMessage.encode()))));
+        MAPPER_BLACKBIRD.createArrayNode()
+            .add(MAPPER_BLACKBIRD.readTree(decodedReqMessage.encode()))));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 

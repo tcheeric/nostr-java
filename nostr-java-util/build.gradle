@@ -1,5 +1,0 @@
-plugins {
-    id 'nostr-java.conventions'
-}
-
-description = 'nostr-java-util'

@@ -2,7 +2,6 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -19,6 +18,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 
 import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "CalendarRsvpEvent", nip = 52)
@@ -68,7 +68,7 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
     }
 
     public Optional<FB> getFB() {
-        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).getValue().toString().toUpperCase()).map(FB::valueOf);
+        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).value().toString().toUpperCase()).map(FB::valueOf);
     }
 
     public Optional<String> getEventId() {
@@ -88,7 +88,7 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
         CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
                 (IdentifierTag) getTag("d"),
                 (AddressTag) getTag("a"),
-                ((GenericTag) getTag("status")).getAttributes().get(0).getValue().toString()
+                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString()
         ).build();
 
         Optional.ofNullable(getTag("e")).ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));

@@ -1,8 +1,6 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.List;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -14,6 +12,9 @@ import nostr.event.entities.CalendarContent;
 import nostr.event.json.deserializer.CalendarTimeBasedEventDeserializer;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.LabelTag;
+
+import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "Time-Based Calendar Event", nip = 52)
@@ -52,10 +53,10 @@ public class CalendarTimeBasedEvent<T extends BaseTag> extends CalendarDateBased
         CalendarContent<T> calendarContent = super.getCalendarContent();
 
         // Update the calendarContent object with the values from the tags
-        calendarContent.setStartTzid(((GenericTag)getTag("start_tzid")).getAttributes().get(0).getValue().toString());
-        calendarContent.setEndTzid(((GenericTag) getTag("end_tzid")).getAttributes().get(0).getValue().toString());
-        calendarContent.setSummary(((GenericTag) getTag("summary")).getAttributes().get(0).getValue().toString());
-        calendarContent.setLocation(((GenericTag) getTag("location")).getAttributes().get(0).getValue().toString());
+        calendarContent.setStartTzid(((GenericTag)getTag("start_tzid")).getAttributes().get(0).value().toString());
+        calendarContent.setEndTzid(((GenericTag) getTag("end_tzid")).getAttributes().get(0).value().toString());
+        calendarContent.setSummary(((GenericTag) getTag("summary")).getAttributes().get(0).value().toString());
+        calendarContent.setLocation(((GenericTag) getTag("location")).getAttributes().get(0).value().toString());
         getTags("l").forEach(baseTag -> calendarContent.addLabelTag((LabelTag) baseTag));
 
         return calendarContent;

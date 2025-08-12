@@ -1,7 +1,6 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Optional;
 import lombok.NoArgsConstructor;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -18,6 +17,7 @@ import nostr.event.tag.ReferenceTag;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Event(name = "Date-Based Calendar Event", nip = 52)
 @JsonDeserialize(using = CalendarDateBasedEventDeserializer.class)
@@ -71,16 +71,16 @@ public class CalendarDateBasedEvent<T extends BaseTag> extends AbstractBaseCalen
     protected CalendarContent<T> getCalendarContent() {
         CalendarContent<T> calendarContent = new CalendarContent<>(
             (IdentifierTag) getTag("d"),
-            ((GenericTag) getTag("title")).getAttributes().get(0).getValue().toString(),
-            Long.parseLong(((GenericTag) getTag("start")).getAttributes().get(0).getValue().toString())
+              ((GenericTag) getTag("title")).getAttributes().get(0).value().toString(),
+              Long.parseLong(((GenericTag) getTag("start")).getAttributes().get(0).value().toString())
         );
 
         // Update the calendarContent object with the values from the tags
-        Optional.ofNullable(getTag("end")).ifPresent(baseTag -> 
-            calendarContent.setEnd(Long.parseLong(((GenericTag) baseTag).getAttributes().get(0).getValue().toString())));
+        Optional.ofNullable(getTag("end")).ifPresent(baseTag ->
+            calendarContent.setEnd(Long.parseLong(((GenericTag) baseTag).getAttributes().get(0).value().toString())));
         
         Optional.ofNullable(getTag("location")).ifPresent(baseTag ->
-            calendarContent.setLocation(((GenericTag) baseTag).getAttributes().get(0).getValue().toString()));
+            calendarContent.setLocation(((GenericTag) baseTag).getAttributes().get(0).value().toString()));
 
         Optional.ofNullable(getTag("g")).ifPresent(baseTag -> calendarContent.setGeohashTag((GeohashTag) baseTag));
 

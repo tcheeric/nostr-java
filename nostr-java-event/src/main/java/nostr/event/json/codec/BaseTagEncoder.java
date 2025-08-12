@@ -8,8 +8,8 @@ import nostr.event.BaseTag;
 import nostr.event.json.serializer.BaseTagSerializer;
 
 public record BaseTagEncoder(BaseTag tag) implements Encoder {
-    public static final ObjectMapper BASETAG_ENCODER_MAPPED_AFTERBURNER =
-        ENCODER_MAPPED_AFTERBURNER.copy()
+    public static final ObjectMapper BASETAG_ENCODER_MAPPER_BLACKBIRD =
+        ENCODER_MAPPER_BLACKBIRD.copy()
             .registerModule(
                 new SimpleModule().addSerializer(
                     new BaseTagSerializer<>()));
@@ -17,7 +17,7 @@ public record BaseTagEncoder(BaseTag tag) implements Encoder {
     @Override
     public String encode() {
         try {
-            return BASETAG_ENCODER_MAPPED_AFTERBURNER.writeValueAsString(tag);
+            return BASETAG_ENCODER_MAPPER_BLACKBIRD.writeValueAsString(tag);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

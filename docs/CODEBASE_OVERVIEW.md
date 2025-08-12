@@ -14,27 +14,17 @@ This document provides an overview of the project structure and instructions for
 - **nostr-java-examples** – sample applications demonstrating how to use the API.
 
 ## Building and testing
-The project can be built with Maven or Gradle. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
+The project is built with Maven. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
 
 ### Unit-tested build
 ```bash
-# Maven
 ./mvnw clean test
 ./mvnw install -Dmaven.test.skip=true
-
-# Gradle
-./gradlew clean test
-./gradlew publishToMavenLocal
 ```
 
 ### Integration-tested build (requires Docker)
 ```bash
-# Maven
 ./mvnw clean install
-
-# Gradle
-./gradlew clean check
-./gradlew publishToMavenLocal
 ```
 Integration tests start a `nostr-rs-relay` container automatically. The image used can be overridden in `src/test/resources/relay-container.properties` by setting `relay.container.image=<image>`.
 
@@ -44,6 +34,10 @@ Integration tests start a `nostr-rs-relay` container automatically. The image us
 nostr.websocket.await-timeout-ms=60000
 nostr.websocket.poll-interval-ms=500
 ```
+If a relay response is not received before the timeout elapses, the client logs the failure, closes the WebSocket session, and returns an empty list of events.
+
+## Retry behavior
+`SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
 
 ## Creating and sending events
 The examples module shows how to create built-in and custom events. Below is an excerpt from the examples illustrating the creation of a `TextNoteEvent`:
@@ -64,4 +58,7 @@ The examples module shows how to create built-in and custom events. Below is an 
     }
 ```
 ## Creating custom events and tags
- TODO
+Custom tag types can be introduced without modifying existing core code by
+registering them with the `TagRegistry`. The registry maps tag codes to factory
+functions responsible for creating concrete `BaseTag` implementations from a
+`GenericTag` representation.
