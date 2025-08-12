@@ -92,7 +92,7 @@ public class EventTest {
         String attr = "challenge-string";
         msg.addAttribute(new ElementAttribute("challenge", attr));
 
-        var muattr = (msg.getAttributes().getFirst().value()).toString();
+        var muattr = (msg.getAttributes().get(0).value()).toString();
         assertEquals(attr, muattr);
     }
 

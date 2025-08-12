@@ -107,9 +107,9 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
       var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(0).asText();
-      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(1).asText();
-      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(2).asBoolean();
+      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponses.get(0)).get(0).asText();
+      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponses.get(0)).get(1).asText();
+      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponses.get(0)).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
@@ -123,7 +123,7 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
       List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
 
-      var actualJson = MAPPER_BLACKBIRD.readTree(reqResponses.getFirst());
+      var actualJson = MAPPER_BLACKBIRD.readTree(reqResponses.get(0));
       var expectedJson = MAPPER_BLACKBIRD.readTree(expectedRequestResponseJson());
 
       // Verify you receive the event

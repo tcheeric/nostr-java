@@ -17,7 +17,7 @@ public record FiltersEncoder(Filters filters) implements Encoder {
                 .map(filterable ->
                          filterable.toObjectNode(root))
                 .toList()
-                .getFirst()));
+                .get(0)));
 
     return root.toString();
   }

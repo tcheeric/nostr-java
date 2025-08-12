@@ -33,7 +33,7 @@ class PriceTagTest {
                         aVal, bVal, cVal, dVal, eVal)
                 .map(bigDecimal ->
                         new PriceTag(bigDecimal, BTC, freq)).toList();
-        assertTrue(list.stream().allMatch(list.getFirst()::equals));
+        assertTrue(list.stream().allMatch(list.get(0)::equals));
     }
 
     @Test
@@ -42,7 +42,7 @@ class PriceTagTest {
                         aString, bString, cString, dString, eString)
                 .map(bigDecimal ->
                         new PriceTag(bigDecimal, BTC, freq)).toList();
-        assertTrue(list.stream().allMatch(list.getFirst()::equals));
+        assertTrue(list.stream().allMatch(list.get(0)::equals));
     }
 
     @Test

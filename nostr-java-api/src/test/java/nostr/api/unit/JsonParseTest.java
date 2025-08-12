@@ -81,19 +81,19 @@ public class JsonParseTest {
     assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
     assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-    Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
+    Filters filters = ((ReqMessage) message).getFiltersList().get(0);
 
     List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
-    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
+    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.get(0));
 
     List<Filterable> eventFilter = filters.getFilterByType(EventFilter.FILTER_KEY);
     assertEquals(1, eventFilter.size());
-    assertEquals(new EventFilter<>(new GenericEvent("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), eventFilter.getFirst());
+    assertEquals(new EventFilter<>(new GenericEvent("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), eventFilter.get(0));
 
     List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.FILTER_KEY);
     assertEquals(1, referencedPublicKeyfilter.size());
-    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
+    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.get(0));
   }
 
   @Test
@@ -113,19 +113,19 @@ public class JsonParseTest {
     assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
     assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-    Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
+    Filters filters = ((ReqMessage) message).getFiltersList().get(0);
 
     List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
-    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
+    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.get(0));
 
     List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
     assertEquals(1, authorFilters.size());
-    assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
+    assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.get(0));
 
     List<Filterable> referencedPublicKeyfilter = filters.getFilterByType(ReferencedPublicKeyFilter.FILTER_KEY);
     assertEquals(1, referencedPublicKeyfilter.size());
-    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.getFirst());
+    assertEquals(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712"))), referencedPublicKeyfilter.get(0));
   }
 
   @Test
@@ -145,19 +145,19 @@ public class JsonParseTest {
     assertEquals("npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh", ((ReqMessage) message).getSubscriptionId());
     assertEquals(1, ((ReqMessage) message).getFiltersList().size());
 
-    Filters filters = ((ReqMessage) message).getFiltersList().getFirst();
+    Filters filters = ((ReqMessage) message).getFiltersList().get(0);
 
     List<Filterable> kindFilters = filters.getFilterByType(KindFilter.FILTER_KEY);
     assertEquals(1, kindFilters.size());
-    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.getFirst());
+    assertEquals(new KindFilter<>(Kind.TEXT_NOTE), kindFilters.get(0));
 
     List<Filterable> authorFilters = filters.getFilterByType(AuthorFilter.FILTER_KEY);
     assertEquals(1, authorFilters.size());
-    assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.getFirst());
+    assertEquals(new AuthorFilter<>(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75")), authorFilters.get(0));
 
     List<Filterable> referencedEventFilters = filters.getFilterByType(ReferencedEventFilter.FILTER_KEY);
     assertEquals(1, referencedEventFilters.size());
-    assertEquals(new ReferencedEventFilter<>(new EventTag("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.getFirst());
+    assertEquals(new ReferencedEventFilter<>(new EventTag("fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712")), referencedEventFilters.get(0));
   }
 
   @Test
@@ -320,16 +320,16 @@ public class JsonParseTest {
         .map(GenericTag.class::cast).toList();
 
     assertEquals("title ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("title")).map(GenericTag::getAttributes).toList().get(0).get(0).value());
 
     assertEquals("summary ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("summary")).map(GenericTag::getAttributes).toList().get(0).get(0).value());
 
     assertEquals("1687765220", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("published_at")).map(GenericTag::getAttributes).toList().get(0).get(0).value());
 
     assertEquals("location ipsum", genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().getFirst().getFirst().value());
+        .filter(tag -> tag.getCode().equalsIgnoreCase("location")).map(GenericTag::getAttributes).toList().get(0).get(0).value());
   }
 
   @Test

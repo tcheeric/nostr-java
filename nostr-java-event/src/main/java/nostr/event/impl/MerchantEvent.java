@@ -36,7 +36,7 @@ public abstract class MerchantEvent<T extends NIP15Content.MerchantContent> exte
             throw new AssertionError("Missing `d` tag.");
         }
 
-        String id = ((GenericTag) dTag).getAttributes().getFirst().value().toString();
+        String id = ((GenericTag) dTag).getAttributes().get(0).value().toString();
         String entityId = getEntity().getId();
         if (!id.equals(entityId)) {
             throw new AssertionError("The d-tag value MUST be the same as the stall id.");

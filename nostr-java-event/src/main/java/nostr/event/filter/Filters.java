@@ -61,7 +61,7 @@ public class Filters {
         filtersMap.forEach((key, value) -> {
             String filterKey = Objects.requireNonNullElse(key, "");
             if (filterKey.isEmpty()) {
-                throw new IllegalArgumentException(String.format(FILTER_KEY_ERROR, value.getFirst().getFilterKey()));
+                throw new IllegalArgumentException(String.format(FILTER_KEY_ERROR, value.get(0).getFilterKey()));
             }
         });
     }
