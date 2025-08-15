@@ -2,15 +2,16 @@ package nostr.api.unit;
 
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.service.NoteService;
-import org.mockito.Mockito;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NostrSpringWebSocketClientEventVerificationTest {
 

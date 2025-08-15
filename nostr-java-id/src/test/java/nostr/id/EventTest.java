@@ -10,11 +10,11 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.message.GenericMessage;
 import nostr.event.tag.GenericTag;
+import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
-import nostr.util.NostrException;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

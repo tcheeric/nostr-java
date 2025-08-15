@@ -1,6 +1,7 @@
 package nostr.event.json.serializer;
 
 import nostr.event.BaseTag;
+
 import java.io.Serial;
 
 public class BaseTagSerializer<T extends BaseTag> extends AbstractTagSerializer<T> {

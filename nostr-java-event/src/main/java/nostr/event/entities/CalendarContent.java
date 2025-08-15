@@ -1,11 +1,5 @@
 package nostr.event.entities;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,6 +13,13 @@ import nostr.event.tag.LabelNamespaceTag;
 import nostr.event.tag.LabelTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 public class CalendarContent<T extends BaseTag> extends NIP42Content {

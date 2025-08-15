@@ -1,9 +1,10 @@
 package nostr.crypto;
 
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import lombok.NonNull;
 import nostr.util.NostrUtil;
+
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 
 public class Point {
 

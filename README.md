@@ -1,5 +1,9 @@
 # nostr-java
-[![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml) [![Javadoc](https://javadoc.io/badge2/xyz.tcheeric/nostr-java-api/javadoc.svg)](https://javadoc.io/doc/xyz.tcheeric/nostr-java-api)
+[![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml) 
+[![Javadoc](https://javadoc.io/badge2/xyz.tcheeric/nostr-java-api/javadoc.svg)](https://javadoc.io/doc/xyz.tcheeric/nostr-java-api)
+[![codecov](https://codecov.io/gh/tcheeric/nostr-java/branch/main/graph/badge.svg)](https://codecov.io/gh/tcheeric/nostr-java)
+[![GitHub release](https://img.shields.io/github/v/release/tcheeric/nostr-java)](https://github.com/tcheeric/nostr-java/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 `nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
 
@@ -18,41 +22,8 @@ $ ./mvnw clean install
 
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
-## Using Published Artifacts
-Artifacts are published to GitHub Packages and can be consumed from Maven by adding the repository and desired dependency to your `pom.xml`:
-
-```xml
-<repositories>
-  <repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/OWNER/REPO</url>
-  </repository>
-</repositories>
-
-<dependencies>
-  <dependency>
-    <groupId>xyz.tcheeric</groupId>
-    <artifactId>nostr-java-api</artifactId>
-    <version>${nostr-java.version}</version>
-  </dependency>
-</dependencies>
-```
-
-Authenticating to GitHub Packages is required; provide a personal access token with the appropriate scopes or `GITHUB_TOKEN` credentials. See the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry) for more details.
-
-## CI and Releases
-The project uses GitHub Actions defined in [ci.yml](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml).
-This workflow runs `mvn -q verify` to build the project and execute all tests on each push and pull request.
-Releases are published using the [release.yml](https://github.com/tcheeric/nostr-java/actions/workflows/release.yml) workflow.
-
-## Migration Notes
-- The `Identity.getInstance` factory methods have been removed. Use `Identity.create` instead.
-
 ## Examples
 Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
-
-## Retry Support
-`SpringWebSocketClient` leverages Spring Retry so that failed WebSocket send operations are attempted up to three times with exponential backoff.
 
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):

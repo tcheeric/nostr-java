@@ -4,9 +4,8 @@ import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
-import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.GenericTag;
-
+import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

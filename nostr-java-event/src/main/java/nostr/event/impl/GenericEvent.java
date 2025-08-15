@@ -27,18 +27,18 @@ import nostr.util.NostrUtil;
 import nostr.util.validator.HexStringValidator;
 
 import java.beans.Transient;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.Objects;
 
 import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 

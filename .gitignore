@@ -31,8 +31,6 @@ build/
 nbbuild/
 dist/
 nbdist/
-.nb-gradle/
-
 # External tool builders
 .externalToolBuilders/
 
@@ -123,12 +121,8 @@ nb-configuration.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-
-# Gradle and Maven with auto-import
-# When using Gradle or Maven with auto-import, you should exclude module files,
+# Maven with auto-import
+# When using Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
 # .idea/modules.xml
@@ -210,13 +204,6 @@ hs_err_pid*
 ### Java-Web ###
 ## ignoring target file
 target/
-
-# Gradle files
-.gradle/
-#gradle/
-#gradlew
-#gradlew.bat
-buildSrc/build
 
 ### VisualStudioCode ###
 .vscode

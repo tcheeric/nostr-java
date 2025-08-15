@@ -1,8 +1,8 @@
 package nostr.id;
 
+import nostr.base.ISignable;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
-import nostr.base.ISignable;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.DelegationTag;

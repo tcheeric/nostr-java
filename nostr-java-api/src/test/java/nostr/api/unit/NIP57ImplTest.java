@@ -6,8 +6,8 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.util.NostrException;
 import nostr.id.Identity;
+import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

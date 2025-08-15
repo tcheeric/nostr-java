@@ -1,11 +1,5 @@
 package nostr.client.springwebsocket;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.IOException;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 import nostr.event.BaseMessage;
@@ -16,6 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringJUnitConfig(classes = {RetryConfig.class, SpringWebSocketClient.class, SpringWebSocketClientTest.TestConfig.class})
 @TestPropertySource(properties = "nostr.relay.uri=wss://test")

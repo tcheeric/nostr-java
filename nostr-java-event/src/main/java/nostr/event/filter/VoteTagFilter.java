@@ -1,11 +1,12 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.VoteTag;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
 public class VoteTagFilter<T extends VoteTag> extends AbstractFilterable<T> {

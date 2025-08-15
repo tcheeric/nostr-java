@@ -14,27 +14,17 @@ This document provides an overview of the project structure and instructions for
 - **nostr-java-examples** – sample applications demonstrating how to use the API.
 
 ## Building and testing
-The project can be built with Maven or Gradle. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
+The project is built with Maven. Unit tests do not require a running relay, while integration tests use Testcontainers to start a relay in Docker.
 
 ### Unit-tested build
 ```bash
-# Maven
 ./mvnw clean test
 ./mvnw install -Dmaven.test.skip=true
-
-# Gradle
-./gradlew clean test
-./gradlew publishToMavenLocal
 ```
 
 ### Integration-tested build (requires Docker)
 ```bash
-# Maven
 ./mvnw clean install
-
-# Gradle
-./gradlew clean check
-./gradlew publishToMavenLocal
 ```
 Integration tests start a `nostr-rs-relay` container automatically. The image used can be overridden in `src/test/resources/relay-container.properties` by setting `relay.container.image=<image>`.
 
@@ -49,24 +39,72 @@ If a relay response is not received before the timeout elapses, the client logs 
 ## Retry behavior
 `SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
 
-## Creating and sending events
-The examples module shows how to create built-in and custom events. Below is an excerpt from the examples illustrating the creation of a `TextNoteEvent`:
+## Creating custom events
+The `ExpirationEventExample` demonstrates how to build a NIP-40 expiration event with `GenericEvent` and send it using both the `StandardWebSocketClient` and the `SpringWebSocketClient`:
+
 ```java
-    private static final Identity RECIPIENT = Identity.generateRandomIdentity();
-    private static final Identity SENDER = Identity.generateRandomIdentity();
-
-    private static GenericEvent sendTextNoteEvent() {
- 
-        List<BaseTag> tags = new ArrayList<>(List.of(new PubKeyTag(RECIPIENT.getPublicKey())));
-
-        var nip01 = new NIP01(SENDER);
-        nip01.createTextNoteEvent(tags, "Hello world, I'm here on nostr-java API!")
-                .sign()
-                .send(RELAYS);
-
-        return nip01.getEvent();
-    }
+BaseTag expirationTag = new GenericTag("expiration",
+        new ElementAttribute("param0", String.valueOf(expiration)));
+GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE,
+        List.of(expirationTag),
+        "This message will expire at the specified timestamp and be deleted by relays.\n");
+identity.sign(event);
 ```
+
+## Creating text note events with TextNoteEvent
+The `TextNoteEventExample` illustrates constructing a text note directly with the
+out-of-the-box `TextNoteEvent` class and sending it to a relay using the
+`StandardWebSocketClient`:
+
+```java
+Identity identity = Identity.generateRandomIdentity();
+TextNoteEvent event = new TextNoteEvent(identity.getPublicKey(),
+        List.<BaseTag>of(),
+        "Hello from TextNoteEvent!\n");
+identity.sign(event);
+try (StandardWebSocketClient client = new StandardWebSocketClient("ws://localhost:5555")) {
+    client.send(new EventMessage(event));
+}
+```
+
+## Sending text events with NostrSpringWebSocketClient
+The `SpringClientTextEventExample` demonstrates using the `NIP01` helper class to
+publish a simple text note via `NostrSpringWebSocketClient`:
+
+```java
+Identity sender = Identity.generateRandomIdentity();
+NIP01 client = new NIP01(sender);
+client.setRelays(Map.of("local", "ws://localhost:5555"));
+client.createTextNoteEvent("Hello from NostrSpringWebSocketClient!\n")
+      .signAndSend();
+```
+
+## Requesting events with filters
+The `FilterExample` shows how to query a relay for events matching a set of filters.
+It builds filters for author and kind, sends them with `NIP01`, and prints each
+returned event:
+
+```java
+Identity sender = Identity.generateRandomIdentity();
+NIP01 client = new NIP01(sender);
+client.setRelays(Map.of("damus", "wss://relay.damus.io"));
+
+Filters filters = new Filters(
+        new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),
+        new KindFilter<>(Kind.TEXT_NOTE)
+);
+
+List<String> responses = client.sendRequest(filters, "filter-example-" + System.currentTimeMillis());
+var decoder = new BaseMessageDecoder<BaseMessage>();
+for (String json : responses) {
+    BaseMessage message = decoder.decode(json);
+    if (message instanceof EventMessage eventMessage) {
+        System.out.println(eventMessage.getEvent());
+    }
+}
+client.close();
+```
+
 ## Creating custom events and tags
 Custom tag types can be introduced without modifying existing core code by
 registering them with the `TagRegistry`. The registry maps tag codes to factory

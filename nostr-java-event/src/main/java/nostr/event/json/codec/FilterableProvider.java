@@ -1,9 +1,6 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.StreamSupport;
 import lombok.NonNull;
 import nostr.event.filter.AddressTagFilter;
 import nostr.event.filter.AuthorFilter;
@@ -19,6 +16,10 @@ import nostr.event.filter.ReferencedPublicKeyFilter;
 import nostr.event.filter.SinceFilter;
 import nostr.event.filter.UntilFilter;
 import nostr.event.filter.VoteTagFilter;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 public class FilterableProvider {
     protected static List<Filterable> getFilterFunction(@NonNull JsonNode node, @NonNull String type) {

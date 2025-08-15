@@ -2,6 +2,7 @@ package nostr.event.json.serializer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import nostr.event.tag.GenericTag;
+
 import java.io.Serial;
 
 public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSerializer<T> {

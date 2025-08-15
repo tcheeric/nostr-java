@@ -1,8 +1,6 @@
 package nostr.event.unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseMessage;
@@ -13,6 +11,10 @@ import nostr.event.message.EventMessage;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.IdentifierTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;

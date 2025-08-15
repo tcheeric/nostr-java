@@ -2,7 +2,6 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -19,6 +18,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 
 import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "CalendarRsvpEvent", nip = 52)

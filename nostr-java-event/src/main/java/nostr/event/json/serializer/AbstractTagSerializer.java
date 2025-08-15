@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import nostr.event.BaseTag;
+
 import java.io.IOException;
+
 import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPER_BLACKBIRD;
 
 abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T> {

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -28,18 +28,10 @@ jobs:
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
-
       - name: Build and deploy
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE"
-
-      - name: Deploy to GitHub Packages
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          ./mvnw -q -P release deploy -Dgpg.passphrase="$GPG_PASSPHRASE" \
-            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/tcheeric/nostr-java
 
       - name: Collect JAR artifacts
         run: |
@@ -59,14 +51,6 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref_name }}
           draft: false
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref }}" \
-            --notes "" \
-            --verify-tag \
-            --latest
 
       - name: Upload JAR artifacts
         env:
@@ -75,3 +59,4 @@ jobs:
           for file in release-jars/*.jar; do
             gh release upload "${{ github.ref_name }}" "$file" --clobber
           done
+
