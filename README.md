@@ -1,5 +1,5 @@
 # nostr-java
-[![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
+[![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml) [![Javadoc](https://javadoc.io/badge2/xyz.tcheeric/nostr-java-api/javadoc.svg)](https://javadoc.io/doc/xyz.tcheeric/nostr-java-api)
 
 `nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
 
