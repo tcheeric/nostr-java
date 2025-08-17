@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.8</version>
+    <version>0.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -50,12 +50,16 @@
         </developer>
     </developers>
 
-    <scm>
-        <connection>scm:git://github.com/tcheeric/nostr-java.git</connection>
-        <developerConnection>scm:git:https://github.com:tcheeric/nostr-java.git</developerConnection>
-        <url>https://github.com/tcheeric/nostr-java/tree/${project.scm.tag}</url>
-        <tag>main</tag>
-    </scm>
+    <distributionManagement>
+        <repository>
+            <id>reposilite-releases</id>
+            <url>https://maven.398ja.xyz/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>reposilite-snapshots</id>
+            <url>https://maven.398ja.xyz/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <modules>
         <module>nostr-java-base</module>
@@ -70,7 +74,7 @@
     </modules>
 
     <properties>
-        <nostr-java.version>0.8</nostr-java.version>
+        <nostr-java.version>0.2.2-SNAPSHOT</nostr-java.version>
         <java.version>21</java.version>
         
         <spring-boot.version>3.5.4</spring-boot.version>

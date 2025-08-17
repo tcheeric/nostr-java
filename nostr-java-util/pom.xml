@@ -4,12 +4,23 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.8</version>
+        <version>0.2.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>    
     
     <artifactId>nostr-java-util</artifactId>
     <packaging>jar</packaging>
+
+    <distributionManagement>
+        <repository>
+            <id>reposilite-releases</id>
+            <url>https://maven.398ja.xyz/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>reposilite-snapshots</id>
+            <url>https://maven.398ja.xyz/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
