@@ -88,7 +88,7 @@
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <jackson-module-blackbird.version>2.19.2</jackson-module-blackbird.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
