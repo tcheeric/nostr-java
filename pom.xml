@@ -92,7 +92,7 @@
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <guava.version>33.4.0-jre</guava.version>
+        <guava.version>33.4.8-jre</guava.version>
         <testcontainers.version>1.21.3</testcontainers.version>
 
         <!-- Maven Plugin Versions -->
