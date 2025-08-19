@@ -86,12 +86,12 @@
         <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <jackson-module-blackbird.version>2.19.2</jackson-module-blackbird.version>
         <lombok.version>1.18.36</lombok.version>
 
         <!-- Test Dependency Versions -->
-        <junit-jupiter.version>5.10.2</junit-jupiter.version>
+        <junit-jupiter.version>5.13.4</junit-jupiter.version>
         <guava.version>33.4.0-jre</guava.version>
         <testcontainers.version>1.21.3</testcontainers.version>
 
