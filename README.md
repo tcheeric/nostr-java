@@ -54,6 +54,8 @@ dependencies {
 
 Replace `[VERSION]` with the latest release number from the [releases page](https://github.com/tcheeric/nostr-java/releases).
 
+For a quick API walkthrough, see [`docs/howto/use-nostr-java-api.md`](docs/howto/use-nostr-java-api.md).
+
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
 ## Examples
