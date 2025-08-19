@@ -34,6 +34,9 @@ jobs:
             const files = await github.paginate(
               github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number }
             );
+            const commits = await github.paginate(
+              github.rest.pulls.listCommits, { owner, repo, pull_number: pr.number }
+            );
             const extsCode = ['.js','.ts','.tsx','.jsx','.py','.rb','.go','.rs','.java','.kt','.cs','.php','.c','.cc','.cpp','.m','.mm','.swift','.scala','.sh','.yml','.yaml','.json','.toml'];
             const extsTests = ['.spec.','.test.','/tests/','/__tests__/'];
             const codeTouched = files.some(f =>
@@ -42,10 +45,12 @@ jobs:
               extsTests.some(tok => f.filename.includes(tok)));
             // 1) Scope ≤ 300 lines (from GitHub blog checklist)
             const scopeOK = totalChanged <= 300;
-            // 2) Title = verb + object (simple verb list heuristic)
+            // 2) Title and commits follow type: description (verb + object)
             const title = prData.title.trim();
-            const verbs = ['Add','Fix','Update','Refactor','Remove','Implement','Document','Docs','Test','Build','Improve','Feat','Enable','Disable','Migrate'];
-            const titleOK = new RegExp(`^(${verbs.join('|')})\\b.+`).test(title);
+            const types = ['feat','fix','docs','refactor','test','chore','ci','build','perf','style'];
+            const naming = `^(${types.join('|')}):\\s+[A-Z][^\\s]*\\s+.+`;
+            const titleOK = new RegExp(naming).test(title);
+            const commitsOK = commits.every(c => new RegExp(naming).test(c.commit.message.split('\\n')[0]));
             // 3) Description “why now?” + links to issue
             const body = (prData.body || '').trim();
             const hasIssueLink = /#[0-9]+|https?:\/\/github\.com\/.+\/issues\/[0-9]+/i.test(body);
@@ -73,7 +78,7 @@ jobs:
               `| Pass | Check |`,
               `|:----:|:------|`,
               row(`Scope ≤ 300 changed lines (current: ${totalChanged})`, scopeOK, scopeOK ? '' : 'Consider splitting into smaller PRs (stacking).'),
-              row(`Title starts with a verb + object (e.g., "Refactor auth middleware")`, titleOK),
+              row(`Title and commits use type: description (verb + object)`, titleOK && commitsOK),
               row(`Description answers "why now?" and links an issue`, descOK, hasIssueLink ? '' : 'Add a linked issue (#123) or URL.'),
               row(`Highlight breaking changes with **BREAKING** or ⚠️ BREAKING`, breakingOK, containsBreakingWord && !breakingFlagPresent ? 'Add explicit BREAKING flag.' : ''),
               row(`Request specific feedback (e.g., "Concurrency strategy OK?")`, feedbackOK),
@@ -85,7 +90,7 @@ jobs:
             // Determine blocking result (fail if any required check fails)
             const failures = [];
             if (!scopeOK) failures.push('Scope > 300 lines');
-            if (!titleOK) failures.push('Title not verb + object');
+            if (!titleOK || !commitsOK) failures.push('Naming format invalid');
             if (!descOK) failures.push('Description lacks why/issue link');
             if (!breakingOK) failures.push('Missing explicit BREAKING flag');
             if (!feedbackOK) failures.push('No specific feedback requested');
