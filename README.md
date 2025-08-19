@@ -12,6 +12,8 @@
 
 See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
+For a quick API walkthrough, see [`docs/howto/use-nostr-java-api.md`](docs/howto/use-nostr-java-api.md).
+
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
 ## Examples
