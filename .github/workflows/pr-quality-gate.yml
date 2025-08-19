@@ -1,0 +1,121 @@
+name: PR Quality Gate — AI-Era Expertise Standard
+
+on:
+  pull_request:
+    branches: [develop]
+    types: [opened, edited, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Verify Copilot instructions
+        run: test -s .github/copilot-instructions.md
+      - name: Run expertise standard checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+            // Fetch fresh PR data + files
+            const { data: prData } = await github.rest.pulls.get({
+              owner, repo, pull_number: pr.number
+            });
+            // Sum changed lines (additions + deletions)
+            const totalChanged = prData.additions + prData.deletions;
+            // Pull files for basic heuristics (e.g., tests touched?)
+            const files = await github.paginate(
+              github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number }
+            );
+            const extsCode = ['.js','.ts','.tsx','.jsx','.py','.rb','.go','.rs','.java','.kt','.cs','.php','.c','.cc','.cpp','.m','.mm','.swift','.scala','.sh','.yml','.yaml','.json','.toml'];
+            const extsTests = ['.spec.','.test.','/tests/','/__tests__/'];
+            const codeTouched = files.some(f =>
+              extsCode.some(ext => f.filename.includes(ext)));
+            const testsTouched = files.some(f =>
+              extsTests.some(tok => f.filename.includes(tok)));
+            // 1) Scope ≤ 300 lines (from GitHub blog checklist)
+            const scopeOK = totalChanged <= 300;
+            // 2) Title = verb + object (simple verb list heuristic)
+            const title = prData.title.trim();
+            const verbs = ['Add','Fix','Update','Refactor','Remove','Implement','Document','Docs','Test','Build','Improve','Feat','Enable','Disable','Migrate'];
+            const titleOK = new RegExp(`^(${verbs.join('|')})\\b.+`).test(title);
+            // 3) Description “why now?” + links to issue
+            const body = (prData.body || '').trim();
+            const hasIssueLink = /#[0-9]+|https?:\/\/github\.com\/.+\/issues\/[0-9]+/i.test(body);
+            const mentionsWhy = /\bwhy\b|\bbecause\b|\brationale\b|\bcontext\b/i.test(body);
+            const descOK = body.length >= 50 && (mentionsWhy || hasIssueLink);
+            // 4) BREAKING change highlighted
+            const breakingFlagPresent = /\*\*?BREAKING\*\*?|⚠️\s*BREAKING|BREAKING CHANGE/i.test(title) || /\*\*?BREAKING\*\*?|⚠️\s*BREAKING|BREAKING CHANGE/i.test(body);
+            // Heuristic: if "breaking" appears anywhere, require emphasis flag; otherwise pass.
+            const containsBreakingWord = /\bbreaking\b/i.test(title) || /\bbreaking\b/i.test(body);
+            const breakingOK = containsBreakingWord ? breakingFlagPresent : true;
+            // 5) Request specific feedback
+            const feedbackOK = /\b(feedback|review focus|please focus|looking for|need input)\b/i.test(body);
+            // Soft hint: if code changed but no tests changed, nudge (not blocking per article)
+            const testsHint = codeTouched && !testsTouched;
+            // Build result table
+            function row(name, ok, hint='') {
+              const status = ok ? '✅' : '❌';
+              const extra  = hint ? ` — ${hint}` : '';
+              return `| ${status} | ${name}${extra} |`;
+            }
+            const report = [
+              `### PR Quality Gate — AI-Era Expertise Standard`,
+              `This automated review checks your PR against the five items GitHub recommends for high-quality, human-in-the-loop reviews.`,
+              ``,
+              `| Pass | Check |`,
+              `|:----:|:------|`,
+              row(`Scope ≤ 300 changed lines (current: ${totalChanged})`, scopeOK, scopeOK ? '' : 'Consider splitting into smaller PRs (stacking).'),
+              row(`Title starts with a verb + object (e.g., "Refactor auth middleware")`, titleOK),
+              row(`Description answers "why now?" and links an issue`, descOK, hasIssueLink ? '' : 'Add a linked issue (#123) or URL.'),
+              row(`Highlight breaking changes with **BREAKING** or ⚠️ BREAKING`, breakingOK, containsBreakingWord && !breakingFlagPresent ? 'Add explicit BREAKING flag.' : ''),
+              row(`Request specific feedback (e.g., "Concurrency strategy OK?")`, feedbackOK),
+              ``,
+              testsHint ? `> ℹ️ Heads-up: Code changed but tests weren’t touched. The blog suggests reviewers read tests first—consider adding or updating tests for clarity.` : ``,
+              ``,
+              `_This gate is derived from GitHub’s “Why developer expertise matters more than ever in the age of AI.”_`
+            ].filter(Boolean).join('\n');
+            // Determine blocking result (fail if any required check fails)
+            const failures = [];
+            if (!scopeOK) failures.push('Scope > 300 lines');
+            if (!titleOK) failures.push('Title not verb + object');
+            if (!descOK) failures.push('Description lacks why/issue link');
+            if (!breakingOK) failures.push('Missing explicit BREAKING flag');
+            if (!feedbackOK) failures.push('No specific feedback requested');
+            // Upsert a single sticky comment
+            const bot = (await github.rest.users.getAuthenticated()).data.login;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: pr.number });
+            const existing = comments.find(c => c.user?.login === bot && /PR Quality Gate — AI-Era/.test(c.body || ''));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: report });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body: report });
+            }
+            // Add labels for visibility
+            const addLabel = async (name) => {
+              try { await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [name] }); }
+              catch (_) {} // ignore
+            };
+            const removeLabel = async (name) => {
+              try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name }); }
+              catch (_) {}
+            };
+            if (failures.length) {
+              await addLabel('needs-quality-fixes');
+            } else {
+              await removeLabel('needs-quality-fixes');
+              await addLabel('quality-checked');
+            }
+            // Fail the job if there are blocking issues
+            if (failures.length) {
+              core.setFailed('PR failed the expertise standard: ' + failures.join(', '));
+            } else {
+              core.info('PR passes the expertise standard.');
+            }
+
