@@ -89,29 +89,40 @@ jobs:
             if (!descOK) failures.push('Description lacks why/issue link');
             if (!breakingOK) failures.push('Missing explicit BREAKING flag');
             if (!feedbackOK) failures.push('No specific feedback requested');
-            // Upsert a single sticky comment
-            const bot = (await github.rest.users.getAuthenticated()).data.login;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: pr.number });
-            const existing = comments.find(c => c.user?.login === bot && /PR Quality Gate — AI-Era/.test(c.body || ''));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: report });
+            const sameRepo = pr.head.repo.full_name === `${owner}/${repo}`;
+            if (sameRepo) {
+              try {
+                // Upsert a single sticky comment
+                const bot = (await github.rest.users.getAuthenticated()).data.login;
+                const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: pr.number });
+                const existing = comments.find(c => c.user?.login === bot && /PR Quality Gate — AI-Era/.test(c.body || ''));
+                if (existing) {
+                  await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: report });
+                } else {
+                  await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body: report });
+                }
+                // Add labels for visibility
+                const addLabel = async (name) => {
+                  await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [name] });
+                };
+                const removeLabel = async (name) => {
+                  await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name });
+                };
+                if (failures.length) {
+                  await addLabel('needs-quality-fixes');
+                } else {
+                  await removeLabel('needs-quality-fixes');
+                  await addLabel('quality-checked');
+                }
+              } catch (error) {
+                if (error.message && error.message.includes('Resource not accessible by integration')) {
+                  core.warning('Skipping comment and label updates due to insufficient permissions.');
+                } else {
+                  throw error;
+                }
+              }
             } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body: report });
-            }
-            // Add labels for visibility
-            const addLabel = async (name) => {
-              try { await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [name] }); }
-              catch (_) {} // ignore
-            };
-            const removeLabel = async (name) => {
-              try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name }); }
-              catch (_) {}
-            };
-            if (failures.length) {
-              await addLabel('needs-quality-fixes');
-            } else {
-              await removeLabel('needs-quality-fixes');
-              await addLabel('quality-checked');
+              core.warning('PR originates from a fork; skipping comment and label updates.');
             }
             // Fail the job if there are blocking issues
             if (failures.length) {
