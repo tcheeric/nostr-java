@@ -1,4 +1,4 @@
-name: PR Quality Gate — AI-Era Expertise Standard
+name: PR Quality Gate
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   review:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
