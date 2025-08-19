@@ -5,7 +5,6 @@ nostr-java implements the Nostr protocol. A complete index of current Nostr Impl
 ## Development Guidelines
 
 - Run `mvn -q verify` from the repository root before committing.
-- Use `rg` for code searches instead of `ls -R` or `grep -R`.
 - PR titles and commit messages must follow the `type: description` format.
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `build`, `perf`, `style`.
   - The description must be a concise verb + object phrase (e.g., `refactor: update auth middleware to async`).
