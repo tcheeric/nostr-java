@@ -34,4 +34,5 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Include a Testing section listing the commands run. Prefix each command with ✅, ⚠️, or ❌ and cite relevant terminal output.
 - If network requests fail, add a Network Access section noting blocked domains.
 - When TODOs or placeholders remain, include a Notes section.
+- Review AI-generated changes with developer expertise, ensuring you understand why the code works and that it remains resilient, scalable, and secure.
 - Use `rg` for search instead of `ls -R` or `grep -R`.
