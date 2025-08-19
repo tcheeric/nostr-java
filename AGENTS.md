@@ -30,6 +30,7 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 ## PR Quality Gate
 
 - PR summaries must reference modified files with file path citations (e.g. `F:path/to/file.java†L1-L2`).
+- PR titles and commit messages must follow the `type: description` naming format (e.g., `docs: update AGENTS`).
 - Include a Testing section listing the commands run. Prefix each command with ✅, ⚠️, or ❌ and cite relevant terminal output.
 - If network requests fail, add a Network Access section noting blocked domains.
 - When TODOs or placeholders remain, include a Notes section.
