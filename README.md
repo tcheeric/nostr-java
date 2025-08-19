@@ -10,54 +10,14 @@
 - Maven
 - Java 21+
 
-## Getting Started
-Clone the repository and build the modules. Installing them locally allows you to add the artifacts as dependencies in your own projects:
+See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
-```bash
-$ git clone https://github.com/tcheeric/nostr-java.git
-$ cd nostr-java
-$ ./mvnw clean install
-```
-
-You can also consume published artifacts from our Maven repository instead of building from source.
-
-### Maven
-
-```xml
-<repositories>
-  <repository>
-    <id>nostr-java</id>
-    <url>https://maven.398ja.xyz/releases</url>
-  </repository>
-</repositories>
-
-<dependency>
-  <groupId>xyz.tcheeric</groupId>
-  <artifactId>nostr-java-api</artifactId>
-  <version>[VERSION]</version>
-</dependency>
-```
-
-Snapshot builds are available at `https://maven.398ja.xyz/snapshots`.
-
-### Gradle
-
-```gradle
-repositories {
-    maven { url 'https://maven.398ja.xyz/releases' }
-}
-
-dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:[VERSION]'
-}
-```
-
-Replace `[VERSION]` with the latest release number from the [releases page](https://github.com/tcheeric/nostr-java/releases).
+For a quick API walkthrough, see [`docs/howto/use-nostr-java-api.md`](docs/howto/use-nostr-java-api.md).
 
 See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
 
 ## Examples
-Example usages are located in the [`nostr-java-examples`](./nostr-java-examples) module. Additional demonstrations can be found in [nostr-client](https://github.com/tcheeric/nostr-client) and [SuperConductor](https://github.com/avlo/superconductor).
+Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module.
 
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
