@@ -21,10 +21,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build with Maven
-        id: build
+        run: ./mvnw -q verify |& tee build.log
+      - name: Show build log
+        if: failure()
         run: |
-          set -o pipefail
-          ./mvnw -q verify | tee build.log
+          echo "Build error"
+          grep '^\[ERROR\]' build.log || true
+          echo "Build log tail"
+          tail -n 200 build.log
       - name: Upload surefire reports
         if: always()
         uses: actions/upload-artifact@v4
