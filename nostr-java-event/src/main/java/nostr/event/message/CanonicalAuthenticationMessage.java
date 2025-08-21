@@ -14,6 +14,7 @@ import nostr.event.BaseTag;
 import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.event.tag.GenericTag;
 
 import java.util.List;
@@ -39,11 +40,15 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
 
     @Override
     public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
-                JsonNodeFactory.instance.arrayNode()
-                        .add(getCommand())
-                        .add(ENCODER_MAPPER_BLACKBIRD.readTree(
-                                new BaseEventEncoder<>(getEvent()).encode())));
+        try {
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+                    JsonNodeFactory.instance.arrayNode()
+                            .add(getCommand())
+                            .add(ENCODER_MAPPER_BLACKBIRD.readTree(
+                                    new BaseEventEncoder<>(getEvent()).encode())));
+        } catch (EventEncodingException e) {
+            throw new IllegalStateException("Failed to encode canonical authentication event", e);
+        }
     }
 
     @SneakyThrows
