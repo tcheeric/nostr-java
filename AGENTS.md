@@ -115,7 +115,7 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 
 ## Pull Requests
 
-- Always follow the PR submission guidelines and use the pull request template at `.github/pull_request_template.md`, filling out all sections.
+- Always use the pull request template at `.github/pull_request_template.md` when crafting a PR, and fill out all sections.
 - Summarize the changes made and describe how they were tested.
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
