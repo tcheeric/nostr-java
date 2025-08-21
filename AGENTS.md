@@ -120,6 +120,7 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
 - Ensure all new features, modules, or dependencies are properly documented in the `README.md` file.
+
 ## PR Quality Gate
 
 - PR summaries must reference modified files with file path citations (e.g. `F:path/to/file.java†L1-L2`).
@@ -131,3 +132,4 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - When TODOs or placeholders remain, include a Notes section.
 - Review AI-generated changes with developer expertise, ensuring you understand why the code works and that it remains resilient, scalable, and secure.
 - Use `rg` for search instead of `ls -R` or `grep -R`.
+- Ensure all new features are compliant with the protocol specification provided above.
