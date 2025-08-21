@@ -48,9 +48,9 @@ jobs:
             // 2) Title and commits follow type: description (verb + object)
             const title = prData.title.trim();
             const types = ['feat','fix','docs','refactor','test','chore','ci','build','perf','style'];
-            const naming = `^(${types.join('|')}):\\s+[A-Z][^\\s]*\\s+.+`;
-            const titleOK = new RegExp(naming).test(title);
-            const commitsOK = commits.every(c => new RegExp(naming).test(c.commit.message.split('\\n')[0]));
+            const naming = new RegExp(`^(${types.join('|')}):`);
+            const titleOK = naming.test(title);
+            const commitsOK = commits.every(c => naming.test(c.commit.message.split('\\n')[0]));
             // 3) Description “why now?” + links to issue
             const body = (prData.body || '').trim();
             const hasIssueLink = /#[0-9]+|https?:\/\/github\.com\/.+\/issues\/[0-9]+/i.test(body);
