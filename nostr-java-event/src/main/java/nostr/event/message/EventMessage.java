@@ -14,6 +14,7 @@ import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
+import nostr.event.json.codec.EventEncodingException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -52,8 +53,12 @@ public class EventMessage extends BaseMessage {
         var arrayNode = JsonNodeFactory.instance.arrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
                 .ifPresent(arrayNode::add);
-        arrayNode.add(ENCODER_MAPPER_BLACKBIRD.readTree(
-                new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
+        try {
+            arrayNode.add(ENCODER_MAPPER_BLACKBIRD.readTree(
+                    new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
+        } catch (EventEncodingException e) {
+            throw new IllegalStateException("Failed to encode event", e);
+        }
         return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(arrayNode);
     }
 
