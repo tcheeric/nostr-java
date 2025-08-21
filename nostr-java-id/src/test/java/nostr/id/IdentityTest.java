@@ -112,6 +112,7 @@ public class IdentityTest {
     }
 
     @Test
+    // Ensures that signing with an invalid private key throws SigningException
     public void testSignWithInvalidKeyFails() {
         String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
         Identity identity = Identity.create(invalidPriv);
@@ -140,6 +141,6 @@ public class IdentityTest {
             }
         };
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> identity.sign(signable));
+        Assertions.assertThrows(SigningException.class, () -> identity.sign(signable));
     }
 }
