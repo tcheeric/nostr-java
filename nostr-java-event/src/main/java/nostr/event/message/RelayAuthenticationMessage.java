@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+import nostr.event.json.codec.EventEncodingException;
 
 import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 
@@ -28,11 +29,15 @@ public class RelayAuthenticationMessage extends BaseAuthMessage {
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
-            JsonNodeFactory.instance.arrayNode()
-                .add(getCommand())
-                .add(getChallenge()));
+    public String encode() throws EventEncodingException {
+        try {
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+                JsonNodeFactory.instance.arrayNode()
+                    .add(getCommand())
+                    .add(getChallenge()));
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode relay authentication message", e);
+        }
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object arg) {

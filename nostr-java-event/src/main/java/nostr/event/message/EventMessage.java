@@ -49,25 +49,25 @@ public class EventMessage extends BaseMessage {
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
+    public String encode() throws EventEncodingException {
         var arrayNode = JsonNodeFactory.instance.arrayNode().add(getCommand());
         Optional.ofNullable(getSubscriptionId())
                 .ifPresent(arrayNode::add);
         try {
             arrayNode.add(ENCODER_MAPPER_BLACKBIRD.readTree(
                     new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
-        } catch (EventEncodingException e) {
-            throw new IllegalStateException("Failed to encode event", e);
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(arrayNode);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode event message", e);
         }
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(arrayNode);
     }
 
-    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
+    public static <T extends BaseMessage> T decode(@NonNull String jsonString) throws EventEncodingException {
         try {
             Object[] msgArr = I_DECODER_MAPPER_BLACKBIRD.readValue(jsonString, Object[].class);
             return isEventWoSig.apply(msgArr) ? processEvent(msgArr[1]) : processEvent(msgArr);
-        } catch (Exception e) {
-            throw new AssertionError("Invalid argument: " + jsonString);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Invalid argument: " + jsonString, e);
         }
     }
 
