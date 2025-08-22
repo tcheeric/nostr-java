@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+import nostr.event.json.codec.EventEncodingException;
 
 import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
@@ -33,21 +34,25 @@ public class OkMessage extends BaseMessage {
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
-            JsonNodeFactory.instance.arrayNode()
-                .add(getCommand())
-                .add(getEventId())
-                .add(getFlag())
-                .add(getMessage()));
+    public String encode() throws EventEncodingException {
+        try {
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+                JsonNodeFactory.instance.arrayNode()
+                    .add(getCommand())
+                    .add(getEventId())
+                    .add(getFlag())
+                    .add(getMessage()));
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode ok message", e);
+        }
     }
 
-    public static <T extends BaseMessage> T decode(@NonNull String jsonString) {
+    public static <T extends BaseMessage> T decode(@NonNull String jsonString) throws EventEncodingException {
         try {
             Object[] msgArr = I_DECODER_MAPPER_BLACKBIRD.readValue(jsonString, Object[].class);
             return (T) new OkMessage(msgArr[1].toString(), (Boolean) msgArr[2], msgArr[3].toString());
         } catch (JsonProcessingException e) {
-            throw new AssertionError(e);
+            throw new EventEncodingException("Failed to decode ok message", e);
         }
     }
 }

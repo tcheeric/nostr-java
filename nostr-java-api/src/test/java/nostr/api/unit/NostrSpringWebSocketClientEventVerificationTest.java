@@ -5,6 +5,14 @@ import nostr.api.service.NoteService;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+import nostr.id.SigningException;
+import nostr.base.ISignable;
+import nostr.base.Signature;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -40,5 +48,41 @@ public class NostrSpringWebSocketClientEventVerificationTest {
         NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(service);
         List<String> responses = client.sendEvent(event);
         assertTrue(responses.isEmpty());
+    }
+
+    @Test
+    // Verifies that SigningException bubbles up from the client when signing fails
+    void signPropagatesSigningException() {
+        String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
+        Identity identity = Identity.create(invalidPriv);
+
+        ISignable signable = new ISignable() {
+            private Signature signature;
+
+            @Override
+            public Signature getSignature() {
+                return signature;
+            }
+
+            @Override
+            public void setSignature(Signature signature) {
+                this.signature = signature;
+            }
+
+            @Override
+            public Consumer<Signature> getSignatureConsumer() {
+                return this::setSignature;
+            }
+
+            @Override
+            public Supplier<ByteBuffer> getByteArraySupplier() {
+                return () -> ByteBuffer.wrap("msg".getBytes(StandardCharsets.UTF_8));
+            }
+        };
+
+        NoteService service = Mockito.mock(NoteService.class);
+        NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(service);
+
+        assertThrows(SigningException.class, () -> client.sign(identity, signable));
     }
 }

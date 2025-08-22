@@ -44,7 +44,11 @@ public class NIP05 extends EventNostr {
 
 	private String getContent(UserProfile profile) {
 		try {
-			String jsonString = MAPPER_BLACKBIRD.writeValueAsString(new Nip05Validator(profile.getNip05(), profile.getPublicKey().toString()));
+                        String jsonString = MAPPER_BLACKBIRD.writeValueAsString(
+                                Nip05Validator.builder()
+                                        .nip05(profile.getNip05())
+                                        .publicKey(profile.getPublicKey().toString())
+                                        .build());
 			return escapeJsonString(jsonString);
 		} catch (JsonProcessingException ex) {
 			throw new RuntimeException(ex);

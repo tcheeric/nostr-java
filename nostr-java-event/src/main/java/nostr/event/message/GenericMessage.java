@@ -10,6 +10,7 @@ import nostr.base.ElementAttribute;
 import nostr.base.IElement;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
+import nostr.event.json.codec.EventEncodingException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +48,15 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
+    public String encode() throws EventEncodingException {
         var encoderArrayNode = JsonNodeFactory.instance.arrayNode();
         encoderArrayNode.add(getCommand());
         getAttributes().stream().map(ElementAttribute::value).forEach(v -> encoderArrayNode.add(v.toString()));
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+        try {
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode generic message", e);
+        }
     }
 
     public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {

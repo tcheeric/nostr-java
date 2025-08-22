@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
 import nostr.event.filter.Filters;
 import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
+import nostr.event.json.codec.EventEncodingException;
 
 import java.time.temporal.ValueRange;
 import java.util.List;
@@ -49,7 +49,7 @@ public class ReqMessage extends BaseMessage {
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
+    public String encode() throws EventEncodingException {
         var encoderArrayNode = JsonNodeFactory.instance.arrayNode();
         encoderArrayNode
           .add(getCommand())
@@ -61,22 +61,26 @@ public class ReqMessage extends BaseMessage {
           .map(ReqMessage::createJsonNode)
           .forEach(encoderArrayNode::add);
 
-        return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+        try {
+            return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode req message", e);
+        }
     }
 
-    public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull String jsonString) throws JsonProcessingException {
+    public static <T extends BaseMessage> T decode(@NonNull Object subscriptionId, @NonNull String jsonString) throws EventEncodingException {
         validateSubscriptionId(subscriptionId.toString());
         return (T) new ReqMessage(
           subscriptionId.toString(),
-          getJsonFiltersList(jsonString).stream().map(filtersList -> 
+          getJsonFiltersList(jsonString).stream().map(filtersList ->
                 new FiltersDecoder().decode(filtersList)).toList());
     }
 
-    private static JsonNode createJsonNode(String jsonNode) {
+    private static JsonNode createJsonNode(String jsonNode) throws EventEncodingException {
         try {
             return ENCODER_MAPPER_BLACKBIRD.readTree(jsonNode);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
+            throw new EventEncodingException(String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);
         }
     }
 
@@ -86,13 +90,20 @@ public class ReqMessage extends BaseMessage {
         }
     }
 
-    private static List<String> getJsonFiltersList(String jsonString) throws JsonProcessingException {
-        return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).size())
-                 .mapToObj(idx -> readTree(jsonString, idx)).toList();
+    private static List<String> getJsonFiltersList(String jsonString) throws EventEncodingException {
+        try {
+            return IntStream.range(FILTERS_START_INDEX, I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).size())
+                     .mapToObj(idx -> readTree(jsonString, idx)).toList();
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Invalid ReqMessage filters json", e);
+        }
     }
 
-    @SneakyThrows
-    private static String readTree(String jsonString, int idx) {
-        return I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).get(idx).toString();
+    private static String readTree(String jsonString, int idx) throws EventEncodingException {
+        try {
+            return I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString).get(idx).toString();
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to read json tree", e);
+        }
     }
 }

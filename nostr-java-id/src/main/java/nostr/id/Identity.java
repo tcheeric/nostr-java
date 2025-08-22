@@ -88,7 +88,6 @@ public class Identity {
         return cachedPublicKey;
     }
 
-    //    TODO: exceptions refactor
     /**
      * Signs the supplied {@link ISignable} using this identity's private key.
      * The resulting {@link Signature} is returned and also provided to the
@@ -96,7 +95,8 @@ public class Identity {
      *
      * @param signable the entity to sign
      * @return the generated signature
-     * @throws Exception if the signature cannot be created
+     * @throws IllegalStateException if the SHA-256 algorithm is unavailable
+     * @throws SigningException      if the signature cannot be created
      */
     public Signature sign(@NonNull ISignable signable) {
         try {
@@ -117,7 +117,7 @@ public class Identity {
             throw new IllegalStateException("SHA-256 algorithm not available", ex);
         } catch (Exception ex) {
             log.error("Signing failed", ex);
-            throw new IllegalArgumentException("Failed to sign with provided key", ex);
+            throw new SigningException("Failed to sign with provided key", ex);
         }
     }
 
