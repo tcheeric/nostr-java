@@ -153,9 +153,4 @@ public class Nip05Validator {
         return names.get(localPart);
     }
 
-    @Data
-    public static final class Nip05Obj {
-        private final String name;
-        private final String nip05;
-    }
 }
