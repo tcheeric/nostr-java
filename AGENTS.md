@@ -112,6 +112,7 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Always make sure that the events are compliant with the Nostr protocol specifications, and that the events are valid according to the NIP specifications.
 - Always remove unused imports
 - When creating a branch, bump up the version in the pom files to the next minor version.
+- Always add a description of the test as a comment at the top of the test method.
 
 ## Pull Requests
 
