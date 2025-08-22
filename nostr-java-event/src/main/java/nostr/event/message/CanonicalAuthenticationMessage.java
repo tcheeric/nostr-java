@@ -39,15 +39,15 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
     }
 
     @Override
-    public String encode() throws JsonProcessingException {
+    public String encode() throws EventEncodingException {
         try {
             return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
                     JsonNodeFactory.instance.arrayNode()
                             .add(getCommand())
                             .add(ENCODER_MAPPER_BLACKBIRD.readTree(
                                     new BaseEventEncoder<>(getEvent()).encode())));
-        } catch (EventEncodingException e) {
-            throw new IllegalStateException("Failed to encode canonical authentication event", e);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to encode canonical authentication message", e);
         }
     }
 

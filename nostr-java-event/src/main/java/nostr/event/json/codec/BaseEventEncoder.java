@@ -16,7 +16,7 @@ public class BaseEventEncoder<T extends BaseEvent> implements Encoder {
 
     @Override
 //    TODO: refactor all methods calling this to properly handle invalid json exception
-    public String encode() {
+    public String encode() throws EventEncodingException {
         try {
             return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(event);
         } catch (JsonProcessingException e) {

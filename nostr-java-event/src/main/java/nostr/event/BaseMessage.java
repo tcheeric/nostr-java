@@ -1,8 +1,8 @@
 package nostr.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import nostr.base.IElement;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  *
@@ -16,5 +16,5 @@ public abstract class BaseMessage implements IElement {
         this.command = command;
     }
 
-    public abstract String encode() throws JsonProcessingException;
+    public abstract String encode() throws EventEncodingException;
 }

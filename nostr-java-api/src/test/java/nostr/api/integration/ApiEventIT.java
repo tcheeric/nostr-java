@@ -1,6 +1,5 @@
 package nostr.api.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.EventNostr;
 import nostr.api.NIP01;
@@ -29,6 +28,7 @@ import nostr.event.filter.UrlTagFilter;
 import nostr.event.filter.VoteTagFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.OkMessage;
@@ -38,6 +38,7 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.LabelNamespaceTag;
 import nostr.event.tag.LabelTag;
 import nostr.event.tag.PubKeyTag;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
@@ -273,7 +274,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
                 .map(json -> {
                     try {
                         return new BaseMessageDecoder<>().decode(json);
-                    } catch (JsonProcessingException e) {
+                    } catch (EventEncodingException e) {
                         throw new RuntimeException(e);
                     }
                 })
@@ -403,7 +404,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     }
 
     @Test
-    public void testNIP15CreateStallEvent() throws JsonProcessingException {
+    public void testNIP15CreateStallEvent() throws EventEncodingException {
         System.out.println("testNIP15CreateStallEvent");
 
         Stall stall = createStall();
@@ -416,9 +417,17 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
         // Fetch the content and compare with the above original
         var content = instance.getEvent().getContent();
-        var expected = MAPPER_BLACKBIRD.readValue(content, Stall.class);
+        var expected = readStall(content);
 
         assertEquals(expected, stall);
+    }
+
+    private Stall readStall(String content) throws EventEncodingException {
+        try {
+            return MAPPER_BLACKBIRD.readValue(content, Stall.class);
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to decode stall content", e);
+        }
     }
 
     @Test

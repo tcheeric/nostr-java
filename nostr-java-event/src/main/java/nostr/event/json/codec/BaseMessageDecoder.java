@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IDecoder;
 import nostr.event.BaseMessage;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
@@ -26,7 +27,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     public static final int ARG_INDEX = 1;
 
     @Override
-    public T decode(@NonNull String jsonString) throws JsonProcessingException {
+    public T decode(@NonNull String jsonString) throws EventEncodingException {
         ValidNostrJsonStructure validNostrJsonStructure = validateProperlyFormedJson(jsonString);
         String command = validNostrJsonStructure.getCommand();
         Object subscriptionId = validNostrJsonStructure.getSubscriptionId();
@@ -55,21 +56,25 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
         };
     }
 
-    private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws JsonProcessingException {
-        JsonNode root = I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString);
-        JsonNode commandNode = root.get(COMMAND_INDEX);
-        JsonNode argNode = root.get(ARG_INDEX);
+    private ValidNostrJsonStructure validateProperlyFormedJson(@NonNull String jsonString) throws EventEncodingException {
+        try {
+            JsonNode root = I_DECODER_MAPPER_BLACKBIRD.readTree(jsonString);
+            JsonNode commandNode = root.get(COMMAND_INDEX);
+            JsonNode argNode = root.get(ARG_INDEX);
 
-        if (commandNode == null || argNode == null) {
-            String missingFields = (commandNode == null ? "commandNode" : "") +
-                                   (commandNode == null && argNode == null ? " and " : "") +
-                                   (argNode == null ? "argNode" : "");
-            throw new IllegalArgumentException(String.format("Invalid JSON structure: Missing %s in JSON string [%s]", missingFields, jsonString));
+            if (commandNode == null || argNode == null) {
+                String missingFields = (commandNode == null ? "commandNode" : "") +
+                                       (commandNode == null && argNode == null ? " and " : "") +
+                                       (argNode == null ? "argNode" : "");
+                throw new IllegalArgumentException(String.format("Invalid JSON structure: Missing %s in JSON string [%s]", missingFields, jsonString));
+            }
+
+            return new ValidNostrJsonStructure(
+                commandNode.asText(),
+                argNode.asText());
+        } catch (JsonProcessingException e) {
+            throw new EventEncodingException("Failed to decode message", e);
         }
-
-        return new ValidNostrJsonStructure(
-            commandNode.asText(),
-            argNode.asText());
     }
 
     private record ValidNostrJsonStructure(
