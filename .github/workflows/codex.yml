@@ -6,7 +6,7 @@ on:
 
 jobs:
   codex-job:
-    if: contains(github.event.label.name, 'codex')
+    if: contains(github.event.label.name, 'codex') && github.event.issue.user.login == 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
