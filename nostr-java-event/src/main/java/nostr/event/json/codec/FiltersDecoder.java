@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.NonNull;
+import nostr.base.IDecoder;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
 import nostr.event.json.codec.EventEncodingException;
@@ -19,8 +20,16 @@ import static nostr.base.IEvent.MAPPER_BLACKBIRD;
  * @author eric
  */
 @Data
-public class FiltersDecoder implements FDecoder<Filters> {
+public class FiltersDecoder implements IDecoder<Filters> {
 
+  /**
+   * Decodes a JSON string of filters into a {@link Filters} object.
+   *
+   * @param jsonFiltersList JSON representation of filters
+   * @return decoded filters
+   * @throws EventEncodingException if decoding fails
+   */
+  @Override
   public Filters decode(@NonNull String jsonFiltersList) throws EventEncodingException {
     try {
       final List<Filterable> filterables = new ArrayList<>();

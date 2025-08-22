@@ -22,6 +22,13 @@ public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> 
     }
 
     @Override
+    /**
+     * Decodes a JSON representation of NIP-05 content.
+     *
+     * @param jsonContent JSON content string
+     * @return decoded content
+     * @throws EventEncodingException if decoding fails
+     */
     public T decode(String jsonContent) throws EventEncodingException {
         try {
             return MAPPER_BLACKBIRD.readValue(jsonContent, clazz);

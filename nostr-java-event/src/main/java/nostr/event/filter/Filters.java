@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import nostr.base.IElement;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import static java.util.stream.Collectors.groupingBy;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class Filters {
+public class Filters implements IElement {
     public static final int DEFAULT_FILTERS_LIMIT = 10;
     private static final String FILTERS_EMPTY_ERROR = "Filters cannot be empty.";
     private static final String FILTER_KEY_ERROR = "Filter key for filterable [%s] is not defined";

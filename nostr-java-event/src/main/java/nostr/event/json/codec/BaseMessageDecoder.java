@@ -27,6 +27,13 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
     public static final int ARG_INDEX = 1;
 
     @Override
+    /**
+     * Decodes a Nostr protocol message from its JSON representation.
+     *
+     * @param jsonString JSON representation of the message
+     * @return decoded message
+     * @throws EventEncodingException if decoding fails
+     */
     public T decode(@NonNull String jsonString) throws EventEncodingException {
         ValidNostrJsonStructure validNostrJsonStructure = validateProperlyFormedJson(jsonString);
         String command = validNostrJsonStructure.getCommand();
