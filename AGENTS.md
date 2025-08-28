@@ -121,7 +121,8 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
 - Ensure all new features, modules, or dependencies are properly documented in the `README.md` file.
-- Add a comment on top of every test method to describe the test in plain English.
+- Add a comment on top of every test method to describe the test in plain English. 
+- PR titles messages must adopt the same format as commit messages. See the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for more details.
 
 ## PR Quality Gate
 
