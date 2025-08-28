@@ -120,11 +120,10 @@ class CalendarTimeBasedEventTest {
             + " Time-Based Event location\"],[\"subject\",\"Calendar Time-Based Event Test Subject"
             + " Tag\"],[\"g\",\"Calendar Time-Based Event Test Geohash Tag\"],[\"t\",\"Calendar"
             + " Time-Based Event Test Hashtag Tag\"],[\"start_tzid\",\"1687765220\"],"
-            + "[\"end\",\"1716513986368\"],"
-            + "[\"d\",\"UUID-CalendarTimeBasedEventTest\"],[\"title\",\"Calendar Time-Based Event"
-            + " title\"],[\"start\",\"1716513986268\"],"
-            + "[\"end_tzid\",\"1687765220\"],[\"summary\",\"Calendar Time-Based Event summary\"],"
-            + "[\"r\",\"http://some.url\"]],\"sig\":\""
+            + "[\"end\",\"1716513986368\"],[\"d\",\"UUID-CalendarTimeBasedEventTest\"],[\"title\",\"Calendar"
+            + " Time-Based Event"
+            + " title\"],[\"start\",\"1716513986268\"],[\"end_tzid\",\"1687765220\"],[\"summary\",\"Calendar"
+            + " Time-Based Event summary\"],[\"r\",\"http://some.url\"]],\"sig\":\""
             + signature.toString()
             + "\""
             + "}";
