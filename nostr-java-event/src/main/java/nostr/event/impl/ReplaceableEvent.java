@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -8,10 +9,7 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.NIP01Event;
 
-import java.util.List;
-
 /**
- *
  * @author squirrel
  */
 @Data
@@ -20,16 +18,16 @@ import java.util.List;
 @NoArgsConstructor
 public class ReplaceableEvent extends NIP01Event {
 
-    public ReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
-        super(sender, kind, tags, content);
-    }
+  public ReplaceableEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
+    super(sender, kind, tags, content);
+  }
 
-    @Override
-    protected void validateKind() {
-    	var n = getKind();
-        if ((10_000 <= n && n < 20_000) || n == 0 || n == 3)
-            return;
+  @Override
+  protected void validateKind() {
+    var n = getKind();
+    if ((10_000 <= n && n < 20_000) || n == 0 || n == 3) return;
 
-        throw new AssertionError("Invalid kind value. Must be between 10000 and 20000 or egual 0 or 3", null);
-    }
+    throw new AssertionError(
+        "Invalid kind value. Must be between 10000 and 20000 or egual 0 or 3", null);
+  }
 }

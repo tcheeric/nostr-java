@@ -1,6 +1,6 @@
-
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
@@ -10,8 +10,6 @@ import nostr.event.BaseTag;
 import nostr.event.NIP01Event;
 import nostr.event.tag.PubKeyTag;
 
-import java.util.List;
-
 /**
  * @author squirrel
  */
@@ -19,29 +17,30 @@ import java.util.List;
 @NoArgsConstructor
 public class TextNoteEvent extends NIP01Event {
 
-    public TextNoteEvent(@NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
-        super(pubKey, Kind.TEXT_NOTE, tags, content);
-    }
+  public TextNoteEvent(
+      @NonNull PublicKey pubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
+    super(pubKey, Kind.TEXT_NOTE, tags, content);
+  }
 
-    public List<PubKeyTag> getRecipientPubkeyTags() {
-        return this.getTags().stream()
-                .filter(tag -> tag instanceof PubKeyTag)
-                .map(tag -> (PubKeyTag) tag)
-                .toList();
-    }
+  public List<PubKeyTag> getRecipientPubkeyTags() {
+    return this.getTags().stream()
+        .filter(tag -> tag instanceof PubKeyTag)
+        .map(tag -> (PubKeyTag) tag)
+        .toList();
+  }
 
-    public List<PublicKey> getRecipients() {
-        return this.getTags().stream()
-                .filter(tag -> tag instanceof PubKeyTag)
-                .map(tag -> (PubKeyTag) tag)
-                .map(PubKeyTag::getPublicKey)
-                .toList();
-    }
+  public List<PublicKey> getRecipients() {
+    return this.getTags().stream()
+        .filter(tag -> tag instanceof PubKeyTag)
+        .map(tag -> (PubKeyTag) tag)
+        .map(PubKeyTag::getPublicKey)
+        .toList();
+  }
 
-    @Override
-    protected void validateKind() {
-        if (getKind() != Kind.TEXT_NOTE.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.TEXT_NOTE.getValue());
-        }
+  @Override
+  protected void validateKind() {
+    if (getKind() != Kind.TEXT_NOTE.getValue()) {
+      throw new AssertionError("Invalid kind value. Expected " + Kind.TEXT_NOTE.getValue());
     }
+  }
 }

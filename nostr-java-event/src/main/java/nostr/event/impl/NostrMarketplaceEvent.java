@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,6 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.Product;
 
-import java.util.List;
-
 /**
  * @author eric
  */
@@ -21,13 +20,13 @@ import java.util.List;
 @NoArgsConstructor
 public abstract class NostrMarketplaceEvent extends AddressableEvent {
 
-    // TODO: Create the Kinds for the events and use it
-    public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
-        super(sender, kind, tags, content);
-    }
+  // TODO: Create the Kinds for the events and use it
+  public NostrMarketplaceEvent(PublicKey sender, Integer kind, List<BaseTag> tags, String content) {
+    super(sender, kind, tags, content);
+  }
 
-    @SneakyThrows
-    public Product getProduct() {
-        return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
-    }
+  @SneakyThrows
+  public Product getProduct() {
+    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+  }
 }

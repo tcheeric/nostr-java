@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,8 +12,6 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.PaymentShipmentStatus;
 
-import java.util.List;
-
 /**
  * @author eric
  */
@@ -22,22 +21,24 @@ import java.util.List;
 @NoArgsConstructor
 public class VerifyPaymentOrShippedEvent extends CheckoutEvent<PaymentShipmentStatus> {
 
-    public VerifyPaymentOrShippedEvent(PublicKey sender, List<BaseTag> tags, @NonNull String content) {
-        super(sender, tags, content, MessageType.ORDER_STATUS_UPDATE);
-    }
+  public VerifyPaymentOrShippedEvent(
+      PublicKey sender, List<BaseTag> tags, @NonNull String content) {
+    super(sender, tags, content, MessageType.ORDER_STATUS_UPDATE);
+  }
 
-    public PaymentShipmentStatus getPaymentShipmentStatus() {
-        return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentShipmentStatus.class);
-    }
+  public PaymentShipmentStatus getPaymentShipmentStatus() {
+    return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentShipmentStatus.class);
+  }
 
-    protected PaymentShipmentStatus getEntity() {
-        return getPaymentShipmentStatus();
-    }
+  protected PaymentShipmentStatus getEntity() {
+    return getPaymentShipmentStatus();
+  }
 
-    @Override
-    public void validateKind() {
-        if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
-        }
+  @Override
+  public void validateKind() {
+    if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
+      throw new AssertionError(
+          "Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
     }
+  }
 }

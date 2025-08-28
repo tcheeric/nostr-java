@@ -1,13 +1,12 @@
 package nostr.event.entities;
 
+import java.net.URL;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
-import java.net.URL;
 
 /**
  * @author eric
@@ -19,11 +18,9 @@ import java.net.URL;
 @NoArgsConstructor
 public abstract class Profile {
 
-    private String name;
+  private String name;
 
-    @ToString.Exclude
-    private String about;
+  @ToString.Exclude private String about;
 
-    @ToString.Exclude
-    private URL picture;
+  @ToString.Exclude private URL picture;
 }

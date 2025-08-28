@@ -1,9 +1,9 @@
 package nostr.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author squirrel
@@ -11,10 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class NostrUtilTest {
   /**
-   * test intended to confirm conversion routines:
-   *    (1) Hex string to byte[], then
-   *    (2) byte[] back to Hex string
-   * are properly functioning inversions of each other
+   * test intended to confirm conversion routines: (1) Hex string to byte[], then (2) byte[] back to
+   * Hex string are properly functioning inversions of each other
    */
   @Test
   public void testHexToBytesHex() {

@@ -1,19 +1,18 @@
 package nostr.event.filter;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 @EqualsAndHashCode(callSuper = true)
 public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
-  public final static String FILTER_KEY = "kinds";
+  public static final String FILTER_KEY = "kinds";
 
   public KindFilter(T kind) {
     super(kind, FILTER_KEY);
@@ -21,15 +20,12 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
 
   @Override
   public Predicate<GenericEvent> getPredicate() {
-    return (genericEvent) ->
-        genericEvent.getKind().equals(getFilterableValue());
+    return (genericEvent) -> genericEvent.getKind().equals(getFilterableValue());
   }
 
   @Override
   public void addToArrayNode(ArrayNode arrayNode) {
-    arrayNode.addAll(
-        MAPPER_BLACKBIRD.createArrayNode().add(
-            getFilterableValue()));
+    arrayNode.addAll(MAPPER_BLACKBIRD.createArrayNode().add(getFilterableValue()));
   }
 
   @Override
@@ -41,5 +37,6 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
     return super.getFilterable();
   }
 
-  public static Function<JsonNode, Filterable> fxn = node -> new KindFilter<>(Kind.valueOf(node.asInt()));
+  public static Function<JsonNode, Filterable> fxn =
+      node -> new KindFilter<>(Kind.valueOf(node.asInt()));
 }

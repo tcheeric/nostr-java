@@ -26,22 +26,20 @@ import nostr.event.json.serializer.ExpirationTagSerializer;
 @JsonSerialize(using = ExpirationTagSerializer.class)
 public class ExpirationTag extends BaseTag {
 
-    @Key
-    @JsonProperty
-    private Integer expiration;
+  @Key @JsonProperty private Integer expiration;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        ExpirationTag tag = new ExpirationTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setExpiration(Integer.valueOf(n.asText())), tag);
-        return (T) tag;
-    }
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    ExpirationTag tag = new ExpirationTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setExpiration(Integer.valueOf(n.asText())), tag);
+    return (T) tag;
+  }
 
-    public static ExpirationTag updateFields(@NonNull GenericTag tag) {
-        if (!"expiration".equals(tag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for ExpirationTag");
-        }
-        String expiration = tag.getAttributes().get(0).value().toString();
-        ExpirationTag expirationTag = new ExpirationTag(Integer.parseInt(expiration));
-        return expirationTag;
+  public static ExpirationTag updateFields(@NonNull GenericTag tag) {
+    if (!"expiration".equals(tag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for ExpirationTag");
     }
+    String expiration = tag.getAttributes().get(0).value().toString();
+    ExpirationTag expirationTag = new ExpirationTag(Integer.parseInt(expiration));
+    return expirationTag;
+  }
 }

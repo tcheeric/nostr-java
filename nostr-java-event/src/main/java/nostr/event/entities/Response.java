@@ -13,6 +13,6 @@ import nostr.event.BaseMessage;
 @Builder
 public class Response {
 
-    private BaseMessage message;
-    private Relay relay;
+  private BaseMessage message;
+  private Relay relay;
 }

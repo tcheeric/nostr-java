@@ -1,4 +1,3 @@
-
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,23 +25,22 @@ import nostr.event.BaseTag;
 @JsonPropertyOrder({"subject"})
 public final class SubjectTag extends BaseTag {
 
-    @Key
-    @JsonProperty("subject")
-    private String subject;
+  @Key
+  @JsonProperty("subject")
+  private String subject;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        SubjectTag tag = new SubjectTag();
-        setOptionalField(node.get(1), (n, t) -> tag.setSubject(n.asText()), tag);
-        return (T) tag;
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    SubjectTag tag = new SubjectTag();
+    setOptionalField(node.get(1), (n, t) -> tag.setSubject(n.asText()), tag);
+    return (T) tag;
+  }
+
+  public static SubjectTag updateFields(@NonNull GenericTag genericTag) {
+    if (!"subject".equals(genericTag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for SubjectTag");
     }
 
-
-    public static SubjectTag updateFields(@NonNull GenericTag genericTag) {
-        if (!"subject".equals(genericTag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for SubjectTag");
-        }
-
-        SubjectTag subjectTag = new SubjectTag(genericTag.getAttributes().get(0).value().toString());
-        return subjectTag;
-    }
+    SubjectTag subjectTag = new SubjectTag(genericTag.getAttributes().get(0).value().toString());
+    return subjectTag;
+  }
 }

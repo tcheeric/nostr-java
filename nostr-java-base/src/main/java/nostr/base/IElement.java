@@ -1,12 +1,11 @@
 package nostr.base;
 
 /**
- *
  * @author squirrel
  */
 public interface IElement {
 
-    default Integer getNip() {
-        return 1;
-    }
+  default Integer getNip() {
+    return 1;
+  }
 }

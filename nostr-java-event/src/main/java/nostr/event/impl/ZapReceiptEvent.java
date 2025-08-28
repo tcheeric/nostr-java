@@ -1,6 +1,6 @@
-
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -12,82 +12,80 @@ import nostr.event.entities.ZapReceipt;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 
-import java.util.List;
-
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapReceiptEvent", nip = 57)
 @NoArgsConstructor
 public class ZapReceiptEvent extends GenericEvent {
 
-    public ZapReceiptEvent(@NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
-        super(recipientPubKey, Kind.ZAP_RECEIPT, tags, content);
+  public ZapReceiptEvent(
+      @NonNull PublicKey recipientPubKey, @NonNull List<BaseTag> tags, @NonNull String content) {
+    super(recipientPubKey, Kind.ZAP_RECEIPT, tags, content);
+  }
+
+  public ZapReceipt getZapReceipt() {
+    BaseTag preimageTag = requireTag("preimage");
+    BaseTag descriptionTag = requireTag("description");
+    BaseTag bolt11Tag = requireTag("bolt11");
+
+    return new ZapReceipt(
+        ((GenericTag) bolt11Tag).getAttributes().get(0).value().toString(),
+        ((GenericTag) descriptionTag).getAttributes().get(0).value().toString(),
+        ((GenericTag) preimageTag).getAttributes().get(0).value().toString());
+  }
+
+  public String getBolt11() {
+    ZapReceipt zapReceipt = getZapReceipt();
+    return zapReceipt.getBolt11();
+  }
+
+  public String getDescriptionSha256() {
+    ZapReceipt zapReceipt = getZapReceipt();
+    return zapReceipt.getDescriptionSha256();
+  }
+
+  public String getPreimage() {
+    ZapReceipt zapReceipt = getZapReceipt();
+    return zapReceipt.getPreimage();
+  }
+
+  public PublicKey getRecipient() {
+    PubKeyTag recipientPubKeyTag = (PubKeyTag) requireTag("p");
+    return recipientPubKeyTag.getPublicKey();
+  }
+
+  public PublicKey getSender() {
+    BaseTag senderTag = getTag("P");
+    if (senderTag == null) {
+      return null;
     }
+    PubKeyTag senderPubKeyTag = (PubKeyTag) senderTag;
+    return senderPubKeyTag.getPublicKey();
+  }
 
-    public ZapReceipt getZapReceipt() {
-        BaseTag preimageTag = requireTag("preimage");
-        BaseTag descriptionTag = requireTag("description");
-        BaseTag bolt11Tag = requireTag("bolt11");
-
-        return new ZapReceipt(
-                ((GenericTag) bolt11Tag).getAttributes().get(0).value().toString(),
-                ((GenericTag) descriptionTag).getAttributes().get(0).value().toString(),
-                ((GenericTag) preimageTag).getAttributes().get(0).value().toString()
-        );
+  public String getEventId() {
+    BaseTag eventTag = getTag("e");
+    if (eventTag == null) {
+      return null;
     }
+    return ((GenericTag) eventTag).getAttributes().get(0).value().toString();
+  }
 
-    public String getBolt11() {
-        ZapReceipt zapReceipt = getZapReceipt();
-        return zapReceipt.getBolt11();
+  @Override
+  protected void validateTags() {
+    super.validateTags();
+
+    // Validate `tags` field
+    // Check for required tags
+    requireTag("p");
+    requireTag("bolt11");
+    requireTag("description");
+    requireTag("preimage");
+  }
+
+  @Override
+  protected void validateKind() {
+    if (getKind() != Kind.ZAP_RECEIPT.getValue()) {
+      throw new AssertionError("Invalid kind value. Expected " + Kind.ZAP_RECEIPT.getValue());
     }
-
-    public String getDescriptionSha256() {
-        ZapReceipt zapReceipt = getZapReceipt();
-        return zapReceipt.getDescriptionSha256();
-    }
-
-    public String getPreimage() {
-        ZapReceipt zapReceipt = getZapReceipt();
-        return zapReceipt.getPreimage();
-    }
-
-    public PublicKey getRecipient() {
-        PubKeyTag recipientPubKeyTag = (PubKeyTag) requireTag("p");
-        return recipientPubKeyTag.getPublicKey();
-    }
-
-    public PublicKey getSender() {
-        BaseTag senderTag = getTag("P");
-        if (senderTag == null) {
-            return null;
-        }
-        PubKeyTag senderPubKeyTag = (PubKeyTag) senderTag;
-        return senderPubKeyTag.getPublicKey();
-    }
-
-    public String getEventId() {
-        BaseTag eventTag = getTag("e");
-        if (eventTag == null) {
-            return null;
-        }
-        return ((GenericTag) eventTag).getAttributes().get(0).value().toString();
-    }
-
-    @Override
-    protected void validateTags() {
-        super.validateTags();
-
-        // Validate `tags` field
-        // Check for required tags
-        requireTag("p");
-        requireTag("bolt11");
-        requireTag("description");
-        requireTag("preimage");
-    }
-
-    @Override
-    protected void validateKind() {
-        if (getKind() != Kind.ZAP_RECEIPT.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.ZAP_RECEIPT.getValue());
-        }
-    }
+  }
 }

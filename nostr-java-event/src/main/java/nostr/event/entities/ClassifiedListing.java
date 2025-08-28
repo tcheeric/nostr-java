@@ -18,17 +18,14 @@ public class ClassifiedListing implements JsonContent {
   private final String title;
   private final String summary;
 
-  @EqualsAndHashCode.Exclude
-  private Long publishedAt;
+  @EqualsAndHashCode.Exclude private Long publishedAt;
   private String location;
 
   @JsonProperty("price")
   private final PriceTag priceTag;
 
-  public static ClassifiedListingBuilder builder(@NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
-    return new ClassifiedListingBuilder()
-        .title(title)
-        .summary(summary)
-        .priceTag(priceTag);
+  public static ClassifiedListingBuilder builder(
+      @NonNull String title, @NonNull String summary, @NonNull PriceTag priceTag) {
+    return new ClassifiedListingBuilder().title(title).summary(summary).priceTag(priceTag);
   }
 }

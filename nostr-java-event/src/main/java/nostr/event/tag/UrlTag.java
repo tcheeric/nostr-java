@@ -18,28 +18,28 @@ import nostr.event.BaseTag;
 @Tag(code = "u", nip = 61)
 public class UrlTag extends BaseTag {
 
-    @Key
-    @JsonProperty("u")
-    private String url;
+  @Key
+  @JsonProperty("u")
+  private String url;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        UrlTag tag = new UrlTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setUrl(n.asText()), tag);
-        return (T) tag;
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    UrlTag tag = new UrlTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setUrl(n.asText()), tag);
+    return (T) tag;
+  }
+
+  public static UrlTag updateFields(@NonNull GenericTag tag) {
+    if (!"u".equals(tag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for UrlTag");
     }
 
-    public static UrlTag updateFields(@NonNull GenericTag tag) {
-        if (!"u".equals(tag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for UrlTag");
-        }
-
-        if (tag.getAttributes().size() != 1) {
-            throw new IllegalArgumentException("Invalid number of attributes for UrlTag");
-        }
-
-        UrlTag urlTag = new UrlTag();
-        urlTag.setUrl(tag.getAttributes().get(0).value().toString());
-
-        return urlTag;
+    if (tag.getAttributes().size() != 1) {
+      throw new IllegalArgumentException("Invalid number of attributes for UrlTag");
     }
+
+    UrlTag urlTag = new UrlTag();
+    urlTag.setUrl(tag.getAttributes().get(0).value().toString());
+
+    return urlTag;
+  }
 }

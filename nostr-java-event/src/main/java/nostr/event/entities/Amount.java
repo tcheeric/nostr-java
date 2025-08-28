@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Amount {
-    private Integer amount;
-    private String unit;
+  private Integer amount;
+  private String unit;
 }

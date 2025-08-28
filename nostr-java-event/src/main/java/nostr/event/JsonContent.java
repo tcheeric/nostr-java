@@ -1,8 +1,8 @@
 package nostr.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author eric

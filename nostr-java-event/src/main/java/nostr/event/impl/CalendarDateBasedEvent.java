@@ -1,6 +1,9 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import lombok.NoArgsConstructor;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -15,94 +18,106 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 @Event(name = "Date-Based Calendar Event", nip = 52)
 @JsonDeserialize(using = CalendarDateBasedEventDeserializer.class)
 @NoArgsConstructor
-public class CalendarDateBasedEvent<T extends BaseTag> extends AbstractBaseCalendarEvent<CalendarContent<T>> {
+public class CalendarDateBasedEvent<T extends BaseTag>
+    extends AbstractBaseCalendarEvent<CalendarContent<T>> {
 
-    public CalendarDateBasedEvent(PublicKey sender, List<BaseTag> baseTags, String content) {
-        super(sender, Kind.CALENDAR_DATE_BASED_EVENT, baseTags, content);
-    }
+  public CalendarDateBasedEvent(PublicKey sender, List<BaseTag> baseTags, String content) {
+    super(sender, Kind.CALENDAR_DATE_BASED_EVENT, baseTags, content);
+  }
 
-    public String getId() {
-        return getCalendarContent().getIdentifierTag().getUuid();
-    }
+  public String getId() {
+    return getCalendarContent().getIdentifierTag().getUuid();
+  }
 
-    public String getTile() {
-        return getCalendarContent().getTitle();
-    }
+  public String getTile() {
+    return getCalendarContent().getTitle();
+  }
 
-    public Date getStart() {
-        return new Date(getCalendarContent().getStart());
-    }
+  public Date getStart() {
+    return new Date(getCalendarContent().getStart());
+  }
 
-    public Optional<Date> getEnd() {
-        CalendarContent<T> calendarContent = getCalendarContent();
-        Optional<Long> end = calendarContent.getEnd();
-        return end.map(Date::new);
-    }
+  public Optional<Date> getEnd() {
+    CalendarContent<T> calendarContent = getCalendarContent();
+    Optional<Long> end = calendarContent.getEnd();
+    return end.map(Date::new);
+  }
 
-    public Optional<String> getLocation() {
-        return getCalendarContent().getLocation();
-    }
+  public Optional<String> getLocation() {
+    return getCalendarContent().getLocation();
+  }
 
-    public Optional<String> getGeohash() {
-        Optional<GeohashTag> geohashTag = getCalendarContent().getGeohashTag();
-        return geohashTag.map(GeohashTag::getLocation);
-    }
+  public Optional<String> getGeohash() {
+    Optional<GeohashTag> geohashTag = getCalendarContent().getGeohashTag();
+    return geohashTag.map(GeohashTag::getLocation);
+  }
 
-    public List<PubKeyTag> getParticipants() {
-        return getCalendarContent().getParticipantPubKeyTags();
-    }
+  public List<PubKeyTag> getParticipants() {
+    return getCalendarContent().getParticipantPubKeyTags();
+  }
 
-    public List<HashtagTag> getHashtags() {
-        return getCalendarContent().getHashtagTags();
-    }
+  public List<HashtagTag> getHashtags() {
+    return getCalendarContent().getHashtagTags();
+  }
 
-    public List<ReferenceTag> getReferences() {
-        return getCalendarContent().getReferenceTags();
-    }
+  public List<ReferenceTag> getReferences() {
+    return getCalendarContent().getReferenceTags();
+  }
 
-    @Override
-    protected CalendarContent<T> getCalendarContent() {
-        CalendarContent<T> calendarContent = new CalendarContent<>(
+  @Override
+  protected CalendarContent<T> getCalendarContent() {
+    CalendarContent<T> calendarContent =
+        new CalendarContent<>(
             (IdentifierTag) getTag("d"),
-              ((GenericTag) getTag("title")).getAttributes().get(0).value().toString(),
-              Long.parseLong(((GenericTag) getTag("start")).getAttributes().get(0).value().toString())
-        );
+            ((GenericTag) getTag("title")).getAttributes().get(0).value().toString(),
+            Long.parseLong(
+                ((GenericTag) getTag("start")).getAttributes().get(0).value().toString()));
 
-        // Update the calendarContent object with the values from the tags
-        Optional.ofNullable(getTag("end")).ifPresent(baseTag ->
-            calendarContent.setEnd(Long.parseLong(((GenericTag) baseTag).getAttributes().get(0).value().toString())));
-        
-        Optional.ofNullable(getTag("location")).ifPresent(baseTag ->
-            calendarContent.setLocation(((GenericTag) baseTag).getAttributes().get(0).value().toString()));
+    // Update the calendarContent object with the values from the tags
+    Optional.ofNullable(getTag("end"))
+        .ifPresent(
+            baseTag ->
+                calendarContent.setEnd(
+                    Long.parseLong(
+                        ((GenericTag) baseTag).getAttributes().get(0).value().toString())));
 
-        Optional.ofNullable(getTag("g")).ifPresent(baseTag -> calendarContent.setGeohashTag((GeohashTag) baseTag));
+    Optional.ofNullable(getTag("location"))
+        .ifPresent(
+            baseTag ->
+                calendarContent.setLocation(
+                    ((GenericTag) baseTag).getAttributes().get(0).value().toString()));
 
-        Optional.ofNullable(getTags("p")).ifPresent(baseTags -> 
-            baseTags.forEach(baseTag -> 
-                calendarContent.addParticipantPubKeyTag((PubKeyTag)baseTag)));
+    Optional.ofNullable(getTag("g"))
+        .ifPresent(baseTag -> calendarContent.setGeohashTag((GeohashTag) baseTag));
 
-        Optional.ofNullable(getTags("t")).ifPresent(baseTags ->
-            baseTags.forEach(baseTag ->
-                calendarContent.addHashtagTag((HashtagTag) baseTag)));
+    Optional.ofNullable(getTags("p"))
+        .ifPresent(
+            baseTags ->
+                baseTags.forEach(
+                    baseTag -> calendarContent.addParticipantPubKeyTag((PubKeyTag) baseTag)));
 
-        Optional.ofNullable(getTags("r")).ifPresent(baseTags ->
-            baseTags.forEach(baseTag ->
-                calendarContent.addReferenceTag((ReferenceTag) baseTag)));
+    Optional.ofNullable(getTags("t"))
+        .ifPresent(
+            baseTags ->
+                baseTags.forEach(baseTag -> calendarContent.addHashtagTag((HashtagTag) baseTag)));
 
-        return calendarContent;
+    Optional.ofNullable(getTags("r"))
+        .ifPresent(
+            baseTags ->
+                baseTags.forEach(
+                    baseTag -> calendarContent.addReferenceTag((ReferenceTag) baseTag)));
+
+    return calendarContent;
+  }
+
+  @Override
+  public void validateKind() {
+    if (getKind() != Kind.CALENDAR_DATE_BASED_EVENT.getValue()) {
+      throw new AssertionError(
+          "Invalid kind value. Expected " + Kind.CALENDAR_DATE_BASED_EVENT.getValue());
     }
-
-    @Override
-    public void validateKind() {
-        if (getKind() != Kind.CALENDAR_DATE_BASED_EVENT.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.CALENDAR_DATE_BASED_EVENT.getValue());
-        }
-    }
+  }
 }

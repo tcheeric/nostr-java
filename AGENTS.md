@@ -112,14 +112,18 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Always make sure that the events are compliant with the Nostr protocol specifications, and that the events are valid according to the NIP specifications.
 - Always remove unused imports
 - When creating a branch, bump up the version in the pom files to the next minor version.
+- Always add a description of the test as a comment at the top of the test method.
 
 ## Pull Requests
 
-- Use the pull request template at `.github/pull_request_template.md` and fill out all sections.
+- Always use the pull request template at `.github/pull_request_template.md` when crafting a PR, and fill out all sections.
 - Summarize the changes made and describe how they were tested.
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
 - Ensure all new features, modules, or dependencies are properly documented in the `README.md` file.
+- Add a comment on top of every test method to describe the test in plain English. 
+- PR titles messages must adopt the same format as commit messages. See the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for more details.
+
 ## PR Quality Gate
 
 - PR summaries must reference modified files with file path citations (e.g. `F:path/to/file.java†L1-L2`).
@@ -131,3 +135,4 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - When TODOs or placeholders remain, include a Notes section.
 - Review AI-generated changes with developer expertise, ensuring you understand why the code works and that it remains resilient, scalable, and secure.
 - Use `rg` for search instead of `ls -R` or `grep -R`.
+- Ensure all new features are compliant with the protocol specification provided above.

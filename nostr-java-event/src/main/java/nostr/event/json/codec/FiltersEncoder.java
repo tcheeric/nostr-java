@@ -10,14 +10,15 @@ public record FiltersEncoder(Filters filters) implements Encoder {
   public String encode() {
     ObjectNode root = ENCODER_MAPPER_BLACKBIRD.createObjectNode();
 
-    filters.getFiltersMap().forEach((key, filterableList) ->
-        root.setAll(
-            filterableList
-                .stream()
-                .map(filterable ->
-                         filterable.toObjectNode(root))
-                .toList()
-                .getFirst()));
+    filters
+        .getFiltersMap()
+        .forEach(
+            (key, filterableList) ->
+                root.setAll(
+                    filterableList.stream()
+                        .map(filterable -> filterable.toObjectNode(root))
+                        .toList()
+                        .getFirst()));
 
     return root.toString();
   }

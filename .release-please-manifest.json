@@ -1,0 +1,12 @@
+{
+  ".": "0.2.2",
+  "nostr-java-base": "0.2.2",
+  "nostr-java-crypto": "0.2.2",
+  "nostr-java-event": "0.2.2",
+  "nostr-java-examples": "0.2.2",
+  "nostr-java-id": "0.2.2",
+  "nostr-java-util": "0.2.2",
+  "nostr-java-client": "0.2.2",
+  "nostr-java-api": "0.2.2",
+  "nostr-java-encryption": "0.2.2"
+}

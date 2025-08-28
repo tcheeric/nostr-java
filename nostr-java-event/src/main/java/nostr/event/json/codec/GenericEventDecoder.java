@@ -7,7 +7,6 @@ import nostr.base.IDecoder;
 import nostr.event.impl.GenericEvent;
 
 /**
- *
  * @author eric
  */
 @Data
@@ -24,8 +23,19 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
   }
 
   @Override
-  public T decode(String jsonEvent) throws JsonProcessingException {
-    I_DECODER_MAPPER_BLACKBIRD.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-    return I_DECODER_MAPPER_BLACKBIRD.readValue(jsonEvent, clazz);
+  /**
+   * Decodes a JSON string into a {@link GenericEvent} instance.
+   *
+   * @param jsonEvent JSON representation of the event
+   * @return decoded event
+   * @throws EventEncodingException if decoding fails
+   */
+  public T decode(String jsonEvent) throws EventEncodingException {
+    try {
+      I_DECODER_MAPPER_BLACKBIRD.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+      return I_DECODER_MAPPER_BLACKBIRD.readValue(jsonEvent, clazz);
+    } catch (JsonProcessingException e) {
+      throw new EventEncodingException("Failed to decode generic event", e);
+    }
   }
 }

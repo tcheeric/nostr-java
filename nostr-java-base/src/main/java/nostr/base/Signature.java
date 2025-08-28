@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import nostr.util.NostrUtil;
 
 /**
- *
  * @author squirrel
  */
 @Data
@@ -17,22 +16,21 @@ import nostr.util.NostrUtil;
 @Slf4j
 public class Signature {
 
-    @JsonProperty("rawData")
-    private byte[] rawData;
+  @JsonProperty("rawData")
+  private byte[] rawData;
 
-    @JsonIgnore
-    private PublicKey pubKey;
+  @JsonIgnore private PublicKey pubKey;
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return NostrUtil.bytesToHex(rawData);
-    }
+  @JsonValue
+  @Override
+  public String toString() {
+    return NostrUtil.bytesToHex(rawData);
+  }
 
-    public static Signature fromString(String sig) {
-        log.debug("Creating signature from string");
-        Signature signature = new Signature();
-        signature.setRawData(NostrUtil.hex128ToBytes(sig));
-        return signature;
-    }
+  public static Signature fromString(String sig) {
+    log.debug("Creating signature from string");
+    Signature signature = new Signature();
+    signature.setRawData(NostrUtil.hex128ToBytes(sig));
+    return signature;
+  }
 }

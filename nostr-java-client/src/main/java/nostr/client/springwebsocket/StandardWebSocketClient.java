@@ -1,5 +1,13 @@
 package nostr.client.springwebsocket;
 
+import static org.awaitility.Awaitility.await;
+
+import java.io.IOException;
+import java.net.URI;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
@@ -12,15 +20,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
-import java.io.IOException;
-import java.net.URI;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.awaitility.Awaitility.await;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -43,10 +42,9 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
    * Creates a new {@code StandardWebSocketClient} connected to the provided relay URI.
    *
    * @param relayUri the URI of the relay to connect to
-   * @throws java.util.concurrent.ExecutionException   if the WebSocket session fails to
-   *     establish
-   * @throws InterruptedException if the current thread is interrupted while waiting
-   *     for the WebSocket handshake to complete
+   * @throws java.util.concurrent.ExecutionException if the WebSocket session fails to establish
+   * @throws InterruptedException if the current thread is interrupted while waiting for the
+   *     WebSocket handshake to complete
    */
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri)
       throws java.util.concurrent.ExecutionException, InterruptedException {
@@ -56,7 +54,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
             .get();
   }
 
-  StandardWebSocketClient(WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
+  StandardWebSocketClient(
+      WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
     if (clientSession == null) {
       throw new NullPointerException("clientSession must not be null");
     }
@@ -85,13 +84,12 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   @Override
   public List<String> send(String json) throws IOException {
     clientSession.sendMessage(new TextMessage(json));
-    Duration awaitTimeout = awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
-    Duration pollInterval = pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
+    Duration awaitTimeout =
+        awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
+    Duration pollInterval =
+        pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
     try {
-      await()
-          .atMost(awaitTimeout)
-          .pollInterval(pollInterval)
-          .untilTrue(completed);
+      await().atMost(awaitTimeout).pollInterval(pollInterval).untilTrue(completed);
     } catch (ConditionTimeoutException e) {
       log.error("Timed out waiting for relay response", e);
       try {

@@ -2,6 +2,11 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.beans.Transient;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +17,6 @@ import nostr.base.Signature;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
-
-import java.beans.Transient;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author squirrel
@@ -30,35 +29,35 @@ import java.util.function.Supplier;
 @JsonPropertyOrder({"pubkey", "conditions", "signature"})
 public class DelegationTag extends BaseTag implements ISignable {
 
-    @Key
-    @JsonProperty("delegator")
-    private PublicKey delegator;
+  @Key
+  @JsonProperty("delegator")
+  private PublicKey delegator;
 
-    @Key
-    @JsonProperty("conditions")
-    private String conditions;
+  @Key
+  @JsonProperty("conditions")
+  private String conditions;
 
-    @Key
-    @JsonProperty("token")
-    private Signature signature;
+  @Key
+  @JsonProperty("token")
+  private Signature signature;
 
-    public DelegationTag(PublicKey delegator, String conditions) {
-        this.delegator = delegator;
-        this.conditions = conditions == null ? "" : conditions;
-    }
+  public DelegationTag(PublicKey delegator, String conditions) {
+    this.delegator = delegator;
+    this.conditions = conditions == null ? "" : conditions;
+  }
 
-    @Transient
-    public String getToken() {
-        return "nostr:" + getCode() + ":" + delegator.toString() + ":" + conditions;
-    }
+  @Transient
+  public String getToken() {
+    return "nostr:" + getCode() + ":" + delegator.toString() + ":" + conditions;
+  }
 
-    @Override
-    public Consumer<Signature> getSignatureConsumer() {
-        return this::setSignature;
-    }
+  @Override
+  public Consumer<Signature> getSignatureConsumer() {
+    return this::setSignature;
+  }
 
-    @Override
-    public Supplier<ByteBuffer> getByteArraySupplier() {
-        return () -> ByteBuffer.wrap(this.getToken().getBytes(StandardCharsets.UTF_8));
-    }
+  @Override
+  public Supplier<ByteBuffer> getByteArraySupplier() {
+    return () -> ByteBuffer.wrap(this.getToken().getBytes(StandardCharsets.UTF_8));
+  }
 }

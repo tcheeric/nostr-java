@@ -23,19 +23,16 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class IdentifierTag extends BaseTag {
 
-    @Key
-    @JsonProperty
-    private String uuid;
+  @Key @JsonProperty private String uuid;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        IdentifierTag tag = new IdentifierTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setUuid(n.asText()), tag);
-        return (T) tag;
-    }
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    IdentifierTag tag = new IdentifierTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setUuid(n.asText()), tag);
+    return (T) tag;
+  }
 
-    public static IdentifierTag updateFields(@NonNull GenericTag tag) {
-        IdentifierTag identifierTag = new IdentifierTag(tag.getAttributes().get(0).value().toString());
-        return identifierTag;
-    }
-
+  public static IdentifierTag updateFields(@NonNull GenericTag tag) {
+    IdentifierTag identifierTag = new IdentifierTag(tag.getAttributes().get(0).value().toString());
+    return identifierTag;
+  }
 }

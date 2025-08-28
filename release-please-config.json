@@ -1,0 +1,63 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "maven",
+      "package-name": "nostr-java",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-base": {
+      "release-type": "maven",
+      "package-name": "nostr-java-base",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-crypto": {
+      "release-type": "maven",
+      "package-name": "nostr-java-crypto",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-event": {
+      "release-type": "maven",
+      "package-name": "nostr-java-event",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-examples": {
+      "release-type": "maven",
+      "package-name": "nostr-java-examples",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-id": {
+      "release-type": "maven",
+      "package-name": "nostr-java-id",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-util": {
+      "release-type": "maven",
+      "package-name": "nostr-java-util",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-client": {
+      "release-type": "maven",
+      "package-name": "nostr-java-client",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-api": {
+      "release-type": "maven",
+      "package-name": "nostr-java-api",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "nostr-java-encryption": {
+      "release-type": "maven",
+      "package-name": "nostr-java-encryption",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

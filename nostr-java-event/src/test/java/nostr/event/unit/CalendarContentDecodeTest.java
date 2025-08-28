@@ -1,13 +1,14 @@
 package nostr.event.unit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.json.codec.GenericEventDecoder;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 public class CalendarContentDecodeTest {
-  String eventFullJson = """
+  String eventFullJson =
+      """
         {
           "id": "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07",
           "kind": 30402,
@@ -35,7 +36,8 @@ public class CalendarContentDecodeTest {
         }
       """;
 
-  String eventMinimalJson = """
+  String eventMinimalJson =
+      """
         {
           "id": "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07",
           "kind": 30402,
@@ -51,7 +53,8 @@ public class CalendarContentDecodeTest {
         }
       """;
 
-  String problematicBarchettaJson = """
+  String problematicBarchettaJson =
+      """
       {
         "id": "a21f990312c06e063af233935a1b7021e2824cedd0c5a46e160acb182e07637c",
         "kind": 31923,
@@ -82,19 +85,19 @@ public class CalendarContentDecodeTest {
 
   @Test
   void testCalendarContentMinimalJsonDecoding() {
-    assertDoesNotThrow(() ->
-      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson));
+    assertDoesNotThrow(
+        () -> new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventMinimalJson));
   }
 
   @Test
   void testCalendarContentFullJsonDecoding() {
-    assertDoesNotThrow(() ->
-      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
+    assertDoesNotThrow(
+        () -> new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
   }
 
   @Test
   void testCalendarContentProblemBarchettaJsonDecoding() {
-    assertDoesNotThrow(() ->
-      new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
+    assertDoesNotThrow(
+        () -> new GenericEventDecoder<>(CalendarTimeBasedEvent.class).decode(eventFullJson));
   }
 }

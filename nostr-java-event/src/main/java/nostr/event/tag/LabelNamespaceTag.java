@@ -18,18 +18,19 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class LabelNamespaceTag extends BaseTag {
 
-    @Key
-    @JsonProperty("L")
-    private String nameSpace;
+  @Key
+  @JsonProperty("L")
+  private String nameSpace;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        LabelNamespaceTag tag = new LabelNamespaceTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setNameSpace(n.asText()), tag);
-        return (T) tag;
-    }
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    LabelNamespaceTag tag = new LabelNamespaceTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setNameSpace(n.asText()), tag);
+    return (T) tag;
+  }
 
-    public static LabelNamespaceTag updateFields(@NonNull GenericTag tag) {
-        LabelNamespaceTag labelNamespaceTag = new LabelNamespaceTag(tag.getAttributes().get(0).value().toString());
-        return labelNamespaceTag;
-    }
+  public static LabelNamespaceTag updateFields(@NonNull GenericTag tag) {
+    LabelNamespaceTag labelNamespaceTag =
+        new LabelNamespaceTag(tag.getAttributes().get(0).value().toString());
+    return labelNamespaceTag;
+  }
 }
