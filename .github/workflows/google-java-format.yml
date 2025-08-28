@@ -1,12 +1,14 @@
 name: Format
 
 on:
-  push:
-    branches: [ main, develop  ]
+  workflow_run:
+    workflows: ["Conventional Commits"]
+    types: [completed]
 
 jobs:
 
   formatting:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4 # v2 minimum required
