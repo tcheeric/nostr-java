@@ -12,6 +12,6 @@ import nostr.base.Relay;
 @Builder
 public class Response {
 
-    private BaseMessage message;
-    private Relay relay;
+  private BaseMessage message;
+  private Relay relay;
 }

@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CashuQuote {
-    private String id;
-    private Long expiration;
-    private CashuMint mint;
-    private CashuWallet wallet;
+  private String id;
+  private Long expiration;
+  private CashuMint mint;
+  private CashuWallet wallet;
 }

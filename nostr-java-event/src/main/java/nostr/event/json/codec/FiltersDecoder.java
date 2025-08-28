@@ -1,20 +1,18 @@
 package nostr.event.json.codec;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.IDecoder;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
-import nostr.event.json.codec.EventEncodingException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 
 /**
  * @author eric
@@ -34,15 +32,12 @@ public class FiltersDecoder implements IDecoder<Filters> {
     try {
       final List<Filterable> filterables = new ArrayList<>();
 
-      Map<String, JsonNode> filtersMap = MAPPER_BLACKBIRD.readValue(
-          jsonFiltersList,
-          new TypeReference<Map<String, JsonNode>>() {});
+      Map<String, JsonNode> filtersMap =
+          MAPPER_BLACKBIRD.readValue(
+              jsonFiltersList, new TypeReference<Map<String, JsonNode>>() {});
 
       for (Map.Entry<String, JsonNode> entry : filtersMap.entrySet()) {
-        filterables.addAll(
-            FilterableProvider.getFilterFunction(
-                entry.getValue(),
-                entry.getKey()));
+        filterables.addAll(FilterableProvider.getFilterFunction(entry.getValue(), entry.getKey()));
       }
 
       return new Filters(filterables);

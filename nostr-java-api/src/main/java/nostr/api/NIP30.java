@@ -10,13 +10,12 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 
 public class NIP30 {
-    
-    /**
-     * 
-     * @param shortcode
-     * @param imageUrl
-     */
-    public static BaseTag createEmojiTag(@NonNull String shortcode, @NonNull String imageUrl) {
-        return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, imageUrl).create();
-    }
+
+  /**
+   * @param shortcode
+   * @param imageUrl
+   */
+  public static BaseTag createEmojiTag(@NonNull String shortcode, @NonNull String imageUrl) {
+    return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, imageUrl).create();
+  }
 }

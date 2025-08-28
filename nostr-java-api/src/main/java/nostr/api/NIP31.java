@@ -7,7 +7,7 @@ import nostr.event.BaseTag;
 
 public class NIP31 {
 
-    public static BaseTag createAltTag(@NonNull String alt) {
-        return new BaseTagFactory(Constants.Tag.ALT_CODE, alt).create();
-    }
+  public static BaseTag createAltTag(@NonNull String alt) {
+    return new BaseTagFactory(Constants.Tag.ALT_CODE, alt).create();
+  }
 }

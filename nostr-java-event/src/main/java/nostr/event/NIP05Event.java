@@ -10,9 +10,8 @@ import nostr.event.impl.GenericEvent;
  */
 @NoArgsConstructor
 public abstract class NIP05Event extends GenericEvent {
-	
-	public NIP05Event(PublicKey pubKey, Kind kind) {
-		super(pubKey, kind);
-	}
 
+  public NIP05Event(PublicKey pubKey, Kind kind) {
+    super(pubKey, kind);
+  }
 }

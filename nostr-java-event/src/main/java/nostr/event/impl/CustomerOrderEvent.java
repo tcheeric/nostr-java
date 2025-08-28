@@ -1,5 +1,6 @@
 package nostr.event.impl;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,7 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.CustomerOrder;
 
-import java.util.List;
-
 /**
- *
  * @author eric
  */
 @Data
@@ -24,23 +22,25 @@ import java.util.List;
 @NoArgsConstructor
 public class CustomerOrderEvent extends CheckoutEvent<CustomerOrder> {
 
-    public CustomerOrderEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> tags, @NonNull String content) {
-        super(sender, tags, content, MessageType.NEW_ORDER);
-    }
+  public CustomerOrderEvent(
+      @NonNull PublicKey sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+    super(sender, tags, content, MessageType.NEW_ORDER);
+  }
 
-    @SneakyThrows
-    public CustomerOrder getCustomerOrder() {
-        return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), CustomerOrder.class);
-    }
+  @SneakyThrows
+  public CustomerOrder getCustomerOrder() {
+    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), CustomerOrder.class);
+  }
 
-    protected CustomerOrder getEntity() {
-        return getCustomerOrder();
-    }
+  protected CustomerOrder getEntity() {
+    return getCustomerOrder();
+  }
 
-    @Override
-    public void validateKind() {
-        if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
-        }
+  @Override
+  public void validateKind() {
+    if (getKind() != Kind.ENCRYPTED_DIRECT_MESSAGE.getValue()) {
+      throw new AssertionError(
+          "Invalid kind value. Expected " + Kind.ENCRYPTED_DIRECT_MESSAGE.getValue());
     }
+  }
 }

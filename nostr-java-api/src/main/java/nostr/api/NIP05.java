@@ -4,7 +4,11 @@
  */
 package nostr.api;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.util.NostrUtil.escapeJsonString;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -14,46 +18,43 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import nostr.util.validator.Nip05Validator;
 
-import java.util.ArrayList;
-
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static nostr.util.NostrUtil.escapeJsonString;
-
 /**
- *
  * @author eric
  */
 public class NIP05 extends EventNostr {
-	
-	public NIP05(@NonNull Identity sender) {
-		setSender(sender);
-	}
- 
-    /**
-     * Create an Internet Identifier Metadata (IIM) Event
-     * @param profile the associate user profile
-     * @return the IIM event
-     */
-    @SneakyThrows
-	public NIP05 createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
-		String content = getContent(profile);
-		GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.USER_METADATA, new ArrayList<>(), content).create();
-		this.updateEvent(genericEvent);
-		return this;
+
+  public NIP05(@NonNull Identity sender) {
+    setSender(sender);
+  }
+
+  /**
+   * Create an Internet Identifier Metadata (IIM) Event
+   *
+   * @param profile the associate user profile
+   * @return the IIM event
+   */
+  @SneakyThrows
+  public NIP05 createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
+    String content = getContent(profile);
+    GenericEvent genericEvent =
+        new GenericEventFactory(
+                getSender(), Constants.Kind.USER_METADATA, new ArrayList<>(), content)
+            .create();
+    this.updateEvent(genericEvent);
+    return this;
+  }
+
+  private String getContent(UserProfile profile) {
+    try {
+      String jsonString =
+          MAPPER_BLACKBIRD.writeValueAsString(
+              Nip05Validator.builder()
+                  .nip05(profile.getNip05())
+                  .publicKey(profile.getPublicKey().toString())
+                  .build());
+      return escapeJsonString(jsonString);
+    } catch (JsonProcessingException ex) {
+      throw new RuntimeException(ex);
     }
-
-	private String getContent(UserProfile profile) {
-		try {
-                        String jsonString = MAPPER_BLACKBIRD.writeValueAsString(
-                                Nip05Validator.builder()
-                                        .nip05(profile.getNip05())
-                                        .publicKey(profile.getPublicKey().toString())
-                                        .build());
-			return escapeJsonString(jsonString);
-		} catch (JsonProcessingException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-
+  }
 }

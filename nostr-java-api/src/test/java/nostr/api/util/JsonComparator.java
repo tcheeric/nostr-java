@@ -1,16 +1,15 @@
 package nostr.api.util;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.collect.Sets;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Spliterator;
-
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
 
 public class JsonComparator implements Comparator<Iterable<? extends JsonNode>> {
 
@@ -57,17 +56,19 @@ public class JsonComparator implements Comparator<Iterable<? extends JsonNode>> 
         return Math.abs(double1 - double2) / Math.max(double1, double2) < 0.999 ? 0 : -1;
       case OBJECT:
         // ignores fields with null value that are missing at other JSON
-        var missingNotNullFields = Sets
-            .symmetricDifference(Sets.newHashSet(o1.fieldNames()), Sets.newHashSet(o2.fieldNames()))
-            .stream()
-            .filter(missingField -> isNotNull(o1, missingField) || isNotNull(o2, missingField))
-            .toList();
+        var missingNotNullFields =
+            Sets.symmetricDifference(
+                    Sets.newHashSet(o1.fieldNames()), Sets.newHashSet(o2.fieldNames()))
+                .stream()
+                .filter(missingField -> isNotNull(o1, missingField) || isNotNull(o2, missingField))
+                .toList();
         if (!missingNotNullFields.isEmpty()) {
           return -1;
         }
-        Integer reduce1 = stream(spliteratorUnknownSize(o1.fieldNames(), Spliterator.ORDERED), false)
-            .map(key -> compareJsonNodes(o1.get(key), o2.get(key)))
-            .reduce(0, (a, b) -> a == -1 || b == -1 ? -1 : 0);
+        Integer reduce1 =
+            stream(spliteratorUnknownSize(o1.fieldNames(), Spliterator.ORDERED), false)
+                .map(key -> compareJsonNodes(o1.get(key), o2.get(key)))
+                .reduce(0, (a, b) -> a == -1 || b == -1 ? -1 : 0);
         return reduce1;
       case ARRAY:
         if (o1.size() != o2.size()) {
@@ -79,10 +80,14 @@ public class JsonComparator implements Comparator<Iterable<? extends JsonNode>> 
         var o1Iterator = o1.elements();
         var o2Iterator = o2.elements();
         var o2Elements = Sets.newHashSet(o2.elements());
-        Integer reduce = stream(spliteratorUnknownSize(o1Iterator, Spliterator.ORDERED), false)
-            .map(o1Next -> ignoreElementOrderInArrays ?
-                lookForMatchingElement(o1Next, o2Elements) : compareJsonNodes(o1Next, o2Iterator.next()))
-            .reduce(0, (a, b) -> a == -1 || b == -1 ? -1 : 0);
+        Integer reduce =
+            stream(spliteratorUnknownSize(o1Iterator, Spliterator.ORDERED), false)
+                .map(
+                    o1Next ->
+                        ignoreElementOrderInArrays
+                            ? lookForMatchingElement(o1Next, o2Elements)
+                            : compareJsonNodes(o1Next, o2Iterator.next()))
+                .reduce(0, (a, b) -> a == -1 || b == -1 ? -1 : 0);
         return reduce;
       case MISSING:
       case BINARY:
@@ -92,7 +97,8 @@ public class JsonComparator implements Comparator<Iterable<? extends JsonNode>> 
     }
   }
 
-  private int lookForMatchingElement(JsonNode elementToLookFor, Collection<JsonNode> collectionOfElements) {
+  private int lookForMatchingElement(
+      JsonNode elementToLookFor, Collection<JsonNode> collectionOfElements) {
     // Note: O(n^2) complexity
     return collectionOfElements.stream()
         .filter(o2Element -> compareJsonNodes(elementToLookFor, o2Element) == 0)

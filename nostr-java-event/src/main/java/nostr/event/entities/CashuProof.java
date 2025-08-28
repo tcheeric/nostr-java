@@ -1,5 +1,7 @@
 package nostr.event.entities;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,8 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,24 +18,22 @@ import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CashuProof {
 
-    @EqualsAndHashCode.Include
-    private String id;
-    private Integer amount;
+  @EqualsAndHashCode.Include private String id;
+  private Integer amount;
 
-    @EqualsAndHashCode.Include
-    private String secret;
+  @EqualsAndHashCode.Include private String secret;
 
-    @JsonProperty("C")
-    @EqualsAndHashCode.Include
-    private String C;
+  @JsonProperty("C")
+  @EqualsAndHashCode.Include
+  private String C;
 
-    @EqualsAndHashCode.Include
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String witness;
+  @EqualsAndHashCode.Include
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String witness;
 
-    @SneakyThrows
-    @Override
-    public String toString() {
-        return MAPPER_BLACKBIRD.writeValueAsString(this);
-    }
+  @SneakyThrows
+  @Override
+  public String toString() {
+    return MAPPER_BLACKBIRD.writeValueAsString(this);
+  }
 }

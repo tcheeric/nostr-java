@@ -1,61 +1,59 @@
 package nostr.event.json.codec;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.tag.GenericTag;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import nostr.event.json.codec.EventEncodingException;
-
-import java.util.ArrayList;
 
 @Data
 @Slf4j
 public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
-    private final Class<T> clazz;
+  private final Class<T> clazz;
 
-    public GenericTagDecoder() {
-        this((Class<T>) GenericTag.class);
+  public GenericTagDecoder() {
+    this((Class<T>) GenericTag.class);
+  }
+
+  public GenericTagDecoder(@NonNull Class<T> clazz) {
+    this.clazz = clazz;
+  }
+
+  @Override
+  /**
+   * Decodes a JSON array into a {@link GenericTag} instance.
+   *
+   * @param json JSON array string representing the tag
+   * @return decoded tag
+   * @throws EventEncodingException if decoding fails
+   */
+  public T decode(@NonNull String json) throws EventEncodingException {
+    try {
+      String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
+      GenericTag genericTag =
+          new GenericTag(
+              jsonElements[0],
+              new ArrayList<>() {
+                {
+                  for (int i = 1; i < jsonElements.length; i++) {
+                    ElementAttribute attribute =
+                        new ElementAttribute("param" + (i - 1), jsonElements[i]);
+                    if (!contains(attribute)) {
+                      add(attribute);
+                    }
+                  }
+                }
+              });
+
+      log.info("Decoded GenericTag: {}", genericTag);
+
+      return (T) genericTag;
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to decode generic tag", ex);
     }
-
-    public GenericTagDecoder(@NonNull Class<T> clazz) {
-        this.clazz = clazz;
-    }
-
-    @Override
-    /**
-     * Decodes a JSON array into a {@link GenericTag} instance.
-     *
-     * @param json JSON array string representing the tag
-     * @return decoded tag
-     * @throws EventEncodingException if decoding fails
-     */
-    public T decode(@NonNull String json) throws EventEncodingException {
-        try {
-            String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
-            GenericTag genericTag = new GenericTag(
-                    jsonElements[0],
-                    new ArrayList<>() {
-                        {
-                            for (int i = 1; i < jsonElements.length; i++) {
-                                ElementAttribute attribute = new ElementAttribute(
-                                        "param" + (i - 1),
-                                        jsonElements[i]);
-                                if (!contains(attribute)) {
-                                    add(attribute);
-                                }
-                            }
-                        }
-                    });
-
-            log.info("Decoded GenericTag: {}", genericTag);
-
-            return (T) genericTag;
-        } catch (JsonProcessingException ex) {
-            throw new EventEncodingException("Failed to decode generic tag", ex);
-        }
-    }
+  }
 }

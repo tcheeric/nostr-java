@@ -20,22 +20,21 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class VoteTag extends BaseTag {
 
-    @Key
-    @JsonProperty
-    private Integer vote;
+  @Key @JsonProperty private Integer vote;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        VoteTag tag = new VoteTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setVote(n.asInt()), tag);
-        return (T) tag;
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    VoteTag tag = new VoteTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setVote(n.asInt()), tag);
+    return (T) tag;
+  }
+
+  public static VoteTag updateFields(@NonNull GenericTag genericTag) {
+    if (!"v".equals(genericTag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for VoteTag");
     }
 
-    public static VoteTag updateFields(@NonNull GenericTag genericTag) {
-        if (!"v".equals(genericTag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for VoteTag");
-        }
-
-        VoteTag voteTag = new VoteTag(Integer.valueOf(genericTag.getAttributes().get(0).value().toString()));
-        return voteTag;
-    }
+    VoteTag voteTag =
+        new VoteTag(Integer.valueOf(genericTag.getAttributes().get(0).value().toString()));
+    return voteTag;
+  }
 }

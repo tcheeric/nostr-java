@@ -5,10 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.codec.EventEncodingException;
 
 /**
- *
  * @author eric
  */
 @Data

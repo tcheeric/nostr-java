@@ -2,6 +2,8 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.List;
+import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,91 +19,97 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 
-import java.util.List;
-import java.util.Optional;
-
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "CalendarRsvpEvent", nip = 52)
 @JsonDeserialize(using = CalendarRsvpEventDeserializer.class)
 @NoArgsConstructor
 public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpContent> {
 
-    public enum Status {
-        ACCEPTED("accepted"),
-        TENTATIVE("tentative"),
-        DECLINED("declined");
+  public enum Status {
+    ACCEPTED("accepted"),
+    TENTATIVE("tentative"),
+    DECLINED("declined");
 
-        private final String status;
+    private final String status;
 
-        Status(String status) {
-            this.status = status;
-        }
-
-        @JsonValue
-        public String getStatus() {
-            return status;
-        }
+    Status(String status) {
+      this.status = status;
     }
 
-    public enum FB {
-        FREE("free"),
-        BUSY("busy");
+    @JsonValue
+    public String getStatus() {
+      return status;
+    }
+  }
 
-        private final String value;
+  public enum FB {
+    FREE("free"),
+    BUSY("busy");
 
-        FB(String fb) {
-            this.value = fb;
-        }
+    private final String value;
 
-        @JsonValue
-        public String getValue() {
-            return value;
-        }
+    FB(String fb) {
+      this.value = fb;
     }
 
-    public CalendarRsvpEvent(@NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content) {
-        super(sender, Kind.CALENDAR_RSVP_EVENT, baseTags, content);
+    @JsonValue
+    public String getValue() {
+      return value;
     }
+  }
 
-    public Status getStatus() {
-        return Status.valueOf(getCalendarContent().getStatus().toUpperCase());
-    }
+  public CalendarRsvpEvent(
+      @NonNull PublicKey sender, @NonNull List<BaseTag> baseTags, @NonNull String content) {
+    super(sender, Kind.CALENDAR_RSVP_EVENT, baseTags, content);
+  }
 
-    public Optional<FB> getFB() {
-        return getCalendarContent().getFbTag().map(fbTag -> fbTag.getAttributes().get(0).value().toString().toUpperCase()).map(FB::valueOf);
-    }
+  public Status getStatus() {
+    return Status.valueOf(getCalendarContent().getStatus().toUpperCase());
+  }
 
-    public Optional<String> getEventId() {
-        return getCalendarContent().getEventTag().map(EventTag::getIdEvent);
-    }
+  public Optional<FB> getFB() {
+    return getCalendarContent()
+        .getFbTag()
+        .map(fbTag -> fbTag.getAttributes().get(0).value().toString().toUpperCase())
+        .map(FB::valueOf);
+  }
 
-    public String getId() {
-        return getCalendarContent().getIdentifierTag().getUuid();
-    }
+  public Optional<String> getEventId() {
+    return getCalendarContent().getEventTag().map(EventTag::getIdEvent);
+  }
 
-    public Optional<PublicKey> getAuthor() {
-        return getCalendarContent().getAuthorPubKeyTag().map(PubKeyTag::getPublicKey);
-    }
+  public String getId() {
+    return getCalendarContent().getIdentifierTag().getUuid();
+  }
 
-    @Override
-    protected CalendarRsvpContent getCalendarContent() {
-        CalendarRsvpContent calendarRsvpContent = CalendarRsvpContent.builder(
+  public Optional<PublicKey> getAuthor() {
+    return getCalendarContent().getAuthorPubKeyTag().map(PubKeyTag::getPublicKey);
+  }
+
+  @Override
+  protected CalendarRsvpContent getCalendarContent() {
+    CalendarRsvpContent calendarRsvpContent =
+        CalendarRsvpContent.builder(
                 (IdentifierTag) getTag("d"),
                 (AddressTag) getTag("a"),
-                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString()
-        ).build();
+                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString())
+            .build();
 
-        Optional.ofNullable(getTag("e")).ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));
-        Optional.ofNullable(getTag("fb")).ifPresent(baseTag -> calendarRsvpContent.setFbTag((GenericTag) baseTag));
-        Optional.ofNullable(getTag("p")).ifPresent(baseTag -> calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) baseTag));
+    Optional.ofNullable(getTag("e"))
+        .ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));
+    Optional.ofNullable(getTag("fb"))
+        .ifPresent(baseTag -> calendarRsvpContent.setFbTag((GenericTag) baseTag));
+    Optional.ofNullable(getTag("p"))
+        .ifPresent(baseTag -> calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) baseTag));
 
-        return calendarRsvpContent;
+    return calendarRsvpContent;
+  }
+
+  @Override
+  public void validateKind() {
+    if (getKind() != Kind.CALENDAR_RSVP_EVENT.getValue()) {
+      throw new AssertionError(
+          "Invalid kind value. Expected " + Kind.CALENDAR_RSVP_EVENT.getValue());
     }
-
-    @Override
-    public void validateKind() {
-        if (getKind() != Kind.CALENDAR_RSVP_EVENT.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.CALENDAR_RSVP_EVENT.getValue());
-        }
-    }
+  }
 }

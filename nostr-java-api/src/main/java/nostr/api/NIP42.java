@@ -4,6 +4,8 @@
  */
 package nostr.api;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -17,74 +19,67 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.GenericMessage;
 
-import java.util.ArrayList;
-import java.util.List;
 /**
- *
  * @author eric
  */
 public class NIP42 extends EventNostr {
 
-    /**
-     *
-     * @param challenge
-     * @param relay
-     * @return
-     */
-    public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
-        GenericEvent genericEvent = new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION,"").create();
-        this.addChallengeTag(challenge);
-        this.addRelayTag(relay);
-        this.updateEvent(genericEvent);
+  /**
+   * @param challenge
+   * @param relay
+   * @return
+   */
+  public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
+    GenericEvent genericEvent =
+        new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION, "").create();
+    this.addChallengeTag(challenge);
+    this.addRelayTag(relay);
+    this.updateEvent(genericEvent);
 
-        return this;
-    }
+    return this;
+  }
 
+  public NIP42 addRelayTag(@NonNull Relay relay) {
+    var tag = createRelayTag(relay);
+    getEvent().addTag(tag);
+    return this;
+  }
 
-    public NIP42 addRelayTag(@NonNull Relay relay) {
-        var tag = createRelayTag(relay);
-        getEvent().addTag(tag);
-        return this;
-    }
+  public NIP42 addChallengeTag(@NonNull String challenge) {
+    var tag = createChallengeTag(challenge);
+    getEvent().addTag(tag);
+    return this;
+  }
 
-    public NIP42 addChallengeTag(@NonNull String challenge) {
-        var tag = createChallengeTag(challenge);
-        getEvent().addTag(tag);
-        return this;
-    }
+  /**
+   * @param relay
+   */
+  public static BaseTag createRelayTag(@NonNull Relay relay) {
+    return new BaseTagFactory(Constants.Tag.RELAY_CODE, relay.getUri()).create();
+  }
 
-    /**
-     *
-     * @param relay
-     */
-    public static BaseTag createRelayTag(@NonNull Relay relay) {
-        return new BaseTagFactory(Constants.Tag.RELAY_CODE, relay.getUri()).create();
-    }
+  /**
+   * @param challenge
+   */
+  public static BaseTag createChallengeTag(@NonNull String challenge) {
+    return new BaseTagFactory(Constants.Tag.CHALLENGE_CODE, challenge).create();
+  }
 
-    /**
-     *
-     * @param challenge
-     */
-    public static BaseTag createChallengeTag(@NonNull String challenge) {
-        return new BaseTagFactory(Constants.Tag.CHALLENGE_CODE, challenge).create();
-    }
+  /**
+   * @param event
+   */
+  public static CanonicalAuthenticationMessage createClientAuthenticationMessage(
+      @NonNull CanonicalAuthenticationEvent event) {
+    return new CanonicalAuthenticationMessage(event);
+  }
 
-    /**
-     *
-     * @param event
-     */
-    public static CanonicalAuthenticationMessage createClientAuthenticationMessage(@NonNull CanonicalAuthenticationEvent event) {
-        return new CanonicalAuthenticationMessage(event);
-    }
-
-    /**
-     *
-     * @param challenge
-     */
-    public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
-        final List<ElementAttribute> attributes = new ArrayList<>();
-        final var attr = new ElementAttribute("challenge", challenge);
-        attributes.add(attr);
-        return new GenericMessage(Command.AUTH.name(), attributes);
-    }
+  /**
+   * @param challenge
+   */
+  public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
+    final List<ElementAttribute> attributes = new ArrayList<>();
+    final var attr = new ElementAttribute("challenge", challenge);
+    attributes.add(attr);
+    return new GenericMessage(Command.AUTH.name(), attributes);
+  }
 }

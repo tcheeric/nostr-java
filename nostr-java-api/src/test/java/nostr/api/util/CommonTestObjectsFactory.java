@@ -1,5 +1,9 @@
 package nostr.api.util;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import lombok.Getter;
 import nostr.api.NIP01;
 import nostr.api.NIP99;
@@ -17,18 +21,14 @@ import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-
 public class CommonTestObjectsFactory {
 
   public static Identity createNewIdentity() {
     return Identity.generateRandomIdentity();
   }
 
-  public static <T extends GenericEvent> T createTextNoteEvent(Identity identity, List<BaseTag> tags, String content) throws NostrException {
+  public static <T extends GenericEvent> T createTextNoteEvent(
+      Identity identity, List<BaseTag> tags, String content) throws NostrException {
     NIP01 nip01 = new NIP01(identity);
     GenericEvent genericEvent = nip01.createTextNoteEvent(tags, content).getEvent();
     TextNoteEvent textNoteEvent = GenericEvent.convert(genericEvent, TextNoteEvent.class);
@@ -36,13 +36,10 @@ public class CommonTestObjectsFactory {
   }
 
   public static <T extends GenericEvent> T createClassifiedListingEvent(
-      Identity identity,
-      List<BaseTag> tags,
-      String content,
-      ClassifiedListing cl) {
+      Identity identity, List<BaseTag> tags, String content, ClassifiedListing cl) {
 
     NIP99 nip99 = new NIP99(identity);
-    return (T) nip99.createClassifiedListingEvent (tags, content, cl).getEvent();
+    return (T) nip99.createClassifiedListingEvent(tags, content, cl).getEvent();
   }
 
   public static GenericEvent createGenericEvent() {
@@ -98,13 +95,12 @@ public class CommonTestObjectsFactory {
     boolean useLetters = false;
     boolean useNumbers = true;
     return cullStringLength(
-        String.join("-", s, generateRandomAlphaNumericString(length, useLetters, useNumbers))
-        , 64);
+        String.join("-", s, generateRandomAlphaNumericString(length, useLetters, useNumbers)), 64);
   }
 
   public static String lnUrl() {
-//  lnurl1dp68gurn8ghj7um5v93kketj9ehx2amn9uh8wetvdskkkmn0wahz7mrww4excup0dajx2mrv92x9xp
-//  match lnUrl string length of 84
+    //  lnurl1dp68gurn8ghj7um5v93kketj9ehx2amn9uh8wetvdskkkmn0wahz7mrww4excup0dajx2mrv92x9xp
+    //  match lnUrl string length of 84
     return cullStringLength("lnurl" + generateRandomHex64String(), 84);
   }
 
@@ -112,12 +108,16 @@ public class CommonTestObjectsFactory {
     return s.length() > x ? s.substring(0, x) : s;
   }
 
-  private static String generateRandomAlphaNumericString(int length, boolean useLetters, boolean useNumbers) {
+  private static String generateRandomAlphaNumericString(
+      int length, boolean useLetters, boolean useNumbers) {
     return RandomStringUtils.random(length, useLetters, useNumbers);
   }
 
   public static String generateRandomHex64String() {
-    return UUID.randomUUID().toString().concat(UUID.randomUUID().toString()).replaceAll("[^A-Za-z0-9]", "");
+    return UUID.randomUUID()
+        .toString()
+        .concat(UUID.randomUUID().toString())
+        .replaceAll("[^A-Za-z0-9]", "");
   }
 
   public static BigDecimal createRandomBigDecimal() {
@@ -144,11 +144,7 @@ public class CommonTestObjectsFactory {
     private final ClassifiedListing classifiedListing;
 
     private ClassifiedListingComposite(String title, String summary, PriceTag priceTag) {
-      this.classifiedListing = ClassifiedListing.builder(
-              title,
-              summary,
-              priceTag)
-          .build();
+      this.classifiedListing = ClassifiedListing.builder(title, summary, priceTag).build();
     }
   }
 }
