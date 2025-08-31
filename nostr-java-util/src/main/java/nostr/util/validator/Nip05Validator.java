@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nostr.util.NostrException;
@@ -23,14 +23,34 @@ import java.util.Map;
  *
  * @author squirrel
  */
-@Builder
-@RequiredArgsConstructor
 @Data
 @Slf4j
 public class Nip05Validator {
 
     private final String nip05;
     private final String publicKey;
+
+    @Builder
+    public Nip05Validator(String nip05, String publicKey) {
+        this.nip05 = nip05;
+        this.publicKey = publicKey;
+    }
+    
+    // Reuse a single HttpClient instance (HttpClient is not Closeable)
+    private transient volatile HttpClient cachedClient;
+    
+    private HttpClient client() {
+        HttpClient local = cachedClient;
+        if (local == null) {
+            synchronized (this) {
+                if (cachedClient == null) {
+                    cachedClient = HttpClient.newHttpClient();
+                }
+                local = cachedClient;
+            }
+        }
+        return local;
+    }
 
     private static final String LOCAL_PART_PATTERN = "^[a-zA-Z0-9-_\\.]+$";
 
@@ -63,7 +83,7 @@ public class Nip05Validator {
                 .replace("<domain>", domain)
                 .replace("<localPart>", localPart);
 
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client = client();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(strUrl))
                 .GET()

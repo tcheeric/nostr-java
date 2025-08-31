@@ -56,8 +56,6 @@ public abstract class MerchantEvent<T extends NIP15Content.MerchantContent> exte
             if (entity.getId() == null || entity.getId().isEmpty()) {
                 throw new AssertionError("Invalid `content`: `id` field is required.");
             }
-        } catch (AssertionError e) {
-            throw e;
         } catch (Exception e) {
             throw new AssertionError("Invalid `content`: Must be a valid JSON object.", e);
         }

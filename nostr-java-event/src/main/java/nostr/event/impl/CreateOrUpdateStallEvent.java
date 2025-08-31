@@ -58,8 +58,6 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
             if (stall.getCurrency() == null || stall.getCurrency().isEmpty()) {
                 throw new AssertionError("Invalid `content`: `currency` field is required.");
             }
-        } catch (AssertionError e) {
-            throw e;
         } catch (Exception e) {
             throw new AssertionError("Invalid `content`: Must be a valid Stall JSON object.", e);
         }
