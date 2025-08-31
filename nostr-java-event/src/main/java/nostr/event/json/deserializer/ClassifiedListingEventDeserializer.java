@@ -34,10 +34,11 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
             .map(element -> IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class))
             .toList();
     Map<String, String> generalMap = new HashMap<>();
-    classifiedListingEventNode
-        .fields()
-        .forEachRemaining(
-            generalTag -> generalMap.put(generalTag.getKey(), generalTag.getValue().asText()));
+    var fieldNames = classifiedListingEventNode.fieldNames();
+    while (fieldNames.hasNext()) {
+      String key = fieldNames.next();
+      generalMap.put(key, classifiedListingEventNode.get(key).asText());
+    }
 
     ClassifiedListingEvent classifiedListingEvent =
         new ClassifiedListingEvent(

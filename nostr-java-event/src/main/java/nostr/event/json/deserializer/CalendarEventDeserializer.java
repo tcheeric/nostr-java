@@ -35,10 +35,11 @@ public class CalendarEventDeserializer extends StdDeserializer<CalendarEvent> {
             .toList();
 
     Map<String, String> generalMap = new HashMap<>();
-    calendarTimeBasedEventNode
-        .fields()
-        .forEachRemaining(
-            generalTag -> generalMap.put(generalTag.getKey(), generalTag.getValue().asText()));
+    var fieldNames = calendarTimeBasedEventNode.fieldNames();
+    while (fieldNames.hasNext()) {
+      String key = fieldNames.next();
+      generalMap.put(key, calendarTimeBasedEventNode.get(key).asText());
+    }
 
     CalendarEvent calendarEvent =
         new CalendarEvent(

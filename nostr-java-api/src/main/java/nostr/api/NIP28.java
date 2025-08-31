@@ -22,7 +22,7 @@ import nostr.config.Constants;
 import nostr.event.entities.ChannelProfile;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * NIP-28 helpers (Public chat). Build channel create/metadata/message and moderation events.
