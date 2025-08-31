@@ -12,7 +12,7 @@ import org.springframework.retry.annotation.Retryable;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Retryable(
-    value = IOException.class,
+    include = IOException.class,
     maxAttempts = NostrRetryable.MAX_ATTEMPTS,
     backoff = @Backoff(delay = NostrRetryable.DELAY, multiplier = NostrRetryable.MULTIPLIER))
 public @interface NostrRetryable {
