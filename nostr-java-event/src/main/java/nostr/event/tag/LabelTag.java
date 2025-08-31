@@ -18,32 +18,32 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class LabelTag extends BaseTag {
 
-    @Key
-    @JsonProperty("l")
-    private String label;
+  @Key
+  @JsonProperty("l")
+  private String label;
 
-    @Key
-    @JsonProperty("L")
-    private String nameSpace;
+  @Key
+  @JsonProperty("L")
+  private String nameSpace;
 
-    public LabelTag(@NonNull String label, @NonNull LabelNamespaceTag labelNamespaceTag) {
-        this(label, labelNamespaceTag.getNameSpace());
+  public LabelTag(@NonNull String label, @NonNull LabelNamespaceTag labelNamespaceTag) {
+    this(label, labelNamespaceTag.getNameSpace());
+  }
+
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    LabelTag tag = new LabelTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setLabel(n.asText()), tag);
+    setRequiredField(node.get(2), (n, t) -> tag.setNameSpace(n.asText()), tag);
+    return (T) tag;
+  }
+
+  public static LabelTag updateFields(@NonNull GenericTag tag) {
+    if (!"l".equals(tag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for LabelTag");
     }
-
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        LabelTag tag = new LabelTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setLabel(n.asText()), tag);
-        setRequiredField(node.get(2), (n, t) -> tag.setNameSpace(n.asText()), tag);
-        return (T) tag;
-    }
-
-    public static LabelTag updateFields(@NonNull GenericTag tag) {
-        if (!"l".equals(tag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for LabelTag");
-        }
-        LabelTag labelTag = new LabelTag();
-        labelTag.setLabel(tag.getAttributes().get(0).value().toString());
-        labelTag.setNameSpace(tag.getAttributes().get(1).value().toString());
-        return labelTag;
-    }
+    LabelTag labelTag = new LabelTag();
+    labelTag.setLabel(tag.getAttributes().get(0).value().toString());
+    labelTag.setNameSpace(tag.getAttributes().get(1).value().toString());
+    return labelTag;
+  }
 }

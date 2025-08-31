@@ -23,27 +23,27 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class GeohashTag extends BaseTag {
 
-    @Key
-    @JsonProperty("g")
-    private String location;
+  @Key
+  @JsonProperty("g")
+  private String location;
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        GeohashTag tag = new GeohashTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
-        return (T) tag;
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    GeohashTag tag = new GeohashTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
+    return (T) tag;
+  }
+
+  public static GeohashTag updateFields(@NonNull GenericTag genericTag) {
+    if (!"g".equals(genericTag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for GeohashTag");
     }
 
-    public static GeohashTag updateFields(@NonNull GenericTag genericTag) {
-        if (!"g".equals(genericTag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for GeohashTag");
-        }
-
-        if (genericTag.getAttributes().size() != 1) {
-            throw new IllegalArgumentException("Invalid number of attributes for GeohashTag");
-        }
-
-        GeohashTag tag = new GeohashTag();
-        tag.setLocation(genericTag.getAttributes().get(0).value().toString());
-        return tag;
+    if (genericTag.getAttributes().size() != 1) {
+      throw new IllegalArgumentException("Invalid number of attributes for GeohashTag");
     }
+
+    GeohashTag tag = new GeohashTag();
+    tag.setLocation(genericTag.getAttributes().get(0).value().toString());
+    return tag;
+  }
 }

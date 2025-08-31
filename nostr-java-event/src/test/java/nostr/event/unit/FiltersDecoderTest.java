@@ -1,5 +1,10 @@
 package nostr.event.unit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.Instant;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.GenericTagQuery;
 import nostr.base.Kind;
@@ -26,12 +31,6 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @Slf4j
 public class FiltersDecoderTest {
 
@@ -45,10 +44,7 @@ public class FiltersDecoderTest {
     String expected = "{\"" + filterKey + "\":[\"" + eventId + "\"]}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    assertEquals(
-        new Filters(
-            new EventFilter<>(new GenericEvent(eventId))),
-        decodedFilters);
+    assertEquals(new Filters(new EventFilter<>(new GenericEvent(eventId))), decodedFilters);
   }
 
   @Test
@@ -71,7 +67,6 @@ public class FiltersDecoderTest {
         decodedFilters);
   }
 
-
   @Test
   public void testAddressableTagFiltersDecoder() {
     log.info("testAddressableTagFiltersDecoder");
@@ -90,10 +85,7 @@ public class FiltersDecoderTest {
     String expected = "{\"#a\":[\"" + joined + "\"]}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    assertEquals(
-        new Filters(
-            new AddressTagFilter<>(addressTag)),
-        decodedFilters);
+    assertEquals(new Filters(new AddressTagFilter<>(addressTag)), decodedFilters);
   }
 
   @Test
@@ -127,9 +119,7 @@ public class FiltersDecoderTest {
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(
-        new Filters(
-            new AddressTagFilter<>(addressTag1),
-            new AddressTagFilter<>(addressTag2)),
+        new Filters(new AddressTagFilter<>(addressTag1), new AddressTagFilter<>(addressTag2)),
         decodedFilters);
   }
 
@@ -159,11 +149,7 @@ public class FiltersDecoderTest {
     String expected = "{\"" + filterKey + "\":[" + join + "]}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    assertEquals(
-        new Filters(
-            new KindFilter<>(kind1),
-            new KindFilter<>(kind2)),
-        decodedFilters);
+    assertEquals(new Filters(new KindFilter<>(kind1), new KindFilter<>(kind2)), decodedFilters);
   }
 
   @Test
@@ -175,8 +161,8 @@ public class FiltersDecoderTest {
     String expected = "{\"#d\":[\"" + uuidValue1 + "\"]}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-
-    assertEquals(new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))), decodedFilters);
+    assertEquals(
+        new Filters(new IdentifierTagFilter<>(new IdentifierTag(uuidValue1))), decodedFilters);
   }
 
   @Test
@@ -237,7 +223,9 @@ public class FiltersDecoderTest {
     String expected = "{\"#p\":[\"" + pubkeyString + "\"]}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
-    assertEquals(new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))), decodedFilters);
+    assertEquals(
+        new Filters(new ReferencedPublicKeyFilter<>(new PubKeyTag(new PublicKey(pubkeyString)))),
+        decodedFilters);
   }
 
   @Test
@@ -265,7 +253,8 @@ public class FiltersDecoderTest {
 
     String geohashKey = "#g";
     String geohashValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + geohashKey + "\":[\"" + geohashValue + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
@@ -279,11 +268,13 @@ public class FiltersDecoderTest {
     String geohashKey = "#g";
     String geohashValue1 = "2vghde";
     String geohashValue2 = "3abcde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + geohashKey + "\":[\"" + geohashValue1 + "\",\"" + geohashValue2 + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    assertEquals(new Filters(
+    assertEquals(
+        new Filters(
             new GeohashTagFilter<>(new GeohashTag(geohashValue1)),
             new GeohashTagFilter<>(new GeohashTag(geohashValue2))),
         decodedFilters);
@@ -295,7 +286,8 @@ public class FiltersDecoderTest {
 
     String hashtagKey = "#t";
     String hashtagValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + hashtagKey + "\":[\"" + hashtagValue + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
@@ -309,11 +301,13 @@ public class FiltersDecoderTest {
     String hashtagKey = "#t";
     String hashtagValue1 = "2vghde";
     String hashtagValue2 = "3abcde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + hashtagKey + "\":[\"" + hashtagValue1 + "\",\"" + hashtagValue2 + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    assertEquals(new Filters(
+    assertEquals(
+        new Filters(
             new HashtagTagFilter<>(new HashtagTag(hashtagValue1)),
             new HashtagTagFilter<>(new HashtagTag(hashtagValue2))),
         decodedFilters);
@@ -325,11 +319,14 @@ public class FiltersDecoderTest {
 
     String customTagKey = "#b";
     String customTagValue = "2vghde";
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + customTagKey + "\":[\"" + customTagValue + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
-    assertEquals(new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))), decodedFilters);
+    assertEquals(
+        new Filters(new GenericTagQueryFilter<>(new GenericTagQuery(customTagKey, customTagValue))),
+        decodedFilters);
   }
 
   @Test
@@ -340,7 +337,8 @@ public class FiltersDecoderTest {
     String customTagValue1 = "2vghde";
     String customTagValue2 = "3abcde";
 
-    String reqJsonWithCustomTagQueryFilterToDecode = "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
+    String reqJsonWithCustomTagQueryFilterToDecode =
+        "{\"" + customTagKey + "\":[\"" + customTagValue1 + "\",\"" + customTagValue2 + "\"]}";
 
     Filters decodedFilters = new FiltersDecoder().decode(reqJsonWithCustomTagQueryFilterToDecode);
 
@@ -383,7 +381,14 @@ public class FiltersDecoderTest {
     Kind kind = Kind.valueOf(1);
     Long since = Date.from(Instant.now()).getTime();
 
-    String expected = "{\"ids\":[\"" + eventId + "\"],\"kinds\":[" + kind.toString() + "],\"since\":" + since + "}";
+    String expected =
+        "{\"ids\":[\""
+            + eventId
+            + "\"],\"kinds\":["
+            + kind.toString()
+            + "],\"since\":"
+            + since
+            + "}";
     Filters decodedFilters = new FiltersDecoder().decode(expected);
 
     assertEquals(

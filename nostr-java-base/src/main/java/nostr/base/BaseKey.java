@@ -1,6 +1,7 @@
 package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,8 +11,6 @@ import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
 
-import java.util.Arrays;
-
 /**
  * @author squirrel
  */
@@ -20,64 +19,58 @@ import java.util.Arrays;
 @Slf4j
 public abstract class BaseKey implements IKey {
 
-    @NonNull
-    @EqualsAndHashCode.Exclude
-    protected final KeyType type;
+  @NonNull @EqualsAndHashCode.Exclude protected final KeyType type;
 
-    @NonNull
-    protected final byte[] rawData;
+  @NonNull protected final byte[] rawData;
 
-    protected final Bech32Prefix prefix;
+  protected final Bech32Prefix prefix;
 
-    @Override
-    public String toBech32String() {
-        try {
-            String bech32 = Bech32.toBech32(prefix, rawData);
-            log.debug("Converted key to Bech32 with prefix {}", prefix);
-            return bech32;
-        } catch (Exception ex) {
-            log.error("Error converting key to Bech32", ex);
-            throw new RuntimeException(ex);
-        }
+  @Override
+  public String toBech32String() {
+    try {
+      String bech32 = Bech32.toBech32(prefix, rawData);
+      log.debug("Converted key to Bech32 with prefix {}", prefix);
+      return bech32;
+    } catch (Exception ex) {
+      log.error("Error converting key to Bech32", ex);
+      throw new RuntimeException(ex);
     }
+  }
 
-    @Override
-    @JsonValue
-    public String toString() {
-        return toHexString();
-    }
+  @Override
+  @JsonValue
+  public String toString() {
+    return toHexString();
+  }
 
-    public String toHexString() {
-        String hex = NostrUtil.bytesToHex(rawData);
-        log.debug("Converted key to hex string");
-        return hex;
-    }
+  public String toHexString() {
+    String hex = NostrUtil.bytesToHex(rawData);
+    log.debug("Converted key to hex string");
+    return hex;
+  }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 31 * hash + this.type.hashCode();
-        hash = 31 * hash + (this.prefix == null ? 0 : this.prefix.hashCode());
-        hash = 31 * hash + (this.rawData == null ? 0 : Arrays.hashCode(this.rawData));
-        return hash;
-    }
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 31 * hash + this.type.hashCode();
+    hash = 31 * hash + (this.prefix == null ? 0 : this.prefix.hashCode());
+    hash = 31 * hash + (this.rawData == null ? 0 : Arrays.hashCode(this.rawData));
+    return hash;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-        // null check
-        if (o == null)
-            return false;
+    // null check
+    if (o == null) return false;
 
-        // type check and cast
-        if (getClass() != o.getClass())
-            return false;
+    // type check and cast
+    if (getClass() != o.getClass()) return false;
 
-        BaseKey baseKey = (BaseKey) o;
+    BaseKey baseKey = (BaseKey) o;
 
-        // field comparison
-        return Arrays.equals(rawData, baseKey.rawData);
-    }
+    // field comparison
+    return Arrays.equals(rawData, baseKey.rawData);
+  }
 }

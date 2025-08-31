@@ -1,0 +1,62 @@
+name: Codex Issue Resolution
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  codex-job:
+    if: contains(github.event.label.name, 'codex') && github.event.issue.user.login == 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract issue info
+        id: issue
+        run: |
+          echo "title=${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+          echo "body=${{ github.event.issue.body }}" >> $GITHUB_OUTPUT
+
+      - name: Determine model
+        id: model
+        run: |
+          # Default model if not provided as a secret
+          MODEL="${{ secrets.OPENAI_MODEL }}"
+          if [ -z "$MODEL" ]; then
+            MODEL="gpt-4.1-mini"
+            echo "No OPENAI_MODEL secret found. Falling back to default: $MODEL"
+          fi
+          echo "model=$MODEL" >> $GITHUB_OUTPUT
+
+      - name: Call OpenAI
+        id: codex
+        run: |
+          response=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -d "{
+              \"model\": \"${{ steps.model.outputs.model }}\",
+              \"messages\": [
+                {\"role\": \"system\", \"content\": \"You are an AI assistant helping resolve GitHub issues.\"},
+                {\"role\": \"user\", \"content\": \"Issue Title: ${{ steps.issue.outputs.title }}\nIssue Body: ${{ steps.issue.outputs.body }}\n\nPlease propose a resolution.\"}
+              ],
+              \"max_tokens\": 300
+            }" | jq -r '.choices[0].message.content')
+
+          echo "response<<EOF" >> $GITHUB_OUTPUT
+          echo "$response" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Post comment with Codex resolution
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+            -f body="💡 **Codex Suggestion (Model: ${{ steps.model.outputs.model }})**\n\n${{ steps.codex.outputs.response }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update labels
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels/codex -X DELETE || true
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels \
+            -f labels='["codex-resolved"]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

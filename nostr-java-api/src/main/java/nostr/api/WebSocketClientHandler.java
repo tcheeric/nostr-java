@@ -1,5 +1,10 @@
 package nostr.api;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import lombok.Getter;
 import lombok.NonNull;
 import nostr.base.IEvent;
@@ -10,60 +15,77 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-
+/**
+ * Internal helper managing a relay connection and per-subscription request clients.
+ */
 public class WebSocketClientHandler {
-    private final SpringWebSocketClient eventClient;
-    private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
+  private final SpringWebSocketClient eventClient;
+  private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
 
-    @Getter
-    private String relayName;
-    @Getter
-    private String relayUri;
+  @Getter private String relayName;
+  @Getter private String relayUri;
 
-    protected WebSocketClientHandler(@NonNull String relayName, @NonNull String relayUri)
-        throws ExecutionException, InterruptedException {
-        this.relayName = relayName;
-        this.relayUri = relayUri;
-        this.eventClient = new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
+  /**
+   * Create a handler for a specific relay.
+   *
+   * @param relayName human-friendly relay name
+   * @param relayUri relay WebSocket URI
+   */
+  protected WebSocketClientHandler(@NonNull String relayName, @NonNull String relayUri)
+      throws ExecutionException, InterruptedException {
+    this.relayName = relayName;
+    this.relayUri = relayUri;
+    this.eventClient = new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
+  }
+
+  /**
+   * Send an event message to the relay using the main client.
+   *
+   * @param event the event to send
+   * @return relay responses (raw JSON messages)
+   */
+  public List<String> sendEvent(@NonNull IEvent event) {
+    ((GenericEvent) event).validate();
+    try {
+      return eventClient.send(new EventMessage(event)).stream().toList();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to send event", e);
     }
+  }
 
-    public List<String> sendEvent(@NonNull IEvent event) {
-        ((GenericEvent) event).validate();
+  /**
+   * Send a REQ message on a per-subscription client associated with this handler.
+   *
+   * @param filters the filter
+   * @param subscriptionId the subscription identifier
+   * @return relay responses (raw JSON messages)
+   */
+  protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+    try {
+      SpringWebSocketClient client = requestClientMap.get(subscriptionId);
+      if (client == null) {
         try {
-            return eventClient.send(new EventMessage(event)).stream().toList();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send event", e);
+          requestClientMap.put(
+              subscriptionId,
+              new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri));
+          client = requestClientMap.get(subscriptionId);
+        } catch (ExecutionException | InterruptedException e) {
+          throw new RuntimeException("Failed to initialize request client", e);
         }
+      }
+      return client.send(new ReqMessage(subscriptionId, filters));
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to send request", e);
     }
+  }
 
-    protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
-        try {
-            SpringWebSocketClient client = requestClientMap.get(subscriptionId);
-            if (client == null) {
-                try {
-                    requestClientMap.put(
-                        subscriptionId,
-                        new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri));
-                    client = requestClientMap.get(subscriptionId);
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException("Failed to initialize request client", e);
-                }
-            }
-            return client.send(new ReqMessage(subscriptionId, filters));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send request", e);
-        }
+  /**
+   * Close the event client and any per-subscription request clients.
+   */
+  public void close() throws IOException {
+    eventClient.close();
+    for (SpringWebSocketClient client : requestClientMap.values()) {
+      client.close();
     }
-
-    public void close() throws IOException {
-        eventClient.close();
-        for (SpringWebSocketClient client : requestClientMap.values()) {
-            client.close();
-        }
-    }
+  }
 }

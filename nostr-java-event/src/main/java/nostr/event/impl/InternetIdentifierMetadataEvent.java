@@ -19,49 +19,49 @@ import nostr.event.entities.UserProfile;
 @NoArgsConstructor
 public final class InternetIdentifierMetadataEvent extends NIP05Event {
 
-    private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
+  private static final String NAME_PATTERN = "\\w[\\w\\-]+\\w";
 
-    public InternetIdentifierMetadataEvent(PublicKey pubKey, String content) {
-        super(pubKey, Kind.SET_METADATA);
-        this.setContent(content);
+  public InternetIdentifierMetadataEvent(PublicKey pubKey, String content) {
+    super(pubKey, Kind.SET_METADATA);
+    this.setContent(content);
+  }
+
+  @SneakyThrows
+  public UserProfile getProfile() {
+    String content = getContent();
+    return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
+  }
+
+  @Override
+  protected void validateContent() {
+    super.validateContent();
+
+    // Parse and validate the JSON content
+    UserProfile profile = getProfile();
+
+    // Validate required fields in the profile
+    if (profile.getNip05() == null || profile.getNip05().isEmpty()) {
+      throw new AssertionError("Invalid `content`: `nip05` field must not be null or empty.");
     }
 
-    @SneakyThrows
-    public UserProfile getProfile() {
-        String content = getContent();
-        return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
+    boolean valid = true;
+    var strNameArr = profile.getNip05().split("@");
+    if (strNameArr.length == 2) {
+      var localPart = strNameArr[0];
+      valid = localPart.matches(NAME_PATTERN);
+    }
+    if (!valid) {
+      throw new AssertionError("Invalid profile name: " + profile, null);
     }
 
-    @Override
-    protected void validateContent() {
-        super.validateContent();
+    // Validate the NIP-05 identifier
+    // NOTE: This is now up to the client to perform this validation
+  }
 
-        // Parse and validate the JSON content
-        UserProfile profile = getProfile();
-
-        // Validate required fields in the profile
-        if (profile.getNip05() == null || profile.getNip05().isEmpty()) {
-            throw new AssertionError("Invalid `content`: `nip05` field must not be null or empty.");
-        }
-
-        boolean valid = true;
-        var strNameArr = profile.getNip05().split("@");
-        if (strNameArr.length == 2) {
-            var localPart = strNameArr[0];
-            valid = localPart.matches(NAME_PATTERN);
-        }
-        if (!valid) {
-            throw new AssertionError("Invalid profile name: " + profile, null);
-        }
-
-        // Validate the NIP-05 identifier
-        // NOTE: This is now up to the client to perform this validation
+  @Override
+  protected void validateKind() {
+    if (getKind() != Kind.SET_METADATA.getValue()) {
+      throw new AssertionError("Invalid kind value. Expected " + Kind.SET_METADATA.getValue());
     }
-
-    @Override
-    protected void validateKind() {
-        if (getKind() != Kind.SET_METADATA.getValue()) {
-            throw new AssertionError("Invalid kind value. Expected " + Kind.SET_METADATA.getValue());
-        }
-    }
+  }
 }

@@ -10,26 +10,29 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 
 /**
- *
- * @author eric
+ * NIP-32 helpers (Labeling). Create namespace and label tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/32.md
  */
 public class NIP32 {
-    
-    /**
-     * 
-     * @param namespace the namespace
-     */
-    public static BaseTag createNameSpaceTag(@NonNull String namespace) {
-        return new BaseTagFactory(Constants.Tag.NAMESPACE_CODE, namespace).create();
-    }
 
-    /**
-     *
-     * @param label the label value
-     * @param namespace the label's namespace
-     *
-     */
-    public static BaseTag createLabelTag(@NonNull String label, @NonNull String namespace) {
-        return new BaseTagFactory(Constants.Tag.LABEL_CODE, label, namespace).create();
-    }
+  /**
+   * Create a namespace tag for labels (NIP-32).
+   *
+   * @param namespace the label namespace
+   * @return the created namespace tag
+   */
+  public static BaseTag createNameSpaceTag(@NonNull String namespace) {
+    return new BaseTagFactory(Constants.Tag.NAMESPACE_CODE, namespace).create();
+  }
+
+  /**
+   * Create a label tag within the provided namespace (NIP-32).
+   *
+   * @param label the label value
+   * @param namespace the label's namespace
+   * @return the created label tag
+   */
+  public static BaseTag createLabelTag(@NonNull String label, @NonNull String namespace) {
+    return new BaseTagFactory(Constants.Tag.LABEL_CODE, label, namespace).create();
+  }
 }
