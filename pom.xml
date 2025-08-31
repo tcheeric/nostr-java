@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.4</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -74,7 +74,7 @@
     </modules>
 
     <properties>
-        <nostr-java.version>0.2.2</nostr-java.version>
+        <nostr-java.version>0.2.4</nostr-java.version>
         <java.version>21</java.version>
         
         <spring-boot.version>3.5.4</spring-boot.version>
