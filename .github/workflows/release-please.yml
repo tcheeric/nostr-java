@@ -2,7 +2,7 @@ name: release-please
 
 on:
   workflow_run:
-    workflows: ["CodeQL"]
+    workflows: ["CI"]
     types: [completed]
 
 permissions:

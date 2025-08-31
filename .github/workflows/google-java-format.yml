@@ -1,9 +1,9 @@
 name: Format
 
 on:
-  workflow_run:
-    workflows: ["Conventional Commits"]
-    types: [completed]
+  pull_request:
+    branches:
+      - develop
 
 jobs:
 
