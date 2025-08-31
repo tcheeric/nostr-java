@@ -25,7 +25,11 @@ abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T>
       applyCustomAttributes(node, value);
 
       ArrayNode arrayNode = node.objectNode().putArray("values").add(value.getCode());
-      node.fields().forEachRemaining(entry -> arrayNode.add(entry.getValue().asText()));
+      var fieldNames = node.fieldNames();
+      while (fieldNames.hasNext()) {
+        String key = fieldNames.next();
+        arrayNode.add(node.get(key).asText());
+      }
       gen.writePOJO(arrayNode);
     } catch (IOException e) {
       throw new RuntimeException(e);
