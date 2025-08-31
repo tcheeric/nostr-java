@@ -53,13 +53,12 @@ public abstract class MerchantEvent<T extends NIP15Content.MerchantContent>
         throw new AssertionError("Invalid `content`: Unable to parse merchant entity.");
       }
 
-      if (entity.getId() == null || entity.getId().isEmpty()) {
-        throw new AssertionError("Invalid `content`: `id` field is required.");
-      }
-    } catch (AssertionError e) {
-      throw e;
-    } catch (Exception e) {
-      throw new AssertionError("Invalid `content`: Must be a valid JSON object.", e);
+            if (entity.getId() == null || entity.getId().isEmpty()) {
+                throw new AssertionError("Invalid `content`: `id` field is required.");
+            }
+        } catch (Exception e) {
+            throw new AssertionError("Invalid `content`: Must be a valid JSON object.", e);
+        }
     }
   }
 }
