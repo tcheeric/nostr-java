@@ -13,7 +13,8 @@ import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-09 helpers (Event Deletion). Build deletion events targeting events or addresses.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/09.md
  */
 public class NIP09 extends EventNostr {
 
@@ -25,7 +26,7 @@ public class NIP09 extends EventNostr {
    * Create a NIP09 Deletion Event
    *
    * @param deleteables an array of event or address tags to be deleted
-   * @return
+   * @return this instance for chaining
    */
   public NIP09 createDeletionEvent(@NonNull Deleteable... deleteables) {
     return this.createDeletionEvent(List.of(deleteables));
@@ -35,7 +36,7 @@ public class NIP09 extends EventNostr {
    * Create a NIP09 Deletion Event
    *
    * @param deleteables list of event or address tags to be deleted
-   * @return
+   * @return this instance for chaining
    */
   public NIP09 createDeletionEvent(@NonNull List<Deleteable> deleteables) {
     List<BaseTag> tags = getTags(deleteables);

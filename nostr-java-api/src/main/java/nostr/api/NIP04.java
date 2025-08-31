@@ -21,11 +21,17 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-04 helpers (Encrypted Direct Messages). Build and encrypt DM events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/04.md
  */
 @Slf4j
 public class NIP04 extends EventNostr {
-
+  /**
+   * Construct a NIP-04 helper for encrypting/sending DMs.
+   *
+   * @param sender the sender identity used for signing and encryption
+   * @param recipient the recipient public key
+   */
   public NIP04(@NonNull Identity sender, @NonNull PublicKey recipient) {
     setSender(sender);
     setRecipient(recipient);
@@ -115,7 +121,7 @@ public class NIP04 extends EventNostr {
   /**
    * Decrypt an encrypted direct message
    *
-   * @param rcptId
+   * @param rcptId the identity attempting to decrypt (recipient or sender)
    * @param event the encrypted direct message
    * @return the DM content in clear-text
    */

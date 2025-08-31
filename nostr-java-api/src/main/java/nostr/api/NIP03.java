@@ -11,7 +11,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-03 helpers (OpenTimestamps Attestations). Create OTS attestation events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/03.md
  */
 public class NIP03 extends EventNostr {
 

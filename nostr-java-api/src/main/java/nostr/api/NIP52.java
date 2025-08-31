@@ -23,11 +23,23 @@ import nostr.event.tag.GeohashTag;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams;
 
+/**
+ * NIP-52 helpers (Calendar Events). Build time/date-based calendar events and RSVP.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/52.md
+ */
 public class NIP52 extends EventNostr {
   public NIP52(@NonNull Identity sender) {
     setSender(sender);
   }
 
+  /**
+   * Create a time-based calendar event (kind 31922) with provided tags and content.
+   *
+   * @param baseTags additional tags to include (e.g., location, labels)
+   * @param content optional human-readable content/notes
+   * @param calendarContent the structured calendar content (identifier, title, start, etc.)
+   * @return this instance for chaining
+   */
   public NIP52 createCalendarTimeBasedEvent(
       @NonNull List<BaseTag> baseTags,
       @NonNull String content,
@@ -91,6 +103,13 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a date-based (all-day) calendar event using calendar content fields.
+   *
+   * @param content optional human-readable content/notes
+   * @param calendarContent the structured calendar content (identifier, title, dates)
+   * @return this instance for chaining
+   */
   public NIP52 createDateBasedCalendarEvent(
       @NonNull String content, @NonNull CalendarContent<BaseTag> calendarContent) {
 
@@ -119,16 +138,34 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
+  /**
+   * Add a title tag to the current calendar event.
+   *
+   * @param title the event title
+   * @return this instance for chaining
+   */
   public NIP52 addTitleTag(@NonNull String title) {
     addTag(createTitleTag(title));
     return this;
   }
 
+  /**
+   * Add a start timestamp to the current calendar event.
+   *
+   * @param start unix timestamp (seconds)
+   * @return this instance for chaining
+   */
   public NIP52 addStartTag(@NonNull Long start) {
     addTag(createStartTag(start));
     return this;
   }
 
+  /**
+   * Add an end timestamp to the current calendar event.
+   *
+   * @param end unix timestamp (seconds)
+   * @return this instance for chaining
+   */
   public NIP52 addEndTag(@NonNull Long end) {
     addTag(createEndTag(end));
     return this;
@@ -143,22 +180,52 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a {@code start} tag specifying the start timestamp.
+   *
+   * @param start unix timestamp (seconds)
+   * @return the created tag
+   */
   public static BaseTag createStartTag(@NonNull Long start) {
     return new BaseTagFactory(Constants.Tag.START_CODE, start.toString()).create();
   }
 
+  /**
+   * Create an {@code end} tag specifying the end timestamp.
+   *
+   * @param end unix timestamp (seconds)
+   * @return the created tag
+   */
   public static BaseTag createEndTag(@NonNull Long end) {
     return new BaseTagFactory(Constants.Tag.END_CODE, end.toString()).create();
   }
 
+  /**
+   * Create a {@code start_tzid} tag specifying timezone ID for start.
+   *
+   * @param startTzid IANA timezone identifier for the start
+   * @return the created tag
+   */
   public static BaseTag createStartTzidTag(@NonNull String startTzid) {
     return new BaseTagFactory(Constants.Tag.START_TZID_CODE, startTzid).create();
   }
 
+  /**
+   * Create an {@code end_tzid} tag specifying timezone ID for end.
+   *
+   * @param endTzid IANA timezone identifier for the end
+   * @return the created tag
+   */
   public static BaseTag createEndTzidTag(@NonNull String endTzid) {
     return new BaseTagFactory(Constants.Tag.END_TZID_CODE, endTzid).create();
   }
 
+  /**
+   * Create a {@code fb} (free-busy) tag describing availability.
+   *
+   * @param fb the free-busy value (e.g., free/busy/tentative)
+   * @return the created tag
+   */
   public static BaseTag createFreeBusyTag(@NonNull String fb) {
     return new BaseTagFactory(Constants.Tag.FREE_BUSY_CODE, fb).create();
   }

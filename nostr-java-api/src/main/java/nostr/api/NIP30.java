@@ -9,11 +9,18 @@ import nostr.api.factory.impl.BaseTagFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 
+/**
+ * NIP-30 helpers (Custom emoji). Create emoji tags with shortcode and image URL.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/30.md
+ */
 public class NIP30 {
 
   /**
-   * @param shortcode
-   * @param imageUrl
+   * Create a custom emoji tag as defined by NIP-30.
+   *
+   * @param shortcode the emoji shortcode (e.g., "party_parrot")
+   * @param imageUrl the URL pointing to the emoji image asset
+   * @return the created emoji tag
    */
   public static BaseTag createEmojiTag(@NonNull String shortcode, @NonNull String imageUrl) {
     return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, imageUrl).create();

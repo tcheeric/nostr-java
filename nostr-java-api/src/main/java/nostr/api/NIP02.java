@@ -14,7 +14,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-02 helpers (Contact List). Create and manage kind 3 contact lists and p-tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/02.md
  */
 public class NIP02 extends EventNostr {
 
@@ -22,6 +23,12 @@ public class NIP02 extends EventNostr {
     setSender(sender);
   }
 
+  /**
+   * Create a contact list event (kind 3) as defined by NIP-02.
+   *
+   * @param pubKeyTags the list of {@code p} tags representing contacts and optional relay/petname
+   * @return this instance for chaining
+   */
   public NIP02 createContactListEvent(List<BaseTag> pubKeyTags) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Constants.Kind.CONTACT_LIST, pubKeyTags, "").create();

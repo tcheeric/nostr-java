@@ -9,7 +9,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.OkMessage;
 
 /**
- * @author eric
+ * NIP-20 helpers (OK message). Build OK messages indicating relay acceptance/rejection.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/20.md
  */
 public class NIP20 {
 
@@ -17,7 +18,7 @@ public class NIP20 {
    * Create an OK message providing information about if an event was accepted or rejected.
    *
    * @param event the related event
-   * @param flag
+   * @param flag true if the relay accepted the event; false otherwise
    * @param message additional information as to why the command succeeded or failed
    * @return the OK message
    */

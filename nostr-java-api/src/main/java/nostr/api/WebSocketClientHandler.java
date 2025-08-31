@@ -15,6 +15,9 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
+/**
+ * Internal helper managing a relay connection and per-subscription request clients.
+ */
 public class WebSocketClientHandler {
   private final SpringWebSocketClient eventClient;
   private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
@@ -22,6 +25,12 @@ public class WebSocketClientHandler {
   @Getter private String relayName;
   @Getter private String relayUri;
 
+  /**
+   * Create a handler for a specific relay.
+   *
+   * @param relayName human-friendly relay name
+   * @param relayUri relay WebSocket URI
+   */
   protected WebSocketClientHandler(@NonNull String relayName, @NonNull String relayUri)
       throws ExecutionException, InterruptedException {
     this.relayName = relayName;
@@ -29,6 +38,12 @@ public class WebSocketClientHandler {
     this.eventClient = new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
   }
 
+  /**
+   * Send an event message to the relay using the main client.
+   *
+   * @param event the event to send
+   * @return relay responses (raw JSON messages)
+   */
   public List<String> sendEvent(@NonNull IEvent event) {
     ((GenericEvent) event).validate();
     try {
@@ -38,6 +53,13 @@ public class WebSocketClientHandler {
     }
   }
 
+  /**
+   * Send a REQ message on a per-subscription client associated with this handler.
+   *
+   * @param filters the filter
+   * @param subscriptionId the subscription identifier
+   * @return relay responses (raw JSON messages)
+   */
   protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     try {
       SpringWebSocketClient client = requestClientMap.get(subscriptionId);
@@ -57,6 +79,9 @@ public class WebSocketClientHandler {
     }
   }
 
+  /**
+   * Close the event client and any per-subscription request clients.
+   */
   public void close() throws IOException {
     eventClient.close();
     for (SpringWebSocketClient client : requestClientMap.values()) {

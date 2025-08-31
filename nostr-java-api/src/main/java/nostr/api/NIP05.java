@@ -19,7 +19,8 @@ import nostr.id.Identity;
 import nostr.util.validator.Nip05Validator;
 
 /**
- * @author eric
+ * NIP-05 helpers (DNS-based verification). Create internet identifier metadata events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/05.md
  */
 public class NIP05 extends EventNostr {
 

@@ -12,7 +12,8 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 
 /**
- * @author eric
+ * NIP-12 helpers (Generic Tag Queries). Convenience creators for hashtag, reference and geohash tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/12.md
  */
 public class NIP12 {
 

@@ -15,10 +15,16 @@ public class EventMessageFactory extends BaseMessageFactory<EventMessage> {
   private final GenericEvent event;
   private String subscriptionId;
 
+  /**
+   * Initialize a factory for an EVENT message without a subscription id.
+   */
   public EventMessageFactory(@NonNull GenericEvent event) {
     this.event = event;
   }
 
+  /**
+   * Initialize a factory for an EVENT message bound to a subscription id.
+   */
   public EventMessageFactory(@NonNull GenericEvent event, @NonNull String subscriptionId) {
     this(event);
     this.subscriptionId = subscriptionId;

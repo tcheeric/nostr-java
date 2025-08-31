@@ -20,7 +20,8 @@ import nostr.id.Identity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
- * @author eric
+ * NIP-57 helpers (Zaps). Build zap request/receipt events and related tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/57.md
  */
 public class NIP57 extends EventNostr {
 
@@ -28,6 +29,16 @@ public class NIP57 extends EventNostr {
     setSender(sender);
   }
 
+  /**
+   * Create a zap request event (kind 9734) using a structured request.
+   *
+   * @param zapRequest the zap request details (amount, lnurl, relays)
+   * @param content optional human-readable note/comment
+   * @param recipientPubKey optional pubkey of the zap recipient (p-tag)
+   * @param zappedEvent optional event being zapped (e-tag)
+   * @param addressTag optional address tag (a-tag) for addressable events
+   * @return this instance for chaining
+   */
   public NIP57 createZapRequestEvent(
       @NonNull ZapRequest zapRequest,
       @NonNull String content,
@@ -61,6 +72,18 @@ public class NIP57 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a zap request event (kind 9734) using explicit parameters and a relays tag.
+   *
+   * @param amount the zap amount in millisats
+   * @param lnUrl the LNURL pay endpoint
+   * @param relaysTags relays tag listing recommended relays (relays tag)
+   * @param content optional human-readable note/comment
+   * @param recipientPubKey optional pubkey of the zap recipient (p-tag)
+   * @param zappedEvent optional event being zapped (e-tag)
+   * @param addressTag optional address tag (a-tag) for addressable events
+   * @return this instance for chaining
+   */
   public NIP57 createZapRequestEvent(
       @NonNull Long amount,
       @NonNull String lnUrl,
@@ -100,6 +123,18 @@ public class NIP57 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a zap request event (kind 9734) using explicit parameters and a list of relays.
+   *
+   * @param amount the zap amount in millisats
+   * @param lnUrl the LNURL pay endpoint
+   * @param relays the list of recommended relays
+   * @param content optional human-readable note/comment
+   * @param recipientPubKey optional pubkey of the zap recipient (p-tag)
+   * @param zappedEvent optional event being zapped (e-tag)
+   * @param addressTag optional address tag (a-tag) for addressable events
+   * @return this instance for chaining
+   */
   public NIP57 createZapRequestEvent(
       @NonNull Long amount,
       @NonNull String lnUrl,
@@ -113,6 +148,16 @@ public class NIP57 extends EventNostr {
         amount, lnUrl, new RelaysTag(relays), content, recipientPubKey, zappedEvent, addressTag);
   }
 
+  /**
+   * Create a zap request event (kind 9734) using explicit parameters and a list of relay URLs.
+   *
+   * @param amount the zap amount in millisats
+   * @param lnUrl the LNURL pay endpoint
+   * @param relays list of relay URLs
+   * @param content optional human-readable note/comment
+   * @param recipientPubKey optional pubkey of the zap recipient (p-tag)
+   * @return this instance for chaining
+   */
   public NIP57 createZapRequestEvent(
       @NonNull Long amount,
       @NonNull String lnUrl,
@@ -131,6 +176,15 @@ public class NIP57 extends EventNostr {
   }
 
   @SneakyThrows
+  /**
+   * Create a zap receipt event (kind 9735) acknowledging a zap payment.
+   *
+   * @param zapRequestEvent the original zap request event
+   * @param bolt11 the BOLT11 invoice
+   * @param preimage the preimage for the invoice
+   * @param zapRecipient the zap recipient pubkey (p-tag)
+   * @return this instance for chaining
+   */
   public NIP57 createZapReceiptEvent(
       @NonNull GenericEvent zapRequestEvent,
       @NonNull String bolt11,
@@ -176,111 +230,205 @@ public class NIP57 extends EventNostr {
     return this;
   }
 
+  /**
+   * Add an event tag (e-tag) to the current zap-related event.
+   *
+   * @param tag the event tag
+   * @return this instance for chaining
+   */
   public NIP57 addEventTag(@NonNull EventTag tag) {
     getEvent().addTag(tag);
     return this;
   }
 
+  /**
+   * Add a bolt11 tag to the current event.
+   *
+   * @param bolt11 the BOLT11 invoice
+   * @return this instance for chaining
+   */
   public NIP57 addBolt11Tag(@NonNull String bolt11) {
     getEvent().addTag(createBolt11Tag(bolt11));
     return this;
   }
 
+  /**
+   * Add a preimage tag to the current event.
+   *
+   * @param preimage the payment preimage
+   * @return this instance for chaining
+   */
   public NIP57 addPreImageTag(@NonNull String preimage) {
     getEvent().addTag(createPreImageTag(preimage));
     return this;
   }
 
+  /**
+   * Add a description tag to the current event.
+   *
+   * @param description a human-readable description or escaped JSON
+   * @return this instance for chaining
+   */
   public NIP57 addDescriptionTag(@NonNull String description) {
     getEvent().addTag(createDescriptionTag(description));
     return this;
   }
 
+  /**
+   * Add an amount tag to the current event.
+   *
+   * @param amount the amount (typically millisats)
+   * @return this instance for chaining
+   */
   public NIP57 addAmountTag(@NonNull Integer amount) {
     getEvent().addTag(createAmountTag(amount));
     return this;
   }
 
+  /**
+   * Add a p-tag recipient to the current event.
+   *
+   * @param recipient the recipient public key
+   * @return this instance for chaining
+   */
   public NIP57 addRecipientTag(@NonNull PublicKey recipient) {
     getEvent().addTag(NIP01.createPubKeyTag(recipient));
     return this;
   }
 
+  /**
+   * Add a zap tag listing receiver and relays, with an optional weight.
+   *
+   * @param receiver the zap receiver public key
+   * @param relays list of recommended relays
+   * @param weight optional splitting weight
+   * @return this instance for chaining
+   */
   public NIP57 addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
     getEvent().addTag(createZapTag(receiver, relays, weight));
     return this;
   }
 
+  /**
+   * Add a zap tag listing receiver and relays.
+   *
+   * @param receiver the zap receiver public key
+   * @param relays list of recommended relays
+   * @return this instance for chaining
+   */
   public NIP57 addZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays) {
     getEvent().addTag(createZapTag(receiver, relays));
     return this;
   }
 
+  /**
+   * Add a relays tag to the current event.
+   *
+   * @param relaysTag the relays tag
+   * @return this instance for chaining
+   */
   public NIP57 addRelaysTag(@NonNull RelaysTag relaysTag) {
     getEvent().addTag(relaysTag);
     return this;
   }
 
+  /**
+   * Add a relays tag built from a list of relay objects.
+   *
+   * @param relays list of relay objects
+   * @return this instance for chaining
+   */
   public NIP57 addRelaysList(@NonNull List<Relay> relays) {
     return addRelaysTag(new RelaysTag(relays));
   }
 
+  /**
+   * Add a relays tag built from a list of relay URLs.
+   *
+   * @param relays list of relay URLs
+   * @return this instance for chaining
+   */
   public NIP57 addRelays(@NonNull List<String> relays) {
     return addRelaysList(relays.stream().map(Relay::new).toList());
   }
 
+  /**
+   * Add a relays tag built from relay URL varargs.
+   *
+   * @param relays relay URL strings
+   * @return this instance for chaining
+   */
   public NIP57 addRelays(@NonNull String... relays) {
     return addRelays(List.of(relays));
   }
 
   /**
-   * @param lnurl
-   * @return
+   * Create a lnurl tag.
+   *
+   * @param lnurl the LNURL pay endpoint
+   * @return the created tag
    */
   public static BaseTag createLnurlTag(@NonNull String lnurl) {
     return new BaseTagFactory(Constants.Tag.LNURL_CODE, lnurl).create();
   }
 
   /**
-   * @param bolt11
-   * @return
+   * Create a bolt11 tag.
+   *
+   * @param bolt11 the BOLT11 invoice
+   * @return the created tag
    */
   public static BaseTag createBolt11Tag(@NonNull String bolt11) {
     return new BaseTagFactory(Constants.Tag.BOLT11_CODE, bolt11).create();
   }
 
   /**
-   * @param preimage
+   * Create a preimage tag.
+   *
+   * @param preimage the payment preimage
+   * @return the created tag
    */
   public static BaseTag createPreImageTag(@NonNull String preimage) {
     return new BaseTagFactory(Constants.Tag.PREIMAGE_CODE, preimage).create();
   }
 
   /**
-   * @param description
+   * Create a description tag.
+   *
+   * @param description a human-readable description or escaped JSON
+   * @return the created tag
    */
   public static BaseTag createDescriptionTag(@NonNull String description) {
     return new BaseTagFactory(Constants.Tag.DESCRIPTION_CODE, description).create();
   }
 
   /**
-   * @param amount
+   * Create an amount tag.
+   *
+   * @param amount the zap amount (typically millisats)
+   * @return the created tag
    */
   public static BaseTag createAmountTag(@NonNull Number amount) {
     return new BaseTagFactory(Constants.Tag.AMOUNT_CODE, amount.toString()).create();
   }
 
   /**
-   * @param publicKey
+   * Create a tag carrying the zap sender public key.
+   *
+   * @param publicKey the zap sender public key
+   * @return the created tag
    */
   public static BaseTag createZapSenderPubKeyTag(@NonNull PublicKey publicKey) {
     return new BaseTagFactory(Constants.Tag.RECIPIENT_PUBKEY_CODE, publicKey.toString()).create();
   }
 
   /**
-   * @param receiver
-   * @param relays
-   * @param weight
+   * Create a zap tag listing receiver and relays, optionally with a weight.
+   *
+   * @param receiver the zap receiver public key
+   * @param relays list of recommended relays
+   * @param weight optional splitting weight
+   * @return the created tag
    */
   public static BaseTag createZapTag(
       @NonNull PublicKey receiver, @NonNull List<Relay> relays, Integer weight) {
@@ -294,8 +442,11 @@ public class NIP57 extends EventNostr {
   }
 
   /**
-   * @param receiver
-   * @param relays
+   * Create a zap tag listing receiver and relays.
+   *
+   * @param receiver the zap receiver public key
+   * @param relays list of recommended relays
+   * @return the created tag
    */
   public static BaseTag createZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays) {
     return createZapTag(receiver, relays, null);

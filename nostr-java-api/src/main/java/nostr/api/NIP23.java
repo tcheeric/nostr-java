@@ -14,7 +14,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-23 helpers (Long-form content). Build long-form notes and related tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/23.md
  */
 public class NIP23 extends EventNostr {
 
@@ -34,6 +35,12 @@ public class NIP23 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a Long-form Draft event (kind 30023) that is not intended for indexing.
+   *
+   * @param content a text in Markdown syntax for the draft
+   * @return this instance for chaining
+   */
   NIP23 createLongFormDraftEvent(@NonNull String content) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_DRAFT, content).create();
@@ -41,21 +48,45 @@ public class NIP23 extends EventNostr {
     return this;
   }
 
+  /**
+   * Add a title tag to the long-form content event.
+   *
+   * @param title the article title
+   * @return this instance for chaining
+   */
   public NIP23 addTitleTag(@NonNull String title) {
     getEvent().addTag(createTitleTag(title));
     return this;
   }
 
+  /**
+   * Add an image tag to the long-form content event.
+   *
+   * @param url URL of the image to be shown with the title
+   * @return this instance for chaining
+   */
   public NIP23 addImageTag(@NonNull URL url) {
     getEvent().addTag(createImageTag(url));
     return this;
   }
 
+  /**
+   * Add a summary tag to the long-form content event.
+   *
+   * @param summary the article summary
+   * @return this instance for chaining
+   */
   public NIP23 addSummaryTag(@NonNull String summary) {
     getEvent().addTag(createSummaryTag(summary));
     return this;
   }
 
+  /**
+   * Add a published_at tag to the long-form content event.
+   *
+   * @param date timestamp in unix seconds (stringified) when the article was first published
+   * @return this instance for chaining
+   */
   public NIP23 addPublishedAtTag(@NonNull Long date) {
     getEvent().addTag(createPublishedAtTag(date));
     return this;
