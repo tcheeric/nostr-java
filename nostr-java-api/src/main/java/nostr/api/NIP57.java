@@ -17,7 +17,7 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * NIP-57 helpers (Zaps). Build zap request/receipt events and related tags.
