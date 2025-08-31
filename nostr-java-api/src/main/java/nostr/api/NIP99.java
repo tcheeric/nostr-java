@@ -18,6 +18,10 @@ import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+/**
+ * NIP-99 helpers (Classified Listings). Build classified listing events and tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/99.md
+ */
 public class NIP99 extends EventNostr {
 
   public NIP99(@NonNull Identity sender) {

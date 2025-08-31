@@ -23,6 +23,9 @@ import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import nostr.util.NostrUtil;
 
+/**
+ * Default Nostr client using Spring WebSocket clients to send events and requests to relays.
+ */
 @NoArgsConstructor
 public class NostrSpringWebSocketClient implements NostrIF {
   private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
@@ -32,19 +35,34 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
   private static volatile NostrSpringWebSocketClient INSTANCE;
 
+  /**
+   * Construct a client with a single relay configured.
+   *
+   * @param relayName a label for the relay
+   * @param relayUri the relay WebSocket URI
+   */
   public NostrSpringWebSocketClient(String relayName, String relayUri) {
     setRelays(Map.of(relayName, relayUri));
   }
 
+  /**
+   * Construct a client with a custom note service implementation.
+   */
   public NostrSpringWebSocketClient(@NonNull NoteService noteService) {
     this.noteService = noteService;
   }
 
+  /**
+   * Construct a client with a sender identity and a custom note service.
+   */
   public NostrSpringWebSocketClient(@NonNull Identity sender, @NonNull NoteService noteService) {
     this.sender = sender;
     this.noteService = noteService;
   }
 
+  /**
+   * Get a singleton instance of the client without a preconfigured sender.
+   */
   public static NostrIF getInstance() {
     if (INSTANCE == null) {
       synchronized (NostrSpringWebSocketClient.class) {
@@ -56,6 +74,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return INSTANCE;
   }
 
+  /**
+   * Get a singleton instance of the client, initializing the sender if needed.
+   */
   public static NostrIF getInstance(@NonNull Identity sender) {
     if (INSTANCE == null) {
       synchronized (NostrSpringWebSocketClient.class) {
@@ -69,16 +90,25 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return INSTANCE;
   }
 
+  /**
+   * Construct a client with a sender identity.
+   */
   public NostrSpringWebSocketClient(@NonNull Identity sender) {
     this.sender = sender;
   }
 
+  /**
+   * Set or replace the sender identity.
+   */
   public NostrIF setSender(@NonNull Identity sender) {
     this.sender = sender;
     return this;
   }
 
   @Override
+  /**
+   * Configure one or more relays by name and URI; creates client handlers lazily.
+   */
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
     relays
         .entrySet()
@@ -96,6 +126,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Send an event to all configured relays using the {@link NoteService}.
+   */
   public List<String> sendEvent(@NonNull IEvent event) {
     if (event instanceof GenericEvent genericEvent) {
       if (!verify(genericEvent)) {
@@ -107,18 +140,27 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Send an event to the provided relays.
+   */
   public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
     return sendEvent(event);
   }
 
   @Override
+  /**
+   * Send a REQ with a single filter to specific relays.
+   */
   public List<String> sendRequest(
       @NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
     return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
   @Override
+  /**
+   * Send REQ with multiple filters to specific relays.
+   */
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList,
       @NonNull String subscriptionId,
@@ -128,6 +170,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Send REQ with multiple filters to configured relays; flattens distinct responses.
+   */
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
     return filtersList.stream()
@@ -137,6 +182,15 @@ public class NostrSpringWebSocketClient implements NostrIF {
         .toList();
   }
 
+  /**
+   * Send a REQ message via the provided client.
+   *
+   * @param client the WebSocket client to use
+   * @param filters the filter
+   * @param subscriptionId the subscription identifier
+   * @return the relay responses
+   * @throws IOException if sending fails
+   */
   public static List<String> sendRequest(
       @NonNull SpringWebSocketClient client,
       @NonNull Filters filters,
@@ -146,6 +200,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Send a REQ with a single filter to configured relays using a per-subscription client.
+   */
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     createRequestClient(subscriptionId);
 
@@ -160,12 +217,18 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Sign a signable object with the provided identity.
+   */
   public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {
     identity.sign(signable);
     return this;
   }
 
   @Override
+  /**
+   * Verify the Schnorr signature of a GenericEvent.
+   */
   public boolean verify(@NonNull GenericEvent event) {
     if (!event.isSigned()) {
       throw new IllegalStateException("The event is not signed");
@@ -182,6 +245,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  /**
+   * Return a copy of the current relay mapping (name -> URI).
+   */
   public Map<String, String> getRelays() {
     return clientMap.values().stream()
         .collect(
@@ -192,12 +258,18 @@ public class NostrSpringWebSocketClient implements NostrIF {
                 HashMap::new));
   }
 
+  /**
+   * Close all underlying clients.
+   */
   public void close() throws IOException {
     for (WebSocketClientHandler client : clientMap.values()) {
       client.close();
     }
   }
 
+  /**
+   * Factory for a new WebSocket client handler; overridable for tests.
+   */
   protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri)
       throws ExecutionException, InterruptedException {
     return new WebSocketClientHandler(relayName, relayUri);

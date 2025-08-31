@@ -25,6 +25,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.id.Identity;
 
+/**
+ * NIP-60 helpers (Cashu over Nostr). Build wallet, token, spending history and quote events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/60.md
+ */
 public class NIP60 extends EventNostr {
 
   public NIP60(@NonNull Identity sender) {
@@ -85,8 +89,10 @@ public class NIP60 extends EventNostr {
   }
 
   /**
-   * @param mint
-   * @return
+   * Create a mint tag for a Cashu mint reference.
+   *
+   * @param mint the Cashu mint (contains URL and supported units)
+   * @return the created mint tag
    */
   public static BaseTag createMintTag(@NonNull CashuMint mint) {
     List<String> units = mint.getUnits();
@@ -94,17 +100,21 @@ public class NIP60 extends EventNostr {
   }
 
   /**
-   * @param mintUrl
-   * @return
+   * Create a mint tag for a Cashu mint reference.
+   *
+   * @param mintUrl the mint base URL
+   * @return the created mint tag
    */
   public static BaseTag createMintTag(@NonNull String mintUrl) {
     return createMintTag(mintUrl, (String[]) null);
   }
 
   /**
-   * @param mintUrl
-   * @param units
-   * @return
+   * Create a mint tag for a Cashu mint reference with supported units.
+   *
+   * @param mintUrl the mint base URL
+   * @param units optional list of supported unit codes
+   * @return the created mint tag
    */
   public static BaseTag createMintTag(@NonNull String mintUrl, String... units) {
     List<String> params = new ArrayList<>();
@@ -116,30 +126,42 @@ public class NIP60 extends EventNostr {
   }
 
   /**
-   * @param unit
-   * @return
+   * Create a unit tag for Cashu amounts.
+   *
+   * @param unit the currency/unit code (e.g., sat, usd)
+   * @return the created unit tag
    */
   public static BaseTag createUnitTag(@NonNull String unit) {
     return new BaseTagFactory(Constants.Tag.UNIT_CODE, unit).create();
   }
 
   /**
-   * @param privKey
-   * @return
+   * Create a wallet private key tag.
+   *
+   * @param privKey the wallet private key
+   * @return the created tag
    */
   public static BaseTag createPrivKeyTag(@NonNull String privKey) {
     return new BaseTagFactory(Constants.Tag.PRIVKEY_CODE, privKey).create();
   }
 
   /**
-   * @param balance
-   * @param unit
-   * @return
+   * Create a balance tag for a given unit.
+   *
+   * @param balance the wallet balance value
+   * @param unit the currency/unit code
+   * @return the created balance tag
    */
   public static BaseTag createBalanceTag(@NonNull Integer balance, String unit) {
     return new BaseTagFactory(Constants.Tag.BALANCE_CODE, balance.toString(), unit).create();
   }
 
+  /**
+   * Create a direction tag for spending history entries.
+   *
+   * @param direction the spending direction (incoming/outgoing)
+   * @return the created direction tag
+   */
   public static BaseTag createDirectionTag(@NonNull SpendingHistory.Direction direction) {
     return new BaseTagFactory(Constants.Tag.DIRECTION_CODE, direction.getValue()).create();
   }

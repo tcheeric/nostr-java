@@ -10,12 +10,16 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 
 /**
- * @author eric
+ * NIP-40 helpers (Expiration). Create expiration tags for events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/40.md
  */
 public class NIP40 {
 
   /**
-   * @param expiration
+   * Create an expiration tag (NIP-40) to indicate when an event should be considered expired.
+   *
+   * @param expiration unix timestamp (seconds) when the event expires
+   * @return the created expiration tag
    */
   public static BaseTag createExpirationTag(@NonNull Integer expiration) {
     return new BaseTagFactory(Constants.Tag.EXPIRATION_CODE, expiration.toString()).create();

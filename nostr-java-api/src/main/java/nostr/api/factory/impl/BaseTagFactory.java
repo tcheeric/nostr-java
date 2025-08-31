@@ -16,7 +16,7 @@ import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
 
 /**
- * @author eric
+ * Utility to create {@link BaseTag} instances from code and parameters or from JSON.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -32,15 +32,20 @@ public class BaseTagFactory {
     this.params = new ArrayList<>();
   }
 
+  /**
+   * Initialize with a tag code and params.
+   */
   public BaseTagFactory(@NonNull String code, @NonNull List<String> params) {
     this.code = code;
     this.params = params;
   }
 
+  /** Initialize with a tag code and varargs params. */
   public BaseTagFactory(String code, String... params) {
     this(code, Stream.of(params).filter(param -> param != null).toList());
   }
 
+  /** Initialize from a JSON string representing a serialized tag. */
   public BaseTagFactory(@NonNull String jsonString) {
     this.jsonString = jsonString;
     this.code = "";

@@ -25,7 +25,8 @@ import nostr.id.Identity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
- * @author eric
+ * NIP-28 helpers (Public chat). Build channel create/metadata/message and moderation events.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/28.md
  */
 public class NIP28 extends EventNostr {
 

@@ -29,7 +29,8 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-01 helpers (Basic protocol). Build text notes, metadata, common tags and messages.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/01.md
  */
 public class NIP01 extends EventNostr {
 
@@ -58,6 +59,14 @@ public class NIP01 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a NIP01 text note event addressed to specific recipients.
+   *
+   * @param sender the identity used to sign the event
+   * @param content the content of the note
+   * @param recipients the list of {@code p} tags identifying recipients' public keys
+   * @return this instance for chaining
+   */
   public NIP01 createTextNoteEvent(Identity sender, String content, List<PubKeyTag> recipients) {
     GenericEvent genericEvent =
         new GenericEventFactory<PubKeyTag>(
@@ -67,6 +76,13 @@ public class NIP01 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a NIP01 text note event addressed to specific recipients using the configured sender.
+   *
+   * @param content the content of the note
+   * @param recipients the list of {@code p} tags identifying recipients' public keys
+   * @return this instance for chaining
+   */
   public NIP01 createTextNoteEvent(String content, List<PubKeyTag> recipients) {
     GenericEvent genericEvent =
         new GenericEventFactory<PubKeyTag>(
@@ -157,7 +173,11 @@ public class NIP01 extends EventNostr {
   }
 
   /**
-   * @param content the event's comment
+   * Create an addressable event (A-event as defined by NIP-33).
+   *
+   * @param kind the event kind (replaceable/addressable kinds per NIP-33)
+   * @param content the event's content/comment
+   * @return this instance for chaining
    */
   public NIP01 createAddressableEvent(Integer kind, String content) {
     GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, content).create();
@@ -166,10 +186,12 @@ public class NIP01 extends EventNostr {
   }
 
   /**
-   * @param tags
-   * @param kind
-   * @param content
-   * @return
+   * Create an addressable event (A-event as defined by NIP-33).
+   *
+   * @param tags additional tags to attach to the event (e.g., identifier/address tags)
+   * @param kind the event kind (replaceable/addressable kinds per NIP-33)
+   * @param content the event's content/comment
+   * @return this instance for chaining
    */
   public NIP01 createAddressableEvent(
       @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
@@ -298,8 +320,10 @@ public class NIP01 extends EventNostr {
   }
 
   /**
-   * @param id
-   * @return
+   * Create a NIP01 identifier tag ({@code d}-tag).
+   *
+   * @param id the identifier value for replaceable/addressable events (NIP-33)
+   * @return the created identifier tag
    */
   public static BaseTag createIdentifierTag(@NonNull String id) {
     List<String> params = new ArrayList<>();
@@ -309,11 +333,13 @@ public class NIP01 extends EventNostr {
   }
 
   /**
-   * @param kind
-   * @param publicKey
-   * @param idTag
-   * @param relay
-   * @return
+   * Create an address tag ({@code a}-tag) as defined in NIP-33.
+   *
+   * @param kind the target event kind (e.g., replaceable/addressable kind)
+   * @param publicKey the author public key of the addressed event
+   * @param idTag an optional {@code d}-tag (identifier) for the addressed event
+   * @param relay an optional recommended relay URL for the addressed event
+   * @return the created address tag
    */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, BaseTag idTag, Relay relay) {
@@ -345,6 +371,14 @@ public class NIP01 extends EventNostr {
     return createAddressTag(kind, publicKey, createIdentifierTag(id), relay);
   }
 
+  /**
+   * Create an address tag ({@code a}-tag) referencing an addressable event (NIP-33).
+   *
+   * @param kind the event kind
+   * @param publicKey the author public key of the addressed event
+   * @param id the identifier ({@code d}-tag value)
+   * @return the created address tag
+   */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, String id) {
     return createAddressTag(kind, publicKey, createIdentifierTag(id), null);

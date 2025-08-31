@@ -20,14 +20,17 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.GenericMessage;
 
 /**
- * @author eric
+ * NIP-42 helpers (Authentication). Build auth events and AUTH messages.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/42.md
  */
 public class NIP42 extends EventNostr {
 
   /**
-   * @param challenge
-   * @param relay
-   * @return
+   * Create a canonical authentication event (NIP-42).
+   *
+   * @param challenge the challenge string received from the relay
+   * @param relay the relay to which the client authenticates
+   * @return this instance for chaining
    */
   public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
     GenericEvent genericEvent =
@@ -52,21 +55,30 @@ public class NIP42 extends EventNostr {
   }
 
   /**
-   * @param relay
+   * Create a relay tag referencing the relay being authenticated.
+   *
+   * @param relay the relay
+   * @return the created relay tag
    */
   public static BaseTag createRelayTag(@NonNull Relay relay) {
     return new BaseTagFactory(Constants.Tag.RELAY_CODE, relay.getUri()).create();
   }
 
   /**
-   * @param challenge
+   * Create a challenge tag holding the relay-provided token.
+   *
+   * @param challenge the relay-provided challenge string
+   * @return the created challenge tag
    */
   public static BaseTag createChallengeTag(@NonNull String challenge) {
     return new BaseTagFactory(Constants.Tag.CHALLENGE_CODE, challenge).create();
   }
 
   /**
-   * @param event
+   * Create a client authentication message for the provided authentication event.
+   *
+   * @param event the canonical authentication event (signed)
+   * @return the AUTH message to send to the relay
    */
   public static CanonicalAuthenticationMessage createClientAuthenticationMessage(
       @NonNull CanonicalAuthenticationEvent event) {
@@ -74,7 +86,10 @@ public class NIP42 extends EventNostr {
   }
 
   /**
-   * @param challenge
+   * Create a relay AUTH message requesting client authentication.
+   *
+   * @param challenge the relay-provided challenge string
+   * @return the AUTH message
    */
   public static GenericMessage createRelayAuthenticationMessage(@NonNull String challenge) {
     final List<ElementAttribute> attributes = new ArrayList<>();

@@ -16,7 +16,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 /**
- * @author eric
+ * NIP-15 helpers (Endorsements/Marketplace). Build stall/product metadata and encrypted order flows.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/15.md
  */
 public class NIP15 extends EventNostr {
 
@@ -25,8 +26,11 @@ public class NIP15 extends EventNostr {
   }
 
   /**
-   * @param paymentRequest
-   * @param customerOrder
+   * Create a merchant request payment event (encrypted DM per NIP-04/NIP-15 flow).
+   *
+   * @param paymentRequest the payment request payload (bolt11/details)
+   * @param customerOrder the referenced customer order containing buyer contact
+   * @return this instance for chaining
    */
   public NIP15 createMerchantRequestPaymentEvent(
       @NonNull PaymentRequest paymentRequest, @NonNull CustomerOrder customerOrder) {
@@ -40,8 +44,10 @@ public class NIP15 extends EventNostr {
   }
 
   /**
-   * @param customerOrder
-   * @return
+   * Create a customer order event (encrypted DM per NIP-04/NIP-15 flow).
+   *
+   * @param customerOrder the order details including buyer contact
+   * @return this instance for chaining
    */
   public NIP15 createCustomerOrderEvent(@NonNull CustomerOrder customerOrder) {
     GenericEvent genericEvent =
@@ -55,8 +61,10 @@ public class NIP15 extends EventNostr {
   }
 
   /**
-   * @param stall
-   * @return
+   * Create or update a stall (kind 30017 per NIP-15).
+   *
+   * @param stall the stall definition
+   * @return this instance for chaining
    */
   public NIP15 createCreateOrUpdateStallEvent(@NonNull Stall stall) {
     GenericEvent genericEvent =
@@ -68,9 +76,11 @@ public class NIP15 extends EventNostr {
   }
 
   /**
-   * @param product
-   * @param categories
-   * @return
+   * Create or update a product (kind 30018 per NIP-15).
+   *
+   * @param product the product definition
+   * @param categories optional list of hashtags/categories
+   * @return this instance for chaining
    */
   public NIP15 createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
     GenericEvent genericEvent =

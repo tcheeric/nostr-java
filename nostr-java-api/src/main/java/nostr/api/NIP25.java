@@ -19,6 +19,10 @@ import nostr.event.tag.EmojiTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
+/**
+ * NIP-25 helpers (Reactions). Build reaction events and custom emoji tags.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/25.md
+ */
 public class NIP25 extends EventNostr {
 
   public NIP25(@NonNull Identity sender) {
@@ -29,7 +33,8 @@ public class NIP25 extends EventNostr {
    * Create a Reaction event
    *
    * @param event the related event to react to
-   * @param reaction
+   * @param reaction the reaction to use (e.g., 👍/👎 or custom emoji)
+   * @param relay optional recommended relay for the referenced event
    */
   public NIP25 createReactionEvent(
       @NonNull GenericEvent event, @NonNull Reaction reaction, Relay relay) {
@@ -41,6 +46,7 @@ public class NIP25 extends EventNostr {
    *
    * @param event the related event to react to
    * @param content MAY be an emoji
+   * @param relay optional recommended relay for the referenced event
    */
   public NIP25 createReactionEvent(
       @NonNull GenericEvent event, @NonNull String content, Relay relay) {
@@ -61,6 +67,13 @@ public class NIP25 extends EventNostr {
     return this;
   }
 
+  /**
+   * Create a reaction-to-website event (kind 17) reacting to a URL.
+   *
+   * @param url the target website URL to react to
+   * @param reaction the reaction to use (emoji)
+   * @return this instance for chaining
+   */
   public NIP25 createReactionToWebsiteEvent(@NonNull URL url, @NonNull Reaction reaction) {
     GenericEvent genericEvent =
         new GenericEventFactory(
@@ -119,7 +132,10 @@ public class NIP25 extends EventNostr {
   }
 
   /**
-   * @param event
+   * Send a like reaction to an event.
+   *
+   * @param event the event to like
+   * @param relay optional recommended relay for the referenced event
    */
   public void like(@NonNull GenericEvent event, Relay relay) {
     react(event, Reaction.LIKE.getEmoji(), relay);
@@ -130,7 +146,10 @@ public class NIP25 extends EventNostr {
   }
 
   /**
-   * @param event
+   * Send a dislike reaction to an event.
+   *
+   * @param event the event to dislike
+   * @param relay optional recommended relay for the referenced event
    */
   public void dislike(@NonNull GenericEvent event, Relay relay) {
     react(event, Reaction.DISLIKE.getEmoji(), relay);
@@ -141,8 +160,11 @@ public class NIP25 extends EventNostr {
   }
 
   /**
-   * @param event
-   * @param reaction
+   * React to an event with the provided content.
+   *
+   * @param event the event being reacted to
+   * @param reaction the reaction content (emoji or text)
+   * @param relay optional recommended relay for the referenced event
    */
   public void react(@NonNull GenericEvent event, @NonNull String reaction, Relay relay) {
     GenericEvent e = createReactionEvent(event, reaction, relay).getEvent();

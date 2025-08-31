@@ -18,6 +18,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
 @Slf4j
+/**
+ * NIP-46 helpers (Nostr Connect). Build app requests and signer responses.
+ * Spec: https://github.com/nostr-protocol/nips/blob/master/46.md
+ */
 public final class NIP46 extends EventNostr {
 
   public NIP46(@NonNull Identity sender) {
@@ -27,9 +31,9 @@ public final class NIP46 extends EventNostr {
   /**
    * Create an app request for the signer
    *
-   * @param request
-   * @param signer
-   * @return
+   * @param request the request payload (RPC-like) serialized to JSON
+   * @param signer the target signer public key
+   * @return this instance for chaining
    */
   public NIP46 createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
     String content = NIP44.encrypt(getSender(), request.toString(), signer);
@@ -41,9 +45,11 @@ public final class NIP46 extends EventNostr {
   }
 
   /**
-   * @param response
-   * @param app
-   * @return
+   * Create a signer response for the app.
+   *
+   * @param response the response payload serialized to JSON
+   * @param app the target app public key
+   * @return this instance for chaining
    */
   public NIP46 createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
     String content = NIP44.encrypt(getSender(), response.toString(), app);
@@ -64,10 +70,18 @@ public final class NIP46 extends EventNostr {
     // @JsonIgnore
     private Set<String> params = new LinkedHashSet<>();
 
+    /**
+     * Add a parameter to the request payload preserving insertion order.
+     *
+     * @param param the parameter value
+     */
     public void addParam(String param) {
       this.params.add(param);
     }
 
+    /**
+     * Serialize this request to JSON.
+     */
     public String toString() {
       try {
         return MAPPER_BLACKBIRD.writeValueAsString(this);
@@ -77,6 +91,12 @@ public final class NIP46 extends EventNostr {
       }
     }
 
+    /**
+     * Deserialize a JSON string into a Request.
+     *
+     * @param jsonString the JSON string
+     * @return the parsed Request
+     */
     public static Request fromString(@NonNull String jsonString) {
       try {
         return MAPPER_BLACKBIRD.readValue(jsonString, Request.class);
@@ -95,6 +115,9 @@ public final class NIP46 extends EventNostr {
     private String error;
     private String result;
 
+    /**
+     * Serialize this response to JSON.
+     */
     public String toString() {
       try {
         return MAPPER_BLACKBIRD.writeValueAsString(this);
@@ -104,6 +127,12 @@ public final class NIP46 extends EventNostr {
       }
     }
 
+    /**
+     * Deserialize a JSON string into a Response.
+     *
+     * @param jsonString the JSON string
+     * @return the parsed Response
+     */
     public static Response fromString(@NonNull String jsonString) {
       try {
         return MAPPER_BLACKBIRD.readValue(jsonString, Response.class);
