@@ -18,7 +18,7 @@ jobs:
           include-title: 1
           repo-token: ${{ github.token }}
       - if: github.actor == 'github-actions[bot]'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             github.rest.issues.addLabels({
