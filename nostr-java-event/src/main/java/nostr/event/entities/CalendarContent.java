@@ -183,11 +183,7 @@ public class CalendarContent<T extends BaseTag> extends NIP42Content {
 
   private void addTag(@NonNull T baseTag) {
     String code = baseTag.getCode();
-    Optional<List<T>> optionalBaseTags = Optional.ofNullable(classTypeTagsMap.get(code));
-    List<T> baseTags = optionalBaseTags.orElseGet(ArrayList::new);
-    baseTags.add(baseTag);
-    classTypeTagsMap.put(code, baseTags);
-    List<T> baseTags1 = classTypeTagsMap.get(code);
-    baseTags1.addAll(baseTags);
+    List<T> list = classTypeTagsMap.computeIfAbsent(code, k -> new ArrayList<>());
+    list.add(baseTag);
   }
 }
