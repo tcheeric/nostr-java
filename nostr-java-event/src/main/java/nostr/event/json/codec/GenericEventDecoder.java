@@ -22,7 +22,6 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
     this.clazz = clazz;
   }
 
-  @Override
   /**
    * Decodes a JSON string into a {@link GenericEvent} instance.
    *
@@ -30,6 +29,7 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
    * @return decoded event
    * @throws EventEncodingException if decoding fails
    */
+  @Override
   public T decode(String jsonEvent) throws EventEncodingException {
     try {
       I_DECODER_MAPPER_BLACKBIRD.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
