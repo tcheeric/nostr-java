@@ -124,11 +124,33 @@ public class WebSocketClientHandler {
     return () -> {
       IOException ioFailure = null;
       Exception nonIoFailure = null;
+      AutoCloseable closeFrameHandle = null;
       try {
-        client.send(new CloseMessage(subscriptionId));
+        closeFrameHandle =
+            client.subscribe(
+                new CloseMessage(subscriptionId),
+                message -> {},
+                safeError,
+                null);
       } catch (IOException e) {
         safeError.accept(e);
         ioFailure = e;
+      } finally {
+        if (closeFrameHandle != null) {
+          try {
+            closeFrameHandle.close();
+          } catch (IOException e) {
+            safeError.accept(e);
+            if (ioFailure == null) {
+              ioFailure = e;
+            }
+          } catch (Exception e) {
+            safeError.accept(e);
+            if (nonIoFailure == null) {
+              nonIoFailure = e;
+            }
+          }
+        }
       }
 
       try {
@@ -140,7 +162,9 @@ public class WebSocketClientHandler {
         }
       } catch (Exception e) {
         safeError.accept(e);
-        nonIoFailure = e;
+        if (nonIoFailure == null) {
+          nonIoFailure = e;
+        }
       }
 
       requestClientMap.remove(subscriptionId);
