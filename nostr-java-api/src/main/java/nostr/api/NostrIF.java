@@ -3,6 +3,7 @@ package nostr.api;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
@@ -89,6 +90,34 @@ public interface NostrIF {
       @NonNull List<Filters> filtersList,
       @NonNull String subscriptionId,
       Map<String, String> relays);
+
+  /**
+   * Subscribe to a stream of events for the given filter on configured relays.
+   *
+   * @param filters the filter describing events to stream
+   * @param subscriptionId identifier for the subscription
+   * @param listener consumer invoked for each raw relay message
+   * @return a handle that cancels the subscription when closed
+   */
+  AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener);
+
+  /**
+   * Subscribe to a stream of events with custom error handling.
+   *
+   * @param filters the filter describing events to stream
+   * @param subscriptionId identifier for the subscription
+   * @param listener consumer invoked for each raw relay message
+   * @param errorListener optional consumer invoked when a transport error occurs
+   * @return a handle that cancels the subscription when closed
+   */
+  AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener,
+      Consumer<Throwable> errorListener);
 
   /**
    * Sign a signable object with the provided identity.

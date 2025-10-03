@@ -1,15 +1,18 @@
 package nostr.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.NonNull;
 import nostr.api.service.NoteService;
 import nostr.api.service.impl.DefaultNoteService;
@@ -27,6 +30,7 @@ import nostr.util.NostrUtil;
  * Default Nostr client using Spring WebSocket clients to send events and requests to relays.
  */
 @NoArgsConstructor
+@Slf4j
 public class NostrSpringWebSocketClient implements NostrIF {
   private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
   @Getter private Identity sender;
@@ -117,7 +121,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
               try {
                 clientMap.putIfAbsent(
                     relayEntry.getKey(),
-                    new WebSocketClientHandler(relayEntry.getKey(), relayEntry.getValue()));
+                    newWebSocketClientHandler(relayEntry.getKey(), relayEntry.getValue()));
               } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException("Failed to initialize WebSocket client handler", e);
               }
@@ -214,6 +218,76 @@ public class NostrSpringWebSocketClient implements NostrIF {
                 webSocketClientHandler.sendRequest(filters, webSocketClientHandler.getRelayName()))
         .flatMap(List::stream)
         .toList();
+  }
+
+  @Override
+  public AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener) {
+    return subscribe(filters, subscriptionId, listener, null);
+  }
+
+  @Override
+  public AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener,
+      Consumer<Throwable> errorListener) {
+    Consumer<Throwable> safeError =
+        errorListener != null
+            ? errorListener
+            : throwable ->
+                log.warn(
+                    "Subscription error for {} on relays {}", subscriptionId, clientMap.keySet(),
+                    throwable);
+
+    List<AutoCloseable> handles = new ArrayList<>();
+    try {
+      clientMap.entrySet().stream()
+          .filter(entry -> !entry.getKey().contains(":"))
+          .map(Map.Entry::getValue)
+          .forEach(
+              handler -> {
+                AutoCloseable handle = handler.subscribe(filters, subscriptionId, listener, safeError);
+                handles.add(handle);
+              });
+    } catch (RuntimeException e) {
+      handles.forEach(
+          handle -> {
+            try {
+              handle.close();
+            } catch (Exception closeEx) {
+              safeError.accept(closeEx);
+            }
+          });
+      throw e;
+    }
+
+    return () -> {
+      IOException ioFailure = null;
+      Exception nonIoFailure = null;
+      for (AutoCloseable handle : handles) {
+        try {
+          handle.close();
+        } catch (IOException e) {
+          safeError.accept(e);
+          if (ioFailure == null) {
+            ioFailure = e;
+          }
+        } catch (Exception e) {
+          safeError.accept(e);
+          nonIoFailure = e;
+        }
+      }
+
+      if (ioFailure != null) {
+        throw ioFailure;
+      }
+      if (nonIoFailure != null) {
+        throw new IOException("Failed to close subscription", nonIoFailure);
+      }
+    };
   }
 
   @Override

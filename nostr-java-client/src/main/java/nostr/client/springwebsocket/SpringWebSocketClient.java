@@ -2,6 +2,8 @@ package nostr.client.springwebsocket;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,47 @@ public class SpringWebSocketClient implements AutoCloseable {
     return responses;
   }
 
+  @NostrRetryable
+  public AutoCloseable subscribe(
+      @NonNull BaseMessage requestMessage,
+      @NonNull Consumer<String> messageListener,
+      @NonNull Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    Objects.requireNonNull(messageListener, "messageListener");
+    Objects.requireNonNull(errorListener, "errorListener");
+    String json = requestMessage.encode();
+    log.debug(
+        "Subscribing with {} on relay {} (size={} bytes)",
+        requestMessage.getCommand(),
+        relayUrl,
+        json.length());
+    AutoCloseable handle =
+        webSocketClientIF.subscribe(json, messageListener, errorListener, closeListener);
+    log.debug(
+        "Subscription established with {} on relay {}",
+        requestMessage.getCommand(),
+        relayUrl);
+    return handle;
+  }
+
+  @NostrRetryable
+  public AutoCloseable subscribe(
+      @NonNull String json,
+      @NonNull Consumer<String> messageListener,
+      @NonNull Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    Objects.requireNonNull(messageListener, "messageListener");
+    Objects.requireNonNull(errorListener, "errorListener");
+    log.debug(
+        "Subscribing with raw message to relay {} (size={} bytes)", relayUrl, json.length());
+    AutoCloseable handle =
+        webSocketClientIF.subscribe(json, messageListener, errorListener, closeListener);
+    log.debug("Subscription established on relay {}", relayUrl);
+    return handle;
+  }
+
   /**
    * This method is invoked by Spring Retry after all retry attempts for the {@link #send(String)}
    * method are exhausted. It logs the failure and rethrows the exception.
@@ -68,6 +111,40 @@ public class SpringWebSocketClient implements AutoCloseable {
   public List<String> recover(IOException ex, String json) throws IOException {
     log.error(
         "Failed to send message to relay {} after retries (size={} bytes)",
+        relayUrl,
+        json.length(),
+        ex);
+    throw ex;
+  }
+
+  @Recover
+  public AutoCloseable recoverSubscription(
+      IOException ex,
+      String json,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    log.error(
+        "Failed to subscribe with raw message to relay {} after retries (size={} bytes)",
+        relayUrl,
+        json.length(),
+        ex);
+    throw ex;
+  }
+
+  @Recover
+  public AutoCloseable recoverSubscription(
+      IOException ex,
+      BaseMessage requestMessage,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    String json = requestMessage.encode();
+    log.error(
+        "Failed to subscribe with {} to relay {} after retries (size={} bytes)",
+        requestMessage.getCommand(),
         relayUrl,
         json.length(),
         ex);

@@ -2,6 +2,8 @@ package nostr.client.springwebsocket;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import nostr.event.BaseMessage;
 
 /**
@@ -40,6 +42,55 @@ public interface WebSocketClientIF extends AutoCloseable {
    * @throws IOException if the message cannot be sent or the connection fails
    */
   List<String> send(String json) throws IOException;
+
+  /**
+   * Registers a listener for streaming messages while sending the provided JSON payload
+   * asynchronously.
+   *
+   * <p>The implementation MUST send {@code requestJson} immediately without blocking the caller
+   * for relay responses. Inbound messages received on the connection are dispatched to the provided
+   * {@code messageListener}. Transport errors should be forwarded to {@code errorListener}, and the
+   * optional {@code closeListener} should be invoked exactly once when the underlying connection is
+   * closed.
+   *
+   * @param requestJson the JSON payload to transmit to start the subscription
+   * @param messageListener callback invoked for each message received
+   * @param errorListener callback invoked when a transport error occurs
+   * @param closeListener optional callback invoked when the connection closes normally
+   * @return a handle that cancels the subscription when closed
+   * @throws IOException if the payload cannot be sent or the connection is unavailable
+   */
+  AutoCloseable subscribe(
+      String requestJson,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException;
+
+  /**
+   * Convenience overload that accepts a {@link BaseMessage} and delegates to
+   * {@link #subscribe(String, Consumer, Consumer, Runnable)}.
+   *
+   * @param eventMessage the message to encode and transmit
+   * @param messageListener callback invoked for each message received
+   * @param errorListener callback invoked when a transport error occurs
+   * @param closeListener optional callback invoked when the connection closes normally
+   * @return a handle that cancels the subscription when closed
+   * @throws IOException if encoding or transmission fails
+   */
+  default <T extends BaseMessage> AutoCloseable subscribe(
+      T eventMessage,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    Objects.requireNonNull(eventMessage, "eventMessage");
+    return subscribe(
+        eventMessage.encode(),
+        Objects.requireNonNull(messageListener, "messageListener"),
+        Objects.requireNonNull(errorListener, "errorListener"),
+        closeListener);
+  }
 
   /**
    * Closes the underlying WebSocket session and releases associated resources.

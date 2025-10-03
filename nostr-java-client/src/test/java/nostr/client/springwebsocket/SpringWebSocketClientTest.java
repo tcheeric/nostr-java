@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import nostr.event.BaseMessage;
@@ -52,6 +53,16 @@ class SpringWebSocketClientTest {
     }
 
     @Override
+    public AutoCloseable subscribe(
+        String requestJson,
+        Consumer<String> messageListener,
+        Consumer<Throwable> errorListener,
+        Runnable closeListener)
+        throws IOException {
+      return () -> {};
+    }
+
+    @Override
     public void close() {}
   }
 
@@ -65,6 +76,7 @@ class SpringWebSocketClientTest {
     webSocketClientIF.setAttempts(0);
   }
 
+  // Ensures retryable send eventually succeeds after configured transient failures.
   @Test
   void retriesUntilSuccess() throws IOException {
     webSocketClientIF.setFailuresBeforeSuccess(2);
@@ -73,6 +85,7 @@ class SpringWebSocketClientTest {
     assertEquals(3, webSocketClientIF.getAttempts());
   }
 
+  // Ensures the client surfaces the final IOException after exhausting retries.
   @Test
   void recoverAfterMaxAttempts() {
     webSocketClientIF.setFailuresBeforeSuccess(5);
