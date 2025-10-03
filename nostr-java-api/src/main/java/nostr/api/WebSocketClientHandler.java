@@ -28,8 +28,8 @@ public class WebSocketClientHandler {
   private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
   private final Function<String, SpringWebSocketClient> requestClientFactory;
 
-  @Getter private String relayName;
-  @Getter private String relayUri;
+  @Getter private final String relayName;
+  @Getter private final String relayUri;
 
   /**
    * Create a handler for a specific relay.
@@ -85,6 +85,7 @@ public class WebSocketClientHandler {
    */
   protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     try {
+      @SuppressWarnings("resource")
       SpringWebSocketClient client = getOrCreateRequestClient(subscriptionId);
       return client.send(new ReqMessage(subscriptionId, filters));
     } catch (IOException e) {
@@ -97,6 +98,7 @@ public class WebSocketClientHandler {
       @NonNull String subscriptionId,
       @NonNull Consumer<String> listener,
       Consumer<Throwable> errorListener) {
+    @SuppressWarnings("resource")
     SpringWebSocketClient client = getOrCreateRequestClient(subscriptionId);
     Consumer<Throwable> safeError =
         errorListener != null
