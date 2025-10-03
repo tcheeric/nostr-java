@@ -109,10 +109,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  @Override
   /**
    * Configure one or more relays by name and URI; creates client handlers lazily.
    */
+  @Override
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
     relays
         .entrySet()
@@ -129,10 +129,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  @Override
   /**
    * Send an event to all configured relays using the {@link NoteService}.
    */
+  @Override
   public List<String> sendEvent(@NonNull IEvent event) {
     if (event instanceof GenericEvent genericEvent) {
       if (!verify(genericEvent)) {
@@ -143,28 +143,28 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return noteService.send(event, clientMap);
   }
 
-  @Override
   /**
    * Send an event to the provided relays.
    */
+  @Override
   public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
     return sendEvent(event);
   }
 
-  @Override
   /**
    * Send a REQ with a single filter to specific relays.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
     return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
-  @Override
   /**
    * Send REQ with multiple filters to specific relays.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList,
       @NonNull String subscriptionId,
@@ -173,10 +173,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return sendRequest(filtersList, subscriptionId);
   }
 
-  @Override
   /**
    * Send REQ with multiple filters to configured relays; flattens distinct responses.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
     return filtersList.stream()
@@ -203,10 +203,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return client.send(new ReqMessage(subscriptionId, filters));
   }
 
-  @Override
   /**
    * Send a REQ with a single filter to configured relays using a per-subscription client.
    */
+  @Override
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     createRequestClient(subscriptionId);
 
@@ -290,19 +290,19 @@ public class NostrSpringWebSocketClient implements NostrIF {
     };
   }
 
-  @Override
   /**
    * Sign a signable object with the provided identity.
    */
+  @Override
   public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {
     identity.sign(signable);
     return this;
   }
 
-  @Override
   /**
    * Verify the Schnorr signature of a GenericEvent.
    */
+  @Override
   public boolean verify(@NonNull GenericEvent event) {
     if (!event.isSigned()) {
       throw new IllegalStateException("The event is not signed");
@@ -318,10 +318,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     }
   }
 
-  @Override
   /**
    * Return a copy of the current relay mapping (name -> URI).
    */
+  @Override
   public Map<String, String> getRelays() {
     return clientMap.values().stream()
         .collect(
