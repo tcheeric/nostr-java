@@ -19,7 +19,6 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
     this.clazz = (Class<T>) BaseTag.class;
   }
 
-  @Override
   /**
    * Decodes the provided JSON string into a tag instance.
    *
@@ -27,6 +26,7 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
    * @return decoded tag
    * @throws EventEncodingException if decoding fails
    */
+  @Override
   public T decode(String jsonString) throws EventEncodingException {
     try {
       return MAPPER_BLACKBIRD.readValue(jsonString, clazz);
