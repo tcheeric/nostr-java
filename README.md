@@ -19,6 +19,10 @@ See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about r
 ## Examples
 Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module.
 
+- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
+  shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a
+  fixed duration.
+
 ## Streaming subscriptions
 
 The client and API layers expose a non-blocking streaming API for long-lived subscriptions. Use

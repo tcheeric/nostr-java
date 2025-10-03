@@ -129,7 +129,9 @@ public void close()
 `subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
 messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
 resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy
-processing to another executor to avoid stalling inbound traffic.
+processing to another executor to avoid stalling inbound traffic. The
+[`SpringSubscriptionExample`](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
+demonstrates how to open a subscription and close it after a fixed duration.
 
 ### Configuration
 - `RetryConfig` – enables Spring Retry support.
