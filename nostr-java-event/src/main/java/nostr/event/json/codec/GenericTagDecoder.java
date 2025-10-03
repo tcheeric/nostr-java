@@ -23,7 +23,6 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
     this.clazz = clazz;
   }
 
-  @Override
   /**
    * Decodes a JSON array into a {@link GenericTag} instance.
    *
@@ -31,6 +30,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
    * @return decoded tag
    * @throws EventEncodingException if decoding fails
    */
+  @Override
   public T decode(@NonNull String json) throws EventEncodingException {
     try {
       String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
