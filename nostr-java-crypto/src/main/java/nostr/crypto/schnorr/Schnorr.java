@@ -18,11 +18,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class Schnorr {
 
   /**
-   * @param msg
-   * @param secKey
-   * @param auxRand
-   * @return
-   * @throws Exception
+   * Create a Schnorr signature for a 32-byte message.
+   *
+   * @param msg 32-byte message hash to sign
+   * @param secKey 32-byte secret key
+   * @param auxRand auxiliary 32 random bytes used for nonce derivation
+   * @return 64-byte signature (R || s)
+   * @throws Exception if inputs are invalid or signing fails
    */
   public static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand) throws Exception {
     if (msg.length != 32) {
@@ -87,11 +89,13 @@ public class Schnorr {
   }
 
   /**
-   * @param msg
-   * @param pubkey
-   * @param sig
-   * @return
-   * @throws Exception
+   * Verify a Schnorr signature for a 32-byte message.
+   *
+   * @param msg 32-byte message hash to verify
+   * @param pubkey 32-byte x-only public key
+   * @param sig 64-byte signature (R || s)
+   * @return true if the signature is valid; false otherwise
+   * @throws Exception if inputs are invalid
    */
   public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws Exception {
 
