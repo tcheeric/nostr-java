@@ -92,6 +92,7 @@ public class Nip05Validator {
   }
 
   private void validatePublicKey(String host, int port, String localPart) throws NostrException {
+    @SuppressWarnings("resource")
     HttpClient client = httpClientProvider.create(connectTimeout);
 
     URI uri;

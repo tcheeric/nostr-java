@@ -1,15 +1,18 @@
 package nostr.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.NonNull;
 import nostr.api.service.NoteService;
 import nostr.api.service.impl.DefaultNoteService;
@@ -27,6 +30,7 @@ import nostr.util.NostrUtil;
  * Default Nostr client using Spring WebSocket clients to send events and requests to relays.
  */
 @NoArgsConstructor
+@Slf4j
 public class NostrSpringWebSocketClient implements NostrIF {
   private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
   @Getter private Identity sender;
@@ -105,10 +109,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  @Override
   /**
    * Configure one or more relays by name and URI; creates client handlers lazily.
    */
+  @Override
   public NostrIF setRelays(@NonNull Map<String, String> relays) {
     relays
         .entrySet()
@@ -117,7 +121,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
               try {
                 clientMap.putIfAbsent(
                     relayEntry.getKey(),
-                    new WebSocketClientHandler(relayEntry.getKey(), relayEntry.getValue()));
+                    newWebSocketClientHandler(relayEntry.getKey(), relayEntry.getValue()));
               } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException("Failed to initialize WebSocket client handler", e);
               }
@@ -125,10 +129,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return this;
   }
 
-  @Override
   /**
    * Send an event to all configured relays using the {@link NoteService}.
    */
+  @Override
   public List<String> sendEvent(@NonNull IEvent event) {
     if (event instanceof GenericEvent genericEvent) {
       if (!verify(genericEvent)) {
@@ -139,28 +143,28 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return noteService.send(event, clientMap);
   }
 
-  @Override
   /**
    * Send an event to the provided relays.
    */
+  @Override
   public List<String> sendEvent(@NonNull IEvent event, Map<String, String> relays) {
     setRelays(relays);
     return sendEvent(event);
   }
 
-  @Override
   /**
    * Send a REQ with a single filter to specific relays.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull Filters filters, @NonNull String subscriptionId, Map<String, String> relays) {
     return sendRequest(List.of(filters), subscriptionId, relays);
   }
 
-  @Override
   /**
    * Send REQ with multiple filters to specific relays.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList,
       @NonNull String subscriptionId,
@@ -169,10 +173,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return sendRequest(filtersList, subscriptionId);
   }
 
-  @Override
   /**
    * Send REQ with multiple filters to configured relays; flattens distinct responses.
    */
+  @Override
   public List<String> sendRequest(
       @NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
     return filtersList.stream()
@@ -199,10 +203,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     return client.send(new ReqMessage(subscriptionId, filters));
   }
 
-  @Override
   /**
    * Send a REQ with a single filter to configured relays using a per-subscription client.
    */
+  @Override
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
     createRequestClient(subscriptionId);
 
@@ -217,18 +221,88 @@ public class NostrSpringWebSocketClient implements NostrIF {
   }
 
   @Override
+  public AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener) {
+    return subscribe(filters, subscriptionId, listener, null);
+  }
+
+  @Override
+  public AutoCloseable subscribe(
+      @NonNull Filters filters,
+      @NonNull String subscriptionId,
+      @NonNull Consumer<String> listener,
+      Consumer<Throwable> errorListener) {
+    Consumer<Throwable> safeError =
+        errorListener != null
+            ? errorListener
+            : throwable ->
+                log.warn(
+                    "Subscription error for {} on relays {}", subscriptionId, clientMap.keySet(),
+                    throwable);
+
+    List<AutoCloseable> handles = new ArrayList<>();
+    try {
+      clientMap.entrySet().stream()
+          .filter(entry -> !entry.getKey().contains(":"))
+          .map(Map.Entry::getValue)
+          .forEach(
+              handler -> {
+                AutoCloseable handle = handler.subscribe(filters, subscriptionId, listener, safeError);
+                handles.add(handle);
+              });
+    } catch (RuntimeException e) {
+      handles.forEach(
+          handle -> {
+            try {
+              handle.close();
+            } catch (Exception closeEx) {
+              safeError.accept(closeEx);
+            }
+          });
+      throw e;
+    }
+
+    return () -> {
+      IOException ioFailure = null;
+      Exception nonIoFailure = null;
+      for (AutoCloseable handle : handles) {
+        try {
+          handle.close();
+        } catch (IOException e) {
+          safeError.accept(e);
+          if (ioFailure == null) {
+            ioFailure = e;
+          }
+        } catch (Exception e) {
+          safeError.accept(e);
+          nonIoFailure = e;
+        }
+      }
+
+      if (ioFailure != null) {
+        throw ioFailure;
+      }
+      if (nonIoFailure != null) {
+        throw new IOException("Failed to close subscription", nonIoFailure);
+      }
+    };
+  }
+
   /**
    * Sign a signable object with the provided identity.
    */
+  @Override
   public NostrIF sign(@NonNull Identity identity, @NonNull ISignable signable) {
     identity.sign(signable);
     return this;
   }
 
-  @Override
   /**
    * Verify the Schnorr signature of a GenericEvent.
    */
+  @Override
   public boolean verify(@NonNull GenericEvent event) {
     if (!event.isSigned()) {
       throw new IllegalStateException("The event is not signed");
@@ -244,10 +318,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     }
   }
 
-  @Override
   /**
    * Return a copy of the current relay mapping (name -> URI).
    */
+  @Override
   public Map<String, String> getRelays() {
     return clientMap.values().stream()
         .collect(

@@ -19,6 +19,37 @@ See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about r
 ## Examples
 Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module.
 
+- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
+  shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a
+  fixed duration.
+
+## Streaming subscriptions
+
+The client and API layers expose a non-blocking streaming API for long-lived subscriptions. Use
+`NostrSpringWebSocketClient.subscribe` to open a REQ subscription and receive relay messages via a
+callback:
+
+```java
+Filters filters = new Filters(new KindFilter<>(Kind.TEXT_NOTE));
+AutoCloseable subscription =
+    client.subscribe(
+        filters,
+        "example-subscription",
+        message -> {
+          // handle EVENT/NOTICE payloads on your own executor to avoid blocking the socket thread
+        },
+        error -> log.warn("Subscription error", error));
+
+// ... keep the subscription open while processing events ...
+
+subscription.close(); // sends CLOSE to the relay and releases the underlying WebSocket
+```
+
+Subscriptions must be closed by the caller to ensure a CLOSE frame is sent to the relay and to free
+the dedicated WebSocket connection created for the REQ. Callbacks run on the WebSocket thread; for
+high-throughput feeds, hand off work to a queue or executor to provide backpressure and keep the
+socket responsive.
+
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md) - Basic protocol flow description

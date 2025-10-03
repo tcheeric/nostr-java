@@ -80,9 +80,9 @@ public class Bech32 {
   /**
    * Encode a Bech32 string.
    *
-   * @param bech32
-   * @return
-   * @throws Exception
+   * @param bech32 input container holding encoding, hrp and data
+   * @return encoded Bech32 string
+   * @throws Exception if inputs are invalid or encoding fails
    */
   public static String encode(final Bech32Data bech32) throws Exception {
     return encode(bech32.encoding, bech32.hrp, bech32.data);
@@ -91,11 +91,11 @@ public class Bech32 {
   /**
    * Encode a Bech32 string.
    *
-   * @param encoding
-   * @param hrp
-   * @param values
-   * @return
-   * @throws Exception
+   * @param encoding the Bech32 variant (BECH32 or BECH32M)
+   * @param hrp the human-readable prefix
+   * @param values 5-bit data payload
+   * @return encoded Bech32 string
+   * @throws Exception if inputs are invalid or encoding fails
    */
   // Modified to throw Exceptions
   public static String encode(Encoding encoding, String hrp, final byte[] values) throws Exception {
@@ -120,9 +120,9 @@ public class Bech32 {
   /**
    * Decode a Bech32 string.
    *
-   * @param str
-   * @return
-   * @throws Exception
+   * @param str input Bech32 string
+   * @return decoded container with encoding, hrp and raw 5-bit data
+   * @throws Exception if input is malformed or decodes to invalid values
    */
   // Modified to throw Exceptions
   public static Bech32Data decode(final String str) throws Exception {

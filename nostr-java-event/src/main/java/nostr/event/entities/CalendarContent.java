@@ -37,7 +37,7 @@ public class CalendarContent<T extends BaseTag> extends NIP42Content {
   private String summary;
   private String image;
   private String location;
-  private Map<String, List<T>> classTypeTagsMap = new HashMap<>();
+  private final Map<String, List<T>> classTypeTagsMap = new HashMap<>();
 
   public CalendarContent(
       @NonNull IdentifierTag identifierTag, @NonNull String title, @NonNull Long start) {
@@ -183,13 +183,7 @@ public class CalendarContent<T extends BaseTag> extends NIP42Content {
 
   private void addTag(@NonNull T baseTag) {
     String code = baseTag.getCode();
-    Optional<List<T>> optionalBaseTags = Optional.ofNullable(classTypeTagsMap.get(code));
-    List<T> baseTags = optionalBaseTags.orElseGet(ArrayList::new);
-    baseTags.add(baseTag);
-    //            .ifPresent(list -> list.add(baseTag));
-    //            .orElse(classTypeTagsMap.put(code, new ArrayList<>()))
-    classTypeTagsMap.put(code, baseTags);
-    List<T> baseTags1 = classTypeTagsMap.get(code);
-    baseTags1.addAll(baseTags);
+    List<T> list = classTypeTagsMap.computeIfAbsent(code, k -> new ArrayList<>());
+    list.add(baseTag);
   }
 }

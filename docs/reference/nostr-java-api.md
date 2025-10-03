@@ -65,6 +65,14 @@ Abstraction over a WebSocket connection to a relay.
 ```java
 <T extends BaseMessage> List<String> send(T eventMessage) throws IOException
 List<String> send(String json) throws IOException
+AutoCloseable subscribe(String requestJson,
+                        Consumer<String> messageListener,
+                        Consumer<Throwable> errorListener,
+                        Runnable closeListener) throws IOException
+<T extends BaseMessage> AutoCloseable subscribe(T eventMessage,
+                                                Consumer<String> messageListener,
+                                                Consumer<Throwable> errorListener,
+                                                Runnable closeListener) throws IOException
 void close() throws IOException
 ```
 
@@ -75,6 +83,10 @@ Spring `TextWebSocketHandler` based implementation of `WebSocketClientIF`.
 public StandardWebSocketClient(String relayUri)
 public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException
 public List<String> send(String json) throws IOException
+public AutoCloseable subscribe(String requestJson,
+                               Consumer<String> messageListener,
+                               Consumer<Throwable> errorListener,
+                               Runnable closeListener) throws IOException
 public void close() throws IOException
 ```
 
@@ -84,6 +96,14 @@ Wrapper that adds retry logic around a `WebSocketClientIF`.
 ```java
 public List<String> send(BaseMessage eventMessage) throws IOException
 public List<String> send(String json) throws IOException
+public AutoCloseable subscribe(BaseMessage requestMessage,
+                               Consumer<String> messageListener,
+                               Consumer<Throwable> errorListener,
+                               Runnable closeListener) throws IOException
+public AutoCloseable subscribe(String json,
+                               Consumer<String> messageListener,
+                               Consumer<Throwable> errorListener,
+                               Runnable closeListener) throws IOException
 public List<String> recover(IOException ex, String json) throws IOException
 public void close() throws IOException
 ```
@@ -95,11 +115,23 @@ High level client coordinating multiple relay connections and signing.
 public NostrIF setRelays(Map<String,String> relays)
 public List<String> sendEvent(IEvent event)
 public List<String> sendRequest(List<Filters> filters, String subscriptionId)
+public AutoCloseable subscribe(Filters filters, String subscriptionId, Consumer<String> listener)
+public AutoCloseable subscribe(Filters filters,
+                               String subscriptionId,
+                               Consumer<String> listener,
+                               Consumer<Throwable> errorListener)
 public NostrIF sign(Identity identity, ISignable signable)
 public boolean verify(GenericEvent event)
 public Map<String,String> getRelays()
 public void close()
 ```
+
+`subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
+messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
+resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy
+processing to another executor to avoid stalling inbound traffic. The
+[`SpringSubscriptionExample`](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
+demonstrates how to open a subscription and close it after a fixed duration.
 
 ### Configuration
 - `RetryConfig` – enables Spring Retry support.

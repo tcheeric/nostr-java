@@ -10,9 +10,6 @@ import nostr.event.tag.RelaysTag;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ZapRequest implements JsonContent {
-  // @JsonIgnore
-  // private String id;
-
   @JsonProperty("relays")
   private RelaysTag relaysTag;
 
