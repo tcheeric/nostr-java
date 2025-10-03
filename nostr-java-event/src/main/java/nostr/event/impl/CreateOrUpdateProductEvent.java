@@ -56,8 +56,6 @@ public class CreateOrUpdateProductEvent extends MerchantEvent<Product> {
       if (product.getPrice() == null) {
         throw new AssertionError("Invalid `content`: `price` field is required.");
       }
-    } catch (AssertionError e) {
-      throw e;
     } catch (Exception e) {
       throw new AssertionError("Invalid `content`: Must be a valid Product JSON object.", e);
     }
