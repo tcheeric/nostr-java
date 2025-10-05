@@ -1,5 +1,12 @@
 package nostr.api.integration;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import nostr.api.NIP99;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -20,20 +27,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @ActiveProfiles("test")
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   public static final String CLASSIFIED_LISTING_CONTENT = "classified listing content";
 
-  public static final String PTAG_HEX = "2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985";
-  public static final String ETAG_HEX = "494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347";
+  public static final String PTAG_HEX =
+      "2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985";
+  public static final String ETAG_HEX =
+      "494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347";
 
   public static final PubKeyTag P_TAG = new PubKeyTag(new PublicKey(PTAG_HEX));
   public static final EventTag E_TAG = new EventTag(ETAG_HEX);
@@ -56,9 +57,10 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
   private SpringWebSocketClient springWebSocketClient;
 
   @BeforeEach
-    void setup() throws Exception {
-      springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
-    }
+  void setup() throws Exception {
+    springWebSocketClient =
+        new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+  }
 
   @Test
   void testNIP99ClassifiedListingEvent() throws IOException {
@@ -67,30 +69,34 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(E_TAG);
     tags.add(P_TAG);
-    tags.add(BaseTag.create(PUBLISHED_AT_CODE,  CLASSIFIED_LISTING_PUBLISHED_AT));
-    tags.add(BaseTag.create(LOCATION_CODE,  CLASSIFIED_LISTING_LOCATION));
+    tags.add(BaseTag.create(PUBLISHED_AT_CODE, CLASSIFIED_LISTING_PUBLISHED_AT));
+    tags.add(BaseTag.create(LOCATION_CODE, CLASSIFIED_LISTING_LOCATION));
     tags.add(SUBJECT_TAG);
     tags.add(G_TAG);
     tags.add(T_TAG);
 
     PriceTag priceTag = new PriceTag(NUMBER, CURRENCY, FREQUENCY);
-    ClassifiedListing classifiedListing = ClassifiedListing.builder(
-            TITLE_CODE,
-            SUMMARY_CODE,
-            priceTag)
-        .build();
+    ClassifiedListing classifiedListing =
+        ClassifiedListing.builder(TITLE_CODE, SUMMARY_CODE, priceTag).build();
 
     classifiedListing.setPublishedAt(Long.parseLong(CLASSIFIED_LISTING_PUBLISHED_AT));
 
     var nip99 = new NIP99(Identity.create(PrivateKey.generateRandomPrivKey()));
 
-    GenericEvent event = nip99.createClassifiedListingEvent(tags, CLASSIFIED_LISTING_CONTENT, classifiedListing).sign().getEvent();
+    GenericEvent event =
+        nip99
+            .createClassifiedListingEvent(tags, CLASSIFIED_LISTING_CONTENT, classifiedListing)
+            .sign()
+            .getEvent();
     EventMessage message = new EventMessage(event);
 
     // Extract and compare only first 3 elements of the JSON array
-    var expectedArray = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(0).asText();
-    var expectedSubscriptionId = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(1).asText();
-    var expectedSuccess = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+    var expectedArray =
+        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(0).asText();
+    var expectedSubscriptionId =
+        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(1).asText();
+    var expectedSuccess =
+        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
     try (SpringWebSocketClient client = springWebSocketClient) {
       String eventResponse = client.send(message).stream().findFirst().get();

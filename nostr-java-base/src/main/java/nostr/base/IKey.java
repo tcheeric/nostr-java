@@ -1,15 +1,13 @@
-
 package nostr.base;
 
 import java.io.Serializable;
 
 /**
- *
  * @author squirrel
  */
 public interface IKey extends Serializable {
 
-    byte[] getRawData();
+  byte[] getRawData();
 
-    String toBech32String();
+  String toBech32String();
 }

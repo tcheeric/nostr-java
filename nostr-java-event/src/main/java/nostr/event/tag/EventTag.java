@@ -27,49 +27,43 @@ import nostr.event.BaseTag;
 @AllArgsConstructor
 public class EventTag extends BaseTag {
 
-    @Key
-    @JsonProperty
-    private String idEvent;
+  @Key @JsonProperty private String idEvent;
 
-    @Key
-    @JsonProperty
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String recommendedRelayUrl;
+  @Key
+  @JsonProperty
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String recommendedRelayUrl;
 
-    @Key(nip = 10)
-    @JsonProperty
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Marker marker;
+  @Key(nip = 10)
+  @JsonProperty
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Marker marker;
 
-    public EventTag(String idEvent) {
-        this.recommendedRelayUrl = null;
-        this.idEvent = idEvent;
+  public EventTag(String idEvent) {
+    this.idEvent = idEvent;
+  }
 
-        // TODO: This is a bug. The marker should not be set, or at least not like this.
-        //this.marker = this.idEvent == null ? Marker.ROOT : Marker.REPLY;
+  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+    EventTag tag = new EventTag();
+    setRequiredField(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);
+    setOptionalField(node.get(2), (n, t) -> tag.setRecommendedRelayUrl(n.asText()), tag);
+    setOptionalField(
+        node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
+    return (T) tag;
+  }
+
+  public static EventTag updateFields(@NonNull GenericTag tag) {
+    if (!"e".equals(tag.getCode())) {
+      throw new IllegalArgumentException("Invalid tag code for EventTag");
+    }
+    EventTag eventTag = new EventTag(tag.getAttributes().get(0).value().toString());
+    if (tag.getAttributes().size() > 1) {
+      eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).value().toString());
+    }
+    if (tag.getAttributes().size() > 2) {
+      eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).value().toString()));
     }
 
-    public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
-        EventTag tag = new EventTag();
-        setRequiredField(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);
-        setOptionalField(node.get(2), (n, t) -> tag.setRecommendedRelayUrl(n.asText()), tag);
-        setOptionalField(node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
-        return (T) tag;
-    }
-
-    public static EventTag updateFields(@NonNull GenericTag tag) {
-        if (!"e".equals(tag.getCode())) {
-            throw new IllegalArgumentException("Invalid tag code for EventTag");
-        }
-        EventTag eventTag = new EventTag(tag.getAttributes().get(0).value().toString());
-        if (tag.getAttributes().size() > 1) {
-            eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).value().toString());
-        }
-        if (tag.getAttributes().size() > 2) {
-            eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).value().toString()));
-        }
-
-        return eventTag;
-    }
-
+    return eventTag;
+  }
 }

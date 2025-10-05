@@ -1,23 +1,39 @@
 name: CI
 
 on:
-  push:
-    branches: [main, develop]
   pull_request:
-    branches: [main, develop]
+    branches:
+      - develop
+      - main
+      - master
+  push:
+    branches:
+      - develop
+      - main
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
       - name: Build with Maven
-        run: ./mvnw -q verify
+        run: ./mvnw -q verify |& tee build.log
+      - name: Show build log
+        if: failure()
+        run: |
+          echo "Build error"
+          grep '^\[ERROR\]' build.log || true
+          echo "Build log tail"
+          tail -n 200 build.log
       - name: Upload surefire reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -42,3 +58,21 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Create issue on failure
+        if: failure() && github.ref == 'refs/heads/develop'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const file = fs.readFileSync('build.log', 'utf8').split('\\n');
+            const errors = file.filter(line => line.startsWith('[ERROR]'))
+              .slice(-20)
+              .join('\\n');
+            const log = file.slice(-50).join('\\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `CI build failed for ${context.sha.slice(0,7)}`,
+              body: `Build failed for commit ${context.sha} in workflow run ${context.runId}.\\n\\nBuild error:\\n\\n\u0060\u0060\u0060\\n${errors}\\n\u0060\u0060\u0060\\n\\nLast lines of build log:\\n\\n\u0060\u0060\u0060\\n${log}\\n\u0060\u0060\u0060`,
+              labels: ['ci']
+            });

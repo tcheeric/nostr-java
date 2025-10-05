@@ -1,4 +1,3 @@
-
 package nostr.base;
 
 /**

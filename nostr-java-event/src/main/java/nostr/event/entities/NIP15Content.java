@@ -8,19 +8,17 @@ import nostr.event.impl.CheckoutEvent;
 
 public abstract class NIP15Content implements JsonContent {
 
-    public abstract String getId();
+  public abstract String getId();
 
-    public String toString() {
-        return value();
-    }
+  public String toString() {
+    return value();
+  }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public abstract static class CheckoutContent extends NIP15Content {
-        @JsonProperty
-        private CheckoutEvent.MessageType messageType;
-    }
+  @EqualsAndHashCode(callSuper = true)
+  @Data
+  public abstract static class CheckoutContent extends NIP15Content {
+    @JsonProperty private CheckoutEvent.MessageType messageType;
+  }
 
-    public abstract static class MerchantContent extends NIP15Content {
-    }
+  public abstract static class MerchantContent extends NIP15Content {}
 }

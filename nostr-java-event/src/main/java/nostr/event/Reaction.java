@@ -3,18 +3,16 @@ package nostr.event;
 import lombok.Getter;
 
 /**
- *
  * @author squirrel
  */
 @Getter
 public enum Reaction {
-    LIKE("+"),
-    DISLIKE("-");
+  LIKE("+"),
+  DISLIKE("-");
 
-    private final String emoji;
+  private final String emoji;
 
-    Reaction(String emoji) {
-        this.emoji = emoji;
-    }
-
+  Reaction(String emoji) {
+    this.emoji = emoji;
+  }
 }

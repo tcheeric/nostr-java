@@ -1,5 +1,11 @@
 package nostr.api.integration;
 
+import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import nostr.api.NIP52;
 import nostr.api.util.JsonComparator;
 import nostr.base.PrivateKey;
@@ -17,37 +23,39 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
   private SpringWebSocketClient springWebSocketClient;
 
   @BeforeEach
-    void setup() throws Exception {
-      springWebSocketClient = new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
-    }
+  void setup() throws Exception {
+    springWebSocketClient =
+        new SpringWebSocketClient(new StandardWebSocketClient(getRelayUri()), getRelayUri());
+  }
 
   @Test
   void testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient() throws IOException {
     System.out.println("testNIP52CalendarTimeBasedEventEventUsingSpringWebSocketClient");
 
     List<BaseTag> tags = new ArrayList<>();
-    tags.add(new PubKeyTag(new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
-        null,
-        "PAYER"));
-    tags.add(new PubKeyTag(new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
-        null,
-        "PAYEE"));
+    tags.add(
+        new PubKeyTag(
+            new PublicKey("2bed79f81439ff794cf5ac5f7bff9121e257f399829e472c7a14d3e86fe76985"),
+            null,
+            "PAYER"));
+    tags.add(
+        new PubKeyTag(
+            new PublicKey("494001ac0c8af2a10f60f23538e5b35d3cdacb8e1cc956fe7a16dfa5cbfc4347"),
+            null,
+            "PAYEE"));
 
     var nip52 = new NIP52(Identity.create(PrivateKey.generateRandomPrivKey()));
 
-    GenericEvent event = nip52.createCalendarTimeBasedEvent(tags, "content", createCalendarContent()).sign().getEvent();
+    GenericEvent event =
+        nip52
+            .createCalendarTimeBasedEvent(tags, "content", createCalendarContent())
+            .sign()
+            .getEvent();
     EventMessage message = new EventMessage(event);
 
     try (SpringWebSocketClient client = springWebSocketClient) {
@@ -58,11 +66,13 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
       // Compare only first 3 elements of the JSON arrays
       assertTrue(
           JsonComparator.isEquivalentJson(
-              MAPPER_BLACKBIRD.createArrayNode()
+              MAPPER_BLACKBIRD
+                  .createArrayNode()
                   .add(expectedJson.get(0)) // OK Command
                   .add(expectedJson.get(1)) // event id
                   .add(expectedJson.get(2)), // Accepted?
-              MAPPER_BLACKBIRD.createArrayNode()
+              MAPPER_BLACKBIRD
+                  .createArrayNode()
                   .add(actualJson.get(0))
                   .add(actualJson.get(1))
                   .add(actualJson.get(2))));

@@ -224,3 +224,4 @@ data
 
 # Original versions of merged files
 *.orig
+/.qodana/

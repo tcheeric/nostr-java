@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 import nostr.event.BaseMessage;
 
 /**
+ * Legacy message factory abstraction; prefer BaseMessageFactory.
  *
- * @author eric
- * @param <T>
+ * @param <T> message type
  */
 @NoArgsConstructor
 public abstract class MessageFactory<T extends BaseMessage> {
-        
-    public abstract T create();
+
+  /** Build the message instance. */
+  public abstract T create();
 }

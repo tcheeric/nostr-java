@@ -1,5 +1,9 @@
 package nostr.client.springwebsocket;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -8,19 +12,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.List;
-
 @Component
 @Slf4j
 public class SpringWebSocketClient implements AutoCloseable {
   private final WebSocketClientIF webSocketClientIF;
 
-  @Getter
-  private final String relayUrl;
+  @Getter private final String relayUrl;
 
-  public SpringWebSocketClient(@NonNull WebSocketClientIF webSocketClientIF,
-      @Value("${nostr.relay.uri}") String relayUrl) {
+  public SpringWebSocketClient(
+      @NonNull WebSocketClientIF webSocketClientIF, @Value("${nostr.relay.uri}") String relayUrl) {
     this.webSocketClientIF = webSocketClientIF;
     this.relayUrl = relayUrl;
   }
@@ -35,9 +35,17 @@ public class SpringWebSocketClient implements AutoCloseable {
    */
   public List<String> send(@NonNull BaseMessage eventMessage) throws IOException {
     String json = eventMessage.encode();
-    log.debug("Sending {} to relay {} (size={} bytes)", eventMessage.getCommand(), relayUrl, json.length());
+    log.debug(
+        "Sending {} to relay {} (size={} bytes)",
+        eventMessage.getCommand(),
+        relayUrl,
+        json.length());
     List<String> responses = webSocketClientIF.send(json);
-    log.debug("Sent {} to relay {} with {} responses", eventMessage.getCommand(), relayUrl, responses.size());
+    log.debug(
+        "Sent {} to relay {} with {} responses",
+        eventMessage.getCommand(),
+        relayUrl,
+        responses.size());
     return responses;
   }
 
@@ -49,28 +57,105 @@ public class SpringWebSocketClient implements AutoCloseable {
     return responses;
   }
 
+  @NostrRetryable
+  public AutoCloseable subscribe(
+      @NonNull BaseMessage requestMessage,
+      @NonNull Consumer<String> messageListener,
+      @NonNull Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    Objects.requireNonNull(messageListener, "messageListener");
+    Objects.requireNonNull(errorListener, "errorListener");
+    String json = requestMessage.encode();
+    log.debug(
+        "Subscribing with {} on relay {} (size={} bytes)",
+        requestMessage.getCommand(),
+        relayUrl,
+        json.length());
+    AutoCloseable handle =
+        webSocketClientIF.subscribe(json, messageListener, errorListener, closeListener);
+    log.debug(
+        "Subscription established with {} on relay {}",
+        requestMessage.getCommand(),
+        relayUrl);
+    return handle;
+  }
+
+  @NostrRetryable
+  public AutoCloseable subscribe(
+      @NonNull String json,
+      @NonNull Consumer<String> messageListener,
+      @NonNull Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    Objects.requireNonNull(messageListener, "messageListener");
+    Objects.requireNonNull(errorListener, "errorListener");
+    log.debug(
+        "Subscribing with raw message to relay {} (size={} bytes)", relayUrl, json.length());
+    AutoCloseable handle =
+        webSocketClientIF.subscribe(json, messageListener, errorListener, closeListener);
+    log.debug("Subscription established on relay {}", relayUrl);
+    return handle;
+  }
+
   /**
-   * This method is invoked by Spring Retry after all retry attempts for the
-   * {@link #send(String)} method are exhausted. It logs the failure and rethrows
-   * the exception.
+   * This method is invoked by Spring Retry after all retry attempts for the {@link #send(String)}
+   * method are exhausted. It logs the failure and rethrows the exception.
    *
-   * @param ex   the IOException that caused the retries to fail
+   * @param ex the IOException that caused the retries to fail
    * @param json the JSON message that failed to send
    * @return nothing; always throws the exception
    * @throws IOException always thrown to propagate the failure
    */
   @Recover
   public List<String> recover(IOException ex, String json) throws IOException {
-    log.error("Failed to send message to relay {} after retries (size={} bytes)", relayUrl, json.length(), ex);
+    log.error(
+        "Failed to send message to relay {} after retries (size={} bytes)",
+        relayUrl,
+        json.length(),
+        ex);
+    throw ex;
+  }
+
+  @Recover
+  public AutoCloseable recoverSubscription(
+      IOException ex,
+      String json,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    log.error(
+        "Failed to subscribe with raw message to relay {} after retries (size={} bytes)",
+        relayUrl,
+        json.length(),
+        ex);
+    throw ex;
+  }
+
+  @Recover
+  public AutoCloseable recoverSubscription(
+      IOException ex,
+      BaseMessage requestMessage,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    String json = requestMessage.encode();
+    log.error(
+        "Failed to subscribe with {} to relay {} after retries (size={} bytes)",
+        requestMessage.getCommand(),
+        relayUrl,
+        json.length(),
+        ex);
     throw ex;
   }
 
   /**
-   * This method is invoked by Spring Retry after all retry attempts for the
-   * {@link #send(BaseMessage)} method are exhausted. It logs the failure and
-   * rethrows the exception.
+   * This method is invoked by Spring Retry after all retry attempts for the {@link
+   * #send(BaseMessage)} method are exhausted. It logs the failure and rethrows the exception.
    *
-   * @param ex           the IOException that caused the retries to fail
+   * @param ex the IOException that caused the retries to fail
    * @param eventMessage the BaseMessage that failed to send
    * @return nothing; always throws the exception
    * @throws IOException always thrown to propagate the failure
@@ -78,7 +163,12 @@ public class SpringWebSocketClient implements AutoCloseable {
   @Recover
   public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
     String json = eventMessage.encode();
-    log.error("Failed to send {} to relay {} after retries (size={} bytes)", eventMessage.getCommand(), relayUrl, json.length(), ex);
+    log.error(
+        "Failed to send {} to relay {} after retries (size={} bytes)",
+        eventMessage.getCommand(),
+        relayUrl,
+        json.length(),
+        ex);
     throw ex;
   }
 
@@ -97,4 +187,3 @@ public class SpringWebSocketClient implements AutoCloseable {
     close();
   }
 }
-

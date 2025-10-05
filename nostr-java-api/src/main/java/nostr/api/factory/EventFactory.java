@@ -4,56 +4,67 @@
  */
 package nostr.api.factory;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- *
- * @author eric
+ * Base event factory collecting sender, tags, and content to build events.
  */
 @Data
 public abstract class EventFactory<E extends GenericEvent, T extends BaseTag> {
 
-    private final Identity identity;
-    private final String content;
-    private final List<T> tags;
+  private final Identity identity;
+  private final String content;
+  private final List<T> tags;
 
-    public EventFactory(Identity identity) {
-        this(identity, new ArrayList<>(), "");
+  /**
+   * Initialize the factory with a sender identity.
+   */
+  public EventFactory(Identity identity) {
+    this(identity, new ArrayList<>(), "");
+  }
+
+  /** Default constructor with no sender, no tags, and empty content. */
+  protected EventFactory() {
+    this.identity = null;
+    this.content = "";
+    this.tags = new ArrayList<>();
+  }
+
+  /**
+   * Initialize the factory with a sender and content.
+   */
+  public EventFactory(Identity sender, String content) {
+    this(sender, new ArrayList<>(), content);
+  }
+
+  /**
+   * Initialize the factory with a sender, tags and content.
+   */
+  public EventFactory(Identity sender, List<T> tags, String content) {
+    this.content = content;
+    this.tags = tags;
+    this.identity = sender;
+  }
+
+  /** Build the event instance. */
+  public abstract E create();
+
+  /** Add a tag to the internal list. */
+  protected void addTag(T tag) {
+    this.tags.add(tag);
+  }
+
+  /** Return the sender public key if a sender is configured. */
+  protected PublicKey getSender() {
+    if (this.identity != null) {
+      return this.identity.getPublicKey();
     }
-
-    protected EventFactory() {
-        this.identity = null;
-        this.content = "";
-        this.tags = new ArrayList<>();
-    }
-
-    public EventFactory(Identity sender, String content) {
-        this(sender, new ArrayList<>(), content);
-    }
-
-    public EventFactory(Identity sender, List<T> tags, String content) {
-        this.content = content;
-        this.tags = tags;
-        this.identity = sender;
-    }
-
-    public abstract E create();
-
-    protected void addTag(T tag) {
-        this.tags.add(tag);
-    }
-
-    protected PublicKey getSender() {
-        if (this.identity != null) {
-            return this.identity.getPublicKey();
-        }
-        return null;
-    }
+    return null;
+  }
 }

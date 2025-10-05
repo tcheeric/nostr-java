@@ -1,16 +1,39 @@
 # Contributing to nostr-java
 
-nostr-java implements the Nostr protocol. A complete index of current Nostr Implementation Possibilities (NIPs) is listed in [AGENTS.md](AGENTS.md).
+nostr-java implements the Nostr protocol. For a complete index of current Nostr Implementation Possibilities (NIPs), see [AGENTS.md](AGENTS.md).
 
 ## Development Guidelines
 
+- All changes must include unit tests and update relevant documentation.
+- Use clear, descriptive names and remove unused imports.
+- Prefer readable, maintainable code over clever shortcuts.
 - Run `mvn -q verify` from the repository root before committing.
-- Use `rg` for code searches instead of `ls -R` or `grep -R`.
-- PR titles and commit messages must follow the `type: description` format.
-  - Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `build`, `perf`, `style`.
-  - The description must be a concise verb + object phrase (e.g., `refactor: update auth middleware to async`).
+- Submit pull requests against the `develop` branch.
+
+## Commit Guidelines
+
+- All commit messages must follow the requirements in [`commit_instructions.md`](commit_instructions.md).
+- PR titles and commit messages must use the `type(scope): description` format and allowed types.
+- See the commit instructions file for details and examples.
+
+### Allowed Commit Types
+
+`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+### Good Examples
+
+- `feat(auth): add magic-link login`
+- `fix(api): handle 429 with exponential backoff`
+- `docs(readme): clarify local setup`
+- `refactor(search): extract ranking pipeline`
+
+### Issue Linking
+
+- In the PR body, add: `Closes #123` (or `Fixes ABC-456` for Jira). GitHub will auto-close on merge.
+
+## Pull Request Guidelines
+
 - Summaries in pull requests must cite file paths and include testing output.
 - Open pull requests using the template at `.github/pull_request_template.md` and complete every section.
 
 By following these conventions, contributors help keep the codebase maintainable and aligned with the Nostr specifications.
-

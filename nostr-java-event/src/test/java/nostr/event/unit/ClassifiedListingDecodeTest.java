@@ -1,13 +1,14 @@
 package nostr.event.unit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import nostr.event.impl.ClassifiedListingEvent;
 import nostr.event.json.codec.GenericEventDecoder;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 public class ClassifiedListingDecodeTest {
-  String eventJson = """
+  String eventJson =
+      """
         {
           "id": "299ab85049a7923e9cd82329c0fa489ca6fd6d21feeeac33543b1237e14a9e07",
           "kind": 30402,
@@ -32,6 +33,7 @@ public class ClassifiedListingDecodeTest {
 
   @Test
   void testClassifiedListingDecoding() {
-    assertDoesNotThrow(() -> new GenericEventDecoder<>(ClassifiedListingEvent.class).decode(eventJson));
+    assertDoesNotThrow(
+        () -> new GenericEventDecoder<>(ClassifiedListingEvent.class).decode(eventJson));
   }
 }

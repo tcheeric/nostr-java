@@ -97,37 +97,56 @@ nostr-java is a java implementation of the nostr protocol. The specification is 
 The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/master/XX.md where XX is the NIP number. For example, the specification for NIP-01 is available at the URL https://github.com/nostr-protocol/nips/blob/master/01.md etc.
 
 
+## Coding
+- When writing code, follow the "Clean Code" principles:
+    - [Clean Code](https://dev.398ja.xyz/books/Clean_Architecture.pdf)
+        - Relevant chapters: 2, 3, 4, 7, 10, 17
+    - [Clean Architecture](https://dev.398ja.xyz/books/Clean_Code.pdf)
+        - Relevant chapters: All chapters in part III and IV, 7-14.
+    - [Design Patterns](https://github.com/iluwatar/java-design-patterns)
+        - Follow design patterns as described in the book, whenever possible.
+- When commiting code, follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+- When adding new features, ensure they are compliant with the Cashu specification (NUTs) provided above.
+- Make use of the lombok library to reduce boilerplate code.
+
+## Documentation
+
+- When generating documentation:
+    - Follow the Diátaxis framework and classify each document as a tutorial, how-to guide, reference, or explanation.
+    - Place new Markdown files under `docs/<section>` matching the chosen category.
+    - Start each document with a top-level `#` heading and a short introduction that states the purpose.
+    - Link the document from `docs/README.md` in the corresponding section.
+    - Use relative links to reference other documents and keep code snippets minimal and tested.
+    - Consult the following resources on Diátaxis for guidance:
+        - https://github.blog/developer-skills/documentation-done-right-a-developers-guide/
+        - https://diataxis.fr/
+        - https://diataxis.fr/start-here/
+        - https://diataxis.fr/how-to-use-diataxis/
+        - https://diataxis.fr/tutorials/
+        - https://diataxis.fr/how-to-guides/
+        - https://diataxis.fr/tutorials-how-to/
+        - https://diataxis.fr/quality/
+        - https://diataxis.fr/complex-hierarchies/
+        - https://diataxis.fr/compass/
+
 ## Testing
 
 - Always run `mvn -q verify` from the repository root before committing your changes.
 - Include the command's output in the PR description.
 - If tests fail due to dependency or network issues, mention this in the PR.
-- Update the `README.md` and/or `docs/CODEBASE_OVERVIEW.md` file if you add or modify features.
+- Update the documentation files if you add or modify features.
 - Update the `pom.xml` file for new modules or dependencies, ensuring compatibility with Java 21.
-- Add unit tests for new functionality, covering edge cases.
+- Verify new Dockerfiles or `docker-compose.yml` files by running `docker-compose build`.
+- Document new REST endpoints in the API documentation and ensure they are tested.
+- Add unit tests for new functionality, covering edge cases. Follow "Clean Code" principles on unit tests, as described in the "Clean Code" book (Chapter 9).
 - Ensure modifications to existing code do not break functionality and pass all tests.
 - Add integration tests for new features to verify end-to-end functionality.
 - Ensure new dependencies or configurations do not introduce security vulnerabilities.
-- Maintain the versions in the configuration section of the pom.xml files.
-- Always make sure that the events are compliant with the Nostr protocol specifications, and that the events are valid according to the NIP specifications.
-- Always remove unused imports
-- When creating a branch, bump up the version in the pom files to the next minor version.
+- Add a comment on top of every test method to describe the test in plain English.
 
 ## Pull Requests
 
-- Use the pull request template at `.github/pull_request_template.md` and fill out all sections.
+- Always follow the repository's PR submission guidelines and use the PR template located at `.github/pull_request_template.md`.
 - Summarize the changes made and describe how they were tested.
 - Include any limitations or known issues in the description.
-- Add a "Network Access" section summarizing blocked domains if network requests were denied.
-- Ensure all new features, modules, or dependencies are properly documented in the `README.md` file.
-## PR Quality Gate
-
-- PR summaries must reference modified files with file path citations (e.g. `F:path/to/file.java†L1-L2`).
-- PR titles and commit messages must follow the `type: description` naming format.
-- Allowed types: feat, fix, docs, refactor, test, chore, ci, build, perf, style.
-- The description should be a concise verb + object phrase (e.g., `refactor: Refactor auth middleware to async`).
-- Include a Testing section listing the commands run. Prefix each command with ✅, ⚠️, or ❌ and cite relevant terminal output.
-- If network requests fail, add a Network Access section noting blocked domains.
-- When TODOs or placeholders remain, include a Notes section.
-- Review AI-generated changes with developer expertise, ensuring you understand why the code works and that it remains resilient, scalable, and secure.
-- Use `rg` for search instead of `ls -R` or `grep -R`.
+- Ensure all new features are compliant with the Cashu specification (NUTs) provided above.

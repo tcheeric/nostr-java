@@ -6,20 +6,19 @@ import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
 
 /**
- *
  * @author squirrel
  */
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 public class PublicKey extends BaseKey {
 
-    public PublicKey(byte[] rawData) {
-        super(KeyType.PUBLIC, rawData, Bech32Prefix.NPUB);
-        log.debug("Created public key from byte array");
-    }
+  public PublicKey(byte[] rawData) {
+    super(KeyType.PUBLIC, rawData, Bech32Prefix.NPUB);
+    log.debug("Created public key from byte array");
+  }
 
-    public PublicKey(String hexPubKey) {
-        super(KeyType.PUBLIC, NostrUtil.hexToBytes(hexPubKey), Bech32Prefix.NPUB);
-        log.debug("Created public key from hex string");
-    }
+  public PublicKey(String hexPubKey) {
+    super(KeyType.PUBLIC, NostrUtil.hexToBytes(hexPubKey), Bech32Prefix.NPUB);
+    log.debug("Created public key from hex string");
+  }
 }
