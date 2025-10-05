@@ -89,7 +89,7 @@ returned event:
 ```java
 Identity sender = Identity.generateRandomIdentity();
 NIP01 client = new NIP01(sender);
-client.setRelays(Map.of("damus", "wss://relay.damus.io"));
+client.setRelays(Map.of("damus", "wss://relay.398ja.xyz"));
 
 Filters filters = new Filters(
         new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),

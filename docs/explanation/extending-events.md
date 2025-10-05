@@ -319,7 +319,7 @@ public class PollExample {
 
         // Send to relay
         try (StandardWebSocketClient client =
-                new StandardWebSocketClient("wss://relay.damus.io")) {
+                new StandardWebSocketClient("wss://relay.398ja.xyz")) {
             client.send(new EventMessage(poll));
             System.out.println("Poll created: " + poll.getId());
         }

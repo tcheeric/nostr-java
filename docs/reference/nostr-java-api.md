@@ -195,7 +195,7 @@ Base checked exception for utility methods.
 Identity id = Identity.generateRandomIdentity();
 NIP01 nip01 = new NIP01(id).createTextNoteEvent("Hello Nostr");
 NostrIF client = NostrSpringWebSocketClient.getInstance(id)
-        .setRelays(Map.of("damus","wss://relay.damus.io"));
+        .setRelays(Map.of("damus","wss://relay.398ja.xyz"));
 client.sendEvent(nip01.getEvent());
 ```
 

@@ -117,12 +117,12 @@ Ensure the relay URL uses the correct WebSocket protocol:
 
 **Bad:**
 ```java
-Map<String, String> relays = Map.of("relay", "https://relay.damus.io");  // Wrong protocol
+Map<String, String> relays = Map.of("relay", "https://relay.398ja.xyz");  // Wrong protocol
 ```
 
 **Good:**
 ```java
-Map<String, String> relays = Map.of("relay", "wss://relay.damus.io");
+Map<String, String> relays = Map.of("relay", "wss://relay.398ja.xyz");
 ```
 
 #### 2. Relay is Down or Unreachable
@@ -130,14 +130,14 @@ Map<String, String> relays = Map.of("relay", "wss://relay.damus.io");
 Test the relay URL independently:
 ```bash
 # Using websocat (install: cargo install websocat)
-websocat wss://relay.damus.io
+websocat wss://relay.398ja.xyz
 
 # Or use an online WebSocket tester
 # https://www.websocket.org/echo.html
 ```
 
 Try alternative public relays:
-- `wss://relay.damus.io`
+- `wss://relay.398ja.xyz`
 - `wss://nos.lol`
 - `wss://relay.nostr.band`
 
