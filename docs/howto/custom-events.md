@@ -40,7 +40,7 @@ public class CustomEventExample {
         // Required fields `id` and `sig` are populated when signing
         identity.sign(event);
 
-        try (StandardWebSocketClient client = new StandardWebSocketClient("wss://relay.example.com")) {
+        try (StandardWebSocketClient client = new StandardWebSocketClient("wss://relay.damus.io")) {
             client.send(new EventMessage(event));
         }
     }

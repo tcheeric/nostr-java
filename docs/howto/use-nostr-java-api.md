@@ -12,11 +12,11 @@ Add the API module to your project:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>[VERSION]</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
-Replace `[VERSION]` with the latest release number.
+The current version is `0.5.0`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
 
 ## Create, sign, and publish an event
 
@@ -29,7 +29,7 @@ import java.util.Map;
 public class QuickStart {
     public static void main(String[] args) {
         Identity identity = Identity.generateRandomIdentity();
-        Map<String, String> relays = Map.of("local", "wss://nostr.example");
+        Map<String, String> relays = Map.of("damus", "wss://relay.damus.io");
 
         new NIP01(identity)
             .createTextNoteEvent("Hello nostr")

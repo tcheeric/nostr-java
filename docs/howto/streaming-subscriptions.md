@@ -24,7 +24,7 @@ import nostr.base.Kind;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 
-Map<String, String> relays = Map.of("local", "wss://relay.example");
+Map<String, String> relays = Map.of("damus", "wss://relay.damus.io");
 
 NostrSpringWebSocketClient client = new NostrSpringWebSocketClient().setRelays(relays);
 

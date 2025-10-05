@@ -24,11 +24,14 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usag
 - Codebase overview and contributing: [docs/CODEBASE_OVERVIEW.md](docs/CODEBASE_OVERVIEW.md) — layout, testing, and contribution workflow.
 
 ## Examples
-Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module.
 
-- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
-  shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a
-  fixed duration.
+Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module. See the [API Examples Guide](docs/howto/api-examples.md) for detailed walkthroughs.
+
+### Key Examples
+
+- [`NostrApiExamples`](nostr-java-examples/src/main/java/nostr/examples/NostrApiExamples.java) – Comprehensive examples covering 13+ use cases including text notes, encrypted DMs, reactions, channels, and more. See the [guide](docs/howto/api-examples.md) for details.
+
+- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java) – Shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a fixed duration.
  
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):

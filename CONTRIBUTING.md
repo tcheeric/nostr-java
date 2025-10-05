@@ -12,7 +12,7 @@ nostr-java implements the Nostr protocol. For a complete index of current Nostr 
 
 ## Commit Guidelines
 
-- All commit messages must follow the requirements in [`.github/commit_instructions.md`](.github/commit_instructions.md).
+- All commit messages must follow the requirements in [`commit_instructions.md`](commit_instructions.md).
 - PR titles and commit messages must use the `type(scope): description` format and allowed types.
 - See the commit instructions file for details and examples.
 

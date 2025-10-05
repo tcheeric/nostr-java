@@ -29,7 +29,7 @@ Artifacts are published to `https://maven.398ja.xyz/releases`:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>[VERSION]</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
@@ -43,10 +43,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:[VERSION]'
+    implementation 'xyz.tcheeric:nostr-java-api:0.5.0'
 }
 ```
 
-Replace `[VERSION]` with the latest release number from the [releases page](https://github.com/tcheeric/nostr-java/releases).
+The current version is `0.5.0`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
 
 Examples are available in the [`nostr-java-examples`](../nostr-java-examples) module.
