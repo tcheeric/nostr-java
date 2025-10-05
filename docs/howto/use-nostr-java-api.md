@@ -12,11 +12,11 @@ Add the API module to your project:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
 </dependency>
 ```
 
-The current version is `0.5.0`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
+The current version is `0.5.1`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
 
 ## Create, sign, and publish an event
 

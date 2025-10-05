@@ -20,7 +20,7 @@ This guide helps you diagnose and resolve common issues when using nostr-java.
 
 ### Problem: Dependency Not Found
 
-**Symptom**: Maven or Gradle cannot resolve `xyz.tcheeric:nostr-java-api:0.5.0`
+**Symptom**: Maven or Gradle cannot resolve `xyz.tcheeric:nostr-java-api:0.5.1`
 
 **Solution**: Ensure you've added the custom repository to your build configuration:
 
@@ -89,7 +89,7 @@ Exclude conflicting transitive dependencies if needed:
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java-api</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
     <exclusions>
         <exclusion>
             <groupId>conflicting-group</groupId>
@@ -577,7 +577,7 @@ If your issue isn't covered here:
 2. **Review examples**: Browse the [`nostr-java-examples`](../nostr-java-examples) module
 3. **Search existing issues**: [GitHub Issues](https://github.com/tcheeric/nostr-java/issues)
 4. **Open a new issue**: Provide:
-   - nostr-java version (`0.5.0`)
+   - nostr-java version (`0.5.1`)
    - Java version (`java -version`)
    - Minimal code to reproduce
    - Full error stack trace

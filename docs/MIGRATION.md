@@ -6,18 +6,18 @@ This guide helps you upgrade your nostr-java applications between versions.
 
 ## Table of Contents
 
-- [0.4.0 → 0.5.0](#040--050)
+- [0.4.0 → 0.5.1](#040--050)
 - [General Migration Tips](#general-migration-tips)
 
 ---
 
-## 0.4.0 → 0.5.0
+## 0.4.0 → 0.5.1
 
 **Release Date**: January 2025
 
 ### Overview
 
-Version 0.5.0 introduces a major dependency management change: **nostr-java now uses its own BOM (Bill of Materials)** instead of inheriting from Spring Boot's parent POM. This provides better control over dependencies and reduces conflicts with user applications.
+Version 0.5.1 introduces a major dependency management change: **nostr-java now uses its own BOM (Bill of Materials)** instead of inheriting from Spring Boot's parent POM. This provides better control over dependencies and reduces conflicts with user applications.
 
 ### Breaking Changes
 
@@ -36,10 +36,10 @@ Version 0.5.0 introduces a major dependency management change: **nostr-java now 
 </parent>
 ```
 
-**In 0.5.0**, nostr-java uses its own BOM via dependency management:
+**In 0.5.1**, nostr-java uses its own BOM via dependency management:
 
 ```xml
-<!-- 0.5.0 - NEW -->
+<!-- 0.5.1 - NEW -->
 <dependencyManagement>
     <dependencies>
         <dependency>
@@ -60,7 +60,7 @@ Version 0.5.0 introduces a major dependency management change: **nostr-java now 
    <dependency>
        <groupId>xyz.tcheeric</groupId>
        <artifactId>nostr-java-api</artifactId>
-       <version>0.5.0</version>
+       <version>0.5.1</version>
    </dependency>
    ```
 
@@ -77,7 +77,7 @@ Version 0.5.0 introduces a major dependency management change: **nostr-java now 
        <dependency>
            <groupId>xyz.tcheeric</groupId>
            <artifactId>nostr-java-api</artifactId>
-           <version>0.5.0</version>
+           <version>0.5.1</version>
        </dependency>
    </dependencies>
    ```
@@ -104,7 +104,7 @@ Version 0.5.0 introduces a major dependency management change: **nostr-java now 
 </properties>
 ```
 
-**In 0.5.0**, all dependency versions are managed by `nostr-java-bom`.
+**In 0.5.1**, all dependency versions are managed by `nostr-java-bom`.
 
 **Migration Steps:**
 
@@ -118,7 +118,7 @@ If you explicitly referenced nostr-java's internal dependency versions, remove t
     <version>${bcprov-jdk18on.version}</version> <!-- Remove version -->
 </dependency>
 
-<!-- 0.5.0 - NEW -->
+<!-- 0.5.1 - NEW -->
 <dependency>
     <groupId>org.bouncycastle</groupId>
     <artifactId>bcprov-jdk18on</artifactId>
@@ -130,10 +130,10 @@ If you explicitly referenced nostr-java's internal dependency versions, remove t
 
 #### No Breaking API Changes
 
-The public API remains **100% compatible** between 0.4.0 and 0.5.0. All existing code will continue to work:
+The public API remains **100% compatible** between 0.4.0 and 0.5.1. All existing code will continue to work:
 
 ```java
-// This code works in both 0.4.0 and 0.5.0
+// This code works in both 0.4.0 and 0.5.1
 Identity identity = Identity.generateRandomIdentity();
 Map<String, String> relays = Map.of("damus", "wss://relay.398ja.xyz");
 
@@ -151,7 +151,7 @@ If you're using Gradle, simply update the version:
 
 ```gradle
 dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:0.5.0'  // Update version
+    implementation 'xyz.tcheeric:nostr-java-api:0.5.1'  // Update version
 }
 ```
 
@@ -193,7 +193,7 @@ After migration, verify your setup:
 
 **Symptom**: `java.lang.NoSuchMethodError` or `ClassNotFoundException` for Spring classes
 
-**Solution**: Ensure your Spring Boot version is compatible. nostr-java 0.5.0 is tested with Spring Boot 3.5.x.
+**Solution**: Ensure your Spring Boot version is compatible. nostr-java 0.5.1 is tested with Spring Boot 3.5.x.
 
 ```xml
 <parent>
@@ -246,7 +246,7 @@ After migration, verify your setup:
 </dependencyManagement>
 ```
 
-### Benefits of 0.5.0
+### Benefits of 0.5.1
 
 - **Better dependency control**: No longer tied to Spring Boot's versioning
 - **Reduced conflicts**: Your application can use any Spring Boot version
@@ -375,7 +375,7 @@ If you need assistance with migration:
 
 | Version | Release Date | Key Changes |
 |---------|--------------|-------------|
-| 0.5.0   | Jan 2025     | BOM migration, dependency management improvements |
+| 0.5.1   | Jan 2025     | BOM migration, dependency management improvements |
 | 0.4.0   | Dec 2024     | Spring Boot 3.5.5, streaming subscriptions |
 
 See the [releases page](https://github.com/tcheeric/nostr-java/releases) for complete version history.
