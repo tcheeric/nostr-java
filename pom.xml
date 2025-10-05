@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -74,7 +74,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- All versions now managed by nostr-java-bom -->
-        <nostr-java-bom.version>1.0.0</nostr-java-bom.version>
+        <nostr-java-bom.version>1.1.0</nostr-java-bom.version>
     </properties>
 
     <!-- parent pom is used only for aggregation so it should not declare
