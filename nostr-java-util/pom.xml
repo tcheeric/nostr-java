@@ -35,12 +35,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-blackbird</artifactId>
-            <version>${jackson-module-blackbird.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
+            
             <scope>test</scope>
         </dependency>
     </dependencies>
