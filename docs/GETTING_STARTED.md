@@ -1,5 +1,7 @@
 # Getting Started
 
+Navigation: [Docs index](README.md) · [API how‑to](howto/use-nostr-java-api.md) · [Streaming subscriptions](howto/streaming-subscriptions.md) · [API reference](reference/nostr-java-api.md) · [Codebase overview](CODEBASE_OVERVIEW.md)
+
 ## Prerequisites
 - Maven
 - Java 21+
@@ -48,4 +50,3 @@ dependencies {
 Replace `[VERSION]` with the latest release number from the [releases page](https://github.com/tcheeric/nostr-java/releases).
 
 Examples are available in the [`nostr-java-examples`](../nostr-java-examples) module.
-

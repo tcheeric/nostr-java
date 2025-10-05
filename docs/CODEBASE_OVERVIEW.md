@@ -1,5 +1,7 @@
 # Codebase Overview
 
+Navigation: [Docs index](README.md) · [Getting started](GETTING_STARTED.md) · [API how‑to](howto/use-nostr-java-api.md) · [API reference](reference/nostr-java-api.md)
+
 This document provides an overview of the project structure and instructions for building and testing the modules.
 
 ## Module layout

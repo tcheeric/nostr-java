@@ -1,5 +1,7 @@
 # Custom Nostr Events
 
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how‑to](use-nostr-java-api.md) · [Streaming subscriptions](streaming-subscriptions.md) · [API reference](../reference/nostr-java-api.md)
+
 This guide shows how to construct and publish a Nostr event with a non-standard `kind` using **nostr-java**.
 
 ## Background

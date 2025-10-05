@@ -1,5 +1,7 @@
 # Extending Events
 
+Navigation: [Docs index](../README.md) · [API how‑to](../howto/use-nostr-java-api.md) · [Custom events](../howto/custom-events.md) · [API reference](../reference/nostr-java-api.md)
+
 This project uses factories and registries to make it easy to introduce new event types while keeping core classes stable.
 
 ## Factory and Registry Overview

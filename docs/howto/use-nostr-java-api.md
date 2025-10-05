@@ -1,5 +1,7 @@
 # Using the nostr-java API
 
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [Streaming subscriptions](streaming-subscriptions.md) · [Custom events](custom-events.md) · [API reference](../reference/nostr-java-api.md)
+
 This guide shows how to set up the library and publish a basic [Nostr](https://github.com/nostr-protocol/nips) event.
 
 ## Minimal setup
@@ -42,3 +44,6 @@ public class QuickStart {
 - [`NIP01.createTextNoteEvent`](../../nostr-java-api/src/main/java/nostr/api/NIP01.java)
 - [`EventNostr.sign`](../../nostr-java-api/src/main/java/nostr/api/EventNostr.java)
 - [`EventNostr.send`](../../nostr-java-api/src/main/java/nostr/api/EventNostr.java)
+
+### Next steps
+- Streaming, lifecycle, and backpressure: [streaming-subscriptions.md](streaming-subscriptions.md)

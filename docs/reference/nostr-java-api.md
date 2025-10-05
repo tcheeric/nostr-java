@@ -1,5 +1,7 @@
 # Nostr Java API Reference
 
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how‑to](../howto/use-nostr-java-api.md) · [Streaming subscriptions](../howto/streaming-subscriptions.md) · [Custom events](../howto/custom-events.md)
+
 This document provides an overview of the public API exposed by the `nostr-java` modules. It lists the major classes, configuration objects and their key method signatures, and shows brief examples of how to use them. Where applicable, links to related [Nostr Improvement Proposals (NIPs)](https://github.com/nostr-protocol/nips) are provided.
 
 ## Identity (`nostr-java-id`)
@@ -129,9 +131,10 @@ public void close()
 `subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
 messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
 resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy
-processing to another executor to avoid stalling inbound traffic. The
-[`SpringSubscriptionExample`](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
-demonstrates how to open a subscription and close it after a fixed duration.
+processing to another executor to avoid stalling inbound traffic.
+
+- How‑to guide: [../howto/streaming-subscriptions.md](../howto/streaming-subscriptions.md)
+- Example: [../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
 
 ### Configuration
 - `RetryConfig` – enables Spring Retry support.
