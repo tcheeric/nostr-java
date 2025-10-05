@@ -3,7 +3,8 @@ name: Format
 on:
   pull_request:
     branches:
-      - develop
+      - main
+      - master
 
 jobs:
 
