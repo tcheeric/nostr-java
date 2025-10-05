@@ -27,7 +27,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-api</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
     </dependencies>
 </project>
