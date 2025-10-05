@@ -41,74 +41,24 @@ If a relay response is not received before the timeout elapses, the client logs 
 ## Retry behavior
 `SpringWebSocketClient` leverages Spring Retry so that failed send operations are retried up to three times with an exponential backoff starting at 500 ms.
 
-## Creating custom events
-The `ExpirationEventExample` demonstrates how to build a NIP-40 expiration event with `GenericEvent` and send it using both the `StandardWebSocketClient` and the `SpringWebSocketClient`:
+## Examples
 
-```java
-BaseTag expirationTag = new GenericTag("expiration",
-        new ElementAttribute("param0", String.valueOf(expiration)));
-GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE,
-        List.of(expirationTag),
-        "This message will expire at the specified timestamp and be deleted by relays.\n");
-identity.sign(event);
-```
+For practical usage examples, see:
+- [API Examples Guide](howto/api-examples.md) – Comprehensive examples covering 13+ use cases
+- [Custom Events How-To](howto/custom-events.md) – Creating custom event types
+- [Streaming Subscriptions](howto/streaming-subscriptions.md) – Long-lived subscriptions
+- [Extending Events](explanation/extending-events.md) – Extending the event model with custom tags
 
-## Creating text note events with TextNoteEvent
-The `TextNoteEventExample` illustrates constructing a text note directly with the
-out-of-the-box `TextNoteEvent` class and sending it to a relay using the
-`StandardWebSocketClient`:
+Example code is also available in the [`nostr-java-examples`](../nostr-java-examples) module.
 
-```java
-Identity identity = Identity.generateRandomIdentity();
-TextNoteEvent event = new TextNoteEvent(identity.getPublicKey(),
-        List.<BaseTag>of(),
-        "Hello from TextNoteEvent!\n");
-identity.sign(event);
-try (StandardWebSocketClient client = new StandardWebSocketClient("ws://localhost:5555")) {
-    client.send(new EventMessage(event));
-}
-```
+## Contributing
 
-## Sending text events with NostrSpringWebSocketClient
-The `SpringClientTextEventExample` demonstrates using the `NIP01` helper class to
-publish a simple text note via `NostrSpringWebSocketClient`:
+Before submitting changes:
 
-```java
-Identity sender = Identity.generateRandomIdentity();
-NIP01 client = new NIP01(sender);
-client.setRelays(Map.of("local", "ws://localhost:5555"));
-client.createTextNoteEvent("Hello from NostrSpringWebSocketClient!\n")
-      .signAndSend();
-```
+1. **Run verification**: `./mvnw -q verify` – ensure all tests pass
+2. **Follow code style**: Use clear, descriptive names and remove unused imports
+3. **Write tests**: Include unit tests and update relevant documentation
+4. **Follow commit conventions**: Use conventional commits (see [CONTRIBUTING.md](../CONTRIBUTING.md))
+5. **Submit PRs to develop branch**: All pull requests should target the `develop` branch
 
-## Requesting events with filters
-The `FilterExample` shows how to query a relay for events matching a set of filters.
-It builds filters for author and kind, sends them with `NIP01`, and prints each
-returned event:
-
-```java
-Identity sender = Identity.generateRandomIdentity();
-NIP01 client = new NIP01(sender);
-client.setRelays(Map.of("damus", "wss://relay.398ja.xyz"));
-
-Filters filters = new Filters(
-        new AuthorFilter<>(new PublicKey("21ef0d8541375ae4bca85285097fba370f7e540b5a30e5e75670c16679f9d144")),
-        new KindFilter<>(Kind.TEXT_NOTE)
-);
-
-List<String> responses = client.sendRequest(filters, "filter-example-" + System.currentTimeMillis());
-var decoder = new BaseMessageDecoder<BaseMessage>();
-for (String json : responses) {
-    BaseMessage message = decoder.decode(json);
-    if (message instanceof EventMessage eventMessage) {
-        System.out.println(eventMessage.getEvent());
-    }
-}
-client.close();
-```
-
-## Creating custom events and tags
-Custom tag types can be introduced without modifying existing core code by
-registering them with the `TagRegistry`. The registry maps tag codes to factory
-functions responsible for creating concrete `BaseTag` implementations from a
-`GenericTag` representation.
+For detailed contribution guidelines, see [CONTRIBUTING.md](../CONTRIBUTING.md).
