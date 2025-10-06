@@ -193,7 +193,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     } catch (NostrException | NoSuchAlgorithmException ex) {
       throw new RuntimeException(ex);
     } catch (AssertionError ex) {
-      log.warn(ex.getMessage());
+      log.warn("Failed to update event during serialization: {}", ex.getMessage(), ex);
       throw new RuntimeException(ex);
     }
   }
@@ -274,7 +274,9 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   @Override
   public Supplier<ByteBuffer> getByteArraySupplier() {
     this.update();
-    log.debug("Serialized event: {}", new String(this.get_serializedEvent()));
+    if (log.isTraceEnabled()) {
+      log.trace("Serialized event: {}", new String(this.get_serializedEvent()));
+    }
     return () -> ByteBuffer.wrap(this.get_serializedEvent());
   }
 

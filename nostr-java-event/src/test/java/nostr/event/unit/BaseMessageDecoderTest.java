@@ -33,7 +33,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testReqMessageDecoder() throws JsonProcessingException {
-    log.info("testReqMessageDecoder");
 
     BaseMessage decode = new BaseMessageDecoder<>().decode(REQ_JSON);
     assertInstanceOf(ReqMessage.class, decode);
@@ -41,7 +40,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testReqMessageDecoderType() {
-    log.info("testReqMessageDecoderType");
 
     assertDoesNotThrow(
         () -> {
@@ -56,7 +54,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testReqMessageDecoderThrows() {
-    log.info("testReqMessageDecoderThrows");
 
     assertThrows(
         ClassCastException.class,
@@ -67,7 +64,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testReqMessageDecoderDoesNotThrow() {
-    log.info("testReqMessageDecoderDoesNotThrow");
 
     assertDoesNotThrow(
         () -> {
@@ -77,7 +73,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testReqMessageDecoderThrows3() {
-    log.info("testReqMessageDecoderThrows");
 
     assertThrows(
         ClassCastException.class,
@@ -88,7 +83,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testInvalidMessageDecoder() {
-    log.info("testInvalidMessageDecoder");
 
     assertThrows(
         IllegalArgumentException.class,
@@ -99,7 +93,6 @@ public class BaseMessageDecoderTest {
 
   @Test
   void testMalformedJsonThrows() {
-    log.info("testMalformedJsonThrows");
 
     assertThrows(
         IllegalArgumentException.class,

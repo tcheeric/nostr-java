@@ -24,7 +24,6 @@ public class BaseMessageCommandMapperTest {
 
   @Test
   public void testReqMessageDecoder() throws JsonProcessingException {
-    log.info("testReqMessageDecoder");
 
     BaseMessage decode = new BaseMessageDecoder<>().decode(REQ_JSON);
     assertInstanceOf(ReqMessage.class, decode);
@@ -32,7 +31,6 @@ public class BaseMessageCommandMapperTest {
 
   @Test
   public void testReqMessageDecoderType() {
-    log.info("testReqMessageDecoderType");
 
     assertDoesNotThrow(
         () -> {
@@ -47,7 +45,6 @@ public class BaseMessageCommandMapperTest {
 
   @Test
   public void testReqMessageDecoderThrows() {
-    log.info("testReqMessageDecoderThrows");
 
     assertThrows(
         ClassCastException.class,
@@ -58,7 +55,6 @@ public class BaseMessageCommandMapperTest {
 
   @Test
   public void testReqMessageDecoderDoesNotThrow() {
-    log.info("testReqMessageDecoderDoesNotThrow");
 
     assertDoesNotThrow(
         () -> {
@@ -68,7 +64,6 @@ public class BaseMessageCommandMapperTest {
 
   @Test
   public void testReqMessageDecoderThrows3() {
-    log.info("testReqMessageDecoderThrows");
 
     assertThrows(
         ClassCastException.class,
