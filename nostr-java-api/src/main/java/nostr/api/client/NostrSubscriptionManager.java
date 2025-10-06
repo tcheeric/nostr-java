@@ -14,10 +14,24 @@ public final class NostrSubscriptionManager {
 
   private final NostrRelayRegistry relayRegistry;
 
+  /**
+   * Create a manager backed by the provided relay registry.
+   *
+   * @param relayRegistry registry used to look up relay handlers
+   */
   public NostrSubscriptionManager(NostrRelayRegistry relayRegistry) {
     this.relayRegistry = relayRegistry;
   }
 
+  /**
+   * Subscribe to the provided filters across all base relay handlers.
+   *
+   * @param filters subscription filters to apply
+   * @param subscriptionId identifier shared across relay subscriptions
+   * @param listener callback invoked for each event payload
+   * @param errorConsumer callback invoked when an error occurs
+   * @return a handle that closes all subscriptions when invoked
+   */
   public AutoCloseable subscribe(
       @NonNull Filters filters,
       @NonNull String subscriptionId,

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api.factory.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,6 +49,15 @@ public class BaseTagFactory {
     this.params = new ArrayList<>();
   }
 
+  /**
+   * Build the tag instance based on the factory configuration.
+   *
+   * <p>If a JSON payload was supplied, it is decoded into a {@link GenericTag}. Otherwise, a tag
+   * is built from the configured code and parameters.
+   *
+   * @return the constructed tag instance
+   * @throws EventEncodingException if the JSON payload cannot be parsed
+   */
   public BaseTag create() {
     if (jsonString != null) {
       try {

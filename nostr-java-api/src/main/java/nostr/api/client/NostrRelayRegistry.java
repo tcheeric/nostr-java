@@ -18,14 +18,29 @@ public final class NostrRelayRegistry {
   private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
   private final WebSocketClientHandlerFactory factory;
 
+  /**
+   * Create a registry backed by the supplied handler factory.
+   *
+   * @param factory factory used to lazily create relay handlers
+   */
   public NostrRelayRegistry(WebSocketClientHandlerFactory factory) {
     this.factory = factory;
   }
 
+  /**
+   * Expose the internal handler map for read-only scenarios.
+   *
+   * @return relay name to handler map
+   */
   public Map<String, WebSocketClientHandler> getClientMap() {
     return clientMap;
   }
 
+  /**
+   * Ensure handlers exist for the provided relay definitions.
+   *
+   * @param relays mapping of relay names to relay URIs
+   */
   public void registerRelays(Map<String, String> relays) {
     for (Entry<String, String> relayEntry : relays.entrySet()) {
       clientMap.computeIfAbsent(
@@ -34,6 +49,11 @@ public final class NostrRelayRegistry {
     }
   }
 
+  /**
+   * Take a snapshot of the currently registered relay URIs.
+   *
+   * @return immutable copy of relay name to URI mappings
+   */
   public Map<String, String> snapshotRelays() {
     return clientMap.values().stream()
         .collect(
@@ -44,6 +64,11 @@ public final class NostrRelayRegistry {
                 HashMap::new));
   }
 
+  /**
+   * Return handlers that correspond to base relay connections (non request-scoped).
+   *
+   * @return list of base handlers
+   */
   public List<WebSocketClientHandler> baseHandlers() {
     return clientMap.entrySet().stream()
         .filter(entry -> !entry.getKey().contains(":"))
@@ -51,6 +76,12 @@ public final class NostrRelayRegistry {
         .toList();
   }
 
+  /**
+   * Retrieve handlers dedicated to the provided subscription identifier.
+   *
+   * @param subscriptionId subscription identifier suffix
+   * @return list of handlers for the subscription
+   */
   public List<WebSocketClientHandler> requestHandlers(String subscriptionId) {
     return clientMap.entrySet().stream()
         .filter(entry -> entry.getKey().endsWith(":" + subscriptionId))
@@ -58,6 +89,11 @@ public final class NostrRelayRegistry {
         .toList();
   }
 
+  /**
+   * Create request-scoped handlers for each base relay if they do not already exist.
+   *
+   * @param subscriptionId subscription identifier used to scope handlers
+   */
   public void ensureRequestClients(String subscriptionId) {
     for (WebSocketClientHandler baseHandler : baseHandlers()) {
       String requestKey = baseHandler.getRelayName() + ":" + subscriptionId;
@@ -67,6 +103,11 @@ public final class NostrRelayRegistry {
     }
   }
 
+  /**
+   * Close all handlers currently registered with the registry.
+   *
+   * @throws IOException if closing any handler fails
+   */
   public void closeAll() throws IOException {
     for (WebSocketClientHandler client : clientMap.values()) {
       client.close();
