@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
@@ -30,7 +32,7 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
 
   public Stall getStall() {
     try {
-      return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Stall.class);
+      return EventJsonMapper.mapper().readValue(getContent(), Stall.class);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to parse stall content", ex);
     }

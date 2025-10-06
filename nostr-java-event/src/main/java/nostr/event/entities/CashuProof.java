@@ -1,6 +1,6 @@
 package nostr.event.entities;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +35,7 @@ public class CashuProof {
   @Override
   public String toString() {
     try {
-      return MAPPER_BLACKBIRD.writeValueAsString(this);
+      return mapper().writeValueAsString(this);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to serialize Cashu proof", ex);
     }

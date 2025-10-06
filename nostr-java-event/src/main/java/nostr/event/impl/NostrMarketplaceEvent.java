@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
@@ -28,7 +30,7 @@ public abstract class NostrMarketplaceEvent extends AddressableEvent {
 
   public Product getProduct() {
     try {
-      return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+      return EventJsonMapper.mapper().readValue(getContent(), Product.class);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to parse marketplace product content", ex);
     }

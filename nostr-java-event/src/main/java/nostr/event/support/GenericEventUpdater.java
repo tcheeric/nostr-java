@@ -22,7 +22,7 @@ public final class GenericEventUpdater {
     try {
       event.setCreatedAt(Instant.now().getEpochSecond());
       byte[] serialized = GenericEventSerializer.serialize(event).getBytes(StandardCharsets.UTF_8);
-      event.set_serializedEvent(serialized);
+      event.setSerializedEventCache(serialized);
       event.setId(NostrUtil.bytesToHex(NostrUtil.sha256(serialized)));
     } catch (NostrException | NoSuchAlgorithmException ex) {
       throw new RuntimeException(ex);

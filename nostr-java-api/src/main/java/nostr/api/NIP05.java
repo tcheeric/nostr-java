@@ -1,6 +1,6 @@
 package nostr.api;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static nostr.util.NostrUtil.escapeJsonString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,7 +44,7 @@ public class NIP05 extends EventNostr {
   private String getContent(UserProfile profile) {
     try {
       String jsonString =
-          MAPPER_BLACKBIRD.writeValueAsString(
+          mapper().writeValueAsString(
               Nip05Validator.builder()
                   .nip05(profile.getNip05())
                   .publicKey(profile.getPublicKey().toString())

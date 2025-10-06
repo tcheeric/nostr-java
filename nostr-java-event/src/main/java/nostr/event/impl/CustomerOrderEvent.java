@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
@@ -30,7 +32,7 @@ public class CustomerOrderEvent extends CheckoutEvent<CustomerOrder> {
 
   public CustomerOrder getCustomerOrder() {
     try {
-      return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), CustomerOrder.class);
+      return EventJsonMapper.mapper().readValue(getContent(), CustomerOrder.class);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to parse customer order content", ex);
     }

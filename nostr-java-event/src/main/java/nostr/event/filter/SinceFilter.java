@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +25,7 @@ public class SinceFilter extends AbstractFilterable<Long> {
 
   @Override
   public ObjectNode toObjectNode(ObjectNode objectNode) {
-    return MAPPER_BLACKBIRD.createObjectNode().put(FILTER_KEY, getSince());
+    return mapper().createObjectNode().put(FILTER_KEY, getSince());
   }
 
   @Override

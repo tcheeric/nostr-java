@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import lombok.NoArgsConstructor;
@@ -23,7 +25,7 @@ public class ChannelCreateEvent extends GenericEvent {
   public ChannelProfile getChannelProfile() {
     String content = getContent();
     try {
-      return MAPPER_BLACKBIRD.readValue(content, ChannelProfile.class);
+      return EventJsonMapper.mapper().readValue(content, ChannelProfile.class);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to parse channel profile content", ex);
     }

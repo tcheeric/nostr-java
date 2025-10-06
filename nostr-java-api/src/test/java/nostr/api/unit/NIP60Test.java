@@ -1,6 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
@@ -81,7 +81,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    GenericTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, GenericTag[].class);
+    GenericTag[] contentTags = mapper().readValue(decryptedContent, GenericTag[].class);
 
     // First tag should be balance
     Assertions.assertEquals("balance", contentTags[0].getCode());
@@ -141,7 +141,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    CashuToken contentToken = MAPPER_BLACKBIRD.readValue(decryptedContent, CashuToken.class);
+    CashuToken contentToken = mapper().readValue(decryptedContent, CashuToken.class);
     Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
     CashuProof proofContent = contentToken.getProofs().get(0);
@@ -193,7 +193,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    BaseTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, BaseTag[].class);
+    BaseTag[] contentTags = mapper().readValue(decryptedContent, BaseTag[].class);
 
     // Assert direction
     GenericTag directionTag = (GenericTag) contentTags[0];

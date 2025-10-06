@@ -2,7 +2,7 @@ package nostr.api.integration;
 
 import static nostr.api.integration.ApiEventIT.createProduct;
 import static nostr.api.integration.ApiEventIT.createStall;
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,8 +71,8 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
       String eventResponse = client.send(message).stream().findFirst().orElseThrow();
 
       try {
-        JsonNode expectedNode = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId()));
-        JsonNode actualNode = MAPPER_BLACKBIRD.readTree(eventResponse);
+        JsonNode expectedNode = mapper().readTree(expectedResponseJson(event.getId()));
+        JsonNode actualNode = mapper().readTree(eventResponse);
 
         assertEquals(expectedNode.get(0).asText(), actualNode.get(0).asText(),
             "First element should match");

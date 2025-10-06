@@ -57,7 +57,7 @@ public final class NostrEventDispatcher {
       throw new IllegalStateException("The event is not signed");
     }
     try {
-      var message = NostrUtil.sha256(event.get_serializedEvent());
+      var message = NostrUtil.sha256(event.getSerializedEventCache());
       return Schnorr.verify(message, event.getPubKey().getRawData(), event.getSignature().getRawData());
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA-256 algorithm not available", e);

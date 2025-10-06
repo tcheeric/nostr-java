@@ -1,5 +1,7 @@
 package nostr.api.nip57;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -39,7 +41,7 @@ public final class NIP57ZapReceiptBuilder {
 
     receipt.addTag(NIP01TagFactory.pubKeyTag(zapRecipient));
     try {
-      String description = IEvent.MAPPER_BLACKBIRD.writeValueAsString(zapRequestEvent);
+      String description = EventJsonMapper.mapper().writeValueAsString(zapRequestEvent);
       receipt.addTag(NIP57TagFactory.description(StringEscapeUtils.escapeJson(description)));
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to encode zap receipt description", ex);

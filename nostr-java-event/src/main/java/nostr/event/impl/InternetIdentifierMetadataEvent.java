@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,7 +32,7 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
   public UserProfile getProfile() {
     String content = getContent();
     try {
-      return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
+      return EventJsonMapper.mapper().readValue(content, UserProfile.class);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to parse user profile content", ex);
     }

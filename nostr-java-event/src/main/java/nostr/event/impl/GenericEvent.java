@@ -71,7 +71,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   @JsonDeserialize(using = SignatureDeserializer.class)
   private Signature signature;
 
-  @JsonIgnore @EqualsAndHashCode.Exclude private byte[] _serializedEvent;
+  @JsonIgnore @EqualsAndHashCode.Exclude private byte[] serializedEventCache;
 
   @JsonIgnore @EqualsAndHashCode.Exclude private Integer nip;
 
@@ -212,9 +212,9 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   public Supplier<ByteBuffer> getByteArraySupplier() {
     this.update();
     if (log.isTraceEnabled()) {
-      log.trace("Serialized event: {}", new String(this.get_serializedEvent()));
+      log.trace("Serialized event: {}", new String(this.getSerializedEventCache()));
     }
-    return () -> ByteBuffer.wrap(this.get_serializedEvent());
+    return () -> ByteBuffer.wrap(this.getSerializedEventCache());
   }
 
   protected final void updateTagsParents(List<? extends BaseTag> tagList) {

@@ -36,7 +36,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
   @Getter private Identity sender;
 
-  private static volatile NostrSpringWebSocketClient INSTANCE;
+  public NostrSpringWebSocketClient() {
+    this(null, new DefaultNoteService());
+  }
 
   public NostrSpringWebSocketClient() {
     this(null, new DefaultNoteService());
@@ -79,31 +81,32 @@ public class NostrSpringWebSocketClient implements NostrIF {
   /**
    * Get a singleton instance of the client without a preconfigured sender.
    */
-  public static NostrIF getInstance() {
-    if (INSTANCE == null) {
-      synchronized (NostrSpringWebSocketClient.class) {
-        if (INSTANCE == null) {
-          INSTANCE = new NostrSpringWebSocketClient();
-        }
-      }
-    }
-    return INSTANCE;
+  private static final class InstanceHolder {
+    private static final NostrSpringWebSocketClient INSTANCE = new NostrSpringWebSocketClient();
+
+    private InstanceHolder() {}
   }
 
   /**
-   * Get a singleton instance of the client, initializing the sender if needed.
+   * Get a lazily initialized singleton instance of the client without a preconfigured sender.
+   */
+  public static NostrIF getInstance() {
+    return InstanceHolder.INSTANCE;
+  }
+
+  /**
+   * Get a lazily initialized singleton instance of the client, configuring the sender if unset.
    */
   public static NostrIF getInstance(@NonNull Identity sender) {
-    if (INSTANCE == null) {
-      synchronized (NostrSpringWebSocketClient.class) {
-        if (INSTANCE == null) {
-          INSTANCE = new NostrSpringWebSocketClient(sender);
-        } else if (INSTANCE.getSender() == null) {
-          INSTANCE.sender = sender;
+    NostrSpringWebSocketClient instance = InstanceHolder.INSTANCE;
+    if (instance.getSender() == null) {
+      synchronized (instance) {
+        if (instance.getSender() == null) {
+          instance.setSender(sender);
         }
       }
     }
-    return INSTANCE;
+    return instance;
   }
 
   @Override

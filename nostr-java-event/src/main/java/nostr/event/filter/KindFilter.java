@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -25,7 +25,7 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
 
   @Override
   public void addToArrayNode(ArrayNode arrayNode) {
-    arrayNode.addAll(MAPPER_BLACKBIRD.createArrayNode().add(getFilterableValue()));
+    arrayNode.addAll(mapper().createArrayNode().add(getFilterableValue()));
   }
 
   @Override

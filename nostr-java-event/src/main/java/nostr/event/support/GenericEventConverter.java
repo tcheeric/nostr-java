@@ -20,7 +20,7 @@ public final class GenericEventConverter {
       event.setTags(source.getTags());
       event.setPubKey(source.getPubKey());
       event.setId(source.getId());
-      event.set_serializedEvent(source.get_serializedEvent());
+      event.setSerializedEventCache(source.getSerializedEventCache());
       event.setNip(source.getNip());
       event.setKind(source.getKind());
       event.setSignature(source.getSignature());

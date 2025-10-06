@@ -1,6 +1,6 @@
 package nostr.api;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
@@ -185,7 +185,7 @@ public class NIP60 extends EventNostr {
     tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
     try {
-      String serializedTags = MAPPER_BLACKBIRD.writeValueAsString(tags);
+      String serializedTags = mapper().writeValueAsString(tags);
       return NIP44.encrypt(getSender(), serializedTags, getSender().getPublicKey());
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to encode wallet content", ex);
@@ -194,7 +194,7 @@ public class NIP60 extends EventNostr {
 
   private String getTokenEventContent(@NonNull CashuToken token) {
     try {
-      String serializedToken = MAPPER_BLACKBIRD.writeValueAsString(token);
+      String serializedToken = mapper().writeValueAsString(token);
       return NIP44.encrypt(getSender(), serializedToken, getSender().getPublicKey());
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to encode token content", ex);
