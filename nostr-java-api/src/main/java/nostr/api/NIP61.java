@@ -1,10 +1,10 @@
 package nostr.api;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.PublicKey;
@@ -75,15 +75,18 @@ public class NIP61 extends EventNostr {
    * @param content optional human-readable content
    * @return this instance for chaining
    */
-  @SneakyThrows
   public NIP61 createNutzapEvent(@NonNull NutZap nutZap, @NonNull String content) {
-
-    return createNutzapEvent(
-        nutZap.getProofs(),
-        URI.create(nutZap.getMint().getUrl()).toURL(),
-        nutZap.getNutZappedEvent(),
-        nutZap.getRecipient(),
-        content);
+    try {
+      return createNutzapEvent(
+          nutZap.getProofs(),
+          URI.create(nutZap.getMint().getUrl()).toURL(),
+          nutZap.getNutZappedEvent(),
+          nutZap.getRecipient(),
+          content);
+    } catch (MalformedURLException ex) {
+      throw new IllegalArgumentException(
+          "Invalid mint URL for Nutzap event: " + nutZap.getMint().getUrl(), ex);
+    }
   }
 
   /**

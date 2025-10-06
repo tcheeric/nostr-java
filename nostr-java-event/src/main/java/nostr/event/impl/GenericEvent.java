@@ -1,22 +1,13 @@
 package nostr.event.impl;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.beans.Transient;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -37,9 +28,12 @@ import nostr.event.BaseTag;
 import nostr.event.Deleteable;
 import nostr.event.json.deserializer.PublicKeyDeserializer;
 import nostr.event.json.deserializer.SignatureDeserializer;
-import nostr.util.NostrException;
-import nostr.util.NostrUtil;
 import nostr.util.validator.HexStringValidator;
+import nostr.event.support.GenericEventConverter;
+import nostr.event.support.GenericEventTypeClassifier;
+import nostr.event.support.GenericEventUpdater;
+import nostr.event.support.GenericEventValidator;
+import nostr.util.NostrException;
 
 /**
  * @author squirrel
@@ -156,17 +150,17 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
   @Transient
   public boolean isReplaceable() {
-    return this.kind != null && this.kind >= 10000 && this.kind < 20000;
+    return GenericEventTypeClassifier.isReplaceable(this.kind);
   }
 
   @Transient
   public boolean isEphemeral() {
-    return this.kind != null && this.kind >= 20000 && this.kind < 30000;
+    return GenericEventTypeClassifier.isEphemeral(this.kind);
   }
 
   @Transient
   public boolean isAddressable() {
-    return this.kind != null && this.kind >= 30000 && this.kind < 40000;
+    return GenericEventTypeClassifier.isAddressable(this.kind);
   }
 
   public void addTag(BaseTag tag) {
@@ -183,19 +177,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   }
 
   public void update() {
-
-    try {
-      this.createdAt = Instant.now().getEpochSecond();
-
-      this._serializedEvent = this.serialize().getBytes(StandardCharsets.UTF_8);
-
-      this.id = NostrUtil.bytesToHex(NostrUtil.sha256(_serializedEvent));
-    } catch (NostrException | NoSuchAlgorithmException ex) {
-      throw new RuntimeException(ex);
-    } catch (AssertionError ex) {
-      log.warn("Failed to update event during serialization: {}", ex.getMessage(), ex);
-      throw new RuntimeException(ex);
-    }
+    GenericEventUpdater.refresh(this);
   }
 
   @Transient
@@ -204,64 +186,19 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   }
 
   public void validate() {
-    // Validate `id` field
-    Objects.requireNonNull(this.id, "Missing required `id` field.");
-    HexStringValidator.validateHex(this.id, 64);
-
-    // Validate `pubkey` field
-    Objects.requireNonNull(this.pubKey, "Missing required `pubkey` field.");
-    HexStringValidator.validateHex(this.pubKey.toString(), 64);
-
-    // Validate `sig` field
-    Objects.requireNonNull(this.signature, "Missing required `sig` field.");
-    HexStringValidator.validateHex(this.signature.toString(), 128);
-
-    // Validate `created_at` field
-    if (this.createdAt == null || this.createdAt < 0) {
-      throw new AssertionError("Invalid `created_at`: Must be a non-negative integer.");
-    }
-
-    validateKind();
-
-    validateTags();
-
-    validateContent();
+    GenericEventValidator.validate(this);
   }
 
   protected void validateKind() {
-    if (this.kind == null || this.kind < 0) {
-      throw new AssertionError("Invalid `kind`: Must be a non-negative integer.");
-    }
+    GenericEventValidator.validateKind(this.kind);
   }
 
   protected void validateTags() {
-    if (this.tags == null) {
-      throw new AssertionError("Invalid `tags`: Must be a non-null array.");
-    }
+    GenericEventValidator.validateTags(this.tags);
   }
 
   protected void validateContent() {
-    if (this.content == null) {
-      throw new AssertionError("Invalid `content`: Must be a string.");
-    }
-  }
-
-  private String serialize() throws NostrException {
-    var mapper = ENCODER_MAPPER_BLACKBIRD;
-    var arrayNode = JsonNodeFactory.instance.arrayNode();
-
-    try {
-      arrayNode.add(0);
-      arrayNode.add(this.pubKey.toString());
-      arrayNode.add(this.createdAt);
-      arrayNode.add(this.kind);
-      arrayNode.add(mapper.valueToTree(tags));
-      arrayNode.add(this.content);
-
-      return mapper.writeValueAsString(arrayNode);
-    } catch (JsonProcessingException e) {
-      throw new NostrException(e.getMessage());
-    }
+    GenericEventValidator.validateContent(this.content);
   }
 
   @Transient
@@ -345,23 +282,6 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
   public static <T extends GenericEvent> T convert(
       @NonNull GenericEvent genericEvent, @NonNull Class<T> clazz) throws NostrException {
-    try {
-      T event = clazz.getConstructor().newInstance();
-      event.setContent(genericEvent.getContent());
-      event.setTags(genericEvent.getTags());
-      event.setPubKey(genericEvent.getPubKey());
-      event.setId(genericEvent.getId());
-      event.set_serializedEvent(genericEvent.get_serializedEvent());
-      event.setNip(genericEvent.getNip());
-      event.setKind(genericEvent.getKind());
-      event.setSignature(genericEvent.getSignature());
-      event.setCreatedAt(genericEvent.getCreatedAt());
-      return event;
-    } catch (InstantiationException
-        | IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException e) {
-      throw new NostrException("Failed to convert GenericEvent", e);
-    }
+    return GenericEventConverter.convert(genericEvent, clazz);
   }
 }

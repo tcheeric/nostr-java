@@ -4,10 +4,10 @@
  */
 package nostr.api;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Relay;
@@ -126,9 +126,12 @@ public class NIP25 extends EventNostr {
     return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, url.toString()).create();
   }
 
-  @SneakyThrows
   public static BaseTag createCustomEmojiTag(@NonNull String shortcode, @NonNull String url) {
-    return createCustomEmojiTag(shortcode, URI.create(url).toURL());
+    try {
+      return createCustomEmojiTag(shortcode, URI.create(url).toURL());
+    } catch (MalformedURLException ex) {
+      throw new IllegalArgumentException("Invalid custom emoji URL: " + url, ex);
+    }
   }
 
   /**

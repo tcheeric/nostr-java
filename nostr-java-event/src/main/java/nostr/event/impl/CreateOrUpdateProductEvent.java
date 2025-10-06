@@ -1,15 +1,16 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.Product;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * @author eric
@@ -22,9 +23,12 @@ public class CreateOrUpdateProductEvent extends MerchantEvent<Product> {
     super(sender, 30_018, tags, content);
   }
 
-  @SneakyThrows
   public Product getProduct() {
-    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+    try {
+      return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse product content", ex);
+    }
   }
 
   protected Product getEntity() {
@@ -56,7 +60,7 @@ public class CreateOrUpdateProductEvent extends MerchantEvent<Product> {
       if (product.getPrice() == null) {
         throw new AssertionError("Invalid `content`: `price` field is required.");
       }
-    } catch (Exception e) {
+    } catch (EventEncodingException e) {
       throw new AssertionError("Invalid `content`: Must be a valid Product JSON object.", e);
     }
   }
