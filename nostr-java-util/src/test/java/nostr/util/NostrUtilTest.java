@@ -16,7 +16,6 @@ public class NostrUtilTest {
    */
   @Test
   public void testHexToBytesHex() {
-    log.info("testHexToBytesHex");
     String pubKeyString = "56adf01ca1aa9d6f1c35953833bbe6d99a0c85b73af222e6bd305b51f2749f6f";
     assertEquals(
         pubKeyString,
