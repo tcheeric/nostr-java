@@ -1,6 +1,7 @@
 package nostr.event.json.codec;
 
 import lombok.experimental.StandardException;
+import nostr.util.exception.NostrEncodingException;
 
 /**
  * Exception thrown to indicate a problem occurred while encoding a Nostr event to JSON. This
@@ -8,4 +9,4 @@ import lombok.experimental.StandardException;
  * errors.
  */
 @StandardException
-public class EventEncodingException extends RuntimeException {}
+public class EventEncodingException extends NostrEncodingException {}
