@@ -23,8 +23,115 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
 /**
- * NIP-01 helpers (Basic protocol). Build text notes, metadata, common tags and messages.
- * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>
+ * Facade for NIP-01 (Basic Protocol Flow) - the fundamental building blocks of Nostr.
+ *
+ * <p>NIP-01 defines the core protocol for creating, signing, and transmitting events over
+ * Nostr relays. This class provides a high-level API for working with basic event types,
+ * tags, and messages without needing to understand the underlying implementation details.
+ *
+ * <p><b>What is NIP-01?</b>
+ * <ul>
+ *   <li><b>Event Structure:</b> Defines the JSON format for events (id, pubkey, created_at,
+ *       kind, tags, content, sig)</li>
+ *   <li><b>Event Kinds:</b> Basic kinds like text notes (1), metadata (0), contacts (3)</li>
+ *   <li><b>Event Types:</b> Regular, replaceable, ephemeral, and addressable events</li>
+ *   <li><b>Tags:</b> Standard tags like 'e' (event reference), 'p' (public key), 'd' (identifier)</li>
+ *   <li><b>Messages:</b> Client-relay communication (EVENT, REQ, CLOSE, EOSE, NOTICE)</li>
+ * </ul>
+ *
+ * <p><b>Design Pattern:</b> This class uses the Facade Pattern to hide the complexity of:
+ * <ul>
+ *   <li>{@link NIP01EventBuilder} - Event construction logic</li>
+ *   <li>{@link NIP01TagFactory} - Tag creation logic</li>
+ *   <li>{@link NIP01MessageFactory} - Message formatting logic</li>
+ * </ul>
+ *
+ * <p><b>Usage Example:</b>
+ * <pre>{@code
+ * // Create NIP01 instance with sender identity
+ * Identity identity = new Identity(privateKey);
+ * NIP01 nip01 = new NIP01(identity);
+ *
+ * // Create and send a simple text note
+ * nip01.createTextNoteEvent("Hello Nostr!")
+ *      .sign()
+ *      .send(relayUri);
+ *
+ * // Create a text note with tags
+ * List<BaseTag> tags = List.of(
+ *     NIP01.createEventTag("event_id_hex", Marker.REPLY),
+ *     NIP01.createPubKeyTag(recipientPublicKey)
+ * );
+ * nip01.createTextNoteEvent(tags, "Hello @recipient!")
+ *      .sign()
+ *      .send(relayUri);
+ *
+ * // Create metadata event
+ * UserProfile profile = UserProfile.builder()
+ *     .name("Alice")
+ *     .about("Nostr enthusiast")
+ *     .picture("https://example.com/avatar.jpg")
+ *     .build();
+ * nip01.createMetadataEvent(profile)
+ *      .sign()
+ *      .send(relayUri);
+ *
+ * // Create static tags and messages (without sender)
+ * BaseTag eventTag = NIP01.createEventTag("event_id");
+ * BaseTag pubKeyTag = NIP01.createPubKeyTag(publicKey);
+ * ReqMessage reqMsg = NIP01.createReqMessage("sub_id", List.of(filters));
+ * }</pre>
+ *
+ * <p><b>Event Types Supported:</b>
+ * <ul>
+ *   <li><b>Text Notes:</b> {@link #createTextNoteEvent(String)} - Basic short-form content (kind 1)</li>
+ *   <li><b>Metadata:</b> {@link #createMetadataEvent(UserProfile)} - User profile data (kind 0)</li>
+ *   <li><b>Replaceable:</b> {@link #createReplaceableEvent(Integer, String)} - Latest replaces earlier</li>
+ *   <li><b>Ephemeral:</b> {@link #createEphemeralEvent(Integer, String)} - Not stored by relays</li>
+ *   <li><b>Addressable:</b> {@link #createAddressableEvent(Integer, String)} - Replaceable with identifier</li>
+ * </ul>
+ *
+ * <p><b>Tag Types Supported:</b>
+ * <ul>
+ *   <li><b>Event tags (e):</b> {@link #createEventTag(String)} - References to other events</li>
+ *   <li><b>Public key tags (p):</b> {@link #createPubKeyTag(PublicKey)} - References to users</li>
+ *   <li><b>Identifier tags (d):</b> {@link #createIdentifierTag(String)} - For addressable events</li>
+ *   <li><b>Address tags (a):</b> {@link #createAddressTag(Integer, PublicKey, String)} - Addressable event refs</li>
+ * </ul>
+ *
+ * <p><b>Message Types Supported:</b>
+ * <ul>
+ *   <li><b>EVENT:</b> {@link #createEventMessage(GenericEvent, String)} - Publish events</li>
+ *   <li><b>REQ:</b> {@link #createReqMessage(String, List)} - Subscribe to events</li>
+ *   <li><b>CLOSE:</b> {@link #createCloseMessage(String)} - Unsubscribe</li>
+ *   <li><b>EOSE:</b> {@link #createEoseMessage(String)} - End of stored events</li>
+ *   <li><b>NOTICE:</b> {@link #createNoticeMessage(String)} - Human-readable messages</li>
+ * </ul>
+ *
+ * <p><b>Method Chaining:</b> This class supports fluent API style:
+ * <pre>{@code
+ * nip01.createTextNoteEvent("Hello World")  // Create event
+ *      .sign()                               // Sign with sender's private key
+ *      .send(relayUri)                       // Send to relay
+ *      .get();                               // Get response
+ * }</pre>
+ *
+ * <p><b>Sender Management:</b> The sender identity can be set at construction or changed later:
+ * <pre>{@code
+ * NIP01 nip01 = new NIP01(identity);  // Set sender at construction
+ * nip01.setSender(newIdentity);        // Change sender later
+ * }</pre>
+ *
+ * <p><b>Migration Note:</b> Version 0.6.2 deprecated methods that accept Identity parameters
+ * in favor of using the configured sender. See {@link #createTextNoteEvent(Identity, String)}.
+ *
+ * <p><b>Thread Safety:</b> This class is not thread-safe. Each thread should use its own instance.
+ *
+ * @see NIP01EventBuilder
+ * @see NIP01TagFactory
+ * @see NIP01MessageFactory
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01 Specification</a>
+ * @since 0.1.0
  */
 public class NIP01 extends EventNostr {
 
@@ -53,7 +160,11 @@ public class NIP01 extends EventNostr {
     return this;
   }
 
-  @Deprecated
+  /**
+   * @deprecated Use {@link #createTextNoteEvent(String)} instead. Sender is now configured at NIP01 construction.
+   *             This method will be removed in version 1.0.0.
+   */
+  @Deprecated(forRemoval = true, since = "0.6.2")
   public NIP01 createTextNoteEvent(Identity sender, String content) {
     this.updateEvent(eventBuilder.buildTextNote(sender, content));
     return this;
