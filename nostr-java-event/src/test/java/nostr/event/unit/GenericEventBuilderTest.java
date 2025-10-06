@@ -14,7 +14,7 @@ class GenericEventBuilderTest {
 
   private static final String HEX_ID = "a3f2d7306f8911b588f7c5e2d460ad4f8b5e2c5d7a6b8c9d0e1f2a3b4c5d6e7f";
   private static final PublicKey PUBLIC_KEY =
-      new PublicKey("f6f8a2d4c6e8b0a1f2d3c4b5a6e7d8c9b0a1c2d3e4f5a6b7c8d9e0f1a2b3c4d");
+      new PublicKey("f6f8a2d4c6e8b0a1f2d3c4b5a6e7d8c9b0a1c2d3e4f5a6b7c8d9e0f1a2b3c4d5");
 
   // Ensures the builder populates core fields when provided with a standard Kind enum.
   @Test

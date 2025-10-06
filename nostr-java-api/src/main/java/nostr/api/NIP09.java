@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.BaseTag;
 import nostr.event.Deleteable;
 import nostr.event.impl.GenericEvent;
@@ -41,7 +41,7 @@ public class NIP09 extends EventNostr {
   public NIP09 createDeletionEvent(@NonNull List<Deleteable> deleteables) {
     List<BaseTag> tags = getTags(deleteables);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION, tags, "").create();
+        new GenericEventFactory(getSender(), Kind.DELETION.getValue(), tags, "").create();
     this.updateEvent(genericEvent);
 
     return this;

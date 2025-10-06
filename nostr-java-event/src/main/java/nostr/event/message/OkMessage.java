@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,7 +33,7 @@ public class OkMessage extends BaseMessage {
   @Override
   public String encode() throws EventEncodingException {
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+      return EventJsonMapper.getMapper().writeValueAsString(
           JsonNodeFactory.instance
               .arrayNode()
               .add(getCommand())

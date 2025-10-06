@@ -42,7 +42,7 @@ public final class NostrSubscriptionManager {
     List<AutoCloseable> handles = new ArrayList<>();
     try {
       for (var handler : relayRegistry.baseHandlers()) {
-        AutoCloseable handle = handler.subscribe(filters, id, listener, errorConsumer);
+        AutoCloseable handle = handler.subscribe(filters, id.value(), listener, errorConsumer);
         handles.add(handle);
       }
     } catch (RuntimeException e) {

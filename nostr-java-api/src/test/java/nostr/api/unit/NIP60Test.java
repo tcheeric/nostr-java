@@ -53,8 +53,11 @@ public class NIP60Test {
     wallet.setBalance(100);
     wallet.setPrivateKey("hexkey");
     // wallet.setUnit("sat");
-    wallet.setMints(Set.of(mint1, mint2, mint3));
-    wallet.setRelays(Map.of("sat", Set.of(relay1, relay2)));
+    wallet.addMint(mint1);
+    wallet.addMint(mint2);
+    wallet.addMint(mint3);
+    wallet.addRelay("sat", relay1);
+    wallet.addRelay("sat", relay2);
 
     Identity sender = Identity.generateRandomIdentity();
     NIP60 nip60 = new NIP60(sender);
@@ -107,7 +110,7 @@ public class NIP60Test {
     wallet.setBalance(100);
     wallet.setPrivateKey("hexkey");
     // wallet.setUnit("sat");
-    wallet.setMints(Set.of(mint));
+    wallet.addMint(mint);
 
     CashuProof proof = new CashuProof();
     proof.setId("005c2502034d4f12");

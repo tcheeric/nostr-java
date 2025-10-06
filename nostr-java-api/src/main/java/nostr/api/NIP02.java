@@ -3,8 +3,8 @@ package nostr.api;
 import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
@@ -28,7 +28,7 @@ public class NIP02 extends EventNostr {
   @SuppressWarnings("rawtypes")
   public NIP02 createContactListEvent(List<BaseTag> pubKeyTags) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CONTACT_LIST, pubKeyTags, "").create();
+        new GenericEventFactory(getSender(), Kind.CONTACT_LIST.getValue(), pubKeyTags, "").create();
     updateEvent(genericEvent);
     return this;
   }

@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
@@ -34,7 +35,7 @@ public class NIP99 extends EventNostr {
       String content,
       @NonNull ClassifiedListing classifiedListing) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CLASSIFIED_LISTING, baseTags, content)
+        new GenericEventFactory(getSender(), Kind.CLASSIFIED_LISTING.getValue(), baseTags, content)
             .create();
 
     genericEvent.addTag(createTitleTag(classifiedListing.getTitle()));

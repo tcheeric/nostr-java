@@ -95,7 +95,7 @@ class CalendarDeserializerTest {
                 new ReferenceTag(java.net.URI.create("https://relay.example"))));
 
     String json = EventJsonMapper.mapper().writeValueAsString(genericEvent);
-    CalendarDateBasedEvent calendarEvent =
+    CalendarDateBasedEvent<BaseTag> calendarEvent =
         EventJsonMapper.mapper().readValue(json, CalendarDateBasedEvent.class);
 
     assertEquals("date-calendar", calendarEvent.getId());

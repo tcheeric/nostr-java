@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -57,7 +57,7 @@ public class ReqMessage extends BaseMessage {
         .forEach(encoderArrayNode::add);
 
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+      return EventJsonMapper.getMapper().writeValueAsString(encoderArrayNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode req message", e);
     }
@@ -77,7 +77,7 @@ public class ReqMessage extends BaseMessage {
 
   private static JsonNode createJsonNode(String jsonNode) throws EventEncodingException {
     try {
-      return ENCODER_MAPPER_BLACKBIRD.readTree(jsonNode);
+      return EventJsonMapper.getMapper().readTree(jsonNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException(
           String.format("Malformed encoding ReqMessage json: [%s]", jsonNode), e);

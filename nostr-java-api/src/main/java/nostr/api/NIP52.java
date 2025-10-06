@@ -13,6 +13,7 @@ import java.util.Optional;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
@@ -48,7 +49,7 @@ public class NIP52 extends EventNostr {
 
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, baseTags, content)
+                getSender(), Kind.CALENDAR_TIME_BASED_EVENT.getValue(), baseTags, content)
             .create();
 
     genericEvent.addTag(calendarContent.getIdentifierTag());
@@ -88,7 +89,7 @@ public class NIP52 extends EventNostr {
       @NonNull String content, @NonNull CalendarRsvpContent calendarRsvpContent) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CALENDAR_EVENT_RSVP, content).create();
+        new GenericEventFactory(getSender(), Kind.CALENDAR_RSVP_EVENT.getValue(), content).create();
 
     //        mandatory tags
     genericEvent.addTag(calendarRsvpContent.getIdentifierTag());
@@ -117,7 +118,7 @@ public class NIP52 extends EventNostr {
       @NonNull String content, @NonNull CalendarContent<BaseTag> calendarContent) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, content)
+        new GenericEventFactory(getSender(), Kind.CALENDAR_DATE_BASED_EVENT.getValue(), content)
             .create();
 
     //        mandatory tags

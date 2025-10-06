@@ -7,6 +7,7 @@ import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
@@ -30,7 +31,7 @@ public class NIP42 extends EventNostr {
    */
   public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION, "").create();
+        new GenericEventFactory(getSender(), Kind.CLIENT_AUTH.getValue(), "").create();
     this.addChallengeTag(challenge);
     this.addRelayTag(relay);
     this.updateEvent(genericEvent);

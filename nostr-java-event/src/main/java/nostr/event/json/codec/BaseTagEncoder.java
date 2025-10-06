@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import nostr.base.Encoder;
 import nostr.event.BaseTag;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.serializer.BaseTagSerializer;
 
 public record BaseTagEncoder(BaseTag tag) implements Encoder {
   public static final ObjectMapper BASETAG_ENCODER_MAPPER_BLACKBIRD =
-      ENCODER_MAPPER_BLACKBIRD
+      EventJsonMapper.getMapper()
           .copy()
           .registerModule(new SimpleModule().addSerializer(new BaseTagSerializer<>()));
 

@@ -19,9 +19,10 @@ public class RelayConfig {
   }
 
   /**
-   * @deprecated use {@link RelaysProperties} instead
+   * @deprecated Use {@link RelaysProperties} instead for relay configuration.
+   *             This method will be removed in version 1.0.0.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true, since = "0.6.2")
   private Map<String, String> legacyRelays() {
     var relaysBundle = ResourceBundle.getBundle("relays");
     return relaysBundle.keySet().stream()

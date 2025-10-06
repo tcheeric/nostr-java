@@ -7,54 +7,190 @@ public final class Constants {
   private Constants() {}
 
   /**
-   * @deprecated Prefer using {@link Kind} directly. This indirection remains for backward
-   *     compatibility and will be removed in a future release.
+   * @deprecated Use {@link nostr.base.Kind} enum directly instead. This class provides integer
+   *     constants for backward compatibility only and will be removed in version 1.0.0.
+   *
+   *     <p>Migration guide:
+   *     <pre>{@code
+   *     // Old (deprecated):
+   *     new GenericEvent(pubKey, Constants.Kind.USER_METADATA);
+   *
+   *     // New (recommended):
+   *     new GenericEvent(pubKey, Kind.SET_METADATA);
+   *     // or use the integer value directly:
+   *     new GenericEvent(pubKey, Kind.SET_METADATA.getValue());
+   *     }</pre>
+   *
+   * @see nostr.base.Kind
    */
-  @Deprecated(forRemoval = true, since = "1.2.0")
+  @Deprecated(forRemoval = true, since = "0.6.2")
   public static final class Kind {
     private Kind() {}
 
-    public static final int USER_METADATA = Kind.SET_METADATA.getValue();
-    public static final int SHORT_TEXT_NOTE = Kind.TEXT_NOTE.getValue();
-    /** @deprecated Use {@link Kind#RECOMMEND_SERVER}. */
-    @Deprecated public static final int RECOMMENDED_RELAY = Kind.RECOMMEND_SERVER.getValue();
-    public static final int CONTACT_LIST = Kind.CONTACT_LIST.getValue();
-    public static final int ENCRYPTED_DIRECT_MESSAGE = Kind.ENCRYPTED_DIRECT_MESSAGE.getValue();
-    public static final int EVENT_DELETION = Kind.DELETION.getValue();
-    public static final int OTS_ATTESTATION = Kind.OTS_EVENT.getValue();
-    public static final int DATE_BASED_CALENDAR_CONTENT = Kind.CALENDAR_DATE_BASED_EVENT.getValue();
-    public static final int TIME_BASED_CALENDAR_CONTENT = Kind.CALENDAR_TIME_BASED_EVENT.getValue();
-    public static final int CALENDAR = Kind.CALENDAR_EVENT.getValue();
-    public static final int CALENDAR_EVENT_RSVP = Kind.CALENDAR_RSVP_EVENT.getValue();
-    public static final int REPOST = Kind.REPOST.getValue();
-    public static final int REACTION = Kind.REACTION.getValue();
-    public static final int CHANNEL_CREATION = Kind.CHANNEL_CREATE.getValue();
-    public static final int CHANNEL_METADATA = Kind.CHANNEL_METADATA.getValue();
-    public static final int CHANNEL_MESSAGE = Kind.CHANNEL_MESSAGE.getValue();
-    public static final int CHANNEL_HIDE_MESSAGE = Kind.HIDE_MESSAGE.getValue();
-    public static final int CHANNEL_MUTE_USER = Kind.MUTE_USER.getValue();
-    public static final int REPORT = Kind.REPORT.getValue();
-    public static final int ZAP_REQUEST = Kind.ZAP_REQUEST.getValue();
-    public static final int ZAP_RECEIPT = Kind.ZAP_RECEIPT.getValue();
-    public static final int RELAY_LIST_METADATA = Kind.RELAY_LIST_METADATA.getValue();
-    public static final int CLIENT_AUTHENTICATION = Kind.CLIENT_AUTH.getValue();
-    public static final int BADGE_DEFINITION = Kind.BADGE_DEFINITION.getValue();
-    public static final int BADGE_AWARD = Kind.BADGE_AWARD.getValue();
-    public static final int LONG_FORM_TEXT_NOTE = Kind.LONG_FORM_TEXT_NOTE.getValue();
-    public static final int LONG_FORM_DRAFT = Kind.LONG_FORM_DRAFT.getValue();
-    public static final int APPLICATION_SPECIFIC_DATA = Kind.APPLICATION_SPECIFIC_DATA.getValue();
-    public static final int CASHU_WALLET_EVENT = Kind.WALLET.getValue();
-    public static final int CASHU_WALLET_TOKENS = Kind.WALLET_UNSPENT_PROOF.getValue();
-    public static final int CASHU_WALLET_HISTORY = Kind.WALLET_TX_HISTORY.getValue();
-    public static final int CASHU_RESERVED_WALLET_TOKENS = Kind.RESERVED_CASHU_WALLET_TOKENS.getValue();
-    public static final int CASHU_NUTZAP_EVENT = Kind.NUTZAP.getValue();
-    public static final int CASHU_NUTZAP_INFO_EVENT = Kind.NUTZAP_INFORMATIONAL.getValue();
-    public static final int SET_STALL = Kind.STALL_CREATE_OR_UPDATE.getValue();
-    public static final int SET_PRODUCT = Kind.PRODUCT_CREATE_OR_UPDATE.getValue();
-    public static final int REACTION_TO_WEBSITE = Kind.REACTION_TO_WEBSITE.getValue();
-    public static final int REQUEST_EVENTS = Kind.REQUEST_EVENTS.getValue();
-    public static final int CLASSIFIED_LISTING = Kind.CLASSIFIED_LISTING.getValue();
-    public static final int RELAY_LIST_METADATA_EVENT = Kind.RELAY_LIST_METADATA.getValue();
+    /** @deprecated Use {@link nostr.base.Kind#SET_METADATA} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int USER_METADATA = nostr.base.Kind.SET_METADATA.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#TEXT_NOTE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int SHORT_TEXT_NOTE = nostr.base.Kind.TEXT_NOTE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#RECOMMEND_SERVER} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int RECOMMENDED_RELAY = nostr.base.Kind.RECOMMEND_SERVER.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CONTACT_LIST} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CONTACT_LIST = nostr.base.Kind.CONTACT_LIST.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#ENCRYPTED_DIRECT_MESSAGE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int ENCRYPTED_DIRECT_MESSAGE =
+        nostr.base.Kind.ENCRYPTED_DIRECT_MESSAGE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#DELETION} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int EVENT_DELETION = nostr.base.Kind.DELETION.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#REPOST} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int REPOST = nostr.base.Kind.REPOST.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#REACTION} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int REACTION = nostr.base.Kind.REACTION.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#REACTION_TO_WEBSITE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int REACTION_TO_WEBSITE = nostr.base.Kind.REACTION_TO_WEBSITE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CHANNEL_CREATE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CHANNEL_CREATION = nostr.base.Kind.CHANNEL_CREATE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CHANNEL_METADATA} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CHANNEL_METADATA = nostr.base.Kind.CHANNEL_METADATA.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CHANNEL_MESSAGE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CHANNEL_MESSAGE = nostr.base.Kind.CHANNEL_MESSAGE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#HIDE_MESSAGE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CHANNEL_HIDE_MESSAGE = nostr.base.Kind.HIDE_MESSAGE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#MUTE_USER} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CHANNEL_MUTE_USER = nostr.base.Kind.MUTE_USER.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#OTS_EVENT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int OTS_ATTESTATION = nostr.base.Kind.OTS_EVENT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#REPORT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int REPORT = nostr.base.Kind.REPORT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#ZAP_REQUEST} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int ZAP_REQUEST = nostr.base.Kind.ZAP_REQUEST.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#ZAP_RECEIPT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int ZAP_RECEIPT = nostr.base.Kind.ZAP_RECEIPT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#RELAY_LIST_METADATA} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int RELAY_LIST_METADATA = nostr.base.Kind.RELAY_LIST_METADATA.getValue();
+
+    /** @deprecated Duplicate of RELAY_LIST_METADATA. Use {@link nostr.base.Kind#RELAY_LIST_METADATA} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int RELAY_LIST_METADATA_EVENT = nostr.base.Kind.RELAY_LIST_METADATA.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CLIENT_AUTH} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CLIENT_AUTHENTICATION = nostr.base.Kind.CLIENT_AUTH.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#REQUEST_EVENTS} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int REQUEST_EVENTS = nostr.base.Kind.REQUEST_EVENTS.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#BADGE_DEFINITION} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int BADGE_DEFINITION = nostr.base.Kind.BADGE_DEFINITION.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#BADGE_AWARD} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int BADGE_AWARD = nostr.base.Kind.BADGE_AWARD.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#STALL_CREATE_OR_UPDATE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int SET_STALL = nostr.base.Kind.STALL_CREATE_OR_UPDATE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#PRODUCT_CREATE_OR_UPDATE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int SET_PRODUCT = nostr.base.Kind.PRODUCT_CREATE_OR_UPDATE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#LONG_FORM_TEXT_NOTE} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int LONG_FORM_TEXT_NOTE = nostr.base.Kind.LONG_FORM_TEXT_NOTE.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#LONG_FORM_DRAFT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int LONG_FORM_DRAFT = nostr.base.Kind.LONG_FORM_DRAFT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#APPLICATION_SPECIFIC_DATA} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int APPLICATION_SPECIFIC_DATA =
+        nostr.base.Kind.APPLICATION_SPECIFIC_DATA.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CLASSIFIED_LISTING} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CLASSIFIED_LISTING = nostr.base.Kind.CLASSIFIED_LISTING.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#WALLET} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_WALLET_EVENT = nostr.base.Kind.WALLET.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#WALLET_UNSPENT_PROOF} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_WALLET_TOKENS = nostr.base.Kind.WALLET_UNSPENT_PROOF.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#WALLET_TX_HISTORY} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_WALLET_HISTORY = nostr.base.Kind.WALLET_TX_HISTORY.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#RESERVED_CASHU_WALLET_TOKENS} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_RESERVED_WALLET_TOKENS =
+        nostr.base.Kind.RESERVED_CASHU_WALLET_TOKENS.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#NUTZAP} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_NUTZAP_EVENT = nostr.base.Kind.NUTZAP.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#NUTZAP_INFORMATIONAL} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CASHU_NUTZAP_INFO_EVENT = nostr.base.Kind.NUTZAP_INFORMATIONAL.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CALENDAR_DATE_BASED_EVENT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int DATE_BASED_CALENDAR_CONTENT =
+        nostr.base.Kind.CALENDAR_DATE_BASED_EVENT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CALENDAR_TIME_BASED_EVENT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int TIME_BASED_CALENDAR_CONTENT =
+        nostr.base.Kind.CALENDAR_TIME_BASED_EVENT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CALENDAR_EVENT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CALENDAR = nostr.base.Kind.CALENDAR_EVENT.getValue();
+
+    /** @deprecated Use {@link nostr.base.Kind#CALENDAR_RSVP_EVENT} instead */
+    @Deprecated(forRemoval = true, since = "0.6.2")
+    public static final int CALENDAR_EVENT_RSVP = nostr.base.Kind.CALENDAR_RSVP_EVENT.getValue();
   }
 
   public static final class Tag {

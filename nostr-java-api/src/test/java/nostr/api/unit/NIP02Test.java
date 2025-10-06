@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import nostr.api.NIP02;
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;
@@ -33,7 +34,7 @@ public class NIP02Test {
     nip02.createContactListEvent(new ArrayList<>(tags));
     assertNotNull(nip02.getEvent(), "Event should be created");
     assertEquals(
-        Constants.Kind.CONTACT_LIST, nip02.getEvent().getKind(), "Kind should be CONTACT_LIST");
+        Kind.CONTACT_LIST.getValue(), nip02.getEvent().getKind(), "Kind should be CONTACT_LIST");
   }
 
   @Test

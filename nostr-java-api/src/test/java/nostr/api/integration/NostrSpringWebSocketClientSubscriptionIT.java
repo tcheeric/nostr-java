@@ -64,8 +64,8 @@ class NostrSpringWebSocketClientSubscriptionIT {
     private final Map<String, RecordingHandler> handlers = new ConcurrentHashMap<>();
 
     @Override
-    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri) {
-      RecordingHandler handler = new RecordingHandler(relayName, relayUri);
+    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, nostr.base.RelayUri relayUri) {
+      RecordingHandler handler = new RecordingHandler(relayName, relayUri.toString());
       handlers.put(relayName, handler);
       return handler;
     }

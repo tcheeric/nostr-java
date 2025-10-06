@@ -10,6 +10,12 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+/**
+ * Factory for creating generic Nostr events with a specified kind.
+ *
+ * <p>Supports multiple construction paths (sender/content/tags) while ensuring a concrete
+ * {@code kind} is always provided.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GenericEventFactory<T extends BaseTag> extends EventFactory<GenericEvent, T> {
@@ -60,9 +66,9 @@ public class GenericEventFactory<T extends BaseTag> extends EventFactory<Generic
   }
 
   /**
-   * Build a GenericEvent with the configured values.
+   * Build a {@link GenericEvent} with the configured values.
    *
-   * @return the new GenericEvent
+   * @return the newly created GenericEvent
    */
   public GenericEvent create() {
     return new GenericEvent(

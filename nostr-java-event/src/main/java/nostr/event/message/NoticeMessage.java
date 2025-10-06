@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +29,7 @@ public class NoticeMessage extends BaseMessage {
   @Override
   public String encode() throws EventEncodingException {
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+      return EventJsonMapper.getMapper().writeValueAsString(
           JsonNodeFactory.instance.arrayNode().add(getCommand()).add(getMessage()));
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode notice message", e);

@@ -3,7 +3,7 @@ package nostr.api;
 import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.entities.CustomerOrder;
 import nostr.event.entities.PaymentRequest;
 import nostr.event.entities.Product;
@@ -32,7 +32,7 @@ public class NIP15 extends EventNostr {
       @NonNull PaymentRequest paymentRequest, @NonNull CustomerOrder customerOrder) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, paymentRequest.value())
+                getSender(), Kind.ENCRYPTED_DIRECT_MESSAGE.getValue(), paymentRequest.value())
             .create();
     genericEvent.addTag(NIP01.createPubKeyTag(customerOrder.getContact().getPublicKey()));
     this.updateEvent(genericEvent);
@@ -48,7 +48,7 @@ public class NIP15 extends EventNostr {
   public NIP15 createCustomerOrderEvent(@NonNull CustomerOrder customerOrder) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, customerOrder.value())
+                getSender(), Kind.ENCRYPTED_DIRECT_MESSAGE.getValue(), customerOrder.value())
             .create();
     genericEvent.addTag(NIP01.createPubKeyTag(customerOrder.getContact().getPublicKey()));
     this.updateEvent(genericEvent);
@@ -64,7 +64,7 @@ public class NIP15 extends EventNostr {
    */
   public NIP15 createCreateOrUpdateStallEvent(@NonNull Stall stall) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.SET_STALL, stall.value()).create();
+        new GenericEventFactory(getSender(), Kind.STALL_CREATE_OR_UPDATE.getValue(), stall.value()).create();
     genericEvent.addTag(NIP01.createIdentifierTag(stall.getId()));
     this.updateEvent(genericEvent);
 
@@ -80,7 +80,7 @@ public class NIP15 extends EventNostr {
    */
   public NIP15 createCreateOrUpdateProductEvent(@NonNull Product product, List<String> categories) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.SET_PRODUCT, product.value()).create();
+        new GenericEventFactory(getSender(), Kind.PRODUCT_CREATE_OR_UPDATE.getValue(), product.value()).create();
     genericEvent.addTag(NIP01.createIdentifierTag(product.getId()));
 
     if (categories != null && !categories.isEmpty()) {

@@ -2,7 +2,7 @@ package nostr.api;
 
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -27,7 +27,7 @@ public class NIP03 extends EventNostr {
   public NIP03 createOtsEvent(
       @NonNull GenericEvent referencedEvent, @NonNull String ots, @NonNull String alt) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.OTS_ATTESTATION, ots).create();
+        new GenericEventFactory(getSender(), Kind.OTS_EVENT.getValue(), ots).create();
     genericEvent.addTag(NIP31.createAltTag(alt));
     genericEvent.addTag(NIP01.createEventTag(referencedEvent.getId()));
     this.updateEvent(genericEvent);

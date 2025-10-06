@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,7 +52,7 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         .map(ElementAttribute::value)
         .forEach(v -> encoderArrayNode.add(v.toString()));
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+      return EventJsonMapper.getMapper().writeValueAsString(encoderArrayNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode generic message", e);
     }

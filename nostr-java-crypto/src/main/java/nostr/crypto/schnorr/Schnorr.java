@@ -15,6 +15,12 @@ import nostr.crypto.Point;
 import nostr.util.NostrUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+/**
+ * Utility methods for BIP-340 Schnorr signatures over secp256k1.
+ *
+ * <p>Implements signing, verification, and simple key derivation helpers used throughout the
+ * project. All methods operate on 32-byte inputs as mandated by the specification.
+ */
 public class Schnorr {
 
   /**
@@ -23,8 +29,8 @@ public class Schnorr {
    * @param msg 32-byte message hash to sign
    * @param secKey 32-byte secret key
    * @param auxRand auxiliary 32 random bytes used for nonce derivation
-   * @return 64-byte signature (R || s)
-   * @throws Exception if inputs are invalid or signing fails
+   * @return the 64-byte signature (R || s)
+   * @throws SchnorrException if inputs are invalid or signing fails
    */
   public static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand) throws SchnorrException {
     if (msg.length != 32) {
@@ -95,7 +101,7 @@ public class Schnorr {
    * @param pubkey 32-byte x-only public key
    * @param sig 64-byte signature (R || s)
    * @return true if the signature is valid; false otherwise
-   * @throws Exception if inputs are invalid
+   * @throws SchnorrException if inputs are invalid
    */
   public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws SchnorrException {
 
@@ -131,9 +137,9 @@ public class Schnorr {
   }
 
   /**
-   * Generate a random private key that can be used with Secp256k1.
+   * Generate a random private key suitable for secp256k1.
    *
-   * @return a 32-byte private key suitable for Secp256k1
+   * @return a 32-byte private key
    */
   public static byte[] generatePrivateKey() {
     try {
@@ -151,6 +157,13 @@ public class Schnorr {
     }
   }
 
+  /**
+   * Derive the x-only public key bytes for a given private key.
+   *
+   * @param secKey 32-byte secret key
+   * @return the 32-byte x-only public key
+   * @throws SchnorrException if the private key is out of range
+   */
   public static byte[] genPubKey(byte[] secKey) throws SchnorrException {
     BigInteger x = NostrUtil.bigIntFromBytes(secKey);
     if (!(BigInteger.ONE.compareTo(x) <= 0

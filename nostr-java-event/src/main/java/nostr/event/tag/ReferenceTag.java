@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.net.URI;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +37,9 @@ public class ReferenceTag extends BaseTag {
 
   public ReferenceTag(@NonNull URI uri) {
     this.uri = uri;
+  }
+  public Optional<URI> getUrl() {
+    return Optional.ofNullable(this.uri);
   }
 
   @SuppressWarnings("unchecked")
