@@ -28,12 +28,10 @@ public abstract class BaseKey implements IKey {
   @Override
   public String toBech32String() {
     try {
-      String bech32 = Bech32.toBech32(prefix, rawData);
-      log.debug("Converted key to Bech32 with prefix {}", prefix);
-      return bech32;
+      return Bech32.toBech32(prefix, rawData);
     } catch (Exception ex) {
-      log.error("Error converting key to Bech32", ex);
-      throw new RuntimeException(ex);
+      log.error("Failed to convert {} key to Bech32 format with prefix {}", type, prefix, ex);
+      throw new RuntimeException("Failed to convert key to Bech32: " + ex.getMessage(), ex);
     }
   }
 
@@ -44,9 +42,7 @@ public abstract class BaseKey implements IKey {
   }
 
   public String toHexString() {
-    String hex = NostrUtil.bytesToHex(rawData);
-    log.debug("Converted key to hex string");
-    return hex;
+    return NostrUtil.bytesToHex(rawData);
   }
 
   @Override
