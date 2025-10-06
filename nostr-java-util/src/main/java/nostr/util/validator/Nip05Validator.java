@@ -43,7 +43,7 @@ public class Nip05Validator {
   @Builder.Default @JsonIgnore
   private final HttpClientProvider httpClientProvider = new DefaultHttpClientProvider();
 
-  private static final Pattern LOCAL_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9-_\\.]+$");
+  private static final Pattern LOCAL_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9-_.]+$");
   private static final Pattern DOMAIN_PATTERN = Pattern.compile("^[A-Za-z0-9.-]+(:\\d{1,5})?$");
   private static final ObjectMapper MAPPER_BLACKBIRD =
       JsonMapper.builder().addModule(new BlackbirdModule()).build();

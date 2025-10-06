@@ -175,7 +175,6 @@ public class NIP57 extends EventNostr {
         null);
   }
 
-  @SneakyThrows
   /**
    * Create a zap receipt event (kind 9735) acknowledging a zap payment.
    *
@@ -185,6 +184,7 @@ public class NIP57 extends EventNostr {
    * @param zapRecipient the zap recipient pubkey (p-tag)
    * @return this instance for chaining
    */
+  @SneakyThrows
   public NIP57 createZapReceiptEvent(
       @NonNull GenericEvent zapRequestEvent,
       @NonNull String bolt11,

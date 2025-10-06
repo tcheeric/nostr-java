@@ -22,8 +22,7 @@ import nostr.event.tag.ReferenceTag;
 
 @EqualsAndHashCode(callSuper = false)
 public class CalendarContent<T extends BaseTag> extends NIP42Content {
-  // @JsonProperty
-  // private final String id;
+  
 
   // below fields mandatory
   @Getter private final IdentifierTag identifierTag;
@@ -166,9 +165,9 @@ public class CalendarContent<T extends BaseTag> extends NIP42Content {
     return getTagsByType(GeohashTag.class).stream().findFirst();
   }
 
-  private <T extends BaseTag> List<T> getTagsByType(Class<T> clazz) {
+  private <E extends BaseTag> List<E> getTagsByType(Class<E> clazz) {
     Tag annotation = clazz.getAnnotation(Tag.class);
-    List<T> list = getBaseTags(annotation).stream().map(clazz::cast).toList();
+    List<E> list = getBaseTags(annotation).stream().map(clazz::cast).toList();
     return list;
   }
 
@@ -178,7 +177,7 @@ public class CalendarContent<T extends BaseTag> extends NIP42Content {
     List<T> value = classTypeTagsMap.get(code);
     Optional<List<T>> value1 = Optional.ofNullable(value);
     List<T> baseTags = value1.orElse(Collections.emptyList());
-    return (List<T>) baseTags;
+    return baseTags;
   }
 
   private void addTag(@NonNull T baseTag) {

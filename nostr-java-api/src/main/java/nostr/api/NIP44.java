@@ -12,11 +12,11 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
-@Slf4j
 /**
  * NIP-44 helpers (Encrypted DM with XChaCha20). Encrypt/decrypt content and DM events.
  * Spec: https://github.com/nostr-protocol/nips/blob/master/44.md
  */
+@Slf4j
 public class NIP44 extends EventNostr {
 
   /**
