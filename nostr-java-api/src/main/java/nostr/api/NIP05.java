@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
 import static nostr.base.IEvent.MAPPER_BLACKBIRD;
@@ -10,13 +6,13 @@ import static nostr.util.NostrUtil.escapeJsonString;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.config.Constants;
 import nostr.event.entities.UserProfile;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import nostr.util.validator.Nip05Validator;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * NIP-05 helpers (DNS-based verification). Create internet identifier metadata events.
@@ -34,7 +30,6 @@ public class NIP05 extends EventNostr {
    * @param profile the associate user profile
    * @return the IIM event
    */
-  @SneakyThrows
   @SuppressWarnings({"rawtypes","unchecked"})
   public NIP05 createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
     String content = getContent(profile);
@@ -56,7 +51,7 @@ public class NIP05 extends EventNostr {
                   .build());
       return escapeJsonString(jsonString);
     } catch (JsonProcessingException ex) {
-      throw new RuntimeException(ex);
+      throw new EventEncodingException("Failed to encode NIP-05 profile content", ex);
     }
   }
 }

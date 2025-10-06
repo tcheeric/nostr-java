@@ -100,92 +100,131 @@ public class WebSocketClientHandler {
       Consumer<Throwable> errorListener) {
     @SuppressWarnings("resource")
     SpringWebSocketClient client = getOrCreateRequestClient(subscriptionId);
-    Consumer<Throwable> safeError =
-        errorListener != null
-            ? errorListener
-            : throwable ->
-                log.warn(
-                    "Subscription error on relay {} for {}", relayName, subscriptionId, throwable);
+    Consumer<Throwable> safeError = resolveErrorListener(subscriptionId, errorListener);
+    AutoCloseable delegate =
+        openSubscription(client, filters, subscriptionId, listener, safeError);
 
-    AutoCloseable delegate;
+    return new SubscriptionHandle(subscriptionId, client, delegate, safeError);
+  }
+
+  private Consumer<Throwable> resolveErrorListener(
+      String subscriptionId, Consumer<Throwable> errorListener) {
+    if (errorListener != null) {
+      return errorListener;
+    }
+    return throwable ->
+        log.warn(
+            "Subscription error on relay {} for {}", relayName, subscriptionId, throwable);
+  }
+
+  private AutoCloseable openSubscription(
+      SpringWebSocketClient client,
+      Filters filters,
+      String subscriptionId,
+      Consumer<String> listener,
+      Consumer<Throwable> errorListener) {
     try {
-      delegate =
-          client.subscribe(
-              new ReqMessage(subscriptionId, filters),
-              listener,
-              safeError,
-              () ->
-                  safeError.accept(
-                      new IOException(
-                          "Subscription closed by relay %s for id %s"
-                              .formatted(relayName, subscriptionId))));
+      return client.subscribe(
+          new ReqMessage(subscriptionId, filters),
+          listener,
+          errorListener,
+          () ->
+              errorListener.accept(
+                  new IOException(
+                      "Subscription closed by relay %s for id %s"
+                          .formatted(relayName, subscriptionId))));
     } catch (IOException e) {
       throw new RuntimeException("Failed to establish subscription", e);
     }
+  }
 
-    return () -> {
-      IOException ioFailure = null;
-      Exception nonIoFailure = null;
-      AutoCloseable closeFrameHandle = null;
-      try {
-        closeFrameHandle =
-            client.subscribe(
-                new CloseMessage(subscriptionId),
-                message -> {},
-                safeError,
-                null);
-      } catch (IOException e) {
-        safeError.accept(e);
-        ioFailure = e;
-      } finally {
-        if (closeFrameHandle != null) {
-          try {
-            closeFrameHandle.close();
-          } catch (IOException e) {
-            safeError.accept(e);
-            if (ioFailure == null) {
-              ioFailure = e;
-            }
-          } catch (Exception e) {
-            safeError.accept(e);
-            if (nonIoFailure == null) {
-              nonIoFailure = e;
-            }
-          }
-        }
-      }
+  private final class SubscriptionHandle implements AutoCloseable {
+    private final String subscriptionId;
+    private final SpringWebSocketClient client;
+    private final AutoCloseable delegate;
+    private final Consumer<Throwable> errorListener;
 
-      try {
-        delegate.close();
-      } catch (IOException e) {
-        safeError.accept(e);
-        if (ioFailure == null) {
-          ioFailure = e;
-        }
-      } catch (Exception e) {
-        safeError.accept(e);
-        if (nonIoFailure == null) {
-          nonIoFailure = e;
-        }
-      }
+    private SubscriptionHandle(
+        String subscriptionId,
+        SpringWebSocketClient client,
+        AutoCloseable delegate,
+        Consumer<Throwable> errorListener) {
+      this.subscriptionId = subscriptionId;
+      this.client = client;
+      this.delegate = delegate;
+      this.errorListener = errorListener;
+    }
+
+    @Override
+    public void close() throws IOException {
+      CloseAccumulator accumulator = new CloseAccumulator(errorListener);
+      AutoCloseable closeFrameHandle = openCloseFrame(subscriptionId, accumulator);
+      closeQuietly(closeFrameHandle, accumulator);
+      closeQuietly(delegate, accumulator);
 
       requestClientMap.remove(subscriptionId);
-      try {
-        client.close();
-      } catch (IOException e) {
-        safeError.accept(e);
-        if (ioFailure == null) {
-          ioFailure = e;
-        }
-      }
+      closeQuietly(client, accumulator);
+      accumulator.rethrowIfNecessary();
+    }
 
+    private AutoCloseable openCloseFrame(String subscriptionId, CloseAccumulator accumulator) {
+      try {
+        return client.subscribe(
+            new CloseMessage(subscriptionId),
+            message -> {},
+            errorListener,
+            null);
+      } catch (IOException e) {
+        accumulator.record(e);
+        return null;
+      }
+    }
+  }
+
+  private void closeQuietly(AutoCloseable closeable, CloseAccumulator accumulator) {
+    if (closeable == null) {
+      return;
+    }
+    try {
+      closeable.close();
+    } catch (IOException e) {
+      accumulator.record(e);
+    } catch (Exception e) {
+      accumulator.record(e);
+    }
+  }
+
+  private static final class CloseAccumulator {
+    private final Consumer<Throwable> errorListener;
+    private IOException ioFailure;
+    private Exception nonIoFailure;
+
+    private CloseAccumulator(Consumer<Throwable> errorListener) {
+      this.errorListener = errorListener;
+    }
+
+    private void record(IOException exception) {
+      errorListener.accept(exception);
+      if (ioFailure == null) {
+        ioFailure = exception;
+      }
+    }
+
+    private void record(Exception exception) {
+      errorListener.accept(exception);
+      if (nonIoFailure == null) {
+        nonIoFailure = exception;
+      }
+    }
+
+    private void rethrowIfNecessary() throws IOException {
       if (ioFailure != null) {
         throw ioFailure;
       }
       if (nonIoFailure != null) {
         throw new IOException("Failed to close subscription cleanly", nonIoFailure);
       }
-    };
+    }
   }
 
   /**

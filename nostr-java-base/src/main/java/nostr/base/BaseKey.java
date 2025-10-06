@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32EncodingException;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
 
@@ -29,9 +30,13 @@ public abstract class BaseKey implements IKey {
   public String toBech32String() {
     try {
       return Bech32.toBech32(prefix, rawData);
-    } catch (Exception ex) {
+    } catch (IllegalArgumentException ex) {
+      log.error(
+          "Invalid key data for Bech32 conversion for {} key with prefix {}", type, prefix, ex);
+      throw new KeyEncodingException("Invalid key data for Bech32 conversion", ex);
+    } catch (Bech32EncodingException ex) {
       log.error("Failed to convert {} key to Bech32 format with prefix {}", type, prefix, ex);
-      throw new RuntimeException("Failed to convert key to Bech32: " + ex.getMessage(), ex);
+      throw new KeyEncodingException("Failed to convert key to Bech32", ex);
     }
   }
 

@@ -1,19 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
-import nostr.api.factory.impl.BaseTagFactory;
-import nostr.api.factory.impl.GenericEventFactory;
+import nostr.api.nip01.NIP01EventBuilder;
+import nostr.api.nip01.NIP01MessageFactory;
+import nostr.api.nip01.NIP01TagFactory;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.entities.UserProfile;
 import nostr.event.filter.Filters;
@@ -24,7 +19,6 @@ import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import nostr.event.tag.GenericTag;
-import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 
@@ -34,30 +28,34 @@ import nostr.id.Identity;
  */
 public class NIP01 extends EventNostr {
 
+  private final NIP01EventBuilder eventBuilder;
+
   public NIP01(Identity sender) {
-    setSender(sender);
+    super(sender);
+    this.eventBuilder = new NIP01EventBuilder(sender);
+  }
+
+  @Override
+  public NIP01 setSender(@NonNull Identity sender) {
+    super.setSender(sender);
+    this.eventBuilder.updateDefaultSender(sender);
+    return this;
   }
 
   /**
-   * Create a NIP01 text note event without tags
+   * Create a NIP01 text note event without tags.
    *
    * @param content the content of the note
    * @return the text note without tags
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(String content) {
-    GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildTextNote(content));
     return this;
   }
 
   @Deprecated
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(Identity sender, String content) {
-    GenericEvent genericEvent =
-        new GenericEventFactory(sender, Constants.Kind.SHORT_TEXT_NOTE, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildTextNote(sender, content));
     return this;
   }
 
@@ -70,11 +68,7 @@ public class NIP01 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP01 createTextNoteEvent(Identity sender, String content, List<PubKeyTag> recipients) {
-    GenericEvent genericEvent =
-        new GenericEventFactory<PubKeyTag>(
-                sender, Constants.Kind.SHORT_TEXT_NOTE, recipients, content)
-            .create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildRecipientTextNote(sender, content, recipients));
     return this;
   }
 
@@ -86,97 +80,74 @@ public class NIP01 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP01 createTextNoteEvent(String content, List<PubKeyTag> recipients) {
-    GenericEvent genericEvent =
-        new GenericEventFactory<PubKeyTag>(
-                getSender(), Constants.Kind.SHORT_TEXT_NOTE, recipients, content)
-            .create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildRecipientTextNote(content, recipients));
     return this;
   }
 
   /**
-   * Create a NIP01 text note event with recipients
+   * Create a NIP01 text note event with recipients.
    *
    * @param tags the tags
    * @param content the content of the note
    * @return a text note event
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
-    GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, tags, content)
-            .create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildTaggedTextNote(tags, content));
     return this;
   }
 
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createMetadataEvent(@NonNull UserProfile profile) {
-    var sender = getSender();
     GenericEvent genericEvent =
-        (sender != null)
-            ? new GenericEventFactory(sender, Constants.Kind.USER_METADATA, profile.toString())
-                .create()
-            : new GenericEventFactory(Constants.Kind.USER_METADATA, profile.toString()).create();
+        Optional.ofNullable(getSender())
+            .map(identity -> eventBuilder.buildMetadataEvent(identity, profile.toString()))
+            .orElse(eventBuilder.buildMetadataEvent(profile.toString()));
     this.updateEvent(genericEvent);
     return this;
   }
 
   /**
-   * Create a replaceable event
+   * Create a replaceable event.
    *
    * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
    * @param content the content
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createReplaceableEvent(Integer kind, String content) {
-    var sender = getSender();
-    GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildReplaceableEvent(kind, content));
     return this;
   }
 
   /**
-   * Create a replaceable event
+   * Create a replaceable event.
    *
    * @param tags the note's tags
    * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
    * @param content the note's content
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
-    var sender = getSender();
-    GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildReplaceableEvent(tags, kind, content));
     return this;
   }
 
   /**
-   * Create an ephemeral event
+   * Create an ephemeral event.
    *
    * @param kind the kind (20000 <= n < 30000)
    * @param tags the note's tags
    * @param content the note's content
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
-    var sender = getSender();
-    GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildEphemeralEvent(tags, kind, content));
     return this;
   }
 
   /**
-   * Create an ephemeral event
+   * Create an ephemeral event.
    *
    * @param kind the kind (20000 <= n < 30000)
    * @param content the note's content
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createEphemeralEvent(Integer kind, String content) {
-    var sender = getSender();
-    GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildEphemeralEvent(kind, content));
     return this;
   }
 
@@ -187,10 +158,8 @@ public class NIP01 extends EventNostr {
    * @param content the event's content/comment
    * @return this instance for chaining
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createAddressableEvent(Integer kind, String content) {
-    GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildAddressableEvent(kind, content));
     return this;
   }
 
@@ -204,25 +173,22 @@ public class NIP01 extends EventNostr {
    */
   public NIP01 createAddressableEvent(
       @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-    GenericEvent genericEvent =
-        new GenericEventFactory<GenericTag>(getSender(), kind, tags, content).create();
-    this.updateEvent(genericEvent);
+    this.updateEvent(eventBuilder.buildAddressableEvent(tags, kind, content));
     return this;
   }
 
   /**
-   * Create a NIP01 event tag
+   * Create a NIP01 event tag.
    *
    * @param relatedEventId the related event id
    * @return an event tag with the id of the related event
    */
   public static BaseTag createEventTag(@NonNull String relatedEventId) {
-    List<String> params = List.of(relatedEventId);
-    return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
+    return NIP01TagFactory.eventTag(relatedEventId);
   }
 
   /**
-   * Create a NIP01 event tag with additional recommended relay and marker
+   * Create a NIP01 event tag with additional recommended relay and marker.
    *
    * @param idEvent the related event id
    * @param recommendedRelayUrl the recommended relay url
@@ -231,32 +197,22 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createEventTag(
       @NonNull String idEvent, String recommendedRelayUrl, Marker marker) {
-
-    List<String> params = new ArrayList<>();
-    params.add(idEvent);
-    if (recommendedRelayUrl != null) {
-      params.add(recommendedRelayUrl);
-    }
-    if (marker != null) {
-      params.add(marker.getValue());
-    }
-
-    return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
+    return NIP01TagFactory.eventTag(idEvent, recommendedRelayUrl, marker);
   }
 
   /**
-   * Create a NIP01 event tag with additional recommended relay and marker
+   * Create a NIP01 event tag with additional recommended relay and marker.
    *
    * @param idEvent the related event id
    * @param marker the marker
    * @return an event tag with the id of the related event and optional recommended relay and marker
    */
   public static BaseTag createEventTag(@NonNull String idEvent, Marker marker) {
-    return createEventTag(idEvent, (String) null, marker);
+    return NIP01TagFactory.eventTag(idEvent, marker);
   }
 
   /**
-   * Create a NIP01 event tag with additional recommended relay and marker
+   * Create a NIP01 event tag with additional recommended relay and marker.
    *
    * @param idEvent the related event id
    * @param recommendedRelay the recommended relay
@@ -265,34 +221,21 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createEventTag(
       @NonNull String idEvent, Relay recommendedRelay, Marker marker) {
-
-    List<String> params = new ArrayList<>();
-    params.add(idEvent);
-    if (recommendedRelay != null) {
-      params.add(recommendedRelay.getUri());
-    }
-    if (marker != null) {
-      params.add(marker.getValue());
-    }
-
-    return new BaseTagFactory(Constants.Tag.EVENT_CODE, params).create();
+    return NIP01TagFactory.eventTag(idEvent, recommendedRelay, marker);
   }
 
   /**
-   * Create a NIP01 pubkey tag
+   * Create a NIP01 pubkey tag.
    *
    * @param publicKey the associated public key
    * @return a pubkey tag with the hex representation of the associated public key
    */
   public static BaseTag createPubKeyTag(@NonNull PublicKey publicKey) {
-    List<String> params = new ArrayList<>();
-    params.add(publicKey.toString());
-
-    return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
+    return NIP01TagFactory.pubKeyTag(publicKey);
   }
 
   /**
-   * Create a NIP01 pubkey tag with additional recommended relay and petname (as defined in NIP02)
+   * Create a NIP01 pubkey tag with additional recommended relay and petname (as defined in NIP02).
    *
    * @param publicKey the associated public key
    * @param mainRelayUrl the recommended relay
@@ -300,32 +243,21 @@ public class NIP01 extends EventNostr {
    * @return a pubkey tag with the hex representation of the associated public key and the optional
    *     recommended relay and petname
    */
-  // TODO - Method overloading with Relay as second parameter
   public static BaseTag createPubKeyTag(
       @NonNull PublicKey publicKey, String mainRelayUrl, String petName) {
-    List<String> params = new ArrayList<>();
-    params.add(publicKey.toString());
-    params.add(mainRelayUrl);
-    params.add(petName);
-
-    return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
+    return NIP01TagFactory.pubKeyTag(publicKey, mainRelayUrl, petName);
   }
 
   /**
-   * Create a NIP01 pubkey tag with additional recommended relay and petname (as defined in NIP02)
+   * Create a NIP01 pubkey tag with additional recommended relay and petname (as defined in NIP02).
    *
    * @param publicKey the associated public key
    * @param mainRelayUrl the recommended relay
    * @return a pubkey tag with the hex representation of the associated public key and the optional
    *     recommended relay and petname
    */
-  // TODO - Method overloading with Relay as second parameter
   public static BaseTag createPubKeyTag(@NonNull PublicKey publicKey, String mainRelayUrl) {
-    List<String> params = new ArrayList<>();
-    params.add(publicKey.toString());
-    params.add(mainRelayUrl);
-
-    return new BaseTagFactory(Constants.Tag.PUBKEY_CODE, params).create();
+    return NIP01TagFactory.pubKeyTag(publicKey, mainRelayUrl);
   }
 
   /**
@@ -335,10 +267,7 @@ public class NIP01 extends EventNostr {
    * @return the created identifier tag
    */
   public static BaseTag createIdentifierTag(@NonNull String id) {
-    List<String> params = new ArrayList<>();
-    params.add(id);
-
-    return new BaseTagFactory(Constants.Tag.IDENTITY_CODE, params).create();
+    return NIP01TagFactory.identifierTag(id);
   }
 
   /**
@@ -352,32 +281,12 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, BaseTag idTag, Relay relay) {
-    if (idTag != null && !(idTag instanceof nostr.event.tag.IdentifierTag)) {
-      throw new IllegalArgumentException("idTag must be an identifier tag");
-    }
-
-    List<String> params = new ArrayList<>();
-    String param = kind + ":" + publicKey + ":";
-    if (idTag != null) {
-      if (idTag instanceof IdentifierTag) {
-        param += ((IdentifierTag) idTag).getUuid();
-      } else {
-        // Should hopefully never happen
-        throw new IllegalArgumentException("idTag must be an identifier tag");
-      }
-    }
-    params.add(param);
-
-    if (relay != null) {
-      params.add(relay.getUri());
-    }
-
-    return new BaseTagFactory(Constants.Tag.ADDRESS_CODE, params).create();
+    return NIP01TagFactory.addressTag(kind, publicKey, idTag, relay);
   }
 
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, String id, Relay relay) {
-    return createAddressTag(kind, publicKey, createIdentifierTag(id), relay);
+    return NIP01TagFactory.addressTag(kind, publicKey, id, relay);
   }
 
   /**
@@ -390,25 +299,22 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, String id) {
-    return createAddressTag(kind, publicKey, createIdentifierTag(id), null);
+    return NIP01TagFactory.addressTag(kind, publicKey, id);
   }
 
   /**
-   * Create an event message to send events requested by clients
+   * Create an event message to send events requested by clients.
    *
    * @param event the related event
    * @param subscriptionId the related subscription id
    * @return an event message
    */
-  public static EventMessage createEventMessage(
-      @NonNull GenericEvent event, String subscriptionId) {
-    return Optional.ofNullable(subscriptionId)
-        .map(subId -> new EventMessage(event, subId))
-        .orElse(new EventMessage(event));
+  public static EventMessage createEventMessage(@NonNull GenericEvent event, String subscriptionId) {
+    return NIP01MessageFactory.eventMessage(event, subscriptionId);
   }
 
   /**
-   * Create a REQ message to request events and subscribe to new updates
+   * Create a REQ message to request events and subscribe to new updates.
    *
    * @param subscriptionId the subscription id
    * @param filtersList the filters list
@@ -416,28 +322,28 @@ public class NIP01 extends EventNostr {
    */
   public static ReqMessage createReqMessage(
       @NonNull String subscriptionId, @NonNull List<Filters> filtersList) {
-    return new ReqMessage(subscriptionId, filtersList);
+    return NIP01MessageFactory.reqMessage(subscriptionId, filtersList);
   }
 
   /**
-   * Create a CLOSE message to stop previous subscriptions
+   * Create a CLOSE message to stop previous subscriptions.
    *
    * @param subscriptionId the subscription id
    * @return a CLOSE message
    */
   public static CloseMessage createCloseMessage(@NonNull String subscriptionId) {
-    return new CloseMessage(subscriptionId);
+    return NIP01MessageFactory.closeMessage(subscriptionId);
   }
 
   /**
    * Create an EOSE message to indicate the end of stored events and the beginning of events newly
-   * received in real-time
+   * received in real-time.
    *
    * @param subscriptionId the subscription id
    * @return an EOSE message
    */
   public static EoseMessage createEoseMessage(@NonNull String subscriptionId) {
-    return new EoseMessage(subscriptionId);
+    return NIP01MessageFactory.eoseMessage(subscriptionId);
   }
 
   /**
@@ -447,6 +353,6 @@ public class NIP01 extends EventNostr {
    * @return a NOTICE message
    */
   public static NoticeMessage createNoticeMessage(@NonNull String message) {
-    return new NoticeMessage(message);
+    return NIP01MessageFactory.noticeMessage(message);
   }
 }
