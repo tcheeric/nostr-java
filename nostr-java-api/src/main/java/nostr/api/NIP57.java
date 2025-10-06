@@ -6,6 +6,7 @@ import nostr.api.nip01.NIP01TagFactory;
 import nostr.api.nip57.NIP57TagFactory;
 import nostr.api.nip57.NIP57ZapReceiptBuilder;
 import nostr.api.nip57.NIP57ZapRequestBuilder;
+import nostr.api.nip57.ZapRequestParameters;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
@@ -54,6 +55,14 @@ public class NIP57 extends EventNostr {
   }
 
   /**
+   * Create a zap request event (kind 9734) using a parameter object.
+   */
+  public NIP57 createZapRequestEvent(@NonNull ZapRequestParameters parameters) {
+    this.updateEvent(zapRequestBuilder.build(parameters));
+    return this;
+  }
+
+  /**
    * Create a zap request event (kind 9734) using explicit parameters and a relays tag.
    */
   public NIP57 createZapRequestEvent(
@@ -64,10 +73,16 @@ public class NIP57 extends EventNostr {
       PublicKey recipientPubKey,
       GenericEvent zappedEvent,
       BaseTag addressTag) {
-    this.updateEvent(
-        zapRequestBuilder.buildFromParameters(
-            amount, lnUrl, relaysTags, content, recipientPubKey, zappedEvent, addressTag));
-    return this;
+    return createZapRequestEvent(
+        ZapRequestParameters.builder()
+            .amount(amount)
+            .lnUrl(lnUrl)
+            .relaysTag(requireRelaysTag(relaysTags))
+            .content(content)
+            .recipientPubKey(recipientPubKey)
+            .zappedEvent(zappedEvent)
+            .addressTag(addressTag)
+            .build());
   }
 
   /**
@@ -81,10 +96,16 @@ public class NIP57 extends EventNostr {
       PublicKey recipientPubKey,
       GenericEvent zappedEvent,
       BaseTag addressTag) {
-    this.updateEvent(
-        zapRequestBuilder.buildFromParameters(
-            amount, lnUrl, relays, content, recipientPubKey, zappedEvent, addressTag));
-    return this;
+    return createZapRequestEvent(
+        ZapRequestParameters.builder()
+            .amount(amount)
+            .lnUrl(lnUrl)
+            .relays(relays)
+            .content(content)
+            .recipientPubKey(recipientPubKey)
+            .zappedEvent(zappedEvent)
+            .addressTag(addressTag)
+            .build());
   }
 
   /**
@@ -96,9 +117,14 @@ public class NIP57 extends EventNostr {
       @NonNull List<String> relays,
       @NonNull String content,
       PublicKey recipientPubKey) {
-    this.updateEvent(
-        zapRequestBuilder.buildSimpleZapRequest(amount, lnUrl, relays, content, recipientPubKey));
-    return this;
+    return createZapRequestEvent(
+        ZapRequestParameters.builder()
+            .amount(amount)
+            .lnUrl(lnUrl)
+            .relays(relays.stream().map(Relay::new).toList())
+            .content(content)
+            .recipientPubKey(recipientPubKey)
+            .build());
   }
 
   /**
@@ -206,6 +232,13 @@ public class NIP57 extends EventNostr {
 
   public static BaseTag createZapTag(@NonNull PublicKey receiver, @NonNull List<Relay> relays) {
     return NIP57TagFactory.zap(receiver, relays);
+  }
+
+  private RelaysTag requireRelaysTag(BaseTag tag) {
+    if (tag instanceof RelaysTag relaysTag) {
+      return relaysTag;
+    }
+    throw new IllegalArgumentException("tag must be of type RelaysTag");
   }
 
   private Identity resolveSender() {

@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.nip01.NIP01TagFactory;
+import nostr.api.nip57.NIP57TagFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
@@ -54,6 +55,20 @@ public final class NIP57ZapRequestBuilder {
       GenericEvent zappedEvent,
       BaseTag addressTag) {
     return buildFromZapRequest(resolveSender(null), zapRequest, content, recipientPubKey, zappedEvent, addressTag);
+  }
+
+  public GenericEvent build(@NonNull ZapRequestParameters parameters) {
+    GenericEvent genericEvent =
+        initialiseZapRequest(parameters.getSender(), parameters.contentOrDefault());
+    populateCommonZapRequestTags(
+        genericEvent,
+        parameters.determineRelaysTag(),
+        parameters.getAmount(),
+        parameters.getLnUrl(),
+        parameters.getRecipientPubKey(),
+        parameters.getZappedEvent(),
+        parameters.getAddressTag());
+    return genericEvent;
   }
 
   public GenericEvent buildFromParameters(
