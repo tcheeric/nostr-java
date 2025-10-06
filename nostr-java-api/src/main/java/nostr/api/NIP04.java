@@ -16,6 +16,7 @@ import nostr.encryption.MessageCipher;
 import nostr.encryption.MessageCipher04;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+import nostr.event.filter.Filterable;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -131,12 +132,10 @@ public class NIP04 extends EventNostr {
       throw new IllegalArgumentException("Event is not an encrypted direct message");
     }
 
-    var recipient =
-        event.getTags().stream()
-            .filter(t -> t.getCode().equalsIgnoreCase("p"))
+    PubKeyTag pTag =
+        Filterable.getTypeSpecificTags(PubKeyTag.class, event).stream()
             .findFirst()
             .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
-    var pTag = (PubKeyTag) recipient;
 
     boolean rcptFlag = amITheRecipient(rcptId, event);
 
