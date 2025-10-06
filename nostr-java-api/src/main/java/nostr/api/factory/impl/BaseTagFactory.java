@@ -4,6 +4,7 @@
  */
 package nostr.api.factory.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +12,9 @@ import java.util.stream.Stream;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * Utility to create {@link BaseTag} instances from code and parameters or from JSON.
@@ -52,10 +53,13 @@ public class BaseTagFactory {
     this.params = new ArrayList<>();
   }
 
-  @SneakyThrows
   public BaseTag create() {
     if (jsonString != null) {
-      return new ObjectMapper().readValue(jsonString, GenericTag.class);
+      try {
+        return new ObjectMapper().readValue(jsonString, GenericTag.class);
+      } catch (JsonProcessingException ex) {
+        throw new EventEncodingException("Failed to decode tag from JSON", ex);
+      }
     }
     return BaseTag.create(code, params);
   }
