@@ -7,6 +7,7 @@ public class BaseTagSerializer<T extends BaseTag> extends AbstractTagSerializer<
 
   @Serial private static final long serialVersionUID = -3877972991082754068L;
 
+  // Generics are erased at runtime; serializer is intentionally bound to BaseTag.class
   @SuppressWarnings("unchecked")
   public BaseTagSerializer() {
     super((Class<T>) BaseTag.class);

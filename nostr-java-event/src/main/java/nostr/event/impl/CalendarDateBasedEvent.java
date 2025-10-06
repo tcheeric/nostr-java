@@ -71,44 +71,49 @@ public class CalendarDateBasedEvent<T extends BaseTag>
   protected CalendarContent<T> getCalendarContent() {
     CalendarContent<T> calendarContent =
         new CalendarContent<>(
-            (IdentifierTag) getTag("d"),
-            ((GenericTag) getTag("title")).getAttributes().get(0).value().toString(),
+            nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+                IdentifierTag.class, "d", this),
+            nostr.event.filter.Filterable
+                .requireTagOfTypeWithCode(GenericTag.class, "title", this)
+                .getAttributes()
+                .get(0)
+                .value()
+                .toString(),
             Long.parseLong(
-                ((GenericTag) getTag("start")).getAttributes().get(0).value().toString()));
+                nostr.event.filter.Filterable
+                    .requireTagOfTypeWithCode(GenericTag.class, "start", this)
+                    .getAttributes()
+                    .get(0)
+                    .value()
+                    .toString()));
 
     // Update the calendarContent object with the values from the tags
-    Optional.ofNullable(getTag("end"))
+    nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "end", this)
         .ifPresent(
-            baseTag ->
+            tag ->
                 calendarContent.setEnd(
-                    Long.parseLong(
-                        ((GenericTag) baseTag).getAttributes().get(0).value().toString())));
+                    Long.parseLong(tag.getAttributes().get(0).value().toString())));
 
-    Optional.ofNullable(getTag("location"))
-        .ifPresent(
-            baseTag ->
-                calendarContent.setLocation(
-                    ((GenericTag) baseTag).getAttributes().get(0).value().toString()));
+    nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "location", this)
+        .ifPresent(tag -> calendarContent.setLocation(tag.getAttributes().get(0).value().toString()));
 
-    Optional.ofNullable(getTag("g"))
-        .ifPresent(baseTag -> calendarContent.setGeohashTag((GeohashTag) baseTag));
+    nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GeohashTag.class, "g", this)
+        .ifPresent(calendarContent::setGeohashTag);
 
-    Optional.ofNullable(getTags("p"))
-        .ifPresent(
-            baseTags ->
-                baseTags.forEach(
-                    baseTag -> calendarContent.addParticipantPubKeyTag((PubKeyTag) baseTag)));
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(PubKeyTag.class, this)
+        .forEach(calendarContent::addParticipantPubKeyTag);
 
-    Optional.ofNullable(getTags("t"))
-        .ifPresent(
-            baseTags ->
-                baseTags.forEach(baseTag -> calendarContent.addHashtagTag((HashtagTag) baseTag)));
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(HashtagTag.class, this)
+        .forEach(calendarContent::addHashtagTag);
 
-    Optional.ofNullable(getTags("r"))
-        .ifPresent(
-            baseTags ->
-                baseTags.forEach(
-                    baseTag -> calendarContent.addReferenceTag((ReferenceTag) baseTag)));
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(ReferenceTag.class, this)
+        .forEach(calendarContent::addReferenceTag);
 
     return calendarContent;
   }

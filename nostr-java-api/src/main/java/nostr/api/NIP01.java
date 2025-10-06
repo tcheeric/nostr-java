@@ -352,7 +352,7 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, BaseTag idTag, Relay relay) {
-    if (idTag != null && !idTag.getCode().equals(Constants.Tag.IDENTITY_CODE)) {
+    if (idTag != null && !(idTag instanceof nostr.event.tag.IdentifierTag)) {
       throw new IllegalArgumentException("idTag must be an identifier tag");
     }
 

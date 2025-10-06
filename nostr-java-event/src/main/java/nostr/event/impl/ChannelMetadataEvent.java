@@ -71,7 +71,9 @@ public class ChannelMetadataEvent extends GenericEvent {
 
     // Check 'e' root - tag
     EventTag rootTag =
-        nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        nostr.event.filter.Filterable
+            .getTypeSpecificTags(EventTag.class, this)
+            .stream()
             .filter(tag -> tag.getMarker() == Marker.ROOT)
             .findFirst()
             .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));

@@ -43,7 +43,7 @@ public class NIP02 extends EventNostr {
    * @param tag the pubkey tag
    */
   public NIP02 addContactTag(@NonNull BaseTag tag) {
-    if (!tag.getCode().equals(Constants.Tag.PUBKEY_CODE)) {
+    if (!(tag instanceof nostr.event.tag.PubKeyTag)) {
       throw new IllegalArgumentException("Tag must be a pubkey tag");
     }
     getEvent().addTag(tag);

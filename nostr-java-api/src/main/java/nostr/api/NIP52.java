@@ -18,7 +18,7 @@ import nostr.event.BaseTag;
 import nostr.event.entities.CalendarContent;
 import nostr.event.entities.CalendarRsvpContent;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
+import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams;
@@ -174,11 +174,7 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
-  public NIP52 addEventTag(@NonNull GenericTag eventTag) {
-    if (!Constants.Tag.EVENT_CODE.equals(eventTag.getCode())) { // Sanity check
-      throw new IllegalArgumentException("tag must be of type EventTag");
-    }
-
+  public NIP52 addEventTag(@NonNull EventTag eventTag) {
     addTag(eventTag);
     return this;
   }

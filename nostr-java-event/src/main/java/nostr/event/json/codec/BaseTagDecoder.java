@@ -15,6 +15,7 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
 
   private final Class<T> clazz;
 
+  // Generics are erased at runtime; BaseTag.class is the default concrete target for decoding
   @SuppressWarnings("unchecked")
   public BaseTagDecoder() {
     this.clazz = (Class<T>) BaseTag.class;

@@ -20,10 +20,10 @@ public class HideMessageEvent extends GenericEvent {
   }
 
   public String getHiddenMessageEventId() {
-    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
-        .findFirst()
-        .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."))
-        .getIdEvent();
+    EventTag eventTag =
+        nostr.event.filter.Filterable.requireTagOfType(
+            EventTag.class, this, "Missing or invalid `e` root tag.");
+    return eventTag.getIdEvent();
   }
 
   @Override

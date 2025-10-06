@@ -15,6 +15,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
   private final Class<T> clazz;
 
+  // Generics are erased at runtime; safe cast because decoder always produces the requested class
   @SuppressWarnings("unchecked")
   public GenericTagDecoder() {
     this((Class<T>) GenericTag.class);
@@ -32,6 +33,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
    * @throws EventEncodingException if decoding fails
    */
   @Override
+  // Generics are erased at runtime; safe cast because the created GenericTag matches T by contract
   @SuppressWarnings("unchecked")
   public T decode(@NonNull String json) throws EventEncodingException {
     try {
