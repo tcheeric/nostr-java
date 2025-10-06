@@ -1,14 +1,15 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.NIP05Event;
 import nostr.event.entities.UserProfile;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * @author squirrel
@@ -26,10 +27,13 @@ public final class InternetIdentifierMetadataEvent extends NIP05Event {
     this.setContent(content);
   }
 
-  @SneakyThrows
   public UserProfile getProfile() {
     String content = getContent();
-    return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
+    try {
+      return MAPPER_BLACKBIRD.readValue(content, UserProfile.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse user profile content", ex);
+    }
   }
 
   @Override

@@ -1,6 +1,7 @@
 package nostr.api;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.crypto.schnorr.Schnorr;
+import nostr.crypto.schnorr.SchnorrException;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.ReqMessage;
@@ -313,8 +315,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     try {
       var message = NostrUtil.sha256(event.get_serializedEvent());
       return Schnorr.verify(message, event.getPubKey().getRawData(), signature.getRawData());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 algorithm not available", e);
+    } catch (SchnorrException e) {
+      throw new IllegalStateException("Failed to verify Schnorr signature", e);
     }
   }
 
