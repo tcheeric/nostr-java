@@ -68,7 +68,6 @@ public class NIP61 extends EventNostr {
     return this;
   }
 
-  @SneakyThrows
   /**
    * Create a Nutzap event (kind 7374) from a structured payload.
    *
@@ -76,6 +75,7 @@ public class NIP61 extends EventNostr {
    * @param content optional human-readable content
    * @return this instance for chaining
    */
+  @SneakyThrows
   public NIP61 createNutzapEvent(@NonNull NutZap nutZap, @NonNull String content) {
 
     return createNutzapEvent(

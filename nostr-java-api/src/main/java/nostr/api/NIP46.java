@@ -17,11 +17,11 @@ import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
-@Slf4j
 /**
  * NIP-46 helpers (Nostr Connect). Build app requests and signer responses.
  * Spec: https://github.com/nostr-protocol/nips/blob/master/46.md
  */
+@Slf4j
 public final class NIP46 extends EventNostr {
 
   public NIP46(@NonNull Identity sender) {

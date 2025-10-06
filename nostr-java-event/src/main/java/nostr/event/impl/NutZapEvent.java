@@ -29,29 +29,23 @@ public class NutZapEvent extends GenericEvent {
     NutZap nutZap = new NutZap();
 
     EventTag zappedEvent =
-        getTags().stream()
-            .filter(tag -> tag instanceof EventTag)
-            .map(tag -> (EventTag) tag)
+        nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
             .findFirst()
             .orElse(null);
 
     List<GenericTag> proofs =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "proof".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .toList();
 
     PubKeyTag recipientTag =
-        getTags().stream()
-            .filter(tag -> tag instanceof PubKeyTag)
-            .map(tag -> (PubKeyTag) tag)
+        nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No PubKeyTag found in tags"));
 
     GenericTag mintTag =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "u".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No mint tag found in tags"));
 

@@ -29,6 +29,7 @@ public class EmojiTag extends BaseTag {
   @JsonProperty("image-url")
   private String url;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     EmojiTag tag = new EmojiTag();
     setRequiredField(node.get(1), (n, t) -> tag.setShortcode(n.asText()), tag);

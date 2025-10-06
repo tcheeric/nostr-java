@@ -39,34 +39,56 @@ public class ClassifiedListingEvent extends NIP99Event {
   }
 
   public Instant getPublishedAt() {
-    BaseTag publishedAtTag = getTag("published_at");
-    return Instant.ofEpochSecond(
-        Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).value().toString()));
+    var tag =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+            GenericTag.class, "published_at", this);
+    return Instant.ofEpochSecond(Long.parseLong(tag.getAttributes().get(0).value().toString()));
   }
 
   public String getLocation() {
-    BaseTag locationTag = getTag("location");
-    return ((GenericTag) locationTag).getAttributes().get(0).value().toString();
+    return nostr.event.filter.Filterable
+        .requireTagOfTypeWithCode(GenericTag.class, "location", this)
+        .getAttributes()
+        .get(0)
+        .value()
+        .toString();
   }
 
   public String getTitle() {
-    BaseTag titleTag = getTag("title");
-    return ((GenericTag) titleTag).getAttributes().get(0).value().toString();
+    return nostr.event.filter.Filterable
+        .requireTagOfTypeWithCode(GenericTag.class, "title", this)
+        .getAttributes()
+        .get(0)
+        .value()
+        .toString();
   }
 
   public String getSummary() {
-    BaseTag summaryTag = getTag("summary");
-    return ((GenericTag) summaryTag).getAttributes().get(0).value().toString();
+    return nostr.event.filter.Filterable
+        .requireTagOfTypeWithCode(GenericTag.class, "summary", this)
+        .getAttributes()
+        .get(0)
+        .value()
+        .toString();
   }
 
   public String getImage() {
-    BaseTag imageTag = getTag("image");
-    return ((GenericTag) imageTag).getAttributes().get(0).value().toString();
+    return nostr.event.filter.Filterable
+        .requireTagOfTypeWithCode(GenericTag.class, "image", this)
+        .getAttributes()
+        .get(0)
+        .value()
+        .toString();
   }
 
   public Status getStatus() {
-    BaseTag statusTag = getTag("status");
-    String status = ((GenericTag) statusTag).getAttributes().get(0).value().toString();
+    String status =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "status", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
     return Status.valueOf(status);
   }
 
@@ -86,38 +108,47 @@ public class ClassifiedListingEvent extends NIP99Event {
     super.validateTags();
 
     // Validate published_at
-    BaseTag publishedAtTag = getTag("published_at");
-    if (publishedAtTag == null) {
-      throw new AssertionError("Missing `published_at` tag for the publication date/time.");
-    }
     try {
-      Long.parseLong(((GenericTag) publishedAtTag).getAttributes().get(0).value().toString());
+      Long.parseLong(
+          nostr.event.filter.Filterable
+              .requireTagOfTypeWithCode(GenericTag.class, "published_at", this)
+              .getAttributes()
+              .get(0)
+              .value()
+              .toString());
+    } catch (java.util.NoSuchElementException e) {
+      throw new AssertionError("Missing `published_at` tag for the publication date/time.");
     } catch (NumberFormatException e) {
       throw new AssertionError("Invalid `published_at` tag value: must be a numeric timestamp.");
     }
 
     // Validate location
-    if (getTag("location") == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "location", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `location` tag for the listing location.");
     }
 
     // Validate title
-    if (getTag("title") == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "title", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `title` tag for the listing title.");
     }
 
     // Validate summary
-    if (getTag("summary") == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "summary", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `summary` tag for the listing summary.");
     }
 
     // Validate image
-    if (getTag("image") == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "image", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `image` tag for the listing image.");
     }
 
     // Validate status
-    if (getTag("status") == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "status", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `status` tag for the listing status.");
     }
   }

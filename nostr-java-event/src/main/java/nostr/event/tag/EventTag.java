@@ -43,6 +43,7 @@ public class EventTag extends BaseTag {
     this.idEvent = idEvent;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     EventTag tag = new EventTag();
     setRequiredField(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);

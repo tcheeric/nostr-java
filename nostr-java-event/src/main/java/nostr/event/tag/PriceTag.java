@@ -32,6 +32,7 @@ public class PriceTag extends BaseTag {
 
   @Key @JsonProperty private String frequency;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     PriceTag tag = new PriceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setNumber(new BigDecimal(n.asText())), tag);

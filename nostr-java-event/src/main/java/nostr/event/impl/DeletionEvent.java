@@ -38,14 +38,19 @@ public class DeletionEvent extends NIP09Event {
     }
 
     boolean hasEventOrAuthorTag =
-        this.getTags().stream()
-            .anyMatch(tag -> tag instanceof EventTag || tag.getCode().equals("a"));
+        !nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).isEmpty()
+            || nostr.event.filter.Filterable
+                .firstTagOfTypeWithCode(nostr.event.tag.AddressTag.class, "a", this)
+                .isPresent();
     if (!hasEventOrAuthorTag) {
       throw new AssertionError("Invalid `tags`: Must include at least one `e` or `a` tag.");
     }
 
     // Validate `tags` field for `KindTag` (`k` tag)
-    boolean hasKindTag = this.getTags().stream().anyMatch(tag -> tag.getCode().equals("k"));
+    boolean hasKindTag =
+        nostr.event.filter.Filterable
+            .firstTagOfTypeWithCode(nostr.event.tag.GenericTag.class, "k", this)
+            .isPresent();
     if (!hasKindTag) {
       throw new AssertionError(
           "Invalid `tags`: Should include a `k` tag for the kind of each event being requested for"

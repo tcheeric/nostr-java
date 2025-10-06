@@ -22,6 +22,7 @@ public class VoteTag extends BaseTag {
 
   @Key @JsonProperty private Integer vote;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     VoteTag tag = new VoteTag();
     setRequiredField(node.get(1), (n, t) -> tag.setVote(n.asInt()), tag);

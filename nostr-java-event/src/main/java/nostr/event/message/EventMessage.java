@@ -69,10 +69,14 @@ public class EventMessage extends BaseMessage {
     }
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
+  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object o) {
     return (T) new EventMessage(convertValue((Map<String, String>) o));
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
+  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object[] msgArr) {
     return (T)
         new EventMessage(convertValue((Map<String, String>) msgArr[2]), msgArr[1].toString());

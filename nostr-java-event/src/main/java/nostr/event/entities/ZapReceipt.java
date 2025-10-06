@@ -9,8 +9,7 @@ import nostr.event.JsonContent;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ZapReceipt implements JsonContent {
-  // @JsonIgnore
-  // private String id;
+  
 
   @JsonProperty private String bolt11;
 

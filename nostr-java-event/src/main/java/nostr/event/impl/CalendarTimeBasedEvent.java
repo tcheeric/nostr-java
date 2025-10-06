@@ -54,14 +54,36 @@ public class CalendarTimeBasedEvent<T extends BaseTag> extends CalendarDateBased
 
     // Update the calendarContent object with the values from the tags
     calendarContent.setStartTzid(
-        ((GenericTag) getTag("start_tzid")).getAttributes().get(0).value().toString());
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "start_tzid", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString());
     calendarContent.setEndTzid(
-        ((GenericTag) getTag("end_tzid")).getAttributes().get(0).value().toString());
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "end_tzid", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString());
     calendarContent.setSummary(
-        ((GenericTag) getTag("summary")).getAttributes().get(0).value().toString());
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "summary", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString());
     calendarContent.setLocation(
-        ((GenericTag) getTag("location")).getAttributes().get(0).value().toString());
-    getTags("l").forEach(baseTag -> calendarContent.addLabelTag((LabelTag) baseTag));
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "location", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString());
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(LabelTag.class, this)
+        .forEach(calendarContent::addLabelTag);
 
     return calendarContent;
   }

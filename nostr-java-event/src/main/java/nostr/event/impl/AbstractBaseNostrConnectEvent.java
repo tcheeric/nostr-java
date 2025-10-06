@@ -14,16 +14,18 @@ public abstract class AbstractBaseNostrConnectEvent extends EphemeralEvent {
   }
 
   public PublicKey getActor() {
-    return ((PubKeyTag) getTag("p")).getPublicKey();
+    var pTag =
+        nostr.event.filter.Filterable.requireTagOfType(
+            PubKeyTag.class, this, "Invalid `tags`: missing PubKeyTag (p)");
+    return pTag.getPublicKey();
   }
 
   public void validate() {
     super.validate();
 
     // 1. p - tag validation
-    getTags().stream()
-        .filter(tag -> tag instanceof PubKeyTag)
-        .findFirst()
+    nostr.event.filter.Filterable
+        .firstTagOfType(PubKeyTag.class, this)
         .orElseThrow(
             () -> new AssertionError("Invalid `tags`: Must include at least one valid PubKeyTag."));
   }

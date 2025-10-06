@@ -54,6 +54,7 @@ public class PubKeyTag extends BaseTag {
     this.petName = petName;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     PubKeyTag tag = new PubKeyTag();
     setRequiredField(node.get(1), (n, t) -> tag.setPublicKey(new PublicKey(n.asText())), tag);

@@ -25,7 +25,6 @@ public class SpringWebSocketClient implements AutoCloseable {
     this.relayUrl = relayUrl;
   }
 
-  @NostrRetryable
   /**
    * Sends the provided {@link BaseMessage} over the WebSocket connection.
    *
@@ -33,6 +32,7 @@ public class SpringWebSocketClient implements AutoCloseable {
    * @return the list of responses from the relay
    * @throws IOException if an I/O error occurs while sending the message
    */
+  @NostrRetryable
   public List<String> send(@NonNull BaseMessage eventMessage) throws IOException {
     String json = eventMessage.encode();
     log.debug(

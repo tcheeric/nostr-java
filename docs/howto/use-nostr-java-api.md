@@ -12,7 +12,7 @@ Add the API module to your project:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>0.5.1</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 

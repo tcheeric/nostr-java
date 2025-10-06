@@ -17,8 +17,7 @@ import nostr.event.tag.PubKeyTag;
 @JsonDeserialize(builder = CalendarRsvpContentBuilder.class)
 @EqualsAndHashCode(callSuper = false)
 public class CalendarRsvpContent extends NIP42Content {
-  // @JsonProperty
-  // private final String id;
+  
 
   // below fields mandatory
   @Getter private final IdentifierTag identifierTag;

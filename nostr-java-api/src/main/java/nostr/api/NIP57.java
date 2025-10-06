@@ -93,7 +93,7 @@ public class NIP57 extends EventNostr {
       GenericEvent zappedEvent,
       BaseTag addressTag) {
 
-    if (!relaysTags.getCode().equals(Constants.Tag.RELAYS_CODE)) {
+    if (!(relaysTags instanceof RelaysTag)) {
       throw new IllegalArgumentException("tag must be of type RelaysTag");
     }
 
@@ -113,7 +113,7 @@ public class NIP57 extends EventNostr {
     }
 
     if (addressTag != null) {
-      if (!addressTag.getCode().equals(Constants.Tag.ADDRESS_CODE)) { // Sanity check
+      if (!(addressTag instanceof nostr.event.tag.AddressTag)) { // Sanity check
         throw new IllegalArgumentException("Address tag must be of type AddressTag");
       }
       genericEvent.addTag(addressTag);
@@ -175,7 +175,6 @@ public class NIP57 extends EventNostr {
         null);
   }
 
-  @SneakyThrows
   /**
    * Create a zap receipt event (kind 9735) acknowledging a zap payment.
    *
@@ -185,6 +184,7 @@ public class NIP57 extends EventNostr {
    * @param zapRecipient the zap recipient pubkey (p-tag)
    * @return this instance for chaining
    */
+  @SneakyThrows
   public NIP57 createZapReceiptEvent(
       @NonNull GenericEvent zapRequestEvent,
       @NonNull String bolt11,
@@ -205,16 +205,11 @@ public class NIP57 extends EventNostr {
     genericEvent.addTag(createZapSenderPubKeyTag(zapRequestEvent.getPubKey()));
     genericEvent.addTag(NIP01.createEventTag(zapRequestEvent.getId()));
 
-    GenericTag addressTag =
-        (GenericTag)
-            zapRequestEvent.getTags().stream()
-                .filter(tag -> tag.getCode().equals(Constants.Tag.ADDRESS_CODE))
-                .findFirst()
-                .orElse(null);
-
-    if (addressTag != null) {
-      genericEvent.addTag(addressTag);
-    }
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(nostr.event.tag.AddressTag.class, zapRequestEvent)
+        .stream()
+        .findFirst()
+        .ifPresent(genericEvent::addTag);
 
     genericEvent.setCreatedAt(zapRequestEvent.getCreatedAt());
 

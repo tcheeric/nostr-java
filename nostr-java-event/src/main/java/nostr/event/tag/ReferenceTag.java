@@ -38,6 +38,7 @@ public class ReferenceTag extends BaseTag {
     this.uri = uri;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     ReferenceTag tag = new ReferenceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setUri(URI.create(n.asText())), tag);

@@ -58,6 +58,8 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
     }
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
     GenericMessage gm = new GenericMessage(msgArr[0].toString());
     for (int i = 1; i < msgArr.length; i++) {

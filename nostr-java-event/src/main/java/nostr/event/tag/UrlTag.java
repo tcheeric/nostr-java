@@ -22,6 +22,7 @@ public class UrlTag extends BaseTag {
   @JsonProperty("u")
   private String url;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     UrlTag tag = new UrlTag();
     setRequiredField(node.get(1), (n, t) -> tag.setUrl(n.asText()), tag);

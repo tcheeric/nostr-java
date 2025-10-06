@@ -253,11 +253,13 @@ public class Bech32 {
         result.add((byte) ((acc >> bits) & ((1 << toWidth) - 1)));
       }
     }
+    int mask = (1 << toWidth) - 1;
     if (pad) {
       if (bits > 0) {
-        result.add((byte) ((acc << (toWidth - bits)) & ((1 << toWidth) - 1)));
+        int partial = (acc << (toWidth - bits)) & mask;
+        result.add((byte) partial);
       }
-    } else if (bits == fromWidth || ((acc << (toWidth - bits)) & ((1 << toWidth) - 1)) != 0) {
+    } else if (bits == fromWidth || ((acc << (toWidth - bits)) & mask) != 0) {
       return null;
     }
     byte[] output = new byte[result.size()];

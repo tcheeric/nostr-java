@@ -15,6 +15,7 @@ public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> 
 
   private final Class<T> clazz;
 
+  @SuppressWarnings("unchecked")
   public Nip05ContentDecoder() {
     this.clazz = (Class<T>) Nip05Content.class;
   }

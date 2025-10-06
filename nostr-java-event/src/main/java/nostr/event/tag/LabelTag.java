@@ -30,6 +30,7 @@ public class LabelTag extends BaseTag {
     this(label, labelNamespaceTag.getNameSpace());
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     LabelTag tag = new LabelTag();
     setRequiredField(node.get(1), (n, t) -> tag.setLabel(n.asText()), tag);

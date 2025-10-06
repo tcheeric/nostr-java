@@ -29,6 +29,7 @@ public final class SubjectTag extends BaseTag {
   @JsonProperty("subject")
   private String subject;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     SubjectTag tag = new SubjectTag();
     setOptionalField(node.get(1), (n, t) -> tag.setSubject(n.asText()), tag);

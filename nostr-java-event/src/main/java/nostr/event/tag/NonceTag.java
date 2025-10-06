@@ -36,6 +36,7 @@ public class NonceTag extends BaseTag {
     this.difficulty = difficulty;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     NonceTag tag = new NonceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setNonce(n.asInt()), tag);

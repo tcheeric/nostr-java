@@ -34,7 +34,8 @@ public class DirectMessageEvent extends NIP04Event {
     super.validateTags();
 
     // Validate `tags` field for recipient's public key
-    boolean hasRecipientTag = this.getTags().stream().anyMatch(tag -> tag instanceof PubKeyTag);
+    boolean hasRecipientTag =
+        !nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).isEmpty();
     if (!hasRecipientTag) {
       throw new AssertionError("Invalid `tags`: Must include a PubKeyTag for the recipient.");
     }

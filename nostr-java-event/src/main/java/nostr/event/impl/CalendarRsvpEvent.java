@@ -90,17 +90,27 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
   protected CalendarRsvpContent getCalendarContent() {
     CalendarRsvpContent calendarRsvpContent =
         CalendarRsvpContent.builder(
-                (IdentifierTag) getTag("d"),
-                (AddressTag) getTag("a"),
-                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString())
+                nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+                    IdentifierTag.class, "d", this),
+                nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+                    AddressTag.class, "a", this),
+                nostr.event.filter.Filterable
+                    .requireTagOfTypeWithCode(GenericTag.class, "status", this)
+                    .getAttributes()
+                    .get(0)
+                    .value()
+                    .toString())
             .build();
 
-    Optional.ofNullable(getTag("e"))
-        .ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));
+    nostr.event.filter.Filterable
+        .firstTagOfType(EventTag.class, this)
+        .ifPresent(calendarRsvpContent::setEventTag);
+    // FB tag is encoded as a generic tag with code 'fb'
     Optional.ofNullable(getTag("fb"))
         .ifPresent(baseTag -> calendarRsvpContent.setFbTag((GenericTag) baseTag));
-    Optional.ofNullable(getTag("p"))
-        .ifPresent(baseTag -> calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) baseTag));
+    nostr.event.filter.Filterable
+        .firstTagOfType(PubKeyTag.class, this)
+        .ifPresent(calendarRsvpContent::setAuthorPubKeyTag);
 
     return calendarRsvpContent;
   }

@@ -25,10 +25,7 @@ public class CashuWallet {
 
   @EqualsAndHashCode.Include private String privateKey;
 
-  /*
-      @EqualsAndHashCode.Include
-      private String unit;
-  */
+  
   private Set<CashuMint> mints;
   private Map<String, Set<Relay>> relays;
   private Set<CashuToken> tokens;

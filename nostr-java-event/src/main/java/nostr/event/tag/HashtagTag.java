@@ -27,6 +27,7 @@ public class HashtagTag extends BaseTag {
   @JsonProperty("t")
   private String hashTag;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     HashtagTag tag = new HashtagTag();
     setRequiredField(node.get(1), (n, t) -> tag.setHashTag(n.asText()), tag);

@@ -79,7 +79,7 @@ public abstract class EventNostr extends NostrSpringWebSocketClient {
    * @param relays relay map (name -> URI)
    */
   public <U extends BaseMessage> U signAndSend(Map<String, String> relays) {
-    return (U) sign().send(relays);
+    return sign().send(relays);
   }
 
   /**

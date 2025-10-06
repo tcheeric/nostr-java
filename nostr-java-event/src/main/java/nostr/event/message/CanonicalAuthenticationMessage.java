@@ -51,6 +51,7 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
 
   @SneakyThrows
   // TODO - This needs to be reviewed
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Map map) {
     var event = I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {});
 

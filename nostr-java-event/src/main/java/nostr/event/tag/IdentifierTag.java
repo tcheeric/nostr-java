@@ -25,6 +25,7 @@ public class IdentifierTag extends BaseTag {
 
   @Key @JsonProperty private String uuid;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     IdentifierTag tag = new IdentifierTag();
     setRequiredField(node.get(1), (n, t) -> tag.setUuid(n.asText()), tag);
