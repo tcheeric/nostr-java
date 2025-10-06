@@ -47,19 +47,21 @@ public class CalendarEvent extends AbstractBaseCalendarEvent<JsonContent> {
   @Override
   protected CalendarContent<BaseTag> getCalendarContent() {
 
-    BaseTag identifierTag = getTag("d");
-    BaseTag titleTag = getTag("title");
+    IdentifierTag idTag =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(IdentifierTag.class, "d", this);
+    String title =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "title", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
 
-    CalendarContent<BaseTag> calendarContent =
-        new CalendarContent<>(
-            (IdentifierTag) identifierTag,
-            ((GenericTag) titleTag).getAttributes().get(0).value().toString(),
-            -1L);
+    CalendarContent<BaseTag> calendarContent = new CalendarContent<>(idTag, title, -1L);
 
-    List<BaseTag> aTags = getTags("a");
-
-    Optional.ofNullable(aTags)
-        .ifPresent(tags -> tags.forEach(aTag -> calendarContent.addAddressTag((AddressTag) aTag)));
+    nostr.event.filter.Filterable
+        .getTypeSpecificTags(AddressTag.class, this)
+        .forEach(calendarContent::addAddressTag);
 
     return calendarContent;
   }
@@ -69,13 +71,13 @@ public class CalendarEvent extends AbstractBaseCalendarEvent<JsonContent> {
     super.validateTags();
 
     // Validate required tags ("d", "title")
-    BaseTag dTag = getTag("d");
-    if (dTag == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(IdentifierTag.class, "d", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `d` tag for the event identifier.");
     }
 
-    BaseTag titleTag = getTag("title");
-    if (titleTag == null) {
+    if (nostr.event.filter.Filterable.firstTagOfTypeWithCode(GenericTag.class, "title", this)
+        .isEmpty()) {
       throw new AssertionError("Missing `title` tag for the event title.");
     }
   }

@@ -60,7 +60,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
    <dependency>
        <groupId>xyz.tcheeric</groupId>
        <artifactId>nostr-java-api</artifactId>
-       <version>0.5.1</version>
+       <version>0.6.0</version>
    </dependency>
    ```
 
@@ -77,7 +77,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
        <dependency>
            <groupId>xyz.tcheeric</groupId>
            <artifactId>nostr-java-api</artifactId>
-           <version>0.5.1</version>
+           <version>0.6.0</version>
        </dependency>
    </dependencies>
    ```

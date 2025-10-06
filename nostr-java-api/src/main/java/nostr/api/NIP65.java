@@ -28,6 +28,7 @@ public class NIP65 extends EventNostr {
    * @param relayList the list of relays to include
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(@NonNull List<Relay> relayList) {
     List<BaseTag> relayUrlTags = relayList.stream().map(relay -> createRelayUrlTag(relay)).toList();
     GenericEvent genericEvent =
@@ -45,6 +46,7 @@ public class NIP65 extends EventNostr {
    * @param permission the marker indicating read/write preference
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(
       @NonNull List<Relay> relayList, @NonNull Marker permission) {
     List<BaseTag> relayUrlTags =
@@ -63,6 +65,7 @@ public class NIP65 extends EventNostr {
    * @param relayMarkerMap map from relay to permission marker
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(@NonNull Map<Relay, Marker> relayMarkerMap) {
     List<BaseTag> relayUrlTags = new ArrayList<>();
     for (Map.Entry<Relay, Marker> entry : relayMarkerMap.entrySet()) {

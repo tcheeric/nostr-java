@@ -28,6 +28,7 @@ public class ExpirationTag extends BaseTag {
 
   @Key @JsonProperty private Integer expiration;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     ExpirationTag tag = new ExpirationTag();
     setRequiredField(node.get(1), (n, t) -> tag.setExpiration(Integer.valueOf(n.asText())), tag);

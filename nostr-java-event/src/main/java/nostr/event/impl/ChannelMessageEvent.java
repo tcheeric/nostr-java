@@ -24,9 +24,7 @@ public class ChannelMessageEvent extends GenericEvent {
   }
 
   public String getChannelCreateEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
         .filter(tag -> tag.getMarker() == Marker.ROOT)
         .map(EventTag::getIdEvent)
         .findFirst()
@@ -34,9 +32,7 @@ public class ChannelMessageEvent extends GenericEvent {
   }
 
   public String getChannelMessageReplyEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
         .filter(tag -> tag.getMarker() == Marker.REPLY)
         .map(EventTag::getIdEvent)
         .findFirst()
@@ -44,9 +40,7 @@ public class ChannelMessageEvent extends GenericEvent {
   }
 
   public Relay getRootRecommendedRelay() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
         .filter(tag -> tag.getMarker() == Marker.ROOT)
         .map(EventTag::getRecommendedRelayUrl)
         .map(Relay::new)
@@ -55,9 +49,7 @@ public class ChannelMessageEvent extends GenericEvent {
   }
 
   public Relay getReplyRecommendedRelay(@NonNull String eventId) {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
         .filter(tag -> tag.getMarker() == Marker.REPLY && tag.getIdEvent().equals(eventId))
         .map(EventTag::getRecommendedRelayUrl)
         .map(Relay::new)
@@ -70,9 +62,7 @@ public class ChannelMessageEvent extends GenericEvent {
 
     // Check 'e' root - tag
     EventTag rootTag =
-        getTags().stream()
-            .filter(tag -> "e".equals(tag.getCode()))
-            .map(tag -> (EventTag) tag)
+        nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
             .filter(tag -> tag.getMarker() == Marker.ROOT)
             .findFirst()
             .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));

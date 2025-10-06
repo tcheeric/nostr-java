@@ -27,14 +27,12 @@ public final class MentionsEvent extends GenericEvent {
   public void update() {
     AtomicInteger counter = new AtomicInteger(0);
 
-    // TODO - Refactor with the EntityAttributeUtil class
-    getTags()
+    // Replace mentioned pubkeys with positional references, only iterating PubKeyTag entries
+    nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this)
         .forEach(
             tag -> {
               String replacement = "#[" + counter.getAndIncrement() + "]";
-              setContent(
-                  this.getContent()
-                      .replace(((PubKeyTag) tag).getPublicKey().toString(), replacement));
+              setContent(this.getContent().replace(tag.getPublicKey().toString(), replacement));
             });
 
     super.update();
@@ -45,7 +43,8 @@ public final class MentionsEvent extends GenericEvent {
     super.validateTags();
 
     // Validate `tags` field for at least one PubKeyTag
-    boolean hasValidPubKeyTag = this.getTags().stream().anyMatch(tag -> tag instanceof PubKeyTag);
+    boolean hasValidPubKeyTag =
+        !nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).isEmpty();
     if (!hasValidPubKeyTag) {
       throw new AssertionError("Invalid `tags`: Must include at least one valid PubKeyTag.");
     }

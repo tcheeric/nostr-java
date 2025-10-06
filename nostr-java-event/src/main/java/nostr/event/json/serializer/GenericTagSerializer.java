@@ -8,6 +8,8 @@ public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSeria
 
   @Serial private static final long serialVersionUID = -5318614324350049034L;
 
+  // Generics are erased at runtime; serializer is intentionally bound to GenericTag.class
+  @SuppressWarnings("unchecked")
   public GenericTagSerializer() {
     super((Class<T>) GenericTag.class);
   }

@@ -29,6 +29,7 @@ public class NIP02 extends EventNostr {
    * @param pubKeyTags the list of {@code p} tags representing contacts and optional relay/petname
    * @return this instance for chaining
    */
+  @SuppressWarnings("rawtypes")
   public NIP02 createContactListEvent(List<BaseTag> pubKeyTags) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Constants.Kind.CONTACT_LIST, pubKeyTags, "").create();
@@ -42,7 +43,7 @@ public class NIP02 extends EventNostr {
    * @param tag the pubkey tag
    */
   public NIP02 addContactTag(@NonNull BaseTag tag) {
-    if (!tag.getCode().equals(Constants.Tag.PUBKEY_CODE)) {
+    if (!(tag instanceof nostr.event.tag.PubKeyTag)) {
       throw new IllegalArgumentException("Tag must be a pubkey tag");
     }
     getEvent().addTag(tag);

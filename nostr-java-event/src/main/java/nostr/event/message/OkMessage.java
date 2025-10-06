@@ -45,6 +45,8 @@ public class OkMessage extends BaseMessage {
     }
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull String jsonString)
       throws EventEncodingException {
     try {

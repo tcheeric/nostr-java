@@ -22,6 +22,7 @@ public class LabelNamespaceTag extends BaseTag {
   @JsonProperty("L")
   private String nameSpace;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     LabelNamespaceTag tag = new LabelNamespaceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setNameSpace(n.asText()), tag);

@@ -80,13 +80,13 @@ public class NIP44 extends EventNostr {
   }
 
   private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
-    var pTag =
-        event.getTags().stream()
-            .filter(t -> t.getCode().equalsIgnoreCase("p"))
+    // Use helper to fetch the p-tag without manual casts
+    PubKeyTag pTag =
+        Filterable.getTypeSpecificTags(PubKeyTag.class, event).stream()
             .findFirst()
             .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
-    if (Objects.equals(recipient.getPublicKey(), ((PubKeyTag) pTag).getPublicKey())) {
+    if (Objects.equals(recipient.getPublicKey(), pTag.getPublicKey())) {
       return true;
     }
 

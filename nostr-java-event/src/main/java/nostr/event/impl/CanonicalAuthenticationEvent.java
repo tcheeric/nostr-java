@@ -23,19 +23,19 @@ public class CanonicalAuthenticationEvent extends EphemeralEvent {
   }
 
   public String getChallenge() {
-    BaseTag challengeTag = getTag("challenge");
-    if (challengeTag != null && !((GenericTag) challengeTag).getAttributes().isEmpty()) {
-      return ((GenericTag) challengeTag).getAttributes().get(0).value().toString();
-    }
-    return null;
+    return nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "challenge", this)
+        .filter(tag -> !tag.getAttributes().isEmpty())
+        .map(tag -> tag.getAttributes().get(0).value().toString())
+        .orElse(null);
   }
 
   public Relay getRelay() {
-    BaseTag relayTag = getTag("relay");
-    if (relayTag != null && !((GenericTag) relayTag).getAttributes().isEmpty()) {
-      return new Relay(((GenericTag) relayTag).getAttributes().get(0).value().toString());
-    }
-    return null;
+    return nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "relay", this)
+        .filter(tag -> !tag.getAttributes().isEmpty())
+        .map(tag -> new Relay(tag.getAttributes().get(0).value().toString()))
+        .orElse(null);
   }
 
   @Override
@@ -43,16 +43,16 @@ public class CanonicalAuthenticationEvent extends EphemeralEvent {
     super.validateTags();
 
     // Check 'challenge' tag
-    BaseTag challengeTag = getTag("challenge");
-    if (challengeTag == null || ((GenericTag) challengeTag).getAttributes().isEmpty()) {
-      throw new AssertionError("Missing or invalid `challenge` tag.");
-    }
+    nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "challenge", this)
+        .filter(tag -> !tag.getAttributes().isEmpty())
+        .orElseThrow(() -> new AssertionError("Missing or invalid `challenge` tag."));
 
     // Check 'relay' tag
-    BaseTag relayTag = getTag("relay");
-    if (relayTag == null || ((GenericTag) relayTag).getAttributes().isEmpty()) {
-      throw new AssertionError("Missing or invalid `relay` tag.");
-    }
+    nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "relay", this)
+        .filter(tag -> !tag.getAttributes().isEmpty())
+        .orElseThrow(() -> new AssertionError("Missing or invalid `relay` tag."));
   }
 
   @Override

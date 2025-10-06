@@ -8,7 +8,7 @@ import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.entities.NIP15Content;
-import nostr.event.tag.GenericTag;
+import nostr.event.tag.IdentifierTag;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -31,12 +31,9 @@ public abstract class MerchantEvent<T extends NIP15Content.MerchantContent>
     super.validateTags();
 
     // Check 'd' tag
-    BaseTag dTag = getTag("d");
-    if (dTag == null) {
-      throw new AssertionError("Missing `d` tag.");
-    }
-
-    String id = ((GenericTag) dTag).getAttributes().getFirst().value().toString();
+    IdentifierTag idTag =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(IdentifierTag.class, "d", this);
+    String id = idTag.getUuid();
     String entityId = getEntity().getId();
     if (!id.equals(entityId)) {
       throw new AssertionError("The d-tag value MUST be the same as the stall id.");

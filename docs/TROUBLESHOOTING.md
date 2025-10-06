@@ -89,7 +89,7 @@ Exclude conflicting transitive dependencies if needed:
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java-api</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
     <exclusions>
         <exclusion>
             <groupId>conflicting-group</groupId>

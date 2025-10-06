@@ -44,6 +44,7 @@ public class NIP01 extends EventNostr {
    * @param content the content of the note
    * @return the text note without tags
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(String content) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, content).create();
@@ -52,6 +53,7 @@ public class NIP01 extends EventNostr {
   }
 
   @Deprecated
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(Identity sender, String content) {
     GenericEvent genericEvent =
         new GenericEventFactory(sender, Constants.Kind.SHORT_TEXT_NOTE, content).create();
@@ -99,6 +101,7 @@ public class NIP01 extends EventNostr {
    * @param content the content of the note
    * @return a text note event
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createTextNoteEvent(@NonNull List<BaseTag> tags, @NonNull String content) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Constants.Kind.SHORT_TEXT_NOTE, tags, content)
@@ -107,6 +110,7 @@ public class NIP01 extends EventNostr {
     return this;
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createMetadataEvent(@NonNull UserProfile profile) {
     var sender = getSender();
     GenericEvent genericEvent =
@@ -124,6 +128,7 @@ public class NIP01 extends EventNostr {
    * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
    * @param content the content
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createReplaceableEvent(Integer kind, String content) {
     var sender = getSender();
     GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
@@ -138,6 +143,7 @@ public class NIP01 extends EventNostr {
    * @param kind the kind (10000 <= kind < 20000 || kind == 0 || kind == 3)
    * @param content the note's content
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
     var sender = getSender();
     GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
@@ -152,6 +158,7 @@ public class NIP01 extends EventNostr {
    * @param tags the note's tags
    * @param content the note's content
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
     var sender = getSender();
     GenericEvent genericEvent = new GenericEventFactory(sender, kind, tags, content).create();
@@ -165,6 +172,7 @@ public class NIP01 extends EventNostr {
    * @param kind the kind (20000 <= n < 30000)
    * @param content the note's content
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createEphemeralEvent(Integer kind, String content) {
     var sender = getSender();
     GenericEvent genericEvent = new GenericEventFactory(sender, kind, content).create();
@@ -179,6 +187,7 @@ public class NIP01 extends EventNostr {
    * @param content the event's content/comment
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP01 createAddressableEvent(Integer kind, String content) {
     GenericEvent genericEvent = new GenericEventFactory(getSender(), kind, content).create();
     this.updateEvent(genericEvent);
@@ -343,7 +352,7 @@ public class NIP01 extends EventNostr {
    */
   public static BaseTag createAddressTag(
       @NonNull Integer kind, @NonNull PublicKey publicKey, BaseTag idTag, Relay relay) {
-    if (idTag != null && !idTag.getCode().equals(Constants.Tag.IDENTITY_CODE)) {
+    if (idTag != null && !(idTag instanceof nostr.event.tag.IdentifierTag)) {
       throw new IllegalArgumentException("idTag must be an identifier tag");
     }
 
