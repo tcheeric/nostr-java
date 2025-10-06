@@ -26,15 +26,15 @@ public class Schnorr {
    * @return 64-byte signature (R || s)
    * @throws Exception if inputs are invalid or signing fails
    */
-  public static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand) throws Exception {
+  public static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand) throws SchnorrException {
     if (msg.length != 32) {
-      throw new Exception("The message must be a 32-byte array.");
+      throw new SchnorrException("The message must be a 32-byte array.");
     }
     BigInteger secKey0 = NostrUtil.bigIntFromBytes(secKey);
 
     if (!(BigInteger.ONE.compareTo(secKey0) <= 0
         && secKey0.compareTo(Point.getn().subtract(BigInteger.ONE)) <= 0)) {
-      throw new Exception("The secret key must be an integer in the range 1..n-1.");
+      throw new SchnorrException("The secret key must be an integer in the range 1..n-1.");
     }
     Point P = Point.mul(Point.getG(), secKey0);
     if (!P.hasEvenY()) {
@@ -56,7 +56,7 @@ public class Schnorr {
     BigInteger k0 =
         NostrUtil.bigIntFromBytes(Point.taggedHash("BIP0340/nonce", buf)).mod(Point.getn());
     if (k0.compareTo(BigInteger.ZERO) == 0) {
-      throw new Exception("Failure. This happens only with negligible probability.");
+      throw new SchnorrException("Failure. This happens only with negligible probability.");
     }
     Point R = Point.mul(Point.getG(), k0);
     BigInteger k;
@@ -83,7 +83,7 @@ public class Schnorr {
         R.toBytes().length,
         NostrUtil.bytesFromBigInteger(kes).length);
     if (!verify(msg, P.toBytes(), sig)) {
-      throw new Exception("The signature does not pass verification.");
+      throw new SchnorrException("The signature does not pass verification.");
     }
     return sig;
   }
@@ -97,17 +97,17 @@ public class Schnorr {
    * @return true if the signature is valid; false otherwise
    * @throws Exception if inputs are invalid
    */
-  public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws Exception {
+  public static boolean verify(byte[] msg, byte[] pubkey, byte[] sig) throws SchnorrException {
 
     if (msg.length != 32) {
-      throw new Exception("The message must be a 32-byte array.");
+      throw new SchnorrException("The message must be a 32-byte array.");
     }
 
     if (pubkey.length != 32) {
-      throw new Exception("The public key must be a 32-byte array.");
+      throw new SchnorrException("The public key must be a 32-byte array.");
     }
     if (sig.length != 64) {
-      throw new Exception("The signature must be a 64-byte array.");
+      throw new SchnorrException("The signature must be a 64-byte array.");
     }
 
     Point P = Point.liftX(pubkey);
@@ -151,11 +151,11 @@ public class Schnorr {
     }
   }
 
-  public static byte[] genPubKey(byte[] secKey) throws Exception {
+  public static byte[] genPubKey(byte[] secKey) throws SchnorrException {
     BigInteger x = NostrUtil.bigIntFromBytes(secKey);
     if (!(BigInteger.ONE.compareTo(x) <= 0
         && x.compareTo(Point.getn().subtract(BigInteger.ONE)) <= 0)) {
-      throw new Exception("The secret key must be an integer in the range 1..n-1.");
+      throw new SchnorrException("The secret key must be an integer in the range 1..n-1.");
     }
     Point ret = Point.mul(Point.G, x);
     return Point.bytesFromPoint(ret);

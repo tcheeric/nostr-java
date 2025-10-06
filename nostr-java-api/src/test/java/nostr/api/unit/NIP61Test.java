@@ -2,10 +2,10 @@ package nostr.api.unit;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import lombok.SneakyThrows;
 import nostr.api.NIP61;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 public class NIP61Test {
 
   @Test
+  // Verifies that informational Nutzap events include the expected relay, mint, and pubkey tags.
   public void createNutzapInformationalEvent() {
     // Prepare
     Identity sender = Identity.generateRandomIdentity();
@@ -79,8 +80,8 @@ public class NIP61Test {
         "https://mint2.example.com", mintTags.get(1).getAttributes().get(0).value());
   }
 
-  @SneakyThrows
   @Test
+  // Validates that Nutzap events include URL, amount, and pubkey tags when provided with data.
   public void createNutzapEvent() {
     // Prepare
     Identity sender = Identity.generateRandomIdentity();
@@ -104,16 +105,22 @@ public class NIP61Test {
     List<EventTag> events = List.of(eventTag);
 
     // Create event
-    GenericEvent event =
-        nip61
-            .createNutzapEvent(
-                amount,
-                proofs,
-                URI.create(mint.getUrl()).toURL(),
-                events,
-                recipientId.getPublicKey(),
-                content)
-            .getEvent();
+    GenericEvent event;
+    try {
+      event =
+          nip61
+              .createNutzapEvent(
+                  amount,
+                  proofs,
+                  URI.create(mint.getUrl()).toURL(),
+                  events,
+                  recipientId.getPublicKey(),
+                  content)
+              .getEvent();
+    } catch (MalformedURLException ex) {
+      Assertions.fail("Mint URL should be valid in test data", ex);
+      return;
+    }
     List<BaseTag> tags = event.getTags();
 
     // Assert tags
@@ -150,6 +157,7 @@ public class NIP61Test {
   }
 
   @Test
+  // Ensures convenience tag factory methods create correctly coded tags.
   public void createTags() {
     // Test P2PK tag creation
     String pubkey = "test-pubkey";

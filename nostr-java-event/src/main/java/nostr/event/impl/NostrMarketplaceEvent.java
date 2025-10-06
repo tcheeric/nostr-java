@@ -1,15 +1,16 @@
 package nostr.event.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.Product;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * @author eric
@@ -25,8 +26,11 @@ public abstract class NostrMarketplaceEvent extends AddressableEvent {
     super(sender, kind, tags, content);
   }
 
-  @SneakyThrows
   public Product getProduct() {
-    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+    try {
+      return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Product.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse marketplace product content", ex);
+    }
   }
 }

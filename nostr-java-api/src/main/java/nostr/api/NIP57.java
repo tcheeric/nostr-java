@@ -1,9 +1,9 @@
 package nostr.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.IEvent;
@@ -18,6 +18,7 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
 import org.apache.commons.text.StringEscapeUtils;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * NIP-57 helpers (Zaps). Build zap request/receipt events and related tags.
@@ -184,7 +185,6 @@ public class NIP57 extends EventNostr {
    * @param zapRecipient the zap recipient pubkey (p-tag)
    * @return this instance for chaining
    */
-  @SneakyThrows
   public NIP57 createZapReceiptEvent(
       @NonNull GenericEvent zapRequestEvent,
       @NonNull String bolt11,
@@ -198,8 +198,12 @@ public class NIP57 extends EventNostr {
     genericEvent.addTag(NIP01.createPubKeyTag(zapRecipient));
 
     // Zap receipt tags
-    String descriptionSha256 = IEvent.MAPPER_BLACKBIRD.writeValueAsString(zapRequestEvent);
-    genericEvent.addTag(createDescriptionTag(StringEscapeUtils.escapeJson(descriptionSha256)));
+    try {
+      String descriptionSha256 = IEvent.MAPPER_BLACKBIRD.writeValueAsString(zapRequestEvent);
+      genericEvent.addTag(createDescriptionTag(StringEscapeUtils.escapeJson(descriptionSha256)));
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to encode zap receipt description", ex);
+    }
     genericEvent.addTag(createBolt11Tag(bolt11));
     genericEvent.addTag(createPreImageTag(preimage));
     genericEvent.addTag(createZapSenderPubKeyTag(zapRequestEvent.getPubKey()));

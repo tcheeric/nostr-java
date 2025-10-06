@@ -5,10 +5,11 @@ import static nostr.api.integration.ApiEventIT.createStall;
 import static nostr.base.IEvent.MAPPER_BLACKBIRD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import lombok.SneakyThrows;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -17,6 +18,7 @@ import nostr.config.RelayConfig;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,11 +47,11 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
   }
 
   @Test
+  // Executes the NIP-15 product event test against every configured relay endpoint.
   void doForEach() {
     springWebSocketClients.forEach(this::testNIP15SendProductEventUsingSpringWebSocketClient);
   }
 
-  @SneakyThrows
   void testNIP15SendProductEventUsingSpringWebSocketClient(
       SpringWebSocketClient springWebSocketClient) {
     System.out.println("testNIP15CreateProductEventUsingSpringWebSocketClient");
@@ -68,21 +70,19 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
     try (SpringWebSocketClient client = springWebSocketClient) {
       String eventResponse = client.send(message).stream().findFirst().orElseThrow();
 
-      // Extract and compare only first 3 elements of the JSON array
-      var expectedArray =
-          MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(0).asText();
-      var expectedSubscriptionId =
-          MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(1).asText();
-      var expectedSuccess =
-          MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+      try {
+        JsonNode expectedNode = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId()));
+        JsonNode actualNode = MAPPER_BLACKBIRD.readTree(eventResponse);
 
-      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
-      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
-      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
-
-      assertEquals(expectedArray, actualArray, "First element should match");
-      assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-      assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
+        assertEquals(expectedNode.get(0).asText(), actualNode.get(0).asText(),
+            "First element should match");
+        assertEquals(expectedNode.get(1).asText(), actualNode.get(1).asText(),
+            "Subscription ID should match");
+        assertEquals(expectedNode.get(2).asBoolean(), actualNode.get(2).asBoolean(),
+            "Success flag should match");
+      } catch (JsonProcessingException ex) {
+        Assertions.fail("Failed to parse relay response JSON: " + ex.getMessage(), ex);
+      }
     }
   }
 
