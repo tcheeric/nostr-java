@@ -21,7 +21,6 @@ public class NIP57ImplTest {
 
   @Test
   void testNIP57CreateZapRequestEventFactory() throws NostrException {
-    log.info("testNIP57CreateZapRequestEventFactories");
 
     Identity sender = Identity.generateRandomIdentity();
     List<BaseTag> baseTags = new ArrayList<>();

@@ -9,7 +9,6 @@ class ZapReceiptEventTest {
       @Test
       void testConstructZapReceiptEvent() {
 
-          log.info("testConstructZapReceiptEvent");
 
           PublicKey sender = Identity.generateRandomIdentity().getPublicKey();
           String zapRequestPubKeyTag = Identity.generateRandomIdentity().getPublicKey().toString();
