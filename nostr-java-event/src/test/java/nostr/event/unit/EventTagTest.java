@@ -1,6 +1,6 @@
 package nostr.event.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -58,7 +58,7 @@ class EventTagTest {
     String json = new BaseTagEncoder(eventTag).encode();
     assertEquals("[\"e\",\"" + eventId + "\"]", json);
 
-    BaseTag decoded = MAPPER_BLACKBIRD.readValue(json, BaseTag.class);
+    BaseTag decoded = mapper().readValue(json, BaseTag.class);
     assertInstanceOf(EventTag.class, decoded);
     assertNull(((EventTag) decoded).getMarker());
   }
@@ -77,7 +77,7 @@ class EventTagTest {
     String json = new BaseTagEncoder(eventTag).encode();
     assertEquals("[\"e\",\"" + eventId + "\",\"wss://relay.example.com\",\"ROOT\"]", json);
 
-    BaseTag decoded = MAPPER_BLACKBIRD.readValue(json, BaseTag.class);
+    BaseTag decoded = mapper().readValue(json, BaseTag.class);
     assertInstanceOf(EventTag.class, decoded);
     EventTag decodedEventTag = (EventTag) decoded;
     assertEquals(Marker.ROOT, decodedEventTag.getMarker());

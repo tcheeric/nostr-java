@@ -1,6 +1,6 @@
 package nostr.api;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.Serializable;
@@ -92,7 +92,7 @@ public final class NIP46 extends EventNostr {
      */
     public String toString() {
       try {
-        return MAPPER_BLACKBIRD.writeValueAsString(this);
+        return mapper().writeValueAsString(this);
       } catch (JsonProcessingException ex) {
         log.warn("Error converting request to JSON: {}", ex.getMessage());
         return "{}"; // Return an empty JSON object as a fallback
@@ -107,7 +107,7 @@ public final class NIP46 extends EventNostr {
      */
     public static Request fromString(@NonNull String jsonString) {
       try {
-        return MAPPER_BLACKBIRD.readValue(jsonString, Request.class);
+        return mapper().readValue(jsonString, Request.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -128,7 +128,7 @@ public final class NIP46 extends EventNostr {
      */
     public String toString() {
       try {
-        return MAPPER_BLACKBIRD.writeValueAsString(this);
+        return mapper().writeValueAsString(this);
       } catch (JsonProcessingException ex) {
         log.warn("Error converting response to JSON: {}", ex.getMessage());
         return "{}"; // Return an empty JSON object as a fallback
@@ -143,7 +143,7 @@ public final class NIP46 extends EventNostr {
      */
     public static Response fromString(@NonNull String jsonString) {
       try {
-        return MAPPER_BLACKBIRD.readValue(jsonString, Response.class);
+        return mapper().readValue(jsonString, Response.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }

@@ -1,6 +1,6 @@
 package nostr.event.filter;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -76,7 +76,7 @@ public interface Filterable {
   }
 
   default ObjectNode toObjectNode(ObjectNode objectNode) {
-    ArrayNode arrayNode = MAPPER_BLACKBIRD.createArrayNode();
+    ArrayNode arrayNode = mapper().createArrayNode();
 
     Optional.ofNullable(objectNode.get(getFilterKey()))
         .ifPresent(jsonNode -> jsonNode.elements().forEachRemaining(arrayNode::add));
@@ -87,6 +87,6 @@ public interface Filterable {
   }
 
   default void addToArrayNode(ArrayNode arrayNode) {
-    arrayNode.addAll(MAPPER_BLACKBIRD.createArrayNode().add(getFilterableValue().toString()));
+    arrayNode.addAll(mapper().createArrayNode().add(getFilterableValue().toString()));
   }
 }

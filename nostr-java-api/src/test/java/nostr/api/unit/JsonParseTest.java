@@ -1,6 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -853,12 +853,12 @@ public class JsonParseTest {
 
     assertTrue(
         JsonComparator.isEquivalentJson(
-            MAPPER_BLACKBIRD
+            mapper()
                 .createArrayNode()
-                .add(MAPPER_BLACKBIRD.readTree(expectedReqMessage.encode())),
-            MAPPER_BLACKBIRD
+                .add(mapper().readTree(expectedReqMessage.encode())),
+            mapper()
                 .createArrayNode()
-                .add(MAPPER_BLACKBIRD.readTree(decodedReqMessage.encode()))));
+                .add(mapper().readTree(decodedReqMessage.encode()))));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 

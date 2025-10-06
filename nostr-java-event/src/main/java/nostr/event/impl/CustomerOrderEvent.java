@@ -1,17 +1,20 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.entities.CustomerOrder;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * @author eric
@@ -27,9 +30,12 @@ public class CustomerOrderEvent extends CheckoutEvent<CustomerOrder> {
     super(sender, tags, content, MessageType.NEW_ORDER);
   }
 
-  @SneakyThrows
   public CustomerOrder getCustomerOrder() {
-    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), CustomerOrder.class);
+    try {
+      return EventJsonMapper.mapper().readValue(getContent(), CustomerOrder.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse customer order content", ex);
+    }
   }
 
   protected CustomerOrder getEntity() {

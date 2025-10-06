@@ -195,11 +195,4 @@ public class SpringWebSocketClient implements AutoCloseable {
     log.debug("WebSocket client closed for relay {}", relayUrl);
   }
 
-  /**
-   * @deprecated use {@link #close()} instead.
-   */
-  @Deprecated
-  public void closeSocket() throws IOException {
-    close();
-  }
 }

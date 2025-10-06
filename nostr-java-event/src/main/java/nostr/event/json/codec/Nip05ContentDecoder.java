@@ -1,6 +1,6 @@
 package nostr.event.json.codec;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> 
   @Override
   public T decode(String jsonContent) throws EventEncodingException {
     try {
-      return MAPPER_BLACKBIRD.readValue(jsonContent, clazz);
+      return mapper().readValue(jsonContent, clazz);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to decode nip05 content", ex);
     }

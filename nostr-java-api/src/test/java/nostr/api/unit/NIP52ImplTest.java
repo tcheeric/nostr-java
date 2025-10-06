@@ -113,7 +113,7 @@ class NIP52ImplTest {
 
     // calendarTimeBasedEvent.update();
 
-    // NOTE: TODO - Compare all attributes except id, createdAt, and _serializedEvent.
+    // NOTE: TODO - Compare all attributes except id, createdAt, and serializedEventCache.
     // assertEquals(calendarTimeBasedEvent, instance2);
     // Test required fields
     assertNotNull(instance2.getId());

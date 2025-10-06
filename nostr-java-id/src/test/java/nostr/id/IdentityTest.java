@@ -2,12 +2,14 @@ package nostr.id;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import nostr.base.ISignable;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
+import nostr.crypto.schnorr.SchnorrException;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.DelegationTag;
 import nostr.util.NostrUtil;
@@ -22,6 +24,7 @@ public class IdentityTest {
   public IdentityTest() {}
 
   @Test
+  // Ensures signing a text note event attaches a signature
   public void testSignEvent() {
     System.out.println("testSignEvent");
     Identity identity = Identity.generateRandomIdentity();
@@ -32,6 +35,7 @@ public class IdentityTest {
   }
 
   @Test
+  // Ensures signing a delegation tag populates its signature
   public void testSignDelegationTag() {
     System.out.println("testSignDelegationTag");
     Identity identity = Identity.generateRandomIdentity();
@@ -42,6 +46,7 @@ public class IdentityTest {
   }
 
   @Test
+  // Verifies that generating random identities yields unique private keys
   public void testGenerateRandomIdentityProducesUniqueKeys() {
     Identity id1 = Identity.generateRandomIdentity();
     Identity id2 = Identity.generateRandomIdentity();
@@ -49,6 +54,7 @@ public class IdentityTest {
   }
 
   @Test
+  // Confirms that deriving the public key from a known private key matches expectations
   public void testGetPublicKeyDerivation() {
     String privHex = "0000000000000000000000000000000000000000000000000000000000000001";
     Identity identity = Identity.create(privHex);
@@ -58,7 +64,9 @@ public class IdentityTest {
   }
 
   @Test
-  public void testSignProducesValidSignature() throws Exception {
+  // Verifies that signing produces a Schnorr signature that validates successfully
+  public void testSignProducesValidSignature()
+      throws NoSuchAlgorithmException, SchnorrException {
     String privHex = "0000000000000000000000000000000000000000000000000000000000000001";
     Identity identity = Identity.create(privHex);
     final byte[] message = "hello".getBytes(StandardCharsets.UTF_8);
@@ -98,6 +106,7 @@ public class IdentityTest {
   }
 
   @Test
+  // Confirms public key derivation is cached for subsequent calls
   public void testPublicKeyCaching() {
     Identity identity = Identity.generateRandomIdentity();
     PublicKey first = identity.getPublicKey();
@@ -106,6 +115,7 @@ public class IdentityTest {
   }
 
   @Test
+  // Ensures that invalid private keys trigger a derivation failure
   public void testGetPublicKeyFailure() {
     String invalidPriv = "0000000000000000000000000000000000000000000000000000000000000000";
     Identity identity = Identity.create(invalidPriv);

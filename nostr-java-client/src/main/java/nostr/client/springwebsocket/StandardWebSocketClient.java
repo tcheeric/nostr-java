@@ -205,14 +205,6 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     }
   }
 
-  /**
-   * @deprecated use {@link #close()} instead.
-   */
-  @Deprecated
-  public void closeSocket() throws IOException {
-    close();
-  }
-
   private void dispatchMessage(String payload) {
     listeners.values().forEach(listener -> safelyInvoke(listener.messageListener(), payload, listener));
   }
