@@ -8,7 +8,8 @@ import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 
 /**
- * Demonstrates creating, signing, and sending a text note using the {@link TextNoteEvent} class.
+ * Demonstrates creating, signing, and sending a text note using the
+ * {@link nostr.event.impl.TextNoteEvent} class.
  */
 public class TextNoteEventExample {
 
