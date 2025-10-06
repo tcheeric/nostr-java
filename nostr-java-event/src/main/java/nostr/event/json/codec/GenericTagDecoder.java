@@ -15,6 +15,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
 
   private final Class<T> clazz;
 
+  @SuppressWarnings("unchecked")
   public GenericTagDecoder() {
     this((Class<T>) GenericTag.class);
   }
@@ -31,6 +32,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
    * @throws EventEncodingException if decoding fails
    */
   @Override
+  @SuppressWarnings("unchecked")
   public T decode(@NonNull String json) throws EventEncodingException {
     try {
       String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);

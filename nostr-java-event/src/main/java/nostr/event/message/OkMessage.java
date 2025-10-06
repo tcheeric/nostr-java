@@ -45,6 +45,7 @@ public class OkMessage extends BaseMessage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull String jsonString)
       throws EventEncodingException {
     try {

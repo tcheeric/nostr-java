@@ -43,6 +43,7 @@ public class NIP04 extends EventNostr {
    *
    * @param content the DM content in clear-text
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP04 createDirectMessageEvent(@NonNull String content) {
     log.debug("Creating direct message event");
     var encryptedContent = encrypt(getSender(), content, getRecipient());

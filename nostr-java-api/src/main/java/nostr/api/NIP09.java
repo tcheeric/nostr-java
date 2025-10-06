@@ -52,21 +52,20 @@ public class NIP09 extends EventNostr {
 
     // Handle GenericEvents
     deleteables.stream()
-        .filter(d -> d instanceof GenericEvent)
-        .map(d -> (GenericEvent) d)
+        .filter(GenericEvent.class::isInstance)
+        .map(GenericEvent.class::cast)
         .forEach(event -> tags.add(new EventTag(event.getId())));
 
     // Handle AddressTags
     deleteables.stream()
-        .filter(d -> d instanceof GenericEvent)
-        .map(d -> (GenericEvent) d)
+        .filter(GenericEvent.class::isInstance)
+        .map(GenericEvent.class::cast)
         .map(GenericEvent::getTags)
         .forEach(
             t ->
                 t.stream()
-                    // .filter(tag -> "a".equals(tag.getCode()))
-                    // .filter(tag -> tag instanceof AddressTag)
-                    .map(tag -> (AddressTag) tag)
+                    .filter(tag -> tag instanceof AddressTag)
+                    .map(AddressTag.class::cast)
                     .forEach(
                         tag -> {
                           tags.add(tag);

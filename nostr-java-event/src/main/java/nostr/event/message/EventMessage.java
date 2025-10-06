@@ -69,10 +69,12 @@ public class EventMessage extends BaseMessage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object o) {
     return (T) new EventMessage(convertValue((Map<String, String>) o));
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object[] msgArr) {
     return (T)
         new EventMessage(convertValue((Map<String, String>) msgArr[2]), msgArr[1].toString());

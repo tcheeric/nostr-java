@@ -23,16 +23,11 @@ public class TextNoteEvent extends NIP01Event {
   }
 
   public List<PubKeyTag> getRecipientPubkeyTags() {
-    return this.getTags().stream()
-        .filter(tag -> tag instanceof PubKeyTag)
-        .map(tag -> (PubKeyTag) tag)
-        .toList();
+    return nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this);
   }
 
   public List<PublicKey> getRecipients() {
-    return this.getTags().stream()
-        .filter(tag -> tag instanceof PubKeyTag)
-        .map(tag -> (PubKeyTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).stream()
         .map(PubKeyTag::getPublicKey)
         .toList();
   }

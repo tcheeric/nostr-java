@@ -54,6 +54,7 @@ public class AddressTagFilter<T extends AddressTag> extends AbstractFilterable<T
   public static Function<JsonNode, Filterable> fxn =
       node -> new AddressTagFilter<>(createAddressTag(node));
 
+  @SuppressWarnings("unchecked")
   protected static <T extends BaseTag> T createAddressTag(@NonNull JsonNode node) {
     String[] nodes = node.asText().split(",");
     List<String> list = Arrays.stream(nodes[0].split(":")).toList();

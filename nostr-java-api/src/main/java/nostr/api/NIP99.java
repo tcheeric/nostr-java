@@ -28,6 +28,7 @@ public class NIP99 extends EventNostr {
     setSender(sender);
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP99 createClassifiedListingEvent(
       @NonNull List<BaseTag> baseTags,
       String content,

@@ -35,6 +35,7 @@ public class NIP05 extends EventNostr {
    * @return the IIM event
    */
   @SneakyThrows
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP05 createInternetIdentifierMetadataEvent(@NonNull UserProfile profile) {
     String content = getContent(profile);
     GenericEvent genericEvent =

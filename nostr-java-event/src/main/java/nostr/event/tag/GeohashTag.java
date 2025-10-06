@@ -27,6 +27,7 @@ public class GeohashTag extends BaseTag {
   @JsonProperty("g")
   private String location;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     GeohashTag tag = new GeohashTag();
     setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);

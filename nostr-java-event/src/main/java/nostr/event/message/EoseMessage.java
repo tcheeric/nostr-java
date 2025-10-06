@@ -40,6 +40,7 @@ public class EoseMessage extends BaseMessage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Object arg) {
     return (T) new EoseMessage(arg.toString());
   }

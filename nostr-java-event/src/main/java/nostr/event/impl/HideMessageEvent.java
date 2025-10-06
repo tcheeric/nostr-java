@@ -20,9 +20,7 @@ public class HideMessageEvent extends GenericEvent {
   }
 
   public String getHiddenMessageEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
         .findFirst()
         .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."))
         .getIdEvent();

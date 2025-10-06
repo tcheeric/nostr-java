@@ -63,6 +63,7 @@ public class ReqMessage extends BaseMessage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(
       @NonNull Object subscriptionId, @NonNull String jsonString) throws EventEncodingException {
     validateSubscriptionId(subscriptionId.toString());

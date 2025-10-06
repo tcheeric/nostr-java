@@ -33,6 +33,7 @@ public class AddressTag extends BaseTag {
   private IdentifierTag identifierTag;
   private Relay relay;
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
     AddressTag tag = new AddressTag();
 

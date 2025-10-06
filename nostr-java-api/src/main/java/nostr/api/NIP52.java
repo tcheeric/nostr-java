@@ -40,6 +40,7 @@ public class NIP52 extends EventNostr {
    * @param calendarContent the structured calendar content (identifier, title, start, etc.)
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createCalendarTimeBasedEvent(
       @NonNull List<BaseTag> baseTags,
       @NonNull String content,
@@ -82,6 +83,7 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createCalendarRsvpEvent(
       @NonNull String content, @NonNull CalendarRsvpContent calendarRsvpContent) {
 
@@ -110,6 +112,7 @@ public class NIP52 extends EventNostr {
    * @param calendarContent the structured calendar content (identifier, title, dates)
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createDateBasedCalendarEvent(
       @NonNull String content, @NonNull CalendarContent<BaseTag> calendarContent) {
 

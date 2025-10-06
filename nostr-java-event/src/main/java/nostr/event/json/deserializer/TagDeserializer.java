@@ -50,6 +50,7 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
           Map.entry("subject", SubjectTag::deserialize));
 
   @Override
+  @SuppressWarnings("unchecked")
   public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
       throws IOException {
 

@@ -35,6 +35,7 @@ public class RelaysTag extends BaseTag {
     this(List.of(relays));
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseTag> T deserialize(JsonNode node) {
     return (T)
         new RelaysTag(

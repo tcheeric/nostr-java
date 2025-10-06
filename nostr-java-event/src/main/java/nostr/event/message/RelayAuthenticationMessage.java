@@ -36,6 +36,7 @@ public class RelayAuthenticationMessage extends BaseAuthMessage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Object arg) {
     return (T) new RelayAuthenticationMessage(arg.toString());
   }

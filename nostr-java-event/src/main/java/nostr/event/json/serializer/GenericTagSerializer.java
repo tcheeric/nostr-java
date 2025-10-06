@@ -8,6 +8,7 @@ public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSeria
 
   @Serial private static final long serialVersionUID = -5318614324350049034L;
 
+  @SuppressWarnings("unchecked")
   public GenericTagSerializer() {
     super((Class<T>) GenericTag.class);
   }
