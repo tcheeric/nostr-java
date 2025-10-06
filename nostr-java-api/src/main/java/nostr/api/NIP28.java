@@ -1,8 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
+
+import nostr.base.json.EventJsonMapper;
 
 import static nostr.api.NIP12.createHashtagTag;
 
@@ -219,7 +217,7 @@ public class NIP28 extends EventNostr {
 
     public String toString() {
       try {
-        return IEvent.MAPPER_BLACKBIRD.writeValueAsString(this);
+        return EventJsonMapper.mapper().writeValueAsString(this);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }

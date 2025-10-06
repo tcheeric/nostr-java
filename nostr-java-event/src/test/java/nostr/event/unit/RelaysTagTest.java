@@ -1,6 +1,6 @@
 package nostr.event.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,7 +34,7 @@ class RelaysTagTest {
     final String EXPECTED = "[\"relays\",\"ws://localhost:5555\"]";
     assertDoesNotThrow(
         () -> {
-          JsonNode node = MAPPER_BLACKBIRD.readTree(EXPECTED);
+          JsonNode node = mapper().readTree(EXPECTED);
           BaseTag deserialize = RelaysTag.deserialize(node);
           assertEquals(RELAYS_KEY, deserialize.getCode());
           assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().getFirst().getUri());

@@ -1,6 +1,6 @@
 package nostr.event.entities;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,7 +51,7 @@ public final class UserProfile extends Profile implements IBech32Encodable {
   @Override
   public String toString() {
     try {
-      return MAPPER_BLACKBIRD.writeValueAsString(this);
+      return mapper().writeValueAsString(this);
     } catch (JsonProcessingException ex) {
       throw new RuntimeException(ex);
     }

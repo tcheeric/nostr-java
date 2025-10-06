@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.event.tag.RelaysTag;
 
 public class RelaysTagSerializer extends JsonSerializer<RelaysTag> {
@@ -22,8 +21,7 @@ public class RelaysTagSerializer extends JsonSerializer<RelaysTag> {
     jsonGenerator.writeEndArray();
   }
 
-  @SneakyThrows
-  private static void writeString(JsonGenerator jsonGenerator, String json) {
+  private static void writeString(JsonGenerator jsonGenerator, String json) throws IOException {
     jsonGenerator.writeString(json);
   }
 }

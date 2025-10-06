@@ -1,6 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -131,8 +131,8 @@ class CalendarTimeBasedEventTest {
 
   @Test
   void testCalendarTimeBasedEventEncoding() throws JsonProcessingException {
-    var instanceJson = MAPPER_BLACKBIRD.readTree(new BaseEventEncoder<>(instance).encode());
-    var expectedJson = MAPPER_BLACKBIRD.readTree(expectedEncodedJson);
+    var instanceJson = mapper().readTree(new BaseEventEncoder<>(instance).encode());
+    var expectedJson = mapper().readTree(expectedEncodedJson);
 
     // Helper function to find tag value
     BiFunction<JsonNode, String, JsonNode> findTagArray =
@@ -160,11 +160,11 @@ class CalendarTimeBasedEventTest {
   @Test
   void testCalendarTimeBasedEventDecoding() throws JsonProcessingException {
     var decodedJson =
-        MAPPER_BLACKBIRD.readTree(
+        mapper().readTree(
             new BaseEventEncoder<>(
-                    MAPPER_BLACKBIRD.readValue(expectedEncodedJson, GenericEvent.class))
+                    mapper().readValue(expectedEncodedJson, GenericEvent.class))
                 .encode());
-    var instanceJson = MAPPER_BLACKBIRD.readTree(new BaseEventEncoder<>(instance).encode());
+    var instanceJson = mapper().readTree(new BaseEventEncoder<>(instance).encode());
 
     // Helper function to find tag value
     BiFunction<JsonNode, String, JsonNode> findTagArray =

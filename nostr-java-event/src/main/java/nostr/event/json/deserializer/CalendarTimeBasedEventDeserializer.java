@@ -1,5 +1,7 @@
 package nostr.event.json.deserializer;
 
+import nostr.base.json.EventJsonMapper;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,7 +33,7 @@ public class CalendarTimeBasedEventDeserializer extends StdDeserializer<Calendar
     List<BaseTag> baseTags =
         StreamSupport.stream(tags.spliterator(), false).toList().stream()
             .map(JsonNode::elements)
-            .map(element -> IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class))
+            .map(element -> EventJsonMapper.mapper().convertValue(element, BaseTag.class))
             .toList();
 
     Map<String, String> generalMap = new HashMap<>();

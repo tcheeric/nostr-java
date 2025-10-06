@@ -1,5 +1,7 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,7 +29,7 @@ public class VerifyPaymentOrShippedEvent extends CheckoutEvent<PaymentShipmentSt
   }
 
   public PaymentShipmentStatus getPaymentShipmentStatus() {
-    return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentShipmentStatus.class);
+    return EventJsonMapper.mapper().convertValue(getContent(), PaymentShipmentStatus.class);
   }
 
   protected PaymentShipmentStatus getEntity() {

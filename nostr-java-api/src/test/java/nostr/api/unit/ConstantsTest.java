@@ -1,6 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import nostr.config.Constants;
@@ -35,6 +35,6 @@ public class ConstantsTest {
 
     String json = new BaseEventEncoder<>(event).encode();
     assertEquals(
-        Constants.Kind.SHORT_TEXT_NOTE, MAPPER_BLACKBIRD.readTree(json).get("kind").asInt());
+        Constants.Kind.SHORT_TEXT_NOTE, mapper().readTree(json).get("kind").asInt());
   }
 }

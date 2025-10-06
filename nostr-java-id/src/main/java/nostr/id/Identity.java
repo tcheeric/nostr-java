@@ -11,6 +11,7 @@ import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
+import nostr.crypto.schnorr.SchnorrException;
 import nostr.util.NostrUtil;
 
 /**
@@ -75,7 +76,10 @@ public class Identity {
     if (cachedPublicKey == null) {
       try {
         cachedPublicKey = new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
-      } catch (Exception ex) {
+      } catch (IllegalArgumentException ex) {
+        log.error("Invalid private key while deriving public key", ex);
+        throw new IllegalStateException("Invalid private key", ex);
+      } catch (SchnorrException ex) {
         log.error("Failed to derive public key", ex);
         throw new IllegalStateException("Failed to derive public key", ex);
       }
@@ -110,7 +114,10 @@ public class Identity {
     } catch (NoSuchAlgorithmException ex) {
       log.error("SHA-256 algorithm not available for signing", ex);
       throw new IllegalStateException("SHA-256 algorithm not available", ex);
-    } catch (Exception ex) {
+    } catch (IllegalArgumentException ex) {
+      log.error("Invalid signing input", ex);
+      throw new SigningException("Failed to sign because of invalid input", ex);
+    } catch (SchnorrException ex) {
       log.error("Signing failed", ex);
       throw new SigningException("Failed to sign with provided key", ex);
     }

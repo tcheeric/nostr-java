@@ -1,6 +1,6 @@
 package nostr.event.json.codec;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
@@ -31,7 +31,7 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
   @Override
   public T decode(String jsonString) throws EventEncodingException {
     try {
-      return MAPPER_BLACKBIRD.readValue(jsonString, clazz);
+      return mapper().readValue(jsonString, clazz);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to decode tag", ex);
     }
