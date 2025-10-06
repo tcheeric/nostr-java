@@ -40,10 +40,6 @@ public class NostrSpringWebSocketClient implements NostrIF {
     this(null, new DefaultNoteService());
   }
 
-  public NostrSpringWebSocketClient() {
-    this(null, new DefaultNoteService());
-  }
-
   /**
    * Construct a client with a single relay configured.
    */
@@ -62,7 +58,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
   /**
    * Construct a client with a sender identity and a custom note service.
    */
-  public NostrSpringWebSocketClient(@NonNull Identity sender, @NonNull NoteService noteService) {
+  public NostrSpringWebSocketClient(Identity sender, @NonNull NoteService noteService) {
     this.sender = sender;
     this.noteService = noteService;
     this.relayRegistry = new NostrRelayRegistry(buildFactory());
@@ -74,7 +70,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
   /**
    * Construct a client with a sender identity.
    */
-  public NostrSpringWebSocketClient(@NonNull Identity sender) {
+  public NostrSpringWebSocketClient(Identity sender) {
     this(sender, new DefaultNoteService());
   }
 
