@@ -1,6 +1,6 @@
 package nostr.event.json.codec;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,7 +33,7 @@ public class FiltersDecoder implements IDecoder<Filters> {
       final List<Filterable> filterables = new ArrayList<>();
 
       Map<String, JsonNode> filtersMap =
-          MAPPER_BLACKBIRD.readValue(
+          mapper().readValue(
               jsonFiltersList, new TypeReference<Map<String, JsonNode>>() {});
 
       for (Map.Entry<String, JsonNode> entry : filtersMap.entrySet()) {

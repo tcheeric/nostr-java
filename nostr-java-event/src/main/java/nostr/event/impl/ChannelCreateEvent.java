@@ -1,12 +1,15 @@
 package nostr.event.impl;
 
+import nostr.base.json.EventJsonMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.entities.ChannelProfile;
+import nostr.event.json.codec.EventEncodingException;
 
 /**
  * @author guilhermegps
@@ -19,10 +22,13 @@ public class ChannelCreateEvent extends GenericEvent {
     super(pubKey, Kind.CHANNEL_CREATE, new ArrayList<>(), content);
   }
 
-  @SneakyThrows
   public ChannelProfile getChannelProfile() {
     String content = getContent();
-    return MAPPER_BLACKBIRD.readValue(content, ChannelProfile.class);
+    try {
+      return EventJsonMapper.mapper().readValue(content, ChannelProfile.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse channel profile content", ex);
+    }
   }
 
   @Override
@@ -50,7 +56,7 @@ public class ChannelCreateEvent extends GenericEvent {
         throw new AssertionError("Invalid `content`: `picture` field is required.");
       }
 
-    } catch (Exception e) {
+    } catch (EventEncodingException e) {
       throw new AssertionError("Invalid `content`: Must be a valid ChannelProfile JSON object.", e);
     }
   }

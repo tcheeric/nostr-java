@@ -12,7 +12,6 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
@@ -49,20 +48,24 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
     }
   }
 
-  @SneakyThrows
   // TODO - This needs to be reviewed
   @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Map map) {
-    var event = I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {});
+    try {
+      var event =
+          I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {});
 
-    List<BaseTag> baseTags = event.getTags().stream().filter(GenericTag.class::isInstance).toList();
+      List<BaseTag> baseTags = event.getTags().stream().filter(GenericTag.class::isInstance).toList();
 
-    CanonicalAuthenticationEvent canonEvent =
-        new CanonicalAuthenticationEvent(event.getPubKey(), baseTags, "");
+      CanonicalAuthenticationEvent canonEvent =
+          new CanonicalAuthenticationEvent(event.getPubKey(), baseTags, "");
 
-    canonEvent.setId(map.get("id").toString());
+      canonEvent.setId(map.get("id").toString());
 
-    return (T) new CanonicalAuthenticationMessage(canonEvent);
+      return (T) new CanonicalAuthenticationMessage(canonEvent);
+    } catch (IllegalArgumentException ex) {
+      throw new EventEncodingException("Failed to decode canonical authentication message", ex);
+    }
   }
 
   private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {

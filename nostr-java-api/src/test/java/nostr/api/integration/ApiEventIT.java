@@ -1,6 +1,6 @@
 package nostr.api.integration;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -467,7 +467,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
   private Stall readStall(String content) throws EventEncodingException {
     try {
-      return MAPPER_BLACKBIRD.readValue(content, Stall.class);
+      return mapper().readValue(content, Stall.class);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to decode stall content", e);
     }

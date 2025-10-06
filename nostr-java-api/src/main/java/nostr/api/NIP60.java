@@ -1,7 +1,8 @@
 package nostr.api;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Relay;
@@ -23,6 +23,7 @@ import nostr.event.entities.CashuWallet;
 import nostr.event.entities.SpendingHistory;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseTagEncoder;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.id.Identity;
 
 /**
@@ -176,7 +177,6 @@ public class NIP60 extends EventNostr {
     return new BaseTagFactory(Constants.Tag.EXPIRATION_CODE, expiration.toString()).create();
   }
 
-  @SneakyThrows
   private String getWalletEventContent(@NonNull CashuWallet wallet) {
     List<BaseTag> tags = new ArrayList<>();
     Map<String, Set<Relay>> relayMap = wallet.getRelays();
@@ -184,22 +184,27 @@ public class NIP60 extends EventNostr {
     unitSet.forEach(u -> tags.add(NIP60.createBalanceTag(wallet.getBalance(), u)));
     tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
-    return NIP44.encrypt(
-        getSender(), MAPPER_BLACKBIRD.writeValueAsString(tags), getSender().getPublicKey());
+    try {
+      String serializedTags = mapper().writeValueAsString(tags);
+      return NIP44.encrypt(getSender(), serializedTags, getSender().getPublicKey());
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to encode wallet content", ex);
+    }
   }
 
-  @SneakyThrows
   private String getTokenEventContent(@NonNull CashuToken token) {
-    return NIP44.encrypt(
-        getSender(), MAPPER_BLACKBIRD.writeValueAsString(token), getSender().getPublicKey());
+    try {
+      String serializedToken = mapper().writeValueAsString(token);
+      return NIP44.encrypt(getSender(), serializedToken, getSender().getPublicKey());
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to encode token content", ex);
+    }
   }
 
-  @SneakyThrows
   private String getRedemptionQuoteEventContent(@NonNull CashuQuote quote) {
     return NIP44.encrypt(getSender(), quote.getId(), getSender().getPublicKey());
   }
 
-  @SneakyThrows
   private String getSpendingHistoryEventContent(@NonNull SpendingHistory spendingHistory) {
     List<BaseTag> tags = new ArrayList<>();
     tags.add(NIP60.createDirectionTag(spendingHistory.getDirection()));
