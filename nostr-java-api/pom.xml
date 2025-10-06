@@ -4,7 +4,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.4.0</version>
+        <version>0.5.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     
@@ -26,42 +26,42 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${commons-text.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-client</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-encryption</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-id</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-event</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-util</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-crypto</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>${spring-boot.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -85,19 +85,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot.version}</version>
+            
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
+            
             <scope>test</scope>
         </dependency>
     </dependencies>

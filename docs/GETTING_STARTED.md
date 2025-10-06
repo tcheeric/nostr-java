@@ -1,5 +1,7 @@
 # Getting Started
 
+Navigation: [Docs index](README.md) · [API how‑to](howto/use-nostr-java-api.md) · [Streaming subscriptions](howto/streaming-subscriptions.md) · [API reference](reference/nostr-java-api.md) · [Codebase overview](CODEBASE_OVERVIEW.md)
+
 ## Prerequisites
 - Maven
 - Java 21+
@@ -27,7 +29,7 @@ Artifacts are published to `https://maven.398ja.xyz/releases`:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>[VERSION]</version>
+  <version>0.5.1</version>
 </dependency>
 ```
 
@@ -41,11 +43,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:[VERSION]'
+    implementation 'xyz.tcheeric:nostr-java-api:0.5.1'
 }
 ```
 
-Replace `[VERSION]` with the latest release number from the [releases page](https://github.com/tcheeric/nostr-java/releases).
+The current version is `0.5.1`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
 
 Examples are available in the [`nostr-java-examples`](../nostr-java-examples) module.
-

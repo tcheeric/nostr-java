@@ -12,44 +12,27 @@
 
 See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
-For a quick API walkthrough, see [`docs/howto/use-nostr-java-api.md`](docs/howto/use-nostr-java-api.md).
+## Documentation
 
-See [`docs/CODEBASE_OVERVIEW.md`](docs/CODEBASE_OVERVIEW.md) for details about running tests and contributing.
+- Docs index: [docs/README.md](docs/README.md) — quick entry point to all guides and references.
+- Getting started: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — install via Maven/Gradle and build from source.
+- API how‑to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish basic events.
+- Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long‑lived, non‑blocking subscriptions.
+- Custom events how‑to: [docs/howto/custom-events.md](docs/howto/custom-events.md) — define, sign, and send custom event types.
+- API reference: [docs/reference/nostr-java-api.md](docs/reference/nostr-java-api.md) — classes, key methods, and short examples.
+- Extending events: [docs/explanation/extending-events.md](docs/explanation/extending-events.md) — guidance for extending the event model.
+- Codebase overview and contributing: [docs/CODEBASE_OVERVIEW.md](docs/CODEBASE_OVERVIEW.md) — layout, testing, and contribution workflow.
 
 ## Examples
-Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module.
 
-- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
-  shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a
-  fixed duration.
+Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module. See the [API Examples Guide](docs/howto/api-examples.md) for detailed walkthroughs.
 
-## Streaming subscriptions
+### Key Examples
 
-The client and API layers expose a non-blocking streaming API for long-lived subscriptions. Use
-`NostrSpringWebSocketClient.subscribe` to open a REQ subscription and receive relay messages via a
-callback:
+- [`NostrApiExamples`](nostr-java-examples/src/main/java/nostr/examples/NostrApiExamples.java) – Comprehensive examples covering 13+ use cases including text notes, encrypted DMs, reactions, channels, and more. See the [guide](docs/howto/api-examples.md) for details.
 
-```java
-Filters filters = new Filters(new KindFilter<>(Kind.TEXT_NOTE));
-AutoCloseable subscription =
-    client.subscribe(
-        filters,
-        "example-subscription",
-        message -> {
-          // handle EVENT/NOTICE payloads on your own executor to avoid blocking the socket thread
-        },
-        error -> log.warn("Subscription error", error));
-
-// ... keep the subscription open while processing events ...
-
-subscription.close(); // sends CLOSE to the relay and releases the underlying WebSocket
-```
-
-Subscriptions must be closed by the caller to ensure a CLOSE frame is sent to the relay and to free
-the dedicated WebSocket connection created for the REQ. Callbacks run on the WebSocket thread; for
-high-throughput feeds, hand off work to a queue or executor to provide backpressure and keep the
-socket responsive.
-
+- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java) – Shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a fixed duration.
+ 
 ## Supported NIPs
 The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
 - [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md) - Basic protocol flow description

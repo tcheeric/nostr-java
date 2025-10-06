@@ -4,7 +4,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>0.4.0</version>
+        <version>0.5.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>    
     
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nostr-java-api</artifactId>
-            <version>${nostr-java.version}</version>
+            
         </dependency>
     </dependencies>
 </project>
