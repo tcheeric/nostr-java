@@ -11,8 +11,11 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.IEvent;
+import nostr.base.RelayUri;
+import nostr.base.SubscriptionId;
+import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.client.springwebsocket.StandardWebSocketClient;
+import nostr.client.springwebsocket.SpringWebSocketClientFactory;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
@@ -25,11 +28,13 @@ import nostr.event.message.CloseMessage;
 @Slf4j
 public class WebSocketClientHandler {
   private final SpringWebSocketClient eventClient;
-  private final Map<String, SpringWebSocketClient> requestClientMap = new ConcurrentHashMap<>();
-  private final Function<String, SpringWebSocketClient> requestClientFactory;
+  private final Map<SubscriptionId, SpringWebSocketClient> requestClientMap =
+      new ConcurrentHashMap<>();
+  private final Function<SubscriptionId, SpringWebSocketClient> requestClientFactory;
+  private final WebSocketClientFactory clientFactory;
 
   @Getter private final String relayName;
-  @Getter private final String relayUri;
+  @Getter private final RelayUri relayUri;
 
   /**
    * Create a handler for a specific relay.
@@ -39,23 +44,36 @@ public class WebSocketClientHandler {
    */
   protected WebSocketClientHandler(@NonNull String relayName, @NonNull String relayUri)
       throws ExecutionException, InterruptedException {
-    this.relayName = relayName;
-    this.relayUri = relayUri;
-    this.eventClient = new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
-    this.requestClientFactory = key -> createStandardRequestClient();
+    this(relayName, new RelayUri(relayUri), new SpringWebSocketClientFactory());
+  }
+
+  protected WebSocketClientHandler(
+      @NonNull String relayName,
+      @NonNull RelayUri relayUri,
+      @NonNull WebSocketClientFactory clientFactory)
+      throws ExecutionException, InterruptedException {
+    this(
+        relayName,
+        relayUri,
+        new SpringWebSocketClient(clientFactory.create(relayUri), relayUri.toString()),
+        null,
+        null,
+        clientFactory);
   }
 
   WebSocketClientHandler(
       @NonNull String relayName,
-      @NonNull String relayUri,
+      @NonNull RelayUri relayUri,
       @NonNull SpringWebSocketClient eventClient,
-      Map<String, SpringWebSocketClient> requestClients,
-      Function<String, SpringWebSocketClient> requestClientFactory) {
+      Map<SubscriptionId, SpringWebSocketClient> requestClients,
+      Function<SubscriptionId, SpringWebSocketClient> requestClientFactory,
+      @NonNull WebSocketClientFactory clientFactory) {
     this.relayName = relayName;
     this.relayUri = relayUri;
     this.eventClient = eventClient;
+    this.clientFactory = clientFactory;
     this.requestClientFactory =
-        requestClientFactory != null ? requestClientFactory : key -> createStandardRequestClient();
+        requestClientFactory != null ? requestClientFactory : key -> createRequestClient();
     if (requestClients != null) {
       this.requestClientMap.putAll(requestClients);
     }
@@ -83,11 +101,12 @@ public class WebSocketClientHandler {
    * @param subscriptionId the subscription identifier
    * @return relay responses (raw JSON messages)
    */
-  protected List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+  protected List<String> sendRequest(
+      @NonNull Filters filters, @NonNull SubscriptionId subscriptionId) {
     try {
       @SuppressWarnings("resource")
       SpringWebSocketClient client = getOrCreateRequestClient(subscriptionId);
-      return client.send(new ReqMessage(subscriptionId, filters));
+      return client.send(new ReqMessage(subscriptionId.value(), filters));
     } catch (IOException e) {
       throw new RuntimeException("Failed to send request", e);
     }
@@ -98,54 +117,54 @@ public class WebSocketClientHandler {
       @NonNull String subscriptionId,
       @NonNull Consumer<String> listener,
       Consumer<Throwable> errorListener) {
+    SubscriptionId id = SubscriptionId.of(subscriptionId);
     @SuppressWarnings("resource")
-    SpringWebSocketClient client = getOrCreateRequestClient(subscriptionId);
-    Consumer<Throwable> safeError = resolveErrorListener(subscriptionId, errorListener);
-    AutoCloseable delegate =
-        openSubscription(client, filters, subscriptionId, listener, safeError);
+    SpringWebSocketClient client = getOrCreateRequestClient(id);
+    Consumer<Throwable> safeError = resolveErrorListener(id, errorListener);
+    AutoCloseable delegate = openSubscription(client, filters, id, listener, safeError);
 
-    return new SubscriptionHandle(subscriptionId, client, delegate, safeError);
+    return new SubscriptionHandle(id, client, delegate, safeError);
   }
 
   private Consumer<Throwable> resolveErrorListener(
-      String subscriptionId, Consumer<Throwable> errorListener) {
+      SubscriptionId subscriptionId, Consumer<Throwable> errorListener) {
     if (errorListener != null) {
       return errorListener;
     }
     return throwable ->
         log.warn(
-            "Subscription error on relay {} for {}", relayName, subscriptionId, throwable);
+            "Subscription error on relay {} for {}", relayName, subscriptionId.value(), throwable);
   }
 
   private AutoCloseable openSubscription(
       SpringWebSocketClient client,
       Filters filters,
-      String subscriptionId,
+      SubscriptionId subscriptionId,
       Consumer<String> listener,
       Consumer<Throwable> errorListener) {
     try {
       return client.subscribe(
-          new ReqMessage(subscriptionId, filters),
+          new ReqMessage(subscriptionId.value(), filters),
           listener,
           errorListener,
           () ->
               errorListener.accept(
                   new IOException(
                       "Subscription closed by relay %s for id %s"
-                          .formatted(relayName, subscriptionId))));
+                          .formatted(relayName, subscriptionId.value()))));
     } catch (IOException e) {
       throw new RuntimeException("Failed to establish subscription", e);
     }
   }
 
   private final class SubscriptionHandle implements AutoCloseable {
-    private final String subscriptionId;
+    private final SubscriptionId subscriptionId;
     private final SpringWebSocketClient client;
     private final AutoCloseable delegate;
     private final Consumer<Throwable> errorListener;
 
     private SubscriptionHandle(
-        String subscriptionId,
+        SubscriptionId subscriptionId,
         SpringWebSocketClient client,
         AutoCloseable delegate,
         Consumer<Throwable> errorListener) {
@@ -167,10 +186,11 @@ public class WebSocketClientHandler {
       accumulator.rethrowIfNecessary();
     }
 
-    private AutoCloseable openCloseFrame(String subscriptionId, CloseAccumulator accumulator) {
+    private AutoCloseable openCloseFrame(
+        SubscriptionId subscriptionId, CloseAccumulator accumulator) {
       try {
         return client.subscribe(
-            new CloseMessage(subscriptionId),
+            new CloseMessage(subscriptionId.value()),
             message -> {},
             errorListener,
             null);
@@ -237,7 +257,7 @@ public class WebSocketClientHandler {
     }
   }
 
-  protected SpringWebSocketClient getOrCreateRequestClient(String subscriptionId) {
+  protected SpringWebSocketClient getOrCreateRequestClient(SubscriptionId subscriptionId) {
     try {
       return requestClientMap.computeIfAbsent(subscriptionId, requestClientFactory);
     } catch (RuntimeException e) {
@@ -248,9 +268,9 @@ public class WebSocketClientHandler {
     }
   }
 
-  private SpringWebSocketClient createStandardRequestClient() {
+  private SpringWebSocketClient createRequestClient() {
     try {
-      return new SpringWebSocketClient(new StandardWebSocketClient(relayUri), relayUri);
+      return new SpringWebSocketClient(clientFactory.create(relayUri), relayUri.toString());
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to initialize request client", e);
     } catch (InterruptedException e) {

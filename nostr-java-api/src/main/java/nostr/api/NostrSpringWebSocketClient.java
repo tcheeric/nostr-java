@@ -17,7 +17,11 @@ import nostr.api.service.NoteService;
 import nostr.api.service.impl.DefaultNoteService;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
+import nostr.base.RelayUri;
+import nostr.base.SubscriptionId;
+import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.SpringWebSocketClientFactory;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
@@ -32,12 +36,13 @@ public class NostrSpringWebSocketClient implements NostrIF {
   private final NostrEventDispatcher eventDispatcher;
   private final NostrRequestDispatcher requestDispatcher;
   private final NostrSubscriptionManager subscriptionManager;
+  private final WebSocketClientFactory clientFactory;
   private NoteService noteService;
 
   @Getter private Identity sender;
 
   public NostrSpringWebSocketClient() {
-    this(null, new DefaultNoteService());
+    this(null, new DefaultNoteService(), new SpringWebSocketClientFactory());
   }
 
   /**
@@ -52,15 +57,23 @@ public class NostrSpringWebSocketClient implements NostrIF {
    * Construct a client with a custom note service implementation.
    */
   public NostrSpringWebSocketClient(@NonNull NoteService noteService) {
-    this(null, noteService);
+    this(null, noteService, new SpringWebSocketClientFactory());
   }
 
   /**
    * Construct a client with a sender identity and a custom note service.
    */
-  public NostrSpringWebSocketClient(Identity sender, @NonNull NoteService noteService) {
+  public NostrSpringWebSocketClient(@NonNull Identity sender, @NonNull NoteService noteService) {
+    this(sender, noteService, new SpringWebSocketClientFactory());
+  }
+
+  public NostrSpringWebSocketClient(
+      Identity sender,
+      @NonNull NoteService noteService,
+      @NonNull WebSocketClientFactory clientFactory) {
     this.sender = sender;
     this.noteService = noteService;
+    this.clientFactory = clientFactory;
     this.relayRegistry = new NostrRelayRegistry(buildFactory());
     this.eventDispatcher = new NostrEventDispatcher(this.noteService, this.relayRegistry);
     this.requestDispatcher = new NostrRequestDispatcher(this.relayRegistry);
@@ -70,7 +83,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
   /**
    * Construct a client with a sender identity.
    */
-  public NostrSpringWebSocketClient(Identity sender) {
+  public NostrSpringWebSocketClient(@NonNull Identity sender) {
     this(sender, new DefaultNoteService());
   }
 
@@ -130,7 +143,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
 
   @Override
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
-    return requestDispatcher.sendRequest(filters, subscriptionId);
+    return requestDispatcher.sendRequest(filters, SubscriptionId.of(subscriptionId));
   }
 
   @Override
@@ -174,17 +187,18 @@ public class NostrSpringWebSocketClient implements NostrIF {
       @NonNull String subscriptionId,
       @NonNull Consumer<String> listener,
       Consumer<Throwable> errorListener) {
+    SubscriptionId id = SubscriptionId.of(subscriptionId);
     Consumer<Throwable> safeError =
         errorListener != null
             ? errorListener
             : throwable ->
                 log.warn(
                     "Subscription error for {} on relays {}",
-                    subscriptionId,
+                    id.value(),
                     relayRegistry.getClientMap().keySet(),
                     throwable);
 
-    return subscriptionManager.subscribe(filters, subscriptionId, listener, safeError);
+    return subscriptionManager.subscribe(filters, id.value(), listener, safeError);
   }
 
   @Override
@@ -207,9 +221,9 @@ public class NostrSpringWebSocketClient implements NostrIF {
     relayRegistry.closeAll();
   }
 
-  protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri)
+  protected WebSocketClientHandler newWebSocketClientHandler(String relayName, RelayUri relayUri)
       throws ExecutionException, InterruptedException {
-    return new WebSocketClientHandler(relayName, relayUri);
+    return new WebSocketClientHandler(relayName, relayUri, clientFactory);
   }
 
   private WebSocketClientHandlerFactory buildFactory() {

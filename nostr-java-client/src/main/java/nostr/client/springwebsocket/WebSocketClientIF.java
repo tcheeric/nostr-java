@@ -103,12 +103,4 @@ public interface WebSocketClientIF extends AutoCloseable {
    */
   @Override
   void close() throws IOException;
-
-  /**
-   * @deprecated use {@link #close()} instead.
-   */
-  @Deprecated
-  default void closeSocket() throws IOException {
-    close();
-  }
 }

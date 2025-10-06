@@ -1,6 +1,5 @@
 package nostr.event;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -37,11 +36,9 @@ import org.apache.commons.lang3.stream.Streams;
 @JsonSerialize(using = BaseTagSerializer.class)
 public abstract class BaseTag implements ITag {
 
-  @JsonIgnore private IEvent parent;
-
   @Override
   public void setParent(IEvent event) {
-    this.parent = event;
+    // Intentionally left blank to avoid retaining parent references.
   }
 
   @Override
@@ -67,25 +64,6 @@ public abstract class BaseTag implements ITag {
         .filter(f -> Objects.nonNull(f.getAnnotation(Key.class)))
         .filter(f -> getFieldValue(f).isPresent())
         .collect(Collectors.toList());
-  }
-
-  /**
-   * nip parameter to be removed
-   *
-   * @deprecated use {@link #create(String, String...)} instead.
-   */
-  public static BaseTag create(String code, Integer nip, String... params) {
-    return create(code, List.of(params));
-  }
-
-  /**
-   * nip parameter to be removed
-   *
-   * @deprecated use {@link #create(String, List)} instead.
-   */
-  @Deprecated(forRemoval = true)
-  public static BaseTag create(String code, Integer nip, List<String> params) {
-    return create(code, params);
   }
 
   public static BaseTag create(@NonNull String code, @NonNull String... params) {

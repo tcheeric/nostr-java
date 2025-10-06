@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import nostr.api.WebSocketClientHandler;
+import nostr.base.RelayUri;
+import nostr.base.SubscriptionId;
 
 /**
  * Manages the lifecycle of {@link WebSocketClientHandler} instances keyed by relay name.
@@ -43,9 +45,10 @@ public final class NostrRelayRegistry {
    */
   public void registerRelays(Map<String, String> relays) {
     for (Entry<String, String> relayEntry : relays.entrySet()) {
+      RelayUri relayUri = new RelayUri(relayEntry.getValue());
       clientMap.computeIfAbsent(
           relayEntry.getKey(),
-          key -> createHandler(relayEntry.getKey(), relayEntry.getValue()));
+          key -> createHandler(relayEntry.getKey(), relayUri));
     }
   }
 
@@ -59,7 +62,7 @@ public final class NostrRelayRegistry {
         .collect(
             Collectors.toMap(
                 WebSocketClientHandler::getRelayName,
-                WebSocketClientHandler::getRelayUri,
+                handler -> handler.getRelayUri().toString(),
                 (prev, next) -> next,
                 HashMap::new));
   }
@@ -82,9 +85,9 @@ public final class NostrRelayRegistry {
    * @param subscriptionId subscription identifier suffix
    * @return list of handlers for the subscription
    */
-  public List<WebSocketClientHandler> requestHandlers(String subscriptionId) {
+  public List<WebSocketClientHandler> requestHandlers(SubscriptionId subscriptionId) {
     return clientMap.entrySet().stream()
-        .filter(entry -> entry.getKey().endsWith(":" + subscriptionId))
+        .filter(entry -> entry.getKey().endsWith(":" + subscriptionId.value()))
         .map(Entry::getValue)
         .toList();
   }
@@ -94,9 +97,9 @@ public final class NostrRelayRegistry {
    *
    * @param subscriptionId subscription identifier used to scope handlers
    */
-  public void ensureRequestClients(String subscriptionId) {
+  public void ensureRequestClients(SubscriptionId subscriptionId) {
     for (WebSocketClientHandler baseHandler : baseHandlers()) {
-      String requestKey = baseHandler.getRelayName() + ":" + subscriptionId;
+      String requestKey = baseHandler.getRelayName() + ":" + subscriptionId.value();
       clientMap.computeIfAbsent(
           requestKey,
           key -> createHandler(requestKey, baseHandler.getRelayUri()));
@@ -114,7 +117,7 @@ public final class NostrRelayRegistry {
     }
   }
 
-  private WebSocketClientHandler createHandler(String relayName, String relayUri) {
+  private WebSocketClientHandler createHandler(String relayName, RelayUri relayUri) {
     try {
       return factory.create(relayName, relayUri);
     } catch (ExecutionException | InterruptedException e) {

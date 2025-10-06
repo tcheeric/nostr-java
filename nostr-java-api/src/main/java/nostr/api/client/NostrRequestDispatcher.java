@@ -3,6 +3,7 @@ package nostr.api.client;
 import java.io.IOException;
 import java.util.List;
 import lombok.NonNull;
+import nostr.base.SubscriptionId;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.filter.Filters;
 import nostr.event.message.ReqMessage;
@@ -31,9 +32,13 @@ public final class NostrRequestDispatcher {
    * @return list of relay responses
    */
   public List<String> sendRequest(@NonNull Filters filters, @NonNull String subscriptionId) {
+    return sendRequest(filters, SubscriptionId.of(subscriptionId));
+  }
+
+  public List<String> sendRequest(@NonNull Filters filters, @NonNull SubscriptionId subscriptionId) {
     relayRegistry.ensureRequestClients(subscriptionId);
     return relayRegistry.requestHandlers(subscriptionId).stream()
-        .map(handler -> handler.sendRequest(filters, handler.getRelayName()))
+        .map(handler -> handler.sendRequest(filters, subscriptionId))
         .flatMap(List::stream)
         .toList();
   }
@@ -46,8 +51,9 @@ public final class NostrRequestDispatcher {
    * @return distinct collection of relay responses
    */
   public List<String> sendRequest(@NonNull List<Filters> filtersList, @NonNull String subscriptionId) {
+    SubscriptionId id = SubscriptionId.of(subscriptionId);
     return filtersList.stream()
-        .map(filters -> sendRequest(filters, subscriptionId))
+        .map(filters -> sendRequest(filters, id))
         .flatMap(List::stream)
         .distinct()
         .toList();

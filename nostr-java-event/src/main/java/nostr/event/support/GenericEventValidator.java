@@ -3,6 +3,7 @@ package nostr.event.support;
 import java.util.List;
 import java.util.Objects;
 import lombok.NonNull;
+import nostr.base.NipConstants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.util.validator.HexStringValidator;
@@ -15,10 +16,14 @@ public final class GenericEventValidator {
   private GenericEventValidator() {}
 
   public static void validate(@NonNull GenericEvent event) {
-    requireHex(event.getId(), 64, "Missing required `id` field.");
-    requireHex(event.getPubKey() != null ? event.getPubKey().toString() : null, 64,
+    requireHex(event.getId(), NipConstants.EVENT_ID_HEX_LENGTH, "Missing required `id` field.");
+    requireHex(
+        event.getPubKey() != null ? event.getPubKey().toString() : null,
+        NipConstants.PUBLIC_KEY_HEX_LENGTH,
         "Missing required `pubkey` field.");
-    requireHex(event.getSignature() != null ? event.getSignature().toString() : null, 128,
+    requireHex(
+        event.getSignature() != null ? event.getSignature().toString() : null,
+        NipConstants.SIGNATURE_HEX_LENGTH,
         "Missing required `sig` field.");
 
     if (event.getCreatedAt() == null || event.getCreatedAt() < 0) {

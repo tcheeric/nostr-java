@@ -2,6 +2,7 @@ package nostr.api.client;
 
 import java.util.concurrent.ExecutionException;
 import nostr.api.WebSocketClientHandler;
+import nostr.base.RelayUri;
 
 /**
  * Factory for creating {@link WebSocketClientHandler} instances.
@@ -17,6 +18,6 @@ public interface WebSocketClientHandlerFactory {
    * @throws ExecutionException if the underlying client initialization fails
    * @throws InterruptedException if thread interruption occurs during initialization
    */
-  WebSocketClientHandler create(String relayName, String relayUri)
+  WebSocketClientHandler create(String relayName, RelayUri relayUri)
       throws ExecutionException, InterruptedException;
 }

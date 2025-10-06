@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import nostr.base.SubscriptionId;
 import nostr.event.filter.Filters;
 
 /**
@@ -37,10 +38,11 @@ public final class NostrSubscriptionManager {
       @NonNull String subscriptionId,
       @NonNull Consumer<String> listener,
       @NonNull Consumer<Throwable> errorConsumer) {
+    SubscriptionId id = SubscriptionId.of(subscriptionId);
     List<AutoCloseable> handles = new ArrayList<>();
     try {
       for (var handler : relayRegistry.baseHandlers()) {
-        AutoCloseable handle = handler.subscribe(filters, subscriptionId, listener, errorConsumer);
+        AutoCloseable handle = handler.subscribe(filters, id, listener, errorConsumer);
         handles.add(handle);
       }
     } catch (RuntimeException e) {
