@@ -27,7 +27,7 @@ public class GenericEventDecoder<T extends GenericEvent> implements IDecoder<T> 
    *
    * @param jsonEvent JSON representation of the event
    * @return decoded event
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public T decode(String jsonEvent) throws EventEncodingException {

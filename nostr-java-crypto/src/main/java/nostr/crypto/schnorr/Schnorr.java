@@ -133,7 +133,7 @@ public class Schnorr {
   /**
    * Generate a random private key that can be used with Secp256k1.
    *
-   * @return
+   * @return a 32-byte private key suitable for Secp256k1
    */
   public static byte[] generatePrivateKey() {
     try {

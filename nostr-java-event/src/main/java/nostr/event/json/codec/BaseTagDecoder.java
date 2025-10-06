@@ -26,7 +26,7 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
    *
    * @param jsonString JSON representation of the tag
    * @return decoded tag
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public T decode(String jsonString) throws EventEncodingException {

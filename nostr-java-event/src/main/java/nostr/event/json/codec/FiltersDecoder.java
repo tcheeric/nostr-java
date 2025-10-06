@@ -25,7 +25,7 @@ public class FiltersDecoder implements IDecoder<Filters> {
    *
    * @param jsonFiltersList JSON representation of filters
    * @return decoded filters
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public Filters decode(@NonNull String jsonFiltersList) throws EventEncodingException {

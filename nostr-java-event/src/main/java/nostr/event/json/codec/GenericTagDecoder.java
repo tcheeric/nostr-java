@@ -30,7 +30,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
    *
    * @param json JSON array string representing the tag
    * @return decoded tag
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   // Generics are erased at runtime; safe cast because the created GenericTag matches T by contract

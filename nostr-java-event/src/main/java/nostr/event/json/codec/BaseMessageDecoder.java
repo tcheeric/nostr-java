@@ -29,7 +29,7 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
    *
    * @param jsonString JSON representation of the message
    * @return decoded message
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public T decode(@NonNull String jsonString) throws EventEncodingException {

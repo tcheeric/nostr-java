@@ -14,7 +14,7 @@ public record BaseTagEncoder(BaseTag tag) implements Encoder {
           .registerModule(new SimpleModule().addSerializer(new BaseTagSerializer<>()));
 
   @Override
-  public String encode() throws EventEncodingException {
+  public String encode() throws nostr.event.json.codec.EventEncodingException {
     try {
       return BASETAG_ENCODER_MAPPER_BLACKBIRD.writeValueAsString(tag);
     } catch (JsonProcessingException e) {

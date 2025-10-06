@@ -12,7 +12,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-14 helpers (Subject tag in text notes). Create subject tags for threads.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/14.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/14.md">NIP-14</a>
  */
 public class NIP14 {
 

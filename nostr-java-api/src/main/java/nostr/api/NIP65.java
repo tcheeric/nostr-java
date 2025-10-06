@@ -14,7 +14,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-65 helpers (Relay List Metadata). Build relay list events and r-tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/65.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/65.md">NIP-65</a>
  */
 public class NIP65 extends EventNostr {
 

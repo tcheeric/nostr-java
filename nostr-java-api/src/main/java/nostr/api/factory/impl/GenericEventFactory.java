@@ -14,7 +14,7 @@ import nostr.id.Identity;
 @Data
 public class GenericEventFactory<T extends BaseTag> extends EventFactory<GenericEvent, T> {
 
-  private Integer kind;
+  private final Integer kind;
 
   /**
    * Create a factory for a given kind with no content and no sender.

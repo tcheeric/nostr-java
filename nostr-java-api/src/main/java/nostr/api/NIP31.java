@@ -7,7 +7,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-31 helpers (Alt tag). Create alt tags describing event context/purpose.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/31.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/31.md">NIP-31</a>
  */
 public class NIP31 {
 

@@ -22,7 +22,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-61 helpers (Cashu Nutzap). Build informational and payment events for Cashu zaps.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/61.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/61.md">NIP-61</a>
  */
 public class NIP61 extends EventNostr {
 

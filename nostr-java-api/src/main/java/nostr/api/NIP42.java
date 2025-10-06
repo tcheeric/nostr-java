@@ -21,7 +21,7 @@ import nostr.event.message.GenericMessage;
 
 /**
  * NIP-42 helpers (Authentication). Build auth events and AUTH messages.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/42.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/42.md">NIP-42</a>
  */
 public class NIP42 extends EventNostr {
 

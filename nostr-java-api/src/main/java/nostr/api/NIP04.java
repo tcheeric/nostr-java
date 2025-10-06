@@ -23,7 +23,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-04 helpers (Encrypted Direct Messages). Build and encrypt DM events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/04.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/04.md">NIP-04</a>
  */
 @Slf4j
 public class NIP04 extends EventNostr {

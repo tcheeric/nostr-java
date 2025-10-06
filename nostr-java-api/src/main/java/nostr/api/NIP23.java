@@ -15,7 +15,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-23 helpers (Long-form content). Build long-form notes and related tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/23.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/23.md">NIP-23</a>
  */
 public class NIP23 extends EventNostr {
 

@@ -23,7 +23,7 @@ public class PaymentRequest extends NIP15Content.CheckoutContent {
   @JsonProperty private String message;
 
   @JsonProperty("payment_options")
-  private List<PaymentOptions> paymentOptions;
+  private final List<PaymentOptions> paymentOptions;
 
   public PaymentRequest() {
     this.paymentOptions = new ArrayList<>();

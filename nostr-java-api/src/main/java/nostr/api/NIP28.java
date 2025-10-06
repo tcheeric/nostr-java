@@ -26,7 +26,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * NIP-28 helpers (Public chat). Build channel create/metadata/message and moderation events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/28.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/28.md">NIP-28</a>
  */
 public class NIP28 extends EventNostr {
 

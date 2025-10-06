@@ -21,7 +21,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * NIP-57 helpers (Zaps). Build zap request/receipt events and related tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/57.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/57.md">NIP-57</a>
  */
 public class NIP57 extends EventNostr {
 

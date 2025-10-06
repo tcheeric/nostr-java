@@ -20,7 +20,7 @@ import nostr.util.validator.Nip05Validator;
 
 /**
  * NIP-05 helpers (DNS-based verification). Create internet identifier metadata events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/05.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/05.md">NIP-05</a>
  */
 public class NIP05 extends EventNostr {
 
