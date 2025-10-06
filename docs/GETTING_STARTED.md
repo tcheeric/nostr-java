@@ -29,7 +29,7 @@ Artifacts are published to `https://maven.398ja.xyz/releases`:
 <dependency>
   <groupId>xyz.tcheeric</groupId>
   <artifactId>nostr-java-api</artifactId>
-  <version>0.5.1</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 
