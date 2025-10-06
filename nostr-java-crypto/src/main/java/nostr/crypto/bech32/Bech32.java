@@ -50,13 +50,18 @@ public class Bech32 {
     }
   }
 
-  public static String toBech32(Bech32Prefix hrp, byte[] hexKey) throws Exception {
-    byte[] data = convertBits(hexKey, 8, 5, true);
-
-    return Bech32.encode(Bech32.Encoding.BECH32, hrp.getCode(), data);
+  public static String toBech32(Bech32Prefix hrp, byte[] hexKey) {
+    try {
+      byte[] data = convertBits(hexKey, 8, 5, true);
+      return Bech32.encode(Bech32.Encoding.BECH32, hrp.getCode(), data);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new Bech32EncodingException("Failed to encode key to Bech32", e);
+    }
   }
 
-  public static String toBech32(Bech32Prefix hrp, String hexKey) throws Exception {
+  public static String toBech32(Bech32Prefix hrp, String hexKey) {
     byte[] data = NostrUtil.hexToBytes(hexKey);
 
     return toBech32(hrp, data);
