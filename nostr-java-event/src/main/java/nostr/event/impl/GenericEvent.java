@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -116,6 +117,45 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
     // Update parents
     updateTagsParents(this.tags);
+  }
+
+  @Builder(
+      builderClassName = "GenericEventBuilder",
+      builderMethodName = "builder",
+      toBuilder = true)
+  private static GenericEvent newGenericEvent(
+      String id,
+      @NonNull PublicKey pubKey,
+      Kind kind,
+      Integer customKind,
+      List<BaseTag> tags,
+      String content,
+      Long createdAt,
+      Signature signature,
+      Integer nip) {
+
+    GenericEvent event = new GenericEvent();
+
+    Optional.ofNullable(id).ifPresent(event::setId);
+    event.setPubKey(pubKey);
+
+    if (customKind == null && kind == null) {
+      throw new IllegalArgumentException("A kind value must be provided when building a GenericEvent.");
+    }
+
+    if (customKind != null) {
+      event.setKind(customKind);
+    } else if (kind != null) {
+      event.setKind(kind.getValue());
+    }
+
+    event.setTags(Optional.ofNullable(tags).map(ArrayList::new).orElseGet(ArrayList::new));
+    event.setContent(Optional.ofNullable(content).orElse(""));
+    event.setCreatedAt(createdAt);
+    event.setSignature(signature);
+    event.setNip(nip);
+
+    return event;
   }
 
   public void setId(String id) {
