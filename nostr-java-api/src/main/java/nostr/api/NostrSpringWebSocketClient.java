@@ -40,6 +40,10 @@ public class NostrSpringWebSocketClient implements NostrIF {
     this(null, new DefaultNoteService());
   }
 
+  public NostrSpringWebSocketClient() {
+    this(null, new DefaultNoteService());
+  }
+
   /**
    * Construct a client with a single relay configured.
    */
