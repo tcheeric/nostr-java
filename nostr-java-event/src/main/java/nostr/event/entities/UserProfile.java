@@ -43,8 +43,8 @@ public final class UserProfile extends Profile implements IBech32Encodable {
       return Bech32.encode(
           Bech32.Encoding.BECH32, Bech32Prefix.NPROFILE.getCode(), this.publicKey.getRawData());
     } catch (Exception ex) {
-      log.error("", ex);
-      throw new RuntimeException(ex);
+      log.error("Failed to convert UserProfile to Bech32 format", ex);
+      throw new RuntimeException("Failed to convert UserProfile to Bech32 format", ex);
     }
   }
 

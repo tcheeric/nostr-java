@@ -53,7 +53,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
                 }
               });
 
-      log.info("Decoded GenericTag: {}", genericTag);
+      log.debug("Decoded GenericTag: {}", genericTag);
 
       return (T) genericTag;
     } catch (JsonProcessingException ex) {
