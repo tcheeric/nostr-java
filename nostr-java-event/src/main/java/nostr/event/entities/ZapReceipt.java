@@ -10,12 +10,11 @@ import nostr.event.JsonContent;
 @EqualsAndHashCode(callSuper = false)
 public class ZapReceipt implements JsonContent {
   
+  @JsonProperty private final String bolt11;
 
-  @JsonProperty private String bolt11;
+  @JsonProperty private final String descriptionSha256;
 
-  @JsonProperty private String descriptionSha256;
-
-  @JsonProperty private String preimage;
+  @JsonProperty private final String preimage;
 
   public ZapReceipt(@NonNull String bolt11, @NonNull String descriptionSha256, String preimage) {
     this.descriptionSha256 = descriptionSha256;

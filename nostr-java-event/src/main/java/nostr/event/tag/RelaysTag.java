@@ -21,7 +21,7 @@ import nostr.event.json.serializer.RelaysTagSerializer;
 @Tag(code = "relays", nip = 57)
 @JsonSerialize(using = RelaysTagSerializer.class)
 public class RelaysTag extends BaseTag {
-  private List<Relay> relays;
+  private final List<Relay> relays;
 
   public RelaysTag() {
     this.relays = new ArrayList<>();

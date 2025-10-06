@@ -11,12 +11,12 @@ import nostr.event.tag.RelaysTag;
 @EqualsAndHashCode(callSuper = false)
 public class ZapRequest implements JsonContent {
   @JsonProperty("relays")
-  private RelaysTag relaysTag;
+  private final RelaysTag relaysTag;
 
-  @JsonProperty private Long amount;
+  @JsonProperty private final Long amount;
 
   @JsonProperty("lnurl")
-  private String lnUrl;
+  private final String lnUrl;
 
   public ZapRequest(@NonNull RelaysTag relaysTag, @NonNull Long amount, @NonNull String lnUrl) {
     this.relaysTag = relaysTag;

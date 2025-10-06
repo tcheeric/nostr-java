@@ -68,7 +68,15 @@ public final class NIP46 extends EventNostr {
     private String id;
     private String method;
     // @JsonIgnore
-    private Set<String> params = new LinkedHashSet<>();
+    private final Set<String> params = new LinkedHashSet<>();
+
+    public Request(String id, String method, Set<String> params) {
+      this.id = id;
+      this.method = method;
+      if (params != null) {
+        this.params.addAll(params);
+      }
+    }
 
     /**
      * Add a parameter to the request payload preserving insertion order.
