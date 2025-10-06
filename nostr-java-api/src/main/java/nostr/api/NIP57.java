@@ -206,7 +206,9 @@ public class NIP57 extends EventNostr {
     genericEvent.addTag(NIP01.createEventTag(zapRequestEvent.getId()));
 
     nostr.event.filter.Filterable
-        .firstTagOfTypeWithCode(nostr.event.tag.AddressTag.class, Constants.Tag.ADDRESS_CODE, zapRequestEvent)
+        .getTypeSpecificTags(nostr.event.tag.AddressTag.class, zapRequestEvent)
+        .stream()
+        .findFirst()
         .ifPresent(genericEvent::addTag);
 
     genericEvent.setCreatedAt(zapRequestEvent.getCreatedAt());

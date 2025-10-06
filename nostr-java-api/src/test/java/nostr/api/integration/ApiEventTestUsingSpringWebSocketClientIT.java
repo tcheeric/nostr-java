@@ -19,6 +19,7 @@ import nostr.event.message.EventMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -28,7 +29,8 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
   private final List<SpringWebSocketClient> springWebSocketClients;
 
   @Autowired
-  public ApiEventTestUsingSpringWebSocketClientIT(Map<String, String> relays) {
+  public ApiEventTestUsingSpringWebSocketClientIT(
+      @Qualifier("relays") Map<String, String> relays) {
     this.springWebSocketClients =
         relays.values().stream()
             .map(
