@@ -56,15 +56,16 @@
     </distributionManagement>
 
     <modules>
-        <module>nostr-java-base</module>
-        <module>nostr-java-crypto</module>
-        <module>nostr-java-event</module>
-        <module>nostr-java-examples</module>
-        <module>nostr-java-id</module>
+        <!-- Build order adjusted to satisfy inter-module dependencies -->
         <module>nostr-java-util</module>
+        <module>nostr-java-crypto</module>
+        <module>nostr-java-base</module>
+        <module>nostr-java-event</module>
+        <module>nostr-java-id</module>
+        <module>nostr-java-encryption</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
-        <module>nostr-java-encryption</module>
+        <module>nostr-java-examples</module>
     </modules>
 
     <properties>
@@ -104,6 +105,52 @@
                 <scope>import</scope>
             </dependency>
             <!-- JUnit alignment now provided by nostr-java-bom -->
+            <!-- Temporary overrides: ensure reactor uses current module versions until BOM 1.1.2 is released -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-crypto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-event</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-id</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-encryption</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-examples</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

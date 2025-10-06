@@ -119,43 +119,53 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     updateTagsParents(this.tags);
   }
 
-  @Builder(
-      builderClassName = "GenericEventBuilder",
-      builderMethodName = "builder",
-      toBuilder = true)
-  private static GenericEvent newGenericEvent(
-      String id,
-      @NonNull PublicKey pubKey,
-      Kind kind,
-      Integer customKind,
-      List<BaseTag> tags,
-      String content,
-      Long createdAt,
-      Signature signature,
-      Integer nip) {
+  public static GenericEventBuilder builder() {
+    return new GenericEventBuilder();
+  }
 
-    GenericEvent event = new GenericEvent();
+  public static class GenericEventBuilder {
+    private String id;
+    private PublicKey pubKey;
+    private Kind kind;
+    private Integer customKind;
+    private List<BaseTag> tags = new ArrayList<>();
+    private String content = "";
+    private Long createdAt;
+    private Signature signature;
+    private Integer nip;
 
-    Optional.ofNullable(id).ifPresent(event::setId);
-    event.setPubKey(pubKey);
+    public GenericEventBuilder id(String id) { this.id = id; return this; }
+    public GenericEventBuilder pubKey(PublicKey pubKey) { this.pubKey = pubKey; return this; }
+    public GenericEventBuilder kind(Kind kind) { this.kind = kind; return this; }
+    public GenericEventBuilder customKind(Integer customKind) { this.customKind = customKind; return this; }
+    public GenericEventBuilder tags(List<BaseTag> tags) { this.tags = tags; return this; }
+    public GenericEventBuilder content(String content) { this.content = content; return this; }
+    public GenericEventBuilder createdAt(Long createdAt) { this.createdAt = createdAt; return this; }
+    public GenericEventBuilder signature(Signature signature) { this.signature = signature; return this; }
+    public GenericEventBuilder nip(Integer nip) { this.nip = nip; return this; }
 
-    if (customKind == null && kind == null) {
-      throw new IllegalArgumentException("A kind value must be provided when building a GenericEvent.");
+    public GenericEvent build() {
+      GenericEvent event = new GenericEvent();
+      Optional.ofNullable(id).ifPresent(event::setId);
+      event.setPubKey(pubKey);
+
+      if (customKind == null && kind == null) {
+        throw new IllegalArgumentException("A kind value must be provided when building a GenericEvent.");
+      }
+
+      if (customKind != null) {
+        event.setKind(customKind);
+      } else {
+        event.setKind(kind.getValue());
+      }
+
+      event.setTags(Optional.ofNullable(tags).map(ArrayList::new).orElseGet(ArrayList::new));
+      event.setContent(Optional.ofNullable(content).orElse(""));
+      event.setCreatedAt(createdAt);
+      event.setSignature(signature);
+      event.setNip(nip);
+      return event;
     }
-
-    if (customKind != null) {
-      event.setKind(customKind);
-    } else if (kind != null) {
-      event.setKind(kind.getValue());
-    }
-
-    event.setTags(Optional.ofNullable(tags).map(ArrayList::new).orElseGet(ArrayList::new));
-    event.setContent(Optional.ofNullable(content).orElse(""));
-    event.setCreatedAt(createdAt);
-    event.setSignature(signature);
-    event.setNip(nip);
-
-    return event;
   }
 
   public void setId(String id) {
