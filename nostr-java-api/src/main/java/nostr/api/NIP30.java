@@ -11,7 +11,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-30 helpers (Custom emoji). Create emoji tags with shortcode and image URL.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/30.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/30.md">NIP-30</a>
  */
 public class NIP30 {
 

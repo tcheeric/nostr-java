@@ -14,7 +14,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-09 helpers (Event Deletion). Build deletion events targeting events or addresses.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/09.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/09.md">NIP-09</a>
  */
 public class NIP09 extends EventNostr {
 

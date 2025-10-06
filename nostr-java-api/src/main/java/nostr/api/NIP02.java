@@ -15,7 +15,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-02 helpers (Contact List). Create and manage kind 3 contact lists and p-tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/02.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/02.md">NIP-02</a>
  */
 public class NIP02 extends EventNostr {
 

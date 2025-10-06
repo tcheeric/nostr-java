@@ -27,7 +27,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-60 helpers (Cashu over Nostr). Build wallet, token, spending history and quote events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/60.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/60.md">NIP-60</a>
  */
 public class NIP60 extends EventNostr {
 

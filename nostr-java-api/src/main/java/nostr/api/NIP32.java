@@ -11,7 +11,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-32 helpers (Labeling). Create namespace and label tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/32.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/32.md">NIP-32</a>
  */
 public class NIP32 {
 

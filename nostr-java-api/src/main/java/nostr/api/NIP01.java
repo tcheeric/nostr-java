@@ -30,7 +30,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-01 helpers (Basic protocol). Build text notes, metadata, common tags and messages.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/01.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>
  */
 public class NIP01 extends EventNostr {
 

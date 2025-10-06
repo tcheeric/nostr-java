@@ -25,7 +25,7 @@ import org.apache.commons.lang3.stream.Streams;
 
 /**
  * NIP-52 helpers (Calendar Events). Build time/date-based calendar events and RSVP.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/52.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/52.md">NIP-52</a>
  */
 public class NIP52 extends EventNostr {
   public NIP52(@NonNull Identity sender) {

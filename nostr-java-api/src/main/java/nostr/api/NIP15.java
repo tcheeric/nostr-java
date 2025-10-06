@@ -17,7 +17,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-15 helpers (Endorsements/Marketplace). Build stall/product metadata and encrypted order flows.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/15.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/15.md">NIP-15</a>
  */
 public class NIP15 extends EventNostr {
 

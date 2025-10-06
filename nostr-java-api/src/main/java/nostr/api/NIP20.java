@@ -10,7 +10,7 @@ import nostr.event.message.OkMessage;
 
 /**
  * NIP-20 helpers (OK message). Build OK messages indicating relay acceptance/rejection.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/20.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/20.md">NIP-20</a>
  */
 public class NIP20 {
 

@@ -21,7 +21,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-25 helpers (Reactions). Build reaction events and custom emoji tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/25.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/25.md">NIP-25</a>
  */
 public class NIP25 extends EventNostr {
 

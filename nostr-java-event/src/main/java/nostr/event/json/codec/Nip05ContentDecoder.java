@@ -25,7 +25,7 @@ public class Nip05ContentDecoder<T extends Nip05Content> implements IDecoder<T> 
    *
    * @param jsonContent JSON content string
    * @return decoded content
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public T decode(String jsonContent) throws EventEncodingException {

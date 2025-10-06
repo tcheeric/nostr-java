@@ -11,7 +11,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-40 helpers (Expiration). Create expiration tags for events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/40.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/40.md">NIP-40</a>
  */
 public class NIP40 {
 

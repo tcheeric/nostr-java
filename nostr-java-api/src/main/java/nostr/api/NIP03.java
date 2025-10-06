@@ -12,7 +12,7 @@ import nostr.id.Identity;
 
 /**
  * NIP-03 helpers (OpenTimestamps Attestations). Create OTS attestation events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/03.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/03.md">NIP-03</a>
  */
 public class NIP03 extends EventNostr {
 

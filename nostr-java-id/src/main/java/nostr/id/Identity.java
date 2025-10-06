@@ -16,8 +16,8 @@ import nostr.util.NostrUtil;
 /**
  * Represents a Nostr identity backed by a private key.
  *
- * <p>Instances of this class can derive the associated public key and sign arbitrary {@link
- * ISignable} objects.
+ * <p>Instances of this class can derive the associated public key and sign arbitrary
+ * {@link nostr.base.ISignable} objects.
  *
  * @author squirrel
  */
@@ -34,7 +34,7 @@ public class Identity {
   }
 
   /**
-   * Creates a new identity from an existing {@link PrivateKey}.
+   * Creates a new identity from an existing {@link nostr.base.PrivateKey}.
    *
    * @param privateKey the private key that will back the identity
    * @return a new identity using the provided key
@@ -66,7 +66,7 @@ public class Identity {
   }
 
   /**
-   * Derives the {@link PublicKey} associated with this identity's private key.
+   * Derives the {@link nostr.base.PublicKey} associated with this identity's private key.
    *
    * @return the derived public key
    * @throws IllegalStateException if public key generation fails
@@ -84,8 +84,9 @@ public class Identity {
   }
 
   /**
-   * Signs the supplied {@link ISignable} using this identity's private key. The resulting {@link
-   * Signature} is returned and also provided to the signable's signature consumer.
+   * Signs the supplied {@link nostr.base.ISignable} using this identity's private key. The
+   * resulting {@link nostr.base.Signature} is returned and also provided to the signable's
+   * signature consumer.
    *
    * @param signable the entity to sign
    * @return the generated signature
