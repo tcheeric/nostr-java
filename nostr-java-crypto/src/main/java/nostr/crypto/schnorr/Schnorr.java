@@ -44,7 +44,7 @@ public class Schnorr {
     byte[] buf = new byte[len];
     byte[] t =
         NostrUtil.xor(
-            NostrUtil.bytesFromBigInteger(secKey0), Point.taggedHash("BIP0340/aux", auxRand));
+            NostrUtil.bytesFromBigInteger(secKey0), taggedHashUnchecked("BIP0340/aux", auxRand));
 
     if (t == null) {
       throw new RuntimeException("Unexpected error. Null array");
@@ -54,7 +54,7 @@ public class Schnorr {
     System.arraycopy(P.toBytes(), 0, buf, t.length, P.toBytes().length);
     System.arraycopy(msg, 0, buf, t.length + P.toBytes().length, msg.length);
     BigInteger k0 =
-        NostrUtil.bigIntFromBytes(Point.taggedHash("BIP0340/nonce", buf)).mod(Point.getn());
+        NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/nonce", buf)).mod(Point.getn());
     if (k0.compareTo(BigInteger.ZERO) == 0) {
       throw new SchnorrException("Failure. This happens only with negligible probability.");
     }
@@ -71,7 +71,7 @@ public class Schnorr {
     System.arraycopy(P.toBytes(), 0, buf, R.toBytes().length, P.toBytes().length);
     System.arraycopy(msg, 0, buf, R.toBytes().length + P.toBytes().length, msg.length);
     BigInteger e =
-        NostrUtil.bigIntFromBytes(Point.taggedHash("BIP0340/challenge", buf)).mod(Point.getn());
+        NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
     BigInteger kes = k.add(e.multiply(secKey0)).mod(Point.getn());
     len = R.toBytes().length + NostrUtil.bytesFromBigInteger(kes).length;
     byte[] sig = new byte[len];
@@ -125,7 +125,7 @@ public class Schnorr {
     System.arraycopy(pubkey, 0, buf, 32, pubkey.length);
     System.arraycopy(msg, 0, buf, 32 + pubkey.length, msg.length);
     BigInteger e =
-        NostrUtil.bigIntFromBytes(Point.taggedHash("BIP0340/challenge", buf)).mod(Point.getn());
+        NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
     Point R = Point.add(Point.mul(Point.getG(), s), Point.mul(P, Point.getn().subtract(e)));
     return R != null && R.hasEvenY() && R.getX().compareTo(r) == 0;
   }
@@ -159,5 +159,13 @@ public class Schnorr {
     }
     Point ret = Point.mul(Point.G, x);
     return Point.bytesFromPoint(ret);
+  }
+
+  private static byte[] taggedHashUnchecked(String tag, byte[] msg) {
+    try {
+      return Point.taggedHash(tag, msg);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
