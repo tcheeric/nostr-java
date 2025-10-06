@@ -1,5 +1,7 @@
 # Custom Nostr Events
 
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how‑to](use-nostr-java-api.md) · [Streaming subscriptions](streaming-subscriptions.md) · [API reference](../reference/nostr-java-api.md)
+
 This guide shows how to construct and publish a Nostr event with a non-standard `kind` using **nostr-java**.
 
 ## Background
@@ -38,7 +40,7 @@ public class CustomEventExample {
         // Required fields `id` and `sig` are populated when signing
         identity.sign(event);
 
-        try (StandardWebSocketClient client = new StandardWebSocketClient("wss://relay.example.com")) {
+        try (StandardWebSocketClient client = new StandardWebSocketClient("wss://relay.398ja.xyz")) {
             client.send(new EventMessage(event));
         }
     }
