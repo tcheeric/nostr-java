@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
@@ -27,8 +28,200 @@ import nostr.event.json.codec.EventEncodingException;
 import nostr.id.Identity;
 
 /**
- * NIP-60 helpers (Cashu over Nostr). Build wallet, token, spending history and quote events.
- * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/60.md">NIP-60</a>
+ * NIP-60: Cashu Wallet over Nostr.
+ *
+ * <p>This class provides utilities for managing Cashu wallets on Nostr. Cashu is an ecash system
+ * for Bitcoin that enables private, custodial Bitcoin wallets. NIP-60 defines how to store and
+ * manage Cashu tokens, wallet metadata, transaction history, and quotes on Nostr relays.
+ *
+ * <h2>What is Cashu?</h2>
+ *
+ * <p>Cashu is a Chaumian ecash system for Bitcoin:
+ * <ul>
+ *   <li><strong>Ecash tokens:</strong> Bearer instruments backed by Bitcoin (like digital cash)</li>
+ *   <li><strong>Blind signatures:</strong> Mint can't link tokens to users (privacy)</li>
+ *   <li><strong>Custodial:</strong> Tokens are backed by Bitcoin held by the mint</li>
+ *   <li><strong>Transferable:</strong> Tokens can be sent peer-to-peer offline</li>
+ *   <li><strong>Lightweight:</strong> No blockchain, instant transactions</li>
+ * </ul>
+ *
+ * <h2>What is NIP-60?</h2>
+ *
+ * <p>NIP-60 defines how to store Cashu wallet data on Nostr:
+ * <ul>
+ *   <li><strong>Wallet events (kind 37375):</strong> Wallet configuration and mint URLs</li>
+ *   <li><strong>Token events (kind 7375):</strong> Unspent Cashu tokens (proofs)</li>
+ *   <li><strong>History events (kind 7376):</strong> Transaction history</li>
+ *   <li><strong>Quote events (kind 7377):</strong> Reserved tokens for redemption</li>
+ * </ul>
+ *
+ * <p>Benefits of storing Cashu on Nostr:
+ * <ul>
+ *   <li><strong>Backup:</strong> Tokens are backed up to relays (recover lost wallet)</li>
+ *   <li><strong>Sync:</strong> Multiple devices can access the same wallet</li>
+ *   <li><strong>Privacy:</strong> Events can be encrypted with NIP-04 or NIP-44</li>
+ *   <li><strong>Portable:</strong> Move wallets between clients</li>
+ * </ul>
+ *
+ * <h2>Event Kinds</h2>
+ *
+ * <table border="1">
+ *   <tr>
+ *     <th>Kind</th>
+ *     <th>Name</th>
+ *     <th>Description</th>
+ *   </tr>
+ *   <tr>
+ *     <td><strong>37375</strong></td>
+ *     <td>Wallet Event</td>
+ *     <td>Wallet metadata: name, mints, relays, supported units</td>
+ *   </tr>
+ *   <tr>
+ *     <td><strong>7375</strong></td>
+ *     <td>Token Event</td>
+ *     <td>Unspent Cashu tokens (proofs) linked to a wallet</td>
+ *   </tr>
+ *   <tr>
+ *     <td><strong>7376</strong></td>
+ *     <td>History Event</td>
+ *     <td>Transaction history: send, receive, swap</td>
+ *   </tr>
+ *   <tr>
+ *     <td><strong>7377</strong></td>
+ *     <td>Quote Event</td>
+ *     <td>Reserved tokens for Lightning redemption</td>
+ *   </tr>
+ * </table>
+ *
+ * <h2>Usage Examples</h2>
+ *
+ * <h3>Example 1: Create a Wallet Event</h3>
+ * <pre>{@code
+ * Identity walletOwner = new Identity("nsec1...");
+ *
+ * CashuWallet wallet = CashuWallet.builder()
+ *     .name("My Cashu Wallet")
+ *     .mints(List.of(
+ *         new CashuMint("https://mint.minibits.cash/Bitcoin", List.of("sat", "msat"))
+ *     ))
+ *     .relays(List.of(new Relay("wss://relay.damus.io")))
+ *     .unit("sat")
+ *     .build();
+ *
+ * NIP60 nip60 = new NIP60(walletOwner);
+ * nip60.createWalletEvent(wallet)
+ *      .sign()
+ *      .send(relays);
+ * }</pre>
+ *
+ * <h3>Example 2: Create a Token Event (Store Unspent Tokens)</h3>
+ * <pre>{@code
+ * Identity walletOwner = new Identity("nsec1...");
+ * CashuWallet wallet = ... // existing wallet
+ *
+ * CashuToken token = CashuToken.builder()
+ *     .mint("https://mint.minibits.cash/Bitcoin")
+ *     .proofs(List.of(...)) // list of proofs from the mint
+ *     .build();
+ *
+ * NIP60 nip60 = new NIP60(walletOwner);
+ * nip60.createTokenEvent(token, wallet)
+ *      .sign()
+ *      .send(relays); // backup tokens to relays
+ * }</pre>
+ *
+ * <h3>Example 3: Create a Spending History Event</h3>
+ * <pre>{@code
+ * Identity walletOwner = new Identity("nsec1...");
+ * CashuWallet wallet = ... // existing wallet
+ *
+ * SpendingHistory history = SpendingHistory.builder()
+ *     .direction("out") // "in" or "out"
+ *     .amount(new Amount(1000, "sat"))
+ *     .timestamp(System.currentTimeMillis() / 1000)
+ *     .description("Paid for coffee")
+ *     .build();
+ *
+ * NIP60 nip60 = new NIP60(walletOwner);
+ * nip60.createSpendingHistoryEvent(history, wallet)
+ *      .sign()
+ *      .send(relays);
+ * }</pre>
+ *
+ * <h3>Example 4: Create a Redemption Quote Event</h3>
+ * <pre>{@code
+ * Identity walletOwner = new Identity("nsec1...");
+ *
+ * CashuQuote quote = CashuQuote.builder()
+ *     .quoteId("quote_abc123")
+ *     .amount(new Amount(5000, "sat"))
+ *     .mint("https://mint.minibits.cash/Bitcoin")
+ *     .request("lnbc5000n...") // Lightning invoice
+ *     .state("pending") // pending, paid, unpaid
+ *     .build();
+ *
+ * NIP60 nip60 = new NIP60(walletOwner);
+ * nip60.createRedemptionQuoteEvent(quote)
+ *      .sign()
+ *      .send(relays);
+ * }</pre>
+ *
+ * <h2>Key Concepts</h2>
+ *
+ * <h3>Cashu Proofs</h3>
+ * <p>Cashu proofs are the actual tokens. They are JSON objects containing:
+ * <ul>
+ *   <li><strong>id:</strong> Keyset ID (identifies the mint's keys)</li>
+ *   <li><strong>amount:</strong> Token denomination (e.g., 1, 2, 4, 8, 16... sats)</li>
+ *   <li><strong>secret:</strong> Random secret (proves ownership)</li>
+ *   <li><strong>C:</strong> Blinded signature from the mint</li>
+ * </ul>
+ *
+ * <h3>Mints</h3>
+ * <p>Mints are custodians that issue Cashu tokens. Each mint:
+ * <ul>
+ *   <li>Holds Bitcoin reserves backing the tokens</li>
+ *   <li>Signs tokens with blind signatures</li>
+ *   <li>Redeems tokens for Bitcoin (Lightning)</li>
+ *   <li>Can support multiple units (sat, msat, USD, EUR, etc.)</li>
+ * </ul>
+ *
+ * <h3>Wallet Tags</h3>
+ * <p>Wallet events use a 'd' tag to identify the wallet (like an address). Token, history, and
+ * quote events reference this 'd' tag to associate data with a specific wallet.
+ *
+ * <h2>Security Considerations</h2>
+ *
+ * <ul>
+ *   <li><strong>Encrypt events:</strong> Use NIP-04 or NIP-44 to encrypt token events (proofs are bearer instruments!)</li>
+ *   <li><strong>Relay trust:</strong> Relays can see encrypted data but not decrypt it</li>
+ *   <li><strong>Mint trust:</strong> Mints are custodial - they hold your Bitcoin</li>
+ *   <li><strong>Backup regularly:</strong> Sync tokens to relays to prevent loss</li>
+ *   <li><strong>Spent tokens:</strong> Delete spent token events to avoid confusion</li>
+ * </ul>
+ *
+ * <h2>Design Pattern</h2>
+ *
+ * <p>This class follows the <strong>Facade Pattern</strong>:
+ * <ul>
+ *   <li>Simplifies creation of NIP-60 events (wallet, token, history, quote)</li>
+ *   <li>Delegates to {@link GenericEventFactory} for event construction</li>
+ *   <li>Uses entity classes ({@link CashuWallet}, {@link CashuToken}, {@link SpendingHistory}, {@link CashuQuote})</li>
+ *   <li>Provides static helper methods for tag creation</li>
+ * </ul>
+ *
+ * <h2>Thread Safety</h2>
+ *
+ * <p>This class is <strong>not thread-safe</strong> for instance methods. Each thread should create
+ * its own {@code NIP60} instance. Static methods are thread-safe.
+ *
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/60.md">NIP-60 Specification</a>
+ * @see <a href="https://docs.cashu.space">Cashu Documentation</a>
+ * @see CashuWallet
+ * @see CashuToken
+ * @see SpendingHistory
+ * @see CashuQuote
+ * @since 0.6.0
  */
 public class NIP60 extends EventNostr {
 
@@ -41,7 +234,7 @@ public class NIP60 extends EventNostr {
     GenericEvent walletEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CASHU_WALLET_EVENT,
+                Kind.WALLET.getValue(),
                 getWalletEventTags(wallet),
                 getWalletEventContent(wallet))
             .create();
@@ -54,7 +247,7 @@ public class NIP60 extends EventNostr {
     GenericEvent tokenEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CASHU_WALLET_TOKENS,
+                Kind.WALLET_UNSPENT_PROOF.getValue(),
                 getTokenEventTags(wallet),
                 getTokenEventContent(token))
             .create();
@@ -68,7 +261,7 @@ public class NIP60 extends EventNostr {
     GenericEvent spendingHistoryEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CASHU_WALLET_HISTORY,
+                Kind.WALLET_TX_HISTORY.getValue(),
                 getSpendingHistoryEventTags(wallet),
                 getSpendingHistoryEventContent(spendingHistory))
             .create();
@@ -81,7 +274,7 @@ public class NIP60 extends EventNostr {
     GenericEvent redemptionQuoteEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CASHU_RESERVED_WALLET_TOKENS,
+                Kind.RESERVED_CASHU_WALLET_TOKENS.getValue(),
                 getRedemptionQuoteEventTags(quote),
                 getRedemptionQuoteEventContent(quote))
             .create();
@@ -216,7 +409,12 @@ public class NIP60 extends EventNostr {
     return NIP44.encrypt(getSender(), content, getSender().getPublicKey());
   }
 
-  // TODO: Consider writing a GenericTagListEncoder class for this
+  /**
+   * Encodes a list of tags to JSON array format.
+   *
+   * <p>Note: This could be extracted to a GenericTagListEncoder class if this pattern
+   * is used in multiple places. For now, it's kept here as it's NIP-60 specific.
+   */
   private String getContent(@NonNull List<BaseTag> tags) {
     return "["
         + tags.stream()
@@ -264,7 +462,7 @@ public class NIP60 extends EventNostr {
 
     tags.add(
         NIP01.createAddressTag(
-            Constants.Kind.CASHU_WALLET_EVENT,
+            Kind.WALLET.getValue(),
             getSender().getPublicKey(),
             NIP01.createIdentifierTag(wallet.getId()),
             null));
@@ -282,7 +480,7 @@ public class NIP60 extends EventNostr {
     tags.add(NIP60.createMintTag(quote.getMint()));
     tags.add(
         NIP01.createAddressTag(
-            Constants.Kind.CASHU_WALLET_EVENT,
+            Kind.WALLET.getValue(),
             getSender().getPublicKey(),
             NIP01.createIdentifierTag(quote.getWallet().getId()),
             null));

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import nostr.api.NIP23;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ public class NIP23Test {
     nip23.addImageTag(new URL("https://example.com"));
     GenericEvent event = nip23.getEvent();
 
-    assertEquals(Constants.Kind.LONG_FORM_TEXT_NOTE, event.getKind());
+    assertEquals(Kind.LONG_FORM_TEXT_NOTE.getValue(), event.getKind());
     assertTrue(event.getTags().stream().anyMatch(t -> t.getCode().equals("title")));
     assertTrue(event.getTags().stream().anyMatch(t -> t.getCode().equals("image")));
   }

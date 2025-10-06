@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,17 +38,27 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   @Override
   public String encode() throws EventEncodingException {
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+      return EventJsonMapper.getMapper().writeValueAsString(
           JsonNodeFactory.instance
               .arrayNode()
               .add(getCommand())
-              .add(ENCODER_MAPPER_BLACKBIRD.readTree(new BaseEventEncoder<>(getEvent()).encode())));
+              .add(EventJsonMapper.getMapper().readTree(new BaseEventEncoder<>(getEvent()).encode())));
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode canonical authentication message", e);
     }
   }
 
-  // TODO - This needs to be reviewed
+  /**
+   * Decodes a map representation into a CanonicalAuthenticationMessage.
+   *
+   * <p>This method converts the map (typically from JSON deserialization) into
+   * a properly typed CanonicalAuthenticationMessage with a CanonicalAuthenticationEvent.
+   *
+   * @param map the map containing event data
+   * @param <T> the message type (must be BaseMessage)
+   * @return the decoded CanonicalAuthenticationMessage
+   * @throws EventEncodingException if decoding fails
+   */
   @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Map map) {
     try {
@@ -69,7 +79,6 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
   }
 
   private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
-    //    TODO: stream optional
     return genericTags.stream()
         .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName))
         .map(GenericTag::getAttributes)

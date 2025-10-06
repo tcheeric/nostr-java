@@ -3,7 +3,7 @@ package nostr.api.nip01;
 import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
@@ -26,17 +26,17 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildTextNote(String content) {
-    return new GenericEventFactory(resolveSender(null), Constants.Kind.SHORT_TEXT_NOTE, content)
+    return new GenericEventFactory(resolveSender(null), Kind.TEXT_NOTE.getValue(), content)
         .create();
   }
 
   public GenericEvent buildTextNote(Identity sender, String content) {
-    return new GenericEventFactory(resolveSender(sender), Constants.Kind.SHORT_TEXT_NOTE, content)
+    return new GenericEventFactory(resolveSender(sender), Kind.TEXT_NOTE.getValue(), content)
         .create();
   }
 
   public GenericEvent buildRecipientTextNote(Identity sender, String content, List<PubKeyTag> tags) {
-    return new GenericEventFactory<PubKeyTag>(resolveSender(sender), Constants.Kind.SHORT_TEXT_NOTE, tags, content)
+    return new GenericEventFactory<PubKeyTag>(resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
@@ -45,12 +45,12 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildTaggedTextNote(@NonNull List<BaseTag> tags, @NonNull String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), Constants.Kind.SHORT_TEXT_NOTE, tags, content)
+    return new GenericEventFactory<BaseTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
   public GenericEvent buildMetadataEvent(@NonNull Identity sender, @NonNull String payload) {
-    return new GenericEventFactory(sender, Constants.Kind.USER_METADATA, payload).create();
+    return new GenericEventFactory(sender, Kind.SET_METADATA.getValue(), payload).create();
   }
 
   public GenericEvent buildMetadataEvent(@NonNull String payload) {
@@ -58,7 +58,7 @@ public final class NIP01EventBuilder {
     if (sender != null) {
       return buildMetadataEvent(sender, payload);
     }
-    return new GenericEventFactory(Constants.Kind.USER_METADATA, payload).create();
+    return new GenericEventFactory(Kind.SET_METADATA.getValue(), payload).create();
   }
 
   public GenericEvent buildReplaceableEvent(Integer kind, String content) {

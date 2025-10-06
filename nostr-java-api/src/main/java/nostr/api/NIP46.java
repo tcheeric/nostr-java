@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
@@ -38,7 +38,7 @@ public final class NIP46 extends EventNostr {
   public NIP46 createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
     String content = NIP44.encrypt(getSender(), request.toString(), signer);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        new GenericEventFactory(getSender(), Kind.NOSTR_CONNECT.getValue(), content).create();
     genericEvent.addTag(NIP01.createPubKeyTag(signer));
     this.updateEvent(genericEvent);
     return this;
@@ -54,7 +54,7 @@ public final class NIP46 extends EventNostr {
   public NIP46 createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
     String content = NIP44.encrypt(getSender(), response.toString(), app);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        new GenericEventFactory(getSender(), Kind.NOSTR_CONNECT.getValue(), content).create();
     genericEvent.addTag(NIP01.createPubKeyTag(app));
     this.updateEvent(genericEvent);
     return this;
@@ -89,6 +89,8 @@ public final class NIP46 extends EventNostr {
 
     /**
      * Serialize this request to JSON.
+     *
+     * @return the JSON representation of this request
      */
     public String toString() {
       try {
@@ -103,7 +105,7 @@ public final class NIP46 extends EventNostr {
      * Deserialize a JSON string into a Request.
      *
      * @param jsonString the JSON string
-     * @return the parsed Request
+     * @return the parsed Request instance
      */
     public static Request fromString(@NonNull String jsonString) {
       try {
@@ -125,6 +127,8 @@ public final class NIP46 extends EventNostr {
 
     /**
      * Serialize this response to JSON.
+     *
+     * @return the JSON representation of this response
      */
     public String toString() {
       try {
@@ -139,7 +143,7 @@ public final class NIP46 extends EventNostr {
      * Deserialize a JSON string into a Response.
      *
      * @param jsonString the JSON string
-     * @return the parsed Response
+     * @return the parsed Response instance
      */
     public static Response fromString(@NonNull String jsonString) {
       try {

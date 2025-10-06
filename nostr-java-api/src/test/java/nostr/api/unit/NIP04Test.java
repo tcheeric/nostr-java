@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import nostr.api.NIP04;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
@@ -22,7 +22,7 @@ public class NIP04Test {
     nip04.createDirectMessageEvent(content);
 
     GenericEvent event = nip04.getEvent();
-    assertEquals(Constants.Kind.ENCRYPTED_DIRECT_MESSAGE, event.getKind());
+    assertEquals(Kind.ENCRYPTED_DIRECT_MESSAGE.getValue(), event.getKind());
     assertTrue(event.getTags().stream().anyMatch(t -> t instanceof PubKeyTag));
 
     String decrypted = NIP04.decrypt(recipient, event);

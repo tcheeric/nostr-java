@@ -1,10 +1,10 @@
 package nostr.event.support;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.EventJsonMapper;
 import nostr.util.NostrException;
 
 /**
@@ -15,7 +15,7 @@ public final class GenericEventSerializer {
   private GenericEventSerializer() {}
 
   public static String serialize(GenericEvent event) throws NostrException {
-    var mapper = ENCODER_MAPPER_BLACKBIRD;
+    ObjectMapper mapper = EventJsonMapper.getMapper();
     var arrayNode = JsonNodeFactory.instance.arrayNode();
     try {
       arrayNode.add(0);

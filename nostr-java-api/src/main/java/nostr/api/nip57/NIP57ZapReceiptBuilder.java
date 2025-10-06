@@ -7,8 +7,8 @@ import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.nip01.NIP01TagFactory;
 import nostr.base.IEvent;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.config.Constants;
 import nostr.event.filter.Filterable;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
@@ -37,7 +37,7 @@ public final class NIP57ZapReceiptBuilder {
       @NonNull String preimage,
       @NonNull PublicKey zapRecipient) {
     GenericEvent receipt =
-        new GenericEventFactory(resolveSender(null), Constants.Kind.ZAP_RECEIPT, "").create();
+        new GenericEventFactory(resolveSender(null), Kind.ZAP_RECEIPT.getValue(), "").create();
 
     receipt.addTag(NIP01TagFactory.pubKeyTag(zapRecipient));
     try {

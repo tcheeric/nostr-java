@@ -49,11 +49,17 @@ class ApiEventTestUsingSpringWebSocketClientIT extends BaseRelayIntegrationTest 
   @Test
   // Executes the NIP-15 product event test against every configured relay endpoint.
   void doForEach() {
-    springWebSocketClients.forEach(this::testNIP15SendProductEventUsingSpringWebSocketClient);
+    springWebSocketClients.forEach(client -> {
+      try {
+        testNIP15SendProductEventUsingSpringWebSocketClient(client);
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
   }
 
   void testNIP15SendProductEventUsingSpringWebSocketClient(
-      SpringWebSocketClient springWebSocketClient) {
+      SpringWebSocketClient springWebSocketClient) throws java.io.IOException {
     System.out.println("testNIP15CreateProductEventUsingSpringWebSocketClient");
     var product = createProduct(createStall());
 

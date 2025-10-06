@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
@@ -57,7 +58,7 @@ public class NIP61 extends EventNostr {
       @NonNull List<CashuMint> mints) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_INFO_EVENT).create();
+        new GenericEventFactory(getSender(), Kind.NUTZAP_INFORMATIONAL.getValue()).create();
 
     relays.forEach(relay -> genericEvent.addTag(NIP42.createRelayTag(relay)));
     mints.forEach(mint -> genericEvent.addTag(NIP60.createMintTag(mint)));
@@ -107,7 +108,7 @@ public class NIP61 extends EventNostr {
       @NonNull String content) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_EVENT, content).create();
+        new GenericEventFactory(getSender(), Kind.NUTZAP.getValue(), content).create();
 
     proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));
 
@@ -122,7 +123,11 @@ public class NIP61 extends EventNostr {
     return this;
   }
 
-  @Deprecated
+  /**
+   * @deprecated Use builder pattern or parameter object for complex event creation.
+   *             This method will be removed in version 1.0.0.
+   */
+  @Deprecated(forRemoval = true, since = "0.6.2")
   public NIP61 createNutzapEvent(
       @NonNull Amount amount,
       List<CashuProof> proofs,
@@ -132,7 +137,7 @@ public class NIP61 extends EventNostr {
       @NonNull String content) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_EVENT, content).create();
+        new GenericEventFactory(getSender(), Kind.NUTZAP.getValue(), content).create();
 
     if (proofs != null) {
       proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));

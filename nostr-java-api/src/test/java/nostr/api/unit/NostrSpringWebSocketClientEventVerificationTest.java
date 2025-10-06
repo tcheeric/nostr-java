@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.service.NoteService;
 import nostr.base.ISignable;
+import nostr.base.Kind;
 import nostr.base.Signature;
-import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import nostr.id.SigningException;
@@ -25,7 +25,7 @@ public class NostrSpringWebSocketClientEventVerificationTest {
   void sendEventThrowsWhenUnsigned() {
     GenericEvent event = new GenericEvent();
     event.setPubKey(Identity.generateRandomIdentity().getPublicKey());
-    event.setKind(Constants.Kind.SHORT_TEXT_NOTE);
+    event.setKind(Kind.TEXT_NOTE.getValue());
     event.setContent("test");
 
     NoteService service = Mockito.mock(NoteService.class);
@@ -37,7 +37,7 @@ public class NostrSpringWebSocketClientEventVerificationTest {
   @Test
   void sendEventReturnsEmptyListWhenSigned() {
     Identity identity = Identity.generateRandomIdentity();
-    GenericEvent event = new GenericEvent(identity.getPublicKey(), Constants.Kind.SHORT_TEXT_NOTE);
+    GenericEvent event = new GenericEvent(identity.getPublicKey(), Kind.TEXT_NOTE.getValue());
     event.setContent("signed");
     identity.sign(event);
 

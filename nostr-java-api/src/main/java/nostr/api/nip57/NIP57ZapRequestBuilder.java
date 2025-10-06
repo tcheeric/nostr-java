@@ -5,6 +5,7 @@ import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.nip01.NIP01TagFactory;
 import nostr.api.nip57.NIP57TagFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
@@ -119,7 +120,7 @@ public final class NIP57ZapRequestBuilder {
   private GenericEvent initialiseZapRequest(Identity sender, String content) {
     Identity resolved = resolveSender(sender);
     GenericEventFactory factory =
-        new GenericEventFactory(resolved, Constants.Kind.ZAP_REQUEST, content == null ? "" : content);
+        new GenericEventFactory(resolved, Kind.ZAP_REQUEST.getValue(), content == null ? "" : content);
     return factory.create();
   }
 

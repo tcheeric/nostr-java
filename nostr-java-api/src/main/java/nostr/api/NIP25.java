@@ -6,6 +6,7 @@ import java.net.URL;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
@@ -47,7 +48,7 @@ public class NIP25 extends EventNostr {
   public NIP25 createReactionEvent(
       @NonNull GenericEvent event, @NonNull String content, Relay relay) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REACTION, content).create();
+        new GenericEventFactory(getSender(), Kind.REACTION.getValue(), content).create();
 
     // Addressable event?
     if (event.isAddressable()) {
@@ -73,7 +74,7 @@ public class NIP25 extends EventNostr {
   public NIP25 createReactionToWebsiteEvent(@NonNull URL url, @NonNull Reaction reaction) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.REACTION_TO_WEBSITE, reaction.getEmoji())
+                getSender(), Kind.REACTION_TO_WEBSITE.getValue(), reaction.getEmoji())
             .create();
     genericEvent.addTag(NIP12.createReferenceTag(url));
     this.updateEvent(genericEvent);
@@ -101,7 +102,7 @@ public class NIP25 extends EventNostr {
     var content = String.format(":%s:", shortCode);
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REACTION, content).create();
+        new GenericEventFactory(getSender(), Kind.REACTION.getValue(), content).create();
     genericEvent.addTag(emojiTag);
     genericEvent.addTag(eventTag);
 

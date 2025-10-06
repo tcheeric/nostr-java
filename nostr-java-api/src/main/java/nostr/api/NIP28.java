@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.IEvent;
+import nostr.base.Kind;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -41,7 +42,7 @@ public class NIP28 extends EventNostr {
     GenericEvent genericEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CHANNEL_CREATION,
+                Kind.CHANNEL_CREATE.getValue(),
                 StringEscapeUtils.escapeJson(profile.toString()))
             .create();
     this.updateEvent(genericEvent);
@@ -68,13 +69,13 @@ public class NIP28 extends EventNostr {
       @NonNull String content) {
 
     // 1. Validation
-    if (channelCreateEvent.getKind() != Constants.Kind.CHANNEL_CREATION) {
+    if (channelCreateEvent.getKind() != Kind.CHANNEL_CREATE.getValue()) {
       throw new IllegalArgumentException("The event is not a channel creation event");
     }
 
     // 2. Create the event
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CHANNEL_MESSAGE, content).create();
+        new GenericEventFactory(getSender(), Kind.CHANNEL_MESSAGE.getValue(), content).create();
 
     // 3. Add the tags
     genericEvent.addTag(
@@ -145,14 +146,14 @@ public class NIP28 extends EventNostr {
       Relay relay) {
 
     // 1. Validation
-    if (channelCreateEvent.getKind() != Constants.Kind.CHANNEL_CREATION) {
+    if (channelCreateEvent.getKind() != Kind.CHANNEL_CREATE.getValue()) {
       throw new IllegalArgumentException("The event is not a channel creation event");
     }
 
     GenericEvent genericEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CHANNEL_METADATA,
+                Kind.CHANNEL_METADATA.getValue(),
                 StringEscapeUtils.escapeJson(profile.toString()))
             .create();
     genericEvent.addTag(NIP01.createEventTag(channelCreateEvent.getId(), relay, Marker.ROOT));
@@ -176,14 +177,14 @@ public class NIP28 extends EventNostr {
    */
   public NIP28 createHideMessageEvent(@NonNull GenericEvent channelMessageEvent, String reason) {
 
-    if (channelMessageEvent.getKind() != Constants.Kind.CHANNEL_MESSAGE) {
+    if (channelMessageEvent.getKind() != Kind.CHANNEL_MESSAGE.getValue()) {
       throw new IllegalArgumentException("The event is not a channel message event");
     }
 
     GenericEvent genericEvent =
         new GenericEventFactory(
                 getSender(),
-                Constants.Kind.CHANNEL_HIDE_MESSAGE,
+                Kind.CHANNEL_HIDE_MESSAGE.getValue(),
                 Reason.fromString(reason).toString())
             .create();
     genericEvent.addTag(NIP01.createEventTag(channelMessageEvent.getId()));
@@ -200,7 +201,7 @@ public class NIP28 extends EventNostr {
   public NIP28 createMuteUserEvent(@NonNull PublicKey mutedUser, String reason) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.CHANNEL_MUTE_USER, Reason.fromString(reason).toString())
+                getSender(), Kind.CHANNEL_MUTE_USER.getValue(), Reason.fromString(reason).toString())
             .create();
     genericEvent.addTag(NIP01.createPubKeyTag(mutedUser));
     updateEvent(genericEvent);

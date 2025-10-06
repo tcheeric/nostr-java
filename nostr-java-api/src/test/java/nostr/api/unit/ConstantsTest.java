@@ -3,6 +3,7 @@ package nostr.api.unit;
 import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
@@ -12,10 +13,11 @@ import org.junit.jupiter.api.Test;
 public class ConstantsTest {
 
   @Test
-  void testKindValues() {
-    assertEquals(0, Constants.Kind.USER_METADATA);
-    assertEquals(1, Constants.Kind.SHORT_TEXT_NOTE);
-    assertEquals(42, Constants.Kind.CHANNEL_MESSAGE);
+  void testKindValuesDelegateToKindEnum() {
+    // Test that Constants.Kind values correctly delegate to Kind enum
+    assertEquals(Kind.SET_METADATA.getValue(), Constants.Kind.USER_METADATA);
+    assertEquals(Kind.TEXT_NOTE.getValue(), Constants.Kind.SHORT_TEXT_NOTE);
+    assertEquals(Kind.CHANNEL_MESSAGE.getValue(), Constants.Kind.CHANNEL_MESSAGE);
   }
 
   @Test

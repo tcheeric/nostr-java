@@ -101,7 +101,7 @@ public class WebSocketClientHandler {
    * @param subscriptionId the subscription identifier
    * @return relay responses (raw JSON messages)
    */
-  protected List<String> sendRequest(
+  public List<String> sendRequest(
       @NonNull Filters filters, @NonNull SubscriptionId subscriptionId) {
     try {
       @SuppressWarnings("resource")

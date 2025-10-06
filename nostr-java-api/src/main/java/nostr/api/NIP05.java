@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
+import nostr.base.Kind;
 import nostr.event.entities.UserProfile;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
@@ -35,7 +35,7 @@ public class NIP05 extends EventNostr {
     String content = getContent(profile);
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.USER_METADATA, new ArrayList<>(), content)
+                getSender(), Kind.SET_METADATA.getValue(), new ArrayList<>(), content)
             .create();
     this.updateEvent(genericEvent);
     return this;

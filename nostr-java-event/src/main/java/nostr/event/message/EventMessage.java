@@ -1,6 +1,6 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import nostr.event.json.EventJsonMapper;
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,9 +51,9 @@ public class EventMessage extends BaseMessage {
     Optional.ofNullable(getSubscriptionId()).ifPresent(arrayNode::add);
     try {
       arrayNode.add(
-          ENCODER_MAPPER_BLACKBIRD.readTree(
+          EventJsonMapper.getMapper().readTree(
               new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(arrayNode);
+      return EventJsonMapper.getMapper().writeValueAsString(arrayNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode event message", e);
     }

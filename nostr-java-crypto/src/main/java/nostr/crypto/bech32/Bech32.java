@@ -7,10 +7,138 @@ import java.util.Locale;
 import nostr.util.NostrUtil;
 
 /**
- * Implementation of the Bech32 encoding.
+ * Bech32 and Bech32m encoding/decoding implementation for NIP-19.
  *
- * <p>See <a href="https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki">BIP350</a> and <a
- * href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki">BIP173</a> for details.
+ * <p>This class provides utilities for encoding and decoding Nostr identifiers using the Bech32
+ * format defined in NIP-19. Bech32 provides human-readable, error-detecting encoding for binary
+ * data, originally defined for Bitcoin addresses.
+ *
+ * <h2>What is Bech32?</h2>
+ *
+ * <p>Bech32 is an encoding scheme that:
+ * <ul>
+ *   <li>Uses a human-readable prefix (HRP) like "npub", "nsec", "note"</li>
+ *   <li>Encodes binary data in a 32-character alphabet (no 0/O, 1/I/l confusion)</li>
+ *   <li>Includes a 6-character checksum for error detection</li>
+ *   <li>Is case-insensitive (always lowercase by convention)</li>
+ *   <li>Uses separator '1' between HRP and data</li>
+ * </ul>
+ *
+ * <p>Format: <code>[hrp]1[data][checksum]</code>
+ *
+ * <h2>Bech32 vs Bech32m</h2>
+ *
+ * <p>Two variants exist:
+ * <ul>
+ *   <li><strong>Bech32 (BIP-173):</strong> Original spec, used for simple data (npub, nsec, note)</li>
+ *   <li><strong>Bech32m (BIP-350):</strong> Updated spec, used for TLV-encoded data (nprofile, nevent)</li>
+ * </ul>
+ *
+ * <p>The difference is in the checksum constant used during encoding/decoding.
+ *
+ * <h2>Usage Examples</h2>
+ *
+ * <h3>Example 1: Encode a Public Key (npub)</h3>
+ * <pre>{@code
+ * String hexPubKey = "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d";
+ * String npub = Bech32.toBech32(Bech32Prefix.NPUB, hexPubKey);
+ * // Returns: "npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6"
+ * }</pre>
+ *
+ * <h3>Example 2: Decode an npub Back to Hex</h3>
+ * <pre>{@code
+ * String npub = "npub180cvv07tjdrrgpa0j7j7tmnyl2yr6yr7l8j4s3evf6u64th6gkwsyjh6w6";
+ * String hex = Bech32.fromBech32(npub);
+ * // Returns: "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"
+ * }</pre>
+ *
+ * <h3>Example 3: Low-Level Encoding</h3>
+ * <pre>{@code
+ * byte[] data = hexToBytes("3bf0c63f...");
+ * byte[] fiveBitData = convertBits(data, 8, 5, true);
+ * String encoded = Bech32.encode(Bech32.Encoding.BECH32, "npub", fiveBitData);
+ * }</pre>
+ *
+ * <h3>Example 4: Low-Level Decoding</h3>
+ * <pre>{@code
+ * Bech32Data decoded = Bech32.decode("npub180cvv07tjdrrgpa0j...");
+ * String hrp = decoded.hrp; // "npub"
+ * byte[] fiveBitData = decoded.data;
+ * Encoding encoding = decoded.encoding; // BECH32 or BECH32M
+ * }</pre>
+ *
+ * <h2>Character Set</h2>
+ *
+ * <p>Bech32 uses a 32-character alphabet: <code>qpzry9x8gf2tvdw0s3jn54khce6mua7l</code>
+ *
+ * <p>This alphabet excludes:
+ * <ul>
+ *   <li><strong>1, b, i, o:</strong> Visually similar to other characters</li>
+ *   <li><strong>Uppercase:</strong> All strings are lowercase</li>
+ * </ul>
+ *
+ * <h2>Error Detection</h2>
+ *
+ * <p>Bech32 detects:
+ * <ul>
+ *   <li>Any single character error</li>
+ *   <li>Any two adjacent character swaps</li>
+ *   <li>Most insertion/deletion errors</li>
+ *   <li>Most multi-character errors</li>
+ * </ul>
+ *
+ * <h2>API Methods</h2>
+ *
+ * <table border="1">
+ *   <tr>
+ *     <th>Method</th>
+ *     <th>Purpose</th>
+ *     <th>Use Case</th>
+ *   </tr>
+ *   <tr>
+ *     <td>{@link #toBech32(Bech32Prefix, String)}</td>
+ *     <td>Hex string → Bech32</td>
+ *     <td>Most common: encode keys/IDs</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@link #toBech32(Bech32Prefix, byte[])}</td>
+ *     <td>Bytes → Bech32</td>
+ *     <td>Encode raw binary data</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@link #fromBech32(String)}</td>
+ *     <td>Bech32 → Hex string</td>
+ *     <td>Decode to hex for processing</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@link #encode(Encoding, String, byte[])}</td>
+ *     <td>Low-level encoding</td>
+ *     <td>Custom encoding with 5-bit data</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@link #decode(String)}</td>
+ *     <td>Low-level decoding</td>
+ *     <td>Parse and validate Bech32</td>
+ *   </tr>
+ * </table>
+ *
+ * <h2>Thread Safety</h2>
+ *
+ * <p>All methods are static and thread-safe.
+ *
+ * <h2>Exceptions</h2>
+ *
+ * <ul>
+ *   <li><strong>IllegalArgumentException:</strong> Invalid input data</li>
+ *   <li><strong>Bech32EncodingException:</strong> Encoding failures (wraps other exceptions)</li>
+ *   <li><strong>Exception:</strong> Decoding errors (malformed input, invalid checksum, etc.)</li>
+ * </ul>
+ *
+ * @see <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki">BIP-173 (Bech32)</a>
+ * @see <a href="https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki">BIP-350 (Bech32m)</a>
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/19.md">NIP-19 Specification</a>
+ * @see Bech32Prefix
+ * @since 0.1.0
  */
 public class Bech32 {
 
