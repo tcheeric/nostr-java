@@ -112,9 +112,9 @@ public final class Constants {
     @Deprecated(forRemoval = true, since = "0.6.2")
     public static final int CLIENT_AUTHENTICATION = nostr.base.Kind.CLIENT_AUTH.getValue();
 
-    /** @deprecated Use {@link nostr.base.Kind#REQUEST_EVENTS} instead */
+    /** @deprecated Use {@link nostr.base.Kind#NOSTR_CONNECT} instead */
     @Deprecated(forRemoval = true, since = "0.6.2")
-    public static final int REQUEST_EVENTS = nostr.base.Kind.REQUEST_EVENTS.getValue();
+    public static final int NOSTR_CONNECT = nostr.base.Kind.NOSTR_CONNECT.getValue();
 
     /** @deprecated Use {@link nostr.base.Kind#BADGE_DEFINITION} instead */
     @Deprecated(forRemoval = true, since = "0.6.2")

@@ -57,7 +57,7 @@ public enum Kind {
   NUTZAP_INFORMATIONAL(10_019, "nutzap_informational"),
   NUTZAP(9_321, "nutzap"),
   RELAY_LIST_METADATA(10_002, "relay_list_metadata"),
-  REQUEST_EVENTS(24_133, "request_events");
+  NOSTR_CONNECT(24_133, "nostr_connect");
 
   @JsonValue private final int value;
 
