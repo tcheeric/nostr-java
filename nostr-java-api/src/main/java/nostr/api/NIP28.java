@@ -184,7 +184,7 @@ public class NIP28 extends EventNostr {
     GenericEvent genericEvent =
         new GenericEventFactory(
                 getSender(),
-                Kind.CHANNEL_HIDE_MESSAGE.getValue(),
+                Kind.HIDE_MESSAGE.getValue(),
                 Reason.fromString(reason).toString())
             .create();
     genericEvent.addTag(NIP01.createEventTag(channelMessageEvent.getId()));
@@ -201,7 +201,7 @@ public class NIP28 extends EventNostr {
   public NIP28 createMuteUserEvent(@NonNull PublicKey mutedUser, String reason) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Kind.CHANNEL_MUTE_USER.getValue(), Reason.fromString(reason).toString())
+                getSender(), Kind.MUTE_USER.getValue(), Reason.fromString(reason).toString())
             .create();
     genericEvent.addTag(NIP01.createPubKeyTag(mutedUser));
     updateEvent(genericEvent);
