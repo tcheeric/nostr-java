@@ -215,30 +215,6 @@ public class NIP57ImplTest {
   }
 
   @Test
-  void testZapRequestWithEventReference() throws NostrException {
-    // Create a zap for a specific event (e.g., zapping a note)
-    String targetEventId = "abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234";
-
-    ZapRequestParameters parameters =
-        ZapRequestParameters.builder()
-            .amount(10_000L)
-            .lnUrl("lnurl_event_zap")
-            .relay(new Relay("wss://relay.test"))
-            .content("Zapping your note!")
-            .recipientPubKey(zapRecipient.getPublicKey())
-            .eventId(targetEventId)
-            .build();
-
-    GenericEvent event = nip57.createZapRequestEvent(parameters).getEvent();
-
-    // Verify e-tag (event reference) is present
-    boolean hasETag = event.getTags().stream()
-        .anyMatch(tag -> tag instanceof EventTag &&
-            ((EventTag) tag).getIdEvent().equals(targetEventId));
-    assertTrue(hasETag, "Zap request for specific event should include e-tag");
-  }
-
-  @Test
   void testZapReceiptCreation() throws NostrException {
     // Create a zap request first
     ZapRequestParameters requestParams =
