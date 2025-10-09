@@ -37,6 +37,8 @@ class SpringWebSocketClientTest {
   static class TestWebSocketClient implements WebSocketClientIF {
     @Getter @Setter private int attempts;
     @Setter private int failuresBeforeSuccess;
+    @Getter @Setter private int subAttempts;
+    @Setter private int subFailuresBeforeSuccess;
 
     @Override
     public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
@@ -59,6 +61,10 @@ class SpringWebSocketClientTest {
         Consumer<Throwable> errorListener,
         Runnable closeListener)
         throws IOException {
+      subAttempts++;
+      if (subAttempts <= subFailuresBeforeSuccess) {
+        throw new IOException("sub-fail");
+      }
       return () -> {};
     }
 
@@ -91,5 +97,48 @@ class SpringWebSocketClientTest {
     webSocketClientIF.setFailuresBeforeSuccess(5);
     assertThrows(IOException.class, () -> client.send("payload"));
     assertEquals(3, webSocketClientIF.getAttempts());
+  }
+
+  // Ensures retryable subscribe eventually succeeds after configured transient failures.
+  @Test
+  void subscribeRetriesUntilSuccess() throws Exception {
+    webSocketClientIF.setSubFailuresBeforeSuccess(2);
+    AutoCloseable h =
+        client.subscribe(
+            new nostr.event.message.ReqMessage("sub-1", new nostr.event.filter.Filters[] {}),
+            s -> {},
+            t -> {},
+            () -> {});
+    h.close();
+    assertEquals(3, webSocketClientIF.getSubAttempts());
+  }
+
+  // Ensures subscribe surfaces final IOException after exhausting retries.
+  @Test
+  void subscribeRecoverAfterMaxAttempts() {
+    webSocketClientIF.setSubFailuresBeforeSuccess(5);
+    assertThrows(
+        IOException.class,
+        () ->
+            client.subscribe(
+                new nostr.event.message.ReqMessage("sub-2", new nostr.event.filter.Filters[] {}),
+                s -> {},
+                t -> {},
+                () -> {}));
+    assertEquals(3, webSocketClientIF.getSubAttempts());
+  }
+
+  // Ensures retry also applies to the raw String subscribe overload.
+  @Test
+  void subscribeRawRetriesUntilSuccess() throws Exception {
+    webSocketClientIF.setSubFailuresBeforeSuccess(1);
+    AutoCloseable h =
+        client.subscribe(
+            "[\"REQ\",\"sub-raw\",{}]",
+            s -> {},
+            t -> {},
+            () -> {});
+    h.close();
+    assertEquals(2, webSocketClientIF.getSubAttempts());
   }
 }

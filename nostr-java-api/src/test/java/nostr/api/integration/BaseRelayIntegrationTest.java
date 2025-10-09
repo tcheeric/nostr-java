@@ -6,12 +6,19 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/**
+ * Base class for Testcontainers-backed relay integration tests.
+ *
+ * Disabled automatically when the system property `noDocker=true` is set (e.g. CI without Docker).
+ */
+@DisabledIfSystemProperty(named = "noDocker", matches = "true")
 @Testcontainers
 public abstract class BaseRelayIntegrationTest {
 

@@ -222,6 +222,7 @@ public final class Constants {
     public static final String BOLT11_CODE = "bolt11";
     public static final String PREIMAGE_CODE = "preimage";
     public static final String DESCRIPTION_CODE = "description";
+    public static final String DESCRIPTION_HASH_CODE = "description_hash";
     public static final String ZAP_CODE = "zap";
     public static final String RECIPIENT_PUBKEY_CODE = "P";
     public static final String MINT_CODE = "mint";

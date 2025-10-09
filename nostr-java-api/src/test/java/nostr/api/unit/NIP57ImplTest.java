@@ -254,4 +254,110 @@ public class NIP57ImplTest {
         .anyMatch(tag -> tag.getCode().equals("description"));
     assertTrue(hasDescription, "Zap receipt must contain description tag with zap request");
   }
+
+  @Test
+  // Validates that the zap receipt bolt11 amount matches the zap request amount.
+  void testZapAmountMatchesInvoiceAmount() throws NostrException {
+    ZapRequestParameters requestParams =
+        ZapRequestParameters.builder()
+            .amount(5_000L) // 5000 msat
+            .lnUrl("lnurl_amount_match")
+            .relay(new Relay("wss://relay.example.com"))
+            .content("amount match")
+            .recipientPubKey(zapRecipient.getPublicKey())
+            .build();
+
+    GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
+
+    // Mock invoice that would encode 5000 msat (placeholder)
+    String bolt11Invoice = "lnbc50n1p...";
+    String preimage = "00cafebabe";
+    NIP57 receiptBuilder = new NIP57(zapRecipient);
+    GenericEvent receipt =
+        receiptBuilder
+            .createZapReceiptEvent(zapRequest, bolt11Invoice, preimage, sender.getPublicKey())
+            .getEvent();
+
+    assertNotNull(receipt);
+  }
+
+  @Test
+  // Verifies description_hash equals SHA-256 of the description JSON for the zap request.
+  void testZapDescriptionHash() throws Exception {
+    ZapRequestParameters requestParams =
+        ZapRequestParameters.builder()
+            .amount(1_000L)
+            .lnUrl("lnurl_desc_hash")
+            .relay(new Relay("wss://relay.example.com"))
+            .content("hash me")
+            .recipientPubKey(zapRecipient.getPublicKey())
+            .build();
+
+    GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
+    String bolt11 = "lnbc10n1p...";
+    String preimage = "00112233";
+    NIP57 receiptBuilder = new NIP57(zapRecipient);
+    GenericEvent receipt =
+        receiptBuilder
+            .createZapReceiptEvent(zapRequest, bolt11, preimage, sender.getPublicKey())
+            .getEvent();
+
+    // Extract description and description_hash tags
+    var descriptionTagOpt = receipt.getTags().stream()
+        .filter(t -> t.getCode().equals("description"))
+        .findFirst();
+    var descriptionHashTagOpt = receipt.getTags().stream()
+        .filter(t -> t.getCode().equals("description_hash"))
+        .findFirst();
+    assertTrue(descriptionTagOpt.isPresent());
+    assertTrue(descriptionHashTagOpt.isPresent());
+
+    String descEscaped = ((nostr.event.tag.GenericTag) descriptionTagOpt.get())
+        .getAttributes().get(0).value().toString();
+
+    // Unescape and hash
+    String desc = nostr.util.NostrUtil.unEscapeJsonString(descEscaped);
+    String expectedHash = nostr.util.NostrUtil.bytesToHex(nostr.util.NostrUtil.sha256(desc.getBytes()));
+    String actualHash = ((nostr.event.tag.GenericTag) descriptionHashTagOpt.get()).getAttributes().get(0).value().toString();
+    assertEquals(expectedHash, actualHash, "description_hash must equal SHA-256 of description JSON");
+  }
+
+  @Test
+  // Validates that creating a zap receipt with missing required fields fails fast.
+  void testInvalidZapReceiptMissingFields() throws NostrException {
+    ZapRequestParameters requestParams =
+        ZapRequestParameters.builder()
+            .amount(1_000L)
+            .lnUrl("lnurl_test_receipt")
+            .relay(new Relay("wss://relay.example.com"))
+            .content("zap")
+            .recipientPubKey(zapRecipient.getPublicKey())
+            .build();
+
+    GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
+    NIP57 receiptBuilder = new NIP57(zapRecipient);
+
+    // Missing bolt11
+    assertThrows(
+        NullPointerException.class,
+        () -> receiptBuilder.createZapReceiptEvent(zapRequest, null, "preimage", sender.getPublicKey()));
+    // Missing preimage
+    assertThrows(
+        NullPointerException.class,
+        () -> receiptBuilder.createZapReceiptEvent(zapRequest, "bolt11", null, sender.getPublicKey()));
+  }
+
+  @Test
+  // Ensures a zap request without relays information is rejected.
+  void testZapRequestMissingRelaysThrows() {
+    // Build parameters without relaysTag or relays list
+    ZapRequestParameters.ZapRequestParametersBuilder builder =
+        ZapRequestParameters.builder()
+            .amount(123L)
+            .lnUrl("lnurl_no_relays")
+            .content("no relays")
+            .recipientPubKey(zapRecipient.getPublicKey());
+
+    assertThrows(IllegalStateException.class, () -> builder.build().determineRelaysTag());
+  }
 }

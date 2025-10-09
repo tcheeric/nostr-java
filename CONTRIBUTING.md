@@ -144,6 +144,19 @@ See [docs/explanation/architecture.md](docs/explanation/architecture.md) for det
 - **Test all edge cases:** null values, empty strings, invalid inputs
 - **Use descriptive test names** or `@DisplayName`
 
+### Client/Handler tests
+
+- See `nostr-java-api/src/test/java/nostr/api/client/README.md` for structure and naming.
+- Naming conventions:
+  - `NostrSpringWebSocketClient*` for high‑level client behavior
+  - `WebSocketHandler*` for internal handler semantics (send/close/request)
+  - `NostrRequestDispatcher*` and `NostrSubscriptionManager*` for dispatcher/manager lifecycles
+- Use `nostr.api.TestHandlerFactory` to construct `WebSocketClientHandler` from tests outside `nostr.api`.
+
+### Client module tests
+
+- See `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md` for an overview of the Spring WebSocket client test suite (retry/subscribe/timeout behavior).
+
 ### Test Example
 
 ```java

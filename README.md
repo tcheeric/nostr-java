@@ -1,5 +1,6 @@
 # nostr-java
 [![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
+[![CI Matrix: docker + no-docker](https://img.shields.io/badge/CI%20Matrix-docker%20%2B%20no--docker-blue)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/tcheeric/nostr-java/branch/main/graph/badge.svg)](https://codecov.io/gh/tcheeric/nostr-java)
 [![GitHub release](https://img.shields.io/github/v/release/tcheeric/nostr-java)](https://github.com/tcheeric/nostr-java/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -13,9 +14,64 @@
 
 See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
+## Running Tests
+
+- Full test suite (requires Docker for Testcontainers ITs):
+
+  `mvn -q verify`
+
+- Without Docker (skips Testcontainers-based integration tests via profile):
+
+  `mvn -q -Pno-docker verify`
+
+The `no-docker` profile excludes tests under `**/nostr/api/integration/**` and sets `noDocker=true` for conditional test disabling.
+
+### Troubleshooting failed relay sends
+
+When broadcasting to multiple relays, failures on individual relays are tolerated and sending continues to other relays. To inspect which relays failed during the last send on the current thread:
+
+```java
+// Using the default client setup
+NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(sender);
+client.setRelays(Map.of(
+  "relayA", "wss://relayA.example.com",
+  "relayB", "wss://relayB.example.com"
+));
+
+List<String> responses = client.sendEvent(event);
+// Inspect failures (if using DefaultNoteService)
+Map<String, Throwable> failures = client.getLastSendFailures();
+failures.forEach((relay, error) ->
+  System.out.println("Relay " + relay + " failed: " + error.getMessage())
+);
+```
+
+This returns an empty map if a custom `NoteService` is used that does not expose diagnostics.
+
+To receive failure notifications immediately after each send attempt when using the default client:
+
+```java
+client.onSendFailures(map -> {
+  map.forEach((relay, t) -> System.err.println(
+    "Send failed on relay " + relay + ": " + t.getClass().getSimpleName() + ": " + t.getMessage()
+  ));
+});
+```
+
+For more detail (timestamp, class, message), use:
+
+```java
+Map<String, DefaultNoteService.FailureInfo> info = client.getLastSendFailureDetails();
+info.forEach((relay, d) -> System.out.printf(
+  "[%d] %s failed: %s - %s%n",
+  d.timestampEpochMillis, relay, d.exceptionClass, d.message
+));
+```
+
 ## Documentation
 
 - Docs index: [docs/README.md](docs/README.md) — quick entry point to all guides and references.
+- Operations: [docs/operations/README.md](docs/operations/README.md) — logging, metrics, configuration, diagnostics.
 - Getting started: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — install via Maven/Gradle and build from source.
 - API how‑to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish basic events.
 - Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long‑lived, non‑blocking subscriptions.
