@@ -32,6 +32,10 @@ public final class NIP57TagFactory {
     return new BaseTagFactory(Constants.Tag.DESCRIPTION_CODE, description).create();
   }
 
+  public static BaseTag descriptionHash(@NonNull String descriptionHashHex) {
+    return new BaseTagFactory(Constants.Tag.DESCRIPTION_HASH_CODE, descriptionHashHex).create();
+  }
+
   public static BaseTag amount(@NonNull Number amount) {
     return new BaseTagFactory(Constants.Tag.AMOUNT_CODE, amount.toString()).create();
   }

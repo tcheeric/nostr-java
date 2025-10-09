@@ -128,6 +128,11 @@ public Map<String,String> getRelays()
 public void close()
 ```
 
+See also the test guides for examples and behavioral expectations:
+
+- API Client/Handler tests: `nostr-java-api/src/test/java/nostr/api/client/README.md`
+- Client module (Spring WebSocket): `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md`
+
 `subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
 messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
 resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy

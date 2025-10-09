@@ -3,6 +3,7 @@ package nostr.api;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -215,6 +216,48 @@ public class NostrSpringWebSocketClient implements NostrIF {
   @Override
   public Map<String, String> getRelays() {
     return relayRegistry.snapshotRelays();
+  }
+
+  /**
+   * Returns a map of relay name to the last send failure Throwable, if available.
+   *
+   * <p>When using {@link DefaultNoteService}, failures encountered during the last send on this
+   * thread are recorded for diagnostics. For other NoteService implementations, this returns an
+   * empty map.
+   */
+  public Map<String, Throwable> getLastSendFailures() {
+    if (this.noteService instanceof DefaultNoteService d) {
+      return d.getLastFailures();
+    }
+    return new HashMap<>();
+  }
+
+  /**
+   * Returns structured failure details when using {@link DefaultNoteService}.
+   *
+   * @see DefaultNoteService#getLastFailureDetails()
+   */
+  public Map<String, DefaultNoteService.FailureInfo> getLastSendFailureDetails() {
+    if (this.noteService instanceof DefaultNoteService d) {
+      return d.getLastFailureDetails();
+    }
+    return new HashMap<>();
+  }
+
+  /**
+   * Registers a failure listener when using {@link DefaultNoteService}. No‑op otherwise.
+   *
+   * <p>The listener receives a relay‑name → exception map after each call to {@link
+   * #sendEvent(nostr.base.IEvent)}.
+   *
+   * @param listener consumer of last failures (may be {@code null} to clear)
+   * @return this client for chaining
+   */
+  public NostrSpringWebSocketClient onSendFailures(java.util.function.Consumer<Map<String, Throwable>> listener) {
+    if (this.noteService instanceof DefaultNoteService d) {
+      d.setFailureListener(listener);
+    }
+    return this;
   }
 
   public void close() throws IOException {

@@ -15,6 +15,11 @@ Quick links to the most relevant guides and references.
 - [howto/streaming-subscriptions.md](howto/streaming-subscriptions.md) — Long-lived subscriptions
 - [howto/custom-events.md](howto/custom-events.md) — Creating custom event types
 
+## Operations
+
+- [operations/README.md](operations/README.md) — Ops index (logging, metrics, config)
+- [howto/diagnostics.md](howto/diagnostics.md) — Inspecting relay failures and troubleshooting
+
 ## Reference
 
 - [reference/nostr-java-api.md](reference/nostr-java-api.md) — API classes, methods, and examples
@@ -26,3 +31,8 @@ Quick links to the most relevant guides and references.
 ## Project
 
 - [CODEBASE_OVERVIEW.md](CODEBASE_OVERVIEW.md) — Codebase layout, testing, contributing
+
+## Tests Overview
+
+- API Client/Handler tests: `nostr-java-api/src/test/java/nostr/api/client/README.md` — logging, relays, handler send/close/request, dispatcher & subscription manager
+- Client module (Spring WebSocket): `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md` — send/subscribe retries and timeout behavior

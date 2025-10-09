@@ -15,6 +15,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: no-docker
+            mvn-args: "-Pno-docker"
+          - name: docker
+            mvn-args: ""
     permissions:
       contents: read
       issues: write
@@ -25,8 +33,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
-      - name: Build with Maven
-        run: ./mvnw -q verify |& tee build.log
+      - name: Build with Maven (${{ matrix.name }})
+        run: ./mvnw -q ${{ matrix.mvn-args }} verify |& tee build.log
       - name: Show build log
         if: failure()
         run: |
@@ -58,7 +66,7 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Create issue on failure
+      - name: Create issue on failure (${{ matrix.name }})
         if: failure() && github.ref == 'refs/heads/develop'
         uses: actions/github-script@v7
         with:
@@ -72,7 +80,7 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `CI build failed for ${context.sha.slice(0,7)}`,
-              body: `Build failed for commit ${context.sha} in workflow run ${context.runId}.\\n\\nBuild error:\\n\\n\u0060\u0060\u0060\\n${errors}\\n\u0060\u0060\u0060\\n\\nLast lines of build log:\\n\\n\u0060\u0060\u0060\\n${log}\\n\u0060\u0060\u0060`,
+              title: `CI (${{ matrix.name }}) failed for ${context.sha.slice(0,7)}`,
+              body: `Build failed for commit ${context.sha} in workflow run ${context.runId} (matrix: ${{ matrix.name }}).\\n\\nBuild error:\\n\\n\u0060\u0060\u0060\\n${errors}\\n\u0060\u0060\u0060\\n\\nLast lines of build log:\\n\\n\u0060\u0060\u0060\\n${log}\\n\u0060\u0060\u0060`,
               labels: ['ci']
             });
