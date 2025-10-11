@@ -61,7 +61,7 @@ public class WebSocketClientHandler {
         clientFactory);
   }
 
-  WebSocketClientHandler(
+  public WebSocketClientHandler(
       @NonNull String relayName,
       @NonNull RelayUri relayUri,
       @NonNull SpringWebSocketClient eventClient,
@@ -153,6 +153,7 @@ public class WebSocketClientHandler {
                       "Subscription closed by relay %s for id %s"
                           .formatted(relayName, subscriptionId.value()))));
     } catch (IOException e) {
+      errorListener.accept(e);
       throw new RuntimeException("Failed to establish subscription", e);
     }
   }
@@ -180,9 +181,9 @@ public class WebSocketClientHandler {
       AutoCloseable closeFrameHandle = openCloseFrame(subscriptionId, accumulator);
       closeQuietly(closeFrameHandle, accumulator);
       closeQuietly(delegate, accumulator);
+      closeQuietly(client, accumulator);
 
       requestClientMap.remove(subscriptionId);
-      closeQuietly(client, accumulator);
       accumulator.rethrowIfNecessary();
     }
 

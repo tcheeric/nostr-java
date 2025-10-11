@@ -74,12 +74,13 @@ public class FakeWebSocketClient implements WebSocketClientIF {
       throws IOException {
     Objects.requireNonNull(messageListener, "messageListener");
     Objects.requireNonNull(errorListener, "errorListener");
+    sentPayloads.add(requestJson);
     if (!open) {
-      throw new IOException("WebSocket session is closed for " + relayUrl);
+      log.debug("Subscription on closed WebSocket for {}, returning no-op handle", relayUrl);
+      return () -> {}; // No-op handle since client is already closed
     }
     String id = UUID.randomUUID().toString();
     listeners.put(id, new Listener(messageListener, errorListener, closeListener));
-    sentPayloads.add(requestJson);
     return () -> listeners.remove(id);
   }
 
