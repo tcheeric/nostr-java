@@ -6,17 +6,30 @@ This guide shows how to set up the library and publish a basic [Nostr](https://g
 
 ## Minimal setup
 
-Add the API module to your project:
+Add the API module to your project (with the BOM):
 
 ```xml
-<dependency>
-  <groupId>xyz.tcheeric</groupId>
-  <artifactId>nostr-java-api</artifactId>
-  <version>0.6.0</version>
-</dependency>
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>xyz.tcheeric</groupId>
+      <artifactId>nostr-java-bom</artifactId>
+      <version><!-- X.Y.Z --></version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<dependencies>
+  <dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>nostr-java-api</artifactId>
+  </dependency>
+</dependencies>
 ```
 
-The current version is `0.5.1`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
+Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest BOM version.
 
 ## Create, sign, and publish an event
 

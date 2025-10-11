@@ -3,7 +3,7 @@ package nostr.api.nip57;
 import java.util.Locale;
 
 /** Utility to parse msats from a BOLT11 invoice HRP. */
-final class Bolt11Util {
+public final class Bolt11Util {
 
   private Bolt11Util() {}
 
@@ -17,12 +17,12 @@ final class Bolt11Util {
    * @return amount in millisatoshis, or -1 if no amount present
    * @throws IllegalArgumentException if the HRP is invalid or the amount cannot be parsed
    */
-  static long parseMsat(String bolt11) {
+  public static long parseMsat(String bolt11) {
     if (bolt11 == null || bolt11.isBlank()) {
       throw new IllegalArgumentException("bolt11 invoice is required");
     }
     String lower = bolt11.toLowerCase(Locale.ROOT);
-    int sep = lower.indexOf('1');
+    int sep = lower.lastIndexOf('1');
     if (!lower.startsWith("ln") || sep < 0) {
       throw new IllegalArgumentException("Invalid BOLT11 invoice: missing HRP separator");
     }

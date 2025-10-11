@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.integration.support.FakeWebSocketClientFactory;
+import nostr.api.service.impl.DefaultNoteService;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +15,8 @@ public class NostrSpringWebSocketClientRelaysTest {
   @Test
   void getRelaysReflectsRegistration() {
     Identity sender = Identity.generateRandomIdentity();
-    NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(sender);
+    FakeWebSocketClientFactory factory = new FakeWebSocketClientFactory();
+    NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(sender, new DefaultNoteService(), factory);
     client.setRelays(Map.of(
         "r1", "wss://relay1",
         "r2", "wss://relay2"));

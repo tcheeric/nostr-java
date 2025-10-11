@@ -9,8 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+
+import com.github.valfirst.slf4jtest.TestLogger;
+import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import lombok.NonNull;
 import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.WebSocketClientHandler;
 import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
@@ -20,8 +24,6 @@ import nostr.event.filter.KindFilter;
 import nostr.id.Identity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import uk.org.lidalia.slf4jtest.TestLogger;
-import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 /** Verifies default error listener logs WARN lines when close path encounters exceptions. */
 public class NostrSpringWebSocketClientCloseLoggingTest {
@@ -78,7 +80,7 @@ public class NostrSpringWebSocketClientCloseLoggingTest {
               && e.getMessage().contains("Subscription error for {} on relays {}")
               && e.getArguments().size() == 2
               && String.valueOf(e.getArguments().get(0)).contains("sub-close-log")
-              && String.valueOf(e.getArguments().get(1)).contains("relay"));
+              && String.valueOf(e.getArguments().get(1)).contains("r1"));
       assertTrue(found);
     } finally {
       try { h.close(); } catch (Exception ignored) {}

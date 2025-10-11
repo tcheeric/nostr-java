@@ -27,6 +27,31 @@ Version 1.0.0 will remove all APIs deprecated in the 0.6.x series. This guide he
 
 The following deprecated APIs will be removed in 1.0.0. Migrate to the recommended alternatives before upgrading.
 
+- Removed: `nostr.config.Constants.Kind` nested class
+  - Use: `nostr.base.Kind` enum and `Kind#getValue()` when an integer is required
+  - See: [Event Kind Constants](#event-kind-constants)
+
+- Removed: `nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD`
+  - Use: `nostr.event.json.EventJsonMapper.getMapper()` for event JSON
+  - Also available: `nostr.base.json.EventJsonMapper.mapper()` in tests/utility contexts
+  - See: [ObjectMapper Usage](#objectmapper-usage)
+
+- Removed: `nostr.api.NIP01#createTextNoteEvent(Identity, String)`
+  - Use: `new NIP01(identity).createTextNoteEvent(String)` with sender configured on the instance
+  - See: [NIP01 API Changes](#nip01-api-changes)
+
+- Removed: `nostr.api.NIP61#createNutzapEvent(Amount, List<CashuProof>, URL, List<EventTag>, PublicKey, String)`
+  - Use: `createNutzapEvent(List<CashuProof>, URL, EventTag, PublicKey, String)`
+  - And add amount/unit tags explicitly via `NIP60.createAmountTag(Amount)` and `NIP60.createUnitTag(String)` if needed
+
+- Removed: `nostr.event.tag.GenericTag(String, Integer)` constructor
+  - Use: `new GenericTag(String)` or `new GenericTag(String, ElementAttribute...)`
+
+- Removed: `nostr.id.EntityFactory.Events#createGenericTag(PublicKey, IEvent, Integer)`
+  - Use: `createGenericTag(PublicKey, IEvent)`
+
+These removals were announced with `@Deprecated(forRemoval = true)` in 0.6.2 and are now finalized in 1.0.0.
+
 ---
 
 ## Migrating from 0.6.x

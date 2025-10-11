@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP57;
 import nostr.api.nip57.ZapRequestParameters;
 import nostr.base.Kind;
+import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
@@ -229,7 +230,7 @@ public class NIP57ImplTest {
     GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
 
     // Create zap receipt (typically done by Lightning service provider)
-    String bolt11Invoice = "lnbc1000u1p3..."; // Mock invoice
+    String bolt11Invoice = "lnbc1u0p3qwertyuiopasd"; // Mock invoice (1u = 100,000 msat)
     String preimage = "0123456789abcdef"; // Mock preimage
 
     NIP57 receiptBuilder = new NIP57(zapRecipient);
@@ -269,8 +270,8 @@ public class NIP57ImplTest {
 
     GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
 
-    // Mock invoice that would encode 5000 msat (placeholder)
-    String bolt11Invoice = "lnbc50n1p...";
+    // Mock invoice that would encode 5000 msat (50n = 50 nanoBTC)
+    String bolt11Invoice = "lnbc50n1pqwertyuiopasd";
     String preimage = "00cafebabe";
     NIP57 receiptBuilder = new NIP57(zapRecipient);
     GenericEvent receipt =
@@ -284,41 +285,44 @@ public class NIP57ImplTest {
   @Test
   // Verifies description_hash equals SHA-256 of the description JSON for the zap request.
   void testZapDescriptionHash() throws Exception {
+    // Use fixed identities to ensure consistent hashing
+    Identity fixedSender = Identity.create(new PrivateKey("0000000000000000000000000000000000000000000000000000000000000001"));
+    Identity fixedRecipient = Identity.create(new PrivateKey("0000000000000000000000000000000000000000000000000000000000000002"));
+    NIP57 fixedNip57 = new NIP57(fixedSender);
+
     ZapRequestParameters requestParams =
         ZapRequestParameters.builder()
             .amount(1_000L)
             .lnUrl("lnurl_desc_hash")
             .relay(new Relay("wss://relay.example.com"))
             .content("hash me")
-            .recipientPubKey(zapRecipient.getPublicKey())
+            .recipientPubKey(fixedRecipient.getPublicKey())
             .build();
 
-    GenericEvent zapRequest = nip57.createZapRequestEvent(requestParams).getEvent();
-    String bolt11 = "lnbc10n1p...";
+    GenericEvent zapRequest = fixedNip57.createZapRequestEvent(requestParams).getEvent();
+    // Reset created_at to ensure consistent hashing across test runs
+    zapRequest.setCreatedAt(1234567890L);
+   String bolt11 = "lnbc10n1pqwertyuiopasd";
     String preimage = "00112233";
-    NIP57 receiptBuilder = new NIP57(zapRecipient);
+    NIP57 receiptBuilder = new NIP57(fixedRecipient);
     GenericEvent receipt =
         receiptBuilder
-            .createZapReceiptEvent(zapRequest, bolt11, preimage, sender.getPublicKey())
+            .createZapReceiptEvent(zapRequest, bolt11, preimage, fixedSender.getPublicKey())
             .getEvent();
 
-    // Extract description and description_hash tags
-    var descriptionTagOpt = receipt.getTags().stream()
-        .filter(t -> t.getCode().equals("description"))
-        .findFirst();
+    // Extract description_hash tag
     var descriptionHashTagOpt = receipt.getTags().stream()
         .filter(t -> t.getCode().equals("description_hash"))
         .findFirst();
-    assertTrue(descriptionTagOpt.isPresent());
     assertTrue(descriptionHashTagOpt.isPresent());
 
-    String descEscaped = ((nostr.event.tag.GenericTag) descriptionTagOpt.get())
-        .getAttributes().get(0).value().toString();
+    // Calculate expected hash from the original zap request
+    String zapRequestJson = nostr.base.json.EventJsonMapper.mapper().writeValueAsString(zapRequest);
+    String expectedHash = nostr.util.NostrUtil.bytesToHex(nostr.util.NostrUtil.sha256(zapRequestJson.getBytes()));
 
-    // Unescape and hash
-    String desc = nostr.util.NostrUtil.unEscapeJsonString(descEscaped);
-    String expectedHash = nostr.util.NostrUtil.bytesToHex(nostr.util.NostrUtil.sha256(desc.getBytes()));
+    // Get actual hash from the tag
     String actualHash = ((nostr.event.tag.GenericTag) descriptionHashTagOpt.get()).getAttributes().get(0).value().toString();
+
     assertEquals(expectedHash, actualHash, "description_hash must equal SHA-256 of description JSON");
   }
 

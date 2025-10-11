@@ -32,9 +32,9 @@ public class NIP42 extends EventNostr {
   public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
     GenericEvent genericEvent =
         new GenericEventFactory(getSender(), Kind.CLIENT_AUTH.getValue(), "").create();
+    this.updateEvent(genericEvent);
     this.addChallengeTag(challenge);
     this.addRelayTag(relay);
-    this.updateEvent(genericEvent);
 
     return this;
   }

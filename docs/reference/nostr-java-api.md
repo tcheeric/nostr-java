@@ -144,7 +144,7 @@ processing to another executor to avoid stalling inbound traffic.
 ### Configuration
 - `RetryConfig` – enables Spring Retry support.
 - `RelaysProperties` – maps relay names to URLs via configuration properties.
-- `RelayConfig` – loads `relays.properties` and exposes a `Map<String,String>` bean.
+- `RelayConfig` – loads `relays.properties` and exposes a `Map<String,String>` bean. Deprecated in 0.6.2 (for removal in 1.0.0); prefer `RelaysProperties`.
 
 ## Encryption and Cryptography
 

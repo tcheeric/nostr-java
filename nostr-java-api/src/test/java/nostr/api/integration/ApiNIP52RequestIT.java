@@ -111,7 +111,6 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
             .createCalendarTimeBasedEvent(tags, CALENDAR_CONTENT, calendarContent)
             .sign()
             .getEvent();
-    event.setCreatedAt(Long.valueOf(CREATED_AT));
     eventId = event.getId();
     signature = event.getSignature().toString();
     eventPubKey = event.getPubKey().toString();
@@ -136,9 +135,7 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-      // assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is
-      // not required. The relay will always return false because we resending the same event,
-      // causing duplicates.
+      assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
     }
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay

@@ -15,7 +15,7 @@ import nostr.base.SubscriptionId;
 /**
  * Manages the lifecycle of {@link WebSocketClientHandler} instances keyed by relay name.
  */
-public final class NostrRelayRegistry {
+public class NostrRelayRegistry {
 
   private final Map<String, WebSocketClientHandler> clientMap = new ConcurrentHashMap<>();
   private final WebSocketClientHandlerFactory factory;

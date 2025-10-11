@@ -27,7 +27,7 @@ repo_owner=$(jq -r '.owner_login' <<<"${repo_json}")
 
 # Look up an existing project with the desired title.
 project_number=$(gh project list --owner "${repo_owner}" --format json |
-  jq -r --arg title "${project_title}" 'map(select(.title == $title)) | first | .number // empty')
+  jq -r --arg title "${project_title}" '[.. | objects | select(has("title")) | select(.title == $title)] | first? | .number // empty')
 
 if [[ -z "${project_number}" ]]; then
   echo "Creating project '${project_title}' for owner ${repo_owner}"
@@ -42,19 +42,26 @@ add_task() {
   local title="$1"
   local body="$2"
   echo "Ensuring draft item: ${title}"
-  gh project item-add --owner "${repo_owner}" --project "${project_number}" --title "${title}" --body "${body}" --format json >/dev/null
+  # Create a draft issue item in the project (idempotency not guaranteed by CLI; duplicates may occur)
+  gh project item-create "${project_number}" --owner "${repo_owner}" --title "${title}" --body "${body}" --format json >/dev/null
 }
 
-add_task "Remove deprecated constants facade" "Delete nostr.config.Constants.Kind before 1.0. See docs/explanation/roadmap-1.0.md."
-add_task "Retire legacy encoder singleton" "Drop Encoder.ENCODER_MAPPER_BLACKBIRD after migrating callers to EventJsonMapper."
-add_task "Drop deprecated NIP overloads" "Purge for-removal overloads in NIP01 and NIP61 to stabilize fluent APIs."
-add_task "Remove deprecated tag constructors" "Clean up GenericTag and EntityFactory compatibility constructors."
-add_task "Cover all relay command decoding" "Extend BaseMessageDecoderTest and BaseMessageCommandMapperTest fixtures beyond REQ."
-add_task "Stabilize NIP-52 calendar integration" "Re-enable flaky assertions in ApiNIP52RequestIT with deterministic relay handling."
-add_task "Stabilize NIP-99 classifieds integration" "Repair ApiNIP99RequestIT expectations for NOTICE/EOSE relay responses."
-add_task "Complete migration checklist" "Fill MIGRATION.md deprecated API removals section before cutting 1.0."
-add_task "Document dependency alignment plan" "Record and streamline parent POM overrides tied to 0.6.5-SNAPSHOT."
-add_task "Plan version uplift workflow" "Outline tagging and publishing steps for the 1.0.0 release in docs."
+#add_task "Remove deprecated constants facade" "Delete nostr.config.Constants.Kind before 1.0. See docs/explanation/roadmap-1.0.md."
+#add_task "Retire legacy encoder singleton" "Drop Encoder.ENCODER_MAPPER_BLACKBIRD after migrating callers to EventJsonMapper."
+#add_task "Drop deprecated NIP overloads" "Purge for-removal overloads in NIP01 and NIP61 to stabilize fluent APIs."
+#add_task "Remove deprecated tag constructors" "Clean up GenericTag and EntityFactory compatibility constructors."
+#add_task "Cover all relay command decoding" "Extend BaseMessageDecoderTest and BaseMessageCommandMapperTest fixtures beyond REQ."
+#add_task "Stabilize NIP-52 calendar integration" "Re-enable flaky assertions in ApiNIP52RequestIT with deterministic relay handling."
+#add_task "Stabilize NIP-99 classifieds integration" "Repair ApiNIP99RequestIT expectations for NOTICE/EOSE relay responses."
+#add_task "Complete migration checklist" "Fill MIGRATION.md deprecated API removals section before cutting 1.0."
+#add_task "Document dependency alignment plan" "Record and streamline parent POM overrides tied to 0.6.5-SNAPSHOT."
+#add_task "Plan version uplift workflow" "Outline tagging and publishing steps for the 1.0.0 release in docs."
+
+# Newly documented release engineering tasks
+add_task "Configure release workflow secrets" "Set CENTRAL_USERNAME/PASSWORD, GPG_PRIVATE_KEY/PASSPHRASE for .github/workflows/release.yml."
+add_task "Validate tag/version parity in release" "Ensure pushed tags match POM version; workflow enforces v<version> format."
+add_task "Update docs version references" "Refresh GETTING_STARTED.md and howto/use-nostr-java-api.md to current version and BOM usage."
+add_task "Publish CI + IT stability plan" "Keep Docker-based IT job green; document no-docker profile and failure triage."
 
 cat <<INFO
 Project setup complete.

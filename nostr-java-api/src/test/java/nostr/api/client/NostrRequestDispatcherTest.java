@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+
+import nostr.api.WebSocketClientHandler;
 import nostr.base.SubscriptionId;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;

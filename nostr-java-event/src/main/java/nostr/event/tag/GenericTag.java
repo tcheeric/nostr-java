@@ -31,15 +31,7 @@ public class GenericTag extends BaseTag implements IGenericElement {
     this(code, new ArrayList<>());
   }
 
-  /**
-   * nip parameter to be removed
-   *
-   * @deprecated use any available proper constructor variant instead
-   */
-  @Deprecated(forRemoval = true)
-  public GenericTag(String code, Integer nip) {
-    this(code, new ArrayList<>());
-  }
+  // Removed deprecated compatibility constructor GenericTag(String, Integer) in 1.0.0.
 
   public GenericTag(@NonNull String code, @NonNull ElementAttribute... attribute) {
     this(code, List.of(attribute));

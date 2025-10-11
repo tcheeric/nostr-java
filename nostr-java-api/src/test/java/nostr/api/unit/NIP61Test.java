@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import nostr.api.NIP60;
 import nostr.api.NIP61;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
@@ -110,13 +111,15 @@ public class NIP61Test {
       event =
           nip61
               .createNutzapEvent(
-                  amount,
                   proofs,
                   URI.create(mint.getUrl()).toURL(),
-                  events,
+                  events.get(0),
                   recipientId.getPublicKey(),
                   content)
               .getEvent();
+      // Add amount and unit tags explicitly via NIP60 helpers
+      event.addTag(NIP60.createAmountTag(amount));
+      event.addTag(NIP60.createUnitTag(amount.getUnit()));
     } catch (MalformedURLException ex) {
       Assertions.fail("Mint URL should be valid in test data", ex);
       return;

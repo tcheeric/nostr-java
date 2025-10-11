@@ -86,7 +86,8 @@ class SpringWebSocketClientSubscribeTest {
             new nostr.event.message.ReqMessage("sub-1", new nostr.event.filter.Filters[] {}),
             payload -> messages.incrementAndGet(),
             t -> errors.incrementAndGet(),
-            closes::incrementAndGet());
+            closes::incrementAndGet
+        );
 
     webSocketClientIF.emit("EVENT");
     webSocketClientIF.emitError(new IOException("boom"));
@@ -98,4 +99,3 @@ class SpringWebSocketClientSubscribeTest {
     assertTrue(webSocketClientIF.getLastJson().contains("\"REQ\""));
   }
 }
-

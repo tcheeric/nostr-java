@@ -24,9 +24,9 @@ This explanation outlines the outstanding work required to promote `nostr-java` 
 
 ## Documentation and release engineering
 
-- **Finish the migration checklist.** The `MIGRATION.md` entry for “Deprecated APIs Removed” still lacks the concrete removal list that integrators need; populate it with the APIs scheduled above so adopters can plan upgrades safely.【F:MIGRATION.md†L19-L169】
-- **Record the dependency alignment plan.** The parent `pom.xml` pins 0.6.5-SNAPSHOT and includes temporary module overrides until the BOM catches up; document (and eventually remove) those overrides as part of the 1.0 cut so published coordinates stay consistent.【F:pom.xml†L71-L119】
-- **Plan the version uplift.** The aggregator POM still advertises `0.6.5-SNAPSHOT`; outline the steps for bumping modules, tagging, and publishing to Central once the blockers above are cleared.【F:pom.xml†L71-L119】
+- **Finish the migration checklist.** The `MIGRATION.md` entry for “Deprecated APIs Removed” still lacks the concrete removal list that integrators need; populate it with the APIs scheduled above so adopters can plan upgrades safely. See Migration Guide → Deprecated APIs Removed: ../../MIGRATION.md#deprecated-apis-removed
+- **Record the dependency alignment plan.** The parent `pom.xml` imports the BOM and temporarily overrides module versions until the BOM includes the matching coordinates; see the plan to remove overrides post-1.0 in [Dependency Alignment](dependency-alignment.md).【F:pom.xml†L71-L119】
+- **Plan the version uplift.** The aggregator POM still advertises a SNAPSHOT; outline the steps for bumping modules, tagging, publishing to Central, and updating the BOM in the how-to guide: ../howto/version-uplift-workflow.md.【F:pom.xml†L71-L119】
 
 ## Suggested next steps
 

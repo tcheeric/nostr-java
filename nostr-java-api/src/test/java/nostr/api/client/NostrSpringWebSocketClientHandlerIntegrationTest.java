@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.WebSocketClientHandler;
 import nostr.base.RelayUri;
 import nostr.client.WebSocketClientFactory;
 import nostr.event.filter.Filters;

@@ -1,6 +1,6 @@
 package nostr.id;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
+import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -58,7 +58,7 @@ public class EventTest {
 
     assertDoesNotThrow(
         () -> {
-          BaseTag tag = ENCODER_MAPPER_BLACKBIRD.readValue(strJsonEvent, BaseTag.class);
+          BaseTag tag = mapper().readValue(strJsonEvent, BaseTag.class);
           assertEquals(genericTag, tag);
         });
   }

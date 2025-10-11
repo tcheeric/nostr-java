@@ -3,6 +3,9 @@ package nostr.api.client;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
+
+import com.github.valfirst.slf4jtest.TestLogger;
+import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClientFactory;
 import nostr.api.service.impl.DefaultNoteService;
@@ -12,9 +15,6 @@ import nostr.event.filter.KindFilter;
 import nostr.id.Identity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import uk.org.lidalia.slf4jtest.LoggingEvent;
-import uk.org.lidalia.slf4jtest.TestLogger;
-import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 /** Verifies default error listener path emits a WARN log entry. */
 public class NostrSpringWebSocketClientLoggingTest {

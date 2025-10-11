@@ -22,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 public class WebSocketHandlerSendCloseFrameTest {
 
   @Test
-  void closeSendsCloseFrameAndClosesClient() throws ExecutionException, InterruptedException, IOException {
+  void closeSendsCloseFrameAndClosesClient() throws Exception {
     SpringWebSocketClient client = mock(SpringWebSocketClient.class);
     when(client.subscribe(any(ReqMessage.class), any(), any(), any())).thenReturn(() -> {});
     when(client.subscribe(any(CloseMessage.class), any(), any(), any())).thenReturn(() -> {});

@@ -29,10 +29,10 @@ public class EventSerializerTest {
   }
 
   @Test
-  void serializeThrowsForInvalidJsonTag() {
+  void serializeIncludesGenericTag() {
     PublicKey pk = new PublicKey(HEX64);
-    // BaseTag.create with invalid params still serializes as generic tag; no exception expected
-    assertDoesNotThrow(() -> EventSerializer.serialize(pk, 1700000000L, Kind.TEXT_NOTE.getValue(), List.of(BaseTag.create("x")), ""));
+    // Use an unregistered tag code to force GenericTag path
+    assertDoesNotThrow(() -> EventSerializer.serialize(pk, 1700000000L, Kind.TEXT_NOTE.getValue(), List.of(BaseTag.create("zzz")), ""));
   }
 
   @Test

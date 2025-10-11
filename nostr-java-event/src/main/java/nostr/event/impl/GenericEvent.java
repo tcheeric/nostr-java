@@ -351,10 +351,12 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
   }
 
   /** Compatibility accessors for previously named serializedEventCache */
+  @com.fasterxml.jackson.annotation.JsonIgnore
   public byte[] getSerializedEventCache() {
     return this.get_serializedEvent();
   }
 
+  @com.fasterxml.jackson.annotation.JsonIgnore
   public void setSerializedEventCache(byte[] bytes) {
     this.set_serializedEvent(bytes);
   }
