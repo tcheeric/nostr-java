@@ -15,6 +15,8 @@ Quick links to the most relevant guides and references.
 - [howto/streaming-subscriptions.md](howto/streaming-subscriptions.md) — Long-lived subscriptions
 - [howto/custom-events.md](howto/custom-events.md) — Creating custom event types
 - [howto/manage-roadmap-project.md](howto/manage-roadmap-project.md) — Sync the GitHub Project with the 1.0 backlog
+- [howto/version-uplift-workflow.md](howto/version-uplift-workflow.md) — Tagging, publishing, and BOM alignment for releases
+- [howto/ci-it-stability.md](howto/ci-it-stability.md) — Keep CI green and stabilize Docker-based ITs
 
 ## Operations
 
@@ -29,6 +31,7 @@ Quick links to the most relevant guides and references.
 
 - [explanation/extending-events.md](explanation/extending-events.md) — Extending the event model
 - [explanation/roadmap-1.0.md](explanation/roadmap-1.0.md) — Outstanding work before the 1.0 release
+- [explanation/dependency-alignment.md](explanation/dependency-alignment.md) — How versions are aligned and the 1.0 cleanup plan
 
 ## Project
 

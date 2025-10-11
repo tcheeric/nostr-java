@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
@@ -37,7 +39,7 @@ public class GenericEventSupportTest {
   }
 
   @Test
-  void updaterComputesIdAndSerializedCache() {
+  void updaterComputesIdAndSerializedCache() throws NoSuchAlgorithmException {
     GenericEvent event = newEvent();
     GenericEventUpdater.refresh(event);
     assertNotNull(event.getId());
@@ -62,8 +64,8 @@ public class GenericEventSupportTest {
   @Test
   void validatorRejectsInvalidFields() {
     GenericEvent event = newEvent();
-    // Missing id/signature
-    assertThrows(AssertionError.class, () -> GenericEventValidator.validate(event));
+    // Missing id/signature triggers NPE from requireNonNull with clear message
+    NullPointerException npe = assertThrows(NullPointerException.class, () -> GenericEventValidator.validate(event));
+    assertTrue(String.valueOf(npe.getMessage()).contains("Missing required `id` field."));
   }
 }
-

@@ -685,7 +685,7 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     PublicKey zapRecipient = Identity.generateRandomIdentity().getPublicKey();
     final String ZAP_RECEIPT_IDENTIFIER = "ipsum";
     final String ZAP_RECEIPT_RELAY_URI = getRelayUri();
-    final String BOLT_11 = "bolt11";
+    final String BOLT_11 = "lnbc12324560p1pqwertyuiopasd"; // Valid BOLT11 format (1232456 picoBTC = 1232456 msat)
     final String DESCRIPTION_SHA256 = "descriptionSha256";
     final String PRE_IMAGE = "preimage";
     var nip57 = new NIP57(Identity.generateRandomIdentity());

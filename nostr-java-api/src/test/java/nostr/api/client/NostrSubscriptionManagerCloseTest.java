@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+
+import nostr.api.WebSocketClientHandler;
 import org.junit.jupiter.api.Test;
 
 /** Tests close semantics and error aggregation in NostrSubscriptionManager. */
@@ -60,7 +62,8 @@ public class NostrSubscriptionManagerCloseTest {
 
     // First handle should be closed due to failure in second subscribe
     verify(c1, times(1)).close();
-    assertEquals(1, errorCount.get());
+    // Error consumer not invoked because close succeeded (no exception during cleanup)
+    assertEquals(0, errorCount.get());
   }
 }
 

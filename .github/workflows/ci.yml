@@ -1,86 +1,77 @@
 name: CI
 
 on:
-  pull_request:
-    branches:
-      - develop
-      - main
-      - master
   push:
-    branches:
-      - develop
-      - main
-      - master
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          - name: no-docker
-            mvn-args: "-Pno-docker"
-          - name: docker
-            mvn-args: ""
-    permissions:
-      contents: read
-      issues: write
+        java-version: ['21','17']
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
         with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      - name: Make release script executable
+        run: chmod +x scripts/release.sh
+
+      - name: Build and test (skip Docker ITs)
+        if: matrix.java-version == '21'
+        run: scripts/release.sh verify --no-docker
+
+      - name: Validate POM only on JDK 17 (project targets 21)
+        if: matrix.java-version == '17'
+        run: mvn -q -N validate
+
+      - name: Upload test reports and coverage (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-jdk-${{ matrix.java-version }}
+          if-no-files-found: ignore
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
+            **/target/site/jacoco/**
+
+  integration-tests:
+    name: Integration tests (Docker)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Build with Maven (${{ matrix.name }})
-        run: ./mvnw -q ${{ matrix.mvn-args }} verify |& tee build.log
-      - name: Show build log
-        if: failure()
-        run: |
-          echo "Build error"
-          grep '^\[ERROR\]' build.log || true
-          echo "Build log tail"
-          tail -n 200 build.log
-      - name: Upload surefire reports
+          cache: maven
+
+      - name: Run full verify (with Testcontainers)
+        run: mvn -q clean verify
+
+      - name: Upload IT reports and coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
-          path: '**/target/surefire-reports'
+          name: reports-integration
           if-no-files-found: ignore
-      - name: Upload JaCoCo coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-exec
-          path: '**/target/jacoco.exec'
-          if-no-files-found: ignore
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: '**/target/site/jacoco/jacoco.xml'
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Create issue on failure (${{ matrix.name }})
-        if: failure() && github.ref == 'refs/heads/develop'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const file = fs.readFileSync('build.log', 'utf8').split('\\n');
-            const errors = file.filter(line => line.startsWith('[ERROR]'))
-              .slice(-20)
-              .join('\\n');
-            const log = file.slice(-50).join('\\n');
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `CI (${{ matrix.name }}) failed for ${context.sha.slice(0,7)}`,
-              body: `Build failed for commit ${context.sha} in workflow run ${context.runId} (matrix: ${{ matrix.name }}).\\n\\nBuild error:\\n\\n\u0060\u0060\u0060\\n${errors}\\n\u0060\u0060\u0060\\n\\nLast lines of build log:\\n\\n\u0060\u0060\u0060\\n${log}\\n\u0060\u0060\u0060`,
-              labels: ['ci']
-            });
+          path: |
+            **/target/failsafe-reports/**
+            **/target/site/jacoco/**

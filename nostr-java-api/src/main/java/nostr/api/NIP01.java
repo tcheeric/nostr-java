@@ -123,7 +123,7 @@ import nostr.id.Identity;
  * }</pre>
  *
  * <p><b>Migration Note:</b> Version 0.6.2 deprecated methods that accept Identity parameters
- * in favor of using the configured sender. See {@link #createTextNoteEvent(Identity, String)}.
+ * in favor of using the configured sender. Those overloads have been removed in 1.0.0.
  *
  * <p><b>Thread Safety:</b> This class is not thread-safe. Each thread should use its own instance.
  *
@@ -160,15 +160,7 @@ public class NIP01 extends EventNostr {
     return this;
   }
 
-  /**
-   * @deprecated Use {@link #createTextNoteEvent(String)} instead. Sender is now configured at NIP01 construction.
-   *             This method will be removed in version 1.0.0.
-   */
-  @Deprecated(forRemoval = true, since = "0.6.2")
-  public NIP01 createTextNoteEvent(Identity sender, String content) {
-    this.updateEvent(eventBuilder.buildTextNote(sender, content));
-    return this;
-  }
+  
 
   /**
    * Create a NIP01 text note event addressed to specific recipients.

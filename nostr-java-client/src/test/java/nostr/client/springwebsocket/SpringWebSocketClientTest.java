@@ -80,6 +80,9 @@ class SpringWebSocketClientTest {
   void setup() {
     webSocketClientIF.setFailuresBeforeSuccess(0);
     webSocketClientIF.setAttempts(0);
+    // Reset subscription-related state to avoid test interference across methods
+    webSocketClientIF.setSubFailuresBeforeSuccess(0);
+    webSocketClientIF.setSubAttempts(0);
   }
 
   // Ensures retryable send eventually succeeds after configured transient failures.

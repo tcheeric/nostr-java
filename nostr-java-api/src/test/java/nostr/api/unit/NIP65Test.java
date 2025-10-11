@@ -22,7 +22,7 @@ public class NIP65Test {
     nip65.createRelayListMetadataEvent(List.of(relay), Marker.READ);
     GenericEvent event = nip65.getEvent();
     assertEquals("r", event.getTags().get(0).getCode());
-    assertTrue(event.getTags().get(0).toString().contains(Marker.READ.getValue()));
+    assertTrue(event.getTags().get(0).toString().toUpperCase().contains(Marker.READ.name()));
   }
 
   @Test
@@ -35,7 +35,7 @@ public class NIP65Test {
     GenericEvent event = nip65.getEvent();
     assertEquals(nostr.base.Kind.RELAY_LIST_METADATA.getValue(), event.getKind());
     assertTrue(event.getTags().stream().anyMatch(t -> t.toString().contains("relay1")));
-    assertTrue(event.getTags().stream().anyMatch(t -> t.toString().contains(Marker.WRITE.getValue())));
+    assertTrue(event.getTags().stream().anyMatch(t -> t.toString().toUpperCase().contains(Marker.WRITE.name())));
   }
 
   @Test

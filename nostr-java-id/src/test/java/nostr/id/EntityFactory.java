@@ -121,17 +121,7 @@ public class EntityFactory {
       return tag;
     }
 
-    /**
-     * @param tagNip parameter to be removed
-     * @deprecated use {@link #createGenericTag(PublicKey, IEvent)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static GenericTag createGenericTag(PublicKey publicKey, IEvent event, Integer tagNip) {
-      GenericTag tag = new GenericTag("devil");
-      tag.addAttribute(new ElementAttribute("param0", "Lucifer"));
-      ((GenericEvent) event).addTag(tag);
-      return tag;
-    }
+    // Removed deprecated compatibility overload createGenericTag(publicKey, event, Integer) in 1.0.0
 
     public static List<GenericTagQuery> createGenericTagQuery() {
       Character c = generateRamdomAlpha(1).charAt(0);

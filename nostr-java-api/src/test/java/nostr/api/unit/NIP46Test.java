@@ -77,7 +77,7 @@ public class NIP46Test {
     var ev = nip46.createRequestEvent(req, signer.getPublicKey()).sign().getEvent();
     assertEquals(nostr.base.Kind.NOSTR_CONNECT.getValue(), ev.getKind());
 
-    String decrypted = nostr.api.NIP44.decrypt(signer, ev, app.getPublicKey());
+    String decrypted = nostr.api.NIP44.decrypt(signer, ev);
     NIP46.Request parsed = NIP46.Request.fromString(decrypted);
     assertEquals("7", parsed.getId());
     assertEquals("sign_event", parsed.getMethod());

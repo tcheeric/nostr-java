@@ -8,8 +8,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
 import nostr.event.json.codec.BaseMessageDecoder;
+import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
+import nostr.event.message.EventMessage;
+import nostr.event.message.NoticeMessage;
+import nostr.event.message.OkMessage;
 import nostr.event.message.ReqMessage;
+import nostr.event.message.RelayAuthenticationMessage;
+import nostr.event.impl.GenericEvent;
+import nostr.base.PublicKey;
+import nostr.event.BaseTag;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
@@ -99,6 +108,64 @@ public class BaseMessageDecoderTest {
         () -> {
           new BaseMessageDecoder<>().decode(MALFORMED_JSON);
         });
+  }
+
+  @Test
+  // Decodes an EVENT message without subscription id using the encoder/decoder roundtrip.
+  void testEventMessageDecodeWithoutSubscription() throws Exception {
+    GenericEvent ev = new GenericEvent(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75"), 1, new ArrayList<BaseTag>(), "hi");
+    String json = new EventMessage(ev).encode();
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(EventMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes an EVENT message with subscription id using the encoder/decoder roundtrip.
+  void testEventMessageDecodeWithSubscription() throws Exception {
+    GenericEvent ev = new GenericEvent(new PublicKey("f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75"), 1, new ArrayList<BaseTag>(), "hi");
+    String json = new EventMessage(ev, "sub-1").encode();
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(EventMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes a CLOSE message to the proper type.
+  void testCloseMessageDecode() throws Exception {
+    String json = "[\"CLOSE\", \"sub-1\"]";
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(CloseMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes an EOSE message to the proper type.
+  void testEoseMessageDecode() throws Exception {
+    String json = "[\"EOSE\", \"sub-1\"]";
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(EoseMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes a NOTICE message to the proper type.
+  void testNoticeMessageDecode() throws Exception {
+    String json = "[\"NOTICE\", \"hello\"]";
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(NoticeMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes an OK message to the proper type.
+  void testOkMessageDecode() throws Exception {
+    String json = "[\"OK\", \"eventid\", true, \"\"]";
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(OkMessage.class, decoded);
+  }
+
+  @Test
+  // Decodes a relay AUTH challenge to the proper type.
+  void testAuthRelayChallengeDecode() throws Exception {
+    String json = "[\"AUTH\", \"challenge-string\"]";
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
+    assertInstanceOf(RelayAuthenticationMessage.class, decoded);
   }
 
   //    @Test

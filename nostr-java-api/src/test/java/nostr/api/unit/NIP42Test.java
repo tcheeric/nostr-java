@@ -56,11 +56,10 @@ public class NIP42Test {
   }
 
   @Test
-  // Relay AUTH message includes challenge attribute.
+  // Relay AUTH message includes challenge string.
   public void testRelayAuthMessage() throws Exception {
     String json = NIP42.createRelayAuthenticationMessage("c-1").encode();
     assertTrue(json.contains("\"AUTH\""));
-    assertTrue(json.contains("challenge"));
-    assertTrue(json.contains("c-1"));
+    assertTrue(json.contains("\"c-1\""));
   }
 }

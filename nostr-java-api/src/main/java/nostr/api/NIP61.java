@@ -12,7 +12,6 @@ import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
-import nostr.event.entities.Amount;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.CashuProof;
 import nostr.event.entities.NutZap;
@@ -123,37 +122,7 @@ public class NIP61 extends EventNostr {
     return this;
   }
 
-  /**
-   * @deprecated Use builder pattern or parameter object for complex event creation.
-   *             This method will be removed in version 1.0.0.
-   */
-  @Deprecated(forRemoval = true, since = "0.6.2")
-  public NIP61 createNutzapEvent(
-      @NonNull Amount amount,
-      List<CashuProof> proofs,
-      @NonNull URL url,
-      List<EventTag> events,
-      @NonNull PublicKey recipient,
-      @NonNull String content) {
-
-    GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Kind.NUTZAP.getValue(), content).create();
-
-    if (proofs != null) {
-      proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));
-    }
-    if (events != null) {
-      events.forEach(event -> genericEvent.addTag(event));
-    }
-    genericEvent.addTag(NIP61.createUrlTag(url.toString()));
-    genericEvent.addTag(NIP60.createAmountTag(amount));
-    genericEvent.addTag(NIP60.createUnitTag(amount.getUnit()));
-    genericEvent.addTag(NIP01.createPubKeyTag(recipient));
-
-    updateEvent(genericEvent);
-
-    return this;
-  }
+  
 
   /**
    * Create a {@code p2pk} tag.

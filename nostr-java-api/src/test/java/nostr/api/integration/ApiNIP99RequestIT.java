@@ -134,29 +134,40 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
       List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
 
-      var actualJson = mapper().readTree(reqResponses.getFirst());
+      // Some relays may emit EOSE or NOTICE before EVENT; find the EVENT response deterministically
+      JsonNode eventArray =
+          reqResponses.stream()
+              .map(
+                  json -> {
+                    try {
+                      return mapper().readTree(json);
+                    } catch (Exception e) {
+                      throw new RuntimeException(e);
+                    }
+                  })
+              .filter(node -> node.isArray() && node.size() >= 3)
+              .filter(node -> "EVENT".equals(node.get(0).asText()))
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new AssertionError(
+                          "No EVENT response found. Got: " + String.join(" | ", reqResponses)));
+
       var expectedJson = mapper().readTree(expectedRequestResponseJson());
 
-      // Verify you receive the event
-      assertEquals(
-          "EVENT",
-          actualJson.get(0).asText(),
-          "Event should be received, and not " + actualJson.get(0).asText());
-
       // Verify only required fields
+      assertEquals(3, eventArray.size(), "Expected 3 elements in the array, but got " + eventArray.size());
       assertEquals(
-          3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
-      assertEquals(
-          actualJson.get(2).get("id").asText(),
+          eventArray.get(2).get("id").asText(),
           expectedJson.get(2).get("id").asText(),
           "ID should match");
       assertEquals(
-          actualJson.get(2).get("kind").asInt(),
+          eventArray.get(2).get("kind").asInt(),
           expectedJson.get(2).get("kind").asInt(),
           "Kind should match");
 
       // Verify required tags
-      var actualTags = actualJson.get(2).get("tags");
+      var actualTags = eventArray.get(2).get("tags");
       assertTrue(
           hasRequiredTag(actualTags, "price", NUMBER.toString()), "Price tag should be present");
       assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");

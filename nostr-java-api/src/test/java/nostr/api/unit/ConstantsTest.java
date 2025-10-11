@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 public class ConstantsTest {
 
   @Test
-  void testKindValuesDelegateToKindEnum() {
-    // Test that Constants.Kind values correctly delegate to Kind enum
-    assertEquals(Kind.SET_METADATA.getValue(), Constants.Kind.USER_METADATA);
-    assertEquals(Kind.TEXT_NOTE.getValue(), Constants.Kind.SHORT_TEXT_NOTE);
-    assertEquals(Kind.CHANNEL_MESSAGE.getValue(), Constants.Kind.CHANNEL_MESSAGE);
+  void testKindValues() {
+    // Validate a few representative Kind enum values remain stable
+    assertEquals(0, Kind.SET_METADATA.getValue());
+    assertEquals(1, Kind.TEXT_NOTE.getValue());
+    assertEquals(42, Kind.CHANNEL_MESSAGE.getValue());
   }
 
   @Test
@@ -30,13 +30,12 @@ public class ConstantsTest {
   void testSerializationWithConstants() throws Exception {
     Identity identity = Identity.generateRandomIdentity();
     GenericEvent event = new GenericEvent();
-    event.setKind(Constants.Kind.SHORT_TEXT_NOTE);
+    event.setKind(Kind.TEXT_NOTE.getValue());
     event.setPubKey(identity.getPublicKey());
     event.setCreatedAt(0L);
     event.setContent("test");
 
     String json = new BaseEventEncoder<>(event).encode();
-    assertEquals(
-        Constants.Kind.SHORT_TEXT_NOTE, mapper().readTree(json).get("kind").asInt());
+    assertEquals(Kind.TEXT_NOTE.getValue(), mapper().readTree(json).get("kind").asInt());
   }
 }

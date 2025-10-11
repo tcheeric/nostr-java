@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (used only for visibility)'
+        required: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 with Maven Central credentials and GPG
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Make release script executable
+        run: chmod +x scripts/release.sh
+
+      - name: Validate tag matches project version
+        shell: bash
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          POM_VERSION=$(mvn -q -N help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "Tag: $TAG_NAME, POM: $POM_VERSION"
+          if [[ "$TAG_NAME" != "v${POM_VERSION}" ]]; then
+            echo "Tag name must be v<POM_VERSION>. Mismatch: $TAG_NAME vs v$POM_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Verify (skip Docker ITs)
+        run: scripts/release.sh verify --no-docker
+
+      - name: Publish to Central (release profile)
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+        run: scripts/release.sh publish --no-docker
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-release
+          if-no-files-found: ignore
+          path: |
+            **/target/site/jacoco/**

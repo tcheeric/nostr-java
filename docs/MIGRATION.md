@@ -36,7 +36,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
 </parent>
 ```
 
-**In 0.5.1**, nostr-java uses its own BOM via dependency management:
+**In 0.5.1**, nostr-java uses its own BOM via dependency management (use the latest BOM version `X.Y.Z`):
 
 ```xml
 <!-- 0.5.1 - NEW -->
@@ -45,7 +45,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
         <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>nostr-java-bom</artifactId>
-            <version>1.1.0</version>
+            <version><!-- X.Y.Z --></version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -55,16 +55,29 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
 
 **Migration Steps:**
 
-1. **Update the version** in your `pom.xml`:
+1. **Import the BOM** in your `pom.xml` and omit per-module versions:
    ```xml
-   <dependency>
+   <dependencyManagement>
+     <dependencies>
+       <dependency>
+         <groupId>xyz.tcheeric</groupId>
+         <artifactId>nostr-java-bom</artifactId>
+         <version><!-- X.Y.Z --></version>
+         <type>pom</type>
+         <scope>import</scope>
+       </dependency>
+     </dependencies>
+   </dependencyManagement>
+
+   <dependencies>
+     <dependency>
        <groupId>xyz.tcheeric</groupId>
        <artifactId>nostr-java-api</artifactId>
-       <version>0.6.0</version>
-   </dependency>
+     </dependency>
+   </dependencies>
    ```
 
-2. **If you're using Spring Boot** in your own application, you can continue using Spring Boot as your parent:
+2. **If you're using Spring Boot** in your own application, you can continue using Spring Boot as your parent and import the BOM:
    ```xml
    <!-- Your application's pom.xml -->
    <parent>
@@ -73,12 +86,23 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
        <version>3.5.5</version> <!-- or your preferred version -->
    </parent>
 
-   <dependencies>
+   <dependencyManagement>
+     <dependencies>
        <dependency>
-           <groupId>xyz.tcheeric</groupId>
-           <artifactId>nostr-java-api</artifactId>
-           <version>0.6.0</version>
+         <groupId>xyz.tcheeric</groupId>
+         <artifactId>nostr-java-bom</artifactId>
+         <version><!-- X.Y.Z --></version>
+         <type>pom</type>
+         <scope>import</scope>
        </dependency>
+     </dependencies>
+   </dependencyManagement>
+
+   <dependencies>
+     <dependency>
+       <groupId>xyz.tcheeric</groupId>
+       <artifactId>nostr-java-api</artifactId>
+     </dependency>
    </dependencies>
    ```
 
@@ -147,11 +171,12 @@ new NIP01(identity)
 
 **Impact**: None
 
-If you're using Gradle, simply update the version:
+If you're using Gradle, import the BOM and omit per-module versions:
 
 ```gradle
 dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:0.5.1'  // Update version
+    implementation platform('xyz.tcheeric:nostr-java-bom:X.Y.Z')
+    implementation 'xyz.tcheeric:nostr-java-api'
 }
 ```
 
@@ -231,7 +256,7 @@ After migration, verify your setup:
         <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>nostr-java-bom</artifactId>
-            <version>1.1.0</version>
+            <version><!-- X.Y.Z --></version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>

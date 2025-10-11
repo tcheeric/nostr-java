@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+
+import com.github.valfirst.slf4jtest.TestLogger;
+import com.github.valfirst.slf4jtest.TestLoggerFactory;
+import nostr.api.WebSocketClientHandler;
 import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
@@ -19,8 +23,6 @@ import nostr.event.filter.KindFilter;
 import nostr.id.Identity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import uk.org.lidalia.slf4jtest.TestLogger;
-import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 /** Verifies default error listener emits WARN logs when subscribe path throws. */
 public class NostrSpringWebSocketClientSubscribeLoggingTest {
@@ -69,10 +71,10 @@ public class NostrSpringWebSocketClientSubscribeLoggingTest {
     }
     boolean found = logger.getLoggingEvents().stream()
         .anyMatch(e -> e.getLevel().toString().equals("WARN")
-            && e.getMessage().contains("Subscription error on relay {} for {}")
+            && e.getMessage().contains("Subscription error for {} on relays {}")
             && e.getArguments().size() == 2
-            && String.valueOf(e.getArguments().get(0)).contains("relay-1")
-            && String.valueOf(e.getArguments().get(1)).contains("sub-warn"));
+            && String.valueOf(e.getArguments().get(0)).contains("sub-warn")
+            && String.valueOf(e.getArguments().get(1)).contains("r1"));
     assertTrue(found);
   }
 }
