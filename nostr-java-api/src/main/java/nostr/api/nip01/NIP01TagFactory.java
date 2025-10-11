@@ -75,7 +75,10 @@ public final class NIP01TagFactory {
     List<String> params = new ArrayList<>();
     String param = kind + ":" + publicKey + ":";
     if (idTag instanceof IdentifierTag identifierTag) {
-      param += identifierTag.getUuid();
+      String uuid = identifierTag.getUuid();
+      if (uuid != null) {
+        param += uuid;
+      }
     }
     params.add(param);
 
