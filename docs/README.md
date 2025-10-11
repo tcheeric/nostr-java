@@ -14,6 +14,7 @@ Quick links to the most relevant guides and references.
 - [howto/api-examples.md](howto/api-examples.md) — Comprehensive examples with 13+ use cases
 - [howto/streaming-subscriptions.md](howto/streaming-subscriptions.md) — Long-lived subscriptions
 - [howto/custom-events.md](howto/custom-events.md) — Creating custom event types
+- [howto/manage-roadmap-project.md](howto/manage-roadmap-project.md) — Sync the GitHub Project with the 1.0 backlog
 
 ## Operations
 
@@ -27,6 +28,7 @@ Quick links to the most relevant guides and references.
 ## Explanation
 
 - [explanation/extending-events.md](explanation/extending-events.md) — Extending the event model
+- [explanation/roadmap-1.0.md](explanation/roadmap-1.0.md) — Outstanding work before the 1.0 release
 
 ## Project
 
