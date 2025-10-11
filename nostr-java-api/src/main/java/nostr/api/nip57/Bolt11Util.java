@@ -22,7 +22,7 @@ public final class Bolt11Util {
       throw new IllegalArgumentException("bolt11 invoice is required");
     }
     String lower = bolt11.toLowerCase(Locale.ROOT);
-    int sep = lower.lastIndexOf('1');
+    int sep = lower.indexOf('1');
     if (!lower.startsWith("ln") || sep < 0) {
       throw new IllegalArgumentException("Invalid BOLT11 invoice: missing HRP separator");
     }
