@@ -26,6 +26,10 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usag
 
 The `no-docker` profile excludes tests under `**/nostr/api/integration/**` and sets `noDocker=true` for conditional test disabling.
 
+## Roadmap project automation
+
+Maintainers can create or refresh the GitHub Project that tracks all 1.0.0 release blockers by running `./scripts/create-roadmap-project.sh`. The helper script uses the GitHub CLI to set up draft items that mirror the tasks described in [docs/explanation/roadmap-1.0.md](docs/explanation/roadmap-1.0.md); see the [how-to guide](docs/howto/manage-roadmap-project.md) for prerequisites and usage tips.
+
 ### Troubleshooting failed relay sends
 
 When broadcasting to multiple relays, failures on individual relays are tolerated and sending continues to other relays. To inspect which relays failed during the last send on the current thread:
