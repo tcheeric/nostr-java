@@ -57,7 +57,7 @@ public class Bolt11UtilTest {
   @Test
   // Parses BTC with no unit. Example: 1 BTC → 100,000,000,000 msat.
   void parseWholeBtcNoUnit() {
-    long msat = Bolt11Util.parseMsat("lnbc11psome");
+    long msat = Bolt11Util.parseMsat("lnbc1p1some");
     assertEquals(100_000_000_000L, msat);
   }
 
