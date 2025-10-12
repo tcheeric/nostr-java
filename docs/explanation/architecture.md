@@ -334,7 +334,7 @@ protected void validateTags() {
 **Examples:**
 ```java
 // RelayUri - validates WebSocket URIs
-RelayUri relay = new RelayUri("wss://relay.damus.io");
+RelayUri relay = new RelayUri("wss://relay.398ja.xyz");
 // Throws IllegalArgumentException if not ws:// or wss://
 
 // SubscriptionId - type-safe subscription identifiers
@@ -342,8 +342,8 @@ SubscriptionId subId = SubscriptionId.of("my-subscription");
 // Throws IllegalArgumentException if blank
 
 // Equality based on value, not object identity
-RelayUri r1 = new RelayUri("wss://relay.damus.io");
-RelayUri r2 = new RelayUri("wss://relay.damus.io");
+RelayUri r1 = new RelayUri("wss://relay.398ja.xyz");
+RelayUri r2 = new RelayUri("wss://relay.398ja.xyz");
 assert r1.equals(r2); // true - same value
 ```
 

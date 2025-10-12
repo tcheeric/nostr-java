@@ -159,7 +159,7 @@ The public API remains **100% compatible** between 0.4.0 and 0.5.1. All existing
 ```java
 // This code works in both 0.4.0 and 0.5.1
 Identity identity = Identity.generateRandomIdentity();
-Map<String, String> relays = Map.of("damus", "wss://relay.398ja.xyz");
+Map<String, String> relays = Map.of("398ja", "wss://relay.398ja.xyz");
 
 new NIP01(identity)
     .createTextNoteEvent("Hello nostr")
