@@ -5,7 +5,7 @@ package nostr.base;
  */
 public interface IElement {
 
-  default Integer getNip() {
-    return 1;
+  default String getNip() {
+    return "1";
   }
 }

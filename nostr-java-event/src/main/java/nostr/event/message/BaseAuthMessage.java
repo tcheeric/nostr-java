@@ -12,7 +12,7 @@ public abstract class BaseAuthMessage extends BaseMessage {
   }
 
   @Override
-  public Integer getNip() {
-    return 42;
+  public String getNip() {
+    return "42";
   }
 }
