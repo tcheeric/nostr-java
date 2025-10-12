@@ -10,10 +10,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import java.util.Optional;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
+
+import java.util.Optional;
 
 /** Represents a 'subject' tag (NIP-14). */
 @Builder

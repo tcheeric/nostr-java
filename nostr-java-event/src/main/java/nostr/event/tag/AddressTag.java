@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import java.util.Optional;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -18,6 +17,7 @@ import nostr.event.BaseTag;
 import nostr.event.json.serializer.AddressTagSerializer;
 
 import java.util.List;
+import java.util.Optional;
 
 /** Represents an 'a' addressable/parameterized replaceable tag (NIP-33). */
 @Builder
