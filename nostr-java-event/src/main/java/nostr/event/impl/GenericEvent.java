@@ -135,7 +135,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
 
   @JsonIgnore @EqualsAndHashCode.Exclude private byte[] _serializedEvent;
 
-  @JsonIgnore @EqualsAndHashCode.Exclude private Integer nip;
+  @JsonIgnore @EqualsAndHashCode.Exclude private String nip;
 
   public GenericEvent() {
     this.tags = new ArrayList<>();
@@ -322,7 +322,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     private String content = "";
     private Long createdAt;
     private Signature signature;
-    private Integer nip;
+    private String nip;
 
     public GenericEventBuilder id(String id) { this.id = id; return this; }
     public GenericEventBuilder pubKey(PublicKey pubKey) { this.pubKey = pubKey; return this; }
@@ -332,7 +332,7 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     public GenericEventBuilder content(String content) { this.content = content; return this; }
     public GenericEventBuilder createdAt(Long createdAt) { this.createdAt = createdAt; return this; }
     public GenericEventBuilder signature(Signature signature) { this.signature = signature; return this; }
-    public GenericEventBuilder nip(Integer nip) { this.nip = nip; return this; }
+    public GenericEventBuilder nip(String nip) { this.nip = nip; return this; }
 
     public GenericEvent build() {
       GenericEvent event = new GenericEvent();
@@ -498,11 +498,11 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
     Optional.ofNullable(tag).ifPresent(this::addTag);
   }
 
-  protected void addGenericTag(String key, Integer nip, Object value) {
+  protected void addGenericTag(String key, String nip, Object value) {
     Optional.ofNullable(value).ifPresent(s -> addTag(BaseTag.create(key, s.toString())));
   }
 
-  protected void addStringListTag(String label, Integer nip, List<String> tag) {
+  protected void addStringListTag(String label, String nip, List<String> tag) {
     Optional.ofNullable(tag).ifPresent(tagList -> BaseTag.create(label, tagList));
   }
 

@@ -304,7 +304,7 @@ public class JsonParseTest {
 
     GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
     EventMessage message = NIP01.createEventMessage(event, "1");
-    assertEquals(1, message.getNip());
+    assertEquals("1", message.getNip());
     String encoded = new BaseEventEncoder<>((BaseEvent) message.getEvent()).encode();
     assertEquals(
         "{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content"
