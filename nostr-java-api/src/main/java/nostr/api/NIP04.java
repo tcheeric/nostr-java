@@ -1,8 +1,5 @@
 package nostr.api;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -11,11 +8,15 @@ import nostr.base.PublicKey;
 import nostr.encryption.MessageCipher;
 import nostr.encryption.MessageCipher04;
 import nostr.event.BaseTag;
-import nostr.event.impl.GenericEvent;
 import nostr.event.filter.Filterable;
+import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * NIP-04: Encrypted Direct Messages.

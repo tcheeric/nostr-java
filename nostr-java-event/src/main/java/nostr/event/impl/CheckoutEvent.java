@@ -1,7 +1,6 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,6 +8,8 @@ import lombok.NoArgsConstructor;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.entities.NIP15Content;
+
+import java.util.List;
 
 /**
  * @author eric

@@ -1,5 +1,7 @@
 package nostr.util;
 
+import nostr.util.validator.HexStringValidator;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -7,7 +9,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import nostr.util.validator.HexStringValidator;
 
 /**
  * @author squirrel

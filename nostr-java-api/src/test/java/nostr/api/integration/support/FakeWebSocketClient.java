@@ -1,5 +1,11 @@
 package nostr.api.integration.support;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import nostr.client.springwebsocket.WebSocketClientIF;
+import nostr.event.BaseMessage;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,11 +15,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import nostr.client.springwebsocket.WebSocketClientIF;
-import nostr.event.BaseMessage;
 
 /**
  * Minimal in‑memory WebSocket client used by integration tests to simulate relay behavior.

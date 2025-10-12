@@ -1,16 +1,18 @@
 package nostr.api.client;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
 import nostr.api.WebSocketClientHandler;
 import nostr.base.SubscriptionId;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Verifies ensureRequestClients() is invoked per dispatcher call as expected. */
 public class NostrRequestDispatcherEnsureClientsTest {

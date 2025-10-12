@@ -4,6 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import nostr.util.NostrException;
+import nostr.util.http.DefaultHttpClientProvider;
+import nostr.util.http.HttpClientProvider;
+
 import java.io.IOException;
 import java.net.IDN;
 import java.net.URI;
@@ -17,12 +24,6 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import nostr.util.NostrException;
-import nostr.util.http.DefaultHttpClientProvider;
-import nostr.util.http.HttpClientProvider;
 
 /**
  * Validator for NIP-05 identifiers.

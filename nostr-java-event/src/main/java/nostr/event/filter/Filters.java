@@ -1,15 +1,16 @@
 package nostr.event.filter;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.IElement;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Getter
 @EqualsAndHashCode

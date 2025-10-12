@@ -1,18 +1,20 @@
 package nostr.event.support;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.impl.GenericEvent;
-import nostr.event.json.EventJsonMapper;
 import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Tests for GenericEventSerializer, Updater and Validator utility classes. */
 public class GenericEventSupportTest {

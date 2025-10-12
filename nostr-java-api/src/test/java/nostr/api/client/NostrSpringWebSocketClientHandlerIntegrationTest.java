@@ -1,21 +1,23 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import lombok.NonNull;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.WebSocketClientHandler;
 import nostr.base.RelayUri;
-import nostr.client.WebSocketClientFactory;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Wires NostrSpringWebSocketClient to a mocked handler and verifies subscribe/close flow. */
 public class NostrSpringWebSocketClientHandlerIntegrationTest {

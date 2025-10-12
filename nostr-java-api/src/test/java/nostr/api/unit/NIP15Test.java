@@ -1,8 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.List;
 import nostr.api.NIP15;
 import nostr.event.entities.Product;
 import nostr.event.entities.Stall;
@@ -10,6 +7,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.IdentifierTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class NIP15Test {
 

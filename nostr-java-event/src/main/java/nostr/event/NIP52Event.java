@@ -1,12 +1,13 @@
 package nostr.event;
 
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.AddressableEvent;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor

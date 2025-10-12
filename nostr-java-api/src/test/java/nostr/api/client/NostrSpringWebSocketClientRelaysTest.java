@@ -1,13 +1,14 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.Map;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClientFactory;
 import nostr.api.service.impl.DefaultNoteService;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Verifies getRelays returns the snapshot of relay names to URIs. */
 public class NostrSpringWebSocketClientRelaysTest {

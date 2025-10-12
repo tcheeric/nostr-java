@@ -3,8 +3,9 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import nostr.event.tag.IdentifierTag;
+
+import java.io.IOException;
 
 public class IdentifierTagSerializer extends JsonSerializer<IdentifierTag> {
 

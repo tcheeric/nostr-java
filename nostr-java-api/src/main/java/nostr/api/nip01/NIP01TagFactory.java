@@ -1,7 +1,5 @@
 package nostr.api.nip01;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.base.Marker;
@@ -11,8 +9,15 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.tag.IdentifierTag;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Creates the canonical tags used by NIP-01 helpers.
+ *
+ * <p>These tags follow the standard defined in
+ * <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a> and are used
+ * throughout the API builders for consistency.
  */
 public final class NIP01TagFactory {
 
@@ -39,8 +44,7 @@ public final class NIP01TagFactory {
   }
 
   public static BaseTag eventTag(@NonNull String idEvent, Relay recommendedRelay, Marker marker) {
-    String relayUri = recommendedRelay != null ? recommendedRelay.getUri() : null;
-    return eventTag(idEvent, relayUri, marker);
+    return eventTag(idEvent, recommendedRelay != null ? recommendedRelay.getUri() : null, marker);
   }
 
   public static BaseTag pubKeyTag(@NonNull PublicKey publicKey) {

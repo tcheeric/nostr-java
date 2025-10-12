@@ -1,12 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP57;
 import nostr.api.nip57.ZapRequestParameters;
@@ -17,12 +10,19 @@ import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ZapRequestEvent;
-import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for NIP-57 (Zaps - Lightning Payment Protocol).

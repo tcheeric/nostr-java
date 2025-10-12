@@ -2,7 +2,6 @@ package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Map;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.IDecoder;
@@ -15,6 +14,8 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.OkMessage;
 import nostr.event.message.RelayAuthenticationMessage;
 import nostr.event.message.ReqMessage;
+
+import java.util.Map;
 
 /**
  * @author eric
@@ -39,10 +40,13 @@ public class BaseMessageDecoder<T extends BaseMessage> implements IDecoder<T> {
 
     return switch (command) {
       //          client <-> relay messages
-      case "AUTH" ->
-          subscriptionId instanceof Map map
-              ? CanonicalAuthenticationMessage.decode(map)
-              : RelayAuthenticationMessage.decode(subscriptionId);
+      case "AUTH" -> {
+        if (subscriptionId instanceof Map<?, ?> map) {
+          yield CanonicalAuthenticationMessage.decode((Map<String, Object>) map);
+        } else {
+          yield RelayAuthenticationMessage.decode(subscriptionId);
+        }
+      }
       case "EVENT" -> EventMessage.decode(jsonString);
       //            missing client <-> relay handlers
       //            case "COUNT" -> CountMessage.decode(subscriptionId);

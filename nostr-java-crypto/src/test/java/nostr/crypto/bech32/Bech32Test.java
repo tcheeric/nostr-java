@@ -1,10 +1,13 @@
 package nostr.crypto.bech32;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import nostr.crypto.bech32.Bech32.Bech32Data;
 import nostr.crypto.bech32.Bech32.Encoding;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Tests for Bech32 encode/decode and NIP-19 helpers. */
 public class Bech32Test {

@@ -1,5 +1,9 @@
 package nostr.api.client;
 
+import nostr.api.WebSocketClientHandler;
+import nostr.base.RelayUri;
+import nostr.base.SubscriptionId;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -8,9 +12,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import nostr.api.WebSocketClientHandler;
-import nostr.base.RelayUri;
-import nostr.base.SubscriptionId;
 
 /**
  * Manages the lifecycle of {@link WebSocketClientHandler} instances keyed by relay name.
@@ -45,10 +46,9 @@ public class NostrRelayRegistry {
    */
   public void registerRelays(Map<String, String> relays) {
     for (Entry<String, String> relayEntry : relays.entrySet()) {
-      RelayUri relayUri = new RelayUri(relayEntry.getValue());
       clientMap.computeIfAbsent(
           relayEntry.getKey(),
-          key -> createHandler(relayEntry.getKey(), relayUri));
+          key -> createHandler(key, new RelayUri(relayEntry.getValue())));
     }
   }
 
@@ -99,10 +99,9 @@ public class NostrRelayRegistry {
    */
   public void ensureRequestClients(SubscriptionId subscriptionId) {
     for (WebSocketClientHandler baseHandler : baseHandlers()) {
-      String requestKey = baseHandler.getRelayName() + ":" + subscriptionId.value();
       clientMap.computeIfAbsent(
-          requestKey,
-          key -> createHandler(requestKey, baseHandler.getRelayUri()));
+          baseHandler.getRelayName() + ":" + subscriptionId.value(),
+          key -> createHandler(key, baseHandler.getRelayUri()));
     }
   }
 

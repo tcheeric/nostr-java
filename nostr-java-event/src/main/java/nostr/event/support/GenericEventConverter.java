@@ -1,9 +1,10 @@
 package nostr.event.support;
 
-import java.lang.reflect.InvocationTargetException;
 import lombok.NonNull;
 import nostr.event.impl.GenericEvent;
 import nostr.util.NostrException;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Converts {@link GenericEvent} instances to concrete event subtypes.

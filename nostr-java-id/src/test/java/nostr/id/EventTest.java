@@ -1,13 +1,5 @@
 package nostr.id;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
@@ -23,6 +15,14 @@ import nostr.util.NostrUtil;
 import nostr.util.validator.Nip05Validator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author squirrel
@@ -65,9 +65,9 @@ public class EventTest {
 
   @Test
   public void testCreateUnsupportedGenericTagAttribute() {
-    /**
-     * test of this functionality relocated to nostr-java-api {@link
-     * nostr.api.integration.ApiEventIT#testCreateUnsupportedGenericTagAttribute()}
+    /*
+     * Test of this functionality relocated to nostr-java-api:
+     * see nostr.api.integration.ApiEventIT#testCreateUnsupportedGenericTagAttribute()
      */
   }
 

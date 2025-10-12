@@ -1,10 +1,5 @@
 package nostr.id;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import nostr.base.ISignable;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
@@ -15,6 +10,12 @@ import nostr.event.tag.DelegationTag;
 import nostr.util.NostrUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author squirrel

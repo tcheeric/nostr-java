@@ -1,11 +1,5 @@
 package nostr.api.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClientFactory;
@@ -14,6 +8,13 @@ import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Integration tests covering multi-relay behavior using a fake WebSocket client factory.

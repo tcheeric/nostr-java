@@ -1,14 +1,15 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.List;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GenericEventBuilderTest {
 

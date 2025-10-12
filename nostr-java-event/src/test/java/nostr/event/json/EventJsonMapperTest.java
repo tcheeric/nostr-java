@@ -1,9 +1,10 @@
 package nostr.event.json;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /** Tests for EventJsonMapper contract. */
 public class EventJsonMapperTest {

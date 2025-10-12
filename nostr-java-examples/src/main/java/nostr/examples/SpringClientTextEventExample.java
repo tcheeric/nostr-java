@@ -1,8 +1,9 @@
 package nostr.examples;
 
-import java.util.Map;
 import nostr.api.NIP01;
 import nostr.id.Identity;
+
+import java.util.Map;
 
 /**
  * Example showing how to create, sign and send a text note using the NIP01 helper built on top of

@@ -1,15 +1,5 @@
 package nostr.api;
 
-import static nostr.api.NIP01.createIdentifierTag;
-import static nostr.api.NIP23.createImageTag;
-import static nostr.api.NIP23.createSummaryTag;
-import static nostr.api.NIP23.createTitleTag;
-import static nostr.api.NIP99.createLocationTag;
-import static nostr.api.NIP99.createStatusTag;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -23,6 +13,17 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.GeohashTag;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
+import static nostr.api.NIP01.createIdentifierTag;
+import static nostr.api.NIP23.createImageTag;
+import static nostr.api.NIP23.createSummaryTag;
+import static nostr.api.NIP23.createTitleTag;
+import static nostr.api.NIP99.createLocationTag;
+import static nostr.api.NIP99.createStatusTag;
 
 /**
  * NIP-52 helpers (Calendar Events). Build time/date-based calendar events and RSVP.

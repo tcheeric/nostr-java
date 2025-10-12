@@ -1,6 +1,5 @@
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
@@ -10,6 +9,8 @@ import nostr.event.entities.Product;
 import nostr.event.entities.Stall;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * NIP-15 helpers (Endorsements/Marketplace). Build stall/product metadata and encrypted order flows.

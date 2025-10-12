@@ -1,13 +1,5 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -17,6 +9,15 @@ import nostr.event.message.CloseMessage;
 import nostr.event.message.ReqMessage;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Verifies WebSocketClientHandler close sends CLOSE frame and closes client. */
 public class WebSocketHandlerSendCloseFrameTest {

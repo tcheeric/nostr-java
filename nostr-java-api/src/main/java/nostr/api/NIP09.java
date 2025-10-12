@@ -1,7 +1,5 @@
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
@@ -11,6 +9,9 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * NIP-09 helpers (Event Deletion). Build deletion events targeting events or addresses.
@@ -50,30 +51,23 @@ public class NIP09 extends EventNostr {
   private List<BaseTag> getTags(List<Deleteable> deleteables) {
     List<BaseTag> tags = new ArrayList<>();
 
-    // Handle GenericEvents
-    deleteables.stream()
-        .filter(GenericEvent.class::isInstance)
-        .map(GenericEvent.class::cast)
-        .forEach(event -> tags.add(new EventTag(event.getId())));
-
-    // Handle AddressTags
-    deleteables.stream()
-        .filter(GenericEvent.class::isInstance)
-        .map(GenericEvent.class::cast)
-        .map(GenericEvent::getTags)
-        .forEach(
-            t ->
-                t.stream()
-                    .filter(tag -> tag instanceof AddressTag)
-                    .map(AddressTag.class::cast)
-                    .forEach(
-                        tag -> {
-                          tags.add(tag);
-                          tags.add(NIP25.createKindTag(tag.getKind()));
-                        }));
-
-    // Add kind tags for all deleteables
-    deleteables.forEach(d -> tags.add(NIP25.createKindTag(d.getKind())));
+    for (Deleteable d : deleteables) {
+      if (d instanceof GenericEvent event) {
+        // Event IDs
+        tags.add(new EventTag(event.getId()));
+        // Address tags contained in the event
+        event.getTags().stream()
+            .filter(tag -> tag instanceof AddressTag)
+            .map(AddressTag.class::cast)
+            .forEach(
+                tag -> {
+                  tags.add(tag);
+                  tags.add(NIP25.createKindTag(tag.getKind()));
+                });
+      }
+      // Always include kind tag for each deleteable
+      tags.add(NIP25.createKindTag(d.getKind()));
+    }
 
     return tags;
   }

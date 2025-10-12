@@ -1,13 +1,14 @@
 package nostr.api;
 
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import lombok.NonNull;
 import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
+
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 /**
  * Test-only factory to construct {@link WebSocketClientHandler} while staying inside the

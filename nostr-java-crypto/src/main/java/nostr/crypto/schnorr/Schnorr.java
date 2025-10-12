@@ -1,5 +1,9 @@
 package nostr.crypto.schnorr;
 
+import nostr.crypto.Point;
+import nostr.util.NostrUtil;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -11,9 +15,6 @@ import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
-import nostr.crypto.Point;
-import nostr.util.NostrUtil;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * Utility methods for BIP-340 Schnorr signatures over secp256k1.

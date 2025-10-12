@@ -1,8 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
 import nostr.api.NIP01;
 import nostr.base.Kind;
 import nostr.event.filter.Filters;
@@ -15,6 +12,10 @@ import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Unit tests for NIP-01 message creation and encoding. */
 public class NIP01MessagesTest {

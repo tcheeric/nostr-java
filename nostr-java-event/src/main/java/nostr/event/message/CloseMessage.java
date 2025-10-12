@@ -1,7 +1,5 @@
 package nostr.event.message;
 
-import nostr.event.json.EventJsonMapper;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -10,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
 
 /**

@@ -1,11 +1,5 @@
 package nostr.id;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
@@ -25,6 +19,13 @@ import nostr.event.impl.TextNoteEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author squirrel

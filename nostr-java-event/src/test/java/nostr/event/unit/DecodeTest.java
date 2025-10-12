@@ -1,12 +1,6 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
@@ -17,6 +11,13 @@ import nostr.event.message.EventMessage;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DecodeTest {
 

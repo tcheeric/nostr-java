@@ -1,13 +1,14 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.ArrayList;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.impl.TextNoteEvent;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ValidateKindTest {
   @Test

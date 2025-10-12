@@ -1,13 +1,14 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import nostr.base.ElementAttribute;
 import nostr.base.GenericTagQuery;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
 public class GenericTagQueryFilter<T extends GenericTagQuery> extends AbstractFilterable<T> {

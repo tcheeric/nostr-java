@@ -1,13 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.service.NoteService;
 import nostr.base.ISignable;
@@ -18,6 +10,15 @@ import nostr.id.Identity;
 import nostr.id.SigningException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NostrSpringWebSocketClientEventVerificationTest {
 

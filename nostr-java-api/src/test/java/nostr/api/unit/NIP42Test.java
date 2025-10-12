@@ -1,9 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import nostr.api.NIP42;
 import nostr.base.Kind;
 import nostr.base.Relay;
@@ -14,6 +10,10 @@ import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP42Test {
 

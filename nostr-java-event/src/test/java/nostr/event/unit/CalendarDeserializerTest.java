@@ -1,10 +1,6 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
@@ -22,6 +18,11 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.SubjectTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CalendarDeserializerTest {
 

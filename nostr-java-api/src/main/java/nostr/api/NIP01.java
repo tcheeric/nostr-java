@@ -1,7 +1,5 @@
 package nostr.api;
 
-import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
 import nostr.api.nip01.NIP01EventBuilder;
 import nostr.api.nip01.NIP01MessageFactory;
@@ -21,6 +19,9 @@ import nostr.event.message.ReqMessage;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Facade for NIP-01 (Basic Protocol Flow) - the fundamental building blocks of Nostr.

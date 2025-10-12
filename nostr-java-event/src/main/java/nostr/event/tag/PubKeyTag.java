@@ -14,14 +14,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import java.util.Optional;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
-/**
- * @author squirrel
- */
+/** Represents a 'p' public key reference tag (NIP-01). */
 @JsonPropertyOrder({"pubKey", "mainRelayUrl", "petName"})
 @Builder
 @Data
@@ -54,13 +53,22 @@ public class PubKeyTag extends BaseTag {
     this.petName = petName;
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  /** Optional accessor for mainRelayUrl. */
+  public Optional<String> getMainRelayUrlOptional() {
+    return Optional.ofNullable(mainRelayUrl);
+  }
+
+  /** Optional accessor for petName. */
+  public Optional<String> getPetNameOptional() {
+    return Optional.ofNullable(petName);
+  }
+
+  public static PubKeyTag deserialize(@NonNull JsonNode node) {
     PubKeyTag tag = new PubKeyTag();
     setRequiredField(node.get(1), (n, t) -> tag.setPublicKey(new PublicKey(n.asText())), tag);
     setOptionalField(node.get(2), (n, t) -> tag.setMainRelayUrl(n.asText()), tag);
     setOptionalField(node.get(3), (n, t) -> tag.setPetName(n.asText()), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static PubKeyTag updateFields(@NonNull GenericTag tag) {

@@ -1,14 +1,14 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.TagRegistry;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /** Tests for dynamic tag registration. */
 class TagRegistryTest {

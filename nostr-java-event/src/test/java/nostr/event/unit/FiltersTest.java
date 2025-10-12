@@ -1,19 +1,20 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import nostr.base.Kind;
+import nostr.event.filter.Filterable;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import nostr.base.Kind;
-import nostr.event.filter.Filterable;
-import nostr.event.filter.Filters;
-import nostr.event.filter.KindFilter;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FiltersTest {
 

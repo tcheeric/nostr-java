@@ -1,7 +1,5 @@
 package nostr.api.factory.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -9,6 +7,9 @@ import nostr.api.factory.EventFactory;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Factory for creating generic Nostr events with a specified kind.

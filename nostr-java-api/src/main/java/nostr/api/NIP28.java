@@ -1,27 +1,25 @@
 package nostr.api;
 
-import nostr.base.json.EventJsonMapper;
-
-import static nostr.api.NIP12.createHashtagTag;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
-import nostr.config.Constants;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.entities.ChannelProfile;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.apache.commons.text.StringEscapeUtils;
+
+import java.util.List;
+
+import static nostr.api.NIP12.createHashtagTag;
 
 /**
  * NIP-28 helpers (Public chat). Build channel create/metadata/message and moderation events.

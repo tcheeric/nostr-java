@@ -1,10 +1,10 @@
 package nostr.encryption;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import nostr.crypto.schnorr.Schnorr;
 import nostr.crypto.schnorr.SchnorrException;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MessageCipherTest {
 

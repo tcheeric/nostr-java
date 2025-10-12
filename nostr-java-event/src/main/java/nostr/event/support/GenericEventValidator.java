@@ -1,12 +1,13 @@
 package nostr.event.support;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.NonNull;
 import nostr.base.NipConstants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.util.validator.HexStringValidator;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Performs NIP-01 validation on {@link GenericEvent} instances.

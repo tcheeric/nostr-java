@@ -1,6 +1,7 @@
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,12 +13,11 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
-/**
- * @author eric
- */
+/** Represents a 'g' geohash location tag (NIP-12). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({"g"})
 @Tag(code = "g", nip = 12)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,11 +27,10 @@ public class GeohashTag extends BaseTag {
   @JsonProperty("g")
   private String location;
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  public static GeohashTag deserialize(@NonNull JsonNode node) {
     GeohashTag tag = new GeohashTag();
     setRequiredField(node.get(1), (n, t) -> tag.setLocation(n.asText()), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static GeohashTag updateFields(@NonNull GenericTag genericTag) {

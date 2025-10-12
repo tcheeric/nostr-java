@@ -1,13 +1,14 @@
 package nostr.event.support;
 
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import nostr.event.impl.GenericEvent;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 
 /**
  * Refreshes derived fields (serialized payload, id, timestamp) for {@link GenericEvent}.

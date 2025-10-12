@@ -1,6 +1,5 @@
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
@@ -8,6 +7,8 @@ import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * NIP-02 helpers (Contact List). Create and manage kind 3 contact lists and p-tags.

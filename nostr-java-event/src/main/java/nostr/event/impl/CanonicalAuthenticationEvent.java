@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
@@ -9,6 +8,8 @@ import nostr.base.Relay;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.tag.GenericTag;
+
+import java.util.List;
 
 /**
  * @author squirrel

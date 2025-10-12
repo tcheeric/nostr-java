@@ -1,14 +1,15 @@
 package nostr.event.unit;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import nostr.event.entities.Product;
 import nostr.event.entities.Stall;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductSerializationTest {
 

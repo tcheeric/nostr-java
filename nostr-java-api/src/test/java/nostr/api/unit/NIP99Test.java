@@ -1,12 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import nostr.api.NIP99;
 import nostr.base.Kind;
 import nostr.config.Constants;
@@ -16,6 +9,14 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Unit tests for NIP-99 classified listings (event building and required tags). */
 public class NIP99Test {

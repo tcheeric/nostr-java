@@ -1,14 +1,9 @@
 package nostr.event.message;
 
-import nostr.event.json.EventJsonMapper;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -17,9 +12,15 @@ import nostr.event.BaseMessage;
 import nostr.event.BaseTag;
 import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.EventEncodingException;
 import nostr.event.tag.GenericTag;
+
+import java.util.List;
+import java.util.Map;
+
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 /**
  * @author eric
@@ -59,8 +60,7 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
    * @return the decoded CanonicalAuthenticationMessage
    * @throws EventEncodingException if decoding fails
    */
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseMessage> T decode(@NonNull Map map) {
+  public static <T extends BaseMessage> T decode(@NonNull Map<String, Object> map) {
     try {
       var event =
           I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {});
@@ -70,22 +70,14 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
       CanonicalAuthenticationEvent canonEvent =
           new CanonicalAuthenticationEvent(event.getPubKey(), baseTags, "");
 
-      canonEvent.setId(map.get("id").toString());
+      canonEvent.setId(String.valueOf(map.get("id")));
 
-      return (T) new CanonicalAuthenticationMessage(canonEvent);
+      @SuppressWarnings("unchecked")
+      T result = (T) new CanonicalAuthenticationMessage(canonEvent);
+      return result;
     } catch (IllegalArgumentException ex) {
       throw new EventEncodingException("Failed to decode canonical authentication message", ex);
     }
   }
 
-  private static String getAttributeValue(List<GenericTag> genericTags, String attributeName) {
-    return genericTags.stream()
-        .filter(tag -> tag.getCode().equalsIgnoreCase(attributeName))
-        .map(GenericTag::getAttributes)
-        .toList()
-        .get(0)
-        .get(0)
-        .value()
-        .toString();
-  }
 }

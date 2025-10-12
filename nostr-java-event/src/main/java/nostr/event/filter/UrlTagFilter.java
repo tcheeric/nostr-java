@@ -1,10 +1,11 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.UrlTag;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class UrlTagFilter<T extends UrlTag> extends AbstractFilterable<T> {
 

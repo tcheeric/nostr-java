@@ -2,9 +2,10 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.time.temporal.ValueRange;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.temporal.ValueRange;
 
 /**
  * @author squirrel

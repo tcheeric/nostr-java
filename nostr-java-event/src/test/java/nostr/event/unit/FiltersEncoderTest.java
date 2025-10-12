@@ -1,12 +1,5 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.GenericTagQuery;
 import nostr.base.Kind;
@@ -34,6 +27,14 @@ import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 public class FiltersEncoderTest {

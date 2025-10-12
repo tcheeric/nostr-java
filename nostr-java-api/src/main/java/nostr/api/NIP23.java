@@ -1,6 +1,5 @@
 package nostr.api;
 
-import java.net.URL;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -9,6 +8,8 @@ import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.net.URL;
 
 /**
  * NIP-23 helpers (Long-form content). Build long-form notes and related tags.

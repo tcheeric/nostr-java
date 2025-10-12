@@ -1,8 +1,8 @@
 package nostr.event;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author eric

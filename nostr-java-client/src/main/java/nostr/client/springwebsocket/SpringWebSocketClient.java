@@ -1,9 +1,5 @@
 package nostr.client.springwebsocket;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +7,11 @@ import nostr.event.BaseMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 @Component
 @Slf4j
@@ -173,8 +174,8 @@ public class SpringWebSocketClient implements AutoCloseable {
   }
 
   /**
-   * This method is invoked by Spring Retry after all retry attempts for the {@link
-   * #send(BaseMessage)} method are exhausted. It logs the failure and rethrows the exception.
+   * This method is invoked by Spring Retry after all retry attempts for the {@link #send(BaseMessage)}
+   * method are exhausted. It logs the failure and rethrows the exception.
    *
    * @param ex the IOException that caused the retries to fail
    * @param eventMessage the BaseMessage that failed to send

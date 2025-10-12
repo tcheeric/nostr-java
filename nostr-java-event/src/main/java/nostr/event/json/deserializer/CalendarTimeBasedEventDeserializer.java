@@ -1,16 +1,15 @@
 package nostr.event.json.deserializer;
 
-import nostr.base.json.EventJsonMapper;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
 import nostr.base.json.EventJsonMapper;
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.util.NostrException;
+
+import java.io.IOException;
 
 public class CalendarTimeBasedEventDeserializer extends StdDeserializer<CalendarTimeBasedEvent> {
   public CalendarTimeBasedEventDeserializer() {

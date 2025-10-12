@@ -1,14 +1,14 @@
 package nostr.api.unit;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConstantsTest {
 

@@ -1,10 +1,11 @@
 package nostr.client.springwebsocket;
 
+import nostr.event.BaseMessage;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import nostr.event.BaseMessage;
 
 /**
  * Abstraction of a client-owned WebSocket connection to a Nostr relay.

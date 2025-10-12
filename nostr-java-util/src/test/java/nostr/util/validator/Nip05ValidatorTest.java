@@ -1,6 +1,8 @@
 package nostr.util.validator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import nostr.util.NostrException;
+import nostr.util.http.HttpClientProvider;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -13,9 +15,11 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import nostr.util.NostrException;
-import nostr.util.http.HttpClientProvider;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Nip05ValidatorTest {
 

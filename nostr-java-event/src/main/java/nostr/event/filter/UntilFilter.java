@@ -1,14 +1,15 @@
 package nostr.event.filter;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.EqualsAndHashCode;
+import nostr.event.impl.GenericEvent;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import lombok.EqualsAndHashCode;
-import nostr.event.impl.GenericEvent;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 @EqualsAndHashCode(callSuper = true)
 public class UntilFilter extends AbstractFilterable<Long> {

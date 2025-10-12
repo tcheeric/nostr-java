@@ -1,10 +1,11 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 @NoArgsConstructor
 public abstract class AbstractBaseNostrConnectEvent extends EphemeralEvent {

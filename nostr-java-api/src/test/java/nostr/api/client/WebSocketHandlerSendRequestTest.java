@@ -1,14 +1,5 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -16,6 +7,18 @@ import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Tests sendRequest for multiple sub ids and verifying subscription id usage. */
 public class WebSocketHandlerSendRequestTest {

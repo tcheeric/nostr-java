@@ -1,15 +1,15 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import nostr.api.NIP28;
 import nostr.base.Kind;
 import nostr.event.entities.ChannelProfile;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP28Test {
 

@@ -1,12 +1,8 @@
 package nostr.event.message;
 
-import nostr.event.json.EventJsonMapper;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -14,7 +10,11 @@ import nostr.base.ElementAttribute;
 import nostr.base.IElement;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author squirrel
@@ -59,7 +59,6 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
   }
 
   // Generics are erased at runtime; BaseMessage subtype is determined by caller context
-  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
     GenericMessage gm = new GenericMessage(msgArr[0].toString());
     for (int i = 1; i < msgArr.length; i++) {
@@ -67,6 +66,8 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         gm.addAttribute(new ElementAttribute(null, msgArr[i]));
       }
     }
-    return (T) gm;
+    @SuppressWarnings("unchecked")
+    T result = (T) gm;
+    return result;
   }
 }

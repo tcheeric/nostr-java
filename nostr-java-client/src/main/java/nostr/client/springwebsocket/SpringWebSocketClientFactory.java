@@ -1,8 +1,9 @@
 package nostr.client.springwebsocket;
 
-import java.util.concurrent.ExecutionException;
 import nostr.base.RelayUri;
 import nostr.client.WebSocketClientFactory;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Default factory creating Spring-based WebSocket clients.

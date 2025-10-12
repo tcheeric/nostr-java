@@ -1,15 +1,19 @@
 package nostr.api.client;
 
-import java.io.IOException;
-import java.util.List;
 import lombok.NonNull;
 import nostr.base.SubscriptionId;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.filter.Filters;
 import nostr.event.message.ReqMessage;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Coordinates REQ message dispatch across registered relay clients.
+ *
+ * <p>REQ is the standard subscribe request defined by
+ * <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>.
  */
 public final class NostrRequestDispatcher {
 

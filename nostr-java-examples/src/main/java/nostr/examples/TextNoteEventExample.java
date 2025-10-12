@@ -1,11 +1,12 @@
 package nostr.examples;
 
-import java.util.List;
 import nostr.client.springwebsocket.StandardWebSocketClient;
 import nostr.event.BaseTag;
 import nostr.event.impl.TextNoteEvent;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * Demonstrates creating, signing, and sending a text note using the

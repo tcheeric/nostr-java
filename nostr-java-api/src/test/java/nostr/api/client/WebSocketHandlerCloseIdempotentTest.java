@@ -1,19 +1,22 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import nostr.base.RelayUri;
 import nostr.base.SubscriptionId;
 import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Verifies calling close twice on a subscription handle does not throw. */
 public class WebSocketHandlerCloseIdempotentTest {

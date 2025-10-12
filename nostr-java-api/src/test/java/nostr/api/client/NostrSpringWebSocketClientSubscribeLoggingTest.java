@@ -1,8 +1,18 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.github.valfirst.slf4jtest.TestLogger;
+import com.github.valfirst.slf4jtest.TestLoggerFactory;
+import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.WebSocketClientHandler;
+import nostr.base.RelayUri;
+import nostr.base.SubscriptionId;
+import nostr.client.WebSocketClientFactory;
+import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
+import nostr.id.Identity;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,19 +20,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import com.github.valfirst.slf4jtest.TestLogger;
-import com.github.valfirst.slf4jtest.TestLoggerFactory;
-import nostr.api.WebSocketClientHandler;
-import nostr.base.RelayUri;
-import nostr.base.SubscriptionId;
-import nostr.client.WebSocketClientFactory;
-import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.api.NostrSpringWebSocketClient;
-import nostr.event.filter.Filters;
-import nostr.event.filter.KindFilter;
-import nostr.id.Identity;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /** Verifies default error listener emits WARN logs when subscribe path throws. */
 public class NostrSpringWebSocketClientSubscribeLoggingTest {

@@ -1,18 +1,19 @@
 package nostr.api;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static nostr.util.NostrUtil.escapeJsonString;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
 import nostr.event.entities.UserProfile;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.id.Identity;
 import nostr.util.validator.Nip05Validator;
-import nostr.event.json.codec.EventEncodingException;
+
+import java.util.ArrayList;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static nostr.util.NostrUtil.escapeJsonString;
 
 /**
  * NIP-05 helpers (DNS-based verification). Create internet identifier metadata events.

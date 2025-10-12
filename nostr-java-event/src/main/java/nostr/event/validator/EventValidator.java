@@ -1,12 +1,13 @@
 package nostr.event.validator;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
 import nostr.util.validator.HexStringValidator;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Validates Nostr events according to NIP-01 specification.

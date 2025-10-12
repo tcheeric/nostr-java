@@ -1,10 +1,11 @@
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
+
+import java.util.List;
 
 /**
  * NIP-14 helpers (Subject tag in text notes). Create subject tags for threads.

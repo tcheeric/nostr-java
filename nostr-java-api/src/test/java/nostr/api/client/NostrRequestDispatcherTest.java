@@ -1,17 +1,21 @@
 package nostr.api.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
 import nostr.api.WebSocketClientHandler;
 import nostr.base.SubscriptionId;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Tests for NostrRequestDispatcher multi-filter dispatch and aggregation. */
 public class NostrRequestDispatcherTest {

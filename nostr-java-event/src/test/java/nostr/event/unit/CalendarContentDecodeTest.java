@@ -1,10 +1,10 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 import nostr.event.impl.CalendarTimeBasedEvent;
 import nostr.event.json.codec.GenericEventDecoder;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class CalendarContentDecodeTest {
   String eventFullJson =

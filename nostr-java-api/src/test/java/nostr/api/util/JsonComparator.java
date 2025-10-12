@@ -1,15 +1,16 @@
 package nostr.api.util;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.collect.Sets;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Spliterator;
+
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
 public class JsonComparator implements Comparator<Iterable<? extends JsonNode>> {
 

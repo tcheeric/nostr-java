@@ -1,11 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP52;
 import nostr.api.util.JsonComparator;
 import nostr.base.PrivateKey;
@@ -22,6 +16,13 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {

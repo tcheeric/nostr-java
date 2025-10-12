@@ -1,14 +1,15 @@
 package nostr.event.entities;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.event.tag.EventTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -38,5 +39,12 @@ public class SpendingHistory {
 
   public void addEventTag(@NonNull EventTag eventTag) {
     this.eventTags.add(eventTag);
+  }
+
+  /**
+   * Returns the number of associated event tags.
+   */
+  public int getEventTagCount() {
+    return this.eventTags != null ? this.eventTags.size() : 0;
   }
 }
