@@ -42,7 +42,7 @@ import java.util.Map;
 public class QuickStart {
     public static void main(String[] args) {
         Identity identity = Identity.generateRandomIdentity();
-        Map<String, String> relays = Map.of("damus", "wss://relay.398ja.xyz");
+        Map<String, String> relays = Map.of("398ja", "wss://relay.398ja.xyz");
 
         new NIP01(identity)
             .createTextNoteEvent("Hello nostr")
