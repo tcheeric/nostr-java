@@ -1,15 +1,16 @@
 package nostr.event.filter;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 import lombok.NonNull;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 public interface Filterable {
   Predicate<GenericEvent> getPredicate();

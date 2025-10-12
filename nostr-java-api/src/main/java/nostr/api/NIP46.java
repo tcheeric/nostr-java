@@ -1,11 +1,7 @@
 package nostr.api;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,9 +13,15 @@ import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.io.Serializable;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+
 /**
  * NIP-46 helpers (Nostr Connect). Build app requests and signer responses.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/46.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/46.md">NIP-46</a>
  */
 @Slf4j
 public final class NIP46 extends EventNostr {
@@ -36,9 +38,12 @@ public final class NIP46 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP46 createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
-    String content = NIP44.encrypt(getSender(), request.toString(), signer);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Kind.NOSTR_CONNECT.getValue(), content).create();
+        new GenericEventFactory(
+                getSender(),
+                Kind.NOSTR_CONNECT.getValue(),
+                NIP44.encrypt(getSender(), request.toString(), signer))
+            .create();
     genericEvent.addTag(NIP01.createPubKeyTag(signer));
     this.updateEvent(genericEvent);
     return this;
@@ -52,9 +57,12 @@ public final class NIP46 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP46 createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
-    String content = NIP44.encrypt(getSender(), response.toString(), app);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Kind.NOSTR_CONNECT.getValue(), content).create();
+        new GenericEventFactory(
+                getSender(),
+                Kind.NOSTR_CONNECT.getValue(),
+                NIP44.encrypt(getSender(), response.toString(), app))
+            .create();
     genericEvent.addTag(NIP01.createPubKeyTag(app));
     this.updateEvent(genericEvent);
     return this;
@@ -85,6 +93,22 @@ public final class NIP46 extends EventNostr {
      */
     public void addParam(String param) {
       this.params.add(param);
+    }
+
+    /**
+     * Number of parameters currently present.
+     */
+    @JsonIgnore
+    public int getParamCount() {
+      return this.params.size();
+    }
+
+    /**
+     * Tests whether the given parameter exists.
+     */
+    @JsonIgnore
+    public boolean containsParam(String param) {
+      return this.params.contains(param);
     }
 
     /**

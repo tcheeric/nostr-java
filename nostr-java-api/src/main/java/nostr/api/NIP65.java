@@ -1,8 +1,5 @@
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
@@ -11,6 +8,10 @@ import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * NIP-65 helpers (Relay List Metadata). Build relay list events and r-tags.

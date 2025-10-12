@@ -1,13 +1,14 @@
 package nostr.base;
 
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
 
 class BaseKeyTest {
   public static final String VALID_HEXPUBKEY =

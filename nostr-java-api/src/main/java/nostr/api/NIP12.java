@@ -1,11 +1,12 @@
 package nostr.api;
 
-import java.net.URL;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
+
+import java.net.URL;
+import java.util.List;
 
 /**
  * NIP-12 helpers (Generic Tag Queries). Convenience creators for hashtag, reference and geohash tags.

@@ -1,12 +1,5 @@
 package nostr.api;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +11,17 @@ import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.client.springwebsocket.SpringWebSocketClientFactory;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
+import nostr.event.message.CloseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
-import nostr.event.message.CloseMessage;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Internal helper managing a relay connection and per-subscription request clients.

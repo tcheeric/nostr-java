@@ -3,8 +3,9 @@ package nostr.event.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import nostr.event.tag.ReferenceTag;
+
+import java.io.IOException;
 
 /**
  * @author eric
@@ -18,9 +19,13 @@ public class ReferenceTagSerializer extends JsonSerializer<ReferenceTag> {
     jsonGenerator.writeStartArray();
     jsonGenerator.writeString("r");
     jsonGenerator.writeString(refTag.getUri().toString());
-    if (refTag.getMarker() != null) {
-      jsonGenerator.writeString(refTag.getMarker().getValue());
-    }
+    refTag.getMarkerOptional().ifPresent(m -> {
+      try {
+        jsonGenerator.writeString(m.getValue());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    });
     jsonGenerator.writeEndArray();
   }
 }

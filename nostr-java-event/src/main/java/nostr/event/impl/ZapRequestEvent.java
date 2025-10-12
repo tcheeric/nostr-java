@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -13,6 +12,8 @@ import nostr.event.entities.ZapRequest;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapRequestEvent", nip = 57)

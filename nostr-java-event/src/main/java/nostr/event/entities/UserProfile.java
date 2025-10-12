@@ -1,10 +1,7 @@
 package nostr.event.entities;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.net.URL;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +12,10 @@ import nostr.base.IBech32Encodable;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+
+import java.net.URL;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author squirrel

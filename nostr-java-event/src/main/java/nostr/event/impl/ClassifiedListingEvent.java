@@ -1,8 +1,6 @@
 package nostr.event.impl;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.time.Instant;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +13,9 @@ import nostr.event.NIP99Event;
 import nostr.event.json.deserializer.ClassifiedListingEventDeserializer;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
+
+import java.time.Instant;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ClassifiedListingEvent", nip = 99)
@@ -100,7 +101,7 @@ public class ClassifiedListingEvent extends NIP99Event {
     return priceTag.getNumber().toString()
         + " "
         + priceTag.getCurrency()
-        + (priceTag.getFrequency() != null ? " " + priceTag.getFrequency() : "");
+        + priceTag.getFrequencyOptional().map(f -> " " + f).orElse("");
   }
 
   @Override
@@ -156,11 +157,17 @@ public class ClassifiedListingEvent extends NIP99Event {
   @Override
   public void validateKind() {
     var n = getKind();
-    if (30402 <= n && n <= 30403) return;
+    // Accept only NIP-99 classified listing kinds
+    if (n == Kind.CLASSIFIED_LISTING.getValue() || n == Kind.CLASSIFIED_LISTING_INACTIVE.getValue()) {
+      return;
+    }
 
     throw new AssertionError(
         String.format(
-            "Invalid kind value [%s]. Classified Listing must be either 30402 or 30403", n),
+            "Invalid kind value [%s]. Classified Listing must be either %d or %d",
+            n,
+            Kind.CLASSIFIED_LISTING.getValue(),
+            Kind.CLASSIFIED_LISTING_INACTIVE.getValue()),
         null);
   }
 }

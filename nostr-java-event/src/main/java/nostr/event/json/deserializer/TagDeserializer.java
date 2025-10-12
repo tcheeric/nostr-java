@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.util.Map;
-import java.util.function.Function;
 import nostr.event.BaseTag;
 import nostr.event.json.codec.GenericTagDecoder;
 import nostr.event.tag.AddressTag;
@@ -26,6 +23,10 @@ import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
 import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.function.Function;
 
 public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
 
@@ -50,8 +51,6 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
           Map.entry("subject", SubjectTag::deserialize));
 
   @Override
-  // Generics are erased at runtime; cast is safe because decoder returns a BaseTag subtype
-  @SuppressWarnings("unchecked")
   public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
       throws IOException {
 
@@ -65,6 +64,8 @@ public class TagDeserializer<T extends BaseTag> extends JsonDeserializer<T> {
     BaseTag tag =
         decoder != null ? decoder.apply(node) : new GenericTagDecoder<>().decode(node.toString());
 
-    return (T) tag;
+    @SuppressWarnings("unchecked")
+    T typed = (T) tag;
+    return typed;
   }
 }

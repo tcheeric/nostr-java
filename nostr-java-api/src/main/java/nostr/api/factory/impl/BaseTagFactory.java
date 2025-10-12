@@ -2,15 +2,16 @@ package nostr.api.factory.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.BaseTag;
-import nostr.event.tag.GenericTag;
 import nostr.event.json.codec.EventEncodingException;
+import nostr.event.tag.GenericTag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Utility to create {@link BaseTag} instances from code and parameters or from JSON.

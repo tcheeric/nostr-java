@@ -1,8 +1,9 @@
 package nostr.client;
 
-import java.util.concurrent.ExecutionException;
 import nostr.base.RelayUri;
 import nostr.client.springwebsocket.WebSocketClientIF;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Abstraction for creating WebSocket clients for relay URIs.

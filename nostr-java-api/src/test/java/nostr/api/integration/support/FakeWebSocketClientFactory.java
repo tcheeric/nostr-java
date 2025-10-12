@@ -1,12 +1,13 @@
 package nostr.api.integration.support;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import lombok.NonNull;
 import nostr.base.RelayUri;
 import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.WebSocketClientIF;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * In-memory {@link WebSocketClientFactory} for tests.

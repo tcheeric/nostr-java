@@ -1,7 +1,5 @@
 package nostr.id;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.function.Consumer;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
@@ -13,6 +11,9 @@ import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
 import nostr.crypto.schnorr.SchnorrException;
 import nostr.util.NostrUtil;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
 
 /**
  * Represents a Nostr identity backed by a private key.

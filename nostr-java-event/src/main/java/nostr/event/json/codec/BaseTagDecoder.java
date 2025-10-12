@@ -1,11 +1,11 @@
 package nostr.event.json.codec;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.BaseTag;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author eric

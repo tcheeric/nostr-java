@@ -1,12 +1,11 @@
 package nostr.api;
 
-import java.util.Map;
-import java.util.function.Function;
 import nostr.base.RelayUri;
-import nostr.base.SubscriptionId;
-import nostr.client.WebSocketClientFactory;
 import nostr.client.springwebsocket.SpringWebSocketClient;
 import nostr.client.springwebsocket.SpringWebSocketClientFactory;
+
+import java.util.Map;
+import java.util.function.Function;
 
 public class TestableWebSocketClientHandler extends WebSocketClientHandler {
   public TestableWebSocketClientHandler(

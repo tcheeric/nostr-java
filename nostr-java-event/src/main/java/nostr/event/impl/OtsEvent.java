@@ -1,12 +1,13 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
+
+import java.util.List;
 
 /**
  * @author squirrel

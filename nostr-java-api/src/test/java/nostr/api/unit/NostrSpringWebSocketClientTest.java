@@ -1,17 +1,18 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.WebSocketClientHandler;
+import org.junit.jupiter.api.Test;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import nostr.api.NostrSpringWebSocketClient;
-import nostr.api.WebSocketClientHandler;
-import org.junit.jupiter.api.Test;
-import sun.misc.Unsafe;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class NostrSpringWebSocketClientTest {
 

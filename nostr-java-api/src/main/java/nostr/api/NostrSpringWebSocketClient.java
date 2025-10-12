@@ -1,11 +1,5 @@
 package nostr.api;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +21,13 @@ import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+
 /**
  * Default Nostr client using Spring WebSocket clients to send events and requests to relays.
  */
@@ -38,7 +39,7 @@ public class NostrSpringWebSocketClient implements NostrIF {
   private final NostrRequestDispatcher requestDispatcher;
   private final NostrSubscriptionManager subscriptionManager;
   private final WebSocketClientFactory clientFactory;
-  private NoteService noteService;
+  private final NoteService noteService;
 
   @Getter private Identity sender;
 
@@ -247,8 +248,8 @@ public class NostrSpringWebSocketClient implements NostrIF {
   /**
    * Registers a failure listener when using {@link DefaultNoteService}. No‑op otherwise.
    *
-   * <p>The listener receives a relay‑name → exception map after each call to {@link
-   * #sendEvent(nostr.base.IEvent)}.
+   * <p>The listener receives a relay‑name → exception map after each call to
+   * {@link #sendEvent(nostr.base.IEvent)}.
    *
    * @param listener consumer of last failures (may be {@code null} to clear)
    * @return this client for chaining

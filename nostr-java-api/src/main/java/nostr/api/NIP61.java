@@ -1,9 +1,5 @@
 package nostr.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -19,6 +15,11 @@ import nostr.event.entities.NutZapInformation;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
 
 /**
  * NIP-61 helpers (Cashu Nutzap). Build informational and payment events for Cashu zaps.

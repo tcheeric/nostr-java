@@ -1,12 +1,9 @@
 package nostr.event.json.serializer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.Serial;
 import nostr.event.tag.GenericTag;
 
 public class GenericTagSerializer<T extends GenericTag> extends AbstractTagSerializer<T> {
-
-  @Serial private static final long serialVersionUID = -5318614324350049034L;
 
   // Generics are erased at runtime; serializer is intentionally bound to GenericTag.class
   @SuppressWarnings("unchecked")

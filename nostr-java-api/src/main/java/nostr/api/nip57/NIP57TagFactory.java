@@ -1,13 +1,14 @@
 package nostr.api.nip57;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Centralizes construction of NIP-57 related tags.

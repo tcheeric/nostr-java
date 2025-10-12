@@ -3,16 +3,17 @@ package nostr.event.serializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.List;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import nostr.event.json.EventJsonMapper;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
+
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Serializes Nostr events according to NIP-01 canonical format.

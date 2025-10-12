@@ -1,6 +1,5 @@
 package nostr.api.nip01;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Kind;
@@ -9,6 +8,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * Builds common NIP-01 events while keeping {@link nostr.api.NIP01} focused on orchestration.

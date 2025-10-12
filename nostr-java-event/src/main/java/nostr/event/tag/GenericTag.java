@@ -1,8 +1,6 @@
 package nostr.event.tag;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -10,6 +8,9 @@ import nostr.base.ElementAttribute;
 import nostr.base.IGenericElement;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.GenericTagSerializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author squirrel

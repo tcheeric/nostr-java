@@ -1,11 +1,12 @@
 package nostr.event.entities;
 
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.event.tag.EventTag;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,5 +22,14 @@ public class NutZap {
       proofs = new java.util.ArrayList<>();
     }
     proofs.add(cashuProof);
+  }
+
+  /**
+   * Sum the amount contained in this zap's proofs.
+   * Returns 0 when no proofs exist.
+   */
+  public int getTotalAmount() {
+    if (proofs == null || proofs.isEmpty()) return 0;
+    return proofs.stream().mapToInt(CashuProof::getAmount).sum();
   }
 }

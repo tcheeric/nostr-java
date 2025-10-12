@@ -1,7 +1,5 @@
 package nostr.examples;
 
-import java.time.Instant;
-import java.util.List;
 import nostr.base.ElementAttribute;
 import nostr.base.Kind;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -11,6 +9,9 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
+
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Example demonstrating creation of an expiration event (NIP-40) and showing how to send it with

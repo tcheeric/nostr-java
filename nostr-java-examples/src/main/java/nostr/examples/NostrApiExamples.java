@@ -1,12 +1,5 @@
 package nostr.examples;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
 import nostr.api.NIP01;
 import nostr.api.NIP04;
 import nostr.api.NIP05;
@@ -28,6 +21,14 @@ import nostr.event.filter.SinceFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 /** Example demonstrating several nostr-java API calls. */
 public class NostrApiExamples {

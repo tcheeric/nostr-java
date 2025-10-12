@@ -1,14 +1,15 @@
 package nostr.event.impl;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.Instant;
-import java.util.ArrayList;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.event.BaseTag;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AddressableEventValidateTest {
   private static final String HEX_64 = "a".repeat(64);

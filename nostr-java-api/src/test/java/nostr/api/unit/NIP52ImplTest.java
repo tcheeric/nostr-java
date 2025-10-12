@@ -1,10 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -18,6 +13,12 @@ import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP52ImplTest {
   public static final String TIME_BASED_EVENT_CONTENT = "CalendarTimeBasedEvent unit test content";

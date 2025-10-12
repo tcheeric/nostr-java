@@ -1,10 +1,19 @@
 package nostr.crypto;
 
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import lombok.NonNull;
 import nostr.util.NostrUtil;
 
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * Immutable affine point on secp256k1 used by nostr-java.
+ *
+ * Coordinate storage is ordered as Pair(left=x, right=y). Accessors
+ * {@link #getX()} and {@link #getY()} return the left and right elements
+ * respectively. This clarifies that constructor order is (x, y) and avoids
+ * ambiguity around Pair semantics.
+ */
 public class Point {
 
   private static final BigInteger p =
@@ -20,10 +29,18 @@ public class Point {
   private static final BigInteger BI_TWO = BigInteger.valueOf(2);
   private final Pair<BigInteger, BigInteger> pair;
 
+  /**
+   * Construct a point from affine coordinates.
+   * Order is strictly (x, y).
+   */
   public Point(BigInteger x, BigInteger y) {
     pair = Pair.of(x, y);
   }
 
+  /**
+   * Construct a point from big-endian byte arrays for (x, y).
+   * Order is strictly (x, y).
+   */
   public Point(byte[] b0, byte[] b1) {
     pair = Pair.of(new BigInteger(1, b0), new BigInteger(1, b1));
   }

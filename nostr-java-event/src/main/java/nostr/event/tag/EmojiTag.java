@@ -1,6 +1,7 @@
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,12 +13,11 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
-/**
- * @author guilhermegps
- */
+/** Represents an 'emoji' custom emoji tag (NIP-30). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({"shortcode", "image-url"})
 @Tag(code = "emoji", nip = 30)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,12 +29,11 @@ public class EmojiTag extends BaseTag {
   @JsonProperty("image-url")
   private String url;
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  public static EmojiTag deserialize(@NonNull JsonNode node) {
     EmojiTag tag = new EmojiTag();
     setRequiredField(node.get(1), (n, t) -> tag.setShortcode(n.asText()), tag);
     setRequiredField(node.get(2), (n, t) -> tag.setUrl(n.asText()), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static EmojiTag updateFields(@NonNull GenericTag tag) {

@@ -1,14 +1,15 @@
 package nostr.api.nip01;
 
-import java.util.List;
 import lombok.NonNull;
-import nostr.event.impl.GenericEvent;
 import nostr.event.filter.Filters;
+import nostr.event.impl.GenericEvent;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.ReqMessage;
+
+import java.util.List;
 
 /**
  * Creates protocol messages referenced by {@link nostr.api.NIP01}.

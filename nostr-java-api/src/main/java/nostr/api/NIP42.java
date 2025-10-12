@@ -1,7 +1,5 @@
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -15,6 +13,9 @@ import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.GenericMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * NIP-42 helpers (Authentication). Build auth events and AUTH messages.

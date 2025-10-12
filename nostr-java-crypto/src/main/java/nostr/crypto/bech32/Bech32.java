@@ -1,10 +1,11 @@
 package nostr.crypto.bech32;
 
+import nostr.util.NostrUtil;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import nostr.util.NostrUtil;
 
 /**
  * Bech32 and Bech32m encoding/decoding implementation for NIP-19.

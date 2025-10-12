@@ -1,7 +1,6 @@
 package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +10,8 @@ import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32EncodingException;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
+
+import java.util.Arrays;
 
 /**
  * @author squirrel

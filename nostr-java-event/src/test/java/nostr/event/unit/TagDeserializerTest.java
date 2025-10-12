@@ -1,11 +1,5 @@
 package nostr.event.unit;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.math.BigDecimal;
 import nostr.event.BaseTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
@@ -13,6 +7,13 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.PriceTag;
 import nostr.event.tag.UrlTag;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class TagDeserializerTest {
 

@@ -14,9 +14,7 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.ExpirationTagSerializer;
 
-/**
- * @author eric
- */
+/** Represents an 'expiration' tag (NIP-40). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,11 +26,10 @@ public class ExpirationTag extends BaseTag {
 
   @Key @JsonProperty private Integer expiration;
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  public static ExpirationTag deserialize(@NonNull JsonNode node) {
     ExpirationTag tag = new ExpirationTag();
     setRequiredField(node.get(1), (n, t) -> tag.setExpiration(Integer.valueOf(n.asText())), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static ExpirationTag updateFields(@NonNull GenericTag tag) {
@@ -40,7 +37,6 @@ public class ExpirationTag extends BaseTag {
       throw new IllegalArgumentException("Invalid tag code for ExpirationTag");
     }
     String expiration = tag.getAttributes().get(0).value().toString();
-    ExpirationTag expirationTag = new ExpirationTag(Integer.parseInt(expiration));
-    return expirationTag;
+    return new ExpirationTag(Integer.parseInt(expiration));
   }
 }

@@ -1,7 +1,5 @@
 package nostr.api.client;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.service.NoteService;
 import nostr.base.IEvent;
@@ -10,8 +8,17 @@ import nostr.crypto.schnorr.SchnorrException;
 import nostr.event.impl.GenericEvent;
 import nostr.util.NostrUtil;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 /**
  * Handles event verification and dispatching to relays.
+ *
+ * <p>Performs BIP-340 Schnorr signature verification before forwarding events to all configured
+ * relays.
+ *
+ * @see nostr.crypto.schnorr.Schnorr
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>
  */
 public final class NostrEventDispatcher {
 
@@ -57,8 +64,10 @@ public final class NostrEventDispatcher {
       throw new IllegalStateException("The event is not signed");
     }
     try {
-      var message = NostrUtil.sha256(event.getSerializedEventCache());
-      return Schnorr.verify(message, event.getPubKey().getRawData(), event.getSignature().getRawData());
+      return Schnorr.verify(
+          NostrUtil.sha256(event.getSerializedEventCache()),
+          event.getPubKey().getRawData(),
+          event.getSignature().getRawData());
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA-256 algorithm not available", e);
     } catch (SchnorrException e) {

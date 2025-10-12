@@ -1,8 +1,5 @@
 package nostr.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -15,6 +12,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EmojiTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 /**
  * NIP-25 helpers (Reactions). Build reaction events and custom emoji tags.

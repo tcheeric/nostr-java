@@ -1,10 +1,5 @@
 package nostr.id;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -18,6 +13,12 @@ import nostr.event.tag.SubjectTag;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ClassifiedListingEventTest {

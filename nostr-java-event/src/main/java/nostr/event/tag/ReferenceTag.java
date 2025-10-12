@@ -1,10 +1,9 @@
 package nostr.event.tag;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.net.URI;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +16,10 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.ReferenceTagSerializer;
 
-/**
- * @author eric
- */
+import java.net.URI;
+import java.util.Optional;
+
+/** Represents an 'r' reference tag (NIP-12). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +33,9 @@ public class ReferenceTag extends BaseTag {
   @JsonProperty("uri")
   private URI uri;
 
-  @Key private Marker marker;
+  @Key
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Marker marker;
 
   public ReferenceTag(@NonNull URI uri) {
     this.uri = uri;
@@ -42,13 +44,17 @@ public class ReferenceTag extends BaseTag {
     return Optional.ofNullable(this.uri);
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  /** Optional accessor for marker. */
+  public Optional<Marker> getMarkerOptional() {
+    return Optional.ofNullable(marker);
+  }
+
+  public static ReferenceTag deserialize(@NonNull JsonNode node) {
     ReferenceTag tag = new ReferenceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setUri(URI.create(n.asText())), tag);
     setOptionalField(
         node.get(2), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static ReferenceTag updateFields(@NonNull GenericTag genericTag) {
@@ -59,16 +65,10 @@ public class ReferenceTag extends BaseTag {
     if (genericTag.getAttributes().size() < 1 || genericTag.getAttributes().size() > 2) {
       throw new IllegalArgumentException("Invalid number of attributes for ReferenceTag");
     }
-
-    ReferenceTag tag = new ReferenceTag();
-    tag.setUri(URI.create(genericTag.getAttributes().get(0).value().toString()));
-    if (genericTag.getAttributes().size() == 2) {
-      tag.setMarker(
-          Marker.valueOf(genericTag.getAttributes().get(1).value().toString().toUpperCase()));
-    } else {
-      tag.setMarker(null);
-    }
-
-    return tag;
+    return new ReferenceTag(
+        URI.create(genericTag.getAttributes().get(0).value().toString()),
+        genericTag.getAttributes().size() == 2
+            ? Marker.valueOf(genericTag.getAttributes().get(1).value().toString().toUpperCase())
+            : null);
   }
 }

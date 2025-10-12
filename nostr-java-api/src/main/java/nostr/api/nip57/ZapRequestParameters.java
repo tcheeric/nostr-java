@@ -1,6 +1,5 @@
 package nostr.api.nip57;
 
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -11,6 +10,8 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * Parameter object for building zap request events. Reduces long argument lists in {@link nostr.api.NIP57}.

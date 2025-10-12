@@ -16,6 +16,7 @@ Quick links to the most relevant guides and references.
 - [howto/custom-events.md](howto/custom-events.md) — Creating custom event types
 - [howto/manage-roadmap-project.md](howto/manage-roadmap-project.md) — Sync the GitHub Project with the 1.0 backlog
 - [howto/version-uplift-workflow.md](howto/version-uplift-workflow.md) — Tagging, publishing, and BOM alignment for releases
+- [howto/configure-release-secrets.md](howto/configure-release-secrets.md) — Configure Maven Central and GPG secrets for releases
 - [howto/ci-it-stability.md](howto/ci-it-stability.md) — Keep CI green and stabilize Docker-based ITs
 
 ## Operations

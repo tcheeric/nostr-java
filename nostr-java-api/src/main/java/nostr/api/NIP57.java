@@ -1,6 +1,5 @@
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.nip01.NIP01TagFactory;
 import nostr.api.nip57.NIP57TagFactory;
@@ -15,6 +14,8 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * NIP-57: Lightning Zaps.

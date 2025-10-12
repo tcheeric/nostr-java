@@ -12,9 +12,7 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
-/**
- * @author squirrel
- */
+/** Represents a 'nonce' proof-of-work tag (NIP-13). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -36,12 +34,11 @@ public class NonceTag extends BaseTag {
     this.difficulty = difficulty;
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  public static NonceTag deserialize(@NonNull JsonNode node) {
     NonceTag tag = new NonceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setNonce(n.asInt()), tag);
     setRequiredField(node.get(2), (n, t) -> tag.setDifficulty(n.asInt()), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static NonceTag updateFields(@NonNull GenericTag genericTag) {
@@ -51,10 +48,8 @@ public class NonceTag extends BaseTag {
     if (genericTag.getAttributes().size() != 2) {
       throw new IllegalArgumentException("Invalid number of attributes for NonceTag");
     }
-
-    NonceTag tag = new NonceTag();
-    tag.setNonce(Integer.valueOf(genericTag.getAttributes().get(0).value().toString()));
-    tag.setDifficulty(Integer.valueOf(genericTag.getAttributes().get(1).value().toString()));
-    return tag;
+    return new NonceTag(
+        Integer.valueOf(genericTag.getAttributes().get(0).value().toString()),
+        Integer.valueOf(genericTag.getAttributes().get(1).value().toString()));
   }
 }

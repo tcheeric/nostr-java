@@ -1,8 +1,5 @@
 package nostr.id;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -19,6 +16,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ZapRequestEventTest {

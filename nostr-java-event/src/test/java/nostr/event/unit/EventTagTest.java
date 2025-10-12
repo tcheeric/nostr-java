@@ -1,21 +1,22 @@
 package nostr.event.unit;
 
+import nostr.base.Marker;
+import nostr.event.BaseTag;
+import nostr.event.json.codec.BaseTagEncoder;
+import nostr.event.tag.EventTag;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
+
 import static nostr.base.json.EventJsonMapper.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
-import nostr.base.Marker;
-import nostr.event.BaseTag;
-import nostr.event.json.codec.BaseTagEncoder;
-import nostr.event.tag.EventTag;
-import org.junit.jupiter.api.Test;
 
 class EventTagTest {
 

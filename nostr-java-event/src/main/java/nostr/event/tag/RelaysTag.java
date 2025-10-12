@@ -2,9 +2,6 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,6 +12,11 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.RelaysTagSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/** Represents a 'relays' tag (NIP-57). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -35,13 +37,9 @@ public class RelaysTag extends BaseTag {
     this(List.of(relays));
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends BaseTag> T deserialize(JsonNode node) {
-    return (T)
-        new RelaysTag(
-            Optional.ofNullable(node)
-                .map(jsonNode -> new Relay(jsonNode.get(1).asText()))
-                .orElseThrow());
+  public static RelaysTag deserialize(JsonNode node) {
+    return new RelaysTag(
+        Optional.ofNullable(node).map(jsonNode -> new Relay(jsonNode.get(1).asText())).orElseThrow());
   }
 
   public static RelaysTag updateFields(@NonNull GenericTag genericTag) {
@@ -53,8 +51,6 @@ public class RelaysTag extends BaseTag {
     for (ElementAttribute attribute : genericTag.getAttributes()) {
       relays.add(new Relay(attribute.value().toString()));
     }
-
-    RelaysTag relaysTag = new RelaysTag(relays);
-    return relaysTag;
+    return new RelaysTag(relays);
   }
 }

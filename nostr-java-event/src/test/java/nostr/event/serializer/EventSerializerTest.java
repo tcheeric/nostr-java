@@ -1,13 +1,16 @@
 package nostr.event.serializer;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Tests for EventSerializer utility methods. */
 public class EventSerializerTest {

@@ -1,12 +1,5 @@
 package nostr.api.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClient;
 import nostr.api.integration.support.FakeWebSocketClientFactory;
@@ -16,6 +9,13 @@ import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Integration tests for subscription lifecycle using a fake WebSocket client.

@@ -1,16 +1,17 @@
 package nostr.event.unit;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.tag.RelaysTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RelaysTagTest {
 

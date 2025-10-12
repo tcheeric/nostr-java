@@ -1,13 +1,14 @@
 package nostr.event.json.codec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.IDecoder;
 import nostr.event.tag.GenericTag;
+
+import java.util.ArrayList;
 
 @Data
 @Slf4j
@@ -38,20 +39,14 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
   public T decode(@NonNull String json) throws EventEncodingException {
     try {
       String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
-      GenericTag genericTag =
-          new GenericTag(
-              jsonElements[0],
-              new ArrayList<>() {
-                {
-                  for (int i = 1; i < jsonElements.length; i++) {
-                    ElementAttribute attribute =
-                        new ElementAttribute("param" + (i - 1), jsonElements[i]);
-                    if (!contains(attribute)) {
-                      add(attribute);
-                    }
-                  }
-                }
-              });
+      var attributes = new ArrayList<ElementAttribute>(Math.max(0, jsonElements.length - 1));
+      for (int i = 1; i < jsonElements.length; i++) {
+        ElementAttribute attribute = new ElementAttribute("param" + (i - 1), jsonElements[i]);
+        if (!attributes.contains(attribute)) {
+          attributes.add(attribute);
+        }
+      }
+      GenericTag genericTag = new GenericTag(jsonElements[0], attributes);
 
       log.debug("Decoded GenericTag: {}", genericTag);
 

@@ -1,14 +1,15 @@
 package nostr.event.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.event.json.serializer.CashuTokenSerializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,11 +20,14 @@ public class CashuToken {
 
   @EqualsAndHashCode.Include private CashuMint mint;
 
-  @EqualsAndHashCode.Include private List<CashuProof> proofs;
+  @EqualsAndHashCode.Include
+  @Builder.Default
+  private List<CashuProof> proofs = new ArrayList<>();
 
-  private List<String> destroyed;
+  @Builder.Default private List<String> destroyed = new ArrayList<>();
 
   public CashuToken() {
+    this.proofs = new ArrayList<>();
     this.destroyed = new ArrayList<>();
   }
 
@@ -40,6 +44,21 @@ public class CashuToken {
   }
 
   public Integer calculateAmount() {
+    if (proofs == null || proofs.isEmpty()) return 0;
     return proofs.stream().mapToInt(CashuProof::getAmount).sum();
+  }
+
+  /**
+   * Number of destroyed event references recorded in this token.
+   */
+  public int getDestroyedCount() {
+    return this.destroyed != null ? this.destroyed.size() : 0;
+  }
+
+  /**
+   * Checks whether a destroyed event id is recorded.
+   */
+  public boolean containsDestroyed(@NonNull String eventId) {
+    return this.destroyed != null && this.destroyed.contains(eventId);
   }
 }

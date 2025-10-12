@@ -1,11 +1,12 @@
 package nostr.examples;
 
-import java.time.Duration;
-import java.util.Map;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.base.Kind;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
+
+import java.time.Duration;
+import java.util.Map;
 
 /**
  * Example showing how to open a non-blocking subscription using

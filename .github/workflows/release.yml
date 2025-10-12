@@ -14,9 +14,18 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+      CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check required secrets are present
+        if: ${{ !secrets.CENTRAL_USERNAME || !secrets.CENTRAL_PASSWORD || !secrets.GPG_PRIVATE_KEY || !secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "One or more required secrets are missing: CENTRAL_USERNAME, CENTRAL_PASSWORD, GPG_PRIVATE_KEY, GPG_PASSPHRASE" >&2
+          exit 1
 
       - name: Setup Java 21 with Maven Central credentials and GPG
         uses: actions/setup-java@v4

@@ -3,16 +3,6 @@ package nostr.event.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.beans.Transient;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -35,6 +25,17 @@ import nostr.event.util.EventTypeChecker;
 import nostr.event.validator.EventValidator;
 import nostr.util.NostrException;
 import nostr.util.validator.HexStringValidator;
+
+import java.beans.Transient;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Generic implementation of a Nostr event as defined in NIP-01.
@@ -171,7 +172,9 @@ public class GenericEvent extends BaseEvent implements ISignable, Deleteable {
       @NonNull List<BaseTag> tags,
       @NonNull String content) {
     this.pubKey = pubKey;
-    this.kind = Kind.valueOf(kind).getValue();
+    // Accept provided kind value verbatim for custom kinds (e.g., NIP-defined ranges).
+    // Use the Kind-typed constructor when mapping enum constants to values.
+    this.kind = kind;
     this.tags = new ArrayList<>(tags);
     this.content = content;
 

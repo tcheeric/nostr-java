@@ -1,8 +1,5 @@
 package nostr.api;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -14,6 +11,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base helper for building, signing, and sending Nostr events over WebSocket.

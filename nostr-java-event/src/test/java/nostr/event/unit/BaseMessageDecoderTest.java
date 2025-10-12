@@ -1,25 +1,26 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import nostr.base.PublicKey;
 import nostr.event.BaseMessage;
+import nostr.event.BaseTag;
+import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.CloseMessage;
 import nostr.event.message.EoseMessage;
 import nostr.event.message.EventMessage;
 import nostr.event.message.NoticeMessage;
 import nostr.event.message.OkMessage;
-import nostr.event.message.ReqMessage;
 import nostr.event.message.RelayAuthenticationMessage;
-import nostr.event.impl.GenericEvent;
-import nostr.base.PublicKey;
-import nostr.event.BaseTag;
-import java.util.ArrayList;
+import nostr.event.message.ReqMessage;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 public class BaseMessageDecoderTest {

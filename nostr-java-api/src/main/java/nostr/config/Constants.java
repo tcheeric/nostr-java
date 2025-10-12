@@ -1,6 +1,13 @@
 package nostr.config;
 
-/** Collection of common constants used across the API. */
+/**
+ * Collection of common constants used across the API.
+ *
+ * <p>Includes well-known tag codes defined by NIP-01 and used throughout the
+ * library to build and parse event tags.
+ *
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>
+ */
 public final class Constants {
   private Constants() {}
 
@@ -56,4 +63,3 @@ public final class Constants {
     public static final String FREE_BUSY_CODE = "fb";
   }
 }
-

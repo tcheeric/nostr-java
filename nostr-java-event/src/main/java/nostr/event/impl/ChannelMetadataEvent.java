@@ -1,19 +1,19 @@
 package nostr.event.impl;
 
-import nostr.base.json.EventJsonMapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
 import lombok.NoArgsConstructor;
 import nostr.base.Kind;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.ChannelProfile;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.HashtagTag;
-import nostr.event.json.codec.EventEncodingException;
+
+import java.util.List;
 
 /**
  * @author guilhermegps
@@ -60,7 +60,7 @@ public class ChannelMetadataEvent extends GenericEvent {
 
   public String getChannelCreateEventId() {
     return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
-        .filter(tag -> tag.getMarker() == Marker.ROOT)
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
         .map(EventTag::getIdEvent)
         .findFirst()
         .orElseThrow();
@@ -80,7 +80,7 @@ public class ChannelMetadataEvent extends GenericEvent {
         nostr.event.filter.Filterable
             .getTypeSpecificTags(EventTag.class, this)
             .stream()
-            .filter(tag -> tag.getMarker() == Marker.ROOT)
+            .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
             .findFirst()
             .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));
   }

@@ -1,12 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -24,6 +17,14 @@ import nostr.event.tag.ReferenceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 class ApiNIP52RequestIT extends BaseRelayIntegrationTest {

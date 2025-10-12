@@ -1,15 +1,7 @@
 package nostr.api.integration;
 
-import static nostr.api.integration.ApiEventIT.createProduct;
-import static nostr.api.integration.ApiEventIT.createStall;
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import nostr.api.NIP15;
 import nostr.base.PrivateKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -24,6 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static nostr.api.integration.ApiEventIT.createProduct;
+import static nostr.api.integration.ApiEventIT.createStall;
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(RelayConfig.class)
 @ActiveProfiles("test")

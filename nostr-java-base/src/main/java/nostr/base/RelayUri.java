@@ -1,8 +1,9 @@
 package nostr.base;
 
-import java.net.URI;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+
+import java.net.URI;
 
 /**
  * Value object that encapsulates validation of relay URIs.
@@ -16,7 +17,7 @@ public final class RelayUri {
     try {
       URI uri = URI.create(value);
       String scheme = uri.getScheme();
-      if (scheme == null || !("ws".equalsIgnoreCase(scheme) || "wss".equalsIgnoreCase(scheme))) {
+      if (!("ws".equalsIgnoreCase(scheme) || "wss".equalsIgnoreCase(scheme))) {
         throw new IllegalArgumentException("Relay URI must use ws or wss scheme");
       }
     } catch (IllegalArgumentException ex) {

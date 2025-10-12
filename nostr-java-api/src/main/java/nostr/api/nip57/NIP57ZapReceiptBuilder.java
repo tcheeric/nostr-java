@@ -1,18 +1,16 @@
 package nostr.api.nip57;
 
-import nostr.base.json.EventJsonMapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.nip01.NIP01TagFactory;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.filter.Filterable;
 import nostr.event.impl.GenericEvent;
-import nostr.event.tag.AddressTag;
 import nostr.event.json.codec.EventEncodingException;
+import nostr.event.tag.AddressTag;
 import nostr.id.Identity;
 import org.apache.commons.text.StringEscapeUtils;
 

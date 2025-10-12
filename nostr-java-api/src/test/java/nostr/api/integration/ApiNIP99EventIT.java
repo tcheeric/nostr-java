@@ -1,12 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP99;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -26,6 +19,14 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {

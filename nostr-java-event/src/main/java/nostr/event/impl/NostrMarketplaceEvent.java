@@ -1,18 +1,17 @@
 package nostr.event.impl;
 
-import nostr.base.json.EventJsonMapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import nostr.base.IEvent;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.Product;
 import nostr.event.json.codec.EventEncodingException;
+
+import java.util.List;
 
 /**
  * @author eric

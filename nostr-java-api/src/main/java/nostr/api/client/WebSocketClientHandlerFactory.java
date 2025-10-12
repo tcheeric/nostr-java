@@ -1,8 +1,9 @@
 package nostr.api.client;
 
-import java.util.concurrent.ExecutionException;
 import nostr.api.WebSocketClientHandler;
 import nostr.base.RelayUri;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Factory for creating {@link WebSocketClientHandler} instances.

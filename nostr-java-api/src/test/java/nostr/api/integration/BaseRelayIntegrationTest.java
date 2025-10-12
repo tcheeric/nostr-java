@@ -1,17 +1,18 @@
 package nostr.api.integration;
 
-import java.time.Duration;
-import java.util.ResourceBundle;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.time.Duration;
+import java.util.ResourceBundle;
 
 /**
  * Base class for Testcontainers-backed relay integration tests.

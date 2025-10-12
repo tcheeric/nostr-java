@@ -1,14 +1,11 @@
 package nostr.event.impl;
 
-import nostr.base.json.EventJsonMapper;
-
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.CashuProof;
@@ -16,6 +13,8 @@ import nostr.event.entities.NutZap;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Event(name = "Nut Zap Event", nip = 61)

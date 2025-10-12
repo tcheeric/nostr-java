@@ -1,14 +1,6 @@
 package nostr.api.integration;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -26,6 +18,15 @@ import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP99RequestIT extends BaseRelayIntegrationTest {

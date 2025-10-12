@@ -1,14 +1,5 @@
 package nostr.api;
 
-import static nostr.api.NIP12.createGeohashTag;
-import static nostr.api.NIP12.createHashtagTag;
-import static nostr.api.NIP23.createImageTag;
-import static nostr.api.NIP23.createPublishedAtTag;
-import static nostr.api.NIP23.createSummaryTag;
-import static nostr.api.NIP23.createTitleTag;
-
-import java.net.URL;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -19,9 +10,19 @@ import nostr.event.entities.ClassifiedListing;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.net.URL;
+import java.util.List;
+
+import static nostr.api.NIP12.createGeohashTag;
+import static nostr.api.NIP12.createHashtagTag;
+import static nostr.api.NIP23.createImageTag;
+import static nostr.api.NIP23.createPublishedAtTag;
+import static nostr.api.NIP23.createSummaryTag;
+import static nostr.api.NIP23.createTitleTag;
+
 /**
  * NIP-99 helpers (Classified Listings). Build classified listing events and tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/99.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/99.md">NIP-99</a>
  */
 public class NIP99 extends EventNostr {
 

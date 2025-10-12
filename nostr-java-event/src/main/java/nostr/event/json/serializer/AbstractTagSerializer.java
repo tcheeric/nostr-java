@@ -1,14 +1,15 @@
 package nostr.event.json.serializer;
 
-import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
 import nostr.event.BaseTag;
+
+import java.io.IOException;
+
+import static nostr.event.json.codec.BaseTagEncoder.BASETAG_ENCODER_MAPPER_BLACKBIRD;
 
 abstract class AbstractTagSerializer<T extends BaseTag> extends StdSerializer<T> {
   protected AbstractTagSerializer(Class<T> t) {

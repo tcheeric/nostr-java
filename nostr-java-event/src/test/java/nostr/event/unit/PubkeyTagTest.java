@@ -1,12 +1,13 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.lang.reflect.Field;
 import nostr.base.PublicKey;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PubkeyTagTest {
 

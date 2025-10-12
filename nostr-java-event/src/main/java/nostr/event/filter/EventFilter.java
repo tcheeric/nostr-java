@@ -1,10 +1,11 @@
 package nostr.event.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import nostr.event.impl.GenericEvent;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
 public class EventFilter<T extends GenericEvent> extends AbstractFilterable<T> {

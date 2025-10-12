@@ -1,16 +1,9 @@
 package nostr.event.message;
 
-import nostr.event.json.EventJsonMapper;
-import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -20,8 +13,16 @@ import nostr.base.IEvent;
 import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.EventEncodingException;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
 
 @Setter
 @Getter
@@ -70,19 +71,20 @@ public class EventMessage extends BaseMessage {
   }
 
   // Generics are erased at runtime; BaseMessage subtype is determined by caller context
-  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object o) {
-    return (T) new EventMessage(convertValue((Map<String, String>) o));
+    @SuppressWarnings("unchecked")
+    T result = (T) new EventMessage(convertValue((Map<?, ?>) o));
+    return result;
   }
 
   // Generics are erased at runtime; BaseMessage subtype is determined by caller context
-  @SuppressWarnings("unchecked")
   private static <T extends BaseMessage> T processEvent(Object[] msgArr) {
-    return (T)
-        new EventMessage(convertValue((Map<String, String>) msgArr[2]), msgArr[1].toString());
+    @SuppressWarnings("unchecked")
+    T result = (T) new EventMessage(convertValue((Map<?, ?>) msgArr[2]), msgArr[1].toString());
+    return result;
   }
 
-  private static GenericEvent convertValue(Map<String, String> map) {
+  private static GenericEvent convertValue(Map<?, ?> map) {
     log.info("Converting map to GenericEvent: {}", map);
     return I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<>() {});
   }

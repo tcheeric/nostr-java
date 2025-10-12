@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -10,6 +9,8 @@ import nostr.event.BaseTag;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.NutZapInformation;
 import nostr.event.tag.GenericTag;
+
+import java.util.List;
 
 @Event(name = "Nut Zap Informational Event", nip = 61)
 public class NutZapInformationalEvent extends ReplaceableEvent {

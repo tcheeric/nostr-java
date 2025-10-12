@@ -1,7 +1,5 @@
 package nostr.event.message;
 
-import nostr.event.json.EventJsonMapper;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -10,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
 
 /**
@@ -37,8 +36,9 @@ public class NoticeMessage extends BaseMessage {
   }
 
   // Generics are erased at runtime; BaseMessage subtype is determined by caller context
-  @SuppressWarnings("unchecked")
   public static <T extends BaseMessage> T decode(@NonNull Object arg) {
-    return (T) new NoticeMessage(arg.toString());
+    @SuppressWarnings("unchecked")
+    T result = (T) new NoticeMessage(arg.toString());
+    return result;
   }
 }

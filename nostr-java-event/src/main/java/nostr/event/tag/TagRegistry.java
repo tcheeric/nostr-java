@@ -1,9 +1,10 @@
 package nostr.event.tag;
 
+import nostr.event.BaseTag;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import nostr.event.BaseTag;
 
 /**
  * Registry of tag factory functions keyed by tag code. Allows new tag types to be registered

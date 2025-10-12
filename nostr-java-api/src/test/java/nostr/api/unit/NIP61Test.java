@@ -1,11 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import nostr.api.NIP60;
 import nostr.api.NIP61;
 import nostr.base.Relay;
@@ -21,6 +15,13 @@ import nostr.event.tag.UrlTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class NIP61Test {
 

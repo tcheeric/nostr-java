@@ -1,11 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.NonNull;
 import nostr.api.NIP44;
 import nostr.api.NIP60;
@@ -27,6 +22,10 @@ import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 public class NIP60Test {
 

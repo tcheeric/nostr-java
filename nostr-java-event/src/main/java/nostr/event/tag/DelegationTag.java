@@ -2,11 +2,6 @@ package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.beans.Transient;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,6 +12,12 @@ import nostr.base.Signature;
 import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
+
+import java.beans.Transient;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author squirrel

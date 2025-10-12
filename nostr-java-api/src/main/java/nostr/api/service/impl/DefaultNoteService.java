@@ -1,14 +1,15 @@
 package nostr.api.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.WebSocketClientHandler;
 import nostr.api.service.NoteService;
 import nostr.base.IEvent;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Default implementation that dispatches notes through all WebSocket clients. */
 @Slf4j

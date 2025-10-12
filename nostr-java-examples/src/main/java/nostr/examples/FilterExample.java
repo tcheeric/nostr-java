@@ -1,7 +1,5 @@
 package nostr.examples;
 
-import java.util.List;
-import java.util.Map;
 import nostr.api.NIP01;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -12,6 +10,9 @@ import nostr.event.filter.KindFilter;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EventMessage;
 import nostr.id.Identity;
+
+import java.util.List;
+import java.util.Map;
 
 /** Demonstrates requesting events from a relay using filters for author and kind. */
 public class FilterExample {

@@ -1,12 +1,13 @@
 package nostr.api.client;
 
+import lombok.NonNull;
+import nostr.base.SubscriptionId;
+import nostr.event.filter.Filters;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.NonNull;
-import nostr.base.SubscriptionId;
-import nostr.event.filter.Filters;
 
 /**
  * Manages subscription lifecycles across multiple relay handlers.

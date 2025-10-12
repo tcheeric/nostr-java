@@ -1,10 +1,8 @@
 package nostr.api.nip57;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.api.nip01.NIP01TagFactory;
-import nostr.api.nip57.NIP57TagFactory;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
@@ -14,6 +12,8 @@ import nostr.event.entities.ZapRequest;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.RelaysTag;
 import nostr.id.Identity;
+
+import java.util.List;
 
 /**
  * Builds zap request events for {@link nostr.api.NIP57}.
@@ -118,10 +118,11 @@ public final class NIP57ZapRequestBuilder {
   }
 
   private GenericEvent initialiseZapRequest(Identity sender, String content) {
-    Identity resolved = resolveSender(sender);
-    GenericEventFactory factory =
-        new GenericEventFactory(resolved, Kind.ZAP_REQUEST.getValue(), content == null ? "" : content);
-    return factory.create();
+    return new GenericEventFactory(
+            resolveSender(sender),
+            Kind.ZAP_REQUEST.getValue(),
+            content == null ? "" : content)
+        .create();
   }
 
   private void populateCommonZapRequestTags(

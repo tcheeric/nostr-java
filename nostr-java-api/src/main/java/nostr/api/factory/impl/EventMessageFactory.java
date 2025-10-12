@@ -1,12 +1,13 @@
 package nostr.api.factory.impl;
 
-import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.api.factory.BaseMessageFactory;
 import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
+
+import java.util.Optional;
 
 @Data
 @EqualsAndHashCode(callSuper = false)

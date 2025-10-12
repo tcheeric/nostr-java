@@ -1,14 +1,6 @@
 package nostr.api;
 
-import static nostr.base.json.EventJsonMapper.mapper;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
@@ -26,6 +18,15 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.json.codec.EventEncodingException;
 import nostr.id.Identity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * NIP-60: Cashu Wallet over Nostr.
@@ -229,7 +230,6 @@ public class NIP60 extends EventNostr {
     setSender(sender);
   }
 
-  @SuppressWarnings("unchecked")
   public NIP60 createWalletEvent(@NonNull CashuWallet wallet) {
     GenericEvent walletEvent =
         new GenericEventFactory(
@@ -242,7 +242,6 @@ public class NIP60 extends EventNostr {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
   public NIP60 createTokenEvent(@NonNull CashuToken token, @NonNull CashuWallet wallet) {
     GenericEvent tokenEvent =
         new GenericEventFactory(
@@ -255,7 +254,6 @@ public class NIP60 extends EventNostr {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
   public NIP60 createSpendingHistoryEvent(
       @NonNull SpendingHistory spendingHistory, @NonNull CashuWallet wallet) {
     GenericEvent spendingHistoryEvent =
@@ -269,7 +267,6 @@ public class NIP60 extends EventNostr {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
   public NIP60 createRedemptionQuoteEvent(@NonNull CashuQuote quote) {
     GenericEvent redemptionQuoteEvent =
         new GenericEventFactory(
@@ -289,8 +286,8 @@ public class NIP60 extends EventNostr {
    * @return the created mint tag
    */
   public static BaseTag createMintTag(@NonNull CashuMint mint) {
-    List<String> units = mint.getUnits();
-    return createMintTag(mint.getUrl(), units != null ? units.toArray(new String[0]) : null);
+    return createMintTag(
+        mint.getUrl(), mint.getUnits() != null ? mint.getUnits().toArray(new String[0]) : null);
   }
 
   /**
@@ -378,8 +375,8 @@ public class NIP60 extends EventNostr {
     tags.add(NIP60.createPrivKeyTag(wallet.getPrivateKey()));
 
     try {
-      String serializedTags = mapper().writeValueAsString(tags);
-      return NIP44.encrypt(getSender(), serializedTags, getSender().getPublicKey());
+      return NIP44.encrypt(
+          getSender(), mapper().writeValueAsString(tags), getSender().getPublicKey());
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to encode wallet content", ex);
     }
@@ -387,8 +384,8 @@ public class NIP60 extends EventNostr {
 
   private String getTokenEventContent(@NonNull CashuToken token) {
     try {
-      String serializedToken = mapper().writeValueAsString(token);
-      return NIP44.encrypt(getSender(), serializedToken, getSender().getPublicKey());
+      return NIP44.encrypt(
+          getSender(), mapper().writeValueAsString(token), getSender().getPublicKey());
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to encode token content", ex);
     }
@@ -404,9 +401,7 @@ public class NIP60 extends EventNostr {
     tags.add(NIP60.createAmountTag(spendingHistory.getAmount()));
     tags.addAll(spendingHistory.getEventTags());
 
-    String content = getContent(tags);
-
-    return NIP44.encrypt(getSender(), content, getSender().getPublicKey());
+    return NIP44.encrypt(getSender(), getContent(tags), getSender().getPublicKey());
   }
 
   /**
