@@ -17,6 +17,7 @@ import nostr.id.Identity;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * NIP-04: Encrypted Direct Messages.
@@ -344,6 +345,7 @@ public class NIP04 extends EventNostr {
     PubKeyTag pTag =
         Filterable.getTypeSpecificTags(PubKeyTag.class, event).stream()
             .findFirst()
+            .or(() -> findGenericPubKeyTag(event))
             .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
     boolean rcptFlag = amITheRecipient(rcptId, event);
@@ -362,6 +364,26 @@ public class NIP04 extends EventNostr {
     MessageCipher cipher =
         new MessageCipher04(rcptId.getPrivateKey().getRawData(), sender.getRawData());
     return cipher.decrypt(event.getContent());
+  }
+
+  private static Optional<PubKeyTag> findGenericPubKeyTag(GenericEvent event) {
+    return event.getTags().stream()
+        .filter(tag -> "p".equalsIgnoreCase(tag.getCode()))
+        .map(NIP04::toPubKeyTag)
+        .findFirst();
+  }
+
+  private static PubKeyTag toPubKeyTag(BaseTag tag) {
+    if (tag instanceof PubKeyTag pubKeyTag) {
+      return pubKeyTag;
+    }
+
+    if (tag instanceof GenericTag genericTag) {
+      return PubKeyTag.updateFields(genericTag);
+    }
+
+    throw new IllegalArgumentException(
+        "Unsupported tag type for p-tag conversion: " + tag.getClass().getName());
   }
 
   private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
