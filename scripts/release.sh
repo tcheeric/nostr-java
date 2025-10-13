@@ -6,7 +6,8 @@ set -euo pipefail
 #   bump --version <x.y.z>            Set root version to x.y.z and commit
 #   verify [--no-docker]              Run mvn clean verify (optionally -DnoDocker=true)
 #   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
-#   publish [--no-docker]             Deploy artifacts to Central via release profile
+#   publish [--no-docker] [--repo central|398ja]
+#                                    Deploy artifacts to selected repository profile
 #   next-snapshot --version <x.y.z>   Set next SNAPSHOT (e.g., 1.0.1-SNAPSHOT) and commit
 #
 # Notes:
@@ -24,8 +25,8 @@ Commands:
   verify [--no-docker] [--skip-tests] [--dry-run]
                                     Run mvn clean verify (optionally -DnoDocker=true)
   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
-  publish [--no-docker] [--skip-tests] [--dry-run]
-                                    Deploy artifacts to Central via release profile
+  publish [--no-docker] [--skip-tests] [--repo central|398ja] [--dry-run]
+                                    Deploy artifacts to selected repository profile
   next-snapshot --version <x.y.z>   Set next SNAPSHOT version and commit
 
 Examples:
@@ -104,19 +105,26 @@ cmd_tag() {
 }
 
 cmd_publish() {
-  local no_docker=false skip_tests=false
+  local no_docker=false skip_tests=false repo="central"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --no-docker) no_docker=true; shift ;;
       --skip-tests) skip_tests=true; shift ;;
+      --repo) repo="$2"; shift 2 ;;
       --dry-run) DRYRUN=true; shift ;;
       *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
     esac
   done
-  local mvn_args=(-q -P release deploy)
-  $no_docker && mvn_args=(-q -DnoDocker=true -P release deploy)
-  $skip_tests && mvn_args=(-q -DskipTests -P release deploy)
-  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P release deploy); fi
+  local profile
+  case "$repo" in
+    central) profile=release-central ;;
+    398ja|reposilite) profile=release-398ja ;;
+    *) echo "Unknown repo '$repo'. Use 'central' or '398ja'." >&2; exit 1 ;;
+  esac
+  local mvn_args=(-q -P "$profile" deploy)
+  $no_docker && mvn_args=(-q -DnoDocker=true -P "$profile" deploy)
+  $skip_tests && mvn_args=(-q -DskipTests -P "$profile" deploy)
+  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P "$profile" deploy); fi
   run_cmd mvn "${mvn_args[@]}"
 }
 

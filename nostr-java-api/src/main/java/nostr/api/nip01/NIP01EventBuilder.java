@@ -31,18 +31,11 @@ public final class NIP01EventBuilder {
         .create();
   }
 
-  public GenericEvent buildTextNote(Identity sender, String content) {
-    return new GenericEventFactory(resolveSender(sender), Kind.TEXT_NOTE.getValue(), content)
-        .create();
-  }
-
-  public GenericEvent buildRecipientTextNote(Identity sender, String content, List<PubKeyTag> tags) {
-    return new GenericEventFactory<PubKeyTag>(resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
-        .create();
-  }
+  // Removed deprecated Identity-accepting overloads; use instance-configured sender
 
   public GenericEvent buildRecipientTextNote(String content, List<PubKeyTag> tags) {
-    return buildRecipientTextNote(null, content, tags);
+    return new GenericEventFactory<PubKeyTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
+        .create();
   }
 
   public GenericEvent buildTaggedTextNote(@NonNull List<BaseTag> tags, @NonNull String content) {

@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -75,8 +75,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- All versions now managed by nostr-java-bom -->
-        <nostr-java-bom.version>1.1.1</nostr-java-bom.version>
-        <nostr-java.version>0.6.5-SNAPSHOT</nostr-java.version>
+        <nostr-java-bom.version>1.1.8</nostr-java-bom.version>
 
         <!-- Plugin versions -->
         <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
@@ -367,6 +366,69 @@
                                 <mockito.mock-maker>subclass</mockito.mock-maker>
                             </systemPropertyVariables>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Publish to 398ja Reposilite repository -->
+        <profile>
+            <id>release-398ja</id>
+            <distributionManagement>
+                <repository>
+                    <id>reposilite-releases</id>
+                    <url>https://maven.398ja.xyz/releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>reposilite-snapshots</id>
+                    <url>https://maven.398ja.xyz/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <repositories>
+                <repository>
+                    <id>reposilite-releases</id>
+                    <url>https://maven.398ja.xyz/releases</url>
+                </repository>
+                <repository>
+                    <id>reposilite-snapshots</id>
+                    <url>https://maven.398ja.xyz/snapshots</url>
+                </repository>
+            </repositories>
+        </profile>
+
+        <!-- Publish to Maven Central using Central Publishing plugin -->
+        <profile>
+            <id>release-central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.plugin.version}</version>
+                        <configuration>
+                            <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                            <gpgArguments>
+                                <arg>--batch</arg>
+                                <arg>--yes</arg>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central.publishing.plugin.version}</version>
+                        <extensions>true</extensions>
                     </plugin>
                 </plugins>
             </build>

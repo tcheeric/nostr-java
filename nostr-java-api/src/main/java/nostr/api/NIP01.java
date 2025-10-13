@@ -163,18 +163,7 @@ public class NIP01 extends EventNostr {
 
   
 
-  /**
-   * Create a NIP01 text note event addressed to specific recipients.
-   *
-   * @param sender the identity used to sign the event
-   * @param content the content of the note
-   * @param recipients the list of {@code p} tags identifying recipients' public keys
-   * @return this instance for chaining
-   */
-  public NIP01 createTextNoteEvent(Identity sender, String content, List<PubKeyTag> recipients) {
-    this.updateEvent(eventBuilder.buildRecipientTextNote(sender, content, recipients));
-    return this;
-  }
+  // Removed deprecated overload accepting Identity. Use instance sender instead.
 
   /**
    * Create a NIP01 text note event addressed to specific recipients using the configured sender.
