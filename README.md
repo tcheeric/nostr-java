@@ -61,25 +61,23 @@ Examples are located in the [`nostr-java-examples`](./nostr-java-examples) modul
 - ✅ **Well-Documented** - Extensive JavaDoc, architecture guides, and code examples
 - ✅ **Production-Ready** - High test coverage, CI/CD pipeline, code quality checks
 
-## Recent Improvements (v0.6.2)
+## Recent Improvements (v1.0.0)
 
-🎯 **Refactoring for Clean Code**
-- Extracted god classes into focused utility classes (EventValidator, EventSerializer, EventTypeChecker)
-- Improved Single Responsibility Principle compliance
-- Enhanced logging practices following Clean Code guidelines
-- Grade improvement: B → A-
+🎯 **API Cleanup & Removals (breaking)**
+- Deprecated APIs removed: `Constants.Kind`, `Encoder.ENCODER_MAPPER_BLACKBIRD`, and NIP01 Identity-based overloads
+- NIP01 now exclusively uses the instance-configured sender; builder simplified accordingly
 
-📚 **Documentation Overhaul**
-- Comprehensive architecture documentation with design patterns
-- Complete JavaDoc coverage for core APIs
-- Step-by-step guides for extending events and adding NIPs
-- 15+ code examples throughout documentation
+🚀 **Performance & Serialization**
+- Centralized JSON mapper via `nostr.event.json.EventJsonMapper` (Blackbird module); unified across event encoders
 
-🔧 **API Improvements**
-- Simplified NIP01 facade (sender configured at construction)
-- BOM migration for consistent dependency management
-- Deprecated methods marked for removal in 1.0.0
-- Enhanced error messages with context
+📚 **Documentation & Structure**
+- Migration guide updated for 1.0.0 removals and replacements
+- Troubleshooting moved to dedicated how‑to: `docs/howto/diagnostics.md`
+- README streamlined to focus on users; maintainer topics moved under docs
+
+🛠️ **Build & Release Tooling**
+- CI workflow split for Docker vs no‑Docker runs
+- Release automation (`scripts/release.sh`) with bump/tag/verify/publish steps
 
 See [docs/explanation/architecture.md](docs/explanation/architecture.md) for detailed architecture overview.
 
