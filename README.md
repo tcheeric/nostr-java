@@ -54,12 +54,12 @@ Examples are located in the [`nostr-java-examples`](./nostr-java-examples) modul
  
 ## Features
 
-✅ **Clean Architecture** - Modular design following SOLID principles
-✅ **Comprehensive NIP Support** - 25 NIPs implemented covering core protocol, encryption, payments, and more
-✅ **Type-Safe API** - Strongly-typed events, tags, and messages with builder patterns
-✅ **Non-Blocking Subscriptions** - Spring WebSocket client with reactive streaming support
-✅ **Well-Documented** - Extensive JavaDoc, architecture guides, and code examples
-✅ **Production-Ready** - High test coverage, CI/CD pipeline, code quality checks
+- ✅ **Clean Architecture** - Modular design following SOLID principles
+- ✅ **Comprehensive NIP Support** - 25 NIPs implemented covering core protocol, encryption, payments, and more
+- ✅ **Type-Safe API** - Strongly-typed events, tags, and messages with builder patterns
+- ✅ **Non-Blocking Subscriptions** - Spring WebSocket client with reactive streaming support
+- ✅ **Well-Documented** - Extensive JavaDoc, architecture guides, and code examples
+- ✅ **Production-Ready** - High test coverage, CI/CD pipeline, code quality checks
 
 ## Recent Improvements (v0.6.2)
 
