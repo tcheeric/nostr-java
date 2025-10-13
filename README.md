@@ -26,51 +26,9 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usag
 
 The `no-docker` profile excludes tests under `**/nostr/api/integration/**` and sets `noDocker=true` for conditional test disabling.
 
-## Roadmap project automation
+## Troubleshooting
 
-Maintainers can create or refresh the GitHub Project that tracks all 1.0.0 release blockers by running `./scripts/create-roadmap-project.sh`. The helper script uses the GitHub CLI to set up draft items that mirror the tasks described in [docs/explanation/roadmap-1.0.md](docs/explanation/roadmap-1.0.md); see the [how-to guide](docs/howto/manage-roadmap-project.md) for prerequisites and usage tips.
-
-### Troubleshooting failed relay sends
-
-When broadcasting to multiple relays, failures on individual relays are tolerated and sending continues to other relays. To inspect which relays failed during the last send on the current thread:
-
-```java
-// Using the default client setup
-NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(sender);
-client.setRelays(Map.of(
-  "relayA", "wss://relayA.example.com",
-  "relayB", "wss://relayB.example.com"
-));
-
-List<String> responses = client.sendEvent(event);
-// Inspect failures (if using DefaultNoteService)
-Map<String, Throwable> failures = client.getLastSendFailures();
-failures.forEach((relay, error) ->
-  System.out.println("Relay " + relay + " failed: " + error.getMessage())
-);
-```
-
-This returns an empty map if a custom `NoteService` is used that does not expose diagnostics.
-
-To receive failure notifications immediately after each send attempt when using the default client:
-
-```java
-client.onSendFailures(map -> {
-  map.forEach((relay, t) -> System.err.println(
-    "Send failed on relay " + relay + ": " + t.getClass().getSimpleName() + ": " + t.getMessage()
-  ));
-});
-```
-
-For more detail (timestamp, class, message), use:
-
-```java
-Map<String, DefaultNoteService.FailureInfo> info = client.getLastSendFailureDetails();
-info.forEach((relay, d) -> System.out.printf(
-  "[%d] %s failed: %s - %s%n",
-  d.timestampEpochMillis, relay, d.exceptionClass, d.message
-));
-```
+For diagnosing relay send issues and capturing failure details, see the how‑to guide: [docs/howto/diagnostics.md](docs/howto/diagnostics.md).
 
 ## Documentation
 
