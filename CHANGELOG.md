@@ -6,6 +6,10 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [1.0.0] - 2025-10-13
+
 ### Added
 - Release automation script `scripts/release.sh` with bump/tag/verify/publish/next-snapshot commands (supports `--no-docker`, `--skip-tests`, and `--dry-run`).
 - GitHub Actions:
@@ -27,12 +31,13 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
   - `docs/GETTING_STARTED.md` updated with Maven/Gradle BOM examples
   - `docs/howto/use-nostr-java-api.md` updated to import BOM and omit per-module versions
   - Cross-links added from the roadmap to migration and dependency alignment docs
+- README cleanup: removed maintainer-only roadmap automation and moved troubleshooting to `docs/howto/diagnostics.md`.
 
 ### Removed
 - Deprecated APIs finalized for 1.0.0:
   - `nostr.config.Constants.Kind` facade — use `nostr.base.Kind`
   - `nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD` — use `nostr.event.json.EventJsonMapper#getMapper()`
-  - `nostr.api.NIP01#createTextNoteEvent(Identity, String)` — use instance-configured sender overload
+  - `nostr.api.NIP01#createTextNoteEvent(Identity, String)` and related Identity-based overloads — use instance-configured sender
   - `nostr.api.NIP61#createNutzapEvent(Amount, List<CashuProof>, URL, List<EventTag>, PublicKey, String)` — use slimmer overload and add amount/unit via `NIP60`
   - `nostr.event.tag.GenericTag(String, Integer)` compatibility ctor
   - `nostr.id.EntityFactory.Events#createGenericTag(PublicKey, IEvent, Integer)`
@@ -40,4 +45,3 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 ### Notes
 - Integration tests require Docker (Testcontainers). CI runs a separate job for them on push; PRs use the no-Docker profile.
 - See `MIGRATION.md` for complete guidance on deprecated API replacements.
-
