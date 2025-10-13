@@ -10,6 +10,9 @@ on:
         description: 'Version to release (used only for visibility)'
         required: false
 
+permissions:
+  contents: write
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -17,12 +20,14 @@ jobs:
     env:
       CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
       CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Check required secrets are present
-        if: ${{ !secrets.CENTRAL_USERNAME || !secrets.CENTRAL_PASSWORD || !secrets.GPG_PRIVATE_KEY || !secrets.GPG_PASSPHRASE }}
+        if: ${{ env.CENTRAL_USERNAME == '' || env.CENTRAL_PASSWORD == '' || env.GPG_PRIVATE_KEY == '' || env.GPG_PASSPHRASE == '' }}
         run: |
           echo "One or more required secrets are missing: CENTRAL_USERNAME, CENTRAL_PASSWORD, GPG_PRIVATE_KEY, GPG_PASSPHRASE" >&2
           exit 1
@@ -38,6 +43,19 @@ jobs:
           server-password: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Validate GPG key import and passphrase
+        shell: bash
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "Listing imported secret keys (redacted):"
+          gpg --list-secret-keys --keyid-format=long || true
+          echo "Testing passphrase with a dummy signing operation..."
+          echo "ok" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -s >/dev/null || {
+            echo "GPG passphrase appears incorrect or not usable in CI." >&2
+            exit 1
+          }
 
       - name: Make release script executable
         run: chmod +x scripts/release.sh
@@ -60,7 +78,9 @@ jobs:
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-        run: scripts/release.sh publish --no-docker
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: scripts/release.sh publish --no-docker --repo central
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
