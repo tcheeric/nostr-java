@@ -45,6 +45,12 @@ run_cmd() {
   fi
 }
 
+# Resolve optional Maven settings
+MVN_SETTINGS_OPTS=""
+if [[ -f .mvn/settings.xml ]]; then
+  MVN_SETTINGS_OPTS="-s .mvn/settings.xml"
+fi
+
 require_clean_tree() {
   if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "Working tree is not clean. Commit or stash changes first." >&2
@@ -80,9 +86,11 @@ cmd_verify() {
     esac
   done
   local mvn_args=(-q)
-  $no_docker && mvn_args+=(-DnoDocker=true)
+  if $no_docker; then
+    mvn_args+=(-DnoDocker=true -Pno-docker)
+  fi
   $skip_tests && mvn_args+=(-DskipTests)
-  run_cmd mvn "${mvn_args[@]}" clean verify
+  run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}" clean verify
 }
 
 cmd_tag() {
@@ -125,7 +133,7 @@ cmd_publish() {
   $no_docker && mvn_args=(-q -DnoDocker=true -P "$profile" deploy)
   $skip_tests && mvn_args=(-q -DskipTests -P "$profile" deploy)
   if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P "$profile" deploy); fi
-  run_cmd mvn "${mvn_args[@]}"
+  run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}"
 }
 
 cmd_next_snapshot() {
