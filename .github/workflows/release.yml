@@ -19,7 +19,7 @@ jobs:
       CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check required secrets are present
         if: ${{ !secrets.CENTRAL_USERNAME || !secrets.CENTRAL_PASSWORD || !secrets.GPG_PRIVATE_KEY || !secrets.GPG_PASSPHRASE }}
