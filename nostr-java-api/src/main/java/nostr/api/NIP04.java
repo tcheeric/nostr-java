@@ -348,7 +348,7 @@ public class NIP04 extends EventNostr {
             .or(() -> findGenericPubKeyTag(event))
             .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
 
-    boolean rcptFlag = amITheRecipient(rcptId, event);
+    boolean rcptFlag = amITheRecipient(rcptId, event, pTag);
 
     if (!rcptFlag) { // I am the message sender
       log.debug("Decrypting own sent message");
@@ -386,14 +386,11 @@ public class NIP04 extends EventNostr {
         "Unsupported tag type for p-tag conversion: " + tag.getClass().getName());
   }
 
-  private static boolean amITheRecipient(@NonNull Identity recipient, @NonNull GenericEvent event) {
-    // Use helper to fetch the p-tag without manual casts
-    PubKeyTag pTag =
-        Filterable.getTypeSpecificTags(PubKeyTag.class, event).stream()
-            .findFirst()
-            .orElseThrow(() -> new NoSuchElementException("No matching p-tag found."));
-
-    if (Objects.equals(recipient.getPublicKey(), pTag.getPublicKey())) {
+  private static boolean amITheRecipient(
+      @NonNull Identity recipient,
+      @NonNull GenericEvent event,
+      @NonNull PubKeyTag resolvedPubKeyTag) {
+    if (Objects.equals(recipient.getPublicKey(), resolvedPubKeyTag.getPublicKey())) {
       return true;
     }
 

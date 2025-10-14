@@ -1,8 +1,10 @@
 package nostr.api.unit;
 
 import nostr.api.NIP04;
+import nostr.base.ElementAttribute;
 import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 /**
  * Unit tests for NIP-04 (Encrypted Direct Messages).
@@ -148,6 +152,30 @@ public class NIP04Test {
     GenericEvent event = nip04.getEvent();
 
     // Should preserve all special characters
+    String decrypted = NIP04.decrypt(recipient, event);
+    assertEquals(content, decrypted);
+  }
+
+  @Test
+  // Ensures decrypt can resolve generic p-tags when determining the recipient.
+  public void testDecryptWithGenericPubKeyTagFallback() {
+    String content = "Generic tag ciphertext";
+
+    String encrypted = NIP04.encrypt(sender, content, recipient.getPublicKey());
+
+    GenericTag genericPTag =
+        new GenericTag(
+            "p",
+            List.of(new ElementAttribute("param0", recipient.getPublicKey().toString())));
+
+    GenericEvent event =
+        GenericEvent.builder()
+            .pubKey(sender.getPublicKey())
+            .kind(Kind.ENCRYPTED_DIRECT_MESSAGE)
+            .tags(List.of(genericPTag))
+            .content(encrypted)
+            .build();
+
     String decrypted = NIP04.decrypt(recipient, event);
     assertEquals(content, decrypted);
   }
