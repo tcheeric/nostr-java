@@ -1,16 +1,17 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.PaymentRequest;
+
+import java.util.List;
 
 /**
  * @author eric
@@ -27,7 +28,7 @@ public class MerchantRequestPaymentEvent extends CheckoutEvent<PaymentRequest> {
   }
 
   public PaymentRequest getPaymentRequest() {
-    return IEvent.MAPPER_BLACKBIRD.convertValue(getContent(), PaymentRequest.class);
+    return EventJsonMapper.mapper().convertValue(getContent(), PaymentRequest.class);
   }
 
   protected PaymentRequest getEntity() {

@@ -1,15 +1,17 @@
 package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.crypto.bech32.Bech32;
+import nostr.crypto.bech32.Bech32EncodingException;
 import nostr.crypto.bech32.Bech32Prefix;
 import nostr.util.NostrUtil;
+
+import java.util.Arrays;
 
 /**
  * @author squirrel
@@ -28,12 +30,14 @@ public abstract class BaseKey implements IKey {
   @Override
   public String toBech32String() {
     try {
-      String bech32 = Bech32.toBech32(prefix, rawData);
-      log.debug("Converted key to Bech32 with prefix {}", prefix);
-      return bech32;
-    } catch (Exception ex) {
-      log.error("Error converting key to Bech32", ex);
-      throw new RuntimeException(ex);
+      return Bech32.toBech32(prefix, rawData);
+    } catch (IllegalArgumentException ex) {
+      log.error(
+          "Invalid key data for Bech32 conversion for {} key with prefix {}", type, prefix, ex);
+      throw new KeyEncodingException("Invalid key data for Bech32 conversion", ex);
+    } catch (Bech32EncodingException ex) {
+      log.error("Failed to convert {} key to Bech32 format with prefix {}", type, prefix, ex);
+      throw new KeyEncodingException("Failed to convert key to Bech32", ex);
     }
   }
 
@@ -44,9 +48,7 @@ public abstract class BaseKey implements IKey {
   }
 
   public String toHexString() {
-    String hex = NostrUtil.bytesToHex(rawData);
-    log.debug("Converted key to hex string");
-    return hex;
+    return NostrUtil.bytesToHex(rawData);
   }
 
   @Override

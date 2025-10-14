@@ -1,5 +1,18 @@
 package nostr.api;
 
+import lombok.NonNull;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
+import nostr.event.entities.ClassifiedListing;
+import nostr.event.impl.GenericEvent;
+import nostr.id.Identity;
+
+import java.net.URL;
+import java.util.List;
+
 import static nostr.api.NIP12.createGeohashTag;
 import static nostr.api.NIP12.createHashtagTag;
 import static nostr.api.NIP23.createImageTag;
@@ -7,20 +20,9 @@ import static nostr.api.NIP23.createPublishedAtTag;
 import static nostr.api.NIP23.createSummaryTag;
 import static nostr.api.NIP23.createTitleTag;
 
-import java.net.URL;
-import java.util.List;
-import lombok.NonNull;
-import nostr.api.factory.impl.BaseTagFactory;
-import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
-import nostr.event.BaseTag;
-import nostr.event.entities.ClassifiedListing;
-import nostr.event.impl.GenericEvent;
-import nostr.id.Identity;
-
 /**
  * NIP-99 helpers (Classified Listings). Build classified listing events and tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/99.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/99.md">NIP-99</a>
  */
 public class NIP99 extends EventNostr {
 
@@ -28,12 +30,13 @@ public class NIP99 extends EventNostr {
     setSender(sender);
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP99 createClassifiedListingEvent(
       @NonNull List<BaseTag> baseTags,
       String content,
       @NonNull ClassifiedListing classifiedListing) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CLASSIFIED_LISTING, baseTags, content)
+        new GenericEventFactory(getSender(), Kind.CLASSIFIED_LISTING.getValue(), baseTags, content)
             .create();
 
     genericEvent.addTag(createTitleTag(classifiedListing.getTitle()));

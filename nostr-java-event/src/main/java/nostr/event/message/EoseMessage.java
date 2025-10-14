@@ -1,7 +1,5 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -10,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
 
 /**
@@ -33,14 +32,17 @@ public class EoseMessage extends BaseMessage {
   @Override
   public String encode() throws EventEncodingException {
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(
+      return EventJsonMapper.getMapper().writeValueAsString(
           JsonNodeFactory.instance.arrayNode().add(getCommand()).add(getSubscriptionId()));
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode eose message", e);
     }
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
   public static <T extends BaseMessage> T decode(@NonNull Object arg) {
-    return (T) new EoseMessage(arg.toString());
+    @SuppressWarnings("unchecked")
+    T result = (T) new EoseMessage(arg.toString());
+    return result;
   }
 }

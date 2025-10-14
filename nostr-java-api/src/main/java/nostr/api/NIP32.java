@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
 import lombok.NonNull;
@@ -11,7 +7,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-32 helpers (Labeling). Create namespace and label tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/32.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/32.md">NIP-32</a>
  */
 public class NIP32 {
 

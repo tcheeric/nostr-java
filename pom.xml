@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>0.5.1</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -56,15 +56,16 @@
     </distributionManagement>
 
     <modules>
-        <module>nostr-java-base</module>
-        <module>nostr-java-crypto</module>
-        <module>nostr-java-event</module>
-        <module>nostr-java-examples</module>
-        <module>nostr-java-id</module>
+        <!-- Build order adjusted to satisfy inter-module dependencies -->
         <module>nostr-java-util</module>
+        <module>nostr-java-crypto</module>
+        <module>nostr-java-base</module>
+        <module>nostr-java-event</module>
+        <module>nostr-java-id</module>
+        <module>nostr-java-encryption</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
-        <module>nostr-java-encryption</module>
+        <module>nostr-java-examples</module>
     </modules>
 
     <properties>
@@ -74,18 +75,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- All versions now managed by nostr-java-bom -->
-        <nostr-java-bom.version>1.1.0</nostr-java-bom.version>
-        <nostr-java.version>0.5.1</nostr-java.version>
+        <nostr-java-bom.version>1.1.8</nostr-java-bom.version>
 
         <!-- Plugin versions -->
-        <central.publishing.plugin.version>0.8.0</central.publishing.plugin.version>
+        <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.11.3</maven.javadoc.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <flatten.plugin.version>1.7.2</flatten.plugin.version>
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
-        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.14</jacoco.plugin.version>
         <maven.failsafe.plugin.version>3.5.3</maven.failsafe.plugin.version>
     </properties>
 
@@ -102,6 +102,53 @@
                 <version>${nostr-java-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- JUnit alignment now provided by nostr-java-bom -->
+            <!-- Temporary overrides: ensure reactor uses current module versions until BOM 1.1.2 is released -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-crypto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-event</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-id</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-encryption</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>nostr-java-examples</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -258,10 +305,20 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <mockito.mock-maker>subclass</mockito.mock-maker>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.failsafe.plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <mockito.mock-maker>subclass</mockito.mock-maker>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -270,4 +327,111 @@
         </plugins>
 
     </build>
+
+    <profiles>
+        <!-- Use when running in environments without Docker to skip Testcontainers-based ITs -->
+        <profile>
+            <id>no-docker</id>
+            <properties>
+                <noDocker>true</noDocker>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <excludes>
+                                <!-- Skip Docker/Testcontainers-backed tests in API module -->
+                                <exclude>**/nostr/api/integration/**</exclude>
+                            </excludes>
+                            <systemPropertyVariables>
+                                <noDocker>true</noDocker>
+                                <mockito.mock-maker>subclass</mockito.mock-maker>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven.failsafe.plugin.version}</version>
+                        <configuration>
+                            <excludes>
+                                <!-- Skip Docker/Testcontainers-backed ITs in API module -->
+                                <exclude>**/nostr/api/integration/**</exclude>
+                            </excludes>
+                            <systemPropertyVariables>
+                                <noDocker>true</noDocker>
+                                <mockito.mock-maker>subclass</mockito.mock-maker>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Publish to 398ja Reposilite repository -->
+        <profile>
+            <id>release-398ja</id>
+            <distributionManagement>
+                <repository>
+                    <id>reposilite-releases</id>
+                    <url>https://maven.398ja.xyz/releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>reposilite-snapshots</id>
+                    <url>https://maven.398ja.xyz/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <repositories>
+                <repository>
+                    <id>reposilite-releases</id>
+                    <url>https://maven.398ja.xyz/releases</url>
+                </repository>
+                <repository>
+                    <id>reposilite-snapshots</id>
+                    <url>https://maven.398ja.xyz/snapshots</url>
+                </repository>
+            </repositories>
+        </profile>
+
+        <!-- Publish to Maven Central using Central Publishing plugin -->
+        <profile>
+            <id>release-central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.plugin.version}</version>
+                        <configuration>
+                            <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                            <gpgArguments>
+                                <arg>--batch</arg>
+                                <arg>--yes</arg>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central.publishing.plugin.version}</version>
+                        <extensions>true</extensions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

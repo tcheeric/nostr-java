@@ -1,12 +1,11 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.CashuProof;
@@ -14,6 +13,8 @@ import nostr.event.entities.NutZap;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Event(name = "Nut Zap Event", nip = 61)
@@ -29,29 +30,23 @@ public class NutZapEvent extends GenericEvent {
     NutZap nutZap = new NutZap();
 
     EventTag zappedEvent =
-        getTags().stream()
-            .filter(tag -> tag instanceof EventTag)
-            .map(tag -> (EventTag) tag)
+        nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
             .findFirst()
             .orElse(null);
 
     List<GenericTag> proofs =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "proof".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .toList();
 
     PubKeyTag recipientTag =
-        getTags().stream()
-            .filter(tag -> tag instanceof PubKeyTag)
-            .map(tag -> (PubKeyTag) tag)
+        nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No PubKeyTag found in tags"));
 
     GenericTag mintTag =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "u".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No mint tag found in tags"));
 
@@ -105,7 +100,7 @@ public class NutZapEvent extends GenericEvent {
 
   private CashuProof getProofFromTag(GenericTag proofTag) {
     String proof = proofTag.getAttributes().get(0).value().toString();
-    CashuProof cashuProof = IEvent.MAPPER_BLACKBIRD.convertValue(proof, CashuProof.class);
+    CashuProof cashuProof = EventJsonMapper.mapper().convertValue(proof, CashuProof.class);
     return cashuProof;
   }
 }

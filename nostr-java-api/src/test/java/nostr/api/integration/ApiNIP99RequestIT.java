@@ -1,14 +1,6 @@
 package nostr.api.integration;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import nostr.api.NIP99;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -26,6 +18,15 @@ import nostr.event.tag.SubjectTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
@@ -110,16 +111,16 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
 
       // Extract and compare only first 3 elements of the JSON array
       var expectedArray =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(0).asText();
       var expectedSubscriptionId =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(1).asText();
       var expectedSuccess =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(0).asText();
+      var actualArray = mapper().readTree(eventResponses.getFirst()).get(0).asText();
       var actualSubscriptionId =
-          MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(1).asText();
-      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponses.getFirst()).get(2).asBoolean();
+          mapper().readTree(eventResponses.getFirst()).get(1).asText();
+      var actualSuccess = mapper().readTree(eventResponses.getFirst()).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
@@ -134,29 +135,40 @@ class ApiNIP99RequestIT extends BaseRelayIntegrationTest {
       String reqJson = createReqJson(UUID.randomUUID().toString(), eventId);
       List<String> reqResponses = springWebSocketRequestClient.send(reqJson).stream().toList();
 
-      var actualJson = MAPPER_BLACKBIRD.readTree(reqResponses.getFirst());
-      var expectedJson = MAPPER_BLACKBIRD.readTree(expectedRequestResponseJson());
+      // Some relays may emit EOSE or NOTICE before EVENT; find the EVENT response deterministically
+      JsonNode eventArray =
+          reqResponses.stream()
+              .map(
+                  json -> {
+                    try {
+                      return mapper().readTree(json);
+                    } catch (Exception e) {
+                      throw new RuntimeException(e);
+                    }
+                  })
+              .filter(node -> node.isArray() && node.size() >= 3)
+              .filter(node -> "EVENT".equals(node.get(0).asText()))
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new AssertionError(
+                          "No EVENT response found. Got: " + String.join(" | ", reqResponses)));
 
-      // Verify you receive the event
-      assertEquals(
-          "EVENT",
-          actualJson.get(0).asText(),
-          "Event should be received, and not " + actualJson.get(0).asText());
+      var expectedJson = mapper().readTree(expectedRequestResponseJson());
 
       // Verify only required fields
+      assertEquals(3, eventArray.size(), "Expected 3 elements in the array, but got " + eventArray.size());
       assertEquals(
-          3, actualJson.size(), "Expected 3 elements in the array, but got " + actualJson.size());
-      assertEquals(
-          actualJson.get(2).get("id").asText(),
+          eventArray.get(2).get("id").asText(),
           expectedJson.get(2).get("id").asText(),
           "ID should match");
       assertEquals(
-          actualJson.get(2).get("kind").asInt(),
+          eventArray.get(2).get("kind").asInt(),
           expectedJson.get(2).get("kind").asInt(),
           "Kind should match");
 
       // Verify required tags
-      var actualTags = actualJson.get(2).get("tags");
+      var actualTags = eventArray.get(2).get("tags");
       assertTrue(
           hasRequiredTag(actualTags, "price", NUMBER.toString()), "Price tag should be present");
       assertTrue(hasRequiredTag(actualTags, "title", TITLE), "Title tag should be present");

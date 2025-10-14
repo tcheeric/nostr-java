@@ -1,10 +1,7 @@
 package nostr.event.entities;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.net.URL;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +12,10 @@ import nostr.base.IBech32Encodable;
 import nostr.base.PublicKey;
 import nostr.crypto.bech32.Bech32;
 import nostr.crypto.bech32.Bech32Prefix;
+
+import java.net.URL;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author squirrel
@@ -43,15 +44,15 @@ public final class UserProfile extends Profile implements IBech32Encodable {
       return Bech32.encode(
           Bech32.Encoding.BECH32, Bech32Prefix.NPROFILE.getCode(), this.publicKey.getRawData());
     } catch (Exception ex) {
-      log.error("", ex);
-      throw new RuntimeException(ex);
+      log.error("Failed to convert UserProfile to Bech32 format", ex);
+      throw new RuntimeException("Failed to convert UserProfile to Bech32 format", ex);
     }
   }
 
   @Override
   public String toString() {
     try {
-      return MAPPER_BLACKBIRD.writeValueAsString(this);
+      return mapper().writeValueAsString(this);
     } catch (JsonProcessingException ex) {
       throw new RuntimeException(ex);
     }

@@ -1,10 +1,5 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.Instant;
-import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.GenericTagQuery;
 import nostr.base.Kind;
@@ -31,12 +26,17 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @Slf4j
 public class FiltersDecoderTest {
 
   @Test
   public void testEventFiltersDecoder() {
-    log.info("testEventFiltersDecoder");
 
     String filterKey = "ids";
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -49,7 +49,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleEventFiltersDecoder() {
-    log.info("testMultipleEventFiltersDecoder");
 
     String filterKey = "ids";
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -69,7 +68,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testAddressableTagFiltersDecoder() {
-    log.info("testAddressableTagFiltersDecoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -90,7 +88,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleAddressableTagFiltersDecoder() {
-    log.info("testMultipleAddressableTagFiltersDecoder");
 
     Integer kind1 = 1;
     String author1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -125,7 +122,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testKindFiltersDecoder() {
-    log.info("testKindFiltersDecoder");
 
     String filterKey = KindFilter.FILTER_KEY;
     Kind kind = Kind.valueOf(1);
@@ -138,7 +134,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleKindFiltersDecoder() {
-    log.info("testMultipleKindFiltersDecoder");
 
     String filterKey = KindFilter.FILTER_KEY;
     Kind kind1 = Kind.valueOf(1);
@@ -154,7 +149,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testIdentifierTagFilterDecoder() {
-    log.info("testIdentifierTagFilterDecoder");
 
     String uuidValue1 = "UUID-1";
 
@@ -167,7 +161,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleIdentifierTagFilterDecoder() {
-    log.info("testMultipleIdentifierTagFilterDecoder");
 
     String uuidValue1 = "UUID-1";
     String uuidValue2 = "UUID-2";
@@ -186,7 +179,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testReferencedEventFilterDecoder() {
-    log.info("testReferencedEventFilterDecoder");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
@@ -198,7 +190,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleReferencedEventFilterDecoder() {
-    log.info("testMultipleReferencedEventFilterDecoder");
 
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String eventId2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -216,7 +207,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testReferencedPublicKeyFilterDecofder() {
-    log.info("testReferencedPublicKeyFilterDecoder");
 
     String pubkeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
@@ -230,7 +220,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleReferencedPublicKeyFilterDecoder() {
-    log.info("testMultipleReferencedPublicKeyFilterDecoder");
 
     String pubkeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String pubkeyString2 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -249,7 +238,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testGeohashTagFiltersDecoder() {
-    log.info("testGeohashTagFiltersDecoder");
 
     String geohashKey = "#g";
     String geohashValue = "2vghde";
@@ -263,7 +251,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleGeohashTagFiltersDecoder() {
-    log.info("testMultipleGeohashTagFiltersDecoder");
 
     String geohashKey = "#g";
     String geohashValue1 = "2vghde";
@@ -282,7 +269,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testHashtagTagFiltersDecoder() {
-    log.info("testHashtagTagFiltersDecoder");
 
     String hashtagKey = "#t";
     String hashtagValue = "2vghde";
@@ -296,7 +282,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleHashtagTagFiltersDecoder() {
-    log.info("testMultipleHashtagTagFiltersDecoder");
 
     String hashtagKey = "#t";
     String hashtagValue1 = "2vghde";
@@ -315,7 +300,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testGenericTagFiltersDecoder() {
-    log.info("testGenericTagFiltersDecoder");
 
     String customTagKey = "#b";
     String customTagValue = "2vghde";
@@ -331,7 +315,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testMultipleGenericTagFiltersDecoder() {
-    log.info("testMultipleGenericTagFiltersDecoder");
 
     String customTagKey = "#b";
     String customTagValue1 = "2vghde";
@@ -351,7 +334,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testSinceFiltersDecoder() {
-    log.info("testSinceFiltersDecoder");
 
     Long since = Date.from(Instant.now()).getTime();
 
@@ -363,7 +345,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testUntilFiltersDecoder() {
-    log.info("testUntilFiltersDecoder");
 
     Long until = Date.from(Instant.now()).getTime();
 
@@ -375,7 +356,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testDecoderMultipleFilterTypes() {
-    log.info("testDecoderMultipleFilterTypes");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     Kind kind = Kind.valueOf(1);
@@ -401,7 +381,6 @@ public class FiltersDecoderTest {
 
   @Test
   public void testFailedAddressableTagMalformedSeparator() {
-    log.info("testFailedAddressableTagMalformedSeparator");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";

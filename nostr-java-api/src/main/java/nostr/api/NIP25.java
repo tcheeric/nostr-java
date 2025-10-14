@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.net.URI;
-import java.net.URL;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
@@ -19,9 +13,13 @@ import nostr.event.tag.EmojiTag;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 /**
  * NIP-25 helpers (Reactions). Build reaction events and custom emoji tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/25.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/25.md">NIP-25</a>
  */
 public class NIP25 extends EventNostr {
 
@@ -51,7 +49,7 @@ public class NIP25 extends EventNostr {
   public NIP25 createReactionEvent(
       @NonNull GenericEvent event, @NonNull String content, Relay relay) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REACTION, content).create();
+        new GenericEventFactory(getSender(), Kind.REACTION.getValue(), content).create();
 
     // Addressable event?
     if (event.isAddressable()) {
@@ -77,7 +75,7 @@ public class NIP25 extends EventNostr {
   public NIP25 createReactionToWebsiteEvent(@NonNull URL url, @NonNull Reaction reaction) {
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.REACTION_TO_WEBSITE, reaction.getEmoji())
+                getSender(), Kind.REACTION_TO_WEBSITE.getValue(), reaction.getEmoji())
             .create();
     genericEvent.addTag(NIP12.createReferenceTag(url));
     this.updateEvent(genericEvent);
@@ -105,7 +103,7 @@ public class NIP25 extends EventNostr {
     var content = String.format(":%s:", shortCode);
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REACTION, content).create();
+        new GenericEventFactory(getSender(), Kind.REACTION.getValue(), content).create();
     genericEvent.addTag(emojiTag);
     genericEvent.addTag(eventTag);
 
@@ -126,9 +124,12 @@ public class NIP25 extends EventNostr {
     return new BaseTagFactory(Constants.Tag.EMOJI_CODE, shortcode, url.toString()).create();
   }
 
-  @SneakyThrows
   public static BaseTag createCustomEmojiTag(@NonNull String shortcode, @NonNull String url) {
-    return createCustomEmojiTag(shortcode, URI.create(url).toURL());
+    try {
+      return createCustomEmojiTag(shortcode, URI.create(url).toURL());
+    } catch (MalformedURLException ex) {
+      throw new IllegalArgumentException("Invalid custom emoji URL: " + url, ex);
+    }
   }
 
   /**

@@ -1,21 +1,23 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class ConstantsTest {
 
   @Test
   void testKindValues() {
-    assertEquals(0, Constants.Kind.USER_METADATA);
-    assertEquals(1, Constants.Kind.SHORT_TEXT_NOTE);
-    assertEquals(42, Constants.Kind.CHANNEL_MESSAGE);
+    // Validate a few representative Kind enum values remain stable
+    assertEquals(0, Kind.SET_METADATA.getValue());
+    assertEquals(1, Kind.TEXT_NOTE.getValue());
+    assertEquals(42, Kind.CHANNEL_MESSAGE.getValue());
   }
 
   @Test
@@ -28,13 +30,12 @@ public class ConstantsTest {
   void testSerializationWithConstants() throws Exception {
     Identity identity = Identity.generateRandomIdentity();
     GenericEvent event = new GenericEvent();
-    event.setKind(Constants.Kind.SHORT_TEXT_NOTE);
+    event.setKind(Kind.TEXT_NOTE.getValue());
     event.setPubKey(identity.getPublicKey());
     event.setCreatedAt(0L);
     event.setContent("test");
 
     String json = new BaseEventEncoder<>(event).encode();
-    assertEquals(
-        Constants.Kind.SHORT_TEXT_NOTE, MAPPER_BLACKBIRD.readTree(json).get("kind").asInt());
+    assertEquals(Kind.TEXT_NOTE.getValue(), mapper().readTree(json).get("kind").asInt());
   }
 }

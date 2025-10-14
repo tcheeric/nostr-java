@@ -1,19 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.net.URL;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 
+import java.net.URL;
+import java.util.List;
+
 /**
  * NIP-12 helpers (Generic Tag Queries). Convenience creators for hashtag, reference and geohash tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/12.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/12.md">NIP-12</a>
  */
 public class NIP12 {
 

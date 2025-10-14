@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
 import lombok.NonNull;
@@ -11,7 +7,7 @@ import nostr.event.BaseTag;
 
 /**
  * NIP-40 helpers (Expiration). Create expiration tags for events.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/40.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/40.md">NIP-40</a>
  */
 public class NIP40 {
 

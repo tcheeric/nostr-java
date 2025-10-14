@@ -1,17 +1,19 @@
 package nostr.event.impl;
 
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.SneakyThrows;
-import nostr.base.IEvent;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.Stall;
+import nostr.event.json.codec.EventEncodingException;
+
+import java.util.List;
 
 /**
  * @author eric
@@ -27,9 +29,12 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
     super(sender, Kind.STALL_CREATE_OR_UPDATE.getValue(), tags, content);
   }
 
-  @SneakyThrows
   public Stall getStall() {
-    return IEvent.MAPPER_BLACKBIRD.readValue(getContent(), Stall.class);
+    try {
+      return EventJsonMapper.mapper().readValue(getContent(), Stall.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse stall content", ex);
+    }
   }
 
   @Override
@@ -57,7 +62,7 @@ public class CreateOrUpdateStallEvent extends MerchantEvent<Stall> {
       if (stall.getCurrency() == null || stall.getCurrency().isEmpty()) {
         throw new AssertionError("Invalid `content`: `currency` field is required.");
       }
-    } catch (Exception e) {
+    } catch (EventEncodingException e) {
       throw new AssertionError("Invalid `content`: Must be a valid Stall JSON object.", e);
     }
   }

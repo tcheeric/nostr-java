@@ -1,10 +1,11 @@
 package nostr.client.springwebsocket;
 
+import nostr.event.BaseMessage;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import nostr.event.BaseMessage;
 
 /**
  * Abstraction of a client-owned WebSocket connection to a Nostr relay.
@@ -23,7 +24,7 @@ public interface WebSocketClientIF extends AutoCloseable {
    * as implementations are generally not thread-safe.
    *
    * @param eventMessage the message to encode and transmit
-   * @param <T> the specific {@link BaseMessage} subtype
+   * @param <T> the specific {@link nostr.event.BaseMessage} subtype
    * @return a list of raw JSON payloads received in response; never {@code null}, but possibly
    *     empty
    * @throws IOException if the message cannot be sent or the connection fails
@@ -33,7 +34,7 @@ public interface WebSocketClientIF extends AutoCloseable {
   /**
    * Sends a raw JSON string over the WebSocket connection.
    *
-   * <p>Semantics match {@link #send(BaseMessage)}: the call is blocking and should not be invoked
+   * <p>Semantics match send(BaseMessage): the call is blocking and should not be invoked
    * concurrently from multiple threads.
    *
    * @param json the JSON payload to transmit
@@ -68,7 +69,7 @@ public interface WebSocketClientIF extends AutoCloseable {
       throws IOException;
 
   /**
-   * Convenience overload that accepts a {@link BaseMessage} and delegates to
+   * Convenience overload that accepts a {@link nostr.event.BaseMessage} and delegates to
    * {@link #subscribe(String, Consumer, Consumer, Runnable)}.
    *
    * @param eventMessage the message to encode and transmit
@@ -103,12 +104,4 @@ public interface WebSocketClientIF extends AutoCloseable {
    */
   @Override
   void close() throws IOException;
-
-  /**
-   * @deprecated use {@link #close()} instead.
-   */
-  @Deprecated
-  default void closeSocket() throws IOException {
-    close();
-  }
 }

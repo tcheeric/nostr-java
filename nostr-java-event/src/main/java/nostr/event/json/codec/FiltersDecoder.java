@@ -1,18 +1,19 @@
 package nostr.event.json.codec;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.base.IDecoder;
 import nostr.event.filter.Filterable;
 import nostr.event.filter.Filters;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author eric
@@ -25,7 +26,7 @@ public class FiltersDecoder implements IDecoder<Filters> {
    *
    * @param jsonFiltersList JSON representation of filters
    * @return decoded filters
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public Filters decode(@NonNull String jsonFiltersList) throws EventEncodingException {
@@ -33,7 +34,7 @@ public class FiltersDecoder implements IDecoder<Filters> {
       final List<Filterable> filterables = new ArrayList<>();
 
       Map<String, JsonNode> filtersMap =
-          MAPPER_BLACKBIRD.readValue(
+          mapper().readValue(
               jsonFiltersList, new TypeReference<Map<String, JsonNode>>() {});
 
       for (Map.Entry<String, JsonNode> entry : filtersMap.entrySet()) {

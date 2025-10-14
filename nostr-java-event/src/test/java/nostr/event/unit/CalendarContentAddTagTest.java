@@ -1,15 +1,16 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import org.junit.jupiter.api.Test;
 import nostr.base.PublicKey;
 import nostr.event.entities.CalendarContent;
 import nostr.event.tag.HashtagTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CalendarContentAddTagTest {
 

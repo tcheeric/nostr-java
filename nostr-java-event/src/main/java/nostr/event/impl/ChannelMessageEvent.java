@@ -1,7 +1,5 @@
 package nostr.event.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
@@ -11,6 +9,9 @@ import nostr.base.Relay;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.tag.EventTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author guilhermegps
@@ -24,42 +25,37 @@ public class ChannelMessageEvent extends GenericEvent {
   }
 
   public String getChannelCreateEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
-        .filter(tag -> tag.getMarker() == Marker.ROOT)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
         .map(EventTag::getIdEvent)
         .findFirst()
         .orElseThrow();
   }
 
   public String getChannelMessageReplyEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
-        .filter(tag -> tag.getMarker() == Marker.REPLY)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.REPLY).isPresent())
         .map(EventTag::getIdEvent)
         .findFirst()
         .orElse(null);
   }
 
   public Relay getRootRecommendedRelay() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
-        .filter(tag -> tag.getMarker() == Marker.ROOT)
-        .map(EventTag::getRecommendedRelayUrl)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
+        .map(EventTag::getRecommendedRelayUrlOptional)
+        .flatMap(java.util.Optional::stream)
         .map(Relay::new)
         .findFirst()
         .orElse(null);
   }
 
   public Relay getReplyRecommendedRelay(@NonNull String eventId) {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
-        .filter(tag -> tag.getMarker() == Marker.REPLY && tag.getIdEvent().equals(eventId))
-        .map(EventTag::getRecommendedRelayUrl)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.REPLY).isPresent()
+            && tag.getIdEvent().equals(eventId))
+        .map(EventTag::getRecommendedRelayUrlOptional)
+        .flatMap(java.util.Optional::stream)
         .map(Relay::new)
         .findFirst()
         .orElse(null);
@@ -70,10 +66,8 @@ public class ChannelMessageEvent extends GenericEvent {
 
     // Check 'e' root - tag
     EventTag rootTag =
-        getTags().stream()
-            .filter(tag -> "e".equals(tag.getCode()))
-            .map(tag -> (EventTag) tag)
-            .filter(tag -> tag.getMarker() == Marker.ROOT)
+        nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+            .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
             .findFirst()
             .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));
   }

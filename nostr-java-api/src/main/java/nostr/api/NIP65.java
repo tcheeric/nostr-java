@@ -1,20 +1,21 @@
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.NonNull;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.Marker;
 import nostr.base.Relay;
-import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * NIP-65 helpers (Relay List Metadata). Build relay list events and r-tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/65.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/65.md">NIP-65</a>
  */
 public class NIP65 extends EventNostr {
 
@@ -28,11 +29,12 @@ public class NIP65 extends EventNostr {
    * @param relayList the list of relays to include
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(@NonNull List<Relay> relayList) {
     List<BaseTag> relayUrlTags = relayList.stream().map(relay -> createRelayUrlTag(relay)).toList();
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.RELAY_LIST_METADATA_EVENT, relayUrlTags, "")
+                getSender(), Kind.RELAY_LIST_METADATA.getValue(), relayUrlTags, "")
             .create();
     this.updateEvent(genericEvent);
     return this;
@@ -45,13 +47,14 @@ public class NIP65 extends EventNostr {
    * @param permission the marker indicating read/write preference
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(
       @NonNull List<Relay> relayList, @NonNull Marker permission) {
     List<BaseTag> relayUrlTags =
         relayList.stream().map(relay -> createRelayUrlTag(relay, permission)).toList();
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.RELAY_LIST_METADATA_EVENT, relayUrlTags, "")
+                getSender(), Kind.RELAY_LIST_METADATA.getValue(), relayUrlTags, "")
             .create();
     this.updateEvent(genericEvent);
     return this;
@@ -63,6 +66,7 @@ public class NIP65 extends EventNostr {
    * @param relayMarkerMap map from relay to permission marker
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP65 createRelayListMetadataEvent(@NonNull Map<Relay, Marker> relayMarkerMap) {
     List<BaseTag> relayUrlTags = new ArrayList<>();
     for (Map.Entry<Relay, Marker> entry : relayMarkerMap.entrySet()) {
@@ -70,7 +74,7 @@ public class NIP65 extends EventNostr {
     }
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.RELAY_LIST_METADATA_EVENT, relayUrlTags, "")
+                getSender(), Kind.RELAY_LIST_METADATA.getValue(), relayUrlTags, "")
             .create();
     this.updateEvent(genericEvent);
     return this;

@@ -225,3 +225,7 @@ data
 # Original versions of merged files
 *.orig
 /.qodana/
+/.claude/
+
+# Project management documents (local only)
+.project-management/

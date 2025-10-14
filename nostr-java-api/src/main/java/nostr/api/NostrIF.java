@@ -1,15 +1,16 @@
 package nostr.api;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import lombok.NonNull;
 import nostr.base.IEvent;
 import nostr.base.ISignable;
 import nostr.event.filter.Filters;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Core client interface for sending Nostr events and REQ messages to relays, signing and verifying

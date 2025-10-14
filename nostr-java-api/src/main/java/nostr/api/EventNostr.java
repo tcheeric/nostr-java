@@ -1,12 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -18,6 +11,10 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.id.Identity;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base helper for building, signing, and sending Nostr events over WebSocket.
@@ -79,7 +76,7 @@ public abstract class EventNostr extends NostrSpringWebSocketClient {
    * @param relays relay map (name -> URI)
    */
   public <U extends BaseMessage> U signAndSend(Map<String, String> relays) {
-    return (U) sign().send(relays);
+    return sign().send(relays);
   }
 
   /**

@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (used only for visibility)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+      CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check required secrets are present
+        if: ${{ env.CENTRAL_USERNAME == '' || env.CENTRAL_PASSWORD == '' || env.GPG_PRIVATE_KEY == '' || env.GPG_PASSPHRASE == '' }}
+        run: |
+          echo "One or more required secrets are missing: CENTRAL_USERNAME, CENTRAL_PASSWORD, GPG_PRIVATE_KEY, GPG_PASSPHRASE" >&2
+          exit 1
+
+      - name: Setup Java 21 with Maven Central credentials and GPG
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Validate GPG key import and passphrase
+        shell: bash
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "Listing imported secret keys (redacted):"
+          gpg --list-secret-keys --keyid-format=long || true
+          echo "Testing passphrase with a dummy signing operation..."
+          echo "ok" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -s >/dev/null || {
+            echo "GPG passphrase appears incorrect or not usable in CI." >&2
+            exit 1
+          }
+
+      - name: Make release script executable
+        run: chmod +x scripts/release.sh
+
+      - name: Validate tag matches project version
+        shell: bash
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          POM_VERSION=$(mvn -q -N help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "Tag: $TAG_NAME, POM: $POM_VERSION"
+          if [[ "$TAG_NAME" != "v${POM_VERSION}" ]]; then
+            echo "Tag name must be v<POM_VERSION>. Mismatch: $TAG_NAME vs v$POM_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Verify (skip Docker ITs)
+        run: scripts/release.sh verify --no-docker
+
+      - name: Publish to Central (release profile)
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: scripts/release.sh publish --no-docker --repo central
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-release
+          if-no-files-found: ignore
+          path: |
+            **/target/site/jacoco/**

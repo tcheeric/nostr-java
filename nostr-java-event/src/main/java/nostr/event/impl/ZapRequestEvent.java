@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -14,6 +13,8 @@ import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.RelaysTag;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapRequestEvent", nip = 57)
 @NoArgsConstructor
@@ -25,29 +26,37 @@ public class ZapRequestEvent extends GenericEvent {
   }
 
   public ZapRequest getZapRequest() {
-    BaseTag relaysTag = getTag("relays");
-    BaseTag amountTag = getTag("amount");
-    BaseTag lnUrlTag = getTag("lnurl");
+    RelaysTag relaysTag =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(RelaysTag.class, "relays", this);
+    String amount =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "amount", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
+    String lnurl =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "lnurl", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
 
-    return new ZapRequest(
-        (RelaysTag) relaysTag,
-        Long.parseLong(((GenericTag) amountTag).getAttributes().get(0).value().toString()),
-        ((GenericTag) lnUrlTag).getAttributes().get(0).value().toString());
+    return new ZapRequest(relaysTag, Long.parseLong(amount), lnurl);
   }
 
   public PublicKey getRecipientKey() {
-    return this.getTags().stream()
-        .filter(tag -> "p".equals(tag.getCode()))
-        .map(tag -> ((PubKeyTag) tag).getPublicKey())
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Recipient public key not found in tags"));
+    PubKeyTag p =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+            PubKeyTag.class, "p", this, "Recipient public key not found in tags");
+    return p.getPublicKey();
   }
 
   public String getEventId() {
-    return this.getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> ((GenericTag) tag).getAttributes().get(0).value().toString())
-        .findFirst()
+    return nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "e", this)
+        .map(tag -> tag.getAttributes().get(0).value().toString())
         .orElse(null);
   }
 
@@ -72,19 +81,28 @@ public class ZapRequestEvent extends GenericEvent {
 
     // Validate `tags` field
     // Check for required tags
-    boolean hasRecipientTag = this.getTags().stream().anyMatch(tag -> "p".equals(tag.getCode()));
+    boolean hasRecipientTag =
+        nostr.event.filter.Filterable
+            .firstTagOfTypeWithCode(PubKeyTag.class, "p", this)
+            .isPresent();
     if (!hasRecipientTag) {
       throw new AssertionError(
           "Invalid `tags`: Must include a `p` tag for the recipient's public key.");
     }
 
-    boolean hasAmountTag = this.getTags().stream().anyMatch(tag -> "amount".equals(tag.getCode()));
+    boolean hasAmountTag =
+        nostr.event.filter.Filterable
+            .firstTagOfTypeWithCode(GenericTag.class, "amount", this)
+            .isPresent();
     if (!hasAmountTag) {
       throw new AssertionError(
           "Invalid `tags`: Must include an `amount` tag specifying the amount in millisatoshis.");
     }
 
-    boolean hasLnUrlTag = this.getTags().stream().anyMatch(tag -> "lnurl".equals(tag.getCode()));
+    boolean hasLnUrlTag =
+        nostr.event.filter.Filterable
+            .firstTagOfTypeWithCode(GenericTag.class, "lnurl", this)
+            .isPresent();
     if (!hasLnUrlTag) {
       throw new AssertionError(
           "Invalid `tags`: Must include an `lnurl` tag containing the Lightning Network URL.");

@@ -1,11 +1,11 @@
 package nostr.event.json.codec;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import nostr.base.IDecoder;
 import nostr.event.BaseTag;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 /**
  * @author eric
@@ -15,6 +15,8 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
 
   private final Class<T> clazz;
 
+  // Generics are erased at runtime; BaseTag.class is the default concrete target for decoding
+  @SuppressWarnings("unchecked")
   public BaseTagDecoder() {
     this.clazz = (Class<T>) BaseTag.class;
   }
@@ -24,12 +26,12 @@ public class BaseTagDecoder<T extends BaseTag> implements IDecoder<T> {
    *
    * @param jsonString JSON representation of the tag
    * @return decoded tag
-   * @throws EventEncodingException if decoding fails
+   * @throws nostr.event.json.codec.EventEncodingException if decoding fails
    */
   @Override
   public T decode(String jsonString) throws EventEncodingException {
     try {
-      return MAPPER_BLACKBIRD.readValue(jsonString, clazz);
+      return mapper().readValue(jsonString, clazz);
     } catch (JsonProcessingException ex) {
       throw new EventEncodingException("Failed to decode tag", ex);
     }

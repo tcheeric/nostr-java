@@ -1,14 +1,16 @@
 package nostr.encryption;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import nostr.crypto.schnorr.Schnorr;
+import nostr.crypto.schnorr.SchnorrException;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MessageCipherTest {
 
   @Test
-  void testMessageCipher04EncryptDecrypt() throws Exception {
+  // Validates that MessageCipher04 encrypts and decrypts symmetrically
+  void testMessageCipher04EncryptDecrypt() throws SchnorrException {
     byte[] alicePriv = Schnorr.generatePrivateKey();
     byte[] alicePub = Schnorr.genPubKey(alicePriv);
     byte[] bobPriv = Schnorr.generatePrivateKey();
@@ -23,7 +25,8 @@ class MessageCipherTest {
   }
 
   @Test
-  void testMessageCipher44EncryptDecrypt() throws Exception {
+  // Validates that MessageCipher44 encrypts and decrypts symmetrically
+  void testMessageCipher44EncryptDecrypt() throws SchnorrException {
     byte[] alicePriv = Schnorr.generatePrivateKey();
     byte[] alicePub = Schnorr.genPubKey(alicePriv);
     byte[] bobPriv = Schnorr.generatePrivateKey();

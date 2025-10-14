@@ -1,11 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP52;
 import nostr.api.util.JsonComparator;
 import nostr.base.PrivateKey;
@@ -22,6 +16,13 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 class ApiNIP52EventIT extends BaseRelayIntegrationTest {
@@ -59,19 +60,19 @@ class ApiNIP52EventIT extends BaseRelayIntegrationTest {
     EventMessage message = new EventMessage(event);
 
     try (SpringWebSocketClient client = springWebSocketClient) {
-      var expectedJson = MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId()));
+      var expectedJson = mapper().readTree(expectedResponseJson(event.getId()));
       var actualJson =
-          MAPPER_BLACKBIRD.readTree(client.send(message).stream().findFirst().orElseThrow());
+          mapper().readTree(client.send(message).stream().findFirst().orElseThrow());
 
       // Compare only first 3 elements of the JSON arrays
       assertTrue(
           JsonComparator.isEquivalentJson(
-              MAPPER_BLACKBIRD
+              mapper()
                   .createArrayNode()
                   .add(expectedJson.get(0)) // OK Command
                   .add(expectedJson.get(1)) // event id
                   .add(expectedJson.get(2)), // Accepted?
-              MAPPER_BLACKBIRD
+              mapper()
                   .createArrayNode()
                   .add(actualJson.get(0))
                   .add(actualJson.get(1))

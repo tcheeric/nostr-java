@@ -1,12 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.List;
 import nostr.api.NIP01;
 import nostr.event.BaseTag;
 import nostr.event.entities.UserProfile;
@@ -21,6 +14,14 @@ import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import nostr.util.NostrException;
 import org.junit.jupiter.api.Test;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class NIP01Test {
 

@@ -1,25 +1,26 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.api.WebSocketClientHandler;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 public class NostrSpringWebSocketClientTest {
 
   private static class TestClient extends NostrSpringWebSocketClient {
     @Override
-    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri) {
+    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, nostr.base.RelayUri relayUri) {
       try {
-        return createHandler(relayName, relayUri);
+        return createHandler(relayName, relayUri.toString());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -39,7 +40,7 @@ public class NostrSpringWebSocketClientTest {
 
     Field relayUri = WebSocketClientHandler.class.getDeclaredField("relayUri");
     relayUri.setAccessible(true);
-    relayUri.set(handler, uri);
+    relayUri.set(handler, new nostr.base.RelayUri(uri));
 
     Field eventClient = WebSocketClientHandler.class.getDeclaredField("eventClient");
     eventClient.setAccessible(true);
@@ -56,27 +57,30 @@ public class NostrSpringWebSocketClientTest {
   void testMultipleSubscriptionsDoNotOverwriteHandlers() throws Exception {
     NostrSpringWebSocketClient client = new TestClient();
 
-    Field field = NostrSpringWebSocketClient.class.getDeclaredField("clientMap");
-    field.setAccessible(true);
+    Field registryField = NostrSpringWebSocketClient.class.getDeclaredField("relayRegistry");
+    registryField.setAccessible(true);
+    nostr.api.client.NostrRelayRegistry registry =
+        (nostr.api.client.NostrRelayRegistry) registryField.get(client);
+
     @SuppressWarnings("unchecked")
-    Map<String, WebSocketClientHandler> map =
-        (Map<String, WebSocketClientHandler>) field.get(client);
+    Map<String, WebSocketClientHandler> map = registry.getClientMap();
 
     map.put("relayA", createHandler("relayA", "ws://a"));
     map.put("relayB", createHandler("relayB", "ws://b"));
 
     Method method =
-        NostrSpringWebSocketClient.class.getDeclaredMethod("createRequestClient", String.class);
+        nostr.api.client.NostrRelayRegistry.class.getDeclaredMethod(
+            "ensureRequestClients", nostr.base.SubscriptionId.class);
     method.setAccessible(true);
 
-    method.invoke(client, "sub1");
+    method.invoke(registry, nostr.base.SubscriptionId.of("sub1"));
     assertEquals(4, map.size());
     WebSocketClientHandler handlerA1 = map.get("relayA:sub1");
     WebSocketClientHandler handlerB1 = map.get("relayB:sub1");
     assertNotNull(handlerA1);
     assertNotNull(handlerB1);
 
-    method.invoke(client, "sub2");
+    method.invoke(registry, nostr.base.SubscriptionId.of("sub2"));
     assertEquals(6, map.size());
     assertSame(handlerA1, map.get("relayA:sub1"));
     assertSame(handlerB1, map.get("relayB:sub1"));

@@ -1,14 +1,15 @@
 package nostr.event.filter;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
 import nostr.base.Kind;
 import nostr.event.impl.GenericEvent;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 @EqualsAndHashCode(callSuper = true)
 public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
@@ -25,7 +26,7 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
 
   @Override
   public void addToArrayNode(ArrayNode arrayNode) {
-    arrayNode.addAll(MAPPER_BLACKBIRD.createArrayNode().add(getFilterableValue()));
+    arrayNode.addAll(mapper().createArrayNode().add(getFilterableValue()));
   }
 
   @Override

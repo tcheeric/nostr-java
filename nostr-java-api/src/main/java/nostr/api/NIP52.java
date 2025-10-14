@@ -1,5 +1,23 @@
 package nostr.api;
 
+import lombok.NonNull;
+import nostr.api.factory.impl.BaseTagFactory;
+import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
+import nostr.config.Constants;
+import nostr.event.BaseTag;
+import nostr.event.entities.CalendarContent;
+import nostr.event.entities.CalendarRsvpContent;
+import nostr.event.impl.GenericEvent;
+import nostr.event.tag.EventTag;
+import nostr.event.tag.GeohashTag;
+import nostr.id.Identity;
+import org.apache.commons.lang3.stream.Streams;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
 import static nostr.api.NIP01.createIdentifierTag;
 import static nostr.api.NIP23.createImageTag;
 import static nostr.api.NIP23.createSummaryTag;
@@ -7,25 +25,9 @@ import static nostr.api.NIP23.createTitleTag;
 import static nostr.api.NIP99.createLocationTag;
 import static nostr.api.NIP99.createStatusTag;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import lombok.NonNull;
-import nostr.api.factory.impl.BaseTagFactory;
-import nostr.api.factory.impl.GenericEventFactory;
-import nostr.config.Constants;
-import nostr.event.BaseTag;
-import nostr.event.entities.CalendarContent;
-import nostr.event.entities.CalendarRsvpContent;
-import nostr.event.impl.GenericEvent;
-import nostr.event.tag.GenericTag;
-import nostr.event.tag.GeohashTag;
-import nostr.id.Identity;
-import org.apache.commons.lang3.stream.Streams;
-
 /**
  * NIP-52 helpers (Calendar Events). Build time/date-based calendar events and RSVP.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/52.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/52.md">NIP-52</a>
  */
 public class NIP52 extends EventNostr {
   public NIP52(@NonNull Identity sender) {
@@ -40,6 +42,7 @@ public class NIP52 extends EventNostr {
    * @param calendarContent the structured calendar content (identifier, title, start, etc.)
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createCalendarTimeBasedEvent(
       @NonNull List<BaseTag> baseTags,
       @NonNull String content,
@@ -47,7 +50,7 @@ public class NIP52 extends EventNostr {
 
     GenericEvent genericEvent =
         new GenericEventFactory(
-                getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, baseTags, content)
+                getSender(), Kind.CALENDAR_TIME_BASED_EVENT.getValue(), baseTags, content)
             .create();
 
     genericEvent.addTag(calendarContent.getIdentifierTag());
@@ -82,11 +85,12 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createCalendarRsvpEvent(
       @NonNull String content, @NonNull CalendarRsvpContent calendarRsvpContent) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CALENDAR_EVENT_RSVP, content).create();
+        new GenericEventFactory(getSender(), Kind.CALENDAR_RSVP_EVENT.getValue(), content).create();
 
     //        mandatory tags
     genericEvent.addTag(calendarRsvpContent.getIdentifierTag());
@@ -110,11 +114,12 @@ public class NIP52 extends EventNostr {
    * @param calendarContent the structured calendar content (identifier, title, dates)
    * @return this instance for chaining
    */
+  @SuppressWarnings({"rawtypes","unchecked"})
   public NIP52 createDateBasedCalendarEvent(
       @NonNull String content, @NonNull CalendarContent<BaseTag> calendarContent) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.TIME_BASED_CALENDAR_CONTENT, content)
+        new GenericEventFactory(getSender(), Kind.CALENDAR_DATE_BASED_EVENT.getValue(), content)
             .create();
 
     //        mandatory tags
@@ -171,11 +176,7 @@ public class NIP52 extends EventNostr {
     return this;
   }
 
-  public NIP52 addEventTag(@NonNull GenericTag eventTag) {
-    if (!Constants.Tag.EVENT_CODE.equals(eventTag.getCode())) { // Sanity check
-      throw new IllegalArgumentException("tag must be of type EventTag");
-    }
-
+  public NIP52 addEventTag(@NonNull EventTag eventTag) {
     addTag(eventTag);
     return this;
   }

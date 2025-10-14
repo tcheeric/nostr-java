@@ -1,16 +1,19 @@
 package nostr.event.impl;
 
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import nostr.base.Kind;
 import nostr.base.Marker;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
+import nostr.base.json.EventJsonMapper;
 import nostr.event.BaseTag;
 import nostr.event.entities.ChannelProfile;
+import nostr.event.json.codec.EventEncodingException;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.HashtagTag;
+
+import java.util.List;
 
 /**
  * @author guilhermegps
@@ -23,10 +26,13 @@ public class ChannelMetadataEvent extends GenericEvent {
     super(pubKey, Kind.CHANNEL_METADATA, baseTagList, content);
   }
 
-  @SneakyThrows
   public ChannelProfile getChannelProfile() {
     String content = getContent();
-    return MAPPER_BLACKBIRD.readValue(content, ChannelProfile.class);
+    try {
+      return EventJsonMapper.mapper().readValue(content, ChannelProfile.class);
+    } catch (JsonProcessingException ex) {
+      throw new EventEncodingException("Failed to parse channel profile content", ex);
+    }
   }
 
   @Override
@@ -47,25 +53,21 @@ public class ChannelMetadataEvent extends GenericEvent {
       if (profile.getPicture() == null) {
         throw new AssertionError("Invalid `content`: `picture` field is required.");
       }
-    } catch (Exception e) {
+    } catch (EventEncodingException e) {
       throw new AssertionError("Invalid `content`: Must be a valid ChannelProfile JSON object.", e);
     }
   }
 
   public String getChannelCreateEventId() {
-    return getTags().stream()
-        .filter(tag -> "e".equals(tag.getCode()))
-        .map(tag -> (EventTag) tag)
-        .filter(tag -> tag.getMarker() == Marker.ROOT)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(EventTag.class, this).stream()
+        .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
         .map(EventTag::getIdEvent)
         .findFirst()
         .orElseThrow();
   }
 
   public List<String> getCategories() {
-    return getTags().stream()
-        .filter(tag -> "t".equals(tag.getCode()))
-        .map(tag -> (HashtagTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(HashtagTag.class, this).stream()
         .map(HashtagTag::getHashTag)
         .toList();
   }
@@ -75,10 +77,10 @@ public class ChannelMetadataEvent extends GenericEvent {
 
     // Check 'e' root - tag
     EventTag rootTag =
-        getTags().stream()
-            .filter(tag -> "e".equals(tag.getCode()))
-            .map(tag -> (EventTag) tag)
-            .filter(tag -> tag.getMarker() == Marker.ROOT)
+        nostr.event.filter.Filterable
+            .getTypeSpecificTags(EventTag.class, this)
+            .stream()
+            .filter(tag -> tag.getMarkerOptional().filter(m -> m == Marker.ROOT).isPresent())
             .findFirst()
             .orElseThrow(() -> new AssertionError("Missing or invalid `e` root tag."));
   }

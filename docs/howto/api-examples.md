@@ -33,7 +33,7 @@ private static final Map<String, String> RELAYS = Map.of("local", "localhost:555
 
 **For testing**, you can:
 - Use a local relay (e.g., [nostr-rs-relay](https://github.com/scsibug/nostr-rs-relay))
-- Replace with public relays: `Map.of("damus", "wss://relay.398ja.xyz")`
+- Replace with public relays: `Map.of("398ja", "wss://relay.398ja.xyz")`
 
 ---
 
@@ -644,7 +644,7 @@ private static final Map<String, String> RELAYS =
 
 // Use public relays
 private static final Map<String, String> RELAYS = Map.of(
-    "damus", "wss://relay.398ja.xyz",
+    "398ja", "wss://relay.398ja.xyz",
     "nos", "wss://nos.lol"
 );
 ```

@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
@@ -9,6 +8,8 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.NIP01Event;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 /**
  * @author squirrel
@@ -23,16 +24,11 @@ public class TextNoteEvent extends NIP01Event {
   }
 
   public List<PubKeyTag> getRecipientPubkeyTags() {
-    return this.getTags().stream()
-        .filter(tag -> tag instanceof PubKeyTag)
-        .map(tag -> (PubKeyTag) tag)
-        .toList();
+    return nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this);
   }
 
   public List<PublicKey> getRecipients() {
-    return this.getTags().stream()
-        .filter(tag -> tag instanceof PubKeyTag)
-        .map(tag -> (PubKeyTag) tag)
+    return nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).stream()
         .map(PubKeyTag::getPublicKey)
         .toList();
   }

@@ -1,11 +1,10 @@
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.math.BigDecimal;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +14,11 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+
+/** Represents a 'price' tag (NIP-99). */
 @Builder
 @Data
 @Tag(code = "price", nip = 99)
@@ -30,14 +34,22 @@ public class PriceTag extends BaseTag {
 
   @Key @JsonProperty private String currency;
 
-  @Key @JsonProperty private String frequency;
+  @Key
+  @JsonProperty
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String frequency;
 
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  /** Optional accessor for frequency. */
+  public Optional<String> getFrequencyOptional() {
+    return Optional.ofNullable(frequency);
+  }
+
+  public static PriceTag deserialize(@NonNull JsonNode node) {
     PriceTag tag = new PriceTag();
     setRequiredField(node.get(1), (n, t) -> tag.setNumber(new BigDecimal(n.asText())), tag);
     setOptionalField(node.get(2), (n, t) -> tag.setCurrency(n.asText()), tag);
     setOptionalField(node.get(3), (n, t) -> tag.setFrequency(n.asText()), tag);
-    return (T) tag;
+    return tag;
   }
 
   @Override
@@ -63,14 +75,12 @@ public class PriceTag extends BaseTag {
     if (genericTag.getAttributes().size() < 2 || genericTag.getAttributes().size() > 3) {
       throw new IllegalArgumentException("Invalid number of attributes for PriceTag");
     }
-
-    PriceTag tag = new PriceTag();
-    tag.setNumber(new BigDecimal(genericTag.getAttributes().get(0).value().toString()));
-    tag.setCurrency(genericTag.getAttributes().get(1).value().toString());
-
-    if (genericTag.getAttributes().size() > 2) {
-      tag.setFrequency(genericTag.getAttributes().get(2).value().toString());
-    }
-    return tag;
+    BigDecimal number = new BigDecimal(genericTag.getAttributes().get(0).value().toString());
+    String currency = genericTag.getAttributes().get(1).value().toString();
+    String frequency =
+        genericTag.getAttributes().size() > 2
+            ? genericTag.getAttributes().get(2).value().toString()
+            : null;
+    return new PriceTag(number, currency, frequency);
   }
 }

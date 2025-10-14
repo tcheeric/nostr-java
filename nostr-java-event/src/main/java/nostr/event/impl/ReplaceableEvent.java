@@ -1,13 +1,16 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import nostr.base.Kind;
+import nostr.base.NipConstants;
 import nostr.base.PublicKey;
 import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.NIP01Event;
+
+import java.util.List;
 
 /**
  * @author squirrel
@@ -25,9 +28,19 @@ public class ReplaceableEvent extends NIP01Event {
   @Override
   protected void validateKind() {
     var n = getKind();
-    if ((10_000 <= n && n < 20_000) || n == 0 || n == 3) return;
+    if ((NipConstants.REPLACEABLE_KIND_MIN <= n && n < NipConstants.REPLACEABLE_KIND_MAX)
+        || n == Kind.SET_METADATA.getValue()
+        || n == Kind.CONTACT_LIST.getValue()) {
+      return;
+    }
 
     throw new AssertionError(
-        "Invalid kind value. Must be between 10000 and 20000 or egual 0 or 3", null);
+        "Invalid kind value. Must be between %d and %d or equal %d or %d"
+            .formatted(
+                NipConstants.REPLACEABLE_KIND_MIN,
+                NipConstants.REPLACEABLE_KIND_MAX,
+                Kind.SET_METADATA.getValue(),
+                Kind.CONTACT_LIST.getValue()),
+        null);
   }
 }

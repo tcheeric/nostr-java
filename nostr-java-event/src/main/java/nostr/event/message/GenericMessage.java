@@ -1,12 +1,8 @@
 package nostr.event.message;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -14,7 +10,11 @@ import nostr.base.ElementAttribute;
 import nostr.base.IElement;
 import nostr.base.IGenericElement;
 import nostr.event.BaseMessage;
+import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author squirrel
@@ -52,12 +52,13 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         .map(ElementAttribute::value)
         .forEach(v -> encoderArrayNode.add(v.toString()));
     try {
-      return ENCODER_MAPPER_BLACKBIRD.writeValueAsString(encoderArrayNode);
+      return EventJsonMapper.getMapper().writeValueAsString(encoderArrayNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode generic message", e);
     }
   }
 
+  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
   public static <T extends BaseMessage> T decode(@NonNull Object[] msgArr) {
     GenericMessage gm = new GenericMessage(msgArr[0].toString());
     for (int i = 1; i < msgArr.length; i++) {
@@ -65,6 +66,8 @@ public class GenericMessage extends BaseMessage implements IGenericElement, IEle
         gm.addAttribute(new ElementAttribute(null, msgArr[i]));
       }
     }
-    return (T) gm;
+    @SuppressWarnings("unchecked")
+    T result = (T) gm;
+    return result;
   }
 }

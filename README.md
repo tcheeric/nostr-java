@@ -1,8 +1,10 @@
 # nostr-java
 [![CI](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
+[![CI Matrix: docker + no-docker](https://img.shields.io/badge/CI%20Matrix-docker%20%2B%20no--docker-blue)](https://github.com/tcheeric/nostr-java/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/tcheeric/nostr-java/branch/main/graph/badge.svg)](https://codecov.io/gh/tcheeric/nostr-java)
 [![GitHub release](https://img.shields.io/github/v/release/tcheeric/nostr-java)](https://github.com/tcheeric/nostr-java/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Qodana](https://github.com/tcheeric/nostr-java/actions/workflows/qodana_code_quality.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/qodana_code_quality.yml)
 
 `nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
 
@@ -12,9 +14,26 @@
 
 See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
+## Running Tests
+
+- Full test suite (requires Docker for Testcontainers ITs):
+
+  `mvn -q verify`
+
+- Without Docker (skips Testcontainers-based integration tests via profile):
+
+  `mvn -q -Pno-docker verify`
+
+The `no-docker` profile excludes tests under `**/nostr/api/integration/**` and sets `noDocker=true` for conditional test disabling.
+
+## Troubleshooting
+
+For diagnosing relay send issues and capturing failure details, see the how‑to guide: [docs/howto/diagnostics.md](docs/howto/diagnostics.md).
+
 ## Documentation
 
 - Docs index: [docs/README.md](docs/README.md) — quick entry point to all guides and references.
+- Operations: [docs/operations/README.md](docs/operations/README.md) — logging, metrics, configuration, diagnostics.
 - Getting started: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — install via Maven/Gradle and build from source.
 - API how‑to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish basic events.
 - Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long‑lived, non‑blocking subscriptions.
@@ -33,29 +52,82 @@ Examples are located in the [`nostr-java-examples`](./nostr-java-examples) modul
 
 - [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java) – Shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a fixed duration.
  
+## Features
+
+- ✅ **Clean Architecture** - Modular design following SOLID principles
+- ✅ **Comprehensive NIP Support** - 25 NIPs implemented covering core protocol, encryption, payments, and more
+- ✅ **Type-Safe API** - Strongly-typed events, tags, and messages with builder patterns
+- ✅ **Non-Blocking Subscriptions** - Spring WebSocket client with reactive streaming support
+- ✅ **Well-Documented** - Extensive JavaDoc, architecture guides, and code examples
+- ✅ **Production-Ready** - High test coverage, CI/CD pipeline, code quality checks
+
+## Recent Improvements (v1.0.0)
+
+🎯 **API Cleanup & Removals (breaking)**
+- Deprecated APIs removed: `Constants.Kind`, `Encoder.ENCODER_MAPPER_BLACKBIRD`, and NIP01 Identity-based overloads
+- NIP01 now exclusively uses the instance-configured sender; builder simplified accordingly
+
+🚀 **Performance & Serialization**
+- Centralized JSON mapper via `nostr.event.json.EventJsonMapper` (Blackbird module); unified across event encoders
+
+📚 **Documentation & Structure**
+- Migration guide updated for 1.0.0 removals and replacements
+- Troubleshooting moved to dedicated how‑to: `docs/howto/diagnostics.md`
+- README streamlined to focus on users; maintainer topics moved under docs
+
+🛠️ **Build & Release Tooling**
+- CI workflow split for Docker vs no‑Docker runs
+- Release automation (`scripts/release.sh`) with bump/tag/verify/publish steps
+
+See [docs/explanation/architecture.md](docs/explanation/architecture.md) for detailed architecture overview.
+
 ## Supported NIPs
-The API currently implements the following [NIPs](https://github.com/nostr-protocol/nips):
-- [NIP-1](https://github.com/nostr-protocol/nips/blob/master/01.md) - Basic protocol flow description
-- [NIP-2](https://github.com/nostr-protocol/nips/blob/master/02.md) - Follow List
-- [NIP-3](https://github.com/nostr-protocol/nips/blob/master/03.md) - OpenTimestamps Attestations for Events
-- [NIP-4](https://github.com/nostr-protocol/nips/blob/master/04.md) - Encrypted Direct Message
-- [NIP-5](https://github.com/nostr-protocol/nips/blob/master/05.md) - Mapping Nostr keys to DNS-based internet identifiers
-- [NIP-8](https://github.com/nostr-protocol/nips/blob/master/08.md) - Handling Mentions
-- [NIP-9](https://github.com/nostr-protocol/nips/blob/master/09.md) - Event Deletion Request
-- [NIP-12](https://github.com/nostr-protocol/nips/blob/master/12.md) - Generic Tag Queries
-- [NIP-14](https://github.com/nostr-protocol/nips/blob/master/14.md) - Subject tag in Text events
-- [NIP-15](https://github.com/nostr-protocol/nips/blob/master/15.md) - Nostr Marketplace
-- [NIP-20](https://github.com/nostr-protocol/nips/blob/master/20.md) - Command Results
-- [NIP-23](https://github.com/nostr-protocol/nips/blob/master/23.md) - Long-form Content
-- [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) - Reactions
-- [NIP-28](https://github.com/nostr-protocol/nips/blob/master/28.md) - Public Chat
-- [NIP-30](https://github.com/nostr-protocol/nips/blob/master/30.md) - Custom Emoji
-- [NIP-32](https://github.com/nostr-protocol/nips/blob/master/32.md) - Labeling
-- [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md) - Expiration Timestamp
-- [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) - Authentication of clients to relays
-- [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) - Encrypted Payloads (Versioned)
-- [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md) - Nostr Remote Signing
-- [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md) - Lightning Zaps
-- [NIP-60](https://github.com/nostr-protocol/nips/blob/master/60.md) - Cashu Wallets
-- [NIP-61](https://github.com/nostr-protocol/nips/blob/master/61.md) - Nutzaps
-- [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) - Classified Listings
+
+**25 NIPs implemented** - comprehensive coverage of core protocol, security, and advanced features.
+
+### NIP Compliance Matrix
+
+| Category | NIP | Description | Status |
+|----------|-----|-------------|--------|
+| **Core Protocol** | [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) | Basic protocol flow | ✅ Complete |
+| | [NIP-02](https://github.com/nostr-protocol/nips/blob/master/02.md) | Follow List | ✅ Complete |
+| | [NIP-12](https://github.com/nostr-protocol/nips/blob/master/12.md) | Generic Tag Queries | ✅ Complete |
+| | [NIP-19](https://github.com/nostr-protocol/nips/blob/master/19.md) | Bech32 encoding | ✅ Complete |
+| | [NIP-20](https://github.com/nostr-protocol/nips/blob/master/20.md) | Command Results | ✅ Complete |
+| **Security & Identity** | [NIP-05](https://github.com/nostr-protocol/nips/blob/master/05.md) | DNS-based identifiers | ✅ Complete |
+| | [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) | Client authentication | ✅ Complete |
+| | [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md) | Remote signing | ✅ Complete |
+| **Encryption** | [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) | Encrypted DMs | ✅ Complete |
+| | [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) | Versioned encryption | ✅ Complete |
+| **Content Types** | [NIP-08](https://github.com/nostr-protocol/nips/blob/master/08.md) | Handling Mentions | ✅ Complete |
+| | [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) | Event Deletion | ✅ Complete |
+| | [NIP-14](https://github.com/nostr-protocol/nips/blob/master/14.md) | Subject tags | ✅ Complete |
+| | [NIP-23](https://github.com/nostr-protocol/nips/blob/master/23.md) | Long-form content | ✅ Complete |
+| | [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) | Reactions | ✅ Complete |
+| | [NIP-28](https://github.com/nostr-protocol/nips/blob/master/28.md) | Public Chat | ✅ Complete |
+| | [NIP-30](https://github.com/nostr-protocol/nips/blob/master/30.md) | Custom Emoji | ✅ Complete |
+| | [NIP-32](https://github.com/nostr-protocol/nips/blob/master/32.md) | Labeling | ✅ Complete |
+| | [NIP-52](https://github.com/nostr-protocol/nips/blob/master/52.md) | Calendar Events | ✅ Complete |
+| **Commerce & Payments** | [NIP-15](https://github.com/nostr-protocol/nips/blob/master/15.md) | Marketplace | ✅ Complete |
+| | [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md) | Lightning Zaps | ✅ Complete |
+| | [NIP-60](https://github.com/nostr-protocol/nips/blob/master/60.md) | Cashu Wallets | ✅ Complete |
+| | [NIP-61](https://github.com/nostr-protocol/nips/blob/master/61.md) | Nutzaps | ✅ Complete |
+| | [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) | Classified Listings | ✅ Complete |
+| **Utilities** | [NIP-03](https://github.com/nostr-protocol/nips/blob/master/03.md) | OpenTimestamps | ✅ Complete |
+| | [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md) | Expiration Timestamp | ✅ Complete |
+
+**Coverage:** 25/100+ NIPs (core protocol + most commonly used extensions)
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Coding standards and conventions
+- How to add new NIPs
+- Pull request guidelines
+- Testing requirements
+
+For architectural guidance, see [docs/explanation/architecture.md](docs/explanation/architecture.md).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

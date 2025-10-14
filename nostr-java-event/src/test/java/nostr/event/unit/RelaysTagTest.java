@@ -1,16 +1,17 @@
 package nostr.event.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import nostr.base.Relay;
 import nostr.event.BaseTag;
 import nostr.event.json.codec.BaseTagEncoder;
 import nostr.event.tag.RelaysTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RelaysTagTest {
 
@@ -34,7 +35,7 @@ class RelaysTagTest {
     final String EXPECTED = "[\"relays\",\"ws://localhost:5555\"]";
     assertDoesNotThrow(
         () -> {
-          JsonNode node = MAPPER_BLACKBIRD.readTree(EXPECTED);
+          JsonNode node = mapper().readTree(EXPECTED);
           BaseTag deserialize = RelaysTag.deserialize(node);
           assertEquals(RELAYS_KEY, deserialize.getCode());
           assertEquals(HOST_VALUE, ((RelaysTag) deserialize).getRelays().getFirst().getUri());

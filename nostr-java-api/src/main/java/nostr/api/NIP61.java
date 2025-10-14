@@ -1,17 +1,13 @@
 package nostr.api;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
-import nostr.event.entities.Amount;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.CashuProof;
 import nostr.event.entities.NutZap;
@@ -20,9 +16,14 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.tag.EventTag;
 import nostr.id.Identity;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
+
 /**
  * NIP-61 helpers (Cashu Nutzap). Build informational and payment events for Cashu zaps.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/61.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/61.md">NIP-61</a>
  */
 public class NIP61 extends EventNostr {
 
@@ -57,7 +58,7 @@ public class NIP61 extends EventNostr {
       @NonNull List<CashuMint> mints) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_INFO_EVENT).create();
+        new GenericEventFactory(getSender(), Kind.NUTZAP_INFORMATIONAL.getValue()).create();
 
     relays.forEach(relay -> genericEvent.addTag(NIP42.createRelayTag(relay)));
     mints.forEach(mint -> genericEvent.addTag(NIP60.createMintTag(mint)));
@@ -68,7 +69,6 @@ public class NIP61 extends EventNostr {
     return this;
   }
 
-  @SneakyThrows
   /**
    * Create a Nutzap event (kind 7374) from a structured payload.
    *
@@ -77,13 +77,17 @@ public class NIP61 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP61 createNutzapEvent(@NonNull NutZap nutZap, @NonNull String content) {
-
-    return createNutzapEvent(
-        nutZap.getProofs(),
-        URI.create(nutZap.getMint().getUrl()).toURL(),
-        nutZap.getNutZappedEvent(),
-        nutZap.getRecipient(),
-        content);
+    try {
+      return createNutzapEvent(
+          nutZap.getProofs(),
+          URI.create(nutZap.getMint().getUrl()).toURL(),
+          nutZap.getNutZappedEvent(),
+          nutZap.getRecipient(),
+          content);
+    } catch (MalformedURLException ex) {
+      throw new IllegalArgumentException(
+          "Invalid mint URL for Nutzap event: " + nutZap.getMint().getUrl(), ex);
+    }
   }
 
   /**
@@ -104,7 +108,7 @@ public class NIP61 extends EventNostr {
       @NonNull String content) {
 
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_EVENT, content).create();
+        new GenericEventFactory(getSender(), Kind.NUTZAP.getValue(), content).create();
 
     proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));
 
@@ -119,33 +123,7 @@ public class NIP61 extends EventNostr {
     return this;
   }
 
-  @Deprecated
-  public NIP61 createNutzapEvent(
-      @NonNull Amount amount,
-      List<CashuProof> proofs,
-      @NonNull URL url,
-      List<EventTag> events,
-      @NonNull PublicKey recipient,
-      @NonNull String content) {
-
-    GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.CASHU_NUTZAP_EVENT, content).create();
-
-    if (proofs != null) {
-      proofs.forEach(proof -> genericEvent.addTag(NIP61.createProofTag(proof)));
-    }
-    if (events != null) {
-      events.forEach(event -> genericEvent.addTag(event));
-    }
-    genericEvent.addTag(NIP61.createUrlTag(url.toString()));
-    genericEvent.addTag(NIP60.createAmountTag(amount));
-    genericEvent.addTag(NIP60.createUnitTag(amount.getUnit()));
-    genericEvent.addTag(NIP01.createPubKeyTag(recipient));
-
-    updateEvent(genericEvent);
-
-    return this;
-  }
+  
 
   /**
    * Create a {@code p2pk} tag.

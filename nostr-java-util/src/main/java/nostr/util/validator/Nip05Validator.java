@@ -4,6 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import nostr.util.NostrException;
+import nostr.util.http.DefaultHttpClientProvider;
+import nostr.util.http.HttpClientProvider;
+
 import java.io.IOException;
 import java.net.IDN;
 import java.net.URI;
@@ -17,12 +24,6 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import nostr.util.NostrException;
-import nostr.util.http.DefaultHttpClientProvider;
-import nostr.util.http.HttpClientProvider;
 
 /**
  * Validator for NIP-05 identifiers.
@@ -43,7 +44,7 @@ public class Nip05Validator {
   @Builder.Default @JsonIgnore
   private final HttpClientProvider httpClientProvider = new DefaultHttpClientProvider();
 
-  private static final Pattern LOCAL_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9-_\\.]+$");
+  private static final Pattern LOCAL_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9-_.]+$");
   private static final Pattern DOMAIN_PATTERN = Pattern.compile("^[A-Za-z0-9.-]+(:\\d{1,5})?$");
   private static final ObjectMapper MAPPER_BLACKBIRD =
       JsonMapper.builder().addModule(new BlackbirdModule()).build();

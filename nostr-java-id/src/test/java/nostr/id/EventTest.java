@@ -1,13 +1,5 @@
 package nostr.id;
 
-import static nostr.base.Encoder.ENCODER_MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.ElementAttribute;
 import nostr.base.PublicKey;
@@ -24,6 +16,14 @@ import nostr.util.validator.Nip05Validator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author squirrel
  */
@@ -34,7 +34,6 @@ public class EventTest {
 
   @Test
   public void testCreateTextNoteEvent() {
-    log.info("testCreateTextNoteEvent");
     PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
     GenericEvent instance = EntityFactory.Events.createTextNoteEvent(publicKey);
     instance.update();
@@ -51,7 +50,6 @@ public class EventTest {
 
   @Test
   public void testCreateGenericTag() {
-    log.info("testCreateGenericTag");
     PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
     GenericTag genericTag = EntityFactory.Events.createGenericTag(publicKey);
 
@@ -60,16 +58,16 @@ public class EventTest {
 
     assertDoesNotThrow(
         () -> {
-          BaseTag tag = ENCODER_MAPPER_BLACKBIRD.readValue(strJsonEvent, BaseTag.class);
+          BaseTag tag = mapper().readValue(strJsonEvent, BaseTag.class);
           assertEquals(genericTag, tag);
         });
   }
 
   @Test
   public void testCreateUnsupportedGenericTagAttribute() {
-    /**
-     * test of this functionality relocated to nostr-java-api {@link
-     * nostr.api.integration.ApiEventIT#testCreateUnsupportedGenericTagAttribute()}
+    /*
+     * Test of this functionality relocated to nostr-java-api:
+     * see nostr.api.integration.ApiEventIT#testCreateUnsupportedGenericTagAttribute()
      */
   }
 
@@ -104,7 +102,6 @@ public class EventTest {
 
   @Test
   public void testEventIdConstraints() {
-    log.info("testCreateTextNoteEvent");
     PublicKey publicKey = Identity.generateRandomIdentity().getPublicKey();
     GenericEvent genericEvent = EntityFactory.Events.createTextNoteEvent(publicKey);
     String id64chars = "fc7f200c5bed175702bd06c7ca5dba90d3497e827350b42fc99c3a4fa276a712";

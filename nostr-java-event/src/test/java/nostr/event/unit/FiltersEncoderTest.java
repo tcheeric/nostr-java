@@ -1,12 +1,5 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.GenericTagQuery;
 import nostr.base.Kind;
@@ -35,12 +28,19 @@ import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @Slf4j
 public class FiltersEncoderTest {
 
   @Test
   public void testEventFilterEncoder() {
-    log.info("testEventFilterEncoder");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
@@ -53,7 +53,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleEventFilterEncoder() {
-    log.info("testMultipleEventFilterEncoder");
 
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -71,7 +70,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testKindFiltersEncoder() {
-    log.info("testKindFiltersEncoder");
 
     Kind kind = Kind.valueOf(1);
     FiltersEncoder encoder = new FiltersEncoder(new Filters(new KindFilter<>(kind)));
@@ -82,7 +80,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testAuthorFilterEncoder() {
-    log.info("testAuthorFilterEncoder");
 
     String pubKeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     FiltersEncoder encoder =
@@ -94,7 +91,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleAuthorFilterEncoder() {
-    log.info("testMultipleAuthorFilterEncoder");
 
     String pubKeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String pubKeyString2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -113,7 +109,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleKindFiltersEncoder() {
-    log.info("testMultipleKindFiltersEncoder");
 
     Kind kind1 = Kind.valueOf(1);
     Kind kind2 = Kind.valueOf(2);
@@ -128,7 +123,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testAddressableTagFilterEncoder() {
-    log.info("testAddressableTagFilterEncoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -148,7 +142,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testIdentifierTagFilterEncoder() {
-    log.info("testIdentifierTagFilterEncoder");
 
     String uuidValue1 = "UUID-1";
 
@@ -160,7 +153,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleIdentifierTagFilterEncoder() {
-    log.info("testMultipleIdentifierTagFilterEncoder");
 
     String uuidValue1 = "UUID-1";
     String uuidValue2 = "UUID-2";
@@ -179,7 +171,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testReferencedEventFilterEncoder() {
-    log.info("testReferencedEventFilterEncoder");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
@@ -191,7 +182,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleReferencedEventFilterEncoder() {
-    log.info("testMultipleReferencedEventFilterEncoder");
 
     String eventId1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String eventId2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -210,7 +200,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testReferencedPublicKeyFilterEncoder() {
-    log.info("testReferencedPublicKeyFilterEncoder");
 
     String pubKeyString = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
@@ -225,7 +214,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleReferencedPublicKeyFilterEncoder() {
-    log.info("testMultipleReferencedPublicKeyFilterEncoder");
 
     String pubKeyString1 = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     String pubKeyString2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -243,7 +231,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testSingleGeohashTagFiltersEncoder() {
-    log.info("testSingleGeohashTagFiltersEncoder");
 
     String new_geohash = "2vghde";
 
@@ -256,7 +243,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleGeohashTagFiltersEncoder() {
-    log.info("testMultipleGenericTagFiltersEncoder");
 
     String geohashValue1 = "2vghde";
     String geohashValue2 = "3abcde";
@@ -273,7 +259,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testSingleHashtagTagFiltersEncoder() {
-    log.info("testSingleHashtagTagFiltersEncoder");
 
     String hashtag_target = "2vghde";
 
@@ -286,7 +271,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleHashtagTagFiltersEncoder() {
-    log.info("testMultipleHashtagTagFiltersEncoder");
 
     String hashtagValue1 = "2vghde";
     String hashtagValue2 = "3abcde";
@@ -303,7 +287,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testSingleCustomGenericTagQueryFiltersEncoder() {
-    log.info("testSingleCustomGenericTagQueryFiltersEncoder");
 
     String customKey = "#b";
     String customValue = "2vghde";
@@ -318,7 +301,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleCustomGenericTagQueryFiltersEncoder() {
-    log.info("testMultipleCustomGenericTagQueryFiltersEncoder");
 
     String customKey = "#b";
     String customValue1 = "2vghde";
@@ -336,7 +318,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testMultipleAddressableTagFilterEncoder() {
-    log.info("testMultipleAddressableTagFilterEncoder");
 
     Integer kind = 1;
     String author = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
@@ -367,7 +348,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testSinceFiltersEncoder() {
-    log.info("testSinceFiltersEncoder");
 
     Long since = Date.from(Instant.now()).getTime();
 
@@ -378,7 +358,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testUntilFiltersEncoder() {
-    log.info("testUntilFiltersEncoder");
 
     Long until = Date.from(Instant.now()).getTime();
 
@@ -389,7 +368,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testReqMessageEmptyFilters() {
-    log.info("testReqMessageEmptyFilters");
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
 
     assertThrows(
@@ -399,7 +377,6 @@ public class FiltersEncoderTest {
 
   @Test
   public void testReqMessageCustomGenericTagFilter() {
-    log.info("testReqMessageEmptyFilterKey");
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
 
     assertDoesNotThrow(

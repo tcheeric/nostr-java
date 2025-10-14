@@ -1,12 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import nostr.api.NIP52;
 import nostr.base.PublicKey;
 import nostr.client.springwebsocket.SpringWebSocketClient;
@@ -24,6 +17,14 @@ import nostr.event.tag.ReferenceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
@@ -111,7 +112,6 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
             .createCalendarTimeBasedEvent(tags, CALENDAR_CONTENT, calendarContent)
             .sign()
             .getEvent();
-    event.setCreatedAt(Long.valueOf(CREATED_AT));
     eventId = event.getId();
     signature = event.getSignature().toString();
     eventPubKey = event.getPubKey().toString();
@@ -124,21 +124,19 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
 
       // Extract and compare only first 3 elements of the JSON array
       var expectedArray =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(0).asText();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(0).asText();
       var expectedSubscriptionId =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(1).asText();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(1).asText();
       var expectedSuccess =
-          MAPPER_BLACKBIRD.readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
+          mapper().readTree(expectedEventResponseJson(event.getId())).get(2).asBoolean();
 
-      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
-      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
-      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
+      var actualArray = mapper().readTree(eventResponse).get(0).asText();
+      var actualSubscriptionId = mapper().readTree(eventResponse).get(1).asText();
+      var actualSuccess = mapper().readTree(eventResponse).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");
-      // assertTrue(expectedSuccess == actualSuccess, "Success flag should match"); -- This test is
-      // not required. The relay will always return false because we resending the same event,
-      // causing duplicates.
+      assertEquals(expectedSuccess, actualSuccess, "Success flag should match");
     }
 
     // TODO - This assertion fails with superdonductor and nostr-rs-relay
@@ -155,8 +153,8 @@ class ApiNIP52RequestIT extends BaseRelayIntegrationTest {
       /*
             assertTrue(
                 JsonComparator.isEquivalentJson(
-                    MAPPER_BLACKBIRD.readTree(expected),
-                    MAPPER_BLACKBIRD.readTree(reqResponse)));
+                    mapper().readTree(expected),
+                    mapper().readTree(reqResponse)));
       */
     }
   }

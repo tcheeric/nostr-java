@@ -1,7 +1,5 @@
 package nostr.id;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.function.Consumer;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
@@ -11,13 +9,17 @@ import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
 import nostr.base.Signature;
 import nostr.crypto.schnorr.Schnorr;
+import nostr.crypto.schnorr.SchnorrException;
 import nostr.util.NostrUtil;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.function.Consumer;
 
 /**
  * Represents a Nostr identity backed by a private key.
  *
- * <p>Instances of this class can derive the associated public key and sign arbitrary {@link
- * ISignable} objects.
+ * <p>Instances of this class can derive the associated public key and sign arbitrary
+ * {@link nostr.base.ISignable} objects.
  *
  * @author squirrel
  */
@@ -34,7 +36,7 @@ public class Identity {
   }
 
   /**
-   * Creates a new identity from an existing {@link PrivateKey}.
+   * Creates a new identity from an existing {@link nostr.base.PrivateKey}.
    *
    * @param privateKey the private key that will back the identity
    * @return a new identity using the provided key
@@ -66,7 +68,7 @@ public class Identity {
   }
 
   /**
-   * Derives the {@link PublicKey} associated with this identity's private key.
+   * Derives the {@link nostr.base.PublicKey} associated with this identity's private key.
    *
    * @return the derived public key
    * @throws IllegalStateException if public key generation fails
@@ -75,7 +77,10 @@ public class Identity {
     if (cachedPublicKey == null) {
       try {
         cachedPublicKey = new PublicKey(Schnorr.genPubKey(this.getPrivateKey().getRawData()));
-      } catch (Exception ex) {
+      } catch (IllegalArgumentException ex) {
+        log.error("Invalid private key while deriving public key", ex);
+        throw new IllegalStateException("Invalid private key", ex);
+      } catch (SchnorrException ex) {
         log.error("Failed to derive public key", ex);
         throw new IllegalStateException("Failed to derive public key", ex);
       }
@@ -84,8 +89,9 @@ public class Identity {
   }
 
   /**
-   * Signs the supplied {@link ISignable} using this identity's private key. The resulting {@link
-   * Signature} is returned and also provided to the signable's signature consumer.
+   * Signs the supplied {@link nostr.base.ISignable} using this identity's private key. The
+   * resulting {@link nostr.base.Signature} is returned and also provided to the signable's
+   * signature consumer.
    *
    * @param signable the entity to sign
    * @return the generated signature
@@ -109,7 +115,10 @@ public class Identity {
     } catch (NoSuchAlgorithmException ex) {
       log.error("SHA-256 algorithm not available for signing", ex);
       throw new IllegalStateException("SHA-256 algorithm not available", ex);
-    } catch (Exception ex) {
+    } catch (IllegalArgumentException ex) {
+      log.error("Invalid signing input", ex);
+      throw new SigningException("Failed to sign because of invalid input", ex);
+    } catch (SchnorrException ex) {
       log.error("Signing failed", ex);
       throw new SigningException("Failed to sign with provided key", ex);
     }

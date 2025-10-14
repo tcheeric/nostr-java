@@ -1,11 +1,12 @@
 package nostr.event;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
 import nostr.event.impl.GenericEvent;
+
+import java.util.List;
 
 /**
  * @author guilhermegps

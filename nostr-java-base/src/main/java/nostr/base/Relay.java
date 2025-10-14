@@ -2,8 +2,6 @@ package nostr.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author squirrel
@@ -24,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Relay {
 
-  @EqualsAndHashCode.Include @ToString.Include private String scheme;
+  @EqualsAndHashCode.Include @ToString.Include private final String scheme;
 
-  @EqualsAndHashCode.Include @ToString.Include private String host;
+  @EqualsAndHashCode.Include @ToString.Include private final String host;
 
-  private RelayInformationDocument informationDocument;
+  private final RelayInformationDocument informationDocument;
 
   public Relay(@NonNull String uri) {
     this(uri, new RelayInformationDocument());
@@ -94,12 +95,12 @@ public class Relay {
     @Builder.Default
     @JsonProperty("supported_nips")
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private List<Integer> supportedNips = new ArrayList<>();
+    private final List<Integer> supportedNips = new ArrayList<>();
 
     @Builder.Default
     @JsonProperty("supported_nip_extensions")
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private List<String> supportedNipExtensions = new ArrayList<>();
+    private final List<String> supportedNipExtensions = new ArrayList<>();
 
     @JsonProperty
     @JsonIgnoreProperties(ignoreUnknown = true)

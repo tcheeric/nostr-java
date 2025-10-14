@@ -1,7 +1,5 @@
 package nostr.api.factory.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -10,11 +8,20 @@ import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Factory for creating generic Nostr events with a specified kind.
+ *
+ * <p>Supports multiple construction paths (sender/content/tags) while ensuring a concrete
+ * {@code kind} is always provided.
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GenericEventFactory<T extends BaseTag> extends EventFactory<GenericEvent, T> {
 
-  private Integer kind;
+  private final Integer kind;
 
   /**
    * Create a factory for a given kind with no content and no sender.
@@ -60,9 +67,9 @@ public class GenericEventFactory<T extends BaseTag> extends EventFactory<Generic
   }
 
   /**
-   * Build a GenericEvent with the configured values.
+   * Build a {@link GenericEvent} with the configured values.
    *
-   * @return the new GenericEvent
+   * @return the newly created GenericEvent
    */
   public GenericEvent create() {
     return new GenericEvent(

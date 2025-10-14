@@ -1,11 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.NonNull;
 import nostr.api.NIP44;
 import nostr.api.NIP60;
@@ -27,6 +22,10 @@ import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
 
 public class NIP60Test {
 
@@ -53,8 +52,11 @@ public class NIP60Test {
     wallet.setBalance(100);
     wallet.setPrivateKey("hexkey");
     // wallet.setUnit("sat");
-    wallet.setMints(Set.of(mint1, mint2, mint3));
-    wallet.setRelays(Map.of("sat", Set.of(relay1, relay2)));
+    wallet.addMint(mint1);
+    wallet.addMint(mint2);
+    wallet.addMint(mint3);
+    wallet.addRelay("sat", relay1);
+    wallet.addRelay("sat", relay2);
 
     Identity sender = Identity.generateRandomIdentity();
     NIP60 nip60 = new NIP60(sender);
@@ -81,7 +83,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    GenericTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, GenericTag[].class);
+    GenericTag[] contentTags = mapper().readValue(decryptedContent, GenericTag[].class);
 
     // First tag should be balance
     Assertions.assertEquals("balance", contentTags[0].getCode());
@@ -107,7 +109,7 @@ public class NIP60Test {
     wallet.setBalance(100);
     wallet.setPrivateKey("hexkey");
     // wallet.setUnit("sat");
-    wallet.setMints(Set.of(mint));
+    wallet.addMint(mint);
 
     CashuProof proof = new CashuProof();
     proof.setId("005c2502034d4f12");
@@ -141,7 +143,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    CashuToken contentToken = MAPPER_BLACKBIRD.readValue(decryptedContent, CashuToken.class);
+    CashuToken contentToken = mapper().readValue(decryptedContent, CashuToken.class);
     Assertions.assertEquals("https://stablenut.umint.cash", contentToken.getMint().getUrl());
 
     CashuProof proofContent = contentToken.getProofs().get(0);
@@ -193,7 +195,7 @@ public class NIP60Test {
 
     // Decrypt and verify content
     String decryptedContent = NIP44.decrypt(sender, event.getContent(), sender.getPublicKey());
-    BaseTag[] contentTags = MAPPER_BLACKBIRD.readValue(decryptedContent, BaseTag[].class);
+    BaseTag[] contentTags = mapper().readValue(decryptedContent, BaseTag[].class);
 
     // Assert direction
     GenericTag directionTag = (GenericTag) contentTags[0];

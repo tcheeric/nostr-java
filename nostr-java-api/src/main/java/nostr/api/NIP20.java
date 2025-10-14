@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
 import lombok.NonNull;
@@ -10,7 +6,7 @@ import nostr.event.message.OkMessage;
 
 /**
  * NIP-20 helpers (OK message). Build OK messages indicating relay acceptance/rejection.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/20.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/20.md">NIP-20</a>
  */
 public class NIP20 {
 

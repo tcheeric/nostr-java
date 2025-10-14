@@ -1,21 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.net.URL;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
+import java.net.URL;
+
 /**
  * NIP-23 helpers (Long-form content). Build long-form notes and related tags.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/23.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/23.md">NIP-23</a>
  */
 public class NIP23 extends EventNostr {
 
@@ -30,7 +28,7 @@ public class NIP23 extends EventNostr {
    */
   public NIP23 creatLongFormTextNoteEvent(@NonNull String content) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_TEXT_NOTE, content).create();
+        new GenericEventFactory(getSender(), Kind.LONG_FORM_TEXT_NOTE.getValue(), content).create();
     this.updateEvent(genericEvent);
     return this;
   }
@@ -43,7 +41,7 @@ public class NIP23 extends EventNostr {
    */
   NIP23 createLongFormDraftEvent(@NonNull String content) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.LONG_FORM_DRAFT, content).create();
+        new GenericEventFactory(getSender(), Kind.LONG_FORM_DRAFT.getValue(), content).create();
     this.updateEvent(genericEvent);
     return this;
   }

@@ -1,8 +1,16 @@
 package nostr.api.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.NonNull;
+import nostr.api.NostrSpringWebSocketClient;
+import nostr.api.TestableWebSocketClientHandler;
+import nostr.api.WebSocketClientHandler;
+import nostr.base.Kind;
+import nostr.client.springwebsocket.SpringWebSocketClient;
+import nostr.client.springwebsocket.WebSocketClientIF;
+import nostr.event.BaseMessage;
+import nostr.event.filter.Filters;
+import nostr.event.filter.KindFilter;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,17 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import lombok.NonNull;
-import nostr.api.NostrSpringWebSocketClient;
-import nostr.api.TestableWebSocketClientHandler;
-import nostr.api.WebSocketClientHandler;
-import nostr.client.springwebsocket.SpringWebSocketClient;
-import nostr.client.springwebsocket.WebSocketClientIF;
-import nostr.event.BaseMessage;
-import nostr.event.filter.Filters;
-import nostr.event.filter.KindFilter;
-import nostr.base.Kind;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NostrSpringWebSocketClientSubscriptionIT {
 
@@ -64,8 +65,8 @@ class NostrSpringWebSocketClientSubscriptionIT {
     private final Map<String, RecordingHandler> handlers = new ConcurrentHashMap<>();
 
     @Override
-    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, String relayUri) {
-      RecordingHandler handler = new RecordingHandler(relayName, relayUri);
+    protected WebSocketClientHandler newWebSocketClientHandler(String relayName, nostr.base.RelayUri relayUri) {
+      RecordingHandler handler = new RecordingHandler(relayName, relayUri.toString());
       handlers.put(relayName, handler);
       return handler;
     }

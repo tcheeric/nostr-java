@@ -1,16 +1,6 @@
 package nostr.api.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.math.BigDecimal;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.NIP01;
 import nostr.api.util.JsonComparator;
@@ -57,6 +47,17 @@ import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author eric
  */
@@ -64,7 +65,6 @@ import org.junit.jupiter.api.Test;
 public class JsonParseTest {
   @Test
   public void testBaseMessageDecoderEventFilter() throws JsonProcessingException {
-    log.info("testBaseMessageDecoderEventFilter");
 
     String eventId = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
     final String parseTarget =
@@ -110,7 +110,6 @@ public class JsonParseTest {
   @Test
   public void testBaseMessageDecoderKindsAuthorsReferencedPublicKey()
       throws JsonProcessingException {
-    log.info("testBaseMessageDecoderKindsAuthorsReferencedPublicKey");
 
     final String parseTarget =
         "[\"REQ\", "
@@ -152,7 +151,6 @@ public class JsonParseTest {
 
   @Test
   public void testBaseMessageDecoderKindsAuthorsReferencedEvents() throws JsonProcessingException {
-    log.info("testBaseMessageDecoderKindsAuthorsReferencedEvents");
 
     final String parseTarget =
         "[\"REQ\", "
@@ -193,7 +191,6 @@ public class JsonParseTest {
 
   @Test
   public void testBaseReqMessageDecoder() throws JsonProcessingException {
-    log.info("testBaseReqMessageDecoder");
 
     var publicKey = Identity.generateRandomIdentity().getPublicKey();
 
@@ -227,7 +224,6 @@ public class JsonParseTest {
 
   @Test
   public void testBaseEventMessageDecoder() throws JsonProcessingException {
-    log.info("testBaseEventMessageDecoder");
 
     final String parseTarget =
         "[\"EVENT\",\"npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh\",{"
@@ -253,7 +249,6 @@ public class JsonParseTest {
 
   @Test
   public void testBaseEventMessageMarkerDecoder() throws JsonProcessingException {
-    log.info("testBaseEventMessageMarkerDecoder");
 
     final String json =
         "[\"EVENT\",\"temp20230627\",{"
@@ -280,7 +275,6 @@ public class JsonParseTest {
 
   @Test
   public void testGenericTagDecoder() {
-    log.info("testGenericTagDecoder");
     final String jsonString = "[\"saturn\", \"jetpack\", false]";
 
     var tag = new GenericTagDecoder<>().decode(jsonString);
@@ -296,7 +290,6 @@ public class JsonParseTest {
 
   @Test
   public void testClassifiedListingTagSerializer() throws JsonProcessingException {
-    log.info("testClassifiedListingSerializer");
     final String classifiedListingEventJson =
         "{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content"
             + " ipsum\","
@@ -311,7 +304,7 @@ public class JsonParseTest {
 
     GenericEvent event = new GenericEventDecoder<>().decode(classifiedListingEventJson);
     EventMessage message = NIP01.createEventMessage(event, "1");
-    assertEquals(1, message.getNip());
+    assertEquals("1", message.getNip());
     String encoded = new BaseEventEncoder<>((BaseEvent) message.getEvent()).encode();
     assertEquals(
         "{\"id\":\"28f2fc030e335d061f0b9d03ce0e2c7d1253e6fadb15d89bd47379a96b2c861a\",\"kind\":30402,\"content\":\"content"
@@ -411,7 +404,6 @@ public class JsonParseTest {
 
   @Test
   public void testDeserializeTag() throws Exception {
-    log.info("testDeserializeTag");
 
     String npubHex =
         new PublicKey(
@@ -431,7 +423,6 @@ public class JsonParseTest {
 
   @Test
   public void testDeserializeGenericTag() throws Exception {
-    log.info("testDeserializeGenericTag");
     String npubHex =
         new PublicKey(
                 Bech32.fromBech32(
@@ -448,7 +439,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageFilterListSerializer() {
-    log.info("testReqMessageFilterListSerializer");
 
     String new_geohash = "2vghde";
     String second_geohash = "3abcde";
@@ -471,7 +461,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageGeohashTagDeserializer() throws JsonProcessingException {
-    log.info("testReqMessageGeohashTagDeserializer");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String geohashKey = "#g";
@@ -491,7 +480,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageGeohashFilterListDecoder() {
-    log.info("testReqMessageGeohashFilterListDecoder");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String geohashKey = "#g";
@@ -527,7 +515,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageHashtagTagDeserializer() throws JsonProcessingException {
-    log.info("testReqMessageHashtagTagDeserializer");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String hashtagKey = "#t";
@@ -547,7 +534,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageHashtagTagFilterListDecoder() {
-    log.info("testReqMessageHashtagTagFilterListDecoder");
 
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String hashtagKey = "#t";
@@ -583,7 +569,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessagePopulatedFilterDecoder() {
-    log.info("testReqMessagePopulatedFilterDecoder");
 
     String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
     String kind = "1";
@@ -641,7 +626,6 @@ public class JsonParseTest {
   @Test
   public void testReqMessagePopulatedListOfFiltersWithIdentityDecoder()
       throws JsonProcessingException {
-    log.info("testReqMessagePopulatedListOfFiltersWithIdentityDecoder");
 
     String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
     String kind = "1";
@@ -702,7 +686,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessagePopulatedListOfFiltersListDecoder() throws JsonProcessingException {
-    log.info("testReqMessagePopulatedListOfFiltersListDecoder");
 
     String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
     Integer kind = 1;
@@ -759,7 +742,6 @@ public class JsonParseTest {
   @Test
   public void testReqMessagePopulatedListOfMultipleTypeFiltersListDecoder()
       throws JsonProcessingException {
-    log.info("testReqMessagePopulatedListOfFiltersListDecoder");
 
     String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
     String kind = "1";
@@ -806,7 +788,6 @@ public class JsonParseTest {
 
   @Test
   public void testGenericTagQueryListDecoder() throws JsonProcessingException {
-    log.info("testReqMessagePopulatedListOfFiltersListDecoder");
 
     String subscriptionId = "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujh";
     String kind = "1";
@@ -873,18 +854,17 @@ public class JsonParseTest {
 
     assertTrue(
         JsonComparator.isEquivalentJson(
-            MAPPER_BLACKBIRD
+            mapper()
                 .createArrayNode()
-                .add(MAPPER_BLACKBIRD.readTree(expectedReqMessage.encode())),
-            MAPPER_BLACKBIRD
+                .add(mapper().readTree(expectedReqMessage.encode())),
+            mapper()
                 .createArrayNode()
-                .add(MAPPER_BLACKBIRD.readTree(decodedReqMessage.encode()))));
+                .add(mapper().readTree(decodedReqMessage.encode()))));
     assertEquals(expectedReqMessage, decodedReqMessage);
   }
 
   @Test
   public void testReqMessageAddressableTagDeserializer() throws JsonProcessingException {
-    log.info("testReqMessageAddressableTagDeserializer");
 
     Integer kind = 1;
     String subscriptionId = "npub1clk6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
@@ -914,7 +894,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageSubscriptionIdTooLong() {
-    log.info("testReqMessageSubscriptionIdTooLong");
 
     String malformedSubscriptionId =
         "npub17x6pn22ukq3n5yw5x9prksdyyu6ww9jle2ckpqwdprh3ey8qhe6stnpujhaa";
@@ -933,7 +912,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageSubscriptionIdTooShort() {
-    log.info("testReqMessageSubscriptionIdTooShort");
 
     String malformedSubscriptionId = "";
     final String parseTarget =
@@ -951,7 +929,6 @@ public class JsonParseTest {
 
   @Test
   public void testBaseEventMessageDecoderMultipleFiltersJson() throws JsonProcessingException {
-    log.info("testBaseEventMessageDecoderMultipleFiltersJson");
 
     final String eventJson =
         "[\"EVENT\",{\"content\":\"直ん直んないわ。まあええか\",\"created_at\":1786199583,"
@@ -992,7 +969,6 @@ public class JsonParseTest {
 
   @Test
   public void testReqMessageVoteTagFilterDecoder() {
-    log.info("testReqMessageVoteTagFilterDecoder");
 
     String subscriptionId = "npub333k6vc9xhjp8q5cws262wuf2eh4zuvwupft03hy4ttqqnm7e0jrq3upup9";
     String voteTagKey = "#v";

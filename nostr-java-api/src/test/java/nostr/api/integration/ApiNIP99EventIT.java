@@ -1,12 +1,5 @@
 package nostr.api.integration;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP99;
 import nostr.base.PrivateKey;
 import nostr.base.PublicKey;
@@ -26,6 +19,14 @@ import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 class ApiNIP99EventIT extends BaseRelayIntegrationTest {
@@ -92,17 +93,17 @@ class ApiNIP99EventIT extends BaseRelayIntegrationTest {
 
     // Extract and compare only first 3 elements of the JSON array
     var expectedArray =
-        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(0).asText();
+        mapper().readTree(expectedResponseJson(event.getId())).get(0).asText();
     var expectedSubscriptionId =
-        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(1).asText();
+        mapper().readTree(expectedResponseJson(event.getId())).get(1).asText();
     var expectedSuccess =
-        MAPPER_BLACKBIRD.readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
+        mapper().readTree(expectedResponseJson(event.getId())).get(2).asBoolean();
 
     try (SpringWebSocketClient client = springWebSocketClient) {
       String eventResponse = client.send(message).stream().findFirst().get();
-      var actualArray = MAPPER_BLACKBIRD.readTree(eventResponse).get(0).asText();
-      var actualSubscriptionId = MAPPER_BLACKBIRD.readTree(eventResponse).get(1).asText();
-      var actualSuccess = MAPPER_BLACKBIRD.readTree(eventResponse).get(2).asBoolean();
+      var actualArray = mapper().readTree(eventResponse).get(0).asText();
+      var actualSubscriptionId = mapper().readTree(eventResponse).get(1).asText();
+      var actualSuccess = mapper().readTree(eventResponse).get(2).asBoolean();
 
       assertEquals(expectedArray, actualArray, "First element should match");
       assertEquals(expectedSubscriptionId, actualSubscriptionId, "Subscription ID should match");

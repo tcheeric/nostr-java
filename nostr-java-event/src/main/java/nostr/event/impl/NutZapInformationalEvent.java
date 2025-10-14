@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.base.Kind;
 import nostr.base.PublicKey;
@@ -10,6 +9,8 @@ import nostr.event.BaseTag;
 import nostr.event.entities.CashuMint;
 import nostr.event.entities.NutZapInformation;
 import nostr.event.tag.GenericTag;
+
+import java.util.List;
 
 @Event(name = "Nut Zap Informational Event", nip = 61)
 public class NutZapInformationalEvent extends ReplaceableEvent {
@@ -22,21 +23,18 @@ public class NutZapInformationalEvent extends ReplaceableEvent {
     NutZapInformation nutZapInformation = new NutZapInformation();
 
     List<GenericTag> relayTags =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "relay".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .toList();
 
     List<GenericTag> mintTags =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "u".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .toList();
 
     GenericTag p2pkTag =
-        getTags().stream()
+        nostr.event.filter.Filterable.getTypeSpecificTags(GenericTag.class, this).stream()
             .filter(tag -> "pubkey".equals(tag.getCode()))
-            .map(tag -> (GenericTag) tag)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("No p2pk tag found in tags"));
 

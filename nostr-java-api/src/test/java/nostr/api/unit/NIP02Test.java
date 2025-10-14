@@ -1,19 +1,21 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP02;
+import nostr.base.Kind;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 import nostr.event.tag.PubKeyTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NIP02Test {
 
@@ -33,7 +35,7 @@ public class NIP02Test {
     nip02.createContactListEvent(new ArrayList<>(tags));
     assertNotNull(nip02.getEvent(), "Event should be created");
     assertEquals(
-        Constants.Kind.CONTACT_LIST, nip02.getEvent().getKind(), "Kind should be CONTACT_LIST");
+        Kind.CONTACT_LIST.getValue(), nip02.getEvent().getKind(), "Kind should be CONTACT_LIST");
   }
 
   @Test

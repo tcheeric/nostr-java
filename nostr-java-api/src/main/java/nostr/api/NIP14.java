@@ -1,18 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
 
+import java.util.List;
+
 /**
  * NIP-14 helpers (Subject tag in text notes). Create subject tags for threads.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/14.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/14.md">NIP-14</a>
  */
 public class NIP14 {
 

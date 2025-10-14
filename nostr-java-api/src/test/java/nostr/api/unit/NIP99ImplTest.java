@@ -1,13 +1,5 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import nostr.api.NIP99;
 import nostr.event.BaseTag;
 import nostr.event.entities.ClassifiedListing;
@@ -16,6 +8,15 @@ import nostr.event.tag.PriceTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NIP99ImplTest {
   public static final String CONTENT = "ClassifiedListingEvent unit test content";

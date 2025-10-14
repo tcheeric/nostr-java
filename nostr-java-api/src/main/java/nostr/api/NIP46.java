@@ -1,27 +1,29 @@
 package nostr.api;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.api.factory.impl.GenericEventFactory;
+import nostr.base.Kind;
 import nostr.base.PublicKey;
-import nostr.config.Constants;
 import nostr.event.impl.GenericEvent;
 import nostr.id.Identity;
 
-@Slf4j
+import java.io.Serializable;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+
 /**
  * NIP-46 helpers (Nostr Connect). Build app requests and signer responses.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/46.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/46.md">NIP-46</a>
  */
+@Slf4j
 public final class NIP46 extends EventNostr {
 
   public NIP46(@NonNull Identity sender) {
@@ -36,9 +38,12 @@ public final class NIP46 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP46 createRequestEvent(@NonNull NIP46.Request request, @NonNull PublicKey signer) {
-    String content = NIP44.encrypt(getSender(), request.toString(), signer);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        new GenericEventFactory(
+                getSender(),
+                Kind.NOSTR_CONNECT.getValue(),
+                NIP44.encrypt(getSender(), request.toString(), signer))
+            .create();
     genericEvent.addTag(NIP01.createPubKeyTag(signer));
     this.updateEvent(genericEvent);
     return this;
@@ -52,9 +57,12 @@ public final class NIP46 extends EventNostr {
    * @return this instance for chaining
    */
   public NIP46 createResponseEvent(@NonNull NIP46.Response response, @NonNull PublicKey app) {
-    String content = NIP44.encrypt(getSender(), response.toString(), app);
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.REQUEST_EVENTS, content).create();
+        new GenericEventFactory(
+                getSender(),
+                Kind.NOSTR_CONNECT.getValue(),
+                NIP44.encrypt(getSender(), response.toString(), app))
+            .create();
     genericEvent.addTag(NIP01.createPubKeyTag(app));
     this.updateEvent(genericEvent);
     return this;
@@ -68,7 +76,15 @@ public final class NIP46 extends EventNostr {
     private String id;
     private String method;
     // @JsonIgnore
-    private Set<String> params = new LinkedHashSet<>();
+    private final Set<String> params = new LinkedHashSet<>();
+
+    public Request(String id, String method, Set<String> params) {
+      this.id = id;
+      this.method = method;
+      if (params != null) {
+        this.params.addAll(params);
+      }
+    }
 
     /**
      * Add a parameter to the request payload preserving insertion order.
@@ -80,11 +96,29 @@ public final class NIP46 extends EventNostr {
     }
 
     /**
+     * Number of parameters currently present.
+     */
+    @JsonIgnore
+    public int getParamCount() {
+      return this.params.size();
+    }
+
+    /**
+     * Tests whether the given parameter exists.
+     */
+    @JsonIgnore
+    public boolean containsParam(String param) {
+      return this.params.contains(param);
+    }
+
+    /**
      * Serialize this request to JSON.
+     *
+     * @return the JSON representation of this request
      */
     public String toString() {
       try {
-        return MAPPER_BLACKBIRD.writeValueAsString(this);
+        return mapper().writeValueAsString(this);
       } catch (JsonProcessingException ex) {
         log.warn("Error converting request to JSON: {}", ex.getMessage());
         return "{}"; // Return an empty JSON object as a fallback
@@ -95,11 +129,11 @@ public final class NIP46 extends EventNostr {
      * Deserialize a JSON string into a Request.
      *
      * @param jsonString the JSON string
-     * @return the parsed Request
+     * @return the parsed Request instance
      */
     public static Request fromString(@NonNull String jsonString) {
       try {
-        return MAPPER_BLACKBIRD.readValue(jsonString, Request.class);
+        return mapper().readValue(jsonString, Request.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -117,10 +151,12 @@ public final class NIP46 extends EventNostr {
 
     /**
      * Serialize this response to JSON.
+     *
+     * @return the JSON representation of this response
      */
     public String toString() {
       try {
-        return MAPPER_BLACKBIRD.writeValueAsString(this);
+        return mapper().writeValueAsString(this);
       } catch (JsonProcessingException ex) {
         log.warn("Error converting response to JSON: {}", ex.getMessage());
         return "{}"; // Return an empty JSON object as a fallback
@@ -131,11 +167,11 @@ public final class NIP46 extends EventNostr {
      * Deserialize a JSON string into a Response.
      *
      * @param jsonString the JSON string
-     * @return the parsed Response
+     * @return the parsed Response instance
      */
     public static Response fromString(@NonNull String jsonString) {
       try {
-        return MAPPER_BLACKBIRD.readValue(jsonString, Response.class);
+        return mapper().readValue(jsonString, Response.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }

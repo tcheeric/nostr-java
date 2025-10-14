@@ -2,15 +2,16 @@ package nostr.event.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public class PaymentRequest extends NIP15Content.CheckoutContent {
   @JsonProperty private String message;
 
   @JsonProperty("payment_options")
-  private List<PaymentOptions> paymentOptions;
+  private final List<PaymentOptions> paymentOptions;
 
   public PaymentRequest() {
     this.paymentOptions = new ArrayList<>();

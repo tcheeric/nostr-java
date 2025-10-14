@@ -1,22 +1,23 @@
 package nostr.event.unit;
 
-import static nostr.base.IEvent.MAPPER_BLACKBIRD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import nostr.event.entities.Product;
 import nostr.event.entities.Stall;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static nostr.base.json.EventJsonMapper.mapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductSerializationTest {
 
   @Test
   void specSerialization() throws Exception {
     Product.Spec spec = new Product.Spec("color", "blue");
-    String json = MAPPER_BLACKBIRD.writeValueAsString(spec);
-    JsonNode node = MAPPER_BLACKBIRD.readTree(json);
+    String json = mapper().writeValueAsString(spec);
+    JsonNode node = mapper().readTree(json);
     assertEquals("color", node.get("key").asText());
     assertEquals("blue", node.get("value").asText());
   }
@@ -32,7 +33,7 @@ public class ProductSerializationTest {
     product.setQuantity(1);
     product.setSpecs(List.of(new Product.Spec("size", "M")));
 
-    JsonNode node = MAPPER_BLACKBIRD.readTree(product.value());
+    JsonNode node = mapper().readTree(product.value());
 
     assertTrue(node.has("id"));
     assertEquals("item", node.get("name").asText());

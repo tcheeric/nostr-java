@@ -1,16 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nostr.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.NonNull;
 import nostr.api.factory.impl.BaseTagFactory;
 import nostr.api.factory.impl.GenericEventFactory;
 import nostr.base.Command;
 import nostr.base.ElementAttribute;
+import nostr.base.Kind;
 import nostr.base.Relay;
 import nostr.config.Constants;
 import nostr.event.BaseTag;
@@ -19,9 +14,12 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.message.CanonicalAuthenticationMessage;
 import nostr.event.message.GenericMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * NIP-42 helpers (Authentication). Build auth events and AUTH messages.
- * Spec: https://github.com/nostr-protocol/nips/blob/master/42.md
+ * Spec: <a href="https://github.com/nostr-protocol/nips/blob/master/42.md">NIP-42</a>
  */
 public class NIP42 extends EventNostr {
 
@@ -34,10 +32,10 @@ public class NIP42 extends EventNostr {
    */
   public NIP42 createCanonicalAuthenticationEvent(@NonNull String challenge, @NonNull Relay relay) {
     GenericEvent genericEvent =
-        new GenericEventFactory(getSender(), Constants.Kind.EVENT_DELETION, "").create();
+        new GenericEventFactory(getSender(), Kind.CLIENT_AUTH.getValue(), "").create();
+    this.updateEvent(genericEvent);
     this.addChallengeTag(challenge);
     this.addRelayTag(relay);
-    this.updateEvent(genericEvent);
 
     return this;
   }

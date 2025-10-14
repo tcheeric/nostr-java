@@ -1,11 +1,11 @@
 package nostr.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import nostr.api.NIP40;
 import nostr.event.BaseTag;
 import nostr.event.tag.ExpirationTag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NIP40Test {
 

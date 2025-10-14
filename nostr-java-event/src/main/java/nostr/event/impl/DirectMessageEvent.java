@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import nostr.base.Kind;
@@ -9,6 +8,8 @@ import nostr.base.annotation.Event;
 import nostr.event.BaseTag;
 import nostr.event.NIP04Event;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 /**
  * @author squirrel
@@ -34,7 +35,8 @@ public class DirectMessageEvent extends NIP04Event {
     super.validateTags();
 
     // Validate `tags` field for recipient's public key
-    boolean hasRecipientTag = this.getTags().stream().anyMatch(tag -> tag instanceof PubKeyTag);
+    boolean hasRecipientTag =
+        !nostr.event.filter.Filterable.getTypeSpecificTags(PubKeyTag.class, this).isEmpty();
     if (!hasRecipientTag) {
       throw new AssertionError("Invalid `tags`: Must include a PubKeyTag for the recipient.");
     }

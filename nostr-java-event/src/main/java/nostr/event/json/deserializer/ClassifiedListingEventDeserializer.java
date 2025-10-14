@@ -5,17 +5,18 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import nostr.base.Kind;
+import nostr.base.PublicKey;
+import nostr.base.Signature;
+import nostr.base.json.EventJsonMapper;
+import nostr.event.BaseTag;
+import nostr.event.impl.ClassifiedListingEvent;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
-import nostr.base.IEvent;
-import nostr.base.Kind;
-import nostr.base.PublicKey;
-import nostr.base.Signature;
-import nostr.event.BaseTag;
-import nostr.event.impl.ClassifiedListingEvent;
 
 public class ClassifiedListingEventDeserializer extends StdDeserializer<ClassifiedListingEvent> {
   public ClassifiedListingEventDeserializer() {
@@ -31,7 +32,7 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
     List<BaseTag> baseTags =
         StreamSupport.stream(tags.spliterator(), false).toList().stream()
             .map(JsonNode::elements)
-            .map(element -> IEvent.MAPPER_BLACKBIRD.convertValue(element, BaseTag.class))
+            .map(element -> EventJsonMapper.mapper().convertValue(element, BaseTag.class))
             .toList();
     Map<String, String> generalMap = new HashMap<>();
     var fieldNames = classifiedListingEventNode.fieldNames();

@@ -2,8 +2,6 @@ package nostr.event.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.List;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -18,6 +16,9 @@ import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.IdentifierTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "CalendarRsvpEvent", nip = 52)
@@ -90,17 +91,27 @@ public class CalendarRsvpEvent extends AbstractBaseCalendarEvent<CalendarRsvpCon
   protected CalendarRsvpContent getCalendarContent() {
     CalendarRsvpContent calendarRsvpContent =
         CalendarRsvpContent.builder(
-                (IdentifierTag) getTag("d"),
-                (AddressTag) getTag("a"),
-                ((GenericTag) getTag("status")).getAttributes().get(0).value().toString())
+                nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+                    IdentifierTag.class, "d", this),
+                nostr.event.filter.Filterable.requireTagOfTypeWithCode(
+                    AddressTag.class, "a", this),
+                nostr.event.filter.Filterable
+                    .requireTagOfTypeWithCode(GenericTag.class, "status", this)
+                    .getAttributes()
+                    .get(0)
+                    .value()
+                    .toString())
             .build();
 
-    Optional.ofNullable(getTag("e"))
-        .ifPresent(baseTag -> calendarRsvpContent.setEventTag((EventTag) baseTag));
+    nostr.event.filter.Filterable
+        .firstTagOfType(EventTag.class, this)
+        .ifPresent(calendarRsvpContent::setEventTag);
+    // FB tag is encoded as a generic tag with code 'fb'
     Optional.ofNullable(getTag("fb"))
         .ifPresent(baseTag -> calendarRsvpContent.setFbTag((GenericTag) baseTag));
-    Optional.ofNullable(getTag("p"))
-        .ifPresent(baseTag -> calendarRsvpContent.setAuthorPubKeyTag((PubKeyTag) baseTag));
+    nostr.event.filter.Filterable
+        .firstTagOfType(PubKeyTag.class, this)
+        .ifPresent(calendarRsvpContent::setAuthorPubKeyTag);
 
     return calendarRsvpContent;
   }

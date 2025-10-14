@@ -1,15 +1,16 @@
 package nostr.event.entities;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import nostr.base.Relay;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -25,12 +26,9 @@ public class CashuWallet {
 
   @EqualsAndHashCode.Include private String privateKey;
 
-  /*
-      @EqualsAndHashCode.Include
-      private String unit;
-  */
-  private Set<CashuMint> mints;
-  private Map<String, Set<Relay>> relays;
+  
+  private final Set<CashuMint> mints;
+  private final Map<String, Set<Relay>> relays;
   private Set<CashuToken> tokens;
 
   public CashuWallet() {

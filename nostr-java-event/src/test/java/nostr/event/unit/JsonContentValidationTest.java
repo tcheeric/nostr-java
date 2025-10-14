@@ -1,12 +1,13 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.List;
 import nostr.base.PublicKey;
 import nostr.event.impl.ChannelCreateEvent;
 import nostr.event.impl.CreateOrUpdateProductEvent;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JsonContentValidationTest {
 

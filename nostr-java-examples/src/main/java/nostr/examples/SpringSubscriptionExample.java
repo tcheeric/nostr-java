@@ -1,15 +1,16 @@
 package nostr.examples;
 
-import java.time.Duration;
-import java.util.Map;
 import nostr.api.NostrSpringWebSocketClient;
 import nostr.base.Kind;
 import nostr.event.filter.Filters;
 import nostr.event.filter.KindFilter;
 
+import java.time.Duration;
+import java.util.Map;
+
 /**
- * Example showing how to open a non-blocking subscription using {@link NostrSpringWebSocketClient}
- * and close it after a fixed duration.
+ * Example showing how to open a non-blocking subscription using
+ * {@link nostr.api.NostrSpringWebSocketClient} and close it after a fixed duration.
  */
 public class SpringSubscriptionExample {
 

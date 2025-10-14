@@ -1,6 +1,5 @@
 package nostr.event.impl;
 
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -11,6 +10,8 @@ import nostr.event.BaseTag;
 import nostr.event.entities.ZapReceipt;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.PubKeyTag;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Event(name = "ZapReceiptEvent", nip = 57)
@@ -23,14 +24,29 @@ public class ZapReceiptEvent extends GenericEvent {
   }
 
   public ZapReceipt getZapReceipt() {
-    BaseTag preimageTag = requireTag("preimage");
-    BaseTag descriptionTag = requireTag("description");
-    BaseTag bolt11Tag = requireTag("bolt11");
+    var bolt11 =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "bolt11", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
+    var description =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "description", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
+    var preimage =
+        nostr.event.filter.Filterable
+            .requireTagOfTypeWithCode(GenericTag.class, "preimage", this)
+            .getAttributes()
+            .get(0)
+            .value()
+            .toString();
 
-    return new ZapReceipt(
-        ((GenericTag) bolt11Tag).getAttributes().get(0).value().toString(),
-        ((GenericTag) descriptionTag).getAttributes().get(0).value().toString(),
-        ((GenericTag) preimageTag).getAttributes().get(0).value().toString());
+    return new ZapReceipt(bolt11, description, preimage);
   }
 
   public String getBolt11() {
@@ -49,25 +65,23 @@ public class ZapReceiptEvent extends GenericEvent {
   }
 
   public PublicKey getRecipient() {
-    PubKeyTag recipientPubKeyTag = (PubKeyTag) requireTag("p");
+    PubKeyTag recipientPubKeyTag =
+        nostr.event.filter.Filterable.requireTagOfTypeWithCode(PubKeyTag.class, "p", this);
     return recipientPubKeyTag.getPublicKey();
   }
 
   public PublicKey getSender() {
-    BaseTag senderTag = getTag("P");
-    if (senderTag == null) {
-      return null;
-    }
-    PubKeyTag senderPubKeyTag = (PubKeyTag) senderTag;
-    return senderPubKeyTag.getPublicKey();
+    return nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(PubKeyTag.class, "P", this)
+        .map(PubKeyTag::getPublicKey)
+        .orElse(null);
   }
 
   public String getEventId() {
-    BaseTag eventTag = getTag("e");
-    if (eventTag == null) {
-      return null;
-    }
-    return ((GenericTag) eventTag).getAttributes().get(0).value().toString();
+    return nostr.event.filter.Filterable
+        .firstTagOfTypeWithCode(GenericTag.class, "e", this)
+        .map(tag -> tag.getAttributes().get(0).value().toString())
+        .orElse(null);
   }
 
   @Override
@@ -76,10 +90,10 @@ public class ZapReceiptEvent extends GenericEvent {
 
     // Validate `tags` field
     // Check for required tags
-    requireTag("p");
-    requireTag("bolt11");
-    requireTag("description");
-    requireTag("preimage");
+    nostr.event.filter.Filterable.requireTagOfTypeWithCode(PubKeyTag.class, "p", this);
+    nostr.event.filter.Filterable.requireTagOfTypeWithCode(GenericTag.class, "bolt11", this);
+    nostr.event.filter.Filterable.requireTagOfTypeWithCode(GenericTag.class, "description", this);
+    nostr.event.filter.Filterable.requireTagOfTypeWithCode(GenericTag.class, "preimage", this);
   }
 
   @Override

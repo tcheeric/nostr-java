@@ -1,8 +1,8 @@
 package nostr.event.tag;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,9 +16,10 @@ import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 import nostr.event.json.serializer.AddressTagSerializer;
 
-/**
- * @author eric
- */
+import java.util.List;
+import java.util.Optional;
+
+/** Represents an 'a' addressable/parameterized replaceable tag (NIP-33). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,9 +32,20 @@ public class AddressTag extends BaseTag {
   private Integer kind;
   private PublicKey publicKey;
   private IdentifierTag identifierTag;
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private Relay relay;
 
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  /** Optional accessor for relay. */
+  public Optional<Relay> getRelayOptional() {
+    return Optional.ofNullable(relay);
+  }
+
+  /** Optional accessor for identifierTag. */
+  public Optional<IdentifierTag> getIdentifierTagOptional() {
+    return Optional.ofNullable(identifierTag);
+  }
+
+  public static AddressTag deserialize(@NonNull JsonNode node) {
     AddressTag tag = new AddressTag();
 
     String[] parts = node.get(1).asText().split(":");
@@ -46,7 +58,7 @@ public class AddressTag extends BaseTag {
     if (node.size() == 3) {
       tag.setRelay(new Relay(node.get(2).asText()));
     }
-    return (T) tag;
+    return tag;
   }
 
   public static AddressTag updateFields(@NonNull GenericTag tag) {
@@ -57,9 +69,10 @@ public class AddressTag extends BaseTag {
     AddressTag addressTag = new AddressTag();
     List<ElementAttribute> attributes = tag.getAttributes();
     String attr0 = attributes.get(0).value().toString();
-    Integer kind = Integer.parseInt(attr0.split(":")[0]);
-    PublicKey publicKey = new PublicKey(attr0.split(":")[1]);
-    String id = attr0.split(":").length == 3 ? attr0.split(":")[2] : null;
+    String[] parts = attr0.split(":");
+    Integer kind = Integer.parseInt(parts[0]);
+    PublicKey publicKey = new PublicKey(parts[1]);
+    String id = parts.length == 3 ? parts[2] : null;
 
     addressTag.setKind(kind);
     addressTag.setPublicKey(publicKey);

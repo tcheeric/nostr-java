@@ -1,9 +1,5 @@
 package nostr.event.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
-import java.util.List;
 import nostr.event.BaseTag;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EmojiTag;
@@ -22,6 +18,11 @@ import nostr.event.tag.ReferenceTag;
 import nostr.event.tag.RelaysTag;
 import nostr.event.tag.SubjectTag;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class BaseTagTest {
 

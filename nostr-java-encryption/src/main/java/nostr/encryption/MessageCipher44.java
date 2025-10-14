@@ -1,12 +1,13 @@
 package nostr.encryption;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import nostr.crypto.nip44.EncryptedPayloads;
 import nostr.util.NostrUtil;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @Data
 @AllArgsConstructor

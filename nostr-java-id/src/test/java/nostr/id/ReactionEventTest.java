@@ -1,14 +1,15 @@
 package nostr.id;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.ArrayList;
 import nostr.base.PublicKey;
 import nostr.event.entities.Reaction;
 import nostr.event.impl.GenericEvent;
 import nostr.event.impl.ReactionEvent;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ReactionEventTest {
 

@@ -1,6 +1,7 @@
 package nostr.event.tag;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,9 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
+/** Represents a 'u' URL tag (NIP-61). */
 @EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({"u"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,10 +25,10 @@ public class UrlTag extends BaseTag {
   @JsonProperty("u")
   private String url;
 
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  public static UrlTag deserialize(@NonNull JsonNode node) {
     UrlTag tag = new UrlTag();
     setRequiredField(node.get(1), (n, t) -> tag.setUrl(n.asText()), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static UrlTag updateFields(@NonNull GenericTag tag) {
@@ -36,10 +39,6 @@ public class UrlTag extends BaseTag {
     if (tag.getAttributes().size() != 1) {
       throw new IllegalArgumentException("Invalid number of attributes for UrlTag");
     }
-
-    UrlTag urlTag = new UrlTag();
-    urlTag.setUrl(tag.getAttributes().get(0).value().toString());
-
-    return urlTag;
+    return new UrlTag(tag.getAttributes().get(0).value().toString());
   }
 }

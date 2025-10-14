@@ -15,9 +15,9 @@ import nostr.base.annotation.Key;
 import nostr.base.annotation.Tag;
 import nostr.event.BaseTag;
 
-/**
- * @author squirrel
- */
+import java.util.Optional;
+
+/** Represents an 'e' event reference tag (NIP-01). */
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -43,13 +43,23 @@ public class EventTag extends BaseTag {
     this.idEvent = idEvent;
   }
 
-  public static <T extends BaseTag> T deserialize(@NonNull JsonNode node) {
+  /** Optional accessor for recommendedRelayUrl. */
+  public Optional<String> getRecommendedRelayUrlOptional() {
+    return Optional.ofNullable(recommendedRelayUrl);
+  }
+
+  /** Optional accessor for marker. */
+  public Optional<Marker> getMarkerOptional() {
+    return Optional.ofNullable(marker);
+  }
+
+  public static EventTag deserialize(@NonNull JsonNode node) {
     EventTag tag = new EventTag();
     setRequiredField(node.get(1), (n, t) -> tag.setIdEvent(n.asText()), tag);
     setOptionalField(node.get(2), (n, t) -> tag.setRecommendedRelayUrl(n.asText()), tag);
     setOptionalField(
         node.get(3), (n, t) -> tag.setMarker(Marker.valueOf(n.asText().toUpperCase())), tag);
-    return (T) tag;
+    return tag;
   }
 
   public static EventTag updateFields(@NonNull GenericTag tag) {
@@ -61,7 +71,8 @@ public class EventTag extends BaseTag {
       eventTag.setRecommendedRelayUrl(tag.getAttributes().get(1).value().toString());
     }
     if (tag.getAttributes().size() > 2) {
-      eventTag.setMarker(Marker.valueOf(tag.getAttributes().get(2).value().toString()));
+      eventTag.setMarker(
+          Marker.valueOf(tag.getAttributes().get(2).value().toString().toUpperCase()));
     }
 
     return eventTag;

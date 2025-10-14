@@ -128,6 +128,11 @@ public Map<String,String> getRelays()
 public void close()
 ```
 
+See also the test guides for examples and behavioral expectations:
+
+- API Client/Handler tests: `nostr-java-api/src/test/java/nostr/api/client/README.md`
+- Client module (Spring WebSocket): `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md`
+
 `subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
 messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
 resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy
@@ -139,7 +144,7 @@ processing to another executor to avoid stalling inbound traffic.
 ### Configuration
 - `RetryConfig` – enables Spring Retry support.
 - `RelaysProperties` – maps relay names to URLs via configuration properties.
-- `RelayConfig` – loads `relays.properties` and exposes a `Map<String,String>` bean.
+- `RelayConfig` – loads `relays.properties` and exposes a `Map<String,String>` bean. Deprecated in 0.6.2 (for removal in 1.0.0); prefer `RelaysProperties`.
 
 ## Encryption and Cryptography
 
@@ -195,7 +200,7 @@ Base checked exception for utility methods.
 Identity id = Identity.generateRandomIdentity();
 NIP01 nip01 = new NIP01(id).createTextNoteEvent("Hello Nostr");
 NostrIF client = NostrSpringWebSocketClient.getInstance(id)
-        .setRelays(Map.of("damus","wss://relay.398ja.xyz"));
+        .setRelays(Map.of("398ja","wss://relay.398ja.xyz"));
 client.sendEvent(nip01.getEvent());
 ```
 

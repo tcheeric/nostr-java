@@ -16,7 +16,9 @@ cd nostr-java
 
 ## Using Maven
 
-Artifacts are published to `https://maven.398ja.xyz/releases`:
+Artifacts are published to `https://maven.398ja.xyz/releases` (and snapshots to `https://maven.398ja.xyz/snapshots`).
+
+Use the BOM to align versions and omit per-module versions:
 
 ```xml
 <repositories>
@@ -26,14 +28,27 @@ Artifacts are published to `https://maven.398ja.xyz/releases`:
   </repository>
 </repositories>
 
-<dependency>
-  <groupId>xyz.tcheeric</groupId>
-  <artifactId>nostr-java-api</artifactId>
-  <version>0.5.1</version>
-</dependency>
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>xyz.tcheeric</groupId>
+      <artifactId>nostr-java-bom</artifactId>
+      <version><!-- X.Y.Z --></version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+ </dependencyManagement>
+
+<dependencies>
+  <dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>nostr-java-api</artifactId>
+  </dependency>
+</dependencies>
 ```
 
-Snapshot builds are available at `https://maven.398ja.xyz/snapshots`.
+Check the releases page for the latest BOM and module versions: https://github.com/tcheeric/nostr-java/releases
 
 ## Using Gradle
 
@@ -43,10 +58,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'xyz.tcheeric:nostr-java-api:0.5.1'
+    implementation platform('xyz.tcheeric:nostr-java-bom:X.Y.Z')
+    implementation 'xyz.tcheeric:nostr-java-api'
 }
 ```
 
-The current version is `0.5.1`. Check the [releases page](https://github.com/tcheeric/nostr-java/releases) for the latest version.
+Replace X.Y.Z with the latest version from the releases page.
 
 Examples are available in the [`nostr-java-examples`](../nostr-java-examples) module.
