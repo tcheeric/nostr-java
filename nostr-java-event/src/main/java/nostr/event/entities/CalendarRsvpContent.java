@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import nostr.event.entities.CalendarRsvpContent.CalendarRsvpContentBuilder;
 import nostr.event.tag.AddressTag;
 import nostr.event.tag.EventTag;
 import nostr.event.tag.GenericTag;
@@ -15,7 +14,7 @@ import nostr.event.tag.PubKeyTag;
 import java.util.Optional;
 
 @Builder
-@JsonDeserialize(builder = CalendarRsvpContentBuilder.class)
+@JsonDeserialize(builder = CalendarRsvpContent.CalendarRsvpContentBuilder.class)
 @EqualsAndHashCode(callSuper = false)
 public class CalendarRsvpContent extends NIP42Content {
   
