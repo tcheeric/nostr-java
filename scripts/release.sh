@@ -133,7 +133,12 @@ cmd_publish() {
   $no_docker && mvn_args=(-q -DnoDocker=true -P "$profile" deploy)
   $skip_tests && mvn_args=(-q -DskipTests -P "$profile" deploy)
   if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P "$profile" deploy); fi
-  run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}"
+  # For Central publishing, prefer the settings provided by actions/setup-java (no -s override)
+  if [[ "$profile" == "release-central" ]]; then
+    run_cmd mvn "${mvn_args[@]}"
+  else
+    run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}"
+  fi
 }
 
 cmd_next_snapshot() {
