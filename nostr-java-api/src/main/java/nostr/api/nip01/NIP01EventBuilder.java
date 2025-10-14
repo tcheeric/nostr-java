@@ -36,24 +36,12 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildRecipientTextNote(String content, List<PubKeyTag> tags) {
-    return buildRecipientTextNote(null, content, tags);
-  }
-
-  public GenericEvent buildRecipientTextNote(
-      Identity sender, String content, List<PubKeyTag> tags) {
-    return new GenericEventFactory<PubKeyTag>(
-            resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
+    return new GenericEventFactory<>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
   public GenericEvent buildTaggedTextNote(@NonNull List<BaseTag> tags, @NonNull String content) {
-    return buildTaggedTextNote(null, tags, content);
-  }
-
-  public GenericEvent buildTaggedTextNote(
-      Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
-    return new GenericEventFactory<BaseTag>(
-            resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
+    return new GenericEventFactory<>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
@@ -84,18 +72,12 @@ public final class NIP01EventBuilder {
     return buildReplaceableEvent(null, tags, kind, content);
   }
 
-  public GenericEvent buildReplaceableEvent(
-      Identity sender, List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(sender), kind, tags, content).create();
+  public GenericEvent buildReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
-    return buildEphemeralEvent(null, tags, kind, content);
-  }
-
-  public GenericEvent buildEphemeralEvent(
-      Identity sender, List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(sender), kind, tags, content).create();
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(Integer kind, String content) {
@@ -117,14 +99,7 @@ public final class NIP01EventBuilder {
 
   public GenericEvent buildAddressableEvent(
       @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-    return buildAddressableEvent(null, tags, kind, content);
-  }
-
-  public GenericEvent buildAddressableEvent(
-      Identity sender, @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-    return new GenericEventFactory<GenericTag>(
-            resolveSender(sender), kind, tags, content)
-        .create();
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   private Identity resolveSender(Identity override) {
