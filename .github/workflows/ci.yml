@@ -33,7 +33,7 @@ jobs:
 
       - name: Validate POM only on JDK 17 (project targets 21)
         if: matrix.java-version == '17'
-        run: mvn -q -N validate
+        run: mvn -s .mvn/settings.xml -q -N validate
 
       - name: Upload test reports and coverage (if present)
         if: always()
@@ -64,7 +64,7 @@ jobs:
           cache: maven
 
       - name: Run full verify (with Testcontainers)
-        run: mvn -q clean verify
+        run: mvn -s .mvn/settings.xml -q clean verify
 
       - name: Upload IT reports and coverage
         if: always()
