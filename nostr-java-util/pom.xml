@@ -4,12 +4,13 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>    
     
     <artifactId>nostr-java-util</artifactId>
     <packaging>jar</packaging>
+    <name>nostr-java-util</name>
 
     <distributionManagement>
         <repository>
