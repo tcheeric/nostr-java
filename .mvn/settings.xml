@@ -29,6 +29,14 @@
       </repositories>
     </profile>
   </profiles>
+  <servers>
+    <!-- Sonatype Central Publishing credentials injected from env vars -->
+    <server>
+      <id>central</id>
+      <username>${env.CENTRAL_USERNAME}</username>
+      <password>${env.CENTRAL_PASSWORD}</password>
+    </server>
+  </servers>
   <activeProfiles>
     <activeProfile>nostr-java-repos</activeProfile>
   </activeProfiles>
