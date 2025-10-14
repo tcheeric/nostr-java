@@ -27,11 +27,7 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildTextNote(String content) {
-    return buildTextNote(null, content);
-  }
-
-  public GenericEvent buildTextNote(Identity sender, String content) {
-    return new GenericEventFactory(resolveSender(sender), Kind.TEXT_NOTE.getValue(), content)
+    return new GenericEventFactory(resolveSender(null), Kind.TEXT_NOTE.getValue(), content)
         .create();
   }
 
@@ -59,17 +55,7 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildReplaceableEvent(Integer kind, String content) {
-    return buildReplaceableEvent(null, kind, content);
-  }
-
-  public GenericEvent buildReplaceableEvent(
-      Identity sender, Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(sender), kind, content).create();
-  }
-
-  public GenericEvent buildReplaceableEvent(
-      List<BaseTag> tags, Integer kind, String content) {
-    return buildReplaceableEvent(null, tags, kind, content);
+    return new GenericEventFactory(resolveSender(null), kind, content).create();
   }
 
   public GenericEvent buildReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
@@ -81,20 +67,11 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildEphemeralEvent(Integer kind, String content) {
-    return buildEphemeralEvent(null, kind, content);
-  }
-
-  public GenericEvent buildEphemeralEvent(Identity sender, Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(sender), kind, content).create();
+    return new GenericEventFactory(resolveSender(null), kind, content).create();
   }
 
   public GenericEvent buildAddressableEvent(Integer kind, String content) {
-    return buildAddressableEvent(null, kind, content);
-  }
-
-  public GenericEvent buildAddressableEvent(
-      Identity sender, Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(sender), kind, content).create();
+    return new GenericEventFactory(resolveSender(null), kind, content).create();
   }
 
   public GenericEvent buildAddressableEvent(
