@@ -34,12 +34,12 @@ public final class NIP01EventBuilder {
   // Removed deprecated Identity-accepting overloads; use instance-configured sender
 
   public GenericEvent buildRecipientTextNote(String content, List<PubKeyTag> tags) {
-    return new GenericEventFactory<PubKeyTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
+    return new GenericEventFactory<>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
   public GenericEvent buildTaggedTextNote(@NonNull List<BaseTag> tags, @NonNull String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
+    return new GenericEventFactory<>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
@@ -60,11 +60,11 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), kind, tags, content).create();
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), kind, tags, content).create();
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(Integer kind, String content) {
@@ -77,7 +77,7 @@ public final class NIP01EventBuilder {
 
   public GenericEvent buildAddressableEvent(
       @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-    return new GenericEventFactory<GenericTag>(resolveSender(null), kind, tags, content).create();
+    return new GenericEventFactory<>(resolveSender(null), kind, tags, content).create();
   }
 
   private Identity resolveSender(Identity override) {
