@@ -27,24 +27,39 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildTextNote(String content) {
-    return new GenericEventFactory(resolveSender(null), Kind.TEXT_NOTE.getValue(), content)
+    return buildTextNote(null, content);
+  }
+
+  public GenericEvent buildTextNote(Identity sender, String content) {
+    return new GenericEventFactory(resolveSender(sender), Kind.TEXT_NOTE.getValue(), content)
         .create();
   }
 
-  // Removed deprecated Identity-accepting overloads; use instance-configured sender
-
   public GenericEvent buildRecipientTextNote(String content, List<PubKeyTag> tags) {
-    return new GenericEventFactory<PubKeyTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
+    return buildRecipientTextNote(null, content, tags);
+  }
+
+  public GenericEvent buildRecipientTextNote(
+      Identity sender, String content, List<PubKeyTag> tags) {
+    return new GenericEventFactory<PubKeyTag>(
+            resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
   public GenericEvent buildTaggedTextNote(@NonNull List<BaseTag> tags, @NonNull String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), Kind.TEXT_NOTE.getValue(), tags, content)
+    return buildTaggedTextNote(null, tags, content);
+  }
+
+  public GenericEvent buildTaggedTextNote(
+      Identity sender, @NonNull List<BaseTag> tags, @NonNull String content) {
+    return new GenericEventFactory<BaseTag>(
+            resolveSender(sender), Kind.TEXT_NOTE.getValue(), tags, content)
         .create();
   }
 
   public GenericEvent buildMetadataEvent(@NonNull Identity sender, @NonNull String payload) {
-    return new GenericEventFactory(sender, Kind.SET_METADATA.getValue(), payload).create();
+    return new GenericEventFactory(resolveSender(sender), Kind.SET_METADATA.getValue(), payload)
+        .create();
   }
 
   public GenericEvent buildMetadataEvent(@NonNull String payload) {
@@ -56,28 +71,60 @@ public final class NIP01EventBuilder {
   }
 
   public GenericEvent buildReplaceableEvent(Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(null), kind, content).create();
+    return buildReplaceableEvent(null, kind, content);
   }
 
-  public GenericEvent buildReplaceableEvent(List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), kind, tags, content).create();
+  public GenericEvent buildReplaceableEvent(
+      Identity sender, Integer kind, String content) {
+    return new GenericEventFactory(resolveSender(sender), kind, content).create();
+  }
+
+  public GenericEvent buildReplaceableEvent(
+      List<BaseTag> tags, Integer kind, String content) {
+    return buildReplaceableEvent(null, tags, kind, content);
+  }
+
+  public GenericEvent buildReplaceableEvent(
+      Identity sender, List<BaseTag> tags, Integer kind, String content) {
+    return new GenericEventFactory<BaseTag>(resolveSender(sender), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(List<BaseTag> tags, Integer kind, String content) {
-    return new GenericEventFactory<BaseTag>(resolveSender(null), kind, tags, content).create();
+    return buildEphemeralEvent(null, tags, kind, content);
+  }
+
+  public GenericEvent buildEphemeralEvent(
+      Identity sender, List<BaseTag> tags, Integer kind, String content) {
+    return new GenericEventFactory<BaseTag>(resolveSender(sender), kind, tags, content).create();
   }
 
   public GenericEvent buildEphemeralEvent(Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(null), kind, content).create();
+    return buildEphemeralEvent(null, kind, content);
+  }
+
+  public GenericEvent buildEphemeralEvent(Identity sender, Integer kind, String content) {
+    return new GenericEventFactory(resolveSender(sender), kind, content).create();
   }
 
   public GenericEvent buildAddressableEvent(Integer kind, String content) {
-    return new GenericEventFactory(resolveSender(null), kind, content).create();
+    return buildAddressableEvent(null, kind, content);
+  }
+
+  public GenericEvent buildAddressableEvent(
+      Identity sender, Integer kind, String content) {
+    return new GenericEventFactory(resolveSender(sender), kind, content).create();
   }
 
   public GenericEvent buildAddressableEvent(
       @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
-    return new GenericEventFactory<GenericTag>(resolveSender(null), kind, tags, content).create();
+    return buildAddressableEvent(null, tags, kind, content);
+  }
+
+  public GenericEvent buildAddressableEvent(
+      Identity sender, @NonNull List<GenericTag> tags, @NonNull Integer kind, String content) {
+    return new GenericEventFactory<GenericTag>(
+            resolveSender(sender), kind, tags, content)
+        .create();
   }
 
   private Identity resolveSender(Identity override) {
