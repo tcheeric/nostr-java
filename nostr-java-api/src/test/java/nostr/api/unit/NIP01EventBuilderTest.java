@@ -10,19 +10,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NIP01EventBuilderTest {
 
-  // Ensures that an explicitly provided sender overrides the default identity.
+  // Ensures that updating the default sender identity is respected by the builder.
   @Test
-  void buildTextNoteUsesOverrideIdentity() {
+  void buildTextNoteUsesUpdatedIdentity() {
     Identity defaultSender = Identity.create(PrivateKey.generateRandomPrivKey());
     Identity overrideSender = Identity.create(PrivateKey.generateRandomPrivKey());
     NIP01EventBuilder builder = new NIP01EventBuilder(defaultSender);
 
-    GenericEvent event = builder.buildTextNote(overrideSender, "override");
+    // Update the default sender and ensure new events use it
+    builder.updateDefaultSender(overrideSender);
+    GenericEvent event = builder.buildTextNote("override");
 
     assertEquals(overrideSender.getPublicKey(), event.getPubKey());
   }
 
-  // Ensures that the builder falls back to the configured sender when no override is supplied.
+  // Ensures that the builder uses the initially configured default sender when no update occurs.
   @Test
   void buildTextNoteUsesDefaultIdentityWhenOverrideMissing() {
     Identity defaultSender = Identity.create(PrivateKey.generateRandomPrivKey());
