@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload test reports and coverage (if present)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: reports-jdk-${{ matrix.java-version }}
           if-no-files-found: ignore
@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload IT reports and coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: reports-integration
           if-no-files-found: ignore
