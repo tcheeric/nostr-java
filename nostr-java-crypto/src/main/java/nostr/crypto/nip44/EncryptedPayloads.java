@@ -2,18 +2,14 @@ package nostr.crypto.nip44;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
+
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.crypto.params.HKDFParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -21,11 +17,12 @@ import org.bouncycastle.math.ec.FixedPointCombMultiplier;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -48,11 +45,7 @@ public class EncryptedPayloads {
         new IvParameterSpec(chachaNonce));
     byte[] ciphertext = cipher.doFinal(padded);
 
-    Mac mac = Mac.getInstance(Constants.HMAC_ALGORITHM);
-    mac.init(new SecretKeySpec(hmacKey, Constants.HMAC_ALGORITHM));
-    mac.update(nonce);
-    mac.update(ciphertext);
-    byte[] hmac = mac.doFinal();
+    byte[] hmac = hmacAad(hmacKey, ciphertext, nonce);
 
     ByteBuffer buffer = ByteBuffer.allocate(1 + nonce.length + ciphertext.length + hmac.length);
     buffer.put((byte) Constants.VERSION);
@@ -74,11 +67,7 @@ public class EncryptedPayloads {
     byte[] chachaNonce = keys[1];
     byte[] hmacKey = keys[2];
 
-    Mac hmac = Mac.getInstance(Constants.HMAC_ALGORITHM);
-    hmac.init(new SecretKeySpec(hmacKey, Constants.HMAC_ALGORITHM));
-    hmac.update(nonce);
-    hmac.update(ciphertext);
-    byte[] calculatedMac = hmac.doFinal();
+    byte[] calculatedMac = hmacAad(hmacKey, ciphertext, nonce);
 
     if (!MessageDigest.isEqual(calculatedMac, mac)) {
       log.debug(
@@ -99,14 +88,13 @@ public class EncryptedPayloads {
   }
 
   public static byte[] getConversationKey(String privkeyA, String pubkeyB)
-      throws NoSuchAlgorithmException, InvalidKeySpecException {
+      throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
     // Get the ECNamedCurveParameterSpec for the secp256k1 curve
     ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
 
     // Create an ECDomainParameters from the ECNamedCurveParameterSpec
-    ECDomainParameters domainParameters =
-        new ECDomainParameters(
-            ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(), ecSpec.getH(), ecSpec.getSeed());
+    ECDomainParameters domainParameters = new ECDomainParameters(
+        ecSpec.getCurve(), ecSpec.getG(), ecSpec.getN(), ecSpec.getH(), ecSpec.getSeed());
 
     // Convert the private key string to a BigInteger
     BigInteger d = new BigInteger(privkeyA, 16);
@@ -121,67 +109,88 @@ public class EncryptedPayloads {
     ECPublicKeyParameters publicKeyParameters = new ECPublicKeyParameters(Q, domainParameters);
 
     // Perform the point multiplication
-    ECPoint pointQ =
-        new FixedPointCombMultiplier()
-            .multiply(publicKeyParameters.getQ(), privateKeyParameters.getD());
+    ECPoint pointQ = new FixedPointCombMultiplier()
+        .multiply(publicKeyParameters.getQ(), privateKeyParameters.getD());
 
     // The result of the point multiplication is the shared secret
     byte[] sharedX = pointQ.normalize().getAffineXCoord().getEncoded();
 
-    // Derive the key using HKDF
-    char[] sharedXChars = new String(sharedX, StandardCharsets.UTF_8).toCharArray();
-    PBEKeySpec keySpec = new PBEKeySpec(sharedXChars, "nip44-v2".getBytes(), 65536, 256);
-    SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-
-    return factory.generateSecret(keySpec).getEncoded();
+    // Derive the conversation key using HKDF-extract
+    return hkdf_extract(sharedX, Constants.SALT_PREFIX.getBytes(StandardCharsets.UTF_8));
   }
 
   public static byte[] hexStringToByteArray(String s) {
     int len = s.length();
     byte[] data = new byte[len / 2];
     for (int i = 0; i < len; i += 2) {
-      data[i / 2] =
-          (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+      data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
     }
     return data;
   }
 
   private static int calcPaddedLen(int unpaddedLen) {
-    int nextPower = 1 << ((int) Math.floor(Math.log(unpaddedLen - 1) / Math.log(2)) + 1);
-    int chunk;
-    if (nextPower <= 256) {
-      chunk = 32;
-    } else {
-      chunk = nextPower / 8;
-    }
-    if (unpaddedLen <= 32) {
+    if (unpaddedLen <= 0)
+      throw new IllegalArgumentException("expected positive integer");
+
+    if (unpaddedLen <= 32)
       return 32;
-    } else {
-      return chunk * ((int) Math.floor((double) (unpaddedLen - 1) / chunk) + 1);
-    }
+
+    int nextPower = 1 << ((int) Math.floor(Math.log(unpaddedLen - 1) / Math.log(2)) + 1);
+    int chunk = nextPower <= 256 ? 32 : nextPower / 8;
+    return chunk * ((int) Math.floor((unpaddedLen - 1) / (double) chunk) + 1);
   }
 
   private static byte[] pad(String plaintext) throws Exception {
     byte[] unpadded = plaintext.getBytes(StandardCharsets.UTF_8);
     int unpaddedLen = unpadded.length;
-    if (unpaddedLen < Constants.MIN_PLAINTEXT_SIZE || unpaddedLen > Constants.MAX_PLAINTEXT_SIZE) {
+
+    if (unpaddedLen < Constants.MIN_PLAINTEXT_SIZE || unpaddedLen > Constants.MAX_PLAINTEXT_SIZE)
       throw new Exception("Invalid plaintext length");
-    }
-    byte[] prefix = ByteBuffer.allocate(2).putShort((short) unpaddedLen).array();
-    byte[] suffix = new byte[EncryptedPayloads.calcPaddedLen(unpaddedLen) - unpaddedLen];
-    return concat(prefix, unpadded, suffix);
+
+    ByteBuffer prefix = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) unpaddedLen);
+    byte[] suffix = new byte[calcPaddedLen(unpaddedLen) - unpaddedLen];
+    byte[] output = new byte[2 + unpaddedLen + suffix.length];
+    System.arraycopy(prefix.array(), 0, output, 0, 2);
+    System.arraycopy(unpadded, 0, output, 2, unpaddedLen);
+    // suffix already zero-filled
+    System.arraycopy(suffix, 0, output, 2 + unpaddedLen, suffix.length);
+
+    return output;
   }
 
-  private static String unpad(byte[] padded) throws Exception {
-    ByteBuffer wrapped = ByteBuffer.wrap(padded, 0, 2); // big-endian by default
-    int unpaddedLen = Short.toUnsignedInt(wrapped.getShort());
-    byte[] unpadded = Arrays.copyOfRange(padded, 2, 2 + unpaddedLen);
-    if (unpaddedLen == 0
-        || unpadded.length != unpaddedLen
-        || padded.length != 2 + calcPaddedLen(unpaddedLen)) {
-      throw new Exception("Invalid padding");
+  public static int bytesToInt(byte byte1, byte byte2, boolean bigEndian) {
+    if (bigEndian) {
+      return ((byte1 & 0xFF) << 8) | (byte2 & 0xFF);
+    } else {
+      return ((byte2 & 0xFF) << 8) | (byte1 & 0xFF);
     }
+  }
+
+  public static String unpad(byte[] padded) {
+    int unpaddedLen = bytesToInt(padded[0], padded[1], true);
+    if (unpaddedLen < Constants.MIN_PLAINTEXT_SIZE || unpaddedLen > Constants.MAX_PLAINTEXT_SIZE) {
+      throw new IllegalArgumentException("Invalid padding length: " + unpaddedLen);
+    }
+
+    if (padded.length != 2 + calcPaddedLen(unpaddedLen)) {
+      throw new IllegalArgumentException("Padded size mismatch");
+    }
+
+    byte[] unpadded = Arrays.copyOfRange(padded, 2, 2 + unpaddedLen);
+
     return new String(unpadded, StandardCharsets.UTF_8);
+  }
+
+  public static byte[] hmacAad(byte[] key, byte[] message, byte[] aad) throws Exception {
+    if (aad.length != Constants.HMAC_KEY_LENGTH) {
+      throw new IllegalArgumentException("AAD associated data must be " + Constants.HMAC_KEY_LENGTH + "bytes, but it was " + aad.length + " bytes");
+    }
+
+    byte[] aadMessageConcat = new byte[aad.length + message.length];
+    System.arraycopy(aad, 0, aadMessageConcat, 0, aad.length);
+    System.arraycopy(message, 0, aadMessageConcat, aad.length, message.length);
+
+    return hkdf_extract(aadMessageConcat, key);
   }
 
   private static byte[][] decodePayload(@NonNull String payload) throws Exception {
@@ -207,26 +216,43 @@ public class EncryptedPayloads {
     return new byte[][] {nonce, ciphertext, mac};
   }
 
-  private static byte[] hmacAad(byte[] key, byte[] message, byte[] aad) throws Exception {
-    if (aad.length != Constants.NONCE_LENGTH) {
-      throw new Exception("AAD associated data must be 32 bytes");
-    }
+  private static byte[] hkdf_extract(byte[] IKM, byte[] salt) throws NoSuchAlgorithmException, InvalidKeyException {
     Mac mac = Mac.getInstance(Constants.HMAC_ALGORITHM);
-    SecretKeySpec secretKeySpec = new SecretKeySpec(key, Constants.HMAC_ALGORITHM);
-    mac.init(secretKeySpec);
-    mac.update(aad);
-    mac.update(message);
-    return mac.doFinal();
+    mac.init(new SecretKeySpec(salt, Constants.HMAC_ALGORITHM));
+    return mac.doFinal(IKM);
   }
 
-  public static byte[] hkdf_extract(byte[] IKM, byte[] salt) {
-    HKDFBytesGenerator hkdf = new HKDFBytesGenerator(new SHA256Digest());
-    hkdf.init(new HKDFParameters(IKM, salt, null));
+  private static byte[] hkdf_expand(byte[] key, byte[] nonce, int outputLength)
+      throws InvalidKeyException, NoSuchAlgorithmException {
+    int hashLen = 32;
+    if (key.length != hashLen) {
+      throw new IllegalArgumentException("Key must be of length " + hashLen);
+    }
+    if (nonce.length != hashLen) {
+      throw new IllegalArgumentException("Nonce must be of length " + hashLen);
+    }
 
-    byte[] okm = new byte[32]; // Output key material
-    hkdf.generateBytes(okm, 0, okm.length);
+    int n = (outputLength % hashLen == 0) ? (outputLength / hashLen) : (outputLength / hashLen + 1);
+    byte[] hashRound = new byte[0];
+    ByteBuffer generatedBytes = ByteBuffer.allocate(Math.multiplyExact(n, hashLen));
 
-    return okm;
+    Mac mac = Mac.getInstance(Constants.HMAC_ALGORITHM);
+    mac.init(new SecretKeySpec(key, Constants.HMAC_ALGORITHM));
+
+    for (int roundNum = 1; roundNum <= n; roundNum++) {
+      mac.reset();
+      ByteBuffer t = ByteBuffer.allocate(hashRound.length + nonce.length + 1);
+      t.put(hashRound);
+      t.put(nonce);
+      t.put((byte) roundNum);
+      hashRound = mac.doFinal(t.array());
+      generatedBytes.put(hashRound);
+    }
+
+    byte[] result = new byte[outputLength];
+    generatedBytes.rewind();
+    generatedBytes.get(result, 0, outputLength);
+    return result;
   }
 
   private static byte[][] getMessageKeys(byte[] conversationKey, byte[] nonce) throws Exception {
@@ -237,40 +263,14 @@ public class EncryptedPayloads {
       throw new Exception("Invalid nonce length");
     }
 
-    SecretKeyFactory skf = SecretKeyFactory.getInstance(Constants.KEY_DERIVATION_ALGORITHM);
-    KeySpec spec =
-        new PBEKeySpec(
-            new String(conversationKey, StandardCharsets.UTF_8).toCharArray(),
-            nonce,
-            65536,
-            (Constants.CHACHA_KEY_LENGTH
-                    + Constants.CHACHA_NONCE_LENGTH
-                    + Constants.HMAC_KEY_LENGTH)
-                * 8);
-    byte[] keys = skf.generateSecret(spec).getEncoded();
+    byte[] expanded = hkdf_expand(conversationKey, nonce, Constants.HKDF_OUTPUT_LENGTH);
+    byte[] chachaKey = Arrays.copyOfRange(expanded, 0, Constants.CHACHA_KEY_LENGTH);
+    byte[] chachaNonce = Arrays.copyOfRange(
+      expanded, Constants.CHACHA_KEY_LENGTH, Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH);
+    byte[] hmacKey = Arrays.copyOfRange(
+      expanded, Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH, Constants.HKDF_OUTPUT_LENGTH);
 
-    byte[] chachaKey = Arrays.copyOfRange(keys, 0, Constants.CHACHA_KEY_LENGTH);
-    byte[] chachaNonce =
-        Arrays.copyOfRange(
-            keys,
-            Constants.CHACHA_KEY_LENGTH,
-            Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH);
-    byte[] hmacKey =
-        Arrays.copyOfRange(
-            keys, Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH, keys.length);
-
-    return new byte[][] {chachaKey, chachaNonce, hmacKey};
-  }
-
-  private static byte[] concat(byte[]... arrays) {
-    int totalLength = Arrays.stream(arrays).mapToInt(a -> a.length).sum();
-    byte[] result = new byte[totalLength];
-    int currentPosition = 0;
-    for (byte[] array : arrays) {
-      System.arraycopy(array, 0, result, currentPosition, array.length);
-      currentPosition += array.length;
-    }
-    return result;
+    return new byte[][] { chachaKey, chachaNonce, hmacKey };
   }
 
   private static class Constants {
@@ -279,13 +279,12 @@ public class EncryptedPayloads {
     public static final String SALT_PREFIX = "nip44-v2";
     private static final String ENCRYPTION_ALGORITHM = "ChaCha20";
     private static final String HMAC_ALGORITHM = "HmacSHA256";
-    private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA256";
-    // private static final String CHARACTER_ENCODING = StandardCharsets.UTF_8.name();
     private static final int CONVERSATION_KEY_LENGTH = 32;
     private static final int NONCE_LENGTH = 32;
     private static final int HMAC_KEY_LENGTH = 32;
     private static final int CHACHA_KEY_LENGTH = 32;
     private static final int CHACHA_NONCE_LENGTH = 12;
+    private static final int HKDF_OUTPUT_LENGTH = 76;
     private static final int VERSION = 2;
   }
 }
