@@ -89,6 +89,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     }
     this.awaitTimeoutMs = awaitTimeoutMs;
     this.pollIntervalMs = pollIntervalMs;
+    log.info("StandardWebSocketClient created for {} with awaitTimeoutMs={}, pollIntervalMs={}",
+        relayUri, awaitTimeoutMs, pollIntervalMs);
     this.clientSession =
         new org.springframework.web.socket.client.standard.StandardWebSocketClient()
             .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri))
@@ -162,10 +164,13 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
         awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval =
         pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
+    log.debug("Waiting for relay response with timeout={}ms, poll={}ms",
+        awaitTimeout.toMillis(), pollInterval.toMillis());
     try {
       await().atMost(awaitTimeout).pollInterval(pollInterval).untilTrue(completed);
     } catch (ConditionTimeoutException e) {
-      log.error("Timed out waiting for relay response", e);
+      log.error("Timed out waiting for relay response after {}ms (configured: awaitTimeoutMs={}, pollIntervalMs={})",
+          awaitTimeout.toMillis(), this.awaitTimeoutMs, this.pollIntervalMs, e);
       try {
         clientSession.close();
       } catch (IOException closeEx) {
