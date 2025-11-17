@@ -64,6 +64,37 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
             .get();
   }
 
+  /**
+   * Creates a new {@code StandardWebSocketClient} with custom timeout configuration.
+   *
+   * <p>This constructor allows explicit configuration of timeout values, which is useful
+   * when creating clients outside of Spring's dependency injection context or when
+   * programmatic timeout configuration is preferred over property-based configuration.
+   *
+   * @param relayUri the URI of the relay to connect to
+   * @param awaitTimeoutMs timeout in milliseconds for awaiting relay responses (must be positive)
+   * @param pollIntervalMs polling interval in milliseconds for checking responses (must be positive)
+   * @throws java.util.concurrent.ExecutionException if the WebSocket session fails to establish
+   * @throws InterruptedException if the current thread is interrupted while waiting for the
+   *     WebSocket handshake to complete
+   * @throws IllegalArgumentException if awaitTimeoutMs or pollIntervalMs is not positive
+   */
+  public StandardWebSocketClient(String relayUri, long awaitTimeoutMs, long pollIntervalMs)
+      throws java.util.concurrent.ExecutionException, InterruptedException {
+    if (awaitTimeoutMs <= 0) {
+      throw new IllegalArgumentException("awaitTimeoutMs must be positive");
+    }
+    if (pollIntervalMs <= 0) {
+      throw new IllegalArgumentException("pollIntervalMs must be positive");
+    }
+    this.awaitTimeoutMs = awaitTimeoutMs;
+    this.pollIntervalMs = pollIntervalMs;
+    this.clientSession =
+        new org.springframework.web.socket.client.standard.StandardWebSocketClient()
+            .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri))
+            .get();
+  }
+
   StandardWebSocketClient(
       WebSocketSession clientSession, long awaitTimeoutMs, long pollIntervalMs) {
     if (clientSession == null) {
