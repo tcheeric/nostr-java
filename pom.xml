@@ -85,7 +85,7 @@
 
         <!-- Plugin versions -->
         <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
-        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.11.3</maven.javadoc.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <flatten.plugin.version>1.7.2</flatten.plugin.version>
