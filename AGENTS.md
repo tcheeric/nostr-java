@@ -149,4 +149,22 @@ The URL format for the NIPs is https://github.com/nostr-protocol/nips/blob/maste
 - Always follow the repository's PR submission guidelines and use the PR template located at `.github/pull_request_template.md`.
 - Summarize the changes made and describe how they were tested.
 - Include any limitations or known issues in the description.
-- Ensure all new features are compliant with the Cashu specification (NUTs) provided above.
+- Ensure all new features are compliant with the Nostr specification (NIPs) provided above.
+
+## Versioning
+
+- Follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) for all releases.
+- Update the version in the parent `pom.xml` and all module POMs when preparing a release.
+- Use conventional commit types to signal version bumps (fix → patch, feat → minor, BREAKING CHANGE → major).
+
+## Changelog Maintenance
+
+- **Always update `CHANGELOG.md`** after any version change or significant code modification.
+- Follow the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+  - Group changes under: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
+  - List versions in reverse chronological order (newest first)
+  - Use `[Unreleased]` section for changes not yet in a release
+  - Include the release date in ISO format: `## [1.0.0] - 2025-12-17`
+- Each entry should be a concise, human-readable description of the change
+- Reference related issues or PRs where applicable
+- Update the changelog in the same commit as the version bump when possible
