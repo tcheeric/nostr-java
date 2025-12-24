@@ -6,7 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Fixed
+- StandardWebSocketClient now configures WebSocketContainer with a 1-hour idle timeout (configurable via `nostr.websocket.max-idle-timeout-ms`) to prevent premature connection closures when relays have periods of inactivity.
 
 ## [1.0.0] - 2025-10-13
 
