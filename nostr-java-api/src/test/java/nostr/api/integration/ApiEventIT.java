@@ -42,8 +42,8 @@ import nostr.event.tag.PubKeyTag;
 import nostr.event.tag.UrlTag;
 import nostr.event.tag.VoteTag;
 import nostr.id.Identity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
@@ -66,7 +66,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringJUnitConfig(RelayConfig.class)
 @Slf4j
 public class ApiEventIT extends BaseRelayIntegrationTest {
-  @Autowired private Map<String, String> relays;
+  private static final long RELAY_INDEX_DELAY_MS = 100;
+
+  private Map<String, String> relays;
+
+  @BeforeEach
+  void setUp() {
+    // Use the dynamic Testcontainers relay URL instead of static relays.properties
+    relays = getTestRelays();
+  }
+
+  private void waitForRelayIndexing() {
+    try {
+      Thread.sleep(RELAY_INDEX_DELAY_MS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
 
   @Test
   public void testNIP01CreateTextNoteEvent() throws Exception {
@@ -142,6 +158,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
             List.of(geohashTag), "GeohashTag Test location testNIP01SendTextNoteEventGeoHashTag")
         .signAndSend(relays);
 
+    waitForRelayIndexing();
+
     Filters filters = new Filters(new GeohashTagFilter<>(new GeohashTag(targetString)));
 
     List<String> result = nip01.sendRequest(filters, UUID.randomUUID().toString());
@@ -165,6 +183,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         .createTextNoteEvent(
             List.of(hashtagTag), "Hashtag Tag Test value testNIP01SendTextNoteEventHashtagTag")
         .signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters = new Filters(new HashtagTagFilter<>(new HashtagTag(targetString)));
 
@@ -190,6 +210,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
             List.of(genericTag),
             "Custom Generic Tag Test testNIP01SendTextNoteEventCustomGenericTag")
         .signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters =
         new Filters(new GenericTagQueryFilter<>(new GenericTagQuery("#m", targetString)));
@@ -220,6 +242,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     nip01
         .createTextNoteEvent("testNIP01SendTextNoteEventRecipientGenericTag", List.of(recipientTag))
         .signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters =
         new Filters(
@@ -254,6 +278,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         .createTextNoteEvent(List.of(genericTag), "testNIP01SendTextNoteEventUrlTag")
         .signAndSend(relays);
 
+    waitForRelayIndexing();
+
     Filters filters =
         new Filters(new GenericTagQueryFilter<>(new GenericTagQuery("#u", targetString)));
 
@@ -282,6 +308,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
 
     NIP01 nip01 = new NIP01(Identity.generateRandomIdentity());
     nip01.createTextNoteEvent(List.of(urlTag), "testFilterUrlTag").signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters = new Filters(new UrlTagFilter<>(new UrlTag(targetString)));
 
@@ -340,6 +368,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         .createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters")
         .signAndSend(relays);
 
+    waitForRelayIndexing();
+
     Filters filters1 = new Filters(new GeohashTagFilter<>(new GeohashTag(geoHashTagTarget)));
     Filters filters2 =
         new Filters(new GenericTagQueryFilter<>(new GenericTagQuery("#m", genericTagTarget)));
@@ -378,6 +408,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         .createTextNoteEvent(List.of(geohashTag2, genericTag2), "Multiple Filters 2")
         .signAndSend(relays);
 
+    waitForRelayIndexing();
+
     Filters filters1 =
         new Filters(
             new GeohashTagFilter<>(
@@ -415,6 +447,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
     nip01
         .createTextNoteEvent(List.of(geohashTag, genericTag), "Multiple Filters")
         .signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters =
         new Filters(
@@ -806,6 +840,8 @@ public class ApiEventIT extends BaseRelayIntegrationTest {
         .createTextNoteEvent(
             List.of(voteTag), "Vote Tag Test value testNIP01SendTextNoteEventVoteTag")
         .signAndSend(relays);
+
+    waitForRelayIndexing();
 
     Filters filters = new Filters(new VoteTagFilter<>(new VoteTag(targetVote)));
 

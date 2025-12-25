@@ -3,10 +3,10 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.1</version>
     <packaging>pom</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>nostr-java</name>
     <description>Java SDK for Nostr, for generating, signing and publishing events to relays</description>
     <url>https://github.com/tcheeric/nostr-java</url>
 
