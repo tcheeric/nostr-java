@@ -13,12 +13,14 @@ The Spring WebSocket client reads the following properties (with defaults):
 
 - `nostr.websocket.await-timeout-ms` (default: `60000`) — Max time to await a response after send.
 - `nostr.websocket.poll-interval-ms` (default: `500`) — Poll interval used during await.
+- `nostr.websocket.max-idle-timeout-ms` (default: `3600000`) — Max idle timeout for WebSocket sessions. Set to `0` for no timeout. This prevents premature connection closures when relays have periods of inactivity.
 
 Example (application.properties):
 
 ```
 nostr.websocket.await-timeout-ms=30000
 nostr.websocket.poll-interval-ms=250
+nostr.websocket.max-idle-timeout-ms=7200000  # 2 hours
 ```
 
 ## Retry behavior

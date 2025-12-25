@@ -14,6 +14,9 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.WebSocketContainer;
+
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
@@ -33,12 +36,17 @@ import static org.awaitility.Awaitility.await;
 public class StandardWebSocketClient extends TextWebSocketHandler implements WebSocketClientIF {
   private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(60);
   private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(500);
+  /** Default max idle timeout for WebSocket sessions (1 hour). Set to 0 for no timeout. */
+  private static final long DEFAULT_MAX_IDLE_TIMEOUT_MS = 3600000L;
 
   @Value("${nostr.websocket.await-timeout-ms:60000}")
   private long awaitTimeoutMs;
 
   @Value("${nostr.websocket.poll-interval-ms:500}")
   private long pollIntervalMs;
+
+  @Value("${nostr.websocket.max-idle-timeout-ms:3600000}")
+  private long maxIdleTimeoutMs;
 
   private final WebSocketSession clientSession;
   private final AtomicBoolean completed = new AtomicBoolean(false);
@@ -58,8 +66,39 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
    */
   public StandardWebSocketClient(@Value("${nostr.relay.uri}") String relayUri)
       throws java.util.concurrent.ExecutionException, InterruptedException {
-    this.clientSession =
-        new org.springframework.web.socket.client.standard.StandardWebSocketClient()
+    this.clientSession = createSpringClient()
+            .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri))
+            .get();
+  }
+
+  /**
+   * Creates a new {@code StandardWebSocketClient} with custom timeout configuration.
+   *
+   * <p>This constructor allows explicit configuration of timeout values, which is useful
+   * when creating clients outside of Spring's dependency injection context or when
+   * programmatic timeout configuration is preferred over property-based configuration.
+   *
+   * @param relayUri the URI of the relay to connect to
+   * @param awaitTimeoutMs timeout in milliseconds for awaiting relay responses (must be positive)
+   * @param pollIntervalMs polling interval in milliseconds for checking responses (must be positive)
+   * @throws java.util.concurrent.ExecutionException if the WebSocket session fails to establish
+   * @throws InterruptedException if the current thread is interrupted while waiting for the
+   *     WebSocket handshake to complete
+   * @throws IllegalArgumentException if awaitTimeoutMs or pollIntervalMs is not positive
+   */
+  public StandardWebSocketClient(String relayUri, long awaitTimeoutMs, long pollIntervalMs)
+      throws java.util.concurrent.ExecutionException, InterruptedException {
+    if (awaitTimeoutMs <= 0) {
+      throw new IllegalArgumentException("awaitTimeoutMs must be positive");
+    }
+    if (pollIntervalMs <= 0) {
+      throw new IllegalArgumentException("pollIntervalMs must be positive");
+    }
+    this.awaitTimeoutMs = awaitTimeoutMs;
+    this.pollIntervalMs = pollIntervalMs;
+    log.info("StandardWebSocketClient created for {} with awaitTimeoutMs={}, pollIntervalMs={}",
+        relayUri, awaitTimeoutMs, pollIntervalMs);
+    this.clientSession = createSpringClient()
             .execute(this, new WebSocketHttpHeaders(), URI.create(relayUri))
             .get();
   }
@@ -82,6 +121,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
+    log.debug("Relay payload received: {}", message.getPayload());
     dispatchMessage(message.getPayload());
     synchronized (sendLock) {
       if (awaitingResponse) {
@@ -125,16 +165,20 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
       events = new ArrayList<>();
       awaitingResponse = true;
       completed.setRelease(false);
+      log.info("Sending subscription request to relay {}: {}", clientSession.getUri(), json);
       clientSession.sendMessage(new TextMessage(json));
     }
     Duration awaitTimeout =
         awaitTimeoutMs > 0 ? Duration.ofMillis(awaitTimeoutMs) : DEFAULT_AWAIT_TIMEOUT;
     Duration pollInterval =
         pollIntervalMs > 0 ? Duration.ofMillis(pollIntervalMs) : DEFAULT_POLL_INTERVAL;
+    log.debug("Waiting for relay response with timeout={}ms, poll={}ms",
+        awaitTimeout.toMillis(), pollInterval.toMillis());
     try {
       await().atMost(awaitTimeout).pollInterval(pollInterval).untilTrue(completed);
     } catch (ConditionTimeoutException e) {
-      log.error("Timed out waiting for relay response", e);
+      log.error("Timed out waiting for relay response after {}ms (configured: awaitTimeoutMs={}, pollIntervalMs={})",
+          awaitTimeout.toMillis(), this.awaitTimeoutMs, this.pollIntervalMs, e);
       try {
         clientSession.close();
       } catch (IOException closeEx) {
@@ -149,6 +193,7 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     }
     synchronized (sendLock) {
       List<String> eventList = List.copyOf(events);
+      log.info("Received {} relay events via {}", eventList.size(), clientSession.getUri());
       events = new ArrayList<>();
       awaitingResponse = false;
       completed.setRelease(false);
@@ -204,6 +249,22 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
         }
       }
     }
+  }
+
+  /**
+   * Creates a Spring WebSocket client configured with an extended idle timeout.
+   *
+   * <p>The WebSocketContainer is configured with a max session idle timeout to prevent
+   * premature connection closures. This is important for Nostr relays that may have
+   * periods of inactivity between messages.
+   *
+   * @return a configured Spring StandardWebSocketClient
+   */
+  private static org.springframework.web.socket.client.standard.StandardWebSocketClient createSpringClient() {
+    WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+    container.setDefaultMaxSessionIdleTimeout(DEFAULT_MAX_IDLE_TIMEOUT_MS);
+    log.debug("websocket_container_configured max_idle_timeout_ms={}", DEFAULT_MAX_IDLE_TIMEOUT_MS);
+    return new org.springframework.web.socket.client.standard.StandardWebSocketClient(container);
   }
 
   private void dispatchMessage(String payload) {

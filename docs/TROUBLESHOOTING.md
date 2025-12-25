@@ -13,6 +13,7 @@ This guide helps you diagnose and resolve common issues when using nostr-java.
 - [Subscription Issues](#subscription-issues)
 - [Encryption & Decryption Issues](#encryption--decryption-issues)
 - [Performance Issues](#performance-issues)
+- [Integration Testing Issues](#integration-testing-issues)
 
 ---
 
@@ -602,4 +603,171 @@ For Spring Boot applications, add to `application.properties`:
 ```properties
 logging.level.nostr=DEBUG
 logging.level.nostr.client=TRACE
+```
+
+---
+
+## Integration Testing Issues
+
+### Problem: Tests Timeout After 60 Seconds
+
+**Symptom**: Integration tests hang and fail with `NoSuchElementException: No value present` or `No message received`
+
+**Possible Causes & Solutions:**
+
+#### 1. nostr-rs-relay Quanta Bug
+
+The `scsibug/nostr-rs-relay` Docker image contains a known bug in the `quanta` crate that causes panics in Docker environments:
+
+```
+thread 'tokio-ws-10' panicked at quanta-0.9.3/src/lib.rs:274:13:
+po2_denom was zero!
+```
+
+**Solution**: Use strfry relay instead:
+
+```properties
+# src/test/resources/relay-container.properties
+relay.container.image=dockurr/strfry:latest
+relay.container.port=7777
+```
+
+#### 2. Relay Container Not Starting
+
+Check Docker is available and the container starts properly:
+
+```bash
+# Verify Docker is running
+docker info
+
+# Test the relay image manually
+docker run --rm -p 7777:7777 dockurr/strfry:latest
+```
+
+### Problem: strfry Rejects All Events (Whitelist)
+
+**Symptom**: Events return `success=false` with message `blocked: pubkey not in whitelist`
+
+**Cause**: The default strfry Docker image has a write policy that whitelists specific pubkeys.
+
+**Solution**: Create a custom strfry.conf that disables the whitelist:
+
+```conf
+# src/test/resources/strfry.conf
+relay {
+    writePolicy {
+        plugin = ""  # Disable write policy plugin
+    }
+}
+```
+
+Mount this config in your test container:
+
+```java
+RELAY = new GenericContainer<>(image)
+    .withExposedPorts(relayPort)
+    .withClasspathResourceMapping(
+        "strfry.conf", "/etc/strfry.conf", BindMode.READ_ONLY)
+    .withTmpFs(Map.of("/app/strfry-db", "rw"))
+    .waitingFor(Wait.forLogMessage(".*Started websocket server on.*", 1));
+```
+
+### Problem: Filter Queries Return Empty Results
+
+**Symptom**: Tests send events successfully but filter queries return only EOSE (no events)
+
+**Cause**: Race condition - the relay needs time to index events before they can be queried.
+
+**Solution**: Add a small delay between publishing and querying:
+
+```java
+// Send event
+nip01.createTextNoteEvent(List.of(tag), "content").signAndSend(relays);
+
+// Wait for relay to index the event
+Thread.sleep(100);
+
+// Now query
+List<String> result = nip01.sendRequest(filters, subscriptionId);
+```
+
+### Problem: strfry Requires High File Descriptor Limits
+
+**Symptom**: Container fails with `Unable to set NOFILES limit`
+
+**Solution**: Configure ulimits in Testcontainers:
+
+```java
+import com.github.dockerjava.api.model.Ulimit;
+
+RELAY = new GenericContainer<>(image)
+    .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig()
+        .withUlimits(new Ulimit[] {new Ulimit("nofile", 1000000L, 1000000L)}))
+    // ... other configuration
+```
+
+### Problem: Tests Use Wrong Relay URL
+
+**Symptom**: Tests connect to hardcoded URL instead of Testcontainers dynamic port
+
+**Cause**: Tests may use `@Autowired` relays from properties file instead of dynamic container port.
+
+**Solution**: Use a base test class that provides the dynamic relay URL:
+
+```java
+public abstract class BaseRelayIntegrationTest {
+    @Container
+    private static final GenericContainer<?> RELAY = /* ... */;
+
+    static Map<String, String> getTestRelays() {
+        String host = RELAY.getHost();
+        int port = RELAY.getMappedPort(7777);
+        return Map.of("relay", String.format("ws://%s:%d", host, port));
+    }
+}
+
+// In your test
+@BeforeEach
+void setUp() {
+    relays = getTestRelays();  // Use dynamic URL, not autowired
+}
+```
+
+### Problem: Tests Fail in CI but Pass Locally
+
+**Symptom**: Docker-based tests fail in CI environments
+
+**Possible Causes:**
+
+1. **Docker not available**: Skip tests when Docker is unavailable:
+
+```java
+@DisabledIfSystemProperty(named = "noDocker", matches = "true")
+public class MyIntegrationTest extends BaseRelayIntegrationTest {
+    // ...
+}
+```
+
+Run with: `mvn test -DnoDocker=true`
+
+2. **Different Docker environments**: Some CI environments don't support certain CPU features (TSC) that cause the quanta bug.
+
+3. **Resource constraints**: CI containers may have limited resources. Use tmpfs for relay storage:
+
+```java
+.withTmpFs(Map.of("/app/strfry-db", "rw"))
+```
+
+### Relay Configuration Reference
+
+| Relay | Image | Port | Wait Strategy |
+|-------|-------|------|---------------|
+| strfry | `dockurr/strfry:latest` | 7777 | `Started websocket server on` |
+| nostr-rs-relay | `scsibug/nostr-rs-relay:latest` | 8080 | `listening on:` (has quanta bug) |
+
+Configure via `src/test/resources/relay-container.properties`:
+
+```properties
+relay.container.image=dockurr/strfry:latest
+relay.container.port=7777
 ```

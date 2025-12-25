@@ -8,6 +8,30 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 No unreleased changes yet.
 
+## [1.1.1] - 2025-12-24
+
+### Fixed
+- StandardWebSocketClient now configures WebSocketContainer with a 1-hour idle timeout (configurable via `nostr.websocket.max-idle-timeout-ms`) to prevent premature connection closures when relays have periods of inactivity.
+
+## [1.1.0] - 2025-12-23
+
+### Added
+- Public constructor `StandardWebSocketClient(String relayUri, long awaitTimeoutMs, long pollIntervalMs)` for programmatic timeout configuration outside Spring DI context.
+
+### Changed
+- Enhanced diagnostic logging for timeout configuration in StandardWebSocketClient.
+- Simplified WebSocket client initialization and retry logic in tests.
+
+### Fixed
+- Updated `JsonDeserialize` builder reference in API module.
+
+## [1.0.1] - 2025-12-20
+
+### Changed
+- Updated project version and added artifact names in POM files.
+- Added Sonatype Central server credentials configuration.
+- Updated Maven command for central publishing.
+
 ## [1.0.0] - 2025-10-13
 
 ### Added
