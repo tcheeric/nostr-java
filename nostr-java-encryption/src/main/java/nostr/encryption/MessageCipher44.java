@@ -6,9 +6,6 @@ import lombok.NonNull;
 import nostr.crypto.nip44.EncryptedPayloads;
 import nostr.util.NostrUtil;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
 @Data
 @AllArgsConstructor
 public class MessageCipher44 implements MessageCipher {
@@ -40,12 +37,8 @@ public class MessageCipher44 implements MessageCipher {
   }
 
   private byte[] getConversationKey() {
-    try {
-      return EncryptedPayloads.getConversationKey(
-          NostrUtil.bytesToHex(senderPrivateKey), "02" + NostrUtil.bytesToHex(recipientPublicKey));
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      throw new RuntimeException(e);
-    }
+    return EncryptedPayloads.getConversationKey(
+        NostrUtil.bytesToHex(senderPrivateKey), "02" + NostrUtil.bytesToHex(recipientPublicKey));
   }
 
   private byte[] generateNonce() {
