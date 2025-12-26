@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -123,13 +125,15 @@ public class EncryptedPayloads {
     byte[] sharedX = pointQ.normalize().getAffineXCoord().getEncoded();
 
     // NIP-44: conversation_key = HKDF-Extract(salt="nip44-v2", ikm=shared_x)
-    byte[] salt = "nip44-v2".getBytes(StandardCharsets.UTF_8);
-    HKDFBytesGenerator hkdf = new HKDFBytesGenerator(new SHA256Digest());
-    hkdf.init(new HKDFParameters(sharedX, salt, null));
-    byte[] conversationKey = new byte[32];
-    hkdf.generateBytes(conversationKey, 0, 32);
-
-    return conversationKey;
+    // HKDF-Extract is defined as: PRK = HMAC-Hash(salt, IKM)
+    try {
+      byte[] salt = "nip44-v2".getBytes(StandardCharsets.UTF_8);
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(new SecretKeySpec(salt, "HmacSHA256"));
+      return mac.doFinal(sharedX);
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new RuntimeException("HKDF-Extract failed", e);
+    }
   }
 
   public static byte[] hexStringToByteArray(String s) {

@@ -8,6 +8,17 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 No unreleased changes yet.
 
+## [1.2.0] - 2025-12-26
+
+### Fixed
+- NIP-44 encryption now correctly uses HKDF instead of PBKDF2 for key derivation, as required by the specification. This fix enables DM interoperability between Java backend and JavaScript frontend implementations (e.g., nostr-tools).
+
+### Changed
+- Switched integration tests to use strfry relay for improved robustness.
+
+### Removed
+- Removed AGENTS.md and CLAUDE.md documentation files from the repository.
+
 ## [1.1.1] - 2025-12-24
 
 ### Fixed
