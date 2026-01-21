@@ -229,6 +229,11 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     PendingRequest request;
 
     synchronized (sendLock) {
+      if (pendingRequest != null && !pendingRequest.isDone()) {
+        throw new IllegalStateException(
+            "A request is already in flight. Concurrent send() calls are not supported. "
+                + "Wait for the current request to complete or use separate client instances.");
+      }
       request = new PendingRequest();
       pendingRequest = request;
       log.info("Sending request to relay {}: {}", clientSession.getUri(), json);
