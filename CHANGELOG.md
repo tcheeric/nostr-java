@@ -14,6 +14,8 @@ No unreleased changes yet.
 - NIP-44 now correctly uses HKDF-Extract for conversation key derivation, ensuring proper cryptographic key generation.
 - WebSocket client now correctly accumulates all relay responses (EVENT messages) before completing, waiting for termination signals (EOSE, OK, NOTICE, CLOSED) instead of returning after the first message.
 - WebSocket client thread-safety improved by encapsulating pending request state, preventing potential race conditions when multiple threads call send() concurrently.
+- WebSocket client now rejects concurrent send() calls with IllegalStateException instead of silently orphaning the previous request's future.
+- KindFilter and ClassifiedListingEventDeserializer now use Kind.valueOfStrict() for fail-fast deserialization of unknown kind values.
 
 ### Changed
 - Kind.valueOf(int) now returns null for unknown kind values instead of throwing, allowing graceful handling of custom or future NIP kinds during JSON deserialization.
