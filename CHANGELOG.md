@@ -8,6 +8,13 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 No unreleased changes yet.
 
+## [1.2.1] - 2026-01-21
+
+### Fixed
+- NIP-44 now correctly uses HKDF-Extract for conversation key derivation, ensuring proper cryptographic key generation.
+- Kind enum error handling improved for unknown kind values to prevent runtime exceptions.
+- WebSocket client response handling refactored to use CompletableFuture for event-driven notifications, improving reliability and responsiveness.
+
 ## [1.2.0] - 2025-12-26
 
 ### Fixed
