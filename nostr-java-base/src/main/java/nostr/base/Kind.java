@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.temporal.ValueRange;
+import java.util.Optional;
 
 /**
  * @author squirrel
@@ -64,6 +65,20 @@ public enum Kind {
 
   private final String name;
 
+  /**
+   * Returns the Kind enum constant for the given integer value.
+   *
+   * <p>This method is used by Jackson for JSON deserialization. For unknown kind values
+   * (valid range but not defined in this enum), it returns {@code null} to allow handling
+   * of custom or future NIP kinds that aren't yet defined in this library.
+   *
+   * <p>For strict validation that throws on unknown kinds, use {@link #valueOfStrict(int)}.
+   * For a safer Optional-based lookup, use {@link #findByValue(int)}.
+   *
+   * @param value the kind integer value (must be between 0 and 65535)
+   * @return the Kind enum constant, or {@code null} if the value is valid but not defined
+   * @throws IllegalArgumentException if the value is outside the valid range (0-65535)
+   */
   @JsonCreator
   public static Kind valueOf(int value) {
     if (!ValueRange.of(0, 65_535).isValidIntValue(value)) {
@@ -75,9 +90,42 @@ public enum Kind {
         return k;
       }
     }
+    return null;
+  }
 
-    throw new IllegalArgumentException(
-        String.format("Unknown kind value: %d. Add it to the Kind enum if it's a valid NIP kind.", value));
+  /**
+   * Returns the Kind enum constant for the given integer value, throwing if not found.
+   *
+   * <p>Use this method when you require a known Kind and want to fail fast on unknown values.
+   * For lenient handling of custom kinds, use {@link #valueOf(int)} or {@link #findByValue(int)}.
+   *
+   * @param value the kind integer value (must be between 0 and 65535)
+   * @return the Kind enum constant
+   * @throws IllegalArgumentException if the value is outside the valid range or unknown
+   */
+  public static Kind valueOfStrict(int value) {
+    Kind kind = valueOf(value);
+    if (kind == null) {
+      throw new IllegalArgumentException(
+          String.format("Unknown kind value: %d. Use valueOf() for lenient handling or add it to the Kind enum.", value));
+    }
+    return kind;
+  }
+
+  /**
+   * Safely looks up a Kind by its integer value, returning an Optional.
+   *
+   * <p>This is the recommended method for handling potentially unknown kinds, as it makes
+   * the possibility of unknown values explicit in the API.
+   *
+   * @param value the kind integer value
+   * @return an Optional containing the Kind if found, or empty if unknown or out of range
+   */
+  public static Optional<Kind> findByValue(int value) {
+    if (!ValueRange.of(0, 65_535).isValidIntValue(value)) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(valueOf(value));
   }
 
   @Override
