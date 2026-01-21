@@ -12,8 +12,13 @@ No unreleased changes yet.
 
 ### Fixed
 - NIP-44 now correctly uses HKDF-Extract for conversation key derivation, ensuring proper cryptographic key generation.
-- Kind enum error handling improved for unknown kind values to prevent runtime exceptions.
-- WebSocket client response handling refactored to use CompletableFuture for event-driven notifications, improving reliability and responsiveness.
+- WebSocket client now correctly accumulates all relay responses (EVENT messages) before completing, waiting for termination signals (EOSE, OK, NOTICE, CLOSED) instead of returning after the first message.
+- WebSocket client thread-safety improved by encapsulating pending request state, preventing potential race conditions when multiple threads call send() concurrently.
+
+### Changed
+- Kind.valueOf(int) now returns null for unknown kind values instead of throwing, allowing graceful handling of custom or future NIP kinds during JSON deserialization.
+- Added Kind.valueOfStrict(int) for callers who need fail-fast behavior on unknown kinds.
+- Added Kind.findByValue(int) returning Optional<Kind> for safe, explicit handling of unknown kinds.
 
 ## [1.2.0] - 2025-12-26
 
