@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class Nip44EncryptDecryptTest {
 
+  private static final int DISPLAY_LENGTH = 20;
+
   /**
    * Test that decryption correctly recovers plaintext from official test vectors.
    * This tests the decrypt-only path to ensure compatibility with messages encrypted
@@ -76,6 +78,6 @@ public class Nip44EncryptDecryptTest {
         decrypted,
         String.format(
             "Decryption mismatch for payload=%s...",
-            payload.length() > 20 ? payload.substring(0, 20) + "..." : payload));
+            payload.length() > DISPLAY_LENGTH ? payload.substring(0, DISPLAY_LENGTH) + "..." : payload));
   }
 }

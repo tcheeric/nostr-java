@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
  */
 public class Nip44ConversationKeyTest {
 
+  private static final int HEX_DISPLAY_LENGTH = 16;
+
   /**
    * Test conversation key derivation with official test vectors from NIP-44 spec.
    * Verifies that ECDH key agreement and HKDF-Extract produce compatible results.
@@ -172,10 +174,10 @@ public class Nip44ConversationKeyTest {
         conversationKey,
         String.format(
             "Conversation key mismatch for sec1=%s, pub2=%s. Expected=%s, Got=%s",
-            sec1.substring(0, 16) + "...",
-            pub2.substring(0, 16) + "...",
-            expectedConversationKey.substring(0, 16) + "...",
-            bytesToHex(conversationKey).substring(0, 16) + "..."
+            sec1.substring(0, HEX_DISPLAY_LENGTH) + "...",
+            pub2.substring(0, HEX_DISPLAY_LENGTH) + "...",
+            expectedConversationKey.substring(0, HEX_DISPLAY_LENGTH) + "...",
+            bytesToHex(conversationKey).substring(0, HEX_DISPLAY_LENGTH) + "..."
         )
     );
   }

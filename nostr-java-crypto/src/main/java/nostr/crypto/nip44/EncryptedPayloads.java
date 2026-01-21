@@ -2,7 +2,7 @@ package nostr.crypto.nip44;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.spec.ChaCha20ParameterSpec;
+import javax.crypto.spec.ChaCha20ParameterSpec; // Requires Java 11+
 import javax.crypto.spec.SecretKeySpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
