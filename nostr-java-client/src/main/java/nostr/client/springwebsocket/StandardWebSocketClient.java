@@ -57,10 +57,39 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   private final WebSocketSession clientSession;
   private final Object sendLock = new Object();
-  private List<String> events = new ArrayList<>();
-  private CompletableFuture<List<String>> responseFuture;
+  private PendingRequest pendingRequest;
   private final Map<String, ListenerRegistration> listeners = new ConcurrentHashMap<>();
   private final AtomicBoolean connectionClosed = new AtomicBoolean(false);
+
+  /** Encapsulates a pending request's future and its associated events list for thread isolation. */
+  private static final class PendingRequest {
+    private final CompletableFuture<List<String>> future = new CompletableFuture<>();
+    private final List<String> events = new ArrayList<>();
+
+    void addEvent(String event) {
+      events.add(event);
+    }
+
+    void complete() {
+      future.complete(List.copyOf(events));
+    }
+
+    void completeExceptionally(Throwable ex) {
+      future.completeExceptionally(ex);
+    }
+
+    boolean isDone() {
+      return future.isDone();
+    }
+
+    CompletableFuture<List<String>> getFuture() {
+      return future;
+    }
+
+    int eventCount() {
+      return events.size();
+    }
+  }
 
   /**
    * Creates a new {@code StandardWebSocketClient} connected to the provided relay URI.
@@ -130,13 +159,38 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     log.debug("Relay payload received: {}", message.getPayload());
     dispatchMessage(message.getPayload());
     synchronized (sendLock) {
-      if (responseFuture != null && !responseFuture.isDone()) {
-        events.add(message.getPayload());
-        // Complete the future with the current events - instant notification
-        responseFuture.complete(List.copyOf(events));
-        log.debug("Response future completed with {} events", events.size());
+      if (pendingRequest != null && !pendingRequest.isDone()) {
+        pendingRequest.addEvent(message.getPayload());
+        // Complete on termination signals: EOSE (end of stored events) or OK (event acceptance)
+        if (isTerminationMessage(message.getPayload())) {
+          pendingRequest.complete();
+          log.debug("Response future completed with {} events", pendingRequest.eventCount());
+        }
       }
     }
+  }
+
+  /**
+   * Checks if the message is a Nostr protocol termination signal.
+   *
+   * <p>Termination signals indicate the relay has finished sending responses:
+   * <ul>
+   *   <li>EOSE - End of Stored Events, sent after all matching events for a REQ</li>
+   *   <li>OK - Acknowledgment of an EVENT submission</li>
+   *   <li>NOTICE - Server notice (often indicates errors)</li>
+   *   <li>CLOSED - Subscription closed by relay</li>
+   * </ul>
+   */
+  private boolean isTerminationMessage(String payload) {
+    if (payload == null || payload.length() < 2) {
+      return false;
+    }
+    // Quick check for JSON array starting with known termination commands
+    // Format: ["EOSE", ...] or ["OK", ...] or ["NOTICE", ...] or ["CLOSED", ...]
+    return payload.startsWith("[\"EOSE\"")
+        || payload.startsWith("[\"OK\"")
+        || payload.startsWith("[\"NOTICE\"")
+        || payload.startsWith("[\"CLOSED\"");
   }
 
   @Override
@@ -144,8 +198,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     log.warn("Transport error on WebSocket session", exception);
     notifyError(exception);
     synchronized (sendLock) {
-      if (responseFuture != null && !responseFuture.isDone()) {
-        responseFuture.completeExceptionally(exception);
+      if (pendingRequest != null && !pendingRequest.isDone()) {
+        pendingRequest.completeExceptionally(exception);
       }
     }
   }
@@ -158,8 +212,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
       notifyClose();
     }
     synchronized (sendLock) {
-      if (responseFuture != null && !responseFuture.isDone()) {
-        responseFuture.completeExceptionally(
+      if (pendingRequest != null && !pendingRequest.isDone()) {
+        pendingRequest.completeExceptionally(
             new IOException("WebSocket connection closed: " + status));
       }
     }
@@ -172,12 +226,11 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
 
   @Override
   public List<String> send(String json) throws IOException {
-    CompletableFuture<List<String>> future;
+    PendingRequest request;
 
     synchronized (sendLock) {
-      events = new ArrayList<>();
-      responseFuture = new CompletableFuture<>();
-      future = responseFuture;
+      request = new PendingRequest();
+      pendingRequest = request;
       log.info("Sending request to relay {}: {}", clientSession.getUri(), json);
       clientSession.sendMessage(new TextMessage(json));
     }
@@ -186,16 +239,15 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
     log.debug("Waiting for relay response with timeout={}ms (event-driven)", timeout);
 
     try {
-      List<String> result = future.get(timeout, TimeUnit.MILLISECONDS);
+      List<String> result = request.getFuture().get(timeout, TimeUnit.MILLISECONDS);
       log.info("Received {} relay events via {}", result.size(), clientSession.getUri());
       return result;
     } catch (TimeoutException e) {
       log.error("Timed out waiting for relay response after {}ms", timeout);
       synchronized (sendLock) {
-        if (responseFuture == future) {
-          responseFuture = null;
+        if (pendingRequest == request) {
+          pendingRequest = null;
         }
-        events = new ArrayList<>();
       }
       try {
         clientSession.close();
@@ -214,8 +266,8 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
       throw new IOException("Error waiting for relay response", cause);
     } finally {
       synchronized (sendLock) {
-        if (responseFuture == future) {
-          responseFuture = null;
+        if (pendingRequest == request) {
+          pendingRequest = null;
         }
       }
     }
