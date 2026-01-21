@@ -14,47 +14,76 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test to verify NIP-60 filter JSON serialization format.
  */
-public class Nip60FilterJsonTest {
+class Nip60FilterJsonTest {
+
+    private static final String TEST_PUBKEY = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
 
     @Test
-    public void testNip60FilterJsonFormat() {
-        String pubkey = "f1b419a95cb0233a11d431423b41a42734e7165fcab16081cd08ef1c90e0be75";
-
-        // First filter: kinds + authors (like Nip60SyncService first group)
-        Filters filter1 = new Filters(List.of(
-            new KindFilter<>(Kind.valueOf(17375)),
-            new KindFilter<>(Kind.valueOf(7375)),
-            new KindFilter<>(Kind.valueOf(7376)),
-            new AuthorFilter<>(new PublicKey(pubkey))
+    void testNip60WalletFilterJsonFormat() {
+        // First filter: wallet-related kinds + author
+        Filters filter = new Filters(List.of(
+            new KindFilter<>(Kind.WALLET),
+            new KindFilter<>(Kind.WALLET_UNSPENT_PROOF),
+            new KindFilter<>(Kind.WALLET_TX_HISTORY),
+            new AuthorFilter<>(new PublicKey(TEST_PUBKEY))
         ));
 
-        // Second filter: kind + #a tag (like Nip60SyncService second group)
-        Filters filter2 = new Filters(List.of(
-            new KindFilter<>(Kind.valueOf(7375)),
-            new GenericTagQueryFilter<>(new GenericTagQuery("#a", "17375:" + pubkey))
+        String filterJson = new FiltersEncoder(filter).encode();
+
+        assertNotNull(filterJson);
+        // Verify kinds are present with correct NIP-60 values
+        assertTrue(filterJson.contains("17375"), "Should contain WALLET kind (17375)");
+        assertTrue(filterJson.contains("7375"), "Should contain WALLET_UNSPENT_PROOF kind (7375)");
+        assertTrue(filterJson.contains("7376"), "Should contain WALLET_TX_HISTORY kind (7376)");
+        // Verify author pubkey is present
+        assertTrue(filterJson.contains(TEST_PUBKEY), "Should contain author pubkey");
+        // Verify JSON structure has expected fields
+        assertTrue(filterJson.contains("\"kinds\""), "Should have 'kinds' field");
+        assertTrue(filterJson.contains("\"authors\""), "Should have 'authors' field");
+    }
+
+    @Test
+    void testNip60ProofFilterWithTagQuery() {
+        // Filter with kind + #a tag query (wallet proof lookup by wallet reference)
+        String walletRef = Kind.WALLET.getValue() + ":" + TEST_PUBKEY;
+        Filters filter = new Filters(List.of(
+            new KindFilter<>(Kind.WALLET_UNSPENT_PROOF),
+            new GenericTagQueryFilter<>(new GenericTagQuery("#a", walletRef))
         ));
 
-        ReqMessage req = new ReqMessage("test-sub-id", List.of(filter1, filter2));
+        String filterJson = new FiltersEncoder(filter).encode();
 
+        assertNotNull(filterJson);
+        assertTrue(filterJson.contains("7375"), "Should contain WALLET_UNSPENT_PROOF kind");
+        assertTrue(filterJson.contains("\"#a\""), "Should have '#a' tag filter");
+        assertTrue(filterJson.contains(walletRef), "Should contain wallet reference in #a tag");
+    }
+
+    @Test
+    void testNip60ReqMessageFormat() {
+        Filters walletFilter = new Filters(List.of(
+            new KindFilter<>(Kind.WALLET),
+            new AuthorFilter<>(new PublicKey(TEST_PUBKEY))
+        ));
+
+        Filters proofFilter = new Filters(List.of(
+            new KindFilter<>(Kind.WALLET_UNSPENT_PROOF),
+            new AuthorFilter<>(new PublicKey(TEST_PUBKEY))
+        ));
+
+        ReqMessage req = new ReqMessage("nip60-sync", List.of(walletFilter, proofFilter));
         String reqJson = req.encode();
-        System.out.println("REQ Message JSON:");
-        System.out.println(reqJson);
-
-        // Also test single filter encoding
-        String filter1Json = new FiltersEncoder(filter1).encode();
-        System.out.println("\nFilter 1 encoded separately:");
-        System.out.println(filter1Json);
-
-        String filter2Json = new FiltersEncoder(filter2).encode();
-        System.out.println("\nFilter 2 encoded separately:");
-        System.out.println(filter2Json);
 
         assertNotNull(reqJson);
-        assertNotNull(filter1Json);
-        assertNotNull(filter2Json);
+        // REQ message format: ["REQ", <subscription_id>, <filter1>, <filter2>, ...]
+        assertTrue(reqJson.startsWith("[\"REQ\""), "Should start with REQ command");
+        assertTrue(reqJson.contains("\"nip60-sync\""), "Should contain subscription ID");
+        assertTrue(reqJson.contains("17375"), "Should contain WALLET kind");
+        assertTrue(reqJson.contains("7375"), "Should contain WALLET_UNSPENT_PROOF kind");
     }
 }
