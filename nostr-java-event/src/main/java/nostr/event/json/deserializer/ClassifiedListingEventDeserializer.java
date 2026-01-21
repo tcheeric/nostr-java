@@ -45,6 +45,13 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
     String createdAtValue = generalMap.get("created_at");
 
     try {
+      if (kindValue == null) {
+        throw new IOException("Missing required field 'kind' in ClassifiedListingEvent");
+      }
+      if (createdAtValue == null) {
+        throw new IOException("Missing required field 'created_at' in ClassifiedListingEvent");
+      }
+
       int kindInt = Integer.parseInt(kindValue);
       long createdAt = Long.parseLong(createdAtValue);
 
