@@ -76,7 +76,8 @@ public enum Kind {
       }
     }
 
-    return TEXT_NOTE;
+    throw new IllegalArgumentException(
+        String.format("Unknown kind value: %d. Add it to the Kind enum if it's a valid NIP kind.", value));
   }
 
   @Override
