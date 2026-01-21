@@ -2,7 +2,7 @@ package nostr.crypto.nip44;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.ChaCha20ParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class EncryptedPayloads {
     cipher.init(
         Cipher.ENCRYPT_MODE,
         new SecretKeySpec(chachaKey, Constants.ENCRYPTION_ALGORITHM),
-        new IvParameterSpec(chachaNonce));
+        new ChaCha20ParameterSpec(chachaNonce, 0));
     byte[] ciphertext = cipher.doFinal(padded);
 
     Mac mac = Mac.getInstance(Constants.HMAC_ALGORITHM);
@@ -89,7 +89,7 @@ public class EncryptedPayloads {
     cipher.init(
         Cipher.DECRYPT_MODE,
         new SecretKeySpec(chachaKey, Constants.ENCRYPTION_ALGORITHM),
-        new IvParameterSpec(chachaNonce));
+        new ChaCha20ParameterSpec(chachaNonce, 0));
     byte[] paddedPlaintext = cipher.doFinal(ciphertext);
 
     return EncryptedPayloads.unpad(paddedPlaintext);
