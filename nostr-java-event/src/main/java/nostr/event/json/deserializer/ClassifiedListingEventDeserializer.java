@@ -41,16 +41,21 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
       generalMap.put(key, classifiedListingEventNode.get(key).asText());
     }
 
-    ClassifiedListingEvent classifiedListingEvent =
-        new ClassifiedListingEvent(
-            new PublicKey(generalMap.get("pubkey")),
-            Kind.valueOfStrict(Integer.parseInt(generalMap.get("kind"))),
-            baseTags,
-            generalMap.get("content"));
-    classifiedListingEvent.setId(generalMap.get("id"));
-    classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
-    classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
+    try {
+      ClassifiedListingEvent classifiedListingEvent =
+          new ClassifiedListingEvent(
+              new PublicKey(generalMap.get("pubkey")),
+              Kind.valueOfStrict(Integer.parseInt(generalMap.get("kind"))),
+              baseTags,
+              generalMap.get("content"));
+      classifiedListingEvent.setId(generalMap.get("id"));
+      classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
+      classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
 
-    return classifiedListingEvent;
+      return classifiedListingEvent;
+    } catch (NumberFormatException ex) {
+      throw new IOException(
+          "Failed to parse numeric field in ClassifiedListingEvent: " + ex.getMessage(), ex);
+    }
   }
 }
