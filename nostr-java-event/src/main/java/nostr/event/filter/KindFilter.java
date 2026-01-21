@@ -39,5 +39,5 @@ public class KindFilter<T extends Kind> extends AbstractFilterable<T> {
   }
 
   public static Function<JsonNode, Filterable> fxn =
-      node -> new KindFilter<>(Kind.valueOf(node.asInt()));
+      node -> new KindFilter<>(Kind.valueOfStrict(node.asInt()));
 }

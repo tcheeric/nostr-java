@@ -2,9 +2,7 @@ package nostr.crypto.nip44;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +21,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -98,8 +95,7 @@ public class EncryptedPayloads {
     return EncryptedPayloads.unpad(paddedPlaintext);
   }
 
-  public static byte[] getConversationKey(String privkeyA, String pubkeyB)
-      throws NoSuchAlgorithmException, InvalidKeySpecException {
+  public static byte[] getConversationKey(String privkeyA, String pubkeyB) {
     // Get the ECNamedCurveParameterSpec for the secp256k1 curve
     ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
 
@@ -125,15 +121,19 @@ public class EncryptedPayloads {
         new FixedPointCombMultiplier()
             .multiply(publicKeyParameters.getQ(), privateKeyParameters.getD());
 
-    // The result of the point multiplication is the shared secret
+    // The result of the point multiplication is the shared secret (x-coordinate)
     byte[] sharedX = pointQ.normalize().getAffineXCoord().getEncoded();
 
-    // Derive the key using HKDF
-    char[] sharedXChars = new String(sharedX, StandardCharsets.UTF_8).toCharArray();
-    PBEKeySpec keySpec = new PBEKeySpec(sharedXChars, "nip44-v2".getBytes(), 65536, 256);
-    SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-
-    return factory.generateSecret(keySpec).getEncoded();
+    // NIP-44: conversation_key = HKDF-Extract(salt="nip44-v2", ikm=shared_x)
+    // HKDF-Extract is defined as: PRK = HMAC-Hash(salt, IKM)
+    try {
+      byte[] salt = "nip44-v2".getBytes(StandardCharsets.UTF_8);
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(new SecretKeySpec(salt, "HmacSHA256"));
+      return mac.doFinal(sharedX);
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new RuntimeException("HKDF-Extract failed", e);
+    }
   }
 
   public static byte[] hexStringToByteArray(String s) {
@@ -237,17 +237,14 @@ public class EncryptedPayloads {
       throw new Exception("Invalid nonce length");
     }
 
-    SecretKeyFactory skf = SecretKeyFactory.getInstance(Constants.KEY_DERIVATION_ALGORITHM);
-    KeySpec spec =
-        new PBEKeySpec(
-            new String(conversationKey, StandardCharsets.UTF_8).toCharArray(),
-            nonce,
-            65536,
-            (Constants.CHACHA_KEY_LENGTH
-                    + Constants.CHACHA_NONCE_LENGTH
-                    + Constants.HMAC_KEY_LENGTH)
-                * 8);
-    byte[] keys = skf.generateSecret(spec).getEncoded();
+    // NIP-44: keys = HKDF-Expand(prk=conversation_key, info=nonce, L=76)
+    // Output: chacha_key (32) || chacha_nonce (12) || hmac_key (32) = 76 bytes
+    int keyLength = Constants.CHACHA_KEY_LENGTH + Constants.CHACHA_NONCE_LENGTH + Constants.HMAC_KEY_LENGTH;
+    HKDFBytesGenerator hkdf = new HKDFBytesGenerator(new SHA256Digest());
+    // For HKDF-Expand only: pass conversationKey as IKM with empty salt, and nonce as info
+    hkdf.init(HKDFParameters.skipExtractParameters(conversationKey, nonce));
+    byte[] keys = new byte[keyLength];
+    hkdf.generateBytes(keys, 0, keyLength);
 
     byte[] chachaKey = Arrays.copyOfRange(keys, 0, Constants.CHACHA_KEY_LENGTH);
     byte[] chachaNonce =
@@ -276,11 +273,8 @@ public class EncryptedPayloads {
   private static class Constants {
     public static final int MIN_PLAINTEXT_SIZE = 1;
     public static final int MAX_PLAINTEXT_SIZE = 65535;
-    public static final String SALT_PREFIX = "nip44-v2";
     private static final String ENCRYPTION_ALGORITHM = "ChaCha20";
     private static final String HMAC_ALGORITHM = "HmacSHA256";
-    private static final String KEY_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA256";
-    // private static final String CHARACTER_ENCODING = StandardCharsets.UTF_8.name();
     private static final int CONVERSATION_KEY_LENGTH = 32;
     private static final int NONCE_LENGTH = 32;
     private static final int HMAC_KEY_LENGTH = 32;

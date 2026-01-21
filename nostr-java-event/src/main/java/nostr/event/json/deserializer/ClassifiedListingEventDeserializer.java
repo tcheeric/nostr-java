@@ -44,7 +44,7 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
     ClassifiedListingEvent classifiedListingEvent =
         new ClassifiedListingEvent(
             new PublicKey(generalMap.get("pubkey")),
-            Kind.valueOf(Integer.parseInt(generalMap.get("kind"))),
+            Kind.valueOfStrict(Integer.parseInt(generalMap.get("kind"))),
             baseTags,
             generalMap.get("content"));
     classifiedListingEvent.setId(generalMap.get("id"));
