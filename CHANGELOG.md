@@ -8,6 +8,16 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 No unreleased changes yet.
 
+## [1.3.0] - 2026-01-25
+
+### Added
+- Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.max-text-message-buffer-size` and `nostr.websocket.max-binary-message-buffer-size` properties.
+
+### Changed
+- No additional behavior changes in this release; Kind APIs and WebSocket concurrency improvements were introduced in 1.2.1.
+
+### Fixed
+- No new fixes beyond 1.2.1; this release focuses on configurable WebSocket buffer sizes.
 ## [1.2.1] - 2026-01-21
 
 ### Fixed

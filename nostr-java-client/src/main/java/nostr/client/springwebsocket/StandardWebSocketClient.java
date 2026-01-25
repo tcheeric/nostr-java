@@ -45,6 +45,10 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   private static final long DEFAULT_AWAIT_TIMEOUT_MS = 60000L;
   /** Default max idle timeout for WebSocket sessions (1 hour). Set to 0 for no timeout. */
   private static final long DEFAULT_MAX_IDLE_TIMEOUT_MS = 3600000L;
+  /** Default max text message buffer size (1MB). Large enough for NIP-60 wallet state events. */
+  private static final int DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE = 1048576;
+  /** Default max binary message buffer size (1MB). */
+  private static final int DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE = 1048576;
 
   @Value("${nostr.websocket.await-timeout-ms:60000}")
   private long awaitTimeoutMs;
@@ -329,19 +333,63 @@ public class StandardWebSocketClient extends TextWebSocketHandler implements Web
   }
 
   /**
-   * Creates a Spring WebSocket client configured with an extended idle timeout.
+   * Creates a Spring WebSocket client configured with extended timeout and buffer sizes.
    *
-   * <p>The WebSocketContainer is configured with a max session idle timeout to prevent
-   * premature connection closures. This is important for Nostr relays that may have
-   * periods of inactivity between messages.
+   * <p>The WebSocketContainer is configured with:
+   * <ul>
+   *   <li>Max session idle timeout to prevent premature connection closures (important for
+   *       Nostr relays that may have periods of inactivity between messages)</li>
+   *   <li>Large text/binary message buffers (default 1MB) to handle NIP-60 wallet state events
+   *       and other large Nostr events that can exceed default buffer sizes</li>
+   * </ul>
+   *
+   * <p>Configuration via system properties:
+   * <ul>
+   *   <li>{@code nostr.websocket.max-idle-timeout-ms} - Max session idle timeout (default: 3600000)</li>
+   *   <li>{@code nostr.websocket.max-text-message-buffer-size} - Max text message buffer (default: 1048576)</li>
+   *   <li>{@code nostr.websocket.max-binary-message-buffer-size} - Max binary message buffer (default: 1048576)</li>
+   * </ul>
    *
    * @return a configured Spring StandardWebSocketClient
    */
   private static org.springframework.web.socket.client.standard.StandardWebSocketClient createSpringClient() {
     WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-    container.setDefaultMaxSessionIdleTimeout(DEFAULT_MAX_IDLE_TIMEOUT_MS);
-    log.debug("websocket_container_configured max_idle_timeout_ms={}", DEFAULT_MAX_IDLE_TIMEOUT_MS);
+
+    long idleTimeout = getLongProperty("nostr.websocket.max-idle-timeout-ms", DEFAULT_MAX_IDLE_TIMEOUT_MS);
+    int textBufferSize = getIntProperty("nostr.websocket.max-text-message-buffer-size", DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE);
+    int binaryBufferSize = getIntProperty("nostr.websocket.max-binary-message-buffer-size", DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE);
+
+    container.setDefaultMaxSessionIdleTimeout(idleTimeout);
+    container.setDefaultMaxTextMessageBufferSize(textBufferSize);
+    container.setDefaultMaxBinaryMessageBufferSize(binaryBufferSize);
+
+    log.info("websocket_container_configured max_idle_timeout_ms={} max_text_buffer={} max_binary_buffer={}",
+        idleTimeout, textBufferSize, binaryBufferSize);
     return new org.springframework.web.socket.client.standard.StandardWebSocketClient(container);
+  }
+
+  private static long getLongProperty(String key, long defaultValue) {
+    String value = System.getProperty(key);
+    if (value != null && !value.isEmpty()) {
+      try {
+        return Long.parseLong(value);
+      } catch (NumberFormatException e) {
+        log.warn("Invalid value for property {}: {}, using default: {}", key, value, defaultValue);
+      }
+    }
+    return defaultValue;
+  }
+
+  private static int getIntProperty(String key, int defaultValue) {
+    String value = System.getProperty(key);
+    if (value != null && !value.isEmpty()) {
+      try {
+        return Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        log.warn("Invalid value for property {}: {}, using default: {}", key, value, defaultValue);
+      }
+    }
+    return defaultValue;
   }
 
   private void dispatchMessage(String payload) {
