@@ -11,7 +11,7 @@ No unreleased changes yet.
 ## [1.3.0] - 2026-01-25
 
 ### Added
-- Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.text-buffer-size` and `nostr.websocket.binary-buffer-size` properties.
+- Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.max-text-message-buffer-size` and `nostr.websocket.max-binary-message-buffer-size` properties.
 
 ### Changed
 - Kind.valueOf(int) now returns null for unknown kind values instead of throwing, allowing graceful handling of custom or future NIP kinds during JSON deserialization.
