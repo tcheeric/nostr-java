@@ -8,6 +8,20 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 No unreleased changes yet.
 
+## [1.3.0] - 2026-01-25
+
+### Added
+- Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.text-buffer-size` and `nostr.websocket.binary-buffer-size` properties.
+
+### Changed
+- Kind.valueOf(int) now returns null for unknown kind values instead of throwing, allowing graceful handling of custom or future NIP kinds during JSON deserialization.
+- Added Kind.valueOfStrict(int) for callers who need fail-fast behavior on unknown kinds.
+- Added Kind.findByValue(int) returning Optional<Kind> for safe, explicit handling of unknown kinds.
+
+### Fixed
+- WebSocket client now prevents concurrent send() calls with proper thread-safety using PendingRequest encapsulation.
+- KindFilter and ClassifiedListingEventDeserializer now use Kind.valueOfStrict() for fail-fast deserialization of unknown kind values.
+
 ## [1.2.1] - 2026-01-21
 
 ### Fixed
