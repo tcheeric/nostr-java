@@ -14,14 +14,10 @@ No unreleased changes yet.
 - Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.max-text-message-buffer-size` and `nostr.websocket.max-binary-message-buffer-size` properties.
 
 ### Changed
-- Kind.valueOf(int) now returns null for unknown kind values instead of throwing, allowing graceful handling of custom or future NIP kinds during JSON deserialization.
-- Added Kind.valueOfStrict(int) for callers who need fail-fast behavior on unknown kinds.
-- Added Kind.findByValue(int) returning Optional<Kind> for safe, explicit handling of unknown kinds.
+- No additional behavior changes in this release; Kind APIs and WebSocket concurrency improvements were introduced in 1.2.1.
 
 ### Fixed
-- WebSocket client now prevents concurrent send() calls with proper thread-safety using PendingRequest encapsulation.
-- KindFilter and ClassifiedListingEventDeserializer now use Kind.valueOfStrict() for fail-fast deserialization of unknown kind values.
-
+- No new fixes beyond 1.2.1; this release focuses on configurable WebSocket buffer sizes.
 ## [1.2.1] - 2026-01-21
 
 ### Fixed
