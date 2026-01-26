@@ -41,16 +41,37 @@ public class ClassifiedListingEventDeserializer extends StdDeserializer<Classifi
       generalMap.put(key, classifiedListingEventNode.get(key).asText());
     }
 
-    ClassifiedListingEvent classifiedListingEvent =
-        new ClassifiedListingEvent(
-            new PublicKey(generalMap.get("pubkey")),
-            Kind.valueOfStrict(Integer.parseInt(generalMap.get("kind"))),
-            baseTags,
-            generalMap.get("content"));
-    classifiedListingEvent.setId(generalMap.get("id"));
-    classifiedListingEvent.setCreatedAt(Long.valueOf(generalMap.get("created_at")));
-    classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
+    String kindValue = generalMap.get("kind");
+    String createdAtValue = generalMap.get("created_at");
 
-    return classifiedListingEvent;
+    try {
+      if (kindValue == null) {
+        throw new IOException("Missing required field 'kind' in ClassifiedListingEvent");
+      }
+      if (createdAtValue == null) {
+        throw new IOException("Missing required field 'created_at' in ClassifiedListingEvent");
+      }
+
+      int kindInt = Integer.parseInt(kindValue);
+      long createdAt = Long.parseLong(createdAtValue);
+
+      ClassifiedListingEvent classifiedListingEvent =
+          new ClassifiedListingEvent(
+              new PublicKey(generalMap.get("pubkey")),
+              Kind.valueOfStrict(kindInt),
+              baseTags,
+              generalMap.get("content"));
+      classifiedListingEvent.setId(generalMap.get("id"));
+      classifiedListingEvent.setCreatedAt(createdAt);
+      classifiedListingEvent.setSignature(Signature.fromString(generalMap.get("sig")));
+
+      return classifiedListingEvent;
+    } catch (NumberFormatException ex) {
+      throw new IOException(
+          String.format(
+              "Failed to parse numeric field in ClassifiedListingEvent - kind='%s', created_at='%s': %s",
+              kindValue, createdAtValue, ex.getMessage()),
+          ex);
+    }
   }
 }
