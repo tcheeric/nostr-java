@@ -40,9 +40,9 @@ public class EventFilter {
   private final Map<String, List<String>> tagFilters;
 
   private EventFilter(Builder builder) {
-    this.ids = Collections.unmodifiableList(builder.ids);
-    this.authors = Collections.unmodifiableList(builder.authors);
-    this.kinds = Collections.unmodifiableList(builder.kinds);
+    this.ids = Collections.unmodifiableList(new ArrayList<>(builder.ids));
+    this.authors = Collections.unmodifiableList(new ArrayList<>(builder.authors));
+    this.kinds = Collections.unmodifiableList(new ArrayList<>(builder.kinds));
     this.since = builder.since;
     this.until = builder.until;
     this.limit = builder.limit;
@@ -80,7 +80,7 @@ public class EventFilter {
                 .filter(GenericTag.class::isInstance)
                 .map(GenericTag.class::cast)
                 .filter(t -> t.getCode().equals(tagCode))
-                .anyMatch(t -> t.getParams().stream().anyMatch(values::contains)));
+                .anyMatch(t -> !t.getParams().isEmpty() && values.contains(t.getParams().get(0))));
       }
     }
 

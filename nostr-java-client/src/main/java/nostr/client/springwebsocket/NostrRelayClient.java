@@ -475,8 +475,6 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       }
       if (open) {
         clientSession.close();
-        connectionState.set(ConnectionState.CLOSED);
-        notifyClose();
       }
     }
   }
