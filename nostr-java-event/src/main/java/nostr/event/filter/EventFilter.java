@@ -46,7 +46,7 @@ public class EventFilter {
     this.since = builder.since;
     this.until = builder.until;
     this.limit = builder.limit;
-    this.tagFilters = Collections.unmodifiableMap(builder.tagFilters);
+    this.tagFilters = Collections.unmodifiableMap(new HashMap<>(builder.tagFilters));
   }
 
   public static Builder builder() {

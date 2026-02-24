@@ -90,6 +90,9 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     void addEvent(String event) {
       if (events.size() < maxEvents) {
         events.add(event);
+      } else if (events.size() == maxEvents) {
+        log.warn("Max events per request limit ({}) reached; subsequent events will be dropped. "
+            + "Increase nostr.websocket.max-events-per-request or use narrower filters.", maxEvents);
       }
     }
 

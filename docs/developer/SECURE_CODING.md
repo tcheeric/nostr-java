@@ -1,6 +1,6 @@
-# Secure Coding Guidelines for imani-bridge
+# Secure Coding Guidelines for nostr-java
 
-This document outlines the mandatory secure coding practices for the `imani-bridge` project. These guidelines are derived from industry best practices (OWASP, Oracle, etc.) and must be followed for all contributions.
+This document outlines the mandatory secure coding practices for the `nostr-java` project. These guidelines are derived from industry best practices (OWASP, Oracle, etc.) and must be followed for all contributions.
 
 ## 1. Input Validation and Output Encoding
 
@@ -28,8 +28,7 @@ This document outlines the mandatory secure coding practices for the `imani-brid
 
 ### Log Injection
 *   **Sanitize Logs:** Ensure user input written to logs does not contain newline characters (`
-`, ``) to prevent log forging.
-*   **Structured Logging:** Prefer structured logging (JSON) to mitigate format string attacks.
+*   **Sanitize Logs:** Ensure user input written to logs does not contain newline characters (`\n`, `\r`) to prevent log forging.
 
 ## 3. Cryptography & Secrets Management
 

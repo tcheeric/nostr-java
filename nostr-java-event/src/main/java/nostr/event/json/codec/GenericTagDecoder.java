@@ -32,9 +32,7 @@ public class GenericTagDecoder<T extends GenericTag> implements IDecoder<T> {
       String[] jsonElements = I_DECODER_MAPPER_BLACKBIRD.readValue(json, String[].class);
       List<String> params = new ArrayList<>(Math.max(0, jsonElements.length - 1));
       for (int i = 1; i < jsonElements.length; i++) {
-        if (!params.contains(jsonElements[i])) {
-          params.add(jsonElements[i]);
-        }
+        params.add(jsonElements[i]);
       }
       GenericTag genericTag = new GenericTag(jsonElements[0], params);
 
