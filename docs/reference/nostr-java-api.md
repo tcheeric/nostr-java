@@ -1,13 +1,15 @@
 # Nostr Java API Reference
 
-Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how‑to](../howto/use-nostr-java-api.md) · [Streaming subscriptions](../howto/streaming-subscriptions.md) · [Custom events](../howto/custom-events.md)
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how-to](../howto/use-nostr-java-api.md) · [Streaming subscriptions](../howto/streaming-subscriptions.md) · [Custom events](../howto/custom-events.md)
 
-This document provides an overview of the public API exposed by the `nostr-java` modules. It lists the major classes, configuration objects and their key method signatures, and shows brief examples of how to use them. Where applicable, links to related [Nostr Improvement Proposals (NIPs)](https://github.com/nostr-protocol/nips) are provided.
+This document provides an overview of the public API exposed by the `nostr-java` modules. It lists the major classes, their key method signatures, and shows brief usage examples.
 
-## Identity (`nostr-java-id`)
+---
+
+## Identity (`nostr-java-identity`)
 
 ### `Identity`
-Represents a Nostr identity backed by a private key. It can derive a public key and sign `ISignable` objects.
+Represents a Nostr identity backed by a private key. Derives the public key and signs `ISignable` objects.
 
 ```java
 public static Identity create(PrivateKey privateKey)
@@ -19,134 +21,236 @@ public Signature sign(ISignable signable)
 
 **Usage:**
 ```java
-Identity id = Identity.generateRandomIdentity();
-PublicKey pub = id.getPublicKey();
-Signature sig = id.sign(event);
+Identity identity = Identity.generateRandomIdentity();
+PublicKey pub = identity.getPublicKey();
+identity.sign(event);
 ```
+
+---
 
 ## Event Model (`nostr-java-event`)
 
-### Core Types
-- `BaseMessage` – base class for all relay messages.
-- `BaseEvent` – root class for Nostr events.
-- `BaseTag` – helper for tag encoding and decoding.
-
-### Predefined Events
-The `nostr.event` package provides event implementations for many NIPs:
-
-| Class | NIP |
-|-------|-----|
-| `NIP01Event` | [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) – standard text notes. |
-| `NIP04Event` | [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) – encrypted direct messages. |
-| `NIP05Event` | [NIP-05](https://github.com/nostr-protocol/nips/blob/master/05.md) – DNS identifiers. |
-| `NIP09Event` | [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) – event deletion. |
-| `NIP25Event` | [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) – reactions. |
-| `NIP52Event` | [NIP-52](https://github.com/nostr-protocol/nips/blob/master/52.md) – calendar events. |
-| `NIP99Event` | [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) – classified listings. |
-
-### Filters
-`Filters` and related `Filterable` implementations help build subscription requests.
+### `GenericEvent`
+The sole event class for all Nostr event kinds. Implements `ISignable`.
 
 ```java
-new Filters(Filterable... filterables)
-List<Filterable> getFilterByType(String type)
-void setLimit(Integer limit)
+// Builder
+public static GenericEventBuilder builder()
+
+// Fields
+public String getId()
+public PublicKey getPubKey()
+public Long getCreatedAt()
+public int getKind()
+public List<GenericTag> getTags()
+public String getContent()
+public Signature getSignature()
+
+// Kind classification
+public boolean isReplaceable()
+public boolean isEphemeral()
+public boolean isAddressable()
+
+// Bech32 encoding
+public String toBech32()
 ```
 
 **Usage:**
 ```java
-Filters filters = new Filters(new AuthorFilter(pubKey));
-filters.setLimit(100);
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello Nostr!")
+    .tags(List.of(GenericTag.of("t", "nostr")))
+    .build();
+
+identity.sign(event);
 ```
 
-## WebSocket Clients (`nostr-java-client`, `nostr-java-api`)
-
-### `WebSocketClientIF`
-Abstraction over a WebSocket connection to a relay.
+### `GenericTag`
+The sole tag class. A code and a list of string parameters.
 
 ```java
-<T extends BaseMessage> List<String> send(T eventMessage) throws IOException
-List<String> send(String json) throws IOException
-AutoCloseable subscribe(String requestJson,
-                        Consumer<String> messageListener,
-                        Consumer<Throwable> errorListener,
-                        Runnable closeListener) throws IOException
-<T extends BaseMessage> AutoCloseable subscribe(T eventMessage,
-                                                Consumer<String> messageListener,
-                                                Consumer<Throwable> errorListener,
-                                                Runnable closeListener) throws IOException
-void close() throws IOException
+// Factory methods
+public static GenericTag of(String code, String... params)
+public static GenericTag of(String code, List<String> params)
+
+// Accessors
+public String getCode()
+public List<String> getParams()
+public List<String> toArray()
 ```
 
-### `StandardWebSocketClient`
-Spring `TextWebSocketHandler` based implementation of `WebSocketClientIF`.
+**Usage:**
+```java
+GenericTag tag = GenericTag.of("e", "eventId123", "wss://relay.example.com", "reply");
+tag.getCode()           // "e"
+tag.getParams().get(0)  // "eventId123"
+tag.toArray()           // ["e", "eventId123", "wss://relay.example.com", "reply"]
+```
+
+### `Kinds`
+Static `int` constants for common event kinds plus range-check utilities.
 
 ```java
-public StandardWebSocketClient(String relayUri)
+public static final int SET_METADATA = 0;
+public static final int TEXT_NOTE = 1;
+public static final int RECOMMEND_SERVER = 2;
+public static final int CONTACT_LIST = 3;
+public static final int ENCRYPTED_DIRECT_MESSAGE = 4;
+public static final int DELETION = 5;
+public static final int REPOST = 6;
+public static final int REACTION = 7;
+public static final int ZAP_REQUEST = 9734;
+public static final int ZAP_RECEIPT = 9735;
+
+public static boolean isValid(int kind)
+public static boolean isReplaceable(int kind)
+public static boolean isEphemeral(int kind)
+public static boolean isAddressable(int kind)
+```
+
+### `EventFilter`
+Builder-based composable filter for relay REQ messages.
+
+```java
+public static EventFilterBuilder builder()
+
+// Builder methods
+.kinds(List<Integer> kinds)
+.authors(List<String> authors)
+.ids(List<String> ids)
+.since(long timestamp)
+.until(long timestamp)
+.limit(int limit)
+.addTagFilter(String tagCode, List<String> values)
+.build()
+```
+
+**Usage:**
+```java
+EventFilter filter = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .authors(List.of(pubKeyHex))
+    .since(timestamp)
+    .limit(100)
+    .build();
+```
+
+### `Filters`
+Container for one or more `EventFilter` instances (OR logic for REQ messages).
+
+```java
+public Filters(EventFilter... filters)
+public Filters(Filterable... filterables)
+```
+
+### Messages
+
+| Class | Command | Purpose |
+|-------|---------|---------|
+| `EventMessage` | `EVENT` | Send or receive an event |
+| `ReqMessage` | `REQ` | Subscribe to events matching filters |
+| `CloseMessage` | `CLOSE` | Close a subscription |
+| `OkMessage` | `OK` | Relay acknowledgment |
+| `EoseMessage` | `EOSE` | End of stored events |
+| `NoticeMessage` | `NOTICE` | Relay notice/error |
+
+```java
+// Encode a message
+String json = new EventMessage(event).encode();
+
+// Decode a message
+BaseMessage msg = BaseMessage.read(json);
+```
+
+---
+
+## WebSocket Client (`nostr-java-client`)
+
+### `NostrRelayClient`
+Spring `TextWebSocketHandler`-based WebSocket client with retry and Virtual Thread support.
+
+**Constructors:**
+```java
+public NostrRelayClient(String relayUri)
+public NostrRelayClient(String relayUri, long awaitTimeoutMs)
+```
+
+**Blocking operations:**
+```java
 public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException
 public List<String> send(String json) throws IOException
 public AutoCloseable subscribe(String requestJson,
                                Consumer<String> messageListener,
                                Consumer<Throwable> errorListener,
                                Runnable closeListener) throws IOException
+public <T extends BaseMessage> AutoCloseable subscribe(T message,
+                                                        Consumer<String> messageListener,
+                                                        Consumer<Throwable> errorListener,
+                                                        Runnable closeListener) throws IOException
 public void close() throws IOException
 ```
 
-### `SpringWebSocketClient`
-Wrapper that adds retry logic around a `WebSocketClientIF`.
-
+**Async operations (Virtual Threads):**
 ```java
-public List<String> send(BaseMessage eventMessage) throws IOException
-public List<String> send(String json) throws IOException
-public AutoCloseable subscribe(BaseMessage requestMessage,
-                               Consumer<String> messageListener,
-                               Consumer<Throwable> errorListener,
-                               Runnable closeListener) throws IOException
-public AutoCloseable subscribe(String json,
-                               Consumer<String> messageListener,
-                               Consumer<Throwable> errorListener,
-                               Runnable closeListener) throws IOException
-public List<String> recover(IOException ex, String json) throws IOException
-public void close() throws IOException
+public static CompletableFuture<NostrRelayClient> connectAsync(String relayUri)
+public static CompletableFuture<NostrRelayClient> connectAsync(String relayUri, long awaitTimeoutMs)
+public CompletableFuture<List<String>> sendAsync(String json)
+public <T extends BaseMessage> CompletableFuture<List<String>> sendAsync(T eventMessage)
+public CompletableFuture<AutoCloseable> subscribeAsync(String requestJson,
+                                                        Consumer<String> messageListener,
+                                                        Consumer<Throwable> errorListener,
+                                                        Runnable closeListener)
 ```
 
-### `NostrSpringWebSocketClient`
-High level client coordinating multiple relay connections and signing.
-
+**Usage:**
 ```java
-public NostrIF setRelays(Map<String,String> relays)
-public List<String> sendEvent(IEvent event)
-public List<String> sendRequest(List<Filters> filters, String subscriptionId)
-public AutoCloseable subscribe(Filters filters, String subscriptionId, Consumer<String> listener)
-public AutoCloseable subscribe(Filters filters,
-                               String subscriptionId,
-                               Consumer<String> listener,
-                               Consumer<Throwable> errorListener)
-public NostrIF sign(Identity identity, ISignable signable)
-public boolean verify(GenericEvent event)
-public Map<String,String> getRelays()
-public void close()
+// Blocking
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.example.com")) {
+    List<String> responses = client.send(new EventMessage(event));
+}
+
+// Async
+NostrRelayClient.connectAsync("wss://relay.example.com")
+    .thenCompose(client -> client.sendAsync(new EventMessage(event)))
+    .thenAccept(responses -> System.out.println("Done: " + responses));
 ```
 
-See also the test guides for examples and behavioral expectations:
+### `RelayTimeoutException`
+Thrown when the relay does not respond within the configured timeout. Extends `IOException`.
 
-- API Client/Handler tests: `nostr-java-api/src/test/java/nostr/api/client/README.md`
-- Client module (Spring WebSocket): `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md`
+```java
+public String getRelayUri()
+public long getTimeoutMs()
+```
 
-`subscribe` opens a dedicated WebSocket per relay, returns immediately, and streams raw relay
-messages to the provided listener. The returned `AutoCloseable` sends a `CLOSE` command and releases
-resources when invoked. Because callbacks execute on the WebSocket thread, delegate heavy
-processing to another executor to avoid stalling inbound traffic.
+### `ConnectionState`
+Enum tracking WebSocket connection state.
 
-- How‑to guide: [../howto/streaming-subscriptions.md](../howto/streaming-subscriptions.md)
-- Example: [../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java)
+```java
+CONNECTING, CONNECTED, RECONNECTING, CLOSED
+```
 
 ### Configuration
-- `RetryConfig` – enables Spring Retry support.
-- `RelaysProperties` – maps relay names to URLs via configuration properties.
-- `RelayConfig` – loads `relays.properties` and exposes a `Map<String,String>` bean. Deprecated in 0.6.2 (for removal in 1.0.0); prefer `RelaysProperties`.
 
-## Encryption and Cryptography
+| Property | Default | Description |
+|----------|---------|-------------|
+| `nostr.websocket.await-timeout-ms` | `60000` | Max time to await a relay response |
+| `nostr.websocket.max-idle-timeout-ms` | `3600000` | Max idle timeout for WebSocket sessions |
+| `nostr.websocket.max-text-message-buffer-size` | `1048576` | WebSocket text message buffer size |
+| `nostr.websocket.max-binary-message-buffer-size` | `1048576` | WebSocket binary message buffer size |
+
+### Retry behavior
+
+Send and subscribe operations are annotated with `@NostrRetryable`:
+- Included exception: `IOException`
+- Max attempts: `3`
+- Backoff: initial `500ms`, multiplier `2.0`
+
+---
+
+## Encryption (`nostr-java-identity`)
 
 ### `MessageCipher`
 Strategy interface for message encryption.
@@ -157,11 +261,15 @@ String decrypt(String message)
 ```
 
 Implementations:
-- `MessageCipher04` – NIP-04 direct message encryption.
-- `MessageCipher44` – NIP-44 payload encryption.
+- `MessageCipher04` — NIP-04 direct message encryption (legacy).
+- `MessageCipher44` — NIP-44 versioned encryption (recommended).
+
+---
+
+## Cryptography (`nostr-java-core`)
 
 ### `Schnorr`
-Utility for Schnorr signatures (BIP-340).
+BIP-340 Schnorr signature utility.
 
 ```java
 static byte[] sign(byte[] msg, byte[] secKey, byte[] auxRand)
@@ -171,17 +279,15 @@ static byte[] genPubKey(byte[] secKey)
 ```
 
 ### `Bech32`
-Utility for Bech32/Bech32m encoding used by [NIP-19](https://github.com/nostr-protocol/nips/blob/master/19.md).
+Bech32/Bech32m encoding for NIP-19.
 
 ```java
 static String toBech32(Bech32Prefix hrp, byte[] hexKey)
 static String fromBech32(String str)
 ```
 
-## Utilities (`nostr-java-util`)
-
 ### `NostrUtil`
-General helper functions.
+General helper functions using `java.util.HexFormat`.
 
 ```java
 static String bytesToHex(byte[] bytes)
@@ -190,35 +296,34 @@ static byte[] sha256(byte[] data)
 static byte[] createRandomByteArray(int len)
 ```
 
-### `NostrException`
-Base checked exception for utility methods.
+---
 
-## Examples
+## Key Types (`nostr-java-event`)
 
-### Send a Text Note (NIP-01)
+### `PublicKey`
+Nostr public key value object with Bech32 encoding (`npub` prefix).
+
 ```java
-Identity id = Identity.generateRandomIdentity();
-NIP01 nip01 = new NIP01(id).createTextNoteEvent("Hello Nostr");
-NostrIF client = NostrSpringWebSocketClient.getInstance(id)
-        .setRelays(Map.of("398ja","wss://relay.398ja.xyz"));
-client.sendEvent(nip01.getEvent());
+public PublicKey(String hex)
+public String toBech32()
+public String toString()  // hex representation
 ```
 
-### Encrypted Direct Message (NIP-04)
+### `PrivateKey`
+Nostr private key value object with Bech32 encoding (`nsec` prefix).
+
 ```java
-Identity alice = Identity.generateRandomIdentity();
-Identity bob = Identity.generateRandomIdentity();
-NIP04 dm = new NIP04(alice, bob.getPublicKey())
-        .createDirectMessageEvent("secret");
-String plaintext = NIP04.decrypt(bob, dm.getEvent());
+public PrivateKey(String hex)
+public String toBech32()
 ```
 
-### Subscription with Filters
+### `Signature`
+BIP-340 Schnorr signature value object.
+
 ```java
-Filters filters = new Filters(new AuthorFilter(pubKey));
-NostrIF client = NostrSpringWebSocketClient.getInstance(id);
-List<String> events = client.sendRequest(filters, "sub-id");
+public Signature(String hex)
 ```
 
 ---
-This reference is a starting point; consult the source for complete details and additional NIP helpers.
+
+This reference is a starting point; consult the source for complete details.

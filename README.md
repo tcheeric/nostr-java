@@ -14,6 +14,38 @@
 
 See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
 
+## Quick Start
+
+```java
+Identity identity = Identity.generateRandomIdentity();
+
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello Nostr!")
+    .tags(List.of(GenericTag.of("t", "nostr-java")))
+    .build();
+
+identity.sign(event);
+
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
+    client.send(new EventMessage(event));
+}
+```
+
+## Module Architecture
+
+4 modules with a strict dependency chain:
+
+```
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+```
+
+- **nostr-java-core** — Foundation utilities, BIP-340 Schnorr cryptography, Bech32 encoding, hex conversion
+- **nostr-java-event** — `GenericEvent`, `GenericTag`, `Kinds` constants, `EventFilter` builder, messages, JSON serialization
+- **nostr-java-identity** — `Identity` key management, event signing, NIP-04/NIP-44 encryption
+- **nostr-java-client** — `NostrRelayClient` WebSocket client with retry, Virtual Threads, and async APIs
+
 ## Running Tests
 
 - Full test suite (requires Docker for Testcontainers ITs):
@@ -24,105 +56,55 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usag
 
   `mvn -q -Pno-docker verify`
 
-The `no-docker` profile excludes tests under `**/nostr/api/integration/**` and sets `noDocker=true` for conditional test disabling.
-
 ## Troubleshooting
 
-For diagnosing relay send issues and capturing failure details, see the how‑to guide: [docs/howto/diagnostics.md](docs/howto/diagnostics.md).
+For diagnosing relay send issues and capturing failure details, see the how-to guide: [docs/howto/diagnostics.md](docs/howto/diagnostics.md).
 
 ## Documentation
 
 - Docs index: [docs/README.md](docs/README.md) — quick entry point to all guides and references.
-- Operations: [docs/operations/README.md](docs/operations/README.md) — logging, metrics, configuration, diagnostics.
 - Getting started: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — install via Maven/Gradle and build from source.
-- API how‑to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish basic events.
-- Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long‑lived, non‑blocking subscriptions.
-- Custom events how‑to: [docs/howto/custom-events.md](docs/howto/custom-events.md) — define, sign, and send custom event types.
+- API how-to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish events.
+- Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long-lived, non-blocking subscriptions.
+- Custom events: [docs/howto/custom-events.md](docs/howto/custom-events.md) — working with custom event kinds.
 - API reference: [docs/reference/nostr-java-api.md](docs/reference/nostr-java-api.md) — classes, key methods, and short examples.
-- Extending events: [docs/explanation/extending-events.md](docs/explanation/extending-events.md) — guidance for extending the event model.
-- Codebase overview and contributing: [docs/CODEBASE_OVERVIEW.md](docs/CODEBASE_OVERVIEW.md) — layout, testing, and contribution workflow.
+- Events and tags: [docs/explanation/extending-events.md](docs/explanation/extending-events.md) — in-depth guide to GenericEvent and GenericTag.
+- Architecture: [docs/explanation/architecture.md](docs/explanation/architecture.md) — module design and data flow.
+- Codebase overview: [docs/CODEBASE_OVERVIEW.md](docs/CODEBASE_OVERVIEW.md) — layout, testing, and contribution workflow.
+- Operations: [docs/operations/README.md](docs/operations/README.md) — logging, metrics, configuration, diagnostics.
 
-## Examples
-
-Examples are located in the [`nostr-java-examples`](./nostr-java-examples) module. See the [API Examples Guide](docs/howto/api-examples.md) for detailed walkthroughs.
-
-### Key Examples
-
-- [`NostrApiExamples`](nostr-java-examples/src/main/java/nostr/examples/NostrApiExamples.java) – Comprehensive examples covering 13+ use cases including text notes, encrypted DMs, reactions, channels, and more. See the [guide](docs/howto/api-examples.md) for details.
-
-- [`SpringSubscriptionExample`](nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java) – Shows how to open a non-blocking `NostrSpringWebSocketClient` subscription and close it after a fixed duration.
- 
 ## Features
 
-- ✅ **Clean Architecture** - Modular design following SOLID principles
-- ✅ **Comprehensive NIP Support** - 25 NIPs implemented covering core protocol, encryption, payments, and more
-- ✅ **Type-Safe API** - Strongly-typed events, tags, and messages with builder patterns
-- ✅ **Non-Blocking Subscriptions** - Spring WebSocket client with reactive streaming support
-- ✅ **Well-Documented** - Extensive JavaDoc, architecture guides, and code examples
-- ✅ **Production-Ready** - High test coverage, CI/CD pipeline, code quality checks
+- **Minimal API surface** — one event class (`GenericEvent`), one tag class (`GenericTag`), ~40 total classes
+- **Protocol-aligned** — kinds are integers, tags are string arrays, no library-imposed type hierarchy
+- **Virtual Thread concurrency** — relay I/O and listener dispatch on Java 21 Virtual Threads
+- **Async APIs** — `connectAsync()`, `sendAsync()`, `subscribeAsync()` via `CompletableFuture`
+- **Reliable connectivity** — Spring Retry, typed `RelayTimeoutException`, connection state tracking
+- **NIP-04/NIP-44 encryption** — legacy and modern message encryption
+- **BIP-340 Schnorr signatures** — event signing and verification
+- **Well-documented** — architecture guides, how-to guides, and API reference
 
-## Recent Improvements (v1.0.0)
+## v2.0.0 Highlights
 
-🎯 **API Cleanup & Removals (breaking)**
-- Deprecated APIs removed: `Constants.Kind`, `Encoder.ENCODER_MAPPER_BLACKBIRD`, and NIP01 Identity-based overloads
-- NIP01 now exclusively uses the instance-configured sender; builder simplified accordingly
+- Simplified from 9 modules (~180 classes) to 4 modules (~40 classes)
+- `GenericEvent` is the sole event class for all kinds — no subclasses
+- `GenericTag` stores tags as `code` + `List<String>` — no `ElementAttribute`, no `TagRegistry`
+- `Kinds` utility replaces the `Kind` enum — any integer is valid
+- `EventFilter` builder replaces 14 thin filter wrapper classes
+- `NostrRelayClient` with Virtual Thread dispatch and async APIs
+- `RelayTimeoutException` replaces silent empty-list timeout returns
+- `java.util.HexFormat` replaces hand-rolled hex encoding
 
-🚀 **Performance & Serialization**
-- Centralized JSON mapper via `nostr.event.json.EventJsonMapper` (Blackbird module); unified across event encoders
+See [CHANGELOG.md](CHANGELOG.md) for the full list of changes.
 
-📚 **Documentation & Structure**
-- Migration guide updated for 1.0.0 removals and replacements
-- Troubleshooting moved to dedicated how‑to: `docs/howto/diagnostics.md`
-- README streamlined to focus on users; maintainer topics moved under docs
+## NIP Support
 
-🛠️ **Build & Release Tooling**
-- CI workflow split for Docker vs no‑Docker runs
-- Release automation (`scripts/release.sh`) with bump/tag/verify/publish steps
-
-See [docs/explanation/architecture.md](docs/explanation/architecture.md) for detailed architecture overview.
-
-## Supported NIPs
-
-**25 NIPs implemented** - comprehensive coverage of core protocol, security, and advanced features.
-
-### NIP Compliance Matrix
-
-| Category | NIP | Description | Status |
-|----------|-----|-------------|--------|
-| **Core Protocol** | [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) | Basic protocol flow | ✅ Complete |
-| | [NIP-02](https://github.com/nostr-protocol/nips/blob/master/02.md) | Follow List | ✅ Complete |
-| | [NIP-12](https://github.com/nostr-protocol/nips/blob/master/12.md) | Generic Tag Queries | ✅ Complete |
-| | [NIP-19](https://github.com/nostr-protocol/nips/blob/master/19.md) | Bech32 encoding | ✅ Complete |
-| | [NIP-20](https://github.com/nostr-protocol/nips/blob/master/20.md) | Command Results | ✅ Complete |
-| **Security & Identity** | [NIP-05](https://github.com/nostr-protocol/nips/blob/master/05.md) | DNS-based identifiers | ✅ Complete |
-| | [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) | Client authentication | ✅ Complete |
-| | [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md) | Remote signing | ✅ Complete |
-| **Encryption** | [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) | Encrypted DMs | ✅ Complete |
-| | [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) | Versioned encryption | ✅ Complete |
-| **Content Types** | [NIP-08](https://github.com/nostr-protocol/nips/blob/master/08.md) | Handling Mentions | ✅ Complete |
-| | [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) | Event Deletion | ✅ Complete |
-| | [NIP-14](https://github.com/nostr-protocol/nips/blob/master/14.md) | Subject tags | ✅ Complete |
-| | [NIP-23](https://github.com/nostr-protocol/nips/blob/master/23.md) | Long-form content | ✅ Complete |
-| | [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) | Reactions | ✅ Complete |
-| | [NIP-28](https://github.com/nostr-protocol/nips/blob/master/28.md) | Public Chat | ✅ Complete |
-| | [NIP-30](https://github.com/nostr-protocol/nips/blob/master/30.md) | Custom Emoji | ✅ Complete |
-| | [NIP-32](https://github.com/nostr-protocol/nips/blob/master/32.md) | Labeling | ✅ Complete |
-| | [NIP-52](https://github.com/nostr-protocol/nips/blob/master/52.md) | Calendar Events | ✅ Complete |
-| **Commerce & Payments** | [NIP-15](https://github.com/nostr-protocol/nips/blob/master/15.md) | Marketplace | ✅ Complete |
-| | [NIP-57](https://github.com/nostr-protocol/nips/blob/master/57.md) | Lightning Zaps | ✅ Complete |
-| | [NIP-60](https://github.com/nostr-protocol/nips/blob/master/60.md) | Cashu Wallets | ✅ Complete |
-| | [NIP-61](https://github.com/nostr-protocol/nips/blob/master/61.md) | Nutzaps | ✅ Complete |
-| | [NIP-99](https://github.com/nostr-protocol/nips/blob/master/99.md) | Classified Listings | ✅ Complete |
-| **Utilities** | [NIP-03](https://github.com/nostr-protocol/nips/blob/master/03.md) | OpenTimestamps | ✅ Complete |
-| | [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md) | Expiration Timestamp | ✅ Complete |
-
-**Coverage:** 25/100+ NIPs (core protocol + most commonly used extensions)
+The library is NIP-agnostic by design. Any current or future NIP can be implemented using `GenericEvent.builder().kind(kindNumber)` with appropriate tags via `GenericTag.of(code, params...)` — no library updates required. The `Kinds` utility class provides named constants for commonly used kind values.
 
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Coding standards and conventions
-- How to add new NIPs
 - Pull request guidelines
 - Testing requirements
 

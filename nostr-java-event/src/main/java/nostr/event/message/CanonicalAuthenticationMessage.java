@@ -9,15 +9,11 @@ import lombok.NonNull;
 import lombok.Setter;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
-import nostr.event.BaseTag;
-import nostr.event.impl.CanonicalAuthenticationEvent;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.BaseEventEncoder;
 import nostr.event.json.codec.EventEncodingException;
-import nostr.event.tag.GenericTag;
 
-import java.util.List;
 import java.util.Map;
 
 import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
@@ -27,11 +23,11 @@ import static nostr.base.IDecoder.I_DECODER_MAPPER_BLACKBIRD;
  */
 @Setter
 @Getter
-public class CanonicalAuthenticationMessage extends BaseAuthMessage {
+public class CanonicalAuthenticationMessage extends BaseMessage {
 
-  @JsonProperty private final CanonicalAuthenticationEvent event;
+  @JsonProperty private final GenericEvent event;
 
-  public CanonicalAuthenticationMessage(CanonicalAuthenticationEvent event) {
+  public CanonicalAuthenticationMessage(GenericEvent event) {
     super(Command.AUTH.name());
     this.event = event;
   }
@@ -49,31 +45,13 @@ public class CanonicalAuthenticationMessage extends BaseAuthMessage {
     }
   }
 
-  /**
-   * Decodes a map representation into a CanonicalAuthenticationMessage.
-   *
-   * <p>This method converts the map (typically from JSON deserialization) into
-   * a properly typed CanonicalAuthenticationMessage with a CanonicalAuthenticationEvent.
-   *
-   * @param map the map containing event data
-   * @param <T> the message type (must be BaseMessage)
-   * @return the decoded CanonicalAuthenticationMessage
-   * @throws EventEncodingException if decoding fails
-   */
   public static <T extends BaseMessage> T decode(@NonNull Map<String, Object> map) {
     try {
       var event =
           I_DECODER_MAPPER_BLACKBIRD.convertValue(map, new TypeReference<GenericEvent>() {});
 
-      List<BaseTag> baseTags = event.getTags().stream().filter(GenericTag.class::isInstance).toList();
-
-      CanonicalAuthenticationEvent canonEvent =
-          new CanonicalAuthenticationEvent(event.getPubKey(), baseTags, "");
-
-      canonEvent.setId(String.valueOf(map.get("id")));
-
       @SuppressWarnings("unchecked")
-      T result = (T) new CanonicalAuthenticationMessage(canonEvent);
+      T result = (T) new CanonicalAuthenticationMessage(event);
       return result;
     } catch (IllegalArgumentException ex) {
       throw new EventEncodingException("Failed to decode canonical authentication message", ex);

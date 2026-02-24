@@ -1,83 +1,113 @@
 # Streaming Subscriptions
 
-Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how‑to](use-nostr-java-api.md) · [Custom events](custom-events.md) · [API reference](../reference/nostr-java-api.md)
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how-to](use-nostr-java-api.md) · [Custom events](custom-events.md) · [API reference](../reference/nostr-java-api.md)
 
-This guide explains how to open and manage long‑lived, non‑blocking subscriptions to Nostr relays
-using the `nostr-java` API. It covers lifecycle, concurrency/backpressure, multiple relays, and
-error handling.
+This guide explains how to open and manage long-lived, non-blocking subscriptions to Nostr relays using `NostrRelayClient`.
 
 ## Overview
 
-- Use `NostrSpringWebSocketClient.subscribe` to open a REQ subscription that streams relay messages
-  to your callback.
-- The method returns immediately with an `AutoCloseable`. Calling `close()` sends a `CLOSE` to the
-  relay(s) and frees the underlying WebSocket resource(s).
-- Callbacks run on the WebSocket thread; offload heavy work to your own executor/queue to keep the
-  socket responsive.
+- Use `NostrRelayClient.subscribe()` to open a REQ subscription that streams relay messages to your callback.
+- The method returns immediately with an `AutoCloseable`. Calling `close()` sends a `CLOSE` to the relay and frees the underlying WebSocket resource.
+- Callbacks are dispatched on Virtual Threads, so expensive listener logic does not block inbound WebSocket I/O.
 
 ## Quick start
 
 ```java
-import java.util.Map;
-import nostr.api.NostrSpringWebSocketClient;
-import nostr.base.Kind;
+import nostr.base.Kinds;
+import nostr.client.springwebsocket.NostrRelayClient;
+import nostr.event.filter.EventFilter;
 import nostr.event.filter.Filters;
-import nostr.event.filter.KindFilter;
+import nostr.event.message.ReqMessage;
 
-Map<String, String> relays = Map.of("398ja", "wss://relay.398ja.xyz");
+import java.util.List;
 
-NostrSpringWebSocketClient client = new NostrSpringWebSocketClient().setRelays(relays);
+// Build a filter
+EventFilter filter = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .limit(100)
+    .build();
 
-Filters filters = new Filters(new KindFilter<>(Kind.TEXT_NOTE));
+Filters filters = new Filters(filter);
+String subscriptionId = "my-sub-" + System.currentTimeMillis();
+ReqMessage req = new ReqMessage(subscriptionId, filters);
 
-AutoCloseable subscription = client.subscribe(
-    filters,
-    "example-subscription",
-    message -> {
-      // Handle EVENT/EOSE/NOTICE payloads here. Offload if heavy.
-    },
-    error -> {
-      // Log/report errors. Consider retry or metrics.
-    }
-);
+// Open subscription
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
+    AutoCloseable subscription = client.subscribe(
+        req,
+        message -> {
+            // Handle EVENT/EOSE/NOTICE payloads here
+            System.out.println("Received: " + message);
+        },
+        error -> {
+            System.err.println("Error: " + error.getMessage());
+        },
+        () -> {
+            System.out.println("Connection closed");
+        }
+    );
 
-// ... keep the subscription open while processing events ...
+    // Keep the subscription open while processing events
+    Thread.sleep(30_000);
 
-subscription.close(); // sends CLOSE and releases resources
-client.close();       // closes any remaining relay connections
+    subscription.close();  // sends CLOSE and releases resources
+}
 ```
 
-See a runnable example in [../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java](../../nostr-java-examples/src/main/java/nostr/examples/SpringSubscriptionExample.java).
+## Async subscription (Virtual Threads)
+
+```java
+NostrRelayClient.connectAsync("wss://relay.398ja.xyz")
+    .thenCompose(client -> client.subscribeAsync(
+        req.encode(),
+        message -> System.out.println("Event: " + message),
+        error -> System.err.println("Error: " + error),
+        () -> System.out.println("Closed")
+    ))
+    .thenAccept(subscription -> {
+        // subscription is AutoCloseable — close when done
+    });
+```
 
 ## Lifecycle and closing
 
-- Each `subscribe` call opens a dedicated WebSocket per relay. Keep the handle while you need the
-  stream and call `close()` when done.
+- Each `subscribe()` call opens a dedicated WebSocket connection. Keep the returned handle while you need the stream and call `close()` when done.
 - Always close subscriptions to ensure a `CLOSE` frame is sent to the relay and resources are freed.
 - After `close()`, no further messages will be delivered to your listener.
 
 ## Concurrency and backpressure
 
-- Message callbacks execute on the WebSocket thread; avoid blocking. If processing may block, hand
-  off to a separate executor or queue.
-- For high‑throughput feeds, consider batching or asynchronous processing to prevent socket stalls.
+- Message callbacks execute on Virtual Threads; processing can block safely, but bounded queues are still recommended when downstream systems are slower than relay throughput.
+- For high-throughput feeds, consider batching or asynchronous processing to prevent socket stalls.
+- The client limits accumulated events per blocking request to 10,000 by default (configurable) to prevent unbounded memory growth.
 
-## Multiple relays
+## Filter examples
 
-- When multiple relays are configured via `setRelays`, the client opens one WebSocket per relay and
-  fans out the same REQ. Your listener receives messages from all configured relays.
-- Include an identifier (e.g., relay name/URL) in logs/metrics if you need per‑relay visibility.
+```java
+// Filter by multiple kinds and authors
+EventFilter filter = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE, Kinds.REACTION))
+    .authors(List.of(pubKeyHex1, pubKeyHex2))
+    .since(System.currentTimeMillis() / 1000 - 86400)  // last 24 hours
+    .limit(200)
+    .build();
+
+// Filter by tag values
+EventFilter tagFilter = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .addTagFilter("t", List.of("nostr", "bitcoin"))
+    .build();
+```
 
 ## Error handling
 
 - Provide an `errorListener` to capture exceptions raised during subscription or message handling.
-- Consider transient vs. fatal errors. You can implement retry logic at the application level if
-  desired.
+- If the relay times out on a blocking send, `NostrRelayClient` throws `RelayTimeoutException` (not an empty list).
+- Consider transient vs. fatal errors. The client uses Spring Retry with exponential backoff for transient I/O failures.
 
 ## Related API
 
-- Client: `nostr-java-api/src/main/java/nostr/api/NostrSpringWebSocketClient.java`
-- WebSocket wrapper: `nostr-java-client/src/main/java/nostr/client/springwebsocket/SpringWebSocketClient.java`
-- Interface: `nostr-java-client/src/main/java/nostr/client/springwebsocket/WebSocketClientIF.java`
+- Client: `nostr-java-client/src/main/java/nostr/client/springwebsocket/NostrRelayClient.java`
+- Filters: `nostr-java-event/src/main/java/nostr/event/filter/EventFilter.java`
 
-For method signatures and additional details, see the API reference: [../reference/nostr-java-api.md](../reference/nostr-java-api.md).
+For method signatures and additional details, see the [API reference](../reference/nostr-java-api.md).

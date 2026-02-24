@@ -3,11 +3,11 @@ package nostr.event.json.codec;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import nostr.base.Encoder;
-import nostr.event.BaseEvent;
+import nostr.event.impl.GenericEvent;
 import nostr.event.json.EventJsonMapper;
 
 @Data
-public class BaseEventEncoder<T extends BaseEvent> implements Encoder {
+public class BaseEventEncoder<T extends GenericEvent> implements Encoder {
 
   private final T event;
 

@@ -9,8 +9,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import nostr.base.Command;
-import nostr.base.IEvent;
-import nostr.event.BaseEvent;
 import nostr.event.BaseMessage;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.EventJsonMapper;
@@ -32,16 +30,16 @@ public class EventMessage extends BaseMessage {
   private static final Function<Object[], Boolean> isEventWoSig =
       (objArr) -> Objects.equals(SIZE_JSON_EVENT_wo_SIG_ID, objArr.length);
 
-  @JsonProperty private final IEvent event;
+  @JsonProperty private final GenericEvent event;
 
   @JsonProperty private String subscriptionId;
 
-  public EventMessage(@NonNull IEvent event) {
+  public EventMessage(@NonNull GenericEvent event) {
     super(Command.EVENT.name());
     this.event = event;
   }
 
-  public EventMessage(@NonNull IEvent event, @NonNull String subscriptionId) {
+  public EventMessage(@NonNull GenericEvent event, @NonNull String subscriptionId) {
     this(event);
     this.subscriptionId = subscriptionId;
   }
@@ -53,7 +51,7 @@ public class EventMessage extends BaseMessage {
     try {
       arrayNode.add(
           EventJsonMapper.getMapper().readTree(
-              new BaseEventEncoder<>((BaseEvent) getEvent()).encode()));
+              new BaseEventEncoder<>(getEvent()).encode()));
       return EventJsonMapper.getMapper().writeValueAsString(arrayNode);
     } catch (JsonProcessingException e) {
       throw new EventEncodingException("Failed to encode event message", e);
@@ -70,14 +68,12 @@ public class EventMessage extends BaseMessage {
     }
   }
 
-  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
   private static <T extends BaseMessage> T processEvent(Object o) {
     @SuppressWarnings("unchecked")
     T result = (T) new EventMessage(convertValue((Map<?, ?>) o));
     return result;
   }
 
-  // Generics are erased at runtime; BaseMessage subtype is determined by caller context
   private static <T extends BaseMessage> T processEvent(Object[] msgArr) {
     @SuppressWarnings("unchecked")
     T result = (T) new EventMessage(convertValue((Map<?, ?>) msgArr[2]), msgArr[1].toString());

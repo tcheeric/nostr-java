@@ -1,6 +1,6 @@
 # Getting Started
 
-Navigation: [Docs index](README.md) · [API how‑to](howto/use-nostr-java-api.md) · [Streaming subscriptions](howto/streaming-subscriptions.md) · [API reference](reference/nostr-java-api.md) · [Codebase overview](CODEBASE_OVERVIEW.md)
+Navigation: [Docs index](README.md) · [API how-to](howto/use-nostr-java-api.md) · [Streaming subscriptions](howto/streaming-subscriptions.md) · [API reference](reference/nostr-java-api.md) · [Codebase overview](CODEBASE_OVERVIEW.md)
 
 ## Prerequisites
 - Maven
@@ -11,7 +11,7 @@ Navigation: [Docs index](README.md) · [API how‑to](howto/use-nostr-java-api.m
 ```bash
 git clone https://github.com/tcheeric/nostr-java.git
 cd nostr-java
-./mvnw clean install
+mvn clean install
 ```
 
 ## Using Maven
@@ -41,9 +41,28 @@ Use the BOM to align versions and omit per-module versions:
  </dependencyManagement>
 
 <dependencies>
+  <!-- Pull in everything (client transitively includes identity, event, core) -->
   <dependency>
     <groupId>xyz.tcheeric</groupId>
-    <artifactId>nostr-java-api</artifactId>
+    <artifactId>nostr-java-client</artifactId>
+  </dependency>
+</dependencies>
+```
+
+Or pick only the modules you need:
+
+```xml
+<dependencies>
+  <!-- Just events and signing (no WebSocket client) -->
+  <dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>nostr-java-identity</artifactId>
+  </dependency>
+
+  <!-- Just the event model (no signing, no client) -->
+  <dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>nostr-java-event</artifactId>
   </dependency>
 </dependencies>
 ```
@@ -59,10 +78,8 @@ repositories {
 
 dependencies {
     implementation platform('xyz.tcheeric:nostr-java-bom:X.Y.Z')
-    implementation 'xyz.tcheeric:nostr-java-api'
+    implementation 'xyz.tcheeric:nostr-java-client'
 }
 ```
 
 Replace X.Y.Z with the latest version from the releases page.
-
-Examples are available in the [`nostr-java-examples`](../nostr-java-examples) module.

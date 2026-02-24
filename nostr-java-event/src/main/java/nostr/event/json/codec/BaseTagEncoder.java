@@ -12,7 +12,7 @@ public record BaseTagEncoder(BaseTag tag) implements Encoder {
   public static final ObjectMapper BASETAG_ENCODER_MAPPER_BLACKBIRD =
       EventJsonMapper.getMapper()
           .copy()
-          .registerModule(new SimpleModule().addSerializer(new BaseTagSerializer<>()));
+          .registerModule(new SimpleModule().addSerializer(new BaseTagSerializer()));
 
   @Override
   public String encode() throws nostr.event.json.codec.EventEncodingException {
