@@ -27,7 +27,6 @@ This document outlines the mandatory secure coding practices for the `nostr-java
 *   **APIs:** Use Java API equivalents (e.g., `java.nio.file`) instead of shell commands (e.g., `ls`, `rm`).
 
 ### Log Injection
-*   **Sanitize Logs:** Ensure user input written to logs does not contain newline characters (`
 *   **Sanitize Logs:** Ensure user input written to logs does not contain newline characters (`\n`, `\r`) to prevent log forging.
 
 ## 3. Cryptography & Secrets Management
