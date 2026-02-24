@@ -19,6 +19,6 @@ public class GenericTagTest {
 
     assertInstanceOf(GenericTag.class, tag);
     assertEquals(code, tag.getCode());
-    assertEquals("test-value", ((GenericTag) tag).getAttributes().get(0).value());
+    assertEquals("test-value", ((GenericTag) tag).getParams().get(0));
   }
 }

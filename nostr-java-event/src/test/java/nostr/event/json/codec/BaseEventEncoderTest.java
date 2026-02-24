@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import nostr.event.BaseEvent;
+import nostr.event.impl.GenericEvent;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,25 +21,14 @@ class BaseEventEncoderTest {
     }
   }
 
-  static class FailingEvent extends BaseEvent {
+  static class FailingEvent extends GenericEvent {
     @JsonSerialize(using = FailingSerializer.class)
     public String getAttr() {
       return "boom";
     }
-
-    @Override
-    public String getId() {
-      return "";
-    }
-
-    @Override
-    public String toBech32() {
-      return "";
-    }
   }
 
   @Test
-  // Ensures encode throws EventEncodingException when serialization fails
   void encodeThrowsEventEncodingException() {
     var encoder = new BaseEventEncoder<>(new FailingEvent());
     assertThrows(EventEncodingException.class, encoder::encode);

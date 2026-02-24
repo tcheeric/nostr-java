@@ -16,7 +16,7 @@ import nostr.event.json.codec.EventEncodingException;
  */
 @Setter
 @Getter
-public class RelayAuthenticationMessage extends BaseAuthMessage {
+public class RelayAuthenticationMessage extends BaseMessage {
 
   @JsonProperty private final String challenge;
 

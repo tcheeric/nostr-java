@@ -7,35 +7,34 @@ Capture simple client metrics (successes/failures) without bringing a full metri
 - Track successful and failed relay sends.
 - Provide hooks for plugging into your metrics/observability system.
 
-## Minimal counters via listener
+## Minimal counters
 
 ```java
+import java.util.concurrent.atomic.AtomicLong;
+
 class Counters {
-  final java.util.concurrent.atomic.AtomicLong sendsOk = new java.util.concurrent.atomic.AtomicLong();
-  final java.util.concurrent.atomic.AtomicLong sendsFailed = new java.util.concurrent.atomic.AtomicLong();
+    final AtomicLong sendsOk = new AtomicLong();
+    final AtomicLong sendsFailed = new AtomicLong();
 }
 
 Counters metrics = new Counters();
-NostrSpringWebSocketClient client = new NostrSpringWebSocketClient(sender);
 
-client.onSendFailures(failureMap -> {
-  // Any failure increments failed; actual successes counted after sendEvent
-  metrics.sendsFailed.addAndGet(failureMap.size());
-});
-
-var responses = client.sendEvent(event);
-metrics.sendsOk.addAndGet(responses.size());
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.example.com")) {
+    List<String> responses = client.send(new EventMessage(event));
+    metrics.sendsOk.incrementAndGet();
+} catch (Exception e) {
+    metrics.sendsFailed.incrementAndGet();
+}
 ```
 
 ## Integrating with your stack
 
-- Micrometer: Wrap the listener to increment `Counter` instances and register with your registry.
-- Prometheus: Expose counters using your HTTP endpoint and update from the listener.
-- Logs: Periodically log counters as structured JSON for ingestion by your log pipeline.
+- Micrometer: Wrap send calls with `Timer` and `Counter` instances.
+- Prometheus: Expose counters using your HTTP endpoint.
+- Logs: Periodically log counters as structured JSON.
 
 ## Notes
 
-- Listener runs on the calling thread; keep callbacks fast and non-blocking.
 - Prefer batching external calls (e.g., ship metrics on a schedule) over per-event network calls.
 
 ## Micrometer example (with Prometheus)
@@ -43,151 +42,115 @@ metrics.sendsOk.addAndGet(responses.size());
 Add Micrometer + Prometheus dependencies (Spring Boot example):
 
 ```xml
-<!-- pom.xml -->
 <dependency>
   <groupId>io.micrometer</groupId>
   <artifactId>micrometer-core</artifactId>
   <scope>runtime</scope>
-  <!-- version managed by Spring Boot BOM or your own BOM -->
-  
 </dependency>
 <dependency>
   <groupId>io.micrometer</groupId>
   <artifactId>micrometer-registry-prometheus</artifactId>
   <scope>runtime</scope>
-  
 </dependency>
 ```
 
-Register counters and a timer, then wire the failure listener:
+Register counters and a timer:
 
 ```java
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import nostr.api.NostrSpringWebSocketClient;
-import nostr.base.IEvent;
+import nostr.client.springwebsocket.NostrRelayClient;
+import nostr.event.message.EventMessage;
 
 public class NostrMetrics {
-  private final Counter sendsOk;
-  private final Counter sendsFailed;
-  private final Timer sendTimer;
+    private final Counter sendsOk;
+    private final Counter sendsFailed;
+    private final Timer sendTimer;
 
-  public NostrMetrics(MeterRegistry registry) {
-    this.sendsOk = Counter.builder("nostr.sends.ok").description("Successful relay responses").register(registry);
-    this.sendsFailed = Counter.builder("nostr.sends.failed").description("Failed relay sends").register(registry);
-    this.sendTimer = Timer.builder("nostr.send.timer").description("Send latency per event").publishPercentileHistogram().register(registry);
-  }
+    public NostrMetrics(MeterRegistry registry) {
+        this.sendsOk = Counter.builder("nostr.sends.ok")
+            .description("Successful relay responses").register(registry);
+        this.sendsFailed = Counter.builder("nostr.sends.failed")
+            .description("Failed relay sends").register(registry);
+        this.sendTimer = Timer.builder("nostr.send.timer")
+            .description("Send latency per event")
+            .publishPercentileHistogram().register(registry);
+    }
 
-  public void instrument(NostrSpringWebSocketClient client) {
-    // Count failures per send call (sum of relays that failed)
-    client.onSendFailures((Map<String, Throwable> failures) -> sendsFailed.increment(failures.size()));
-  }
-
-  public List<String> timedSend(NostrSpringWebSocketClient client, IEvent event) {
-    return sendTimer.record(() -> client.sendEvent(event));
-  }
+    public List<String> timedSend(NostrRelayClient client, EventMessage message) {
+        return sendTimer.record(() -> {
+            try {
+                List<String> responses = client.send(message);
+                sendsOk.increment();
+                return responses;
+            } catch (Exception e) {
+                sendsFailed.increment();
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }
 ```
 
-Labeling failures by relay (beware high cardinality):
-
-```java
-client.onSendFailures(failures -> failures.forEach((relay, t) ->
-  Counter.builder("nostr.sends.failed")
-      .tag("relay", relay) // cardinality grows with number of relays
-      .tag("exception", t.getClass().getSimpleName())
-      .register(registry)
-      .increment()
-));
-```
-
-Expose Prometheus metrics (Spring Boot):
-
-```properties
-# application.properties
-management.endpoints.web.exposure.include=prometheus
-management.endpoint.prometheus.enabled=true
-```
-
-Navigate to `/actuator/prometheus` to scrape metrics.
-
 ## Spring Boot wiring example
 
-Create a configuration that wires the client, metrics, and listener:
-
 ```java
-// src/main/java/com/example/nostr/NostrConfig.java
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import nostr.api.NostrSpringWebSocketClient;
 import nostr.id.Identity;
 
 @Configuration
 public class NostrConfig {
 
-  @Bean
-  public Identity nostrIdentity() {
-    // Replace with a real private key or a managed Identity
-    return Identity.generateRandomIdentity();
-  }
+    @Bean
+    public Identity nostrIdentity() {
+        return Identity.generateRandomIdentity();
+    }
 
-  @Bean
-  public NostrSpringWebSocketClient nostrClient(Identity identity) {
-    return new NostrSpringWebSocketClient(identity);
-  }
-
-  @Bean
-  public NostrMetrics nostrMetrics(MeterRegistry registry, NostrSpringWebSocketClient client) {
-    NostrMetrics metrics = new NostrMetrics(registry);
-    metrics.instrument(client);
-    return metrics;
-  }
+    @Bean
+    public NostrMetrics nostrMetrics(MeterRegistry registry) {
+        return new NostrMetrics(registry);
+    }
 }
 ```
 
-Use the instrumented client and timer in your service:
+Use in your service:
 
 ```java
-// src/main/java/com/example/nostr/NostrService.java
-import java.util.List;
-import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-import nostr.api.NostrSpringWebSocketClient;
+import nostr.base.Kinds;
+import nostr.client.springwebsocket.NostrRelayClient;
 import nostr.event.impl.GenericEvent;
-import nostr.base.Kind;
+import nostr.event.message.EventMessage;
+import nostr.event.tag.GenericTag;
+import nostr.id.Identity;
 
 @Service
 @RequiredArgsConstructor
 public class NostrService {
-  private final NostrSpringWebSocketClient client;
-  private final NostrMetrics metrics;
+    private final Identity identity;
+    private final NostrMetrics metrics;
 
-  public List<String> publish(String content) {
-    GenericEvent event = GenericEvent.builder()
-        .pubKey(client.getSender().getPublicKey())
-        .kind(Kind.TEXT_NOTE)
-        .content(content)
-        .build();
-    event.update();
-    client.sign(client.getSender(), event);
-    return metrics.timedSend(client, event);
-  }
+    public List<String> publish(String content) throws Exception {
+        GenericEvent event = GenericEvent.builder()
+            .pubKey(identity.getPublicKey())
+            .kind(Kinds.TEXT_NOTE)
+            .content(content)
+            .build();
+        identity.sign(event);
+
+        try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
+            return metrics.timedSend(client, new EventMessage(event));
+        }
+    }
 }
 ```
 
-Application properties (example):
+Application properties:
 
 ```properties
-# Expose Prometheus endpoint
 management.endpoints.web.exposure.include=prometheus
 management.endpoint.prometheus.enabled=true
-
-# Optional: tune WebSocket timeouts
 nostr.websocket.await-timeout-ms=30000
-nostr.websocket.poll-interval-ms=250
 ```
