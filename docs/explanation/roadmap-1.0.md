@@ -1,6 +1,8 @@
-# 1.0 Roadmap
+# 1.0 Roadmap (Historical)
 
-This explanation outlines the outstanding work required to promote `nostr-java` from the current 0.6.x snapshots to a stable 1.0.0 release. Items are grouped by theme so maintainers can prioritize stabilization, hardening, and release-readiness tasks.
+> **Note:** This roadmap was completed with the 1.0.0 release. The library has since been simplified in 2.0.0 — see [SIMPLIFICATION_PROPOSAL.md](../developer/SIMPLIFICATION_PROPOSAL.md) and [CHANGELOG.md](../../CHANGELOG.md).
+
+This explanation outlines the outstanding work that was required to promote `nostr-java` from the 0.6.x snapshots to a stable 1.0.0 release. Items are grouped by theme so maintainers can prioritize stabilization, hardening, and release-readiness tasks.
 
 ## Release-readiness snapshot
 

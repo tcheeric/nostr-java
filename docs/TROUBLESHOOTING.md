@@ -21,7 +21,7 @@ This guide helps you diagnose and resolve common issues when using nostr-java.
 
 ### Problem: Dependency Not Found
 
-**Symptom**: Maven or Gradle cannot resolve `xyz.tcheeric:nostr-java-api:<version>`
+**Symptom**: Maven or Gradle cannot resolve `xyz.tcheeric:nostr-java-client:<version>`
 
 **Solution**: Ensure you've added the custom repository to your build configuration:
 
@@ -89,7 +89,7 @@ Exclude conflicting transitive dependencies if needed (version managed by the BO
 ```xml
 <dependency>
     <groupId>xyz.tcheeric</groupId>
-    <artifactId>nostr-java-api</artifactId>
+    <artifactId>nostr-java-client</artifactId>
     <exclusions>
         <exclusion>
             <groupId>conflicting-group</groupId>
@@ -117,12 +117,12 @@ Ensure the relay URL uses the correct WebSocket protocol:
 
 **Bad:**
 ```java
-Map<String, String> relays = Map.of("relay", "https://relay.398ja.xyz");  // Wrong protocol
+new NostrRelayClient("https://relay.398ja.xyz");  // Wrong protocol
 ```
 
 **Good:**
 ```java
-Map<String, String> relays = Map.of("relay", "wss://relay.398ja.xyz");
+new NostrRelayClient("wss://relay.398ja.xyz");
 ```
 
 #### 2. Relay is Down or Unreachable
@@ -133,7 +133,6 @@ Test the relay URL independently:
 websocat wss://relay.398ja.xyz
 
 # Or use an online WebSocket tester
-# https://www.websocket.org/echo.html
 ```
 
 Try alternative public relays:
@@ -150,36 +149,24 @@ System.setProperty("https.proxyHost", "proxy.example.com");
 System.setProperty("https.proxyPort", "8080");
 ```
 
-#### 4. SSL/TLS Certificate Issues
-
-**Symptom**: `SSLHandshakeException`
-
-For self-signed certificates in development only:
-```java
-// WARNING: Only use in development, never in production
-System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
-```
-
 ### Problem: Connection Drops Unexpectedly
 
 **Symptom**: Subscription stops receiving events after a period
 
-**Solution**: Implement retry logic and connection monitoring:
+**Solution**: Use retry and error handling with `NostrRelayClient`:
 
 ```java
-NostrSpringWebSocketClient client = new NostrSpringWebSocketClient();
-client.setRelays(relays);
-
-AutoCloseable subscription = client.subscribe(
-    filters,
-    "my-subscription",
-    message -> System.out.println(message),
-    error -> {
-        System.err.println("Connection error: " + error.getMessage());
-        // Implement reconnection logic here
-        // Consider exponential backoff
-    }
-);
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
+    AutoCloseable subscription = client.subscribe(
+        req,
+        message -> System.out.println(message),
+        error -> {
+            System.err.println("Connection error: " + error.getMessage());
+            // NostrRelayClient uses Spring Retry with exponential backoff
+        },
+        () -> System.out.println("Connection closed")
+    );
+}
 ```
 
 ---
@@ -198,13 +185,21 @@ Ensure you sign the event before sending:
 
 **Bad:**
 ```java
-GenericEvent event = new GenericEvent(pubKey, Kind.TEXT_NOTE, List.of(), "Hello");
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello")
+    .build();
 client.send(new EventMessage(event));  // Missing signature!
 ```
 
 **Good:**
 ```java
-GenericEvent event = new GenericEvent(pubKey, Kind.TEXT_NOTE, List.of(), "Hello");
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello")
+    .build();
 identity.sign(event);  // Sign first
 client.send(new EventMessage(event));
 ```
@@ -213,43 +208,13 @@ client.send(new EventMessage(event));
 
 Never modify an event after signing it. Any change invalidates the signature.
 
-**Bad:**
-```java
-identity.sign(event);
-event.setContent("Different content");  // Signature now invalid!
-client.send(new EventMessage(event));
-```
-
 #### 3. Incorrect Key Format
 
-Ensure private keys are in the correct format (32-byte hex string):
+Ensure private keys are in the correct format (32-byte hex string, 64 hex characters):
 
 ```java
-// Valid 32-byte hex key (64 hex characters)
 String validKey = "a".repeat(64);
 Identity id = Identity.create(validKey);
-
-// Invalid - too short
-String invalidKey = "abc123";  // Will throw exception
-```
-
-### Problem: Identity Generation Fails
-
-**Symptom**: `NostrException` or invalid key errors
-
-**Solution**: Use the provided identity generation methods:
-
-```java
-// Recommended: Generate random identity
-Identity identity = Identity.generateRandomIdentity();
-
-// From existing private key (hex string)
-String privateKeyHex = "...";
-Identity identity = Identity.create(privateKeyHex);
-
-// Verify the identity
-PublicKey pubKey = identity.getPublicKey();
-System.out.println("Public key: " + pubKey.toString());
 ```
 
 ---
@@ -258,28 +223,24 @@ System.out.println("Public key: " + pubKey.toString());
 
 ### Problem: Events Not Appearing on Relay
 
-**Symptom**: Event sent successfully but doesn't appear in queries
-
 **Debugging Steps:**
 
 #### 1. Verify Event Structure
 
-Check the event JSON before sending:
-
 ```java
-GenericEvent event = new GenericEvent(pubKey, kind, tags, content);
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello")
+    .build();
 identity.sign(event);
 
 // Log the event JSON
 String json = new EventMessage(event).encode();
 System.out.println("Sending event: " + json);
-
-client.send(new EventMessage(event));
 ```
 
 #### 2. Check Relay Response
-
-Many relays send OK messages. Listen for them:
 
 ```java
 List<String> responses = client.send(new EventMessage(event));
@@ -288,36 +249,20 @@ responses.forEach(response ->
 );
 ```
 
-#### 3. Verify Event ID Calculation
+### Problem: Relay Timeout
 
-The event ID must be calculated correctly:
+**Symptom**: `RelayTimeoutException` when sending events
+
+**Solution**: Increase the timeout or check relay connectivity:
 
 ```java
-// Event ID is automatically calculated during signing
-identity.sign(event);
-System.out.println("Event ID: " + event.getId());
+// Increase timeout to 2 minutes
+NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz", 120_000);
 ```
 
-### Problem: "Invalid Event Kind" Error
-
-**Symptom**: Relay rejects event with kind error
-
-**Solution**: Ensure you're using a valid kind number per [NIP-16](https://github.com/nostr-protocol/nips/blob/master/16.md):
-
-- **Regular (1-9999)**: Standard events that can be deleted
-- **Replaceable (10000-19999)**: Newer event replaces older ones
-- **Ephemeral (20000-29999)**: Not stored by relays
-- **Parameterized Replaceable (30000-39999)**: Replaceable with parameters
-
-```java
-// Valid kinds
-int TEXT_NOTE = 1;           // Regular
-int METADATA = 0;            // Regular
-int CONTACTS = 3;            // Replaceable (10000-19999 range in older spec, but 3 is special)
-int CUSTOM_KIND = 30000;     // Parameterized replaceable
-
-// Use appropriate kind for your use case
-GenericEvent event = new GenericEvent(pubKey, CUSTOM_KIND, tags, content);
+Or configure via Spring properties:
+```properties
+nostr.websocket.await-timeout-ms=120000
 ```
 
 ---
@@ -326,110 +271,58 @@ GenericEvent event = new GenericEvent(pubKey, CUSTOM_KIND, tags, content);
 
 ### Problem: Subscription Receives No Events
 
-**Symptom**: Subscription opens successfully but callback never fires
-
 **Debugging Steps:**
 
 #### 1. Verify Filter Configuration
 
-Check that your filters match existing events:
-
 ```java
-// Too restrictive - might match nothing
-Filters tooRestrictive = new Filters(
-    new AuthorFilter(specificPubKey),
-    new KindFilter<>(Kind.TEXT_NOTE),
-    new SinceFilter(Instant.now().getEpochSecond())  // Only future events
-);
+// Too restrictive — might match nothing
+EventFilter tooRestrictive = EventFilter.builder()
+    .authors(List.of(specificPubKey))
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .since(Instant.now().getEpochSecond())  // Only future events
+    .build();
 
-// More permissive - should match events
-Filters permissive = new Filters(
-    new KindFilter<>(Kind.TEXT_NOTE)
-);
-permissive.setLimit(10);  // Limit results
+// More permissive — should match events
+EventFilter permissive = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .limit(10)
+    .build();
 ```
 
-#### 2. Test with Known Events
-
-Query for a specific event you know exists:
-
-```java
-Filters filters = new Filters(new IdsFilter(knownEventId));
-client.subscribe(filters, "test-sub",
-    message -> System.out.println("Found: " + message),
-    error -> System.err.println("Error: " + error)
-);
-```
-
-#### 3. Check Relay Supports Filter Type
-
-Not all relays support all filter types. Test with basic filters first:
+#### 2. Test with Basic Filters
 
 ```java
 // Most widely supported
-Filters basic = new Filters(new KindFilter<>(Kind.TEXT_NOTE));
-basic.setLimit(5);
+EventFilter basic = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .limit(5)
+    .build();
 ```
 
 ### Problem: Subscription Callback Blocks
 
 **Symptom**: Application becomes unresponsive or slow
 
-**Solution**: Offload heavy processing from the WebSocket thread:
+**Note**: In nostr-java 2.0, subscription callbacks are dispatched on Virtual Threads, so blocking in callbacks does not block WebSocket I/O. However, for high-throughput feeds, consider using a bounded queue:
 
 ```java
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+BlockingQueue<String> eventQueue = new LinkedBlockingQueue<>(1000);
 
-ExecutorService executor = Executors.newFixedThreadPool(4);
-
-AutoCloseable subscription = client.subscribe(
-    filters,
-    "my-sub",
-    message -> {
-        // Hand off to executor immediately
-        executor.submit(() -> {
-            // Heavy processing here
-            processMessage(message);
-        });
-    },
-    error -> System.err.println(error)
-);
-
-// Don't forget to shut down executor
-executor.shutdown();
-```
-
-### Problem: Too Many Events Causing Backpressure
-
-**Symptom**: Memory usage grows, events arrive faster than processing
-
-**Solution**: Implement flow control:
-
-```java
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-BlockingQueue<String> eventQueue = new LinkedBlockingQueue<>(1000);  // Max 1000 events
-
-client.subscribe(
-    filters,
-    "my-sub",
+client.subscribe(req,
     message -> {
         if (!eventQueue.offer(message)) {
             System.err.println("Queue full, dropping event");
         }
     },
-    error -> System.err.println(error)
+    error -> System.err.println(error),
+    () -> {}
 );
 
 // Process from queue at controlled rate
 while (running) {
     String message = eventQueue.poll(1, TimeUnit.SECONDS);
-    if (message != null) {
-        processMessage(message);
-    }
+    if (message != null) processMessage(message);
 }
 ```
 
@@ -437,7 +330,7 @@ while (running) {
 
 ## Encryption & Decryption Issues
 
-### Problem: Decryption Fails for NIP-04 Messages
+### Problem: Decryption Fails
 
 **Symptom**: `NostrException` or garbled plaintext
 
@@ -448,37 +341,19 @@ while (running) {
 Ensure you're using the recipient's private key to decrypt:
 
 ```java
-// Alice sends to Bob
 Identity alice = Identity.generateRandomIdentity();
 Identity bob = Identity.generateRandomIdentity();
 
-NIP04 dm = new NIP04(alice, bob.getPublicKey())
-    .createDirectMessageEvent("Secret message");
+// Alice encrypts for Bob
+MessageCipher04 cipher = new MessageCipher04(alice.getPrivateKey(), bob.getPublicKey());
+String encrypted = cipher.encrypt("Secret message");
 
-// Bob must use his identity to decrypt
-String plaintext = NIP04.decrypt(bob, dm.getEvent());  // Correct
-
-// This would fail:
-// String plaintext = NIP04.decrypt(alice, dm.getEvent());  // Wrong!
-```
-
-#### 2. Corrupted Ciphertext
-
-Verify the event content wasn't modified:
-
-```java
-try {
-    String decrypted = NIP04.decrypt(identity, event);
-    System.out.println(decrypted);
-} catch (NostrException e) {
-    System.err.println("Decryption failed - content may be corrupted");
-    e.printStackTrace();
-}
+// Bob decrypts (using his private key + Alice's public key)
+MessageCipher04 bobCipher = new MessageCipher04(bob.getPrivateKey(), alice.getPublicKey());
+String decrypted = bobCipher.decrypt(encrypted);
 ```
 
 ### Problem: NIP-44 vs NIP-04 Confusion
-
-**Symptom**: Decryption fails with wrong cipher version
 
 **Solution**: Match encryption and decryption versions:
 
@@ -486,12 +361,10 @@ try {
 // NIP-04 (legacy)
 MessageCipher04 cipher04 = new MessageCipher04(senderPriv, recipientPub);
 String encrypted04 = cipher04.encrypt("Hello");
-String decrypted04 = cipher04.decrypt(encrypted04);
 
 // NIP-44 (recommended)
 MessageCipher44 cipher44 = new MessageCipher44(senderPriv, recipientPub);
 String encrypted44 = cipher44.encrypt("Hello");
-String decrypted44 = cipher44.decrypt(encrypted44);
 
 // Can't mix: cipher04.decrypt(encrypted44) will fail!
 ```
@@ -502,54 +375,33 @@ String decrypted44 = cipher44.decrypt(encrypted44);
 
 ### Problem: Slow Event Publishing
 
-**Symptom**: High latency when sending events
-
 **Solutions:**
 
-#### 1. Batch Events When Possible
+#### Use Async APIs
 
 ```java
-List<EventMessage> events = List.of(
-    new EventMessage(event1),
-    new EventMessage(event2),
-    new EventMessage(event3)
-);
-
-// Send in parallel to multiple relays
-events.forEach(event -> client.send(event));
-```
-
-#### 2. Use Async Publishing
-
-```java
-import java.util.concurrent.CompletableFuture;
-
-CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-    client.send(new EventMessage(event));
-});
-
-// Continue other work
-future.join();  // Wait when needed
+NostrRelayClient.connectAsync("wss://relay.398ja.xyz")
+    .thenCompose(client -> client.sendAsync(new EventMessage(event)))
+    .thenAccept(responses -> System.out.println("Done: " + responses));
 ```
 
 ### Problem: High Memory Usage
-
-**Symptom**: Application memory grows continuously
 
 **Solutions:**
 
 #### 1. Limit Subscription Results
 
 ```java
-Filters filters = new Filters(new KindFilter<>(Kind.TEXT_NOTE));
-filters.setLimit(100);  // Limit to 100 most recent events
+EventFilter filter = EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .limit(100)
+    .build();
 ```
 
 #### 2. Close Subscriptions When Done
 
 ```java
 AutoCloseable subscription = client.subscribe(/* ... */);
-
 try {
     // Use subscription
 } finally {
@@ -557,14 +409,32 @@ try {
 }
 ```
 
-#### 3. Clear References to Large Objects
+---
 
+## Integration Testing Issues
+
+### Problem: Tests Timeout After 60 Seconds
+
+**Solution**: Use strfry relay instead of nostr-rs-relay:
+
+```properties
+# src/test/resources/relay-container.properties
+relay.container.image=dockurr/strfry:latest
+relay.container.port=7777
+```
+
+### Problem: Tests Fail in CI but Pass Locally
+
+**Possible Causes:**
+
+1. **Docker not available**: Skip tests when Docker is unavailable:
 ```java
-// Don't hold references to all events
-client.subscribe(filters, "sub", message -> {
-    processMessage(message);
-    // Don't: allMessages.add(message);  // Memory leak!
-});
+@DisabledIfSystemProperty(named = "noDocker", matches = "true")
+```
+
+2. **Resource constraints**: Use tmpfs for relay storage:
+```java
+.withTmpFs(Map.of("/app/strfry-db", "rw"))
 ```
 
 ---
@@ -574,200 +444,15 @@ client.subscribe(filters, "sub", message -> {
 If your issue isn't covered here:
 
 1. **Check the API reference**: [reference/nostr-java-api.md](reference/nostr-java-api.md)
-2. **Review examples**: Browse the [`nostr-java-examples`](../nostr-java-examples) module
+2. **Review examples**: [howto/api-examples.md](howto/api-examples.md)
 3. **Search existing issues**: [GitHub Issues](https://github.com/tcheeric/nostr-java/issues)
-4. **Open a new issue**: Provide:
-   - nostr-java version (e.g., `X.Y.Z`)
-   - Java version (`java -version`)
-   - Minimal code to reproduce
-   - Full error stack trace
-   - Expected vs actual behavior
+4. **Open a new issue**: Provide nostr-java version, Java version, minimal reproducing code, and full stack trace.
 
 ## Debug Logging
-
-Enable debug logging to diagnose issues:
-
-```java
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-Logger logger = Logger.getLogger("nostr");
-logger.setLevel(Level.FINE);
-
-// Or configure via logging.properties
-// nostr.level = FINE
-```
 
 For Spring Boot applications, add to `application.properties`:
 
 ```properties
 logging.level.nostr=DEBUG
 logging.level.nostr.client=TRACE
-```
-
----
-
-## Integration Testing Issues
-
-### Problem: Tests Timeout After 60 Seconds
-
-**Symptom**: Integration tests hang and fail with `NoSuchElementException: No value present` or `No message received`
-
-**Possible Causes & Solutions:**
-
-#### 1. nostr-rs-relay Quanta Bug
-
-The `scsibug/nostr-rs-relay` Docker image contains a known bug in the `quanta` crate that causes panics in Docker environments:
-
-```
-thread 'tokio-ws-10' panicked at quanta-0.9.3/src/lib.rs:274:13:
-po2_denom was zero!
-```
-
-**Solution**: Use strfry relay instead:
-
-```properties
-# src/test/resources/relay-container.properties
-relay.container.image=dockurr/strfry:latest
-relay.container.port=7777
-```
-
-#### 2. Relay Container Not Starting
-
-Check Docker is available and the container starts properly:
-
-```bash
-# Verify Docker is running
-docker info
-
-# Test the relay image manually
-docker run --rm -p 7777:7777 dockurr/strfry:latest
-```
-
-### Problem: strfry Rejects All Events (Whitelist)
-
-**Symptom**: Events return `success=false` with message `blocked: pubkey not in whitelist`
-
-**Cause**: The default strfry Docker image has a write policy that whitelists specific pubkeys.
-
-**Solution**: Create a custom strfry.conf that disables the whitelist:
-
-```conf
-# src/test/resources/strfry.conf
-relay {
-    writePolicy {
-        plugin = ""  # Disable write policy plugin
-    }
-}
-```
-
-Mount this config in your test container:
-
-```java
-RELAY = new GenericContainer<>(image)
-    .withExposedPorts(relayPort)
-    .withClasspathResourceMapping(
-        "strfry.conf", "/etc/strfry.conf", BindMode.READ_ONLY)
-    .withTmpFs(Map.of("/app/strfry-db", "rw"))
-    .waitingFor(Wait.forLogMessage(".*Started websocket server on.*", 1));
-```
-
-### Problem: Filter Queries Return Empty Results
-
-**Symptom**: Tests send events successfully but filter queries return only EOSE (no events)
-
-**Cause**: Race condition - the relay needs time to index events before they can be queried.
-
-**Solution**: Add a small delay between publishing and querying:
-
-```java
-// Send event
-nip01.createTextNoteEvent(List.of(tag), "content").signAndSend(relays);
-
-// Wait for relay to index the event
-Thread.sleep(100);
-
-// Now query
-List<String> result = nip01.sendRequest(filters, subscriptionId);
-```
-
-### Problem: strfry Requires High File Descriptor Limits
-
-**Symptom**: Container fails with `Unable to set NOFILES limit`
-
-**Solution**: Configure ulimits in Testcontainers:
-
-```java
-import com.github.dockerjava.api.model.Ulimit;
-
-RELAY = new GenericContainer<>(image)
-    .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig()
-        .withUlimits(new Ulimit[] {new Ulimit("nofile", 1000000L, 1000000L)}))
-    // ... other configuration
-```
-
-### Problem: Tests Use Wrong Relay URL
-
-**Symptom**: Tests connect to hardcoded URL instead of Testcontainers dynamic port
-
-**Cause**: Tests may use `@Autowired` relays from properties file instead of dynamic container port.
-
-**Solution**: Use a base test class that provides the dynamic relay URL:
-
-```java
-public abstract class BaseRelayIntegrationTest {
-    @Container
-    private static final GenericContainer<?> RELAY = /* ... */;
-
-    static Map<String, String> getTestRelays() {
-        String host = RELAY.getHost();
-        int port = RELAY.getMappedPort(7777);
-        return Map.of("relay", String.format("ws://%s:%d", host, port));
-    }
-}
-
-// In your test
-@BeforeEach
-void setUp() {
-    relays = getTestRelays();  // Use dynamic URL, not autowired
-}
-```
-
-### Problem: Tests Fail in CI but Pass Locally
-
-**Symptom**: Docker-based tests fail in CI environments
-
-**Possible Causes:**
-
-1. **Docker not available**: Skip tests when Docker is unavailable:
-
-```java
-@DisabledIfSystemProperty(named = "noDocker", matches = "true")
-public class MyIntegrationTest extends BaseRelayIntegrationTest {
-    // ...
-}
-```
-
-Run with: `mvn test -DnoDocker=true`
-
-2. **Different Docker environments**: Some CI environments don't support certain CPU features (TSC) that cause the quanta bug.
-
-3. **Resource constraints**: CI containers may have limited resources. Use tmpfs for relay storage:
-
-```java
-.withTmpFs(Map.of("/app/strfry-db", "rw"))
-```
-
-### Relay Configuration Reference
-
-| Relay | Image | Port | Wait Strategy |
-|-------|-------|------|---------------|
-| strfry | `dockurr/strfry:latest` | 7777 | `Started websocket server on` |
-| nostr-rs-relay | `scsibug/nostr-rs-relay:latest` | 8080 | `listening on:` (has quanta bug) |
-
-Configure via `src/test/resources/relay-container.properties`:
-
-```properties
-relay.container.image=dockurr/strfry:latest
-relay.container.port=7777
 ```

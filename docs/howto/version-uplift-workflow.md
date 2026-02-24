@@ -126,7 +126,7 @@ scripts/release.sh next-snapshot --version 1.0.1-SNAPSHOT
   <dependencies>
     <dependency>
       <groupId>xyz.tcheeric</groupId>
-      <artifactId>nostr-java-api</artifactId>
+      <artifactId>nostr-java-client</artifactId>
     </dependency>
   </dependencies>
   ```

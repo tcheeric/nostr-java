@@ -6,8 +6,91 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Removed
+- Dead code cleanup — deleted unused classes: `IContent`, `JsonContent`, `Reaction` enum, `Response`, `Nip05Content`, `Nip05ContentDecoder`, `BaseAuthMessage`, `GenericMessage`, `IKey`, `GenericEventConverter`, `GenericEventTypeClassifier`, `GenericEventDecoder`, `FiltersDecoder`, `BaseTagDecoder`, `GenericEventValidator`, `GenericEventSerializer`, `GenericEventUpdater`, `GenericTagQuery`, `HttpClientProvider`, `DefaultHttpClientProvider`.
+- `testAuthMessage` test and `GenericEventSupportTest` removed (tested deleted classes).
+- `createGenericTagQuery()` removed from `EntityFactory` (only consumer of deleted `GenericTagQuery`).
 
+### Changed
+- `RelayAuthenticationMessage` and `CanonicalAuthenticationMessage` now extend `BaseMessage` directly (previously extended the now-deleted `BaseAuthMessage`).
+- `BaseKey` now directly implements `Serializable` (previously implemented the now-deleted `IKey` interface).
+- `Nip05Validator` now creates `HttpClient` instances directly via a `Function<Duration, HttpClient>` factory (previously used deleted `HttpClientProvider`/`DefaultHttpClientProvider` interface).
+
+## [2.0.0] - 2026-02-24
+
+This is a major release that implements the full design simplification described in `docs/developer/SIMPLIFICATION_PROPOSAL.md`, reducing the library from 9 modules with ~180 classes to 4 modules with ~40 classes.
+
+### Added
+- `Kinds` utility class with static `int` constants for common Nostr event kinds (`TEXT_NOTE`, `SET_METADATA`, `CONTACT_LIST`, etc.) and range-check methods (`isReplaceable()`, `isEphemeral()`, `isAddressable()`, `isValid()`).
+- `GenericTag.of(String code, String... params)` factory method for concise tag creation.
+- `GenericTag.toArray()` returning the NIP-01 wire format `["code", "param0", "param1", ...]`.
+- `GenericTag` now stores tag values as `List<String>` (replacing `List<ElementAttribute>`), providing direct access via `getParams()`.
+- `EventFilter` builder API for composable relay filters: `.kinds()`, `.authors()`, `.since()`, `.until()`, `.addTagFilter()`, `.limit()`, `.ids()`.
+- `RelayTimeoutException` — typed exception replacing silent empty-list returns on relay timeout.
+- `ConnectionState` enum (`CONNECTING`, `CONNECTED`, `RECONNECTING`, `CLOSED`) for WebSocket connection state tracking.
+- `NostrRelayClient` async Virtual Thread APIs: `connectAsync(...)`, `sendAsync(...)`, and `subscribeAsync(...)`.
+- `Nip05Validator.validateAsync()` and `Nip05Validator.validateBatch(...)` for parallel NIP-05 validation workloads.
+- Spring Retry support (`@NostrRetryable`, `@Recover`) consolidated directly into `NostrRelayClient`.
+
+### Changed
+- **Module consolidation** — merged 9 modules into 4:
+  - `nostr-java-util` + `nostr-java-crypto` → `nostr-java-core`
+  - `nostr-java-base` + `nostr-java-event` → `nostr-java-event`
+  - `nostr-java-id` + `nostr-java-encryption` → `nostr-java-identity`
+  - `nostr-java-client` (unchanged)
+- **`GenericEvent`** is now the sole event class. All 39 concrete event subclasses removed. Events are differentiated by `int kind` instead of Java type.
+- **`GenericTag`** is now the sole tag class. All 17 concrete tag subclasses removed. Tags are a simple `code` + `List<String> params`.
+- `GenericEvent.kind` changed from `Kind` enum to plain `int`. Builder simplified to `.kind(int)` only.
+- `GenericEvent.tags` changed from `List<BaseTag>` to `List<GenericTag>`.
+- `GenericEvent` implements `ISignable` directly (no longer extends `BaseEvent`).
+- `EventMessage` now references `GenericEvent` directly instead of `IEvent`.
+- `IDecoder<T>` type bound changed from `IDecoder<T extends IElement>` to unbounded `IDecoder<T>`.
+- `TagDeserializer` now always produces `GenericTag` with `List<String>` params — no registry dispatch.
+- `GenericTagSerializer` simplified to output `[code, param0, param1, ...]` directly from `List<String>`.
+- `GenericEventDeserializer` simplified — no subclass dispatch to concrete event types.
+- `NostrUtil.bytesToHex()` now uses `java.util.HexFormat` instead of hand-rolled hex encoding.
+- `NostrUtil.hexToBytes()` family of methods now uses `java.util.HexFormat.parseHex()` — fails fast on invalid hex instead of silently producing corrupt bytes.
+- WebSocket client termination detection now uses proper JSON parsing instead of brittle string-prefix matching.
+- `StandardWebSocketClient` renamed to `NostrRelayClient`.
+- `SpringWebSocketClient` absorbed into `NostrRelayClient` (single client class with retry support).
+- Relay subscription callbacks are now dispatched on Virtual Threads to avoid blocking inbound WebSocket processing.
+- `DefaultHttpClientProvider` now uses a shared Virtual Thread executor instead of creating a new executor per `HttpClient`.
+- All `synchronized` blocks in `NostrRelayClient` replaced with `ReentrantLock` to avoid Virtual Thread pinning.
+- Configurable max events per request limit (default 10,000) to prevent unbounded memory accumulation.
+
+### Fixed
+- **`GenericTag.getCode()` NPE** — structurally eliminated by removing the dual-path tag architecture. `getCode()` is now a trivial field accessor with zero NPE risk.
+- Removed the remaining `synchronized` cleanup block from `NostrRelayClient.send(...)`, using `ReentrantLock` consistently to avoid VT pinning risk.
+- Relay timeout now throws `RelayTimeoutException` instead of silently returning an empty list, allowing callers to distinguish "no results" from "timed out".
+
+### Removed
+- **`nostr-java-api` module** — all 26 NIP classes (NIP01–NIP99), `EventNostr`, factory classes, client managers, service layer, and configuration classes.
+- **`nostr-java-examples` module** — all 6 example classes.
+- **39 concrete event subclasses** — `TextNoteEvent`, `DirectMessageEvent`, `ContactListEvent`, `ReactionEvent`, `DeletionEvent`, `EphemeralEvent`, `ReplaceableEvent`, `AddressableEvent`, all Calendar/Marketplace/Channel/NostrConnect events, and more. Use `GenericEvent` with the appropriate `int kind`.
+- **17 concrete tag subclasses** — `EventTag`, `PubKeyTag`, `AddressTag`, `IdentifierTag`, `ReferenceTag`, `HashtagTag`, `ExpirationTag`, `UrlTag`, `SubjectTag`, `DelegationTag`, `RelaysTag`, `NonceTag`, `PriceTag`, `EmojiTag`, `GeohashTag`, `LabelTag`, `LabelNamespaceTag`, `VoteTag`. Use `GenericTag.of(code, params...)`.
+- **27 entity classes** — `UserProfile`, `Profile`, `ChannelProfile`, `ZapRequest`, `ZapReceipt`, `Reaction`, all Cashu entities, all marketplace entities, and more.
+- **`Kind` enum** — replaced by `Kinds` utility class with static `int` constants.
+- **`ElementAttribute`** — replaced by `List<String>` in `GenericTag`.
+- **`TagRegistry`** — no longer needed with a single tag class.
+- **Interfaces and abstract classes**: `IElement`, `ITag`, `IEvent`, `IGenericElement`, `IBech32Encodable`, `Deleteable`, `BaseEvent`, `BaseTag`.
+- **Annotations**: `@Tag`, `@Event`, `@Key`.
+- **14 filter classes** — `AbstractFilterable`, `KindFilter`, `AuthorFilter`, `SinceFilter`, `UntilFilter`, `HashtagTagFilter`, `AddressTagFilter`, `GeohashTagFilter`, `IdentifierTagFilter`, `ReferencedEventFilter`, `ReferencedPublicKeyFilter`, `UrlTagFilter`, `VoteTagFilter`, `GenericTagQueryFilter`. Use `EventFilter.builder()`.
+- **Concrete serializers/deserializers** — `AddressTagSerializer`, `ReferenceTagSerializer`, `ExpirationTagSerializer`, `IdentifierTagSerializer`, `RelaysTagSerializer`, `BaseTagSerializer`, `AbstractTagSerializer`, `CalendarEventDeserializer`, `ClassifiedListingEventDeserializer`, `CashuTokenSerializer`.
+- **Client classes** — `WebSocketClientIF`, `WebSocketClientFactory`, `SpringWebSocketClientFactory`, `SpringWebSocketClient`. Use `NostrRelayClient` directly.
+- **Dead code** — `Marker` enum, `RelayUri` value object.
+- **5 old modules** — `nostr-java-util`, `nostr-java-crypto`, `nostr-java-base`, `nostr-java-id`, `nostr-java-encryption` (merged into the 4 remaining modules).
+- Dead `pollIntervalMs` parameter from WebSocket client constructors.
+
+## [1.3.0] - 2026-01-25
+
+### Added
+- Configurable WebSocket buffer sizes for handling large Nostr events via `nostr.websocket.max-text-message-buffer-size` and `nostr.websocket.max-binary-message-buffer-size` properties.
+
+### Changed
+- No additional behavior changes in this release; Kind APIs and WebSocket concurrency improvements were introduced in 1.2.1.
+
+### Fixed
+- No new fixes beyond 1.2.1; this release focuses on configurable WebSocket buffer sizes.
 ## [1.2.1] - 2026-01-21
 
 ### Fixed

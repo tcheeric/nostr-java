@@ -10,10 +10,9 @@ import lombok.NonNull;
 import lombok.ToString;
 import nostr.base.Command;
 import nostr.event.BaseMessage;
-import nostr.event.filter.Filters;
+import nostr.event.filter.EventFilter;
 import nostr.event.json.EventJsonMapper;
 import nostr.event.json.codec.EventEncodingException;
-import nostr.event.json.codec.FiltersDecoder;
 import nostr.event.json.codec.FiltersEncoder;
 
 import java.time.temporal.ValueRange;
@@ -33,13 +32,13 @@ public class ReqMessage extends BaseMessage {
 
   @JsonProperty private final String subscriptionId;
 
-  @JsonProperty private final List<Filters> filtersList;
+  @JsonProperty private final List<EventFilter> filtersList;
 
-  public ReqMessage(@NonNull String subscriptionId, @NonNull Filters... filtersList) {
+  public ReqMessage(@NonNull String subscriptionId, @NonNull EventFilter... filtersList) {
     this(subscriptionId, List.of(filtersList));
   }
 
-  public ReqMessage(@NonNull String subscriptionId, @NonNull List<Filters> filtersList) {
+  public ReqMessage(@NonNull String subscriptionId, @NonNull List<EventFilter> filtersList) {
     super(Command.REQ.name());
     validateSubscriptionId(subscriptionId);
     this.subscriptionId = subscriptionId;
@@ -73,7 +72,7 @@ public class ReqMessage extends BaseMessage {
             new ReqMessage(
                 subscriptionId.toString(),
                 getJsonFiltersList(jsonString).stream()
-                    .map(filtersList -> new FiltersDecoder().decode(filtersList))
+                    .map(EventFilter::fromJson)
                     .toList());
     return result;
   }

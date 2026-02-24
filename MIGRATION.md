@@ -1,24 +1,151 @@
 # Migration Guide
 
-This guide helps you migrate between major versions of nostr-java, detailing breaking changes and deprecated API replacements.
+This guide helps you migrate between major versions of nostr-java, detailing breaking changes and API replacements.
 
 ---
 
 ## Table of Contents
 
-- [Migrating to 1.0.0](#migrating-to-100)
-  - [Deprecated APIs Removed](#deprecated-apis-removed)
-  - [Breaking Changes](#breaking-changes)
-- [Migrating from 0.6.x](#migrating-from-06x)
-  - [Event Kind Constants](#event-kind-constants)
-  - [ObjectMapper Usage](#objectmapper-usage)
-  - [NIP01 API Changes](#nip01-api-changes)
+- [Migrating to 2.0.0](#migrating-to-200)
+- [Migrating to 1.0.0](#migrating-to-100) (historical)
 
 ---
 
-## Migrating to 1.0.0
+## Migrating to 2.0.0
 
-**Status:** Planned for future release
+**Status:** Released 2026-02-24
+
+Version 2.0.0 is a major simplification that reduces the library from 9 modules (~180 classes) to 4 modules (~40 classes). See [CHANGELOG.md](CHANGELOG.md) for the full list of changes and [docs/developer/SIMPLIFICATION_PROPOSAL.md](docs/developer/SIMPLIFICATION_PROPOSAL.md) for the design rationale.
+
+### Module changes
+
+| Old Module | New Module | Notes |
+|---|---|---|
+| `nostr-java-util` + `nostr-java-crypto` | `nostr-java-core` | Merged |
+| `nostr-java-base` + `nostr-java-event` | `nostr-java-event` | Merged |
+| `nostr-java-id` + `nostr-java-encryption` | `nostr-java-identity` | Merged |
+| `nostr-java-client` | `nostr-java-client` | Unchanged |
+| `nostr-java-api` | (removed) | Use `GenericEvent` directly |
+| `nostr-java-examples` | (removed) | See docs/howto guides |
+
+**Dependency:** Replace `nostr-java-api` with `nostr-java-client` (transitively includes all modules):
+
+```xml
+<!-- Before -->
+<artifactId>nostr-java-api</artifactId>
+
+<!-- After -->
+<artifactId>nostr-java-client</artifactId>
+```
+
+### Event creation
+
+```java
+// Before (1.x)
+NIP01 nip01 = new NIP01(identity);
+nip01.createTextNoteEvent("Hello Nostr!")
+     .sign()
+     .send(relays);
+
+// After (2.0)
+GenericEvent event = GenericEvent.builder()
+    .pubKey(identity.getPublicKey())
+    .kind(Kinds.TEXT_NOTE)
+    .content("Hello Nostr!")
+    .build();
+identity.sign(event);
+try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
+    client.send(new EventMessage(event));
+}
+```
+
+### Tags
+
+```java
+// Before (1.x)
+EventTag eTag = new EventTag("abc123", "wss://relay.example.com", Marker.REPLY);
+PubKeyTag pTag = new PubKeyTag(recipientPublicKey);
+HashtagTag hTag = new HashtagTag("nostr");
+
+// After (2.0)
+GenericTag.of("e", "abc123", "wss://relay.example.com", "reply")
+GenericTag.of("p", recipientPublicKey.toString())
+GenericTag.of("t", "nostr")
+```
+
+### Kind values
+
+```java
+// Before (1.x)
+Kind.TEXT_NOTE          // Kind enum
+Kind.TEXT_NOTE.getValue() // to get int
+
+// After (2.0)
+Kinds.TEXT_NOTE         // static int constant (value: 1)
+```
+
+### Filters
+
+```java
+// Before (1.x)
+new Filters(
+    new KindFilter<>(Kind.TEXT_NOTE),
+    new AuthorFilter<>(pubKey),
+    new SinceFilter(timestamp)
+);
+
+// After (2.0)
+EventFilter.builder()
+    .kinds(List.of(Kinds.TEXT_NOTE))
+    .authors(List.of(pubKeyHex))
+    .since(timestamp)
+    .build();
+```
+
+### WebSocket client
+
+```java
+// Before (1.x) — StandardWebSocketClient or SpringWebSocketClient
+StandardWebSocketClient client = new StandardWebSocketClient("wss://relay.example.com");
+// or: SpringWebSocketClient client = new SpringWebSocketClient(wsClient);
+
+// After (2.0) — NostrRelayClient (with retry, VT dispatch, async APIs)
+NostrRelayClient client = new NostrRelayClient("wss://relay.example.com");
+// Async:
+NostrRelayClient.connectAsync("wss://relay.example.com");
+```
+
+### Timeout handling
+
+```java
+// Before (1.x) — silent empty list on timeout
+List<String> events = client.send(message);  // returns empty list on timeout
+
+// After (2.0) — throws RelayTimeoutException
+try {
+    List<String> events = client.send(message);
+} catch (RelayTimeoutException e) {
+    // explicit timeout handling
+}
+```
+
+### Removed classes (summary)
+
+- All 26 NIP classes (`NIP01`–`NIP99`) and `EventNostr`
+- All 39 concrete event subclasses (`TextNoteEvent`, `ReactionEvent`, etc.)
+- All 17 concrete tag subclasses (`EventTag`, `PubKeyTag`, etc.)
+- All 27 entity classes (`UserProfile`, `ZapRequest`, etc.)
+- `Kind` enum, `ElementAttribute`, `TagRegistry`, `BaseTag`, `BaseEvent`
+- `IElement`, `ITag`, `IEvent`, `IGenericElement`, `IBech32Encodable`, `Deleteable`
+- `@Tag`, `@Event`, `@Key` annotations
+- 14 filter classes (`KindFilter`, `AuthorFilter`, etc.)
+- `WebSocketClientIF`, `WebSocketClientFactory`, `SpringWebSocketClientFactory`, `SpringWebSocketClient`
+
+---
+
+## Migrating to 1.0.0 (Historical)
+
+**Status:** Released 2025-10-13
 **Deprecation Warnings Since:** 0.6.2
 
 Version 1.0.0 will remove all APIs deprecated in the 0.6.x series. This guide helps you prepare your codebase for a smooth upgrade.
