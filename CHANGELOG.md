@@ -16,6 +16,11 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 - `BaseKey` now directly implements `Serializable` (previously implemented the now-deleted `IKey` interface).
 - `Nip05Validator` now creates `HttpClient` instances directly via a `Function<Duration, HttpClient>` factory (previously used deleted `HttpClientProvider`/`DefaultHttpClientProvider` interface).
 
+## [2.0.1] - 2026-05-06
+
+### Fixed
+- `NostrRelayClient` log statements were emitting `Sending request to relay null: ...` (and similar) once the WebSocket session had closed, because the relay URI was being read via `clientSession.getUri()` which returns `null` after close. Captured the URI in a `private final String relayUri` field set in each constructor and replaced 8 `clientSession.getUri()` log call-sites. Resolves 188 occurrences per 2-hour window observed in a downstream consumer's staging logs ([#523](https://github.com/tcheeric/nostr-java/pull/523)).
+
 ## [2.0.0] - 2026-02-24
 
 This is a major release that implements the full design simplification described in `docs/developer/SIMPLIFICATION_PROPOSAL.md`, reducing the library from 9 modules with ~180 classes to 4 modules with ~40 classes.

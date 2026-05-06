@@ -72,6 +72,13 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   private int maxEventsPerRequest = DEFAULT_MAX_EVENTS_PER_REQUEST;
 
   private final WebSocketSession clientSession;
+  /**
+   * Relay URI captured at construction time. Used for logging so that
+   * messages remain meaningful even after the underlying WebSocket session
+   * has been closed (at which point {@link WebSocketSession#getUri()} may
+   * return {@code null} on some implementations).
+   */
+  private final String relayUri;
   private final ReentrantLock sendLock = new ReentrantLock();
   private PendingRequest pendingRequest;
   private final Map<String, ListenerRegistration> listeners = new ConcurrentHashMap<>();
@@ -119,6 +126,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
 
   public NostrRelayClient(@Value("${nostr.relay.uri}") String relayUri)
       throws java.util.concurrent.ExecutionException, InterruptedException {
+    this.relayUri = relayUri;
     this.clientSession = connectSession(relayUri);
     connectionState.set(ConnectionState.CONNECTED);
   }
@@ -129,6 +137,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throw new IllegalArgumentException("awaitTimeoutMs must be positive");
     }
     this.awaitTimeoutMs = awaitTimeoutMs;
+    this.relayUri = relayUri;
     log.info("NostrRelayClient created for {} with awaitTimeoutMs={}", relayUri, awaitTimeoutMs);
     this.clientSession = connectSession(relayUri);
     connectionState.set(ConnectionState.CONNECTED);
@@ -143,6 +152,14 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
     this.clientSession = clientSession;
     this.awaitTimeoutMs = awaitTimeoutMs;
+    URI sessionUri = null;
+    try {
+      sessionUri = clientSession.getUri();
+    } catch (Exception ignored) {
+      // Some WebSocketSession implementations may throw before the session
+      // is fully initialised; fall through and store null.
+    }
+    this.relayUri = sessionUri == null ? null : sessionUri.toString();
     connectionState.set(ConnectionState.CONNECTED);
   }
 
@@ -253,7 +270,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
     String json = eventMessage.encode();
     log.debug("Sending {} to relay {} (size={} bytes)",
-        eventMessage.getCommand(), clientSession.getUri(), json.length());
+        eventMessage.getCommand(), relayUri, json.length());
     return send(json);
   }
 
@@ -269,7 +286,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       }
       request = new PendingRequest(maxEventsPerRequest);
       pendingRequest = request;
-      log.info("Sending request to relay {}: {}", clientSession.getUri(), json);
+      log.info("Sending request to relay {}: {}", relayUri, json);
       clientSession.sendMessage(new TextMessage(json));
     } finally {
       sendLock.unlock();
@@ -280,7 +297,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
 
     try {
       List<String> result = request.getFuture().get(timeout, TimeUnit.MILLISECONDS);
-      log.info("Received {} relay events via {}", result.size(), clientSession.getUri());
+      log.info("Received {} relay events via {}", result.size(), relayUri);
       return result;
     } catch (TimeoutException e) {
       log.error("Timed out waiting for relay response after {}ms", timeout);
@@ -350,7 +367,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throws IOException {
     String json = requestMessage.encode();
     log.debug("Subscribing with {} on relay {} (size={} bytes)",
-        requestMessage.getCommand(), clientSession.getUri(), json.length());
+        requestMessage.getCommand(), relayUri, json.length());
     return subscribe(json, messageListener, errorListener, closeListener);
   }
 
@@ -425,7 +442,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   @Recover
   public List<String> recover(IOException ex, String json) throws IOException {
     log.error("Failed to send message to relay {} after retries (size={} bytes)",
-        clientSession.getUri(), json.length(), ex);
+        relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -433,7 +450,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
     String json = eventMessage.encode();
     log.error("Failed to send {} to relay {} after retries (size={} bytes)",
-        eventMessage.getCommand(), clientSession.getUri(), json.length(), ex);
+        eventMessage.getCommand(), relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -446,7 +463,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       Runnable closeListener)
       throws IOException {
     log.error("Failed to subscribe on relay {} after retries (size={} bytes)",
-        clientSession.getUri(), json.length(), ex);
+        relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -460,7 +477,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throws IOException {
     String json = requestMessage.encode();
     log.error("Failed to subscribe with {} on relay {} after retries (size={} bytes)",
-        requestMessage.getCommand(), clientSession.getUri(), json.length(), ex);
+        requestMessage.getCommand(), relayUri, json.length(), ex);
     throw ex;
   }
 
