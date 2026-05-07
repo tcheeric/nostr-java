@@ -16,6 +16,18 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 - `BaseKey` now directly implements `Serializable` (previously implemented the now-deleted `IKey` interface).
 - `Nip05Validator` now creates `HttpClient` instances directly via a `Function<Duration, HttpClient>` factory (previously used deleted `HttpClientProvider`/`DefaultHttpClientProvider` interface).
 
+## [2.0.2] - 2026-05-08
+
+### Fixed
+- `NostrRelayClient.subscribe()` was calling `clientSession.sendMessage(...)` without holding the existing `sendLock`, while the same class's `send()` path correctly held it. Two threads racing inside `subscribe()` (or one in `subscribe()` racing one in `send()`) could trigger the underlying writer's `IllegalStateException("The remote endpoint was in state [TEXT_FULL_WRITING]")` (Tomcat / Spring `StandardWebSocketSession`) or `Blocking message pending` (Jetty), which the `catch (RuntimeException)` block at the bottom of `subscribe()` rewrapped as `IOException("Failed to send subscription payload", e)`. Downstream consumer (`imani-gateway-core` `account-app`) observed ~70 `RelaySubscribeException` per 60 minutes once a circuit-breaker tuning fix unmasked the underlying race. Fixed by wrapping the underlying `WebSocketSession` returned by `connectSession(...)` in Spring's `ConcurrentWebSocketSessionDecorator(session, sendTimeLimit, bufferSizeLimit, OverflowStrategy.TERMINATE)` at construction time, so concurrent `sendMessage()` calls from any send-path are serialised at the session layer.
+
+### Added
+- New canonical four-arg public constructor `NostrRelayClient(String relayUri, long awaitTimeoutMs, int sendBufferLimit, int sendTimeLimitMs)` annotated `@Autowired` for Spring constructor-injection. Spring binds against this overload via the new `@Value("${nostr.websocket.send-buffer-limit:262144}")` and `@Value("${nostr.websocket.send-time-limit-ms:10000}")` keys (also reachable via the `NOSTR_WEBSOCKET_SEND_BUFFER_LIMIT` / `NOSTR_WEBSOCKET_SEND_TIME_LIMIT_MS` env-vars under Spring relaxed binding). The previously-existing one-arg `(String)` and two-arg `(String, long)` public constructors are retained as delegating overloads (binary-compatible) and now also benefit from the decorator wrap by way of the canonical ctor.
+- Test-only static factories `forTestWithRawSession(...)` and `forTestWithDecoratedSession(...)` (two overloads — defaults and explicit) plus a package-private four-arg test constructor, so the new `NostrRelayClientConcurrencyTest` can assert both the regression (raw-session reproduction of the `IllegalStateException` race) and the resolution (decorator-wrapped session serialises sends).
+
+### Changed
+- `awaitTimeoutMs` is now a `final` field assigned once via constructor injection (previously `@Value`-annotated field). Spring's constructor-injection ordering guarantees the value reaches the constructor body before the decorator is constructed, which is required for the explicit overflow strategy to be applied. The system property / env-var key (`nostr.websocket.await-timeout-ms`) and its default (60 000 ms) are unchanged.
+
 ## [2.0.1] - 2026-05-06
 
 ### Fixed
