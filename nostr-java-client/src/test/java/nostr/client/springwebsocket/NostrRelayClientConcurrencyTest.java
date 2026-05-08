@@ -234,17 +234,9 @@ class NostrRelayClientConcurrencyTest {
         "Expected at least one overflow exception under TERMINATE (observed "
             + failures.size() + ")");
 
-    // Asserting (i) above; (ii) — spec §6.7d ii says the underlying session
-    // must be closed — is intentionally relaxed here. Spring's
-    // ConcurrentWebSocketSessionDecorator under TERMINATE does NOT close the
-    // delegate from limitExceeded() (it sets a private `limitExceeded` flag
-    // and throws SessionLimitExceededException; the delegate is closed only
-    // when somebody subsequently invokes the decorator's close()). The spec's
-    // assumption that overflow alone closes the session is incorrect for
-    // bare Spring; the closure happens upstream when NostrJavaRelayClient (or
-    // the application's MessageBrokerWebSocketHandler) handles the exception.
-    // We therefore assert the propagated overflow exception only, and leave
-    // the close-on-overflow chain to the upstream §6.7e wallet-lib test.
+    // (i) Overflow exception must propagate to the caller (either as the raw
+    //     SessionLimitExceededException or NostrRelayClient.subscribe()'s
+    //     IOException rewrap).
     boolean overflowExceptionPropagated = failures.stream().anyMatch(t -> {
       String msg = t.getMessage();
       if (msg != null && msg.contains("SessionLimitExceeded")) return true;
@@ -262,6 +254,19 @@ class NostrRelayClientConcurrencyTest {
     assertTrue(overflowExceptionPropagated,
         "Expected at least one SessionLimitExceededException (or its rewrap) to propagate "
             + "to the caller; observed failures: " + failures);
+
+    // (ii) After overflow, clientSession.isOpen() must return false. Spring's
+    //      ConcurrentWebSocketSessionDecorator under TERMINATE only sets a
+    //      private flag and throws SessionLimitExceededException — it does NOT
+    //      auto-close the delegate. NostrRelayClient.subscribe() compensates
+    //      by calling clientSession.close(CloseStatus.SESSION_NOT_RELIABLE)
+    //      explicitly when the underlying cause is SessionLimitExceededException,
+    //      so the upstream NostrJavaRelayClient reconnect contract (isOpen()==false
+    //      → reconnect on next call) holds. This restores the §6.7d ii contract.
+    assertTrue(!isOpen.get(),
+        "After overflow, clientSession.isOpen() must return false so the upstream "
+            + "reconnect contract holds (subscribe()'s catch block must explicitly "
+            + "close the session on SessionLimitExceededException).");
   }
 
   // ---- Constructor validation ----

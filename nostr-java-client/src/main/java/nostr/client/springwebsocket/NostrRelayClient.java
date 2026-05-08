@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
+import org.springframework.web.socket.handler.SessionLimitExceededException;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import jakarta.websocket.ContainerProvider;
@@ -476,7 +477,21 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       request = new PendingRequest(maxEventsPerRequest);
       pendingRequest = request;
       log.info("Sending request to relay {}: {}", relayUri, json);
-      clientSession.sendMessage(new TextMessage(json));
+      try {
+        clientSession.sendMessage(new TextMessage(json));
+      } catch (SessionLimitExceededException e) {
+        // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
+        // it does NOT close the delegate session. Close it explicitly here so
+        // upstream callers' isOpen()==false reconnect contract holds.
+        pendingRequest = null;
+        try {
+          clientSession.close(CloseStatus.SESSION_NOT_RELIABLE);
+        } catch (IOException closeEx) {
+          // Logged but not propagated — the original cause is the signal.
+          log.warn("Failed to close session after overflow: {}", closeEx.getMessage());
+        }
+        throw new IOException("Failed to send relay payload", e);
+      }
     } finally {
       sendLock.unlock();
     }
@@ -586,6 +601,17 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throw e;
     } catch (RuntimeException e) {
       listeners.remove(listenerId);
+      // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
+      // it does NOT close the delegate session. Close it explicitly here so
+      // upstream callers' isOpen()==false reconnect contract holds.
+      if (e instanceof SessionLimitExceededException) {
+        try {
+          clientSession.close(CloseStatus.SESSION_NOT_RELIABLE);
+        } catch (IOException closeEx) {
+          // Logged but not propagated — the original cause is the signal.
+          log.warn("Failed to close session after overflow: {}", closeEx.getMessage());
+        }
+      }
       throw new IOException("Failed to send subscription payload", e);
     }
 
