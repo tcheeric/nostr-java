@@ -16,6 +16,11 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 - `BaseKey` now directly implements `Serializable` (previously implemented the now-deleted `IKey` interface).
 - `Nip05Validator` now creates `HttpClient` instances directly via a `Function<Duration, HttpClient>` factory (previously used deleted `HttpClientProvider`/`DefaultHttpClientProvider` interface).
 
+## [2.0.3] - 2026-05-08
+
+### Fixed
+- Explicit close on `OverflowStrategy.TERMINATE`; restores upstream `isOpen()==false` reconnect contract. Spring's `ConcurrentWebSocketSessionDecorator` under `OverflowStrategy.TERMINATE` only sets a private `limitExceeded` flag and throws `SessionLimitExceededException` from `limitExceeded()` — it does **not** close the delegate session. As a result, after 2.0.2 the upstream caller's `clientSession.isOpen()==false` → reconnect contract did not hold (the session stayed open after overflow). `NostrRelayClient.subscribe()` and `NostrRelayClient.send()` now detect a `SessionLimitExceededException` cause in their respective catch blocks and call `clientSession.close(CloseStatus.SESSION_NOT_RELIABLE)` explicitly before rewrapping the exception. Non-overflow `RuntimeException`s continue to flow through the existing wrap-as-`IOException` path unchanged. The §6.7d concurrency test now strictly asserts `clientSession.isOpen()==false` after overflow, matching the spec's original contract.
+
 ## [2.0.2] - 2026-05-08
 
 ### Fixed
