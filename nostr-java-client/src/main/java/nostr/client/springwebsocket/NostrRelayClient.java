@@ -504,6 +504,12 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       clearPendingRequest(request);
       closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after overflow");
       throw new IOException("Failed to send relay payload", e);
+    } catch (IOException | RuntimeException e) {
+      // Any other send failure must also release the in-flight slot, or the next
+      // send() — including @NostrRetryable's own retry — hits the "request already
+      // in flight" guard instead of retrying.
+      clearPendingRequest(request);
+      throw e;
     }
 
     long timeout = awaitTimeoutMs > 0 ? awaitTimeoutMs : DEFAULT_AWAIT_TIMEOUT_MS;
@@ -756,7 +762,9 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     try {
       closeGated(status);
     } catch (Exception e) {
-      log.warn("Error closing session {}: {}", reason, e.getMessage());
+      // Swallow but preserve diagnostics — pass the throwable so the stack trace
+      // and root cause are logged, not just the message.
+      log.warn("Error closing session {} on relay {}", reason, relayUri, e);
     }
   }
 

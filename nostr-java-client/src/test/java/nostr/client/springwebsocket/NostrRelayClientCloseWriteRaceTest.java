@@ -41,9 +41,10 @@ import static org.mockito.Mockito.verify;
  *   <li><b>Routing</b> — every close goes through {@code close(CloseStatus)}, never
  *       the no-arg {@code close()} (tests {@link #close_routesThroughCloseStatus_neverNoArgClose}
  *       and {@link #sendTimeout_routesCloseThroughCloseStatus_neverNoArgClose}).</li>
- *   <li><b>Serialisation</b> — {@code subscribe()} / {@code send()} writes and
- *       {@code close()} are mutually excluded by this client's own {@code sendLock},
- *       so the delegate never sees a write and a close at once
+ *   <li><b>Serialisation</b> — {@code subscribe()} / {@code send()} writes hold the
+ *       READ side of the client's {@code sessionGate} ({@code ReentrantReadWriteLock})
+ *       and {@code close()} holds the WRITE side, so a close waits for all in-flight
+ *       writes to drain and the delegate never sees a write and a close at once
  *       (test {@link #concurrentSubscribeAndClose_neverOverlapOnDelegate}).</li>
  * </ol>
  */
@@ -86,7 +87,7 @@ class NostrRelayClientCloseWriteRaceTest {
     NostrRelayClient client =
         NostrRelayClient.forTestWithDecoratedSession(raw, 200L);
 
-    assertThrows(Exception.class, () -> client.send(REQ));
+    assertThrows(RelayTimeoutException.class, () -> client.send(REQ));
 
     verify(raw, times(1)).close(any(CloseStatus.class));
     verify(raw, never()).close();
@@ -108,7 +109,8 @@ class NostrRelayClientCloseWriteRaceTest {
     Mockito.when(raw.isOpen()).thenAnswer(inv -> isOpen.get());
 
     // First sendMessage parks in-flight (holding the decorator flushLock and this
-    // client's sendLock) until the test releases it; later sends do not park.
+    // client's sessionGate read lock) until the test releases it; later sends do
+    // not park.
     AtomicBoolean parkedOnce = new AtomicBoolean(false);
     Answer<Void> sendAnswer = inv -> {
       enter(delegateOps, maxDelegateOps, raceDetected);
@@ -166,8 +168,9 @@ class NostrRelayClientCloseWriteRaceTest {
     closer.setDaemon(true);
     closer.start();
 
-    // With the fix, close() blocks on sendLock (held by the parked subscribe), so
-    // the delegate close has NOT run yet — exactly one op (the write) in flight.
+    // With the fix, close() blocks on the sessionGate WRITE lock, waiting for the
+    // READ lock held by the parked subscribe to be released, so the delegate close
+    // has NOT run yet — exactly one op (the write) in flight.
     awaitThreadParked(closer, 2_000);
     assertEquals(1, delegateOps.get(),
         "close() must not reach the delegate while a send is in flight on it");
@@ -204,7 +207,7 @@ class NostrRelayClientCloseWriteRaceTest {
 
   /**
    * Poll until {@code thread} is parked (BLOCKED / WAITING / TIMED_WAITING) — i.e.
-   * blocked acquiring sendLock — or the timeout elapses.
+   * blocked acquiring the sessionGate write lock — or the timeout elapses.
    */
   private static void awaitThreadParked(Thread thread, long timeoutMs) throws InterruptedException {
     long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
