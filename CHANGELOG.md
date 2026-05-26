@@ -6,6 +6,17 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-05-26
+
+### Fixed
+- `NostrRelayClient.send()` no longer leaves the client stuck in the "request in flight" state when the write fails for a reason other than overflow. A plain transport `IOException` from the gated send previously bypassed `pendingRequest` cleanup, so the next `send()` (including an `@NostrRetryable` retry) hit `IllegalStateException: A request is already in flight` instead of retrying. `send()` now clears `pendingRequest` on any send failure, not only `SessionLimitExceededException`. (PR #525 review follow-up.)
+- `closeQuietly()` now logs the swallowed throwable (with stack trace) and the relay URI instead of just the exception message, preserving diagnostics for best-effort closes.
+
+## [2.0.4] - 2026-05-26
+
+### Fixed
+- Close-vs-write race in `NostrRelayClient` (spec-026 US3). The client wrapped its session in Spring's `ConcurrentWebSocketSessionDecorator` but called the **no-arg** `clientSession.close()` (in `close()` and the `send()` timeout path). Spring 6.2.x's decorator overrides only `close(CloseStatus)` (guarded by `closeLock`); the no-arg `close()` falls through to `WebSocketSessionDecorator.close()` → `delegate.close()` with no coordination, sending a CLOSE frame straight to the Tomcat delegate while a `sendMessage` flush was in flight (Tomcat permits only one write in flight → `IllegalStateException: Concurrent write operations are not permitted`). Routing through `close(CloseStatus)` alone is insufficient because its `closeLock` is a separate lock from the `flushLock` guarding `delegate.sendMessage`. Introduced a `ReentrantReadWriteLock` session gate: every write (`send`/`subscribe`) holds the read side (sends stay concurrent — the decorator still serialises the delegate writes among them), every close holds the write side and always uses `close(CloseStatus)`, so a close waits for all in-flight sends to drain before sending the CLOSE frame. No lock nesting → no added deadlock risk.
+
 ### Removed
 - Dead code cleanup — deleted unused classes: `IContent`, `JsonContent`, `Reaction` enum, `Response`, `Nip05Content`, `Nip05ContentDecoder`, `BaseAuthMessage`, `GenericMessage`, `IKey`, `GenericEventConverter`, `GenericEventTypeClassifier`, `GenericEventDecoder`, `FiltersDecoder`, `BaseTagDecoder`, `GenericEventValidator`, `GenericEventSerializer`, `GenericEventUpdater`, `GenericTagQuery`, `HttpClientProvider`, `DefaultHttpClientProvider`.
 - `testAuthMessage` test and `GenericEventSupportTest` removed (tested deleted classes).
