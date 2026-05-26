@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-05-26
+
+### Fixed
+- `NostrRelayClient.send()` no longer leaves the client stuck in the "request in flight" state when the write fails for a reason other than overflow. A plain transport `IOException` from the gated send previously bypassed `pendingRequest` cleanup, so the next `send()` (including an `@NostrRetryable` retry) hit `IllegalStateException: A request is already in flight` instead of retrying. `send()` now clears `pendingRequest` on any send failure, not only `SessionLimitExceededException`. (PR #525 review follow-up.)
+- `closeQuietly()` now logs the swallowed throwable (with stack trace) and the relay URI instead of just the exception message, preserving diagnostics for best-effort closes.
+
 ## [2.0.4] - 2026-05-26
 
 ### Fixed
