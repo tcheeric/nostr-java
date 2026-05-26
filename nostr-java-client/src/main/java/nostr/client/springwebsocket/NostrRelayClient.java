@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 /**
@@ -116,6 +117,18 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
    */
   private final String relayUri;
   private final ReentrantLock sendLock = new ReentrantLock();
+  /**
+   * Gates session writes against session close. Every {@code clientSession}
+   * write ({@code sendMessage}) holds the READ side; every close holds the
+   * WRITE side. This lets concurrent sends proceed in parallel — the
+   * {@link ConcurrentWebSocketSessionDecorator} still serialises the actual
+   * delegate writes among them — while a close waits for all in-flight sends
+   * to drain before sending a CLOSE frame. Needed because the decorator's
+   * {@code close(CloseStatus)} uses a separate lock from the flush lock, so it
+   * cannot by itself prevent a CLOSE frame from racing an in-flight write on
+   * the Tomcat delegate (which permits only one write in flight).
+   */
+  private final ReentrantReadWriteLock sessionGate = new ReentrantReadWriteLock();
   private PendingRequest pendingRequest;
   private final Map<String, ListenerRegistration> listeners = new ConcurrentHashMap<>();
   private final AtomicReference<ConnectionState> connectionState =
@@ -476,24 +489,21 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       }
       request = new PendingRequest(maxEventsPerRequest);
       pendingRequest = request;
-      log.info("Sending request to relay {}: {}", relayUri, json);
-      try {
-        clientSession.sendMessage(new TextMessage(json));
-      } catch (SessionLimitExceededException e) {
-        // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
-        // it does NOT close the delegate session. Close it explicitly here so
-        // upstream callers' isOpen()==false reconnect contract holds.
-        pendingRequest = null;
-        try {
-          clientSession.close(CloseStatus.SESSION_NOT_RELIABLE);
-        } catch (IOException closeEx) {
-          // Logged but not propagated — the original cause is the signal.
-          log.warn("Failed to close session after overflow: {}", closeEx.getMessage());
-        }
-        throw new IOException("Failed to send relay payload", e);
-      }
     } finally {
       sendLock.unlock();
+    }
+
+    log.info("Sending request to relay {}: {}", relayUri, json);
+    try {
+      sendFrameGated(json);
+    } catch (SessionLimitExceededException e) {
+      // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
+      // it does NOT close the delegate session. Close it explicitly (under the
+      // write gate, outside the read gate just released) so upstream callers'
+      // isOpen()==false reconnect contract holds.
+      clearPendingRequest(request);
+      closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after overflow");
+      throw new IOException("Failed to send relay payload", e);
     }
 
     long timeout = awaitTimeoutMs > 0 ? awaitTimeoutMs : DEFAULT_AWAIT_TIMEOUT_MS;
@@ -513,11 +523,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       } finally {
         sendLock.unlock();
       }
-      try {
-        clientSession.close();
-      } catch (IOException closeEx) {
-        log.warn("Error closing session after timeout", closeEx);
-      }
+      closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after timeout");
       throw new RelayTimeoutException(timeout);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -595,7 +601,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
         new ListenerRegistration(messageListener, errorListener, closeListener));
 
     try {
-      clientSession.sendMessage(new TextMessage(requestJson));
+      sendFrameGated(requestJson);
     } catch (IOException e) {
       listeners.remove(listenerId);
       throw e;
@@ -605,12 +611,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       // it does NOT close the delegate session. Close it explicitly here so
       // upstream callers' isOpen()==false reconnect contract holds.
       if (e instanceof SessionLimitExceededException) {
-        try {
-          clientSession.close(CloseStatus.SESSION_NOT_RELIABLE);
-        } catch (IOException closeEx) {
-          // Logged but not propagated — the original cause is the signal.
-          log.warn("Failed to close session after overflow: {}", closeEx.getMessage());
-        }
+        closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after overflow");
       }
       throw new IOException("Failed to send subscription payload", e);
     }
@@ -698,7 +699,39 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
 
   @Override
   public void close() throws IOException {
-    if (clientSession != null) {
+    closeGated(CloseStatus.NORMAL);
+  }
+
+  /**
+   * Write one frame on the delegate while holding the READ side of the session
+   * gate, so it can run concurrently with other sends (the
+   * {@link ConcurrentWebSocketSessionDecorator} serialises the delegate writes
+   * among them) but never overlaps a close (which takes the WRITE side).
+   */
+  private void sendFrameGated(String json) throws IOException {
+    sessionGate.readLock().lock();
+    try {
+      clientSession.sendMessage(new TextMessage(json));
+    } finally {
+      sessionGate.readLock().unlock();
+    }
+  }
+
+  /**
+   * Close the underlying session through {@code close(CloseStatus)} while
+   * holding the WRITE side of the session gate. This excludes every in-flight
+   * {@link #sendFrameGated} (which holds the read side), so the delegate never
+   * sees a CLOSE frame and a data frame at the same time. The no-arg
+   * {@code close()} is deliberately never used: it is not overridden by
+   * {@link ConcurrentWebSocketSessionDecorator} and would bypass its
+   * close/flush coordination entirely.
+   */
+  private void closeGated(CloseStatus status) throws IOException {
+    if (clientSession == null) {
+      return;
+    }
+    sessionGate.writeLock().lock();
+    try {
       boolean open = false;
       try {
         open = clientSession.isOpen();
@@ -706,8 +739,36 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
         log.warn("Exception while checking if clientSession is open during close()", e);
       }
       if (open) {
-        clientSession.close();
+        clientSession.close(status);
       }
+    } finally {
+      sessionGate.writeLock().unlock();
+    }
+  }
+
+  /**
+   * Best-effort {@link #closeGated} that logs rather than propagates failures —
+   * including the {@code SessionLimitExceededException} the decorator may raise
+   * while closing, so a best-effort close never masks the original timeout or
+   * overflow signal the caller is about to throw.
+   */
+  private void closeQuietly(CloseStatus status, String reason) {
+    try {
+      closeGated(status);
+    } catch (Exception e) {
+      log.warn("Error closing session {}: {}", reason, e.getMessage());
+    }
+  }
+
+  /** Clear {@link #pendingRequest} if it still points at {@code request}. */
+  private void clearPendingRequest(PendingRequest request) {
+    sendLock.lock();
+    try {
+      if (pendingRequest == request) {
+        pendingRequest = null;
+      }
+    } finally {
+      sendLock.unlock();
     }
   }
 
