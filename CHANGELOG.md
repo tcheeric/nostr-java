@@ -6,6 +6,11 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-05-27
+
+### Fixed
+- Closed a TOCTOU window in the 2.0.6 `send()` `isOpen()` guard (PR #526 review). The check was performed at the top of `send()`, *before* `sendFrameGated()` acquired the `sessionGate` read lock — so a concurrent `close()` could acquire the write lock, close the session, and release it between the check and the actual `sendMessage()`, still letting the frame reach a closed session. Moved the `isOpen()` check inside `sendFrameGated()`, immediately after the read lock is taken, so the open-check and the write are now atomic with respect to `closeGated()` (which holds the write lock). 2.0.6 already handled the dominant case (the session already closed when `send()` is invoked); this closes the narrow in-flight-close window.
+
 ## [2.0.6] - 2026-05-27
 
 ### Fixed
