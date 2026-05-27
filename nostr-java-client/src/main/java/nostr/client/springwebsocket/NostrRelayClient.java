@@ -717,6 +717,17 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   private void sendFrameGated(String json) throws IOException {
     sessionGate.readLock().lock();
     try {
+      // The isOpen() check MUST live inside the read lock so it is mutually
+      // exclusive with closeGated() (which holds the write lock). A check
+      // outside the lock leaves a TOCTOU window: a concurrent close() could
+      // close + release the session between the check and this write, letting
+      // the frame reach an already-closed session and trip Tomcat's
+      // close-mid-write race ("Concurrent write operations are not permitted").
+      // Per-subscription CLOSEs issued while a relay connection is being torn
+      // down are the dominant trigger. (spec-026)
+      if (!clientSession.isOpen()) {
+        throw new IOException("WebSocket session is closed");
+      }
       clientSession.sendMessage(new TextMessage(json));
     } finally {
       sessionGate.readLock().unlock();

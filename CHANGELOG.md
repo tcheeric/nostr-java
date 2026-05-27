@@ -6,6 +6,16 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-05-27
+
+### Fixed
+- Closed a TOCTOU window in the 2.0.6 `send()` `isOpen()` guard (PR #526 review). The check was performed at the top of `send()`, *before* `sendFrameGated()` acquired the `sessionGate` read lock — so a concurrent `close()` could acquire the write lock, close the session, and release it between the check and the actual `sendMessage()`, still letting the frame reach a closed session. Moved the `isOpen()` check inside `sendFrameGated()`, immediately after the read lock is taken, so the open-check and the write are now atomic with respect to `closeGated()` (which holds the write lock). 2.0.6 already handled the dominant case (the session already closed when `send()` is invoked); this closes the narrow in-flight-close window.
+
+## [2.0.6] - 2026-05-27
+
+### Fixed
+- `NostrRelayClient.send()` now guards on `clientSession.isOpen()` before writing, mirroring `subscribe()`. A per-subscription Nostr `CLOSE` issued while a relay connection was being torn down previously reached Tomcat's `sendText`, where `WsRemoteEndpointImplBase.sendMessageBlockInternal` invokes `doClose()` mid-write and emits a WS CLOSE frame while the text write is still pending on the async channel — throwing `IllegalStateException: Concurrent write operations are not permitted`, which surfaced via `handleTransportError` as a transport-error reconnect storm during subscription teardown of a breaking connection (spec-026). The application-level locks (the decorator, the `sessionGate`, and the upstream adapter `sendLock`) cannot prevent this because it is Tomcat closing the session *inside* a single in-progress send, not two application threads racing. `send()` now fails fast with `IOException("WebSocket session is closed")` on a closed session — the doomed write never enters Tomcat's close-mid-write path. +regression test `send_onClosedSession_failsFastWithoutDelegateWrite`.
+
 ## [2.0.5] - 2026-05-26
 
 ### Fixed
