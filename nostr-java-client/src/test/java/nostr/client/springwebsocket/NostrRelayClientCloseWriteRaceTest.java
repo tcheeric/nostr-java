@@ -93,6 +93,24 @@ class NostrRelayClientCloseWriteRaceTest {
     verify(raw, never()).close();
   }
 
+  // ---- Guard: send() on an already-closed session must fail fast without
+  //      reaching the delegate, so it never enters Tomcat's sendText →
+  //      doClose-mid-write → "Concurrent write operations are not permitted"
+  //      path (the per-subscription CLOSE-on-a-dying-connection trigger). ----
+  @Test
+  void send_onClosedSession_failsFastWithoutDelegateWrite() throws Exception {
+    WebSocketSession raw = Mockito.mock(WebSocketSession.class);
+    Mockito.when(raw.isOpen()).thenReturn(false); // session already closed/closing
+
+    NostrRelayClient client =
+        NostrRelayClient.forTestWithDecoratedSession(raw, TEST_AWAIT_TIMEOUT_MS);
+
+    IOException ex = assertThrows(IOException.class, () -> client.send(REQ));
+    assertTrue(ex.getMessage().contains("closed"),
+        "expected a closed-session IOException, was: " + ex.getMessage());
+    verify(raw, never()).sendMessage(any(TextMessage.class));
+  }
+
   // ---- Serialisation: an in-flight subscribe write and a concurrent close
   //      must never overlap on the delegate. ----
   @Test

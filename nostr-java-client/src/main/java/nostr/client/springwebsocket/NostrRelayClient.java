@@ -479,6 +479,17 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
 
   @NostrRetryable
   public List<String> send(String json) throws IOException {
+    // Fail fast on a closed session instead of entering Tomcat's write path.
+    // A send on an already-closed/closing session (e.g. a per-subscription
+    // CLOSE issued while a relay connection is being torn down) otherwise
+    // reaches WsRemoteEndpointImplBase.sendText, where Tomcat may invoke
+    // doClose() mid-write and emit a CLOSE frame while the text write is still
+    // pending on the async channel — throwing "Concurrent write operations are
+    // not permitted" and surfacing as a transport-error reconnect storm. The
+    // subscribe() path already guards this way; mirror it here. (spec-026)
+    if (!clientSession.isOpen()) {
+      throw new IOException("WebSocket session is closed");
+    }
     PendingRequest request;
 
     sendLock.lock();
