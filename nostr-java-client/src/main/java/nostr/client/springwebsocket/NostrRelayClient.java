@@ -3,6 +3,7 @@ package nostr.client.springwebsocket;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
+import nostr.event.message.ReqMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -584,12 +585,26 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     String json = requestMessage.encode();
     log.debug("Subscribing with {} on relay {} (size={} bytes)",
         requestMessage.getCommand(), relayUri, json.length());
-    return subscribe(json, messageListener, errorListener, closeListener);
+    String subscriptionId =
+        requestMessage instanceof ReqMessage req ? req.getSubscriptionId() : null;
+    return subscribe(json, subscriptionId, messageListener, errorListener, closeListener);
   }
 
   @NostrRetryable
   public AutoCloseable subscribe(
       String requestJson,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    // No subscription id to route on: the raw JSON is not parsed here, so this
+    // listener keeps receiving every payload on the connection, as before.
+    return subscribe(requestJson, null, messageListener, errorListener, closeListener);
+  }
+
+  private AutoCloseable subscribe(
+      String requestJson,
+      String subscriptionId,
       Consumer<String> messageListener,
       Consumer<Throwable> errorListener,
       Runnable closeListener)
@@ -604,7 +619,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     String listenerId = UUID.randomUUID().toString();
     listeners.put(
         listenerId,
-        new ListenerRegistration(messageListener, errorListener, closeListener));
+        new ListenerRegistration(subscriptionId, messageListener, errorListener, closeListener));
 
     try {
       sendFrameGated(requestJson);
@@ -837,12 +852,60 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     return defaultValue;
   }
 
+  /**
+   * Hands a relay payload to the listeners it belongs to.
+   *
+   * <p>EVENT, EOSE and CLOSED carry a subscription id (NIP-01); they go only to
+   * the listener that opened that subscription. Everything else — NOTICE, OK,
+   * AUTH, and any payload whose id cannot be read — goes to every listener, as
+   * do listeners registered without an id (the raw-JSON
+   * {@link #subscribe(String, Consumer, Consumer, Runnable)} overload).
+   *
+   * <p>Without this routing a second REQ on the same connection sees the first
+   * one's events and, worse, is released by the first one's EOSE — so a query
+   * returns a partial result set that varies from call to call.
+   */
   private void dispatchMessage(String payload) {
+    String targetSubscriptionId = subscriptionIdOf(payload);
     List<ListenerRegistration> activeListeners = List.copyOf(listeners.values());
     activeListeners.forEach(
-        listener ->
-            LISTENER_EXECUTOR.execute(
-                () -> safelyInvoke(listener.messageListener(), payload, listener)));
+        listener -> {
+          if (targetSubscriptionId != null
+              && listener.subscriptionId() != null
+              && !targetSubscriptionId.equals(listener.subscriptionId())) {
+            return;
+          }
+          LISTENER_EXECUTOR.execute(
+              () -> safelyInvoke(listener.messageListener(), payload, listener));
+        });
+  }
+
+  /**
+   * Reads the subscription id out of an addressed payload, or returns
+   * {@code null} for anything else.
+   *
+   * <p>Deliberately a scan rather than a JSON parse: this runs on every inbound
+   * frame, and the payload is parsed again by whichever listener consumes it. A
+   * subscription id containing a backslash escape reads as unknown and the
+   * payload is broadcast, which is the pre-routing behaviour — relays and
+   * clients use plain identifiers in practice.
+   */
+  private static String subscriptionIdOf(String payload) {
+    if (payload == null
+        || !(payload.startsWith("[\"EVENT\"")
+            || payload.startsWith("[\"EOSE\"")
+            || payload.startsWith("[\"CLOSED\""))) {
+      return null;
+    }
+    int open = payload.indexOf('"', payload.indexOf(',') + 1);
+    if (open < 0) {
+      return null;
+    }
+    int close = payload.indexOf('"', open + 1);
+    if (close < 0 || payload.lastIndexOf('\\', close) > open) {
+      return null;
+    }
+    return payload.substring(open + 1, close);
   }
 
   private void notifyError(Throwable throwable) {
@@ -933,7 +996,13 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
   }
 
+  /**
+   * A registered listener. {@code subscriptionId} is the id of the REQ this
+   * listener opened, or {@code null} when the caller subscribed with raw JSON —
+   * in which case the listener receives every payload on the connection.
+   */
   private record ListenerRegistration(
+      String subscriptionId,
       Consumer<String> messageListener,
       Consumer<Throwable> errorListener,
       Runnable closeListener) {}
