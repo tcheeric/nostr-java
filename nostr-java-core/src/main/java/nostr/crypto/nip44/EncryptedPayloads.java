@@ -1,17 +1,18 @@
 package nostr.crypto.nip44;
 
-import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.engines.ChaCha7539Engine;
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.HKDFParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -38,12 +39,7 @@ public class EncryptedPayloads {
 
     byte[] padded = EncryptedPayloads.pad(plaintext);
 
-    Cipher cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
-    cipher.init(
-        Cipher.ENCRYPT_MODE,
-        new SecretKeySpec(chachaKey, Constants.ENCRYPTION_ALGORITHM),
-        new IvParameterSpec(chachaNonce));
-    byte[] ciphertext = cipher.doFinal(padded);
+    byte[] ciphertext = chacha20(chachaKey, chachaNonce, padded);
 
     Mac mac = Mac.getInstance(Constants.HMAC_ALGORITHM);
     mac.init(new SecretKeySpec(hmacKey, Constants.HMAC_ALGORITHM));
@@ -85,14 +81,31 @@ public class EncryptedPayloads {
       throw new Exception("Invalid MAC");
     }
 
-    Cipher cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
-    cipher.init(
-        Cipher.DECRYPT_MODE,
-        new SecretKeySpec(chachaKey, Constants.ENCRYPTION_ALGORITHM),
-        new IvParameterSpec(chachaNonce));
-    byte[] paddedPlaintext = cipher.doFinal(ciphertext);
+    byte[] paddedPlaintext = chacha20(chachaKey, chachaNonce, ciphertext);
 
     return EncryptedPayloads.unpad(paddedPlaintext);
+  }
+
+  /**
+   * ChaCha20 (RFC 7539, 12-byte nonce, counter starting at 0) over BouncyCastle's
+   * lightweight API. A stream cipher, so this both encrypts and decrypts.
+   *
+   * <p>Deliberately not {@code Cipher.getInstance("ChaCha20")}: that resolves to
+   * whichever JCE provider happens to be registered. SunJCE's implementation
+   * rejects an {@code IvParameterSpec} and demands a {@code ChaCha20ParameterSpec},
+   * so NIP-44 worked only in a JVM where BouncyCastle had already been registered
+   * as a provider — which used to happen as a side effect of
+   * {@code Schnorr.generatePrivateKey()}. On Android it could not work at all:
+   * {@code Security.addProvider} for the name "BC" is a no-op there, because the
+   * platform ships its own repackaged BouncyCastle under that name. The
+   * lightweight API needs no provider lookup and behaves identically everywhere.
+   */
+  private static byte[] chacha20(byte[] key, byte[] nonce, byte[] input) {
+    ChaCha7539Engine engine = new ChaCha7539Engine();
+    engine.init(true, new ParametersWithIV(new KeyParameter(key), nonce));
+    byte[] output = new byte[input.length];
+    engine.processBytes(input, 0, input.length, output, 0);
+    return output;
   }
 
   public static byte[] getConversationKey(String privkeyA, String pubkeyB) {
@@ -273,7 +286,6 @@ public class EncryptedPayloads {
   private static class Constants {
     public static final int MIN_PLAINTEXT_SIZE = 1;
     public static final int MAX_PLAINTEXT_SIZE = 65535;
-    private static final String ENCRYPTION_ALGORITHM = "ChaCha20";
     private static final String HMAC_ALGORITHM = "HmacSHA256";
     private static final int CONVERSATION_KEY_LENGTH = 32;
     private static final int NONCE_LENGTH = 32;
