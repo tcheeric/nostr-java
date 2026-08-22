@@ -3,6 +3,7 @@ package nostr.client.springwebsocket;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.event.BaseMessage;
+import nostr.event.message.ReqMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
+import org.springframework.web.socket.handler.SessionLimitExceededException;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import jakarta.websocket.ContainerProvider;
@@ -35,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 /**
@@ -53,6 +58,26 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   private static final int DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE = 1048576;
   private static final int DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE = 1048576;
   private static final int DEFAULT_MAX_EVENTS_PER_REQUEST = 10_000;
+  /**
+   * Default {@code ConcurrentWebSocketSessionDecorator} send-buffer size — 256 KiB.
+   *
+   * <p>Sized at ~2.5× the largest expected single payload (a chunked kind-37375
+   * EVENT can reach ~100 KiB) so that a large {@code send()} co-existing with
+   * a burst of subscribe REQs does not overflow the decorator's buffer. Tunable
+   * via {@code nostr.websocket.send-buffer-limit} ({@code @Value}) or
+   * {@code NOSTR_WEBSOCKET_SEND_BUFFER_LIMIT} (env-var, via Spring relaxed
+   * binding).
+   */
+  private static final int DEFAULT_SEND_BUFFER_LIMIT = 256 * 1024;
+  /**
+   * Default {@code ConcurrentWebSocketSessionDecorator} per-send time limit — 10 s.
+   *
+   * <p>Above any p99.9 healthy-state subscribe REQ ({@literal <}100 ms) and well
+   * below {@link #DEFAULT_AWAIT_TIMEOUT_MS} so the writer-side timeout fires
+   * first if the underlying writer is genuinely stuck. Tunable via
+   * {@code nostr.websocket.send-time-limit-ms}.
+   */
+  private static final int DEFAULT_SEND_TIME_LIMIT_MS = 10_000;
   private static final ThreadFactory RELAY_IO_THREAD_FACTORY =
       Thread.ofVirtual().name("nostr-relay-io-", 0).factory();
   private static final ThreadFactory LISTENER_THREAD_FACTORY =
@@ -62,8 +87,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   private static final Executor LISTENER_EXECUTOR =
       command -> LISTENER_THREAD_FACTORY.newThread(command).start();
 
-  @Value("${nostr.websocket.await-timeout-ms:60000}")
-  private long awaitTimeoutMs;
+  private final long awaitTimeoutMs;
 
   @Value("${nostr.websocket.max-idle-timeout-ms:3600000}")
   private long maxIdleTimeoutMs;
@@ -71,8 +95,41 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   @Value("${nostr.websocket.max-events-per-request:10000}")
   private int maxEventsPerRequest = DEFAULT_MAX_EVENTS_PER_REQUEST;
 
+  /**
+   * Decorator buffer-size limit captured at construction. Exposed as a
+   * package-private field so unit tests can assert that constructor arguments
+   * are reflected here rather than overridden by static defaults (the
+   * field-injection regression assertion described in the spec).
+   */
+  private final int sendBufferLimit;
+
+  /**
+   * Decorator per-send time-limit captured at construction. See
+   * {@link #sendBufferLimit} for the regression-assertion rationale.
+   */
+  private final int sendTimeLimitMs;
+
   private final WebSocketSession clientSession;
+  /**
+   * Relay URI captured at construction time. Used for logging so that
+   * messages remain meaningful even after the underlying WebSocket session
+   * has been closed (at which point {@link WebSocketSession#getUri()} may
+   * return {@code null} on some implementations).
+   */
+  private final String relayUri;
   private final ReentrantLock sendLock = new ReentrantLock();
+  /**
+   * Gates session writes against session close. Every {@code clientSession}
+   * write ({@code sendMessage}) holds the READ side; every close holds the
+   * WRITE side. This lets concurrent sends proceed in parallel — the
+   * {@link ConcurrentWebSocketSessionDecorator} still serialises the actual
+   * delegate writes among them — while a close waits for all in-flight sends
+   * to drain before sending a CLOSE frame. Needed because the decorator's
+   * {@code close(CloseStatus)} uses a separate lock from the flush lock, so it
+   * cannot by itself prevent a CLOSE frame from racing an in-flight write on
+   * the Tomcat delegate (which permits only one write in flight).
+   */
+  private final ReentrantReadWriteLock sessionGate = new ReentrantReadWriteLock();
   private PendingRequest pendingRequest;
   private final Map<String, ListenerRegistration> listeners = new ConcurrentHashMap<>();
   private final AtomicReference<ConnectionState> connectionState =
@@ -117,33 +174,197 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
   }
 
+  /**
+   * Back-compat constructor — delegates to the canonical four-arg constructor
+   * with default await-timeout / send-buffer-limit / send-time-limit. Retained
+   * for direct {@code new}-callers (e.g. the {@code connectAsync(String)}
+   * factory). Spring will <em>not</em> select this overload because the
+   * canonical four-arg constructor is annotated {@link Autowired}.
+   */
   public NostrRelayClient(@Value("${nostr.relay.uri}") String relayUri)
       throws java.util.concurrent.ExecutionException, InterruptedException {
-    this.clientSession = connectSession(relayUri);
-    connectionState.set(ConnectionState.CONNECTED);
+    this(relayUri, DEFAULT_AWAIT_TIMEOUT_MS, DEFAULT_SEND_BUFFER_LIMIT, DEFAULT_SEND_TIME_LIMIT_MS);
   }
 
+  /**
+   * Back-compat constructor — delegates to the canonical four-arg constructor
+   * with default send-buffer-limit / send-time-limit. Retained for direct
+   * {@code new}-callers (e.g. the {@code connectAsync(String, long)} factory
+   * and the {@link NostrRelayClient(WebSocketSession, long)} test factory).
+   */
   public NostrRelayClient(String relayUri, long awaitTimeoutMs)
+      throws java.util.concurrent.ExecutionException, InterruptedException {
+    this(relayUri, awaitTimeoutMs, DEFAULT_SEND_BUFFER_LIMIT, DEFAULT_SEND_TIME_LIMIT_MS);
+  }
+
+  /**
+   * Canonical constructor — the one Spring autowires against. Wraps the
+   * underlying {@link WebSocketSession} returned by {@link #connectSession}
+   * in a {@link ConcurrentWebSocketSessionDecorator} so concurrent
+   * {@code sendMessage()} calls from {@code subscribe()} and {@code send()}
+   * are serialised. Without the wrap, two threads racing inside
+   * {@code subscribe()} can trigger a Tomcat
+   * {@code IllegalStateException("The remote endpoint was in state
+   * [TEXT_FULL_WRITING]")} (or the Jetty / Undertow equivalent) which is
+   * caught by the existing {@code catch (RuntimeException)} block at the
+   * bottom of {@code subscribe()} and rewrapped as
+   * {@code IOException("Failed to send subscription payload", …)}.
+   *
+   * <p>The decorator is constructed with
+   * {@link ConcurrentWebSocketSessionDecorator.OverflowStrategy#TERMINATE}
+   * (made explicit rather than relying on the default): if the buffer fills,
+   * the underlying session is closed, the calling thread sees a
+   * {@code SessionLimitExceededException}, and the next call lands on the
+   * reconnect path in the upstream {@code NostrJavaRelayClient} caller.
+   * {@code OverflowStrategy.DROP} is explicitly avoided because dropping
+   * outbound REQ / EVENT frames would silently make callers believe a
+   * subscribe / publish succeeded when the relay never received it.
+   */
+  @Autowired
+  public NostrRelayClient(
+      @Value("${nostr.relay.uri}") String relayUri,
+      @Value("${nostr.websocket.await-timeout-ms:60000}") long awaitTimeoutMs,
+      @Value("${nostr.websocket.send-buffer-limit:262144}") int sendBufferLimit,
+      @Value("${nostr.websocket.send-time-limit-ms:10000}") int sendTimeLimitMs)
       throws java.util.concurrent.ExecutionException, InterruptedException {
     if (awaitTimeoutMs <= 0) {
       throw new IllegalArgumentException("awaitTimeoutMs must be positive");
     }
+    if (sendBufferLimit <= 0) {
+      throw new IllegalArgumentException("sendBufferLimit must be positive");
+    }
+    if (sendTimeLimitMs <= 0) {
+      throw new IllegalArgumentException("sendTimeLimitMs must be positive");
+    }
+    this.relayUri = relayUri;
     this.awaitTimeoutMs = awaitTimeoutMs;
-    log.info("NostrRelayClient created for {} with awaitTimeoutMs={}", relayUri, awaitTimeoutMs);
-    this.clientSession = connectSession(relayUri);
+    this.sendBufferLimit = sendBufferLimit;
+    this.sendTimeLimitMs = sendTimeLimitMs;
+    log.info(
+        "NostrRelayClient created for {} with awaitTimeoutMs={} sendBufferLimit={} sendTimeLimitMs={}",
+        relayUri, awaitTimeoutMs, sendBufferLimit, sendTimeLimitMs);
+    WebSocketSession raw = connectSession(relayUri);
+    this.clientSession =
+        new ConcurrentWebSocketSessionDecorator(
+            raw, sendTimeLimitMs, sendBufferLimit,
+            ConcurrentWebSocketSessionDecorator.OverflowStrategy.TERMINATE);
     connectionState.set(ConnectionState.CONNECTED);
   }
 
+  /**
+   * Test-only constructor — the supplied {@link WebSocketSession} is stored
+   * <em>as-is</em>; no decorator wrap is applied. Production code paths must
+   * <em>not</em> reach this constructor — they go through the public
+   * {@code (String, …)} constructors that perform the wrap.
+   *
+   * <p>The §6.7a reproduction step (regression test for the concurrent-send
+   * race) needs a raw, unwrapped session to deterministically reproduce the
+   * {@code IllegalStateException}. Use
+   * {@link #forTestWithRawSession(WebSocketSession, long)} for that path. The
+   * §6.7b–d resolution steps wrap the session via
+   * {@link #forTestWithDecoratedSession(WebSocketSession, long)} and then
+   * reach this constructor with the wrapped session as the argument.
+   */
   NostrRelayClient(WebSocketSession clientSession, long awaitTimeoutMs) {
+    this(clientSession, awaitTimeoutMs, DEFAULT_SEND_BUFFER_LIMIT, DEFAULT_SEND_TIME_LIMIT_MS);
+  }
+
+  /**
+   * Test-only constructor — four-arg form taking explicit decorator parameters
+   * so unit tests can assert that the constructor arguments are reflected in
+   * {@link #sendBufferLimit} and {@link #sendTimeLimitMs} (the field-injection
+   * regression assertion described in spec §4.1). The supplied session is
+   * stored as-is — wrapping is the caller's responsibility, see
+   * {@link #forTestWithDecoratedSession(WebSocketSession, long, int, int)}.
+   */
+  NostrRelayClient(
+      WebSocketSession clientSession,
+      long awaitTimeoutMs,
+      int sendBufferLimit,
+      int sendTimeLimitMs) {
     if (clientSession == null) {
       throw new NullPointerException("clientSession must not be null");
     }
     if (awaitTimeoutMs <= 0) {
       throw new IllegalArgumentException("awaitTimeoutMs must be positive");
     }
+    if (sendBufferLimit <= 0) {
+      throw new IllegalArgumentException("sendBufferLimit must be positive");
+    }
+    if (sendTimeLimitMs <= 0) {
+      throw new IllegalArgumentException("sendTimeLimitMs must be positive");
+    }
     this.clientSession = clientSession;
     this.awaitTimeoutMs = awaitTimeoutMs;
+    this.sendBufferLimit = sendBufferLimit;
+    this.sendTimeLimitMs = sendTimeLimitMs;
+    URI sessionUri = null;
+    try {
+      sessionUri = clientSession.getUri();
+    } catch (Exception ignored) {
+      // Some WebSocketSession implementations may throw before the session
+      // is fully initialised; fall through and store null.
+    }
+    this.relayUri = sessionUri == null ? null : sessionUri.toString();
     connectionState.set(ConnectionState.CONNECTED);
+  }
+
+  /**
+   * Test-only factory — REGRESSION reproduction path. Bypasses the decorator
+   * so the §6.7a reproduction can deterministically reproduce the
+   * concurrent-send {@code IllegalStateException} against a raw session.
+   * <em>Not</em> used by production code.
+   */
+  static NostrRelayClient forTestWithRawSession(WebSocketSession session, long awaitTimeoutMs) {
+    return new NostrRelayClient(
+        session, awaitTimeoutMs, DEFAULT_SEND_BUFFER_LIMIT, DEFAULT_SEND_TIME_LIMIT_MS);
+  }
+
+  /**
+   * Test-only factory — production path with default buffer / time-limit.
+   * Wraps the supplied session in a {@link ConcurrentWebSocketSessionDecorator}
+   * (using static defaults) and forwards through the package-private four-arg
+   * test ctor.
+   */
+  static NostrRelayClient forTestWithDecoratedSession(
+      WebSocketSession session, long awaitTimeoutMs) {
+    return forTestWithDecoratedSession(
+        session, awaitTimeoutMs, DEFAULT_SEND_BUFFER_LIMIT, DEFAULT_SEND_TIME_LIMIT_MS);
+  }
+
+  /**
+   * Test-only factory — production path with custom buffer / time-limit. Used
+   * by the §6.7c (mixed-workload, default buffer) and §6.7d (overflow-and-close,
+   * small buffer) sub-cases.
+   */
+  static NostrRelayClient forTestWithDecoratedSession(
+      WebSocketSession session,
+      long awaitTimeoutMs,
+      int sendBufferLimit,
+      int sendTimeLimitMs) {
+    WebSocketSession wrapped =
+        (session instanceof ConcurrentWebSocketSessionDecorator)
+            ? session
+            : new ConcurrentWebSocketSessionDecorator(
+                session, sendTimeLimitMs, sendBufferLimit,
+                ConcurrentWebSocketSessionDecorator.OverflowStrategy.TERMINATE);
+    return new NostrRelayClient(wrapped, awaitTimeoutMs, sendBufferLimit, sendTimeLimitMs);
+  }
+
+  /**
+   * Package-private accessor — exposes {@link #sendBufferLimit} for the
+   * field-injection regression unit test (§6.7b assertion (iv)).
+   */
+  int sendBufferLimitForTest() {
+    return sendBufferLimit;
+  }
+
+  /**
+   * Package-private accessor — exposes {@link #sendTimeLimitMs} for the
+   * field-injection regression unit test (§6.7b assertion (iv)).
+   */
+  int sendTimeLimitMsForTest() {
+    return sendTimeLimitMs;
   }
 
   /**
@@ -253,7 +474,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
     String json = eventMessage.encode();
     log.debug("Sending {} to relay {} (size={} bytes)",
-        eventMessage.getCommand(), clientSession.getUri(), json.length());
+        eventMessage.getCommand(), relayUri, json.length());
     return send(json);
   }
 
@@ -269,10 +490,27 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       }
       request = new PendingRequest(maxEventsPerRequest);
       pendingRequest = request;
-      log.info("Sending request to relay {}: {}", clientSession.getUri(), json);
-      clientSession.sendMessage(new TextMessage(json));
     } finally {
       sendLock.unlock();
+    }
+
+    log.info("Sending request to relay {}: {}", relayUri, json);
+    try {
+      sendFrameGated(json);
+    } catch (SessionLimitExceededException e) {
+      // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
+      // it does NOT close the delegate session. Close it explicitly (under the
+      // write gate, outside the read gate just released) so upstream callers'
+      // isOpen()==false reconnect contract holds.
+      clearPendingRequest(request);
+      closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after overflow");
+      throw new IOException("Failed to send relay payload", e);
+    } catch (IOException | RuntimeException e) {
+      // Any other send failure must also release the in-flight slot, or the next
+      // send() — including @NostrRetryable's own retry — hits the "request already
+      // in flight" guard instead of retrying.
+      clearPendingRequest(request);
+      throw e;
     }
 
     long timeout = awaitTimeoutMs > 0 ? awaitTimeoutMs : DEFAULT_AWAIT_TIMEOUT_MS;
@@ -280,7 +518,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
 
     try {
       List<String> result = request.getFuture().get(timeout, TimeUnit.MILLISECONDS);
-      log.info("Received {} relay events via {}", result.size(), clientSession.getUri());
+      log.info("Received {} relay events via {}", result.size(), relayUri);
       return result;
     } catch (TimeoutException e) {
       log.error("Timed out waiting for relay response after {}ms", timeout);
@@ -292,11 +530,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       } finally {
         sendLock.unlock();
       }
-      try {
-        clientSession.close();
-      } catch (IOException closeEx) {
-        log.warn("Error closing session after timeout", closeEx);
-      }
+      closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after timeout");
       throw new RelayTimeoutException(timeout);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -350,13 +584,27 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throws IOException {
     String json = requestMessage.encode();
     log.debug("Subscribing with {} on relay {} (size={} bytes)",
-        requestMessage.getCommand(), clientSession.getUri(), json.length());
-    return subscribe(json, messageListener, errorListener, closeListener);
+        requestMessage.getCommand(), relayUri, json.length());
+    String subscriptionId =
+        requestMessage instanceof ReqMessage req ? req.getSubscriptionId() : null;
+    return subscribe(json, subscriptionId, messageListener, errorListener, closeListener);
   }
 
   @NostrRetryable
   public AutoCloseable subscribe(
       String requestJson,
+      Consumer<String> messageListener,
+      Consumer<Throwable> errorListener,
+      Runnable closeListener)
+      throws IOException {
+    // No subscription id to route on: the raw JSON is not parsed here, so this
+    // listener keeps receiving every payload on the connection, as before.
+    return subscribe(requestJson, null, messageListener, errorListener, closeListener);
+  }
+
+  private AutoCloseable subscribe(
+      String requestJson,
+      String subscriptionId,
       Consumer<String> messageListener,
       Consumer<Throwable> errorListener,
       Runnable closeListener)
@@ -371,15 +619,21 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     String listenerId = UUID.randomUUID().toString();
     listeners.put(
         listenerId,
-        new ListenerRegistration(messageListener, errorListener, closeListener));
+        new ListenerRegistration(subscriptionId, messageListener, errorListener, closeListener));
 
     try {
-      clientSession.sendMessage(new TextMessage(requestJson));
+      sendFrameGated(requestJson);
     } catch (IOException e) {
       listeners.remove(listenerId);
       throw e;
     } catch (RuntimeException e) {
       listeners.remove(listenerId);
+      // OverflowStrategy.TERMINATE only sets the limitExceeded flag and throws;
+      // it does NOT close the delegate session. Close it explicitly here so
+      // upstream callers' isOpen()==false reconnect contract holds.
+      if (e instanceof SessionLimitExceededException) {
+        closeQuietly(CloseStatus.SESSION_NOT_RELIABLE, "after overflow");
+      }
       throw new IOException("Failed to send subscription payload", e);
     }
 
@@ -425,7 +679,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   @Recover
   public List<String> recover(IOException ex, String json) throws IOException {
     log.error("Failed to send message to relay {} after retries (size={} bytes)",
-        clientSession.getUri(), json.length(), ex);
+        relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -433,7 +687,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
   public List<String> recover(IOException ex, BaseMessage eventMessage) throws IOException {
     String json = eventMessage.encode();
     log.error("Failed to send {} to relay {} after retries (size={} bytes)",
-        eventMessage.getCommand(), clientSession.getUri(), json.length(), ex);
+        eventMessage.getCommand(), relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -446,7 +700,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       Runnable closeListener)
       throws IOException {
     log.error("Failed to subscribe on relay {} after retries (size={} bytes)",
-        clientSession.getUri(), json.length(), ex);
+        relayUri, json.length(), ex);
     throw ex;
   }
 
@@ -460,13 +714,56 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       throws IOException {
     String json = requestMessage.encode();
     log.error("Failed to subscribe with {} on relay {} after retries (size={} bytes)",
-        requestMessage.getCommand(), clientSession.getUri(), json.length(), ex);
+        requestMessage.getCommand(), relayUri, json.length(), ex);
     throw ex;
   }
 
   @Override
   public void close() throws IOException {
-    if (clientSession != null) {
+    closeGated(CloseStatus.NORMAL);
+  }
+
+  /**
+   * Write one frame on the delegate while holding the READ side of the session
+   * gate, so it can run concurrently with other sends (the
+   * {@link ConcurrentWebSocketSessionDecorator} serialises the delegate writes
+   * among them) but never overlaps a close (which takes the WRITE side).
+   */
+  private void sendFrameGated(String json) throws IOException {
+    sessionGate.readLock().lock();
+    try {
+      // The isOpen() check MUST live inside the read lock so it is mutually
+      // exclusive with closeGated() (which holds the write lock). A check
+      // outside the lock leaves a TOCTOU window: a concurrent close() could
+      // close + release the session between the check and this write, letting
+      // the frame reach an already-closed session and trip Tomcat's
+      // close-mid-write race ("Concurrent write operations are not permitted").
+      // Per-subscription CLOSEs issued while a relay connection is being torn
+      // down are the dominant trigger. (spec-026)
+      if (!clientSession.isOpen()) {
+        throw new IOException("WebSocket session is closed");
+      }
+      clientSession.sendMessage(new TextMessage(json));
+    } finally {
+      sessionGate.readLock().unlock();
+    }
+  }
+
+  /**
+   * Close the underlying session through {@code close(CloseStatus)} while
+   * holding the WRITE side of the session gate. This excludes every in-flight
+   * {@link #sendFrameGated} (which holds the read side), so the delegate never
+   * sees a CLOSE frame and a data frame at the same time. The no-arg
+   * {@code close()} is deliberately never used: it is not overridden by
+   * {@link ConcurrentWebSocketSessionDecorator} and would bypass its
+   * close/flush coordination entirely.
+   */
+  private void closeGated(CloseStatus status) throws IOException {
+    if (clientSession == null) {
+      return;
+    }
+    sessionGate.writeLock().lock();
+    try {
       boolean open = false;
       try {
         open = clientSession.isOpen();
@@ -474,8 +771,38 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
         log.warn("Exception while checking if clientSession is open during close()", e);
       }
       if (open) {
-        clientSession.close();
+        clientSession.close(status);
       }
+    } finally {
+      sessionGate.writeLock().unlock();
+    }
+  }
+
+  /**
+   * Best-effort {@link #closeGated} that logs rather than propagates failures —
+   * including the {@code SessionLimitExceededException} the decorator may raise
+   * while closing, so a best-effort close never masks the original timeout or
+   * overflow signal the caller is about to throw.
+   */
+  private void closeQuietly(CloseStatus status, String reason) {
+    try {
+      closeGated(status);
+    } catch (Exception e) {
+      // Swallow but preserve diagnostics — pass the throwable so the stack trace
+      // and root cause are logged, not just the message.
+      log.warn("Error closing session {} on relay {}", reason, relayUri, e);
+    }
+  }
+
+  /** Clear {@link #pendingRequest} if it still points at {@code request}. */
+  private void clearPendingRequest(PendingRequest request) {
+    sendLock.lock();
+    try {
+      if (pendingRequest == request) {
+        pendingRequest = null;
+      }
+    } finally {
+      sendLock.unlock();
     }
   }
 
@@ -525,12 +852,60 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     return defaultValue;
   }
 
+  /**
+   * Hands a relay payload to the listeners it belongs to.
+   *
+   * <p>EVENT, EOSE and CLOSED carry a subscription id (NIP-01); they go only to
+   * the listener that opened that subscription. Everything else — NOTICE, OK,
+   * AUTH, and any payload whose id cannot be read — goes to every listener, as
+   * do listeners registered without an id (the raw-JSON
+   * {@link #subscribe(String, Consumer, Consumer, Runnable)} overload).
+   *
+   * <p>Without this routing a second REQ on the same connection sees the first
+   * one's events and, worse, is released by the first one's EOSE — so a query
+   * returns a partial result set that varies from call to call.
+   */
   private void dispatchMessage(String payload) {
+    String targetSubscriptionId = subscriptionIdOf(payload);
     List<ListenerRegistration> activeListeners = List.copyOf(listeners.values());
     activeListeners.forEach(
-        listener ->
-            LISTENER_EXECUTOR.execute(
-                () -> safelyInvoke(listener.messageListener(), payload, listener)));
+        listener -> {
+          if (targetSubscriptionId != null
+              && listener.subscriptionId() != null
+              && !targetSubscriptionId.equals(listener.subscriptionId())) {
+            return;
+          }
+          LISTENER_EXECUTOR.execute(
+              () -> safelyInvoke(listener.messageListener(), payload, listener));
+        });
+  }
+
+  /**
+   * Reads the subscription id out of an addressed payload, or returns
+   * {@code null} for anything else.
+   *
+   * <p>Deliberately a scan rather than a JSON parse: this runs on every inbound
+   * frame, and the payload is parsed again by whichever listener consumes it. A
+   * subscription id containing a backslash escape reads as unknown and the
+   * payload is broadcast, which is the pre-routing behaviour — relays and
+   * clients use plain identifiers in practice.
+   */
+  private static String subscriptionIdOf(String payload) {
+    if (payload == null
+        || !(payload.startsWith("[\"EVENT\"")
+            || payload.startsWith("[\"EOSE\"")
+            || payload.startsWith("[\"CLOSED\""))) {
+      return null;
+    }
+    int open = payload.indexOf('"', payload.indexOf(',') + 1);
+    if (open < 0) {
+      return null;
+    }
+    int close = payload.indexOf('"', open + 1);
+    if (close < 0 || payload.lastIndexOf('\\', close) > open) {
+      return null;
+    }
+    return payload.substring(open + 1, close);
   }
 
   private void notifyError(Throwable throwable) {
@@ -621,7 +996,13 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
   }
 
+  /**
+   * A registered listener. {@code subscriptionId} is the id of the REQ this
+   * listener opened, or {@code null} when the caller subscribed with raw JSON —
+   * in which case the listener receives every payload on the connection.
+   */
   private record ListenerRegistration(
+      String subscriptionId,
       Consumer<String> messageListener,
       Consumer<Throwable> errorListener,
       Runnable closeListener) {}

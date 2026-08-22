@@ -6,6 +6,39 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.8] - 2026-08-22
+
+### Fixed
+- Relay payloads are now delivered only to the listener whose subscription they name. `NostrRelayClient.dispatchMessage()` broadcast every inbound frame to every listener on the connection, and nothing downstream read the subscription id the frame carried — so on a connection with two concurrent REQs, one subscription's `EOSE` fired the other's EOSE handler and ended its query early with whatever had arrived so far. Observed in the field as a gift-wrap query returning 0, 2 or 6 events at random from a relay holding exactly 5. `EVENT`, `EOSE` and `CLOSED` are now routed by subscription id for listeners registered through `subscribe(ReqMessage, …)`; connection-scoped frames (`NOTICE`, `OK`, `AUTH`) and listeners registered with raw JSON still see everything, so no existing caller loses a frame it receives today.
+- NIP-44 no longer depends on a JCE provider being registered. `EncryptedPayloads` asked for `Cipher.getInstance("ChaCha20")` with an `IvParameterSpec`, which only BouncyCastle's provider accepts — SunJCE requires a `ChaCha20ParameterSpec` and throws. The provider happened to be registered as a side effect of `Schnorr.generatePrivateKey()`, so encryption worked for callers who generated a key and failed for callers who loaded one, and could not work on Android at all (adding a provider named "BC" is a no-op there; the platform owns the name). Both cipher call sites now use BouncyCastle's lightweight `ChaCha7539Engine`, which needs no provider lookup. Closes #537.
+
+### Changed
+- `Schnorr.generatePrivateKey()` no longer calls `Security.addProvider(new BouncyCastleProvider())`. It uses BouncyCastle's lightweight `ECKeyPairGenerator` instead, so generating a key no longer mutates process-wide JCE state. Callers that relied on nostr-java registering the provider for them must now register it themselves.
+
+### Added
+- NIP-44 v2 is verified against the specification's own test vectors (`nip44.vectors.json` from the reference implementation), and the whole suite runs with the BouncyCastle provider de-registered so the defect above cannot come back unnoticed.
+
+## [2.0.7] - 2026-05-27
+
+### Fixed
+- Closed a TOCTOU window in the 2.0.6 `send()` `isOpen()` guard (PR #526 review). The check was performed at the top of `send()`, *before* `sendFrameGated()` acquired the `sessionGate` read lock — so a concurrent `close()` could acquire the write lock, close the session, and release it between the check and the actual `sendMessage()`, still letting the frame reach a closed session. Moved the `isOpen()` check inside `sendFrameGated()`, immediately after the read lock is taken, so the open-check and the write are now atomic with respect to `closeGated()` (which holds the write lock). 2.0.6 already handled the dominant case (the session already closed when `send()` is invoked); this closes the narrow in-flight-close window.
+
+## [2.0.6] - 2026-05-27
+
+### Fixed
+- `NostrRelayClient.send()` now guards on `clientSession.isOpen()` before writing, mirroring `subscribe()`. A per-subscription Nostr `CLOSE` issued while a relay connection was being torn down previously reached Tomcat's `sendText`, where `WsRemoteEndpointImplBase.sendMessageBlockInternal` invokes `doClose()` mid-write and emits a WS CLOSE frame while the text write is still pending on the async channel — throwing `IllegalStateException: Concurrent write operations are not permitted`, which surfaced via `handleTransportError` as a transport-error reconnect storm during subscription teardown of a breaking connection (spec-026). The application-level locks (the decorator, the `sessionGate`, and the upstream adapter `sendLock`) cannot prevent this because it is Tomcat closing the session *inside* a single in-progress send, not two application threads racing. `send()` now fails fast with `IOException("WebSocket session is closed")` on a closed session — the doomed write never enters Tomcat's close-mid-write path. +regression test `send_onClosedSession_failsFastWithoutDelegateWrite`.
+
+## [2.0.5] - 2026-05-26
+
+### Fixed
+- `NostrRelayClient.send()` no longer leaves the client stuck in the "request in flight" state when the write fails for a reason other than overflow. A plain transport `IOException` from the gated send previously bypassed `pendingRequest` cleanup, so the next `send()` (including an `@NostrRetryable` retry) hit `IllegalStateException: A request is already in flight` instead of retrying. `send()` now clears `pendingRequest` on any send failure, not only `SessionLimitExceededException`. (PR #525 review follow-up.)
+- `closeQuietly()` now logs the swallowed throwable (with stack trace) and the relay URI instead of just the exception message, preserving diagnostics for best-effort closes.
+
+## [2.0.4] - 2026-05-26
+
+### Fixed
+- Close-vs-write race in `NostrRelayClient` (spec-026 US3). The client wrapped its session in Spring's `ConcurrentWebSocketSessionDecorator` but called the **no-arg** `clientSession.close()` (in `close()` and the `send()` timeout path). Spring 6.2.x's decorator overrides only `close(CloseStatus)` (guarded by `closeLock`); the no-arg `close()` falls through to `WebSocketSessionDecorator.close()` → `delegate.close()` with no coordination, sending a CLOSE frame straight to the Tomcat delegate while a `sendMessage` flush was in flight (Tomcat permits only one write in flight → `IllegalStateException: Concurrent write operations are not permitted`). Routing through `close(CloseStatus)` alone is insufficient because its `closeLock` is a separate lock from the `flushLock` guarding `delegate.sendMessage`. Introduced a `ReentrantReadWriteLock` session gate: every write (`send`/`subscribe`) holds the read side (sends stay concurrent — the decorator still serialises the delegate writes among them), every close holds the write side and always uses `close(CloseStatus)`, so a close waits for all in-flight sends to drain before sending the CLOSE frame. No lock nesting → no added deadlock risk.
+
 ### Removed
 - Dead code cleanup — deleted unused classes: `IContent`, `JsonContent`, `Reaction` enum, `Response`, `Nip05Content`, `Nip05ContentDecoder`, `BaseAuthMessage`, `GenericMessage`, `IKey`, `GenericEventConverter`, `GenericEventTypeClassifier`, `GenericEventDecoder`, `FiltersDecoder`, `BaseTagDecoder`, `GenericEventValidator`, `GenericEventSerializer`, `GenericEventUpdater`, `GenericTagQuery`, `HttpClientProvider`, `DefaultHttpClientProvider`.
 - `testAuthMessage` test and `GenericEventSupportTest` removed (tested deleted classes).
@@ -15,6 +48,28 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 - `RelayAuthenticationMessage` and `CanonicalAuthenticationMessage` now extend `BaseMessage` directly (previously extended the now-deleted `BaseAuthMessage`).
 - `BaseKey` now directly implements `Serializable` (previously implemented the now-deleted `IKey` interface).
 - `Nip05Validator` now creates `HttpClient` instances directly via a `Function<Duration, HttpClient>` factory (previously used deleted `HttpClientProvider`/`DefaultHttpClientProvider` interface).
+
+## [2.0.3] - 2026-05-08
+
+### Fixed
+- Explicit close on `OverflowStrategy.TERMINATE`; restores upstream `isOpen()==false` reconnect contract. Spring's `ConcurrentWebSocketSessionDecorator` under `OverflowStrategy.TERMINATE` only sets a private `limitExceeded` flag and throws `SessionLimitExceededException` from `limitExceeded()` — it does **not** close the delegate session. As a result, after 2.0.2 the upstream caller's `clientSession.isOpen()==false` → reconnect contract did not hold (the session stayed open after overflow). `NostrRelayClient.subscribe()` and `NostrRelayClient.send()` now detect a `SessionLimitExceededException` cause in their respective catch blocks and call `clientSession.close(CloseStatus.SESSION_NOT_RELIABLE)` explicitly before rewrapping the exception. Non-overflow `RuntimeException`s continue to flow through the existing wrap-as-`IOException` path unchanged. The §6.7d concurrency test now strictly asserts `clientSession.isOpen()==false` after overflow, matching the spec's original contract.
+
+## [2.0.2] - 2026-05-08
+
+### Fixed
+- `NostrRelayClient.subscribe()` was calling `clientSession.sendMessage(...)` without holding the existing `sendLock`, while the same class's `send()` path correctly held it. Two threads racing inside `subscribe()` (or one in `subscribe()` racing one in `send()`) could trigger the underlying writer's `IllegalStateException("The remote endpoint was in state [TEXT_FULL_WRITING]")` (Tomcat / Spring `StandardWebSocketSession`) or `Blocking message pending` (Jetty), which the `catch (RuntimeException)` block at the bottom of `subscribe()` rewrapped as `IOException("Failed to send subscription payload", e)`. Downstream consumer (`imani-gateway-core` `account-app`) observed ~70 `RelaySubscribeException` per 60 minutes once a circuit-breaker tuning fix unmasked the underlying race. Fixed by wrapping the underlying `WebSocketSession` returned by `connectSession(...)` in Spring's `ConcurrentWebSocketSessionDecorator(session, sendTimeLimit, bufferSizeLimit, OverflowStrategy.TERMINATE)` at construction time, so concurrent `sendMessage()` calls from any send-path are serialised at the session layer.
+
+### Added
+- New canonical four-arg public constructor `NostrRelayClient(String relayUri, long awaitTimeoutMs, int sendBufferLimit, int sendTimeLimitMs)` annotated `@Autowired` for Spring constructor-injection. Spring binds against this overload via the new `@Value("${nostr.websocket.send-buffer-limit:262144}")` and `@Value("${nostr.websocket.send-time-limit-ms:10000}")` keys (also reachable via the `NOSTR_WEBSOCKET_SEND_BUFFER_LIMIT` / `NOSTR_WEBSOCKET_SEND_TIME_LIMIT_MS` env-vars under Spring relaxed binding). The previously-existing one-arg `(String)` and two-arg `(String, long)` public constructors are retained as delegating overloads (binary-compatible) and now also benefit from the decorator wrap by way of the canonical ctor.
+- Test-only static factories `forTestWithRawSession(...)` and `forTestWithDecoratedSession(...)` (two overloads — defaults and explicit) plus a package-private four-arg test constructor, so the new `NostrRelayClientConcurrencyTest` can assert both the regression (raw-session reproduction of the `IllegalStateException` race) and the resolution (decorator-wrapped session serialises sends).
+
+### Changed
+- `awaitTimeoutMs` is now a `final` field assigned once via constructor injection (previously `@Value`-annotated field). Spring's constructor-injection ordering guarantees the value reaches the constructor body before the decorator is constructed, which is required for the explicit overflow strategy to be applied. The system property / env-var key (`nostr.websocket.await-timeout-ms`) and its default (60 000 ms) are unchanged.
+
+## [2.0.1] - 2026-05-06
+
+### Fixed
+- `NostrRelayClient` log statements were emitting `Sending request to relay null: ...` (and similar) once the WebSocket session had closed, because the relay URI was being read via `clientSession.getUri()` which returns `null` after close. Captured the URI in a `private final String relayUri` field set in each constructor and replaced 8 `clientSession.getUri()` log call-sites. Resolves 188 occurrences per 2-hour window observed in a downstream consumer's staging logs ([#523](https://github.com/tcheeric/nostr-java/pull/523)).
 
 ## [2.0.0] - 2026-02-24
 
