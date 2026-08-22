@@ -2,18 +2,16 @@ package nostr.crypto.schnorr;
 
 import nostr.crypto.Point;
 import nostr.util.NostrUtil;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.security.Security;
-import java.security.interfaces.ECPrivateKey;
-import java.security.spec.ECGenParameterSpec;
 import java.util.Arrays;
 
 /**
@@ -140,20 +138,29 @@ public class Schnorr {
   /**
    * Generate a random private key suitable for secp256k1.
    *
+   * <p>Uses BouncyCastle's lightweight API rather than a JCE provider lookup. The
+   * old implementation called {@code Security.addProvider(new BouncyCastleProvider())}
+   * here and then asked for {@code KeyPairGenerator.getInstance("ECDSA", "BC")} —
+   * which made every other BouncyCastle-dependent code path in the library work only
+   * once a key had been generated first. NIP-44 was the visible casualty; see
+   * {@link nostr.crypto.nip44.EncryptedPayloads}. Registering a provider is a global,
+   * process-wide side effect and is the caller's business, not a key generator's.
+   *
    * @return a 32-byte private key
    */
   public static byte[] generatePrivateKey() {
     try {
-      Security.addProvider(new BouncyCastleProvider());
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", "BC");
-      kpg.initialize(new ECGenParameterSpec("secp256k1"), SecureRandom.getInstanceStrong());
-      KeyPair processorKeyPair = kpg.genKeyPair();
+      ECNamedCurveParameterSpec curve = ECNamedCurveTable.getParameterSpec("secp256k1");
+      ECDomainParameters domain =
+          new ECDomainParameters(curve.getCurve(), curve.getG(), curve.getN(), curve.getH());
+      ECKeyPairGenerator generator = new ECKeyPairGenerator();
+      generator.init(new ECKeyGenerationParameters(domain, SecureRandom.getInstanceStrong()));
+      ECPrivateKeyParameters privateKey =
+          (ECPrivateKeyParameters) generator.generateKeyPair().getPrivate();
 
-      return NostrUtil.bytesFromBigInteger(((ECPrivateKey) processorKeyPair.getPrivate()).getS());
+      return NostrUtil.bytesFromBigInteger(privateKey.getD());
 
-    } catch (InvalidAlgorithmParameterException
-        | NoSuchAlgorithmException
-        | NoSuchProviderException e) {
+    } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
   }
