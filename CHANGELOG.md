@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.0.8] - 2026-08-22
+
 ### Fixed
 - Relay payloads are now delivered only to the listener whose subscription they name. `NostrRelayClient.dispatchMessage()` broadcast every inbound frame to every listener on the connection, and nothing downstream read the subscription id the frame carried — so on a connection with two concurrent REQs, one subscription's `EOSE` fired the other's EOSE handler and ended its query early with whatever had arrived so far. Observed in the field as a gift-wrap query returning 0, 2 or 6 events at random from a relay holding exactly 5. `EVENT`, `EOSE` and `CLOSED` are now routed by subscription id for listeners registered through `subscribe(ReqMessage, …)`; connection-scoped frames (`NOTICE`, `OK`, `AUTH`) and listeners registered with raw JSON still see everything, so no existing caller loses a frame it receives today.
 - NIP-44 no longer depends on a JCE provider being registered. `EncryptedPayloads` asked for `Cipher.getInstance("ChaCha20")` with an `IvParameterSpec`, which only BouncyCastle's provider accepts — SunJCE requires a `ChaCha20ParameterSpec` and throws. The provider happened to be registered as a side effect of `Schnorr.generatePrivateKey()`, so encryption worked for callers who generated a key and failed for callers who loaded one, and could not work on Android at all (adding a provider named "BC" is a no-op there; the platform owns the name). Both cipher call sites now use BouncyCastle's lightweight `ChaCha7539Engine`, which needs no provider lookup. Closes #537.
