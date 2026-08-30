@@ -4,7 +4,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java</artifactId>
-        <version>2.2.0</version>
+        <version>2.3.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -108,6 +108,14 @@
         </dependency>
     </dependencies>
     <build>
+        <!-- The server reports its version to every MCP host, so the value is filtered in from
+             the pom rather than copied into the source where it would drift on the next bump. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <!-- The module is launched as `java -jar`, both by an MCP host and by its own CLI,
                  so it ships one self-contained artefact. A host configuration naming a

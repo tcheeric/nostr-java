@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-08-30
+
 ### Added
 - MCP guided prompts (`compose-note`, `catch-up-feed`, `watch-mentions`) and context resources (`nostr://identity/{alias}`, `nostr://relay/{name}`). The prompts encode the sequences models get wrong, such as treating a publish preview as the publication or reading a still-replaying subscription as an empty one, since a tool surface with no guidance makes an agent learn by trial and error on a permanent public medium.
 - MCP packaging: a runnable jar (`-runnable` classifier), a distroless `Dockerfile` running as a non-root user, and a `docker-compose.yml` that runs the server beside a local relay and demonstrates one bound container per identity. Every published port binds the host loopback explicitly, because Docker otherwise publishes to all interfaces and would bypass the server's own loopback default.

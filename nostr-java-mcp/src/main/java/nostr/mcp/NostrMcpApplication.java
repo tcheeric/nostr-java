@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 @lombok.extern.slf4j.Slf4j
 public final class NostrMcpApplication {
 
-  private static final String VERSION = "2.2.0";
+  private static final String VERSION = ServerVersion.current();
   private static final long RELAY_CONNECT_TIMEOUT_MS = 60_000L;
 
   private NostrMcpApplication() {}
