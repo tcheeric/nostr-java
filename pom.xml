@@ -67,6 +67,7 @@
         <module>nostr-java-event</module>
         <module>nostr-java-identity</module>
         <module>nostr-java-client</module>
+        <module>nostr-java-api</module>
     </modules>
 
     <properties>

@@ -14,13 +14,13 @@ A relay list is *data*, distinct from the relay pool, which is a set of live con
 
 **Blocked by:** 04 (Fan-in subscriptions with de-duplication).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Given a public key, the lookup returns the relays from that user's kind 10050 event
-- [ ] The lookup implements `DirectMessageRelayLookup` without adding any dependency to
+- [x] Given a public key, the lookup returns the relays from that user's kind 10050 event
+- [x] The lookup implements `DirectMessageRelayLookup` without adding any dependency to
       `nostr-java-identity`
-- [ ] A user with no published relay list yields an empty result rather than an error
-- [ ] Results are fetched through the relay pool, not through a bespoke connection
-- [ ] Tests cover a user with a relay list, a user without one, and a user whose list is
+- [x] A user with no published relay list yields an empty result rather than an error
+- [x] Results are fetched through the relay pool, not through a bespoke connection
+- [x] Tests cover a user with a relay list, a user without one, and a user whose list is
       served by only some of the queried relays
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

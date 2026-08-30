@@ -16,13 +16,13 @@ See ADR-0005.
 
 **Blocked by:** 03 (Per-relay serialization and connection health).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Relays can be added to a running pool and immediately participate in operations
-- [ ] Relays can be removed from a running pool, closing their connection
-- [ ] A relay added for a single operation is released once no longer in use, by reference
+- [x] Relays can be added to a running pool and immediately participate in operations
+- [x] Relays can be removed from a running pool, closing their connection
+- [x] A relay added for a single operation is released once no longer in use, by reference
       counting or idle eviction
-- [ ] Adding a relay already in the pool does not open a second connection
-- [ ] Removing a relay does not disturb in-flight operations on other relays
-- [ ] Tests cover add, remove, duplicate add, and release of a transiently added relay
-- [ ] `mvn -q verify` passes
+- [x] Adding a relay already in the pool does not open a second connection
+- [x] Removing a relay does not disturb in-flight operations on other relays
+- [x] Tests cover add, remove, duplicate add, and release of a transiently added relay
+- [x] `mvn -q verify` passes

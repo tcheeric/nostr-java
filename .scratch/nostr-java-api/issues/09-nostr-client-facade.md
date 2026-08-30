@@ -29,16 +29,16 @@ See ADR-0001 and ADR-0005.
 **Blocked by:** 05 (Synthetic EOSE and mid-stream recovery), 08 (NIP-17 direct message
 delivery).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `nostr-java-api` module is added to the build with the correct dependency direction
-- [ ] `NostrClient.builder()` accepts an identity and either relay URIs or an existing pool
-- [ ] `publish()`, `subscriptions()`, `directMessages()`, and relay-list lookup are exposed,
+- [x] `nostr-java-api` module is added to the build with the correct dependency direction
+- [x] `NostrClient.builder()` accepts an identity and either relay URIs or an existing pool
+- [x] `publish()`, `subscriptions()`, `directMessages()`, and relay-list lookup are exposed,
       each behind an interface
-- [ ] Events are signed with the configured identity, with a per-call identity override
-- [ ] A pool built from URIs is closed by `NostrClient`; a supplied pool is not
-- [ ] The ownership rule is documented on the builder method itself
-- [ ] The client is constructible in a plain `main()` with no Spring application context
-- [ ] Facade methods return core types, introducing no parallel event model
-- [ ] Tests cover signing, per-call override, both ownership cases, and Spring-free construction
-- [ ] `mvn -q verify` passes
+- [x] Events are signed with the configured identity, with a per-call identity override
+- [x] A pool built from URIs is closed by `NostrClient`; a supplied pool is not
+- [x] The ownership rule is documented on the builder method itself
+- [x] The client is constructible in a plain `main()` with no Spring application context
+- [x] Facade methods return core types, introducing no parallel event model
+- [x] Tests cover signing, per-call override, both ownership cases, and Spring-free construction
+- [x] `mvn -q verify` passes

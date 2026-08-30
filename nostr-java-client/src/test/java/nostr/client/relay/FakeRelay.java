@@ -74,6 +74,8 @@ public final class FakeRelay implements RelayConnection {
   private final AtomicLong registrationSequence = new AtomicLong();
   private final CountDownLatch stallLatch = new CountDownLatch(1);
   private final AtomicBoolean requestInFlight = new AtomicBoolean(false);
+  private final List<GenericEvent> storedEvents = new CopyOnWriteArrayList<>();
+  private final AtomicBoolean replyToSubscriptions = new AtomicBoolean(false);
   private final AtomicInteger peakConcurrentSends = new AtomicInteger();
   private volatile ConnectionState connectionState = ConnectionState.CONNECTED;
 
@@ -307,7 +309,22 @@ public final class FakeRelay implements RelayConnection {
     subscribers.put(
         registrationId,
         new Subscriber(subscriptionId, messageListener, errorListener, closeListener));
+    replayStoredEvents(subscriptionId);
     return () -> subscribers.remove(registrationId);
+  }
+
+  /**
+   * Replay whatever this relay was scripted to hold, then report the backlog drained.
+   *
+   * <p>Runs on the subscribing thread so a caller that blocks awaiting the backlog is satisfied
+   * by the time {@code subscribe} returns.
+   */
+  private void replayStoredEvents(String subscriptionId) {
+    if (!replyToSubscriptions.get() || subscriptionId == null) {
+      return;
+    }
+    storedEvents.forEach(storedEvent -> emitEvent(subscriptionId, storedEvent));
+    emitEndOfStoredEvents(subscriptionId);
   }
 
   /**
@@ -345,17 +362,36 @@ public final class FakeRelay implements RelayConnection {
   }
 
   /**
+   * Hold an event and replay it to any subscription that arrives, then end the backlog.
+   *
+   * <p>Callers that block until the backlog drains, such as a relay-list lookup, cannot emit
+   * events after subscribing because they never return control. Scripting the answer up front is
+   * how those callers are tested.
+   *
+   * @param storedEvent the event this relay holds
+   */
+  public void answerNextSubscriptionWith(GenericEvent storedEvent) {
+    storedEvents.add(storedEvent);
+    replyToSubscriptions.set(true);
+  }
+
+  /**
+   * Reply to any subscription with an immediately drained backlog and no events.
+   *
+   * <p>Models a relay that simply holds nothing matching the filter.
+   */
+  public void emitEndOfStoredEventsForNextSubscription() {
+    replyToSubscriptions.set(true);
+  }
+
+  /**
    * Deliver an event frame for a subscription, as a relay replaying or streaming would.
    *
    * @param subscriptionId the subscription the event belongs to
    * @param event the event to deliver
    */
   public void emitEvent(String subscriptionId, GenericEvent event) {
-    try {
-      emitTo(subscriptionId, new EventMessage(event, subscriptionId).encode());
-    } catch (RuntimeException e) {
-      throw new IllegalStateException("Could not encode event for relay " + relayUri, e);
-    }
+    emitTo(subscriptionId, new EventMessage(event, subscriptionId).encode());
   }
 
   /**

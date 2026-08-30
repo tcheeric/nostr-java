@@ -20,15 +20,15 @@ See ADR-0003 and ADR-0005.
 
 **Blocked by:** 06 (Runtime pool membership), 07 (Relay list lookup).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Sending a direct message composes the plan and delivers each gift wrap to its own
+- [x] Sending a direct message composes the plan and delivers each gift wrap to its own
       recipient's relays
-- [ ] Delivery returns a per-recipient outcome so a group message reports who received it
-- [ ] A recipient with no published relay list is reported unreachable, not skipped silently
-- [ ] Relays connected solely for a delivery are released afterwards
-- [ ] An incoming gift wrap can be read back into a chat message through the same service
-- [ ] `nostr-java-identity` gains no new dependencies
-- [ ] Tests cover single-recipient delivery, group delivery with mixed outcomes, an unreachable
+- [x] Delivery returns a per-recipient outcome so a group message reports who received it
+- [x] A recipient with no published relay list is reported unreachable, not skipped silently
+- [x] Relays connected solely for a delivery are released afterwards
+- [x] An incoming gift wrap can be read back into a chat message through the same service
+- [x] `nostr-java-identity` gains no new dependencies
+- [x] Tests cover single-recipient delivery, group delivery with mixed outcomes, an unreachable
       recipient, transient relay release, and the read-back path
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

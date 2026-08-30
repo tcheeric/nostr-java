@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -68,8 +70,22 @@ public class RelayPool implements AutoCloseable {
 
   private final Map<String, String> unreachableRelays = new ConcurrentHashMap<>();
 
-  /** The relays as the caller listed them, so outcomes are reported in a stable order. */
-  private final List<String> configuredRelayUris;
+  /**
+   * The relays in the pool, in the order they joined, so outcomes are reported predictably.
+   *
+   * <p>Copy-on-write because membership changes while publishes iterate it: a relay added for a
+   * single delivery, or one rejoining after an outage, must not disturb work already in flight.
+   */
+  private final List<String> configuredRelayUris = new CopyOnWriteArrayList<>();
+
+  /**
+   * How many callers still need each transiently added relay.
+   *
+   * <p>A relay added to deliver one message must be released afterwards, but two deliveries to
+   * the same recipient may overlap. Counting holders means the second does not close the
+   * connection the first is still using.
+   */
+  private final Map<String, AtomicInteger> transientRelayHolders = new ConcurrentHashMap<>();
 
   /**
    * Retries downed relays on a schedule the pool owns.
@@ -146,7 +162,7 @@ public class RelayPool implements AutoCloseable {
     Objects.requireNonNull(connectionFactory, "connectionFactory");
     this.publishTimeout = Objects.requireNonNull(publishTimeout, "publishTimeout");
     this.connectionFactory = connectionFactory;
-    this.configuredRelayUris = List.copyOf(relayUris);
+    this.configuredRelayUris.addAll(relayUris);
     relayUris.forEach(relayUri -> connectOrRecordAsDown(relayUri, connectionFactory));
     this.reconnectScheduler = startReconnecting(reconnectInterval);
   }
@@ -365,6 +381,82 @@ public class RelayPool implements AutoCloseable {
               }
             });
     return List.copyOf(rejoined);
+  }
+
+  /**
+   * Add a relay to the running pool, connecting it if it is not already a member.
+   *
+   * <p>Relay sets are not fixed: a user changes their preferences, and a direct message must be
+   * delivered to relays the recipient chose rather than the ones this pool was built with.
+   * Adding an existing relay records another holder rather than opening a second connection.
+   *
+   * @param relayUri the relay to add
+   * @return {@code true} if the relay is now available for use
+   */
+  public boolean addRelay(String relayUri) {
+    Objects.requireNonNull(relayUri, "relayUri");
+    transientRelayHolders.computeIfAbsent(relayUri, uri -> new AtomicInteger()).incrementAndGet();
+    if (connectionsByRelay.containsKey(relayUri)) {
+      return true;
+    }
+    if (!configuredRelayUris.contains(relayUri)) {
+      configuredRelayUris.add(relayUri);
+    }
+    connectOrRecordAsDown(relayUri, connectionFactory);
+    RelayConnection connection = connectionsByRelay.get(relayUri);
+    if (connection == null) {
+      return false;
+    }
+    resumeSubscriptionsOn(connection);
+    return true;
+  }
+
+  /**
+   * Release a relay added with {@link #addRelay}, closing it once no caller still needs it.
+   *
+   * <p>The connection survives while another holder remains, so overlapping deliveries to the
+   * same relay do not cut each other off.
+   *
+   * @param relayUri the relay to release
+   * @return {@code true} if the relay was closed and removed from the pool
+   */
+  public boolean releaseRelay(String relayUri) {
+    Objects.requireNonNull(relayUri, "relayUri");
+    AtomicInteger holders = transientRelayHolders.get(relayUri);
+    if (holders != null && holders.decrementAndGet() > 0) {
+      return false;
+    }
+    transientRelayHolders.remove(relayUri);
+    return removeRelay(relayUri);
+  }
+
+  /**
+   * Remove a relay from the pool immediately, closing its connection.
+   *
+   * @param relayUri the relay to remove
+   * @return {@code true} if the relay was in the pool
+   */
+  public boolean removeRelay(String relayUri) {
+    Objects.requireNonNull(relayUri, "relayUri");
+    configuredRelayUris.remove(relayUri);
+    unreachableRelays.remove(relayUri);
+    transientRelayHolders.remove(relayUri);
+    locksByRelay.remove(relayUri);
+    RelayConnection removed = connectionsByRelay.remove(relayUri);
+    if (removed == null) {
+      return false;
+    }
+    closeQuietly(removed);
+    return true;
+  }
+
+  /**
+   * The relays currently in the pool, whether connected or awaiting reconnection.
+   *
+   * @return the member relays' URIs, in the order they joined
+   */
+  public List<String> getRelays() {
+    return List.copyOf(configuredRelayUris);
   }
 
   /**
