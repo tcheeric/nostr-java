@@ -2,6 +2,8 @@ package nostr.mcp;
 
 import io.modelcontextprotocol.json.McpJsonDefaults;
 import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification;
+import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema.ServerCapabilities;
@@ -9,6 +11,8 @@ import lombok.NonNull;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.subscription.SubscriptionResources;
 import nostr.mcp.tool.NostrToolRegistry;
+
+import java.util.List;
 
 /**
  * Serves the registered Nostr tools to an MCP host.
@@ -52,7 +56,33 @@ public final class NostrMcpServer implements AutoCloseable {
         toolRegistry,
         version,
         new StdioServerTransportProvider(McpJsonDefaults.getMapper()),
-        subscriptions);
+        subscriptions,
+        List.of(),
+        List.of());
+  }
+
+  /**
+   * Serve tools, subscription resources, context resources and guided prompts.
+   *
+   * @param toolRegistry the tools an agent will see
+   * @param version the server version reported to the host
+   * @param subscriptions open subscriptions to expose, or {@code null} for none
+   * @param contextResources resources describing this server's identities and relays
+   * @param prompts guided sequences teaching a host how to use the tools
+   */
+  public NostrMcpServer(
+      @NonNull NostrToolRegistry toolRegistry,
+      @NonNull String version,
+      SubscriptionRegistry subscriptions,
+      @NonNull List<SyncResourceSpecification> contextResources,
+      @NonNull List<SyncPromptSpecification> prompts) {
+    this(
+        toolRegistry,
+        version,
+        new StdioServerTransportProvider(McpJsonDefaults.getMapper()),
+        subscriptions,
+        contextResources,
+        prompts);
   }
 
   /**
@@ -66,7 +96,7 @@ public final class NostrMcpServer implements AutoCloseable {
       @NonNull NostrToolRegistry toolRegistry,
       @NonNull String version,
       @NonNull StdioServerTransportProvider transportProvider) {
-    this(toolRegistry, version, transportProvider, null);
+    this(toolRegistry, version, transportProvider, null, List.of(), List.of());
   }
 
 
@@ -86,18 +116,28 @@ public final class NostrMcpServer implements AutoCloseable {
       @NonNull NostrToolRegistry toolRegistry,
       @NonNull String version,
       @NonNull StdioServerTransportProvider transportProvider,
-      SubscriptionRegistry subscriptions) {
+      SubscriptionRegistry subscriptions,
+      @NonNull List<SyncResourceSpecification> contextResources,
+      @NonNull List<SyncPromptSpecification> prompts) {
+    List<SyncResourceSpecification> resources = new java.util.ArrayList<>(contextResources);
+    if (subscriptions != null) {
+      resources.add(SubscriptionResources.specification(subscriptions));
+    }
     var builder =
         McpServer.sync(transportProvider)
             .serverInfo(SERVER_NAME, version)
             .capabilities(
                 ServerCapabilities.builder()
                     .tools(true)
-                    .resources(subscriptions != null, subscriptions != null)
+                    .resources(!resources.isEmpty(), subscriptions != null)
+                    .prompts(!prompts.isEmpty())
                     .build())
             .tools(toolRegistry.toSpecifications());
-    if (subscriptions != null) {
-      builder = builder.resources(SubscriptionResources.specification(subscriptions));
+    if (!resources.isEmpty()) {
+      builder = builder.resources(resources);
+    }
+    if (!prompts.isEmpty()) {
+      builder = builder.prompts(prompts);
     }
     this.server = builder.build();
   }

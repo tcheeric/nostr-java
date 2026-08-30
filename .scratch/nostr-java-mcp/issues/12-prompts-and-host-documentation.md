@@ -16,13 +16,13 @@ cannot answer.
 
 **Status:** ready-for-agent
 
-- [ ] Prompts ship for `compose-note`, `catch-up-feed` and `watch-mentions`
-- [ ] Resources expose `nostr://identity/{alias}` and `nostr://relay/{name}` so an agent can
+- [x] Prompts ship for `compose-note`, `catch-up-feed` and `watch-mentions`
+- [x] Resources expose `nostr://identity/{alias}` and `nostr://relay/{name}` so an agent can
       read context without a tool call
-- [ ] A how-to under `docs/howto` covers wiring the server into an MCP host, leading with
+- [x] A how-to under `docs/howto` covers wiring the server into an MCP host, leading with
       single-identity mode and presenting multi-identity as the advanced case
-- [ ] It is linked from `docs/README.md` per the repo's Diátaxis convention
-- [ ] The inherited SDK limits are documented where a user meets them: per-relay throughput,
+- [x] It is linked from `docs/README.md` per the repo's Diátaxis convention
+- [x] The inherited SDK limits are documented where a user meets them: per-relay throughput,
       windowed de-duplication, and the unauthenticated HTTP transport
-- [ ] `CHANGELOG.md` records the new module
-- [ ] `mvn -q verify` passes
+- [x] `CHANGELOG.md` records the new module
+- [x] `mvn -q verify` passes

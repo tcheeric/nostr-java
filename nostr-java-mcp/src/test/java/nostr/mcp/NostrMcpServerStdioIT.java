@@ -135,6 +135,63 @@ class NostrMcpServerStdioIT {
     }
   }
 
+  // Verifies the guided prompts reach a host, since a tool surface with no guidance makes an
+  // agent learn by trial and error on a medium where mistakes are permanent and public.
+  @Test
+  void aHostCanDiscoverTheGuidedPrompts() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> prompts =
+          client.listPrompts().prompts().stream()
+              .map(io.modelcontextprotocol.spec.McpSchema.Prompt::name)
+              .toList();
+
+      assertEquals(List.of("compose-note", "catch-up-feed", "watch-mentions"), prompts);
+    }
+  }
+
+  // Verifies a prompt returns usable instructions rather than an empty shell, and that the
+  // publishing one names the confirmation step models most often skip.
+  @Test
+  void theComposePromptTeachesTheConfirmationStep() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      String instructions =
+          client
+              .getPrompt(
+                  new io.modelcontextprotocol.spec.McpSchema.GetPromptRequest(
+                      "compose-note", java.util.Map.of("topic", "a test note")))
+              .messages()
+              .stream()
+              .map(message -> ((TextContent) message.content()).text())
+              .findFirst()
+              .orElse("");
+
+      assertTrue(instructions.contains("a test note"), instructions);
+      assertTrue(instructions.contains("confirmationToken"), instructions);
+      assertTrue(instructions.contains("cannot be reliably deleted"), instructions);
+    }
+  }
+
+  // Verifies an agent can read the server's own identity and relay configuration as resources,
+  // without spending a tool call on something that never changes mid-conversation.
+  @Test
+  void aHostCanReadTheServersOwnContextAsResources() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> resourceUris =
+          client.listResources().resources().stream()
+              .map(io.modelcontextprotocol.spec.McpSchema.Resource::uri)
+              .toList();
+
+      assertTrue(resourceUris.contains("nostr://identity/{alias}"), resourceUris.toString());
+      assertTrue(resourceUris.contains("nostr://relay/{name}"), resourceUris.toString());
+    }
+  }
+
   // Verifies the server offers no NIP-04 tool, since NIP-04 exposes both correspondents and the
   // conversation to every relay and is unsuitable for a tool an agent drives on someone's behalf.
   @Test

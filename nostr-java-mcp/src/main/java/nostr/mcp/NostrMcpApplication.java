@@ -13,6 +13,8 @@ import nostr.mcp.identity.KeySources;
 import nostr.mcp.identity.KeystoreException;
 import nostr.mcp.relay.RelayDirectory;
 import nostr.mcp.tool.NostrToolRegistry;
+import nostr.mcp.guidance.ContextResources;
+import nostr.mcp.guidance.NostrPrompts;
 import nostr.mcp.social.McpDirectMessageService;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.subscription.SubscriptionResources;
@@ -87,7 +89,13 @@ public final class NostrMcpApplication {
       if (configuration.usesHttpTransport()) {
         serveOverHttp(configuration, registry, subscriptions);
       } else {
-        try (NostrMcpServer server = new NostrMcpServer(registry, VERSION, subscriptions)) {
+        try (NostrMcpServer server =
+            new NostrMcpServer(
+                registry,
+                VERSION,
+                subscriptions,
+                ContextResources.all(identityVault, configuration.relayDirectory()),
+                NostrPrompts.all())) {
           runningServer.set(server);
           awaitShutdown();
         }

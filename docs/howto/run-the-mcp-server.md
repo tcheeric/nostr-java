@@ -19,41 +19,66 @@ is never printed and never reaches the agent.
 Other commands: `list`, `import <alias>` (reads the key from standard input), and
 `remove <alias>`.
 
-## Run it over stdio
+## Wire it into your MCP host
 
-An MCP host launches the server itself and speaks to it over standard input and output. Add an
-entry to your host's configuration:
+An MCP host launches the server itself and speaks to it over standard input and output. Bind
+each server to one identity, which is both the safer arrangement and the one that fits how
+hosts are configured anyway:
 
 ```json
 {
   "mcpServers": {
-    "nostr": {
+    "nostr-personal": {
       "command": "java",
-      "args": ["-jar", "/path/to/nostr-java-mcp.jar"]
+      "args": ["-jar", "/path/to/nostr-java-mcp.jar", "-Dnostr.mcp.identity=personal"]
     }
   }
 }
 ```
 
-The server starts with `write-policy: confirm`, so the agent must confirm before anything is
-published. See [Choosing how much freedom the agent has](#choosing-how-much-freedom-the-agent-has).
+Binding does more than express a preference. Only that one key is decrypted, so another
+identity's key is absent from the process rather than merely out of policy, and the `identity`
+argument disappears from every signing tool: there is nothing to name, so nothing to name
+wrongly. A bound server also registers no keystore-mutating tools, and refuses to start if its
+identity does not exist.
 
-## Bind one server to one identity
-
-If you hold several keys, bind a server to one so the agent cannot post as the wrong account.
-The `identity` argument then disappears from every signing tool, and only that key is decrypted:
+Add one entry per identity, and the agent sees two clearly-named tool groups it cannot confuse:
 
 ```json
 {
   "mcpServers": {
-    "nostr-personal":    { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "--nostr.mcp.identity=personal"] },
-    "nostr-project-bot": { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "--nostr.mcp.identity=project-bot"] }
+    "nostr-personal":    { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "-Dnostr.mcp.identity=personal"] },
+    "nostr-project-bot": { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "-Dnostr.mcp.identity=project-bot"] }
   }
 }
 ```
 
-A bound server refuses to start if its identity does not exist, and registers no
-keystore-mutating tools.
+### The unbound server
+
+Omitting `identity` gives one server holding every key. You need this to administer the keystore
+through tools, and for questions no bound server can answer, such as "which of my accounts was
+mentioned this week". The cost is that the agent chooses which identity signs, so the
+wrong-account risk is guarded rather than removed: where several identities exist and none is
+the default, signing fails rather than guessing.
+
+The server starts with `write-policy: confirm` either way, so the agent must confirm before
+anything is published.
+
+## What the agent is taught
+
+The server ships three guided prompts, which hosts surface as slash-commands or similar:
+
+| Prompt | What it teaches |
+| --- | --- |
+| `compose-note` | Draft, show the user, then publish with the confirmation token |
+| `catch-up-feed` | Read the follow list first, then query those authors |
+| `watch-mentions` | Subscribe, and distinguish "still replaying" from "nothing matched" |
+
+They exist because a tool surface with no guidance makes a model explore by trial and error,
+and on a public, permanent medium the mistakes are visible to everyone.
+
+It can also read `nostr://identity/{alias}` and `nostr://relay/{name}` as resources, so a host
+can put the server's own configuration into context without spending a tool call on it.
 
 ## Choosing how much freedom the agent has
 
@@ -164,6 +189,24 @@ All settings are `nostr.mcp.*` system properties, or the same name in the enviro
 | `limits.max-subscriptions` | `20` | Open subscriptions allowed |
 | `limits.subscription-buffer` | `500` | Events held per subscription between reads |
 | `limits.subscription-idle-timeout` | `1h` | When an unread subscription is closed |
+
+## Limits worth knowing about
+
+These are properties of the underlying SDK and the protocol, not settings you can tune away.
+
+- **Throughput is per relay.** Each relay connection serves one request at a time, so many
+  concurrent queries against the same relay queue behind each other. This is why queries are
+  bounded by `limits.query-timeout`: an unbounded one would stall every other tool call.
+- **De-duplication is windowed.** The SDK delivers each event once however many relays carry
+  it, but over a bounded window. A relay replaying an old event long afterwards can arrive
+  again; subscription buffers drop the repeat, and a query may show it.
+- **Subscriptions do not survive a restart.** Nothing is persisted. If the server restarts, open
+  subscriptions are gone and the agent must open them again.
+- **A full subscription buffer drops the oldest events.** The read reports a `droppedCount` so
+  the agent knows it missed some; read more often or narrow the filter.
+- **The HTTP transport has no authentication.** See [Run it over HTTP](#run-it-over-http).
+- **Deletion is advisory.** NIP-09 asks relays to forget an event; it cannot compel them. Treat
+  anything published as permanent, which is why `write-policy: confirm` is the default.
 
 ## Related
 
