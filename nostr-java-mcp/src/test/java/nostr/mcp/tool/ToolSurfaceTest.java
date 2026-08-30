@@ -6,6 +6,7 @@ import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
+import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +43,7 @@ class ToolSurfaceTest {
 
       assertEquals(
           readGolden(UNBOUND_GOLDEN),
-          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault).registeredNames()));
+          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault, QueryLimits.defaults(), Clock.systemUTC()).registeredNames()));
     }
   }
 
@@ -56,7 +58,7 @@ class ToolSurfaceTest {
 
       assertEquals(
           readGolden(BOUND_GOLDEN),
-          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault).registeredNames()));
+          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault, QueryLimits.defaults(), Clock.systemUTC()).registeredNames()));
     }
   }
 

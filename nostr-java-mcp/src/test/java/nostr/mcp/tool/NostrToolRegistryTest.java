@@ -32,7 +32,10 @@ class NostrToolRegistryTest {
     NostrToolRegistry registry =
         new NostrToolRegistry()
             .register(new StubTool("nostr_list_relays"))
-            .register(new StubTool("nostr_list_identities"));
+            .register(new StubTool("nostr_list_identities"))
+            .register(new StubTool("nostr_query_events"))
+            .register(new StubTool("nostr_get_profile"))
+            .register(new StubTool("nostr_relay_info"));
 
     assertEquals(readGolden(), String.join("\n", registry.registeredNames()));
   }

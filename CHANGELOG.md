@@ -7,10 +7,14 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 ## [Unreleased]
 
 ### Added
+- MCP read tools: `nostr_query_events`, `nostr_get_profile` (by public key or NIP-05 address) and `nostr_relay_info`. Shared argument conventions live in one place: `NostrIdentifier` accepts hex or bech32 for keys and event ids, and `TimeArgument` normalises relative ages such as `24h`, ISO-8601 timestamps and bare dates to Unix seconds. Queries are bounded by `limits.max-events-per-query` and `limits.query-timeout`, and a truncated or timed-out answer says so rather than passing as complete.
 - MCP single-identity mode and key-admin CLI. `nostr.mcp.identity` binds a server process to one alias: only that entry is decrypted, so another identity's key is absent from the heap rather than merely refused, and a bound server registers no keystore-mutating tools. The same jar offers `keygen`, `import`, `list` and `remove` on the command line, keeping key administration in the hands of the human who set the servers up rather than any agent.
 - MCP identity vault: `nostr_list_identities` tool with os-keychain, encrypted-file, and environment key sources; private keys never appear on the tool surface and are wiped on shutdown.
 - **`nostr-java-mcp`**, a new module exposing the SDK as a Model Context Protocol server so an LLM agent can use Nostr without Nostr-specific code. This first slice ships the stdio transport an MCP host launches directly, a tool registry where adding a capability means adding a class rather than editing a dispatcher, and `nostr_list_relays` reporting each configured relay's connection state. It adapts `nostr-java-api` rather than reaching past it, so relay pooling, result aggregation and de-duplication stay the SDK's concern.
 - `ContactList` and `Contact`, modelling a NIP-02 follow list. Each entry keeps the three parts the specification defines, the followed key plus an optional relay hint and petname, rather than the key alone: the hint is how a client finds someone it has never seen, and the petname is how it shows a readable name without a global registry. Entries keep their order, since NIP-02 asks that new follows be appended so a list reads chronologically, and a duplicated key keeps its first entry. Malformed entries are discarded rather than making a whole list unreadable. Groundwork for the planned `nostr-java-mcp` module, whose contacts tool had nothing to call.
+
+### Fixed
+- Inbound relay frames are delivered to each listener in the order the relay sent them. Every frame was previously dispatched on a freshly started virtual thread, so an `EOSE` could overtake the stored events it follows; any query ending on that signal then returned a partial answer indistinguishable from the relay holding less data. Observed against a real relay: asking for three stored events, the end-of-backlog signal arrived with only one or two delivered, varying run to run.
 
 ## [2.2.0] - 2026-08-30
 

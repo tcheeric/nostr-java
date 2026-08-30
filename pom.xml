@@ -343,6 +343,8 @@
                             <excludes>
                                 <!-- Skip Docker/Testcontainers-backed tests in API module -->
                                 <exclude>**/nostr/api/integration/**</exclude>
+                                <!-- Skip Docker/Testcontainers-backed tests in MCP module -->
+                                <exclude>**/nostr/mcp/integration/**</exclude>
                             </excludes>
                             <systemPropertyVariables>
                                 <noDocker>true</noDocker>
@@ -358,6 +360,8 @@
                             <excludes>
                                 <!-- Skip Docker/Testcontainers-backed ITs in API module -->
                                 <exclude>**/nostr/api/integration/**</exclude>
+                                <!-- Skip Docker/Testcontainers-backed ITs in MCP module -->
+                                <exclude>**/nostr/mcp/integration/**</exclude>
                             </excludes>
                             <systemPropertyVariables>
                                 <noDocker>true</noDocker>

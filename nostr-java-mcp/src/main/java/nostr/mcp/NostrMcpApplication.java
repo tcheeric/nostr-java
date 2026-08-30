@@ -15,6 +15,7 @@ import nostr.mcp.tool.NostrToolRegistry;
 import nostr.mcp.tool.ToolSurface;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +50,12 @@ public final class NostrMcpApplication {
         IdentityVault identityVault = openVault(configuration)) {
 
       NostrToolRegistry registry =
-          ToolSurface.forServer(configuration.relayDirectory(), relayPool, identityVault);
+          ToolSurface.forServer(
+              configuration.relayDirectory(),
+              relayPool,
+              identityVault,
+              configuration.queryLimits(),
+              Clock.systemUTC());
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
         awaitShutdown();

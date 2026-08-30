@@ -47,7 +47,12 @@ class NostrMcpServerStdioIT {
       ListToolsResult tools = client.listTools();
 
       assertEquals(
-          List.of("nostr_list_relays", "nostr_list_identities"),
+          List.of(
+              "nostr_list_relays",
+              "nostr_list_identities",
+              "nostr_query_events",
+              "nostr_get_profile",
+              "nostr_relay_info"),
           tools.tools().stream().map(Tool::name).toList());
     }
   }

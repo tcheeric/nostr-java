@@ -30,6 +30,16 @@ public enum ToolFailure {
   SUBSCRIPTION_UNKNOWN;
 
   /**
+   * Raise this failure from wherever it is detected.
+   *
+   * @param detail what went wrong, in terms the agent can act on
+   * @return an exception the tool boundary turns back into a result
+   */
+  public ToolException raise(@NonNull String detail) {
+    return new ToolException(this, detail);
+  }
+
+  /**
    * Report this failure to the agent.
    *
    * @param detail what went wrong, in terms the agent can act on

@@ -7,6 +7,7 @@ import nostr.event.filter.EventFilter;
 import nostr.event.impl.ChatMessage;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
+import nostr.client.testing.RelayStoresEventsWaitStrategy;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;

@@ -20,6 +20,7 @@ import nostr.event.impl.ContactList;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.GenericTag;
+import nostr.client.testing.RelayStoresEventsWaitStrategy;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;

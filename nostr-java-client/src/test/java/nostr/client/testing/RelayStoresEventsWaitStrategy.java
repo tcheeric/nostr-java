@@ -1,4 +1,4 @@
-package nostr.api.integration;
+package nostr.client.testing;
 
 import lombok.extern.slf4j.Slf4j;
 import nostr.client.springwebsocket.NostrRelayClient;
@@ -23,7 +23,7 @@ import java.util.List;
  * event and require the relay to acknowledge it. A relay that does that is ready by definition.
  */
 @Slf4j
-final class RelayStoresEventsWaitStrategy extends AbstractWaitStrategy {
+public final class RelayStoresEventsWaitStrategy extends AbstractWaitStrategy {
 
   private static final Duration PROBE_TIMEOUT = Duration.ofSeconds(2);
   private static final Duration PROBE_INTERVAL = Duration.ofMillis(250);

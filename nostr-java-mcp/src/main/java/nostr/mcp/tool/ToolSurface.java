@@ -3,8 +3,13 @@ package nostr.mcp.tool;
 import lombok.NonNull;
 import nostr.client.relay.RelayPool;
 import nostr.mcp.identity.IdentityVault;
+import nostr.mcp.directory.Nip05Resolver;
+import nostr.mcp.directory.WellKnownJson;
+import nostr.mcp.query.EventQuery;
+import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
 
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -29,16 +34,25 @@ public final class ToolSurface {
    * @param relayDirectory the configured relays
    * @param relayPool the live connections
    * @param identityVault the keys this server holds
+   * @param queryLimits the bounds every read stays inside
+   * @param clock what "now" means when resolving relative times
    * @return the registry a host will see
    */
   public static NostrToolRegistry forServer(
       @NonNull RelayDirectory relayDirectory,
       @NonNull RelayPool relayPool,
-      @NonNull IdentityVault identityVault) {
+      @NonNull IdentityVault identityVault,
+      @NonNull QueryLimits queryLimits,
+      @NonNull Clock clock) {
+    EventQuery eventQuery = new EventQuery(relayPool);
+    WellKnownJson wellKnownJson = new WellKnownJson();
     NostrToolRegistry registry =
         new NostrToolRegistry()
             .register(new ListRelaysTool(relayDirectory, relayPool))
-            .register(new ListIdentitiesTool(identityVault));
+            .register(new ListIdentitiesTool(identityVault))
+            .register(new QueryEventsTool(eventQuery, queryLimits, clock))
+            .register(new GetProfileTool(eventQuery, new Nip05Resolver(wellKnownJson), queryLimits))
+            .register(new RelayInfoTool(relayDirectory, wellKnownJson));
     if (!identityVault.binding().isBound()) {
       administrationTools().forEach(registry::register);
     }

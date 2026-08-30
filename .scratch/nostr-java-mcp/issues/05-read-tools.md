@@ -16,12 +16,12 @@ serves one request at a time, so an unbounded query can stall every other tool c
 
 **Status:** ready-for-agent
 
-- [ ] `nostr_query_events` runs a one-shot query and returns matching events
-- [ ] `nostr_get_profile` fetches and decodes kind-0 metadata, accepting a pubkey or a NIP-05
+- [x] `nostr_query_events` runs a one-shot query and returns matching events
+- [x] `nostr_get_profile` fetches and decodes kind-0 metadata, accepting a pubkey or a NIP-05
       address
-- [ ] `nostr_relay_info` returns a relay's NIP-11 document
-- [ ] `NostrIdentifier` centralises hex/bech32 decoding for keys and event ids
-- [ ] Relative timestamps are normalised to Unix seconds at the boundary
-- [ ] Queries respect the configured event limit and timeout
-- [ ] Errors use the stable codes from the spec rather than stack traces
-- [ ] `mvn -q verify` passes
+- [x] `nostr_relay_info` returns a relay's NIP-11 document
+- [x] `NostrIdentifier` centralises hex/bech32 decoding for keys and event ids
+- [x] Relative timestamps are normalised to Unix seconds at the boundary
+- [x] Queries respect the configured event limit and timeout
+- [x] Errors use the stable codes from the spec rather than stack traces
+- [x] `mvn -q verify` passes

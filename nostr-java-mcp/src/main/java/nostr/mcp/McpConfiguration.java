@@ -2,6 +2,9 @@ package nostr.mcp;
 
 import lombok.NonNull;
 import nostr.mcp.identity.IdentityBinding;
+import nostr.mcp.query.QueryLimits;
+
+import java.time.Duration;
 import nostr.mcp.relay.RelayDirectory;
 
 import java.util.LinkedHashMap;
@@ -129,6 +132,57 @@ public final class McpConfiguration {
    */
   public IdentityBinding identityBinding() {
     return identityBinding;
+  }
+
+  /**
+   * The bounds every read stays inside.
+   *
+   * @return the configured limits, or the specification's defaults
+   */
+  public QueryLimits queryLimits() {
+    QueryLimits defaults = QueryLimits.defaults();
+    return new QueryLimits(
+        positiveIntOr("limits.max-events-per-query", defaults.maxEventsPerQuery()),
+        durationOr("limits.query-timeout", defaults.queryTimeout()));
+  }
+
+  /**
+   * Reads a positive whole number, ignoring a value that makes no sense.
+   *
+   * <p>A limit of zero or less would make every query return nothing, which is never what an
+   * operator meant, so a nonsensical setting falls back rather than disabling reads.
+   */
+  private static int positiveIntOr(String key, int fallback) {
+    String value = setting(key);
+    if (value == null || value.isBlank()) {
+      return fallback;
+    }
+    try {
+      int parsed = Integer.parseInt(value.trim());
+      return parsed > 0 ? parsed : fallback;
+    } catch (NumberFormatException e) {
+      return fallback;
+    }
+  }
+
+  /** Accepts the {@code 15s} form an operator writes as well as plain seconds. */
+  private static Duration durationOr(String key, Duration fallback) {
+    String value = setting(key);
+    if (value == null || value.isBlank()) {
+      return fallback;
+    }
+    String trimmed = value.trim().toLowerCase(java.util.Locale.ROOT);
+    try {
+      if (trimmed.endsWith("ms")) {
+        return Duration.ofMillis(Long.parseLong(trimmed.substring(0, trimmed.length() - 2)));
+      }
+      if (trimmed.endsWith("s")) {
+        return Duration.ofSeconds(Long.parseLong(trimmed.substring(0, trimmed.length() - 1)));
+      }
+      return Duration.ofSeconds(Long.parseLong(trimmed));
+    } catch (NumberFormatException e) {
+      return fallback;
+    }
   }
 
   /**
