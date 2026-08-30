@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-08-30
+
 ### Added
 - **`nostr-java-api`**, a new module and the intended entry point for applications. `NostrClient` ties an identity to a set of relays and covers what every client would otherwise write itself: signing and publishing in one call, subscribing across relays, and sending NIP-17 private direct messages. Events remain `GenericEvent` and the relay pool stays reachable, so the facade adds capability without walling anything off. Ownership follows construction: a pool the client built is closed with it, a pool passed in is left to its owner ([ADR-0001](docs/decisions/0001-introduce-nostr-java-api-module.md)).
 - `RelayListLookup`, the first real implementation of `DirectMessageRelayLookup`, resolving kind-10050 lists through the relay pool. `nostr-java-identity` declared this need but could not meet it without acquiring a transport.
@@ -15,6 +17,9 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 - `RelayPool` now serialises operations per relay, so several threads can publish at once without colliding with `NostrRelayClient`'s one-request-in-flight limit. Locking is per relay rather than pool-wide, so a slow relay delays only its own queue while fan-out across relays stays concurrent. Each relay's `ConnectionState` is observable, and downed relays are retried on a schedule the pool owns, so a relay that recovers rejoins without an application restart. Relays that drop after connecting are reconnected too, not only those that failed at startup ([ADR-0004](docs/decisions/0004-pool-concurrency-and-subscription-lifecycle.md)).
 - `RelayPool`, which publishes one event to many relays at once and reports what each of them did. `PublishResult` records, per relay, acceptance, rejection with the relay's verbatim reason, a timeout, or unreachability, so partial delivery is visible instead of collapsed into a boolean. A publish that no relay accepted throws `NoRelayAcceptedException` carrying the same result, because an event that reached nobody must not be mistaken for a published one. The pool is best-effort on construction, so an unreachable relay cannot stop an application starting, and one timeout bounds the whole publish rather than each relay in turn ([ADR-0002](docs/decisions/0002-multi-relay-failure-semantics.md)).
 - `RelayConnection` and `RelayConnectionFactory`, the seam between relay coordination and relay transport. `NostrRelayClient` implements the interface, which exposes only what code coordinating several relays needs (identify, send, subscribe, observe state, close) rather than mirroring the client's full surface. Behaviour is unchanged; the seam exists so that multi-relay work can be tested against scripted relay behaviour instead of live sockets, and so modules above it need not depend on Spring. Groundwork for the planned `nostr-java-api` module ([ADR-0001](docs/decisions/0001-introduce-nostr-java-api-module.md)).
+
+### Fixed
+- Stored events could arrive after the end-of-backlog signal that is supposed to follow them. The transport dispatches each inbound frame on its own thread, so an `EOSE` could overtake the events it trails and tell an application its backlog was drained while those events were still arriving. Subscriptions now deliver frames in the order the relay sent them. Found by testing against a live relay, where a lookup intermittently reported no result for a list the relay was serving.
 
 ## [2.1.0] - 2026-08-30
 
@@ -27,9 +32,6 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ### Fixed
 - `GenericEvent.getByteArraySupplier()` no longer resets `created_at` to the current time. It calls `update()`, and so ran during `Identity.sign()` — meaning **signing silently moved an event in time**. Any deliberately chosen timestamp was discarded moments after being set, which made NIP-59's randomised past timestamps impossible to produce and defeated the timing-correlation defence they exist to provide, while the calling code read as though the protection were present. An event that already carries a creation time now keeps it.
-
-### Fixed
-- Stored events could arrive after the end-of-backlog signal that is supposed to follow them. The transport dispatches each inbound frame on its own thread, so an `EOSE` could overtake the events it trails and tell an application its backlog was drained while those events were still arriving. Subscriptions now deliver frames in the order the relay sent them. Found by testing against a live relay, where a lookup intermittently reported no result for a list the relay was serving.
 
 ### Deprecated
 - NIP-04 encrypted direct messages (`EncryptedDirectMessage`, `MessageCipher04`). They remain functional for reading existing conversations and interoperating with clients that send nothing else, but new code should use NIP-17. Nothing is removed in this release.
