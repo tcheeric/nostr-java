@@ -16,16 +16,16 @@ implementation, and a `RelayConnectionFactory` maps a relay URI to a connection.
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `RelayConnection` exposes connect, send, subscribe, connection state, and close, and
+- [x] `RelayConnection` exposes connect, send, subscribe, connection state, and close, and
       nothing that only `NostrRelayClient` needs
-- [ ] `NostrRelayClient` implements `RelayConnection` with no change to its existing behaviour
-- [ ] `RelayConnectionFactory` resolves a relay URI to a `RelayConnection`
-- [ ] A `FakeRelay` test fixture implements `RelayConnection` and can be scripted to accept,
+- [x] `NostrRelayClient` implements `RelayConnection` with no change to its existing behaviour
+- [x] `RelayConnectionFactory` resolves a relay URI to a `RelayConnection`
+- [x] A `FakeRelay` test fixture implements `RelayConnection` and can be scripted to accept,
       reject with a verbatim reason, never respond, drop mid-stream, emit a given event
       sequence, and delay or withhold `EOSE`
-- [ ] At least one existing client test scenario is reproduced against `FakeRelay` with no
+- [x] At least one existing client test scenario is reproduced against `FakeRelay` with no
       Mockito, demonstrating the fixture is sufficient
-- [ ] The interface carries no Spring types, so modules above can depend on it without Spring
-- [ ] `mvn -q verify` passes
+- [x] The interface carries no Spring types, so modules above can depend on it without Spring
+- [x] `mvn -q verify` passes

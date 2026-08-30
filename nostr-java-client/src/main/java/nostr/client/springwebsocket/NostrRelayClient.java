@@ -2,6 +2,7 @@ package nostr.client.springwebsocket;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import nostr.client.relay.RelayConnection;
 import nostr.event.BaseMessage;
 import nostr.event.message.ReqMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +53,8 @@ import java.util.function.Consumer;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class NostrRelayClient extends TextWebSocketHandler implements AutoCloseable {
+public class NostrRelayClient extends TextWebSocketHandler
+    implements RelayConnection, AutoCloseable {
   private static final long DEFAULT_AWAIT_TIMEOUT_MS = 60000L;
   private static final long DEFAULT_MAX_IDLE_TIMEOUT_MS = 3600000L;
   private static final int DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE = 1048576;
@@ -407,6 +409,12 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
         RELAY_IO_EXECUTOR);
   }
 
+  @Override
+  public String getRelayUri() {
+    return relayUri;
+  }
+
+  @Override
   public ConnectionState getConnectionState() {
     return connectionState.get();
   }
@@ -470,6 +478,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
   }
 
+  @Override
   @NostrRetryable
   public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
     String json = eventMessage.encode();
@@ -575,6 +584,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     return executeAsyncWithRetry(() -> send(eventMessage));
   }
 
+  @Override
   @NostrRetryable
   public <T extends BaseMessage> AutoCloseable subscribe(
       @NonNull T requestMessage,
