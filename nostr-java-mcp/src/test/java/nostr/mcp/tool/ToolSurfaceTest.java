@@ -7,6 +7,9 @@ import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.write.RateLimit;
+import nostr.mcp.write.WriteGuard;
+import nostr.mcp.write.WritePolicy;
 import nostr.mcp.relay.RelayDirectory;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +18,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +38,8 @@ class ToolSurfaceTest {
 
   private static final Path UNBOUND_GOLDEN = Path.of("src/test/resources/tool-list-default.txt");
   private static final Path BOUND_GOLDEN = Path.of("src/test/resources/tool-list-bound.txt");
+  private static final Path READ_ONLY_GOLDEN =
+      Path.of("src/test/resources/tool-list-read-only.txt");
 
   // Verifies an ordinary multi-identity server exposes exactly the golden tool list.
   @Test
@@ -43,7 +49,7 @@ class ToolSurfaceTest {
 
       assertEquals(
           readGolden(UNBOUND_GOLDEN),
-          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault, QueryLimits.defaults(), Clock.systemUTC()).registeredNames()));
+          String.join("\n", surfaceOf(relayPool, vault, WritePolicy.CONFIRM).registeredNames()));
     }
   }
 
@@ -58,7 +64,7 @@ class ToolSurfaceTest {
 
       assertEquals(
           readGolden(BOUND_GOLDEN),
-          String.join("\n", ToolSurface.forServer(directory(), relayPool, vault, QueryLimits.defaults(), Clock.systemUTC()).registeredNames()));
+          String.join("\n", surfaceOf(relayPool, vault, WritePolicy.CONFIRM).registeredNames()));
     }
   }
 
@@ -80,6 +86,44 @@ class ToolSurfaceTest {
       assertTrue(vault.defaultAlias().isPresent());
       assertEquals("project-bot", vault.defaultAlias().orElseThrow());
     }
+  }
+
+  // Verifies a read-only server registers no write tool at all, pinned by its own golden file.
+  // A refusal an agent can see is an invitation to rephrase; an absent tool is not.
+  @Test
+  void aReadOnlyServerRegistersNoWriteTools() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.unbound())) {
+
+      assertEquals(
+          readGolden(READ_ONLY_GOLDEN),
+          String.join("\n", surfaceOf(relayPool, vault, WritePolicy.DENY).registeredNames()));
+    }
+  }
+
+  // Verifies the allowing policy exposes the same tools as the confirming one, since the
+  // difference between them is what a call does, not which tools exist.
+  @Test
+  void allowingWritesExposesTheSameToolsAsConfirming() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.unbound())) {
+
+      assertEquals(
+          surfaceOf(relayPool, vault, WritePolicy.CONFIRM).registeredNames(),
+          surfaceOf(relayPool, vault, WritePolicy.ALLOW).registeredNames());
+    }
+  }
+
+  private NostrToolRegistry surfaceOf(RelayPool relayPool, IdentityVault vault, WritePolicy policy) {
+    return ToolSurface.forServer(
+        directory(),
+        relayPool,
+        vault,
+        QueryLimits.defaults(),
+        Clock.systemUTC(),
+        new WriteGuard(
+            relayPool, vault, policy, new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC())),
+        policy);
   }
 
   private RelayDirectory directory() {

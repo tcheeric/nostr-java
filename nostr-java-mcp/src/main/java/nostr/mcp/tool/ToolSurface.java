@@ -8,6 +8,8 @@ import nostr.mcp.directory.WellKnownJson;
 import nostr.mcp.query.EventQuery;
 import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.write.WriteGuard;
+import nostr.mcp.write.WritePolicy;
 
 import java.time.Clock;
 import java.util.List;
@@ -36,6 +38,8 @@ public final class ToolSurface {
    * @param identityVault the keys this server holds
    * @param queryLimits the bounds every read stays inside
    * @param clock what "now" means when resolving relative times
+   * @param writeGuard the single point every write passes through
+   * @param writePolicy whether write tools appear at all
    * @return the registry a host will see
    */
   public static NostrToolRegistry forServer(
@@ -43,7 +47,9 @@ public final class ToolSurface {
       @NonNull RelayPool relayPool,
       @NonNull IdentityVault identityVault,
       @NonNull QueryLimits queryLimits,
-      @NonNull Clock clock) {
+      @NonNull Clock clock,
+      @NonNull WriteGuard writeGuard,
+      @NonNull WritePolicy writePolicy) {
     EventQuery eventQuery = new EventQuery(relayPool);
     WellKnownJson wellKnownJson = new WellKnownJson();
     NostrToolRegistry registry =
@@ -53,6 +59,9 @@ public final class ToolSurface {
             .register(new QueryEventsTool(eventQuery, queryLimits, clock))
             .register(new GetProfileTool(eventQuery, new Nip05Resolver(wellKnownJson), queryLimits))
             .register(new RelayInfoTool(relayDirectory, wellKnownJson));
+    if (writePolicy.allowsWriteTools()) {
+      writeTools(writeGuard).forEach(registry::register);
+    }
     if (!identityVault.binding().isBound()) {
       administrationTools().forEach(registry::register);
     }
@@ -70,5 +79,22 @@ public final class ToolSurface {
    */
   private static List<NostrTool> administrationTools() {
     return List.of();
+  }
+
+  /**
+   * The tools that publish, registered only when the policy permits writing at all.
+   *
+   * <p>Under {@code write-policy: deny} they are absent rather than refusing, because a tool an
+   * agent cannot see is a tool it cannot be talked into using. A refusal it can see is an
+   * invitation to try a different phrasing.
+   *
+   * @param writeGuard the guard each write tool publishes through
+   * @return the publishing tools
+   */
+  private static List<NostrTool> writeTools(WriteGuard writeGuard) {
+    return List.of(
+        new PublishNoteTool(writeGuard),
+        new PublishEventTool(writeGuard),
+        new UpdateProfileTool(writeGuard));
   }
 }

@@ -18,14 +18,14 @@ landed.
 
 **Status:** ready-for-agent
 
-- [ ] `nostr_publish_note` publishes a kind-1 note, signed by the configured identity
-- [ ] `nostr_publish_event` publishes an arbitrary kind as the escape hatch
-- [ ] `nostr_update_profile` publishes kind-0 metadata
-- [ ] Under `confirm`, the first call previews and the second call with the token publishes
-- [ ] Confirmation tokens stay valid until used or until restart; they do not expire on a timer
-- [ ] Under `deny`, no write tool is registered at all
-- [ ] Partial success returns the per-relay list; only a total failure is an error
-- [ ] Rate limits are enforced per identity and per relay
-- [ ] Every write is logged with event id, kind, identity pubkey and target relays
-- [ ] A golden-file test pins the tool list under `write-policy: deny`
-- [ ] `mvn -q verify` passes
+- [x] `nostr_publish_note` publishes a kind-1 note, signed by the configured identity
+- [x] `nostr_publish_event` publishes an arbitrary kind as the escape hatch
+- [x] `nostr_update_profile` publishes kind-0 metadata
+- [x] Under `confirm`, the first call previews and the second call with the token publishes
+- [x] Confirmation tokens stay valid until used or until restart; they do not expire on a timer
+- [x] Under `deny`, no write tool is registered at all
+- [x] Partial success returns the per-relay list; only a total failure is an error
+- [x] Rate limits are enforced per identity and per relay
+- [x] Every write is logged with event id, kind, identity pubkey and target relays
+- [x] A golden-file test pins the tool list under `write-policy: deny`
+- [x] `mvn -q verify` passes

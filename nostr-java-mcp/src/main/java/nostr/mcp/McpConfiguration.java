@@ -3,6 +3,8 @@ package nostr.mcp;
 import lombok.NonNull;
 import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.write.RateLimit;
+import nostr.mcp.write.WritePolicy;
 
 import java.time.Duration;
 import nostr.mcp.relay.RelayDirectory;
@@ -26,6 +28,7 @@ public final class McpConfiguration {
       List.of("wss://relay.damus.io", "wss://nos.lol");
 
   private static final String DEFAULT_KEYSTORE_TYPE = "os-keychain";
+  private static final int DEFAULT_WRITES_PER_MINUTE = 10;
 
   private final List<String> readRelays;
   private final List<String> writeRelays;
@@ -139,6 +142,28 @@ public final class McpConfiguration {
    *
    * @return the configured limits, or the specification's defaults
    */
+  /**
+   * How much freedom an agent has to publish.
+   *
+   * @return the configured policy, defaulting to requiring confirmation
+   */
+  public WritePolicy writePolicy() {
+    return WritePolicy.fromConfiguredValue(setting("write-policy"));
+  }
+
+  /**
+   * The cap on how often one identity may publish.
+   *
+   * @param clock the source of time for the sliding window
+   * @return the configured rate limit
+   */
+  public RateLimit writeRateLimit(java.time.Clock clock) {
+    return new RateLimit(
+        positiveIntOr("limits.writes-per-minute", DEFAULT_WRITES_PER_MINUTE),
+        Duration.ofMinutes(1),
+        clock);
+  }
+
   public QueryLimits queryLimits() {
     QueryLimits defaults = QueryLimits.defaults();
     return new QueryLimits(

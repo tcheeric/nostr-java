@@ -3,3 +3,6 @@ nostr_list_identities
 nostr_query_events
 nostr_get_profile
 nostr_relay_info
+nostr_publish_note
+nostr_publish_event
+nostr_update_profile

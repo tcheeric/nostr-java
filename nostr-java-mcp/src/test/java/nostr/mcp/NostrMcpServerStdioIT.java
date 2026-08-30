@@ -52,7 +52,10 @@ class NostrMcpServerStdioIT {
               "nostr_list_identities",
               "nostr_query_events",
               "nostr_get_profile",
-              "nostr_relay_info"),
+              "nostr_relay_info",
+              "nostr_publish_note",
+              "nostr_publish_event",
+              "nostr_update_profile"),
           tools.tools().stream().map(Tool::name).toList());
     }
   }
@@ -85,6 +88,21 @@ class NostrMcpServerStdioIT {
       assertFalse(Boolean.TRUE.equals(result.isError()), "the tool reported an error");
       assertTrue(summaryOf(result).contains("relays connected"), summaryOf(result));
       assertNotNull(result.structuredContent());
+    }
+  }
+
+  // Verifies a read-only server exposes no write tool over the real protocol, so the policy
+  // holds where a host actually sees it rather than only in the registry.
+  @Test
+  void aReadOnlyServerOffersNoWriteToolsToAHost() {
+    try (McpSyncClient client = launchServer("-Dnostr.mcp.write-policy=deny")) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
+      assertTrue(tools.stream().noneMatch(name -> name.contains("update")), tools.toString());
+      assertTrue(tools.contains("nostr_query_events"), tools.toString());
     }
   }
 
@@ -126,15 +144,16 @@ class NostrMcpServerStdioIT {
    * would make it depend on Docker for no benefit. It doubles as the evidence that the server
    * survives a dead relay set.
    */
-  private McpSyncClient launchServer() {
+  private McpSyncClient launchServer(String... extraProperties) {
+    List<String> arguments = new java.util.ArrayList<>();
+    arguments.add("-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY);
+    arguments.addAll(List.of(extraProperties));
+    arguments.add("-cp");
+    arguments.add(runtimeClasspath());
+    arguments.add(NostrMcpApplication.class.getName());
+
     ServerParameters parameters =
-        ServerParameters.builder("java")
-            .args(
-                "-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY,
-                "-cp",
-                runtimeClasspath(),
-                NostrMcpApplication.class.getName())
-            .build();
+        ServerParameters.builder("java").args(arguments).build();
 
     return McpClient.sync(new StdioClientTransport(parameters, McpJsonDefaults.getMapper()))
         .requestTimeout(STARTUP_TIMEOUT)

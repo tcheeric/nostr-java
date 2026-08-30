@@ -13,6 +13,7 @@ import nostr.mcp.identity.KeystoreException;
 import nostr.mcp.relay.RelayDirectory;
 import nostr.mcp.tool.NostrToolRegistry;
 import nostr.mcp.tool.ToolSurface;
+import nostr.mcp.write.WriteGuard;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -55,7 +56,13 @@ public final class NostrMcpApplication {
               relayPool,
               identityVault,
               configuration.queryLimits(),
-              Clock.systemUTC());
+              Clock.systemUTC(),
+              new WriteGuard(
+                  relayPool,
+                  identityVault,
+                  configuration.writePolicy(),
+                  configuration.writeRateLimit(Clock.systemUTC())),
+              configuration.writePolicy());
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
         awaitShutdown();

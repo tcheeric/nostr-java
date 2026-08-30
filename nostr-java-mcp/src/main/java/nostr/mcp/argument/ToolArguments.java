@@ -124,6 +124,29 @@ public final class ToolArguments {
                 java.util.LinkedHashMap::new));
   }
 
+  /**
+   * Read a list of lists, as NIP-01 writes tags.
+   *
+   * <p>A single flat list is read as one entry, since a model given an example of nested arrays
+   * will sometimes send just the inner one.
+   *
+   * @param name the argument to read
+   * @return each inner list's values
+   */
+  public List<List<String>> nestedTexts(@NonNull String name) {
+    Object value = arguments.get(name);
+    if (!(value instanceof List<?> outer) || outer.isEmpty()) {
+      return List.of();
+    }
+    if (outer.stream().noneMatch(List.class::isInstance)) {
+      return List.of(texts(name));
+    }
+    return outer.stream()
+        .filter(List.class::isInstance)
+        .map(inner -> new ToolArguments(Map.of("v", inner)).texts("v"))
+        .toList();
+  }
+
   private int parseInteger(String name, String text) {
     try {
       return (int) Double.parseDouble(text);
