@@ -177,6 +177,18 @@ public final class McpConfiguration {
         durationOr("limits.subscription-idle-timeout", defaults.idleTimeout()));
   }
 
+  /**
+   * Which identities the model may read private messages for.
+   *
+   * <p>Empty by default. Decrypting correspondence puts it into the conversation and so into the
+   * host's logs, which is a decision for the person whose messages they are.
+   *
+   * @return the aliases whose owner has allowed decryption
+   */
+  public java.util.Set<String> identitiesPermittedToDecrypt() {
+    return java.util.Set.copyOf(commaSeparated("dm.decrypt-for", List.of()));
+  }
+
   public IdentityPolicy identityPolicy() {
     return IdentityPolicy.fromConfiguredValue(setting("identity-policy"), writePolicy());
   }

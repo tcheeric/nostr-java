@@ -1,6 +1,8 @@
 package nostr.mcp.tool;
 
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.GenericTag;
+import nostr.mcp.argument.NostrIdentifier;
 import nostr.mcp.argument.ToolArguments;
 import nostr.mcp.write.WriteGuard;
 
@@ -17,6 +19,9 @@ import java.util.Map;
 public final class PublishNoteTool extends PublishingTool {
 
   private static final int TEXT_NOTE_KIND = 1;
+  private static final String REPLY_TAG = "e";
+  private static final String MENTION_TAG = "p";
+  private static final String REPLY_MARKER = "reply";
 
   /**
    * @param writeGuard the point every write passes through
@@ -38,7 +43,19 @@ public final class PublishNoteTool extends PublishingTool {
 
   @Override
   protected Map<String, Object> writeSpecificProperties() {
-    return Map.of("content", Map.of("type", "string", "description", "The text of the note."));
+    return Map.of(
+        "content", Map.of("type", "string", "description", "The text of the note."),
+        "replyTo",
+            Map.of(
+                "type",
+                "string",
+                "description",
+                "The note this replies to, as hex, note or nevent. Omit for a new note."),
+        "mentions",
+            Map.of(
+                "type", "array",
+                "description", "Public keys to mention, as hex or npub.",
+                "items", Map.of("type", "string")));
   }
 
   @Override
@@ -48,11 +65,33 @@ public final class PublishNoteTool extends PublishingTool {
 
   @Override
   protected GenericEvent buildEvent(ToolArguments arguments) {
-    return GenericEvent.builder()
-        .kind(TEXT_NOTE_KIND)
-        .content(arguments.requireText("content"))
-        .createdAt(System.currentTimeMillis() / 1000)
-        .build();
+    GenericEvent note =
+        GenericEvent.builder()
+            .kind(TEXT_NOTE_KIND)
+            .content(arguments.requireText("content"))
+            .createdAt(System.currentTimeMillis() / 1000)
+            .build();
+    addThreadingTags(note, arguments);
+    return note;
+  }
+
+  /**
+   * Marks a reply and its mentions the way NIP-10 expects.
+   *
+   * <p>Without the {@code e} tag a reply is an unrelated note that happens to mention the same
+   * subject, and every client will show it detached from the conversation it answers. Mentioned
+   * keys get a {@code p} tag, which is how the person mentioned is notified at all.
+   */
+  private void addThreadingTags(GenericEvent note, ToolArguments arguments) {
+    arguments
+        .text("replyTo")
+        .map(replyTo -> NostrIdentifier.eventId("replyTo", replyTo).hex())
+        .ifPresent(
+            eventId ->
+                note.addTag(new GenericTag(REPLY_TAG, List.of(eventId, "", REPLY_MARKER))));
+    arguments.texts("mentions").stream()
+        .map(mention -> NostrIdentifier.publicKey("mentions", mention).hex())
+        .forEach(pubkey -> note.addTag(new GenericTag(MENTION_TAG, List.of(pubkey))));
   }
 
   @Override

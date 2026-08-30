@@ -20,14 +20,14 @@ verified against a live relay:
 
 **Status:** ready-for-agent
 
-- [ ] `nostr_fetch_thread` resolves a note and its replies per NIP-10
-- [ ] `nostr_get_contacts` reads a kind-3 list through the SDK's `ContactList` type
-- [ ] `nostr_send_direct_message` delivers to each recipient's own relays and reports per
+- [x] `nostr_fetch_thread` resolves a note and its replies per NIP-10
+- [x] `nostr_get_contacts` reads a kind-3 list through the SDK's `ContactList` type
+- [x] `nostr_send_direct_message` delivers to each recipient's own relays and reports per
       recipient
-- [ ] A recipient without a relay list is reported `UNREACHABLE`, not silently skipped
-- [ ] The sender's own copy is reported separately from the recipients, so it is never counted
+- [x] A recipient without a relay list is reported `UNREACHABLE`, not silently skipped
+- [x] The sender's own copy is reported separately from the recipients, so it is never counted
       as a failed delivery
-- [ ] `nostr_read_direct_messages` unwraps gift wraps addressed to an identity
-- [ ] DM decryption is opt-in per identity, since it exposes private correspondence to the model
-- [ ] NIP-04 is not exposed at all
-- [ ] `mvn -q verify` passes
+- [x] `nostr_read_direct_messages` unwraps gift wraps addressed to an identity
+- [x] DM decryption is opt-in per identity, since it exposes private correspondence to the model
+- [x] NIP-04 is not exposed at all
+- [x] `mvn -q verify` passes

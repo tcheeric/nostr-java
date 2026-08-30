@@ -14,6 +14,7 @@ import nostr.mcp.query.QueryLimits;
 import nostr.mcp.subscription.SubscriptionLimits;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.social.McpDirectMessageService;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WriteGuard;
 import nostr.mcp.write.WritePolicy;
@@ -137,7 +138,8 @@ class ToolSurfaceSecrecyTest {
             WritePolicy.ALLOW,
             new IdentityLifecycle(vault, new InMemoryStore()),
             IdentityPolicy.ALLOW,
-            subscriptionRegistry(pool))
+            subscriptionRegistry(pool),
+            new McpDirectMessageService(vault, pool, java.util.Set.of(ALIAS)))
         .tools();
   }
 

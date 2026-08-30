@@ -13,6 +13,7 @@ import nostr.mcp.identity.KeySources;
 import nostr.mcp.identity.KeystoreException;
 import nostr.mcp.relay.RelayDirectory;
 import nostr.mcp.tool.NostrToolRegistry;
+import nostr.mcp.social.McpDirectMessageService;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.subscription.SubscriptionResources;
 import nostr.mcp.tool.ToolSurface;
@@ -78,7 +79,9 @@ public final class NostrMcpApplication {
               configuration.writePolicy(),
               lifecycleFor(identityVault, keySource),
               configuration.identityPolicy(),
-              subscriptions);
+              subscriptions,
+              new McpDirectMessageService(
+                  identityVault, relayPool, configuration.identitiesPermittedToDecrypt()));
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION, subscriptions)) {
         runningServer.set(server);

@@ -232,6 +232,29 @@ public final class IdentityVault implements AutoCloseable {
   }
 
   /**
+   * Build something that needs to sign, without handing over the key.
+   *
+   * <p>NIP-17 sealing and unwrapping cannot be expressed as "sign this": they derive shared
+   * secrets, so the SDK's service takes an {@link Identity} rather than a signature. Rather than
+   * release the key, the vault constructs the collaborator itself and returns only what that
+   * collaborator exposes, which for {@code DirectMessageService} is composing and reading
+   * messages and never the identity behind them.
+   *
+   * <p>The factory runs inside the vault and its result must not retain the identity beyond what
+   * it needs, which is why this takes a factory rather than lending the identity out.
+   *
+   * @param alias the identity to build with
+   * @param collaborator makes the object that needs to sign
+   * @param <T> what is being built
+   * @return the built object
+   * @throws IdentityUnknownException when the vault holds no such alias
+   */
+  public synchronized <T> T using(
+      @NonNull String alias, @NonNull java.util.function.Function<Identity, T> collaborator) {
+    return collaborator.apply(require(alias));
+  }
+
+  /**
    * Hand back a copy of an identity's key material, for backing it up.
    *
    * <p>The one exception to keys never leaving the vault, and it is narrow on purpose: a backup

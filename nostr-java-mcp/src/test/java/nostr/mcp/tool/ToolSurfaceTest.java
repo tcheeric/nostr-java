@@ -15,6 +15,7 @@ import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WriteGuard;
 import nostr.mcp.write.WritePolicy;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.social.McpDirectMessageService;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -162,7 +163,8 @@ class ToolSurfaceTest {
               WritePolicy.CONFIRM,
               null,
               IdentityPolicy.ALLOW,
-              subscriptionRegistry(relayPool));
+              subscriptionRegistry(relayPool),
+        new McpDirectMessageService(vault, relayPool, java.util.Set.of()));
 
       assertEquals(readGolden(NO_MUTATION_GOLDEN), String.join("\n", registry.registeredNames()));
     }
@@ -189,7 +191,8 @@ class ToolSurfaceTest {
         policy,
         new IdentityLifecycle(vault, new InMemoryStore()),
         identityPolicy,
-        subscriptionRegistry(relayPool));
+        subscriptionRegistry(relayPool),
+        new McpDirectMessageService(vault, relayPool, java.util.Set.of()));
   }
 
   private SubscriptionRegistry subscriptionRegistry(RelayPool relayPool) {

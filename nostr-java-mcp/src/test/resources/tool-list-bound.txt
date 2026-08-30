@@ -7,6 +7,10 @@ nostr_subscribe
 nostr_read_subscription
 nostr_list_subscriptions
 nostr_unsubscribe
+nostr_fetch_thread
+nostr_get_contacts
+nostr_read_direct_messages
 nostr_publish_note
 nostr_publish_event
 nostr_update_profile
+nostr_send_direct_message

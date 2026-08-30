@@ -10,6 +10,7 @@ import nostr.mcp.directory.WellKnownJson;
 import nostr.mcp.query.EventQuery;
 import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.social.McpDirectMessageService;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.write.WriteGuard;
 import nostr.mcp.write.WritePolicy;
@@ -46,6 +47,7 @@ public final class ToolSurface {
    * @param identityLifecycle performs keystore changes, or {@code null} when the backend cannot
    * @param identityPolicy whether keystore-mutating tools appear at all
    * @param subscriptions where open subscriptions live
+   * @param directMessages sends and reads private messages
    * @return the registry a host will see
    */
   public static NostrToolRegistry forServer(
@@ -58,7 +60,8 @@ public final class ToolSurface {
       @NonNull WritePolicy writePolicy,
       IdentityLifecycle identityLifecycle,
       @NonNull IdentityPolicy identityPolicy,
-      @NonNull SubscriptionRegistry subscriptions) {
+      @NonNull SubscriptionRegistry subscriptions,
+      @NonNull McpDirectMessageService directMessages) {
     EventQuery eventQuery = new EventQuery(relayPool);
     WellKnownJson wellKnownJson = new WellKnownJson();
     NostrToolRegistry registry =
@@ -71,9 +74,15 @@ public final class ToolSurface {
             .register(new SubscribeTool(subscriptions, clock))
             .register(new ReadSubscriptionTool(subscriptions))
             .register(new ListSubscriptionsTool(subscriptions))
-            .register(new UnsubscribeTool(subscriptions));
+            .register(new UnsubscribeTool(subscriptions))
+            .register(new FetchThreadTool(eventQuery, queryLimits))
+            .register(new GetContactsTool(eventQuery, identityVault, queryLimits))
+            .register(
+                new ReadDirectMessagesTool(
+                    directMessages, identityVault, eventQuery, queryLimits, clock));
     if (writePolicy.allowsWriteTools()) {
       writeTools(writeGuard).forEach(registry::register);
+      registry.register(new SendDirectMessageTool(directMessages, identityVault));
     }
     if (registersAdministration(identityVault, identityPolicy, identityLifecycle)) {
       administrationTools(identityLifecycle, identityVault, identityPolicy).forEach(registry::register);

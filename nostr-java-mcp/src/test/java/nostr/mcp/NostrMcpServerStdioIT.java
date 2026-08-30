@@ -57,9 +57,13 @@ class NostrMcpServerStdioIT {
               "nostr_read_subscription",
               "nostr_list_subscriptions",
               "nostr_unsubscribe",
+              "nostr_fetch_thread",
+              "nostr_get_contacts",
+              "nostr_read_direct_messages",
               "nostr_publish_note",
               "nostr_publish_event",
               "nostr_update_profile",
+              "nostr_send_direct_message",
               "nostr_create_identity",
               "nostr_import_identity",
               "nostr_rename_identity",
@@ -113,6 +117,20 @@ class NostrMcpServerStdioIT {
       assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
       assertTrue(tools.stream().noneMatch(name -> name.contains("update")), tools.toString());
       assertTrue(tools.contains("nostr_query_events"), tools.toString());
+    }
+  }
+
+  // Verifies the server offers no NIP-04 tool, since NIP-04 exposes both correspondents and the
+  // conversation to every relay and is unsuitable for a tool an agent drives on someone's behalf.
+  @Test
+  void noLegacyUnencryptedDirectMessageToolIsOffered() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("nip04")), tools.toString());
+      assertTrue(tools.contains("nostr_send_direct_message"), tools.toString());
     }
   }
 
