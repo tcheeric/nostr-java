@@ -514,6 +514,7 @@ Spring Boot properties under `nostr.mcp.*`, overridable by environment variables
 nostr:
   mcp:
     transport: stdio            # stdio | http
+    bind-address: 127.0.0.1     # http only; the transport has no auth of its own (§12)
     identity: personal          # optional: bind to one identity (§6.3.1)
     keystore:
       type: os-keychain         # env | encrypted-file | os-keychain
@@ -592,8 +593,10 @@ than failing confusingly.
 Ships as an executable Spring Boot jar that is **both** the MCP server and the key-admin
 CLI (§6.3.1), a `Dockerfile` (distroless JRE 21 base, non-root user), and a
 `docker-compose.yml` that runs the server in HTTP transport mode alongside the existing test
-relay container, with the keystore mounted read-only as a volume and the passphrase supplied
-as a secret. The compose file sets `keystore.type: encrypted-file` explicitly, because the
+relay container. Its port mapping is bound to the host loopback (`127.0.0.1:PORT:PORT`, not
+`PORT:PORT`), since a container publishing a port reaches every interface by default and the
+transport carries no credentials of its own (§8, §12). The keystore is mounted read-only as a
+volume and the passphrase supplied as a secret. The compose file sets `keystore.type: encrypted-file` explicitly, because the
 `os-keychain` default (§12) has nothing to talk to inside a container. The compose file also demonstrates the bound-container pattern: one service per
 identity, each with `--nostr.mcp.identity` set and only its own key readable. Per repo
 convention the compose file is verified with `docker-compose build` in CI. The stdio
@@ -627,6 +630,12 @@ guarded action.
 - DM decryption is opt-in per identity, since it exposes private correspondence to the
   model. NIP-17's gift wrapping means the relay cannot see the correspondents, but the MCP
   host can, so this stays an explicit per-identity grant.
+- **The HTTP transport has no authentication of its own** (§12) and binds to `127.0.0.1` by
+  default. Anything that can reach it can publish as every identity the server holds, so
+  exposing it beyond the loopback interface requires a reverse proxy with real credentials in
+  front. The server logs a warning at startup when `bind-address` is not a loopback address,
+  for the same reason the `env` keystore backend warns: a weaker choice should be noisy rather
+  than silent.
 
 ## 9. Error handling
 
@@ -781,8 +790,14 @@ it. The CLI (§6.3.1) makes the explicit path a single command.
 The HTTP transport is documented as bind-to-localhost only, with no bearer token of its own in
 v1. Adding half an auth story is worse than deferring it deliberately: a token in a config file
 protects little, and the deployments that genuinely need remote access need a reverse proxy
-with real credentials in front of them regardless. The documentation must state this plainly
-rather than leaving a reader to assume the transport is safe to expose.
+with real credentials in front of them regardless.
+
+The constraint is stated where it can be acted on rather than only here: `bind-address`
+defaults to `127.0.0.1` in the configuration (§7), the safety model lists an exposed transport
+as a threat and warns at startup on a non-loopback bind (§8), and the compose file publishes
+its port to the host loopback only (§7.2), since a container reaches every interface by
+default. A deferral that lives in one section of a design document is not a deferral, it is a
+trap.
 
 ### kind-3 contact lists need a new SDK type
 
