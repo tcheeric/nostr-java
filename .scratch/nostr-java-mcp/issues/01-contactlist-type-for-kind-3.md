@@ -15,13 +15,13 @@ kind guard rejected a kind-1 event. See `McpSpecAssumptionsIT`.
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `ContactList.from(GenericEvent)` reads `p` tags into public keys
-- [ ] `toEvent()` renders the list back as an unsigned kind-3 event
-- [ ] A wrong-kind event is rejected with a message naming the expected and actual kinds
-- [ ] An event with no `p` tags yields an empty list rather than failing
-- [ ] Tags that are not contacts are ignored rather than misread
-- [ ] Round-trip is covered, including through a relay in an integration test
-- [ ] `CHANGELOG.md` records the addition
-- [ ] `mvn -q verify` passes
+- [x] `ContactList.from(GenericEvent)` reads `p` tags into public keys
+- [x] `toEvent()` renders the list back as an unsigned kind-3 event
+- [x] A wrong-kind event is rejected with a message naming the expected and actual kinds
+- [x] An event with no `p` tags yields an empty list rather than failing
+- [x] Tags that are not contacts are ignored rather than misread
+- [x] Round-trip is covered, including through a relay in an integration test
+- [x] `CHANGELOG.md` records the addition
+- [x] `mvn -q verify` passes

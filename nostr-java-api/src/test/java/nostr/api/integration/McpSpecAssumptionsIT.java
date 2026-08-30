@@ -9,12 +9,14 @@ import nostr.client.relay.RelayPool;
 import nostr.client.springwebsocket.ConnectionState;
 import nostr.client.springwebsocket.NostrRelayClient;
 import nostr.event.BaseMessage;
-import nostr.event.BaseTag;
 import nostr.client.relay.NoRelayAcceptedException;
 import nostr.client.relay.PublishResult;
 import nostr.client.relay.RelaySubscription;
 import nostr.client.relay.SubscriptionListener;
 import nostr.event.filter.EventFilter;
+import nostr.base.Relay;
+import nostr.event.impl.Contact;
+import nostr.event.impl.ContactList;
 import nostr.event.impl.GenericEvent;
 import nostr.event.tag.GenericTag;
 import nostr.event.tag.GenericTag;
@@ -289,15 +291,20 @@ class McpSpecAssumptionsIT {
     assertEquals(2, poolsServed.get(), "both pools were not served by the broker");
   }
 
-  // Verifies a kind-3 contact list written to the DirectMessageRelayList pattern round-trips
-  // through a relay, which §12 relies on when calling that prerequisite small.
+  // Verifies a NIP-02 follow list survives a real relay with its relay hints and petnames
+  // intact, which is what §12 relies on when calling nostr_get_contacts adapter work.
   @Test
-  void aContactListFollowingTheSdkPatternRoundTrips() throws Exception {
+  void aContactListRoundTripsThroughARelay() throws Exception {
     Identity owner = Identity.generateRandomIdentity();
     PublicKey friend = Identity.generateRandomIdentity().getPublicKey();
+    ContactList published =
+        new ContactList(
+            owner.getPublicKey(),
+            List.of(new Contact(friend, new Relay(relayUri()), "friend")),
+            System.currentTimeMillis() / 1000);
 
     try (NostrClient nostr = clientFor(owner)) {
-      nostr.publish(contactListEvent(owner, friend));
+      nostr.publish(published.toEvent());
 
       AtomicReference<GenericEvent> readBack = new AtomicReference<>();
       try (RelaySubscription subscription =
@@ -312,28 +319,11 @@ class McpSpecAssumptionsIT {
         await().atMost(30, TimeUnit.SECONDS).until(() -> readBack.get() != null);
       }
 
-      assertEquals(
-          List.of(friend.toString()), contactsOf(readBack.get()), "the contacts did not survive");
+      Contact recovered = ContactList.from(readBack.get()).getContacts().getFirst();
+      assertEquals(friend, recovered.getPublicKey(), "the followed key did not survive");
+      assertEquals(relayUri(), recovered.findRelay().orElseThrow().getUri(), "the relay hint was lost");
+      assertEquals("friend", recovered.findPetname().orElseThrow(), "the petname was lost");
     }
-  }
-
-  /** Reads {@code p} tags back out, as a ContactList value type would. */
-  private List<String> contactsOf(GenericEvent event) {
-    return event.getTags().stream()
-        .filter(GenericTag.class::isInstance)
-        .map(GenericTag.class::cast)
-        .filter(tag -> "p".equals(tag.getCode()) && !tag.getParams().isEmpty())
-        .map(tag -> tag.getParams().get(0))
-        .toList();
-  }
-
-  private GenericEvent contactListEvent(Identity owner, PublicKey... contacts) {
-    return GenericEvent.builder()
-        .pubKey(owner.getPublicKey())
-        .kind(CONTACT_LIST_KIND)
-        .content("")
-        .tags(java.util.Arrays.stream(contacts).map(c -> (BaseTag) GenericTag.of("p", c.toString())).toList())
-        .build();
   }
 
   private GenericEvent signedNote(String content) {
