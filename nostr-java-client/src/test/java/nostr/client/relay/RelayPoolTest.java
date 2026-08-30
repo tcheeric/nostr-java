@@ -263,24 +263,29 @@ class RelayPoolTest {
           }
           return FakeRelay.accepting(relayUri);
         };
-    Duration timeout = Duration.ofMillis(400);
+    Duration timeout = Duration.ofMillis(300);
+    List<String> stallingRelayUris =
+        List.of("wss://relay.slow-one", "wss://relay.slow-two", "wss://relay.slow-three",
+            "wss://relay.slow-four", "wss://relay.slow-five");
+    List<String> relayUris = new ArrayList<>(List.of(ACCEPTING_RELAY));
+    relayUris.addAll(stallingRelayUris);
 
     long startedAt = System.currentTimeMillis();
-    try (RelayPool pool =
-        new RelayPool(
-            List.of(ACCEPTING_RELAY, "wss://relay.slow-one", "wss://relay.slow-two",
-                "wss://relay.slow-three"),
-            factory,
-            timeout)) {
+    try (RelayPool pool = new RelayPool(relayUris, factory, timeout)) {
 
       PublishResult result = pool.publish(signedEvent());
       long elapsed = System.currentTimeMillis() - startedAt;
 
       assertEquals(List.of(ACCEPTING_RELAY), result.getAcceptingRelays());
+      // Spending the budget per relay would cost five times the timeout. The bound below leaves
+      // generous room for a loaded machine while staying far short of that, so the assertion
+      // discriminates between the two designs rather than measuring the build agent's speed.
+      long perRelayBudgetCost = timeout.toMillis() * stallingRelayUris.size();
       assertTrue(
-          elapsed < timeout.toMillis() * 2,
+          elapsed < perRelayBudgetCost / 2,
           "publish took " + elapsed + "ms for a " + timeout.toMillis()
-              + "ms budget, so the timeout is being spent per relay");
+              + "ms budget across " + stallingRelayUris.size()
+              + " stalled relays, so the timeout is being spent per relay");
     } finally {
       stalling.forEach(FakeRelay::release);
     }

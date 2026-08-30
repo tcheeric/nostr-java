@@ -1,6 +1,7 @@
 package nostr.client.relay;
 
 import lombok.extern.slf4j.Slf4j;
+import nostr.event.filter.EventFilter;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.codec.BaseMessageDecoder;
 import nostr.event.message.EventMessage;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -50,6 +53,9 @@ public class RelayPool implements AutoCloseable {
   /** How often downed relays are retried in the background. */
   public static final Duration DEFAULT_RECONNECT_INTERVAL = Duration.ofSeconds(30);
 
+  /** How long a subscription waits for every relay to replay its backlog. */
+  public static final Duration DEFAULT_BACKLOG_TIMEOUT = Duration.ofSeconds(10);
+
   /**
    * Live connections, keyed by relay URI.
    *
@@ -72,6 +78,12 @@ public class RelayPool implements AutoCloseable {
    * reconnection belongs to the pool rather than to whoever remembers to call it.
    */
   private final ScheduledExecutorService reconnectScheduler;
+
+  /** Live subscriptions, kept so relays that rejoin can be re-subscribed from their filters. */
+  private final Set<RelaySubscription> subscriptions = ConcurrentHashMap.newKeySet();
+
+  private final Duration backlogTimeout;
+  private final AtomicLong subscriptionSequence = new AtomicLong();
   /**
    * One lock per relay, because a connection serves one request at a time.
    *
@@ -111,6 +123,25 @@ public class RelayPool implements AutoCloseable {
       RelayConnectionFactory connectionFactory,
       Duration publishTimeout,
       Duration reconnectInterval) {
+    this(relayUris, connectionFactory, publishTimeout, reconnectInterval, DEFAULT_BACKLOG_TIMEOUT);
+  }
+
+  /**
+   * Connect to each relay, choosing every timing the pool observes.
+   *
+   * @param relayUris the relays to connect to
+   * @param connectionFactory opens a connection for a relay URI
+   * @param publishTimeout how long a publish waits before recording a relay as timed out
+   * @param reconnectInterval how often downed relays are retried in the background
+   * @param backlogTimeout how long a subscription waits for every relay to replay stored events
+   */
+  public RelayPool(
+      List<String> relayUris,
+      RelayConnectionFactory connectionFactory,
+      Duration publishTimeout,
+      Duration reconnectInterval,
+      Duration backlogTimeout) {
+    this.backlogTimeout = Objects.requireNonNull(backlogTimeout, "backlogTimeout");
     Objects.requireNonNull(relayUris, "relayUris");
     Objects.requireNonNull(connectionFactory, "connectionFactory");
     this.publishTimeout = Objects.requireNonNull(publishTimeout, "publishTimeout");
@@ -323,15 +354,85 @@ public class RelayPool implements AutoCloseable {
         .forEach(
             relayUri -> {
               try {
-                connectionsByRelay.put(relayUri, connectionFactory.connect(relayUri));
+                RelayConnection reconnected = connectionFactory.connect(relayUri);
+                connectionsByRelay.put(relayUri, reconnected);
                 unreachableRelays.remove(relayUri);
                 rejoined.add(relayUri);
+                resumeSubscriptionsOn(reconnected);
                 log.info("Relay {} recovered and rejoined the pool", relayUri);
               } catch (IOException e) {
                 log.debug("Relay {} is still unreachable: {}", relayUri, e.getMessage());
               }
             });
     return List.copyOf(rejoined);
+  }
+
+  /**
+   * Open a subscription on every relay in the pool, delivered as one de-duplicated stream.
+   *
+   * <p>The subscription is retained by the pool so that a relay which drops and later recovers
+   * is re-subscribed from the same filter, rather than silently ceasing to contribute.
+   *
+   * @param filters what to subscribe to
+   * @param listener receives events, the end-of-backlog signal, and per-relay failures
+   * @return the subscription, which unsubscribes from every relay when closed
+   */
+  public RelaySubscription subscribe(List<EventFilter> filters, SubscriptionListener listener) {
+    return subscribe(filters, listener, DeliveredEventWindow.DEFAULT_CAPACITY);
+  }
+
+  /**
+   * Open a subscription, choosing how many event identifiers to remember for de-duplication.
+   *
+   * @param filters what to subscribe to
+   * @param listener receives events, the end-of-backlog signal, and per-relay failures
+   * @param deduplicationWindowSize how many recently delivered event ids to remember
+   * @return the subscription, which unsubscribes from every relay when closed
+   */
+  public RelaySubscription subscribe(
+      List<EventFilter> filters, SubscriptionListener listener, int deduplicationWindowSize) {
+    RelaySubscription subscription =
+        new RelaySubscription(
+            "sub-" + subscriptionSequence.incrementAndGet(),
+            filters,
+            listener,
+            deduplicationWindowSize);
+    subscriptions.add(subscription);
+    configuredRelayUris.forEach(
+        relayUri -> subscribeQuietly(subscription, connectionsByRelay.get(relayUri), relayUri));
+    scheduleBacklogTimeout(subscription);
+    return subscription;
+  }
+
+  private void subscribeQuietly(
+      RelaySubscription subscription, RelayConnection connection, String relayUri) {
+    if (connection == null) {
+      return;
+    }
+    try {
+      subscription.subscribeOn(connection);
+    } catch (IOException e) {
+      log.warn("Relay {} refused a subscription: {}", relayUri, e.getMessage());
+    }
+  }
+
+  /**
+   * Give up waiting for relays that never replay their backlog.
+   *
+   * <p>Without this a single unresponsive relay would withhold the end-of-backlog signal
+   * indefinitely, leaving an application showing a loading state forever.
+   */
+  private void scheduleBacklogTimeout(RelaySubscription subscription) {
+    reconnectScheduler.schedule(
+        subscription::stopAwaitingBacklog, backlogTimeout.toMillis(), TimeUnit.MILLISECONDS);
+  }
+
+  private void resumeSubscriptionsOn(RelayConnection connection) {
+    subscriptions.stream()
+        .filter(subscription -> subscription.isMissing(connection.getRelayUri()))
+        .forEach(
+            subscription ->
+                subscribeQuietly(subscription, connection, connection.getRelayUri()));
   }
 
   /**
@@ -362,6 +463,8 @@ public class RelayPool implements AutoCloseable {
   @Override
   public void close() {
     reconnectScheduler.shutdownNow();
+    subscriptions.forEach(RelaySubscription::close);
+    subscriptions.clear();
     connectionsByRelay.values().forEach(this::closeQuietly);
     connectionsByRelay.clear();
   }

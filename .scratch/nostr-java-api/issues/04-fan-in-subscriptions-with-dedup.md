@@ -18,15 +18,15 @@ See ADR-0002 and ADR-0004.
 
 **Blocked by:** 02 (`RelayPool` with fan-out publishing).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] One subscribe call registers the filter with every relay in the pool
-- [ ] Callbacks receive parsed `GenericEvent` values
-- [ ] An event arriving from several relays is delivered to the caller once
-- [ ] De-duplication uses a bounded LRU window whose size is configurable, defaulting to the
+- [x] One subscribe call registers the filter with every relay in the pool
+- [x] Callbacks receive parsed `GenericEvent` values
+- [x] An event arriving from several relays is delivered to the caller once
+- [x] De-duplication uses a bounded LRU window whose size is configurable, defaulting to the
       low thousands
-- [ ] Memory does not grow without bound over a long-lived subscription
-- [ ] Closing the subscription handle stops delivery from every relay
-- [ ] Tests cover a duplicate event from four relays delivered once, window eviction staying
+- [x] Memory does not grow without bound over a long-lived subscription
+- [x] Closing the subscription handle stops delivery from every relay
+- [x] Tests cover a duplicate event from four relays delivered once, window eviction staying
       bounded, and closing the handle stopping all relays
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

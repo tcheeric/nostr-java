@@ -3,6 +3,7 @@ package nostr.client.relay;
 import nostr.client.springwebsocket.ConnectionState;
 import nostr.client.springwebsocket.RelayTimeoutException;
 import nostr.event.BaseMessage;
+import nostr.event.impl.GenericEvent;
 import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
@@ -341,6 +342,20 @@ public final class FakeRelay implements RelayConnection {
    */
   public void emitAll(List<String> payloads) {
     payloads.forEach(this::emit);
+  }
+
+  /**
+   * Deliver an event frame for a subscription, as a relay replaying or streaming would.
+   *
+   * @param subscriptionId the subscription the event belongs to
+   * @param event the event to deliver
+   */
+  public void emitEvent(String subscriptionId, GenericEvent event) {
+    try {
+      emitTo(subscriptionId, new EventMessage(event, subscriptionId).encode());
+    } catch (RuntimeException e) {
+      throw new IllegalStateException("Could not encode event for relay " + relayUri, e);
+    }
   }
 
   /**

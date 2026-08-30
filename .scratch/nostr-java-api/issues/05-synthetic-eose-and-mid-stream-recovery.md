@@ -18,15 +18,15 @@ See ADR-0004 and ADR-0005.
 
 **Blocked by:** 04 (Fan-in subscriptions with de-duplication).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] One synthetic end-of-stored-events signal is emitted after every participating relay has
+- [x] One synthetic end-of-stored-events signal is emitted after every participating relay has
       sent its own `EOSE`
-- [ ] The synthetic signal is still emitted when a relay never responds, bounded by a timeout
-- [ ] Per-relay `EOSE` frames are not exposed to callers
-- [ ] A relay dropping mid-stream notifies the caller's error callback
-- [ ] A dropped relay is automatically re-subscribed from the stored filter on reconnect
-- [ ] A malformed relay payload is reported without ending the subscription
-- [ ] Tests cover EOSE after all relays report, EOSE despite one silent relay, drop-notify-
+- [x] The synthetic signal is still emitted when a relay never responds, bounded by a timeout
+- [x] Per-relay `EOSE` frames are not exposed to callers
+- [x] A relay dropping mid-stream notifies the caller's error callback
+- [x] A dropped relay is automatically re-subscribed from the stored filter on reconnect
+- [x] A malformed relay payload is reported without ending the subscription
+- [x] Tests cover EOSE after all relays report, EOSE despite one silent relay, drop-notify-
       resubscribe, and a malformed payload not killing the stream
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes
