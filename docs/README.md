@@ -30,6 +30,7 @@ Quick links to the most relevant guides and references.
 
 - [explanation/extending-events.md](explanation/extending-events.md) — Working with events and tags (GenericEvent, GenericTag, Kinds)
 - [explanation/architecture.md](explanation/architecture.md) — Module architecture and data flow
+- [explanation/nostr-java-mcp-spec.md](explanation/nostr-java-mcp-spec.md) — Draft spec for the `nostr-java-mcp` MCP server module
 - [explanation/dependency-alignment.md](explanation/dependency-alignment.md) — How versions are aligned via BOM
 
 ## Developer
