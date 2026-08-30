@@ -147,24 +147,26 @@ class FakeRelayTest {
     assertEquals(List.of("stored-event"), fromStalled);
   }
 
-  // Verifies a subscriber registered after an earlier one was released still receives events,
-  // guarding against registration identifiers being reused and silently dropping a subscriber.
+  // Verifies a subscriber that outlives an earlier released one keeps receiving events, guarding
+  // against registration identifiers being reused and silently evicting a live subscriber.
   @Test
-  void subscribersRegisteredAfterAReleaseStillReceiveEvents() throws Exception {
+  void releasingOneSubscriberDoesNotEvictThoseThatRemain() throws Exception {
     FakeRelay relay = FakeRelay.accepting("wss://relay.one");
-    List<String> first = new ArrayList<>();
-    List<String> second = new ArrayList<>();
+    List<String> released = new ArrayList<>();
+    List<String> surviving = new ArrayList<>();
+    List<String> latest = new ArrayList<>();
 
-    AutoCloseable firstHandle =
-        relay.subscribe(new ReqMessage("first"), first::add, error -> {}, null);
-    firstHandle.close();
-    relay.subscribe(new ReqMessage("second"), second::add, error -> {}, null);
-    relay.subscribe(new ReqMessage("third"), payload -> {}, error -> {}, null);
+    AutoCloseable releasedHandle =
+        relay.subscribe(new ReqMessage("released"), released::add, error -> {}, null);
+    relay.subscribe(new ReqMessage("surviving"), surviving::add, error -> {}, null);
+    releasedHandle.close();
+    relay.subscribe(new ReqMessage("latest"), latest::add, error -> {}, null);
 
     relay.emit("event");
 
-    assertTrue(first.isEmpty());
-    assertEquals(List.of("event"), second);
+    assertTrue(released.isEmpty());
+    assertEquals(List.of("event"), surviving, "a live subscriber was evicted by a reused id");
+    assertEquals(List.of("event"), latest);
     assertEquals(2, relay.getActiveSubscriberCount());
   }
 
