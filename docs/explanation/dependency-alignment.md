@@ -10,10 +10,10 @@ This document explains how nostr-java aligns dependency versions across modules 
 
 ## Module structure
 
-4 modules with a strict dependency chain:
+5 modules with a strict dependency chain:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 ## BOM alignment

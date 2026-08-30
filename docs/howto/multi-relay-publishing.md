@@ -162,6 +162,23 @@ pool.addRelay("wss://relay.temporary");
 pool.getConnectionState("wss://nos.lol");
 ```
 
+## Know the edges
+
+Three behaviours are deliberate, and each will look like a bug if you meet it unprepared.
+
+**Throughput to one relay is bounded.** A relay connection serves one request at a time, so the
+pool queues operations per relay. Publishing from ten threads to the same relay is as fast as
+that relay's round-trip latency allows, no faster. Fan-out across different relays is fully
+concurrent, so adding relays scales; hammering one does not.
+
+**A relay borrowed for a direct message is briefly shared.** Delivering to someone connects to
+*their* relays, and while connected those relays take part in other operations too. They are
+released once the delivery finishes.
+
+**De-duplication forgets.** The window that suppresses duplicates is bounded, so an event whose
+copies arrive far apart can reach you twice. The default is sized well beyond any realistic
+spread between relays; raise it with the three-argument `subscribe` if your workload needs to.
+
 ## Related
 
 - [Private direct messages](private-direct-messages.md) — composing NIP-17 messages directly

@@ -88,7 +88,7 @@ For diagnosing relay send issues and capturing failure details, see the how-to g
 
 ## v2.0.0 Highlights
 
-- Simplified from 9 modules (~180 classes) to 4 modules (~40 classes)
+- Simplified from 9 modules (~180 classes) to 4 modules (~40 classes); `nostr-java-api` was added afterwards as the client-facing entry point
 - `GenericEvent` is the sole event class for all kinds — no subclasses
 - `GenericTag` stores tags as `code` + `List<String>` — no `ElementAttribute`, no `TagRegistry`
 - `Kinds` utility replaces the `Kind` enum — any integer is valid

@@ -28,10 +28,10 @@ nostr-java 2.0 follows a **minimalist, protocol-aligned** design:
 - **One event class** — `GenericEvent` handles every Nostr event kind via `int kind`. No subclasses.
 - **One tag class** — `GenericTag` stores a code and `List<String>` params. No subclasses, no `ElementAttribute`.
 - **Integer kinds** — `Kinds` utility provides named constants (`Kinds.TEXT_NOTE`, `Kinds.CONTACT_LIST`) and range checks. Any integer is valid — no enum gating.
-- **4 modules** — each with a clear, focused purpose and a strict dependency chain.
+- **5 modules** — each with a clear, focused purpose and a strict dependency chain.
 - **Virtual Threads** — relay I/O and listener dispatch use Java 21 Virtual Threads for lightweight concurrency.
 
-This design reduced the library from ~180 classes across 9 modules to ~40 classes across 4 modules, eliminating all NIP-specific concrete types, entity DTOs, factory hierarchies, and annotation-driven tag registration.
+This design reduced the library from ~180 classes across 9 modules to ~40 classes across 4 modules (later joined by `nostr-java-api`), eliminating all NIP-specific concrete types, entity DTOs, factory hierarchies, and annotation-driven tag registration.
 
 ---
 
@@ -88,8 +88,29 @@ nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-clie
 - `RelayTimeoutException` — Typed exception for relay timeouts (replaces silent empty-list returns).
 - `ConnectionState` — Enum: `CONNECTING`, `CONNECTED`, `RECONNECTING`, `CLOSED`.
 - `NostrRetryable` / `RetryConfig` — Spring Retry annotation and configuration.
+- `RelayConnection` / `RelayConnectionFactory` — The seam between relay coordination and transport, exposing only what a pool needs. Lets code above it be tested against scripted relays and depend on no Spring type.
+- `RelayPool` — A mutable set of relay connections. Publishes to all of them at once, collecting per-relay outcomes, and merges their subscriptions into one de-duplicated stream. Serialises per relay, because a connection serves one request at a time.
+- `PublishResult` / `RelayPublishOutcome` / `NoRelayAcceptedException` — Per-relay publish results; partial failure is data, total failure throws.
+- `RelaySubscription` / `SubscriptionListener` — A subscription across many relays, retaining its filter so a relay that drops can be re-subscribed on recovery.
 
 **Dependencies:** `nostr-java-identity`, Spring WebSocket, Spring Retry.
+
+---
+
+### `nostr-java-api`
+**Purpose:** The client-facing entry point, owning the orchestration every application would
+otherwise repeat.
+
+**Key classes:**
+- `NostrClient` — An identity plus a relay set. Signs and publishes in one call, subscribes across every relay, and sends NIP-17 direct messages. Returns core types, so callers can still drop down to `RelayPool` or build events by hand.
+- `RelayListLookup` — Implements `nostr-java-identity`'s `DirectMessageRelayLookup` by querying relays for kind-10050 lists. That module declares the need but cannot meet it without acquiring a transport.
+- `DirectMessagePublisher` — Performs the delivery plan `nostr-java-identity` can only produce, sending each gift wrap to its own recipient's relays.
+- `RecipientDeliveryOutcome` — Whether one participant received a message, since a group message can partly succeed.
+
+**Dependencies:** `nostr-java-client`.
+
+Nothing depends on this module. It adds capability rather than sealing the layers below it, so
+an application may keep using `GenericEvent`, `EventFilter` and `RelayPool` directly.
 
 ---
 
@@ -276,7 +297,7 @@ NostrRuntimeException (base)
 
 nostr-java 2.0 provides:
 
-- **Minimal API surface** — one event class, one tag class, ~40 total classes across 4 modules
+- **Minimal API surface** — one event class, one tag class, and a small client-facing module on top
 - **Protocol-aligned design** — kinds are integers, tags are string arrays, no library-imposed type hierarchy
 - **Virtual Thread concurrency** — relay I/O and listener dispatch on lightweight threads
 - **Reliable connectivity** — typed timeout exceptions, connection state tracking, Spring Retry

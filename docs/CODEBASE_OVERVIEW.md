@@ -6,16 +6,17 @@ This document provides an overview of the project structure and instructions for
 
 ## Module layout
 
-nostr-java 2.0 has 4 modules with a clear dependency chain:
+nostr-java has 5 modules with a clear dependency chain:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 - **nostr-java-core** — Foundation utilities, BIP-340 Schnorr cryptography, Bech32 encoding, hex conversion (`java.util.HexFormat`), validators, and exception hierarchy. No dependencies on other project modules.
 - **nostr-java-event** — `GenericEvent` (sole event class), `GenericTag` (sole tag class with `List<String>` params), `Kinds` constants, `EventFilter` builder, relay messages, JSON serialization, `PublicKey`/`PrivateKey`/`Signature` value objects, and `ISignable` contract.
 - **nostr-java-identity** — `Identity` key management, event signing, and NIP-04/NIP-44 message encryption (`MessageCipher04`, `MessageCipher44`).
-- **nostr-java-client** — `NostrRelayClient` WebSocket client with Spring Retry, Virtual Thread dispatch, async APIs (`connectAsync`, `sendAsync`, `subscribeAsync`), and connection state tracking.
+- **nostr-java-client** — `NostrRelayClient` WebSocket client with Spring Retry, Virtual Thread dispatch, async APIs (`connectAsync`, `sendAsync`, `subscribeAsync`), and connection state tracking; `RelayPool` for fan-out publishing and de-duplicated fan-in subscriptions across many relays.
+- **nostr-java-api** — `NostrClient`, the entry point for applications: signing and publishing in one call, subscriptions across every relay, and NIP-17 direct message delivery.
 
 ## Building and testing
 
