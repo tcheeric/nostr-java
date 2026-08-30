@@ -3,6 +3,7 @@ package nostr.client.relay;
 import nostr.client.springwebsocket.ConnectionState;
 import nostr.client.springwebsocket.RelayTimeoutException;
 import nostr.event.BaseMessage;
+import nostr.event.message.EventMessage;
 import nostr.event.message.ReqMessage;
 
 import java.io.IOException;
@@ -10,8 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -39,22 +45,30 @@ public final class FakeRelay implements RelayConnection {
   /** Reported by a silent relay so tests can assert on the timeout without waiting for one. */
   private static final long SIMULATED_TIMEOUT_MS = 100L;
 
+  /** An event id that is never the one under test, used to prove OKs are matched by id. */
+  private static final String SOMEONE_ELSES_EVENT_ID =
+      "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
   /** How the relay answers a {@link #send} call. */
   private enum SendBehaviour {
     ACCEPT,
     REJECT,
     SILENT,
+    STALL,
+    ACKNOWLEDGE_OTHER_EVENT,
     FAIL
   }
 
   private final String relayUri;
   private final SendBehaviour sendBehaviour;
   private final String rejectionReason;
+  private final CyclicBarrier sendRendezvous;
 
   private final List<BaseMessage> sentMessages = new CopyOnWriteArrayList<>();
   private final List<String> sentSubscriptionIds = new CopyOnWriteArrayList<>();
   private final Map<String, Subscriber> subscribers = new ConcurrentHashMap<>();
   private final AtomicLong registrationSequence = new AtomicLong();
+  private final CountDownLatch stallLatch = new CountDownLatch(1);
   private volatile ConnectionState connectionState = ConnectionState.CONNECTED;
 
   private record Subscriber(
@@ -64,9 +78,18 @@ public final class FakeRelay implements RelayConnection {
       Runnable closeListener) {}
 
   private FakeRelay(String relayUri, SendBehaviour sendBehaviour, String rejectionReason) {
+    this(relayUri, sendBehaviour, rejectionReason, null);
+  }
+
+  private FakeRelay(
+      String relayUri,
+      SendBehaviour sendBehaviour,
+      String rejectionReason,
+      CyclicBarrier sendRendezvous) {
     this.relayUri = relayUri;
     this.sendBehaviour = sendBehaviour;
     this.rejectionReason = rejectionReason;
+    this.sendRendezvous = sendRendezvous;
   }
 
   /**
@@ -115,6 +138,59 @@ public final class FakeRelay implements RelayConnection {
     return new FakeRelay(relayUri, SendBehaviour.FAIL, null);
   }
 
+  /**
+   * A relay whose OK names a different event than the one just sent.
+   *
+   * <p>A connection can carry answers for several events, so a caller that takes the first OK it
+   * sees would credit someone else's acceptance to its own publish. This relay is how that
+   * mistake is caught.
+   *
+   * @param relayUri the relay URI this fake answers to
+   * @return the scripted relay
+   */
+  /**
+   * A relay that blocks the caller instead of answering, exercising the pool's own timeout.
+   *
+   * <p>{@link #silent} reports a timeout immediately, which tests the reporting but never the
+   * waiting. A pool that failed to bound its wait would hang forever here, so this is the
+   * behaviour that proves the bound exists. Always {@link #release} it, so a failing test cannot
+   * leave a thread parked.
+   *
+   * @param relayUri the relay URI this fake answers to
+   * @return the scripted relay
+   */
+  public static FakeRelay acknowledgingOtherEvents(String relayUri) {
+    return new FakeRelay(relayUri, SendBehaviour.ACKNOWLEDGE_OTHER_EVENT, null);
+  }
+
+  public static FakeRelay stalling(String relayUri) {
+    return new FakeRelay(relayUri, SendBehaviour.STALL, null);
+  }
+
+  /**
+   * Let any caller blocked by {@link #stalling} proceed.
+   *
+   * <p>Idempotent, so it is safe in a {@code finally} block whether or not anyone blocked.
+   */
+  public void release() {
+    stallLatch.countDown();
+  }
+
+  /**
+   * A relay that accepts, but only once every relay sharing the barrier has also been reached.
+   *
+   * <p>This is how a test distinguishes concurrent fan-out from a sequential loop: a caller that
+   * publishes one relay at a time can never satisfy the barrier, so it blocks instead of
+   * passing.
+   *
+   * @param relayUri the relay URI this fake answers to
+   * @param sendRendezvous the barrier every participating relay must reach
+   * @return the scripted relay
+   */
+  public static FakeRelay acceptingAfter(String relayUri, CyclicBarrier sendRendezvous) {
+    return new FakeRelay(relayUri, SendBehaviour.ACCEPT, null, sendRendezvous);
+  }
+
   @Override
   public String getRelayUri() {
     return relayUri;
@@ -129,10 +205,16 @@ public final class FakeRelay implements RelayConnection {
   public <T extends BaseMessage> List<String> send(T message) throws IOException {
     requireOpen();
     sentMessages.add(message);
+    awaitRendezvous();
+    String eventId = message instanceof EventMessage eventMessage
+        ? eventMessage.getEvent().getId()
+        : "event-id";
     return switch (sendBehaviour) {
-      case ACCEPT -> List.of(okResponse(true, ""));
-      case REJECT -> List.of(okResponse(false, rejectionReason));
+      case ACCEPT -> List.of(okResponse(eventId, true, ""));
+      case ACKNOWLEDGE_OTHER_EVENT -> List.of(okResponse(SOMEONE_ELSES_EVENT_ID, true, ""));
+      case REJECT -> List.of(okResponse(eventId, false, rejectionReason));
       case SILENT -> throw new RelayTimeoutException(SIMULATED_TIMEOUT_MS);
+      case STALL -> throw awaitReleaseThenTimeOut();
       case FAIL -> throw new IOException("Cannot reach relay " + relayUri);
     };
   }
@@ -237,7 +319,7 @@ public final class FakeRelay implements RelayConnection {
    * @return a new, connected relay with the same URI and scripted behaviour, and no subscribers
    */
   public FakeRelay reconnected() {
-    return new FakeRelay(relayUri, sendBehaviour, rejectionReason);
+    return new FakeRelay(relayUri, sendBehaviour, rejectionReason, sendRendezvous);
   }
 
   /**
@@ -278,13 +360,37 @@ public final class FakeRelay implements RelayConnection {
         .forEach(Runnable::run);
   }
 
+  private void awaitRendezvous() throws IOException {
+    if (sendRendezvous == null) {
+      return;
+    }
+    try {
+      sendRendezvous.await(5, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted awaiting concurrent sends on " + relayUri, e);
+    } catch (BrokenBarrierException | TimeoutException e) {
+      throw new IOException("Sends to " + relayUri + " were not concurrent", e);
+    }
+  }
+
+  private RelayTimeoutException awaitReleaseThenTimeOut() throws IOException {
+    try {
+      stallLatch.await();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted while stalling on relay " + relayUri, e);
+    }
+    return new RelayTimeoutException(SIMULATED_TIMEOUT_MS);
+  }
+
   private void requireOpen() throws IOException {
     if (connectionState == ConnectionState.CLOSED) {
       throw new IOException("Relay " + relayUri + " is closed");
     }
   }
 
-  private String okResponse(boolean accepted, String reason) {
-    return "[\"OK\",\"event-id\"," + accepted + ",\"" + reason + "\"]";
+  private String okResponse(String eventId, boolean accepted, String reason) {
+    return "[\"OK\",\"" + eventId + "\"," + accepted + ",\"" + reason + "\"]";
   }
 }

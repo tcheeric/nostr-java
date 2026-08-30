@@ -7,6 +7,7 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 ## [Unreleased]
 
 ### Added
+- `RelayPool`, which publishes one event to many relays at once and reports what each of them did. `PublishResult` records, per relay, acceptance, rejection with the relay's verbatim reason, a timeout, or unreachability, so partial delivery is visible instead of collapsed into a boolean. A publish that no relay accepted throws `NoRelayAcceptedException` carrying the same result, because an event that reached nobody must not be mistaken for a published one. The pool is best-effort on construction, so an unreachable relay cannot stop an application starting, and one timeout bounds the whole publish rather than each relay in turn ([ADR-0002](docs/decisions/0002-multi-relay-failure-semantics.md)).
 - `RelayConnection` and `RelayConnectionFactory`, the seam between relay coordination and relay transport. `NostrRelayClient` implements the interface, which exposes only what code coordinating several relays needs (identify, send, subscribe, observe state, close) rather than mirroring the client's full surface. Behaviour is unchanged; the seam exists so that multi-relay work can be tested against scripted relay behaviour instead of live sockets, and so modules above it need not depend on Spring. Groundwork for the planned `nostr-java-api` module ([ADR-0001](docs/decisions/0001-introduce-nostr-java-api-module.md)).
 
 ## [2.1.0] - 2026-08-30

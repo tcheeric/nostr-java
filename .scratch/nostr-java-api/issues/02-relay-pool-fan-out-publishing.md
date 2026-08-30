@@ -16,18 +16,18 @@ See ADR-0002 for the failure semantics and `docs/CONTEXT.md` for the vocabulary.
 
 **Blocked by:** 01 (Extract the `RelayConnection` seam).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `RelayPool` is constructed from relay URIs via `RelayConnectionFactory` and lives in
+- [x] `RelayPool` is constructed from relay URIs via `RelayConnectionFactory` and lives in
       `nostr-java-client`
-- [ ] Publishing fans out concurrently across relays on Virtual Threads
-- [ ] `PublishResult` records, per relay, accepted, rejected with the relay's verbatim reason,
+- [x] Publishing fans out concurrently across relays on Virtual Threads
+- [x] `PublishResult` records, per relay, accepted, rejected with the relay's verbatim reason,
       or timed out
-- [ ] Publishing waits for every relay's `OK` up to a pool-level timeout; relays that miss it
+- [x] Publishing waits for every relay's `OK` up to a pool-level timeout; relays that miss it
       are recorded as timed out rather than left unresolved
-- [ ] Publishing throws when zero relays accepted the event
-- [ ] Publishing returns normally when at least one relay accepted, however many failed
-- [ ] Construction succeeds when some relays are unreachable, marking them down
-- [ ] Tests cover three-accept/one-reject/one-timeout, zero acceptances throwing, and
+- [x] Publishing throws when zero relays accepted the event
+- [x] Publishing returns normally when at least one relay accepted, however many failed
+- [x] Construction succeeds when some relays are unreachable, marking them down
+- [x] Tests cover three-accept/one-reject/one-timeout, zero acceptances throwing, and
       construction with an unreachable member, all against `FakeRelay`
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes
