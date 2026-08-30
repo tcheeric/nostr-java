@@ -1,4 +1,4 @@
-import sys, json, time, subprocess
+import sys, json, time, subprocess, os
 sys.path.insert(0, '.')
 from harness import Server, text
 
@@ -9,6 +9,38 @@ ENV = {"NOSTR_MCP_KEYSTORE_PASSPHRASE": "acceptance-passphrase"}
 BASE = ["-Dnostr.mcp.keystore.type=encrypted-file",
         f"-Dnostr.mcp.keystore.path={KS}",
         f"-Dnostr.mcp.relays.read={RELAY}"]
+
+def await_relay_storing_events():
+    """The relay binds its port before it can store anything, and a startup panic
+    (po2_denom was zero!) leaves it accepting connections while silently answering nothing.
+    Querying still succeeds against such a relay, so the only dependable probe is the
+    behaviour the tests need: publish an event and require it to be accepted."""
+    import os
+    e = dict(os.environ); e.update(ENV)
+    cli("keygen", "probe-key")
+    for attempt in range(20):
+        probe = Server(JAR, BASE, ENV)
+        try:
+            probe.initialize()
+            r1 = probe.tool("nostr_publish_note", {"content": f"probe {attempt}", "identity": "probe-key"})
+            tok = r1.get("structuredContent", {}).get("confirmationToken")
+            if tok:
+                r2 = probe.tool("nostr_publish_note",
+                                {"content": f"probe {attempt}", "identity": "probe-key",
+                                 "confirmationToken": tok})
+                if not r2.get("isError"):
+                    return
+        except Exception:
+            pass
+        finally:
+            probe.close()
+        time.sleep(3)
+    raise SystemExit("the relay never stored an event; restart the container and retry")
+
+# Each run starts from an empty keystore and a fresh relay, so a repeated run measures the
+# product rather than the residue of the previous one.
+if os.path.exists(KS):
+    os.remove(KS)
 
 results = []
 def check(requirement, ok, evidence):
@@ -21,6 +53,8 @@ def cli(*args):
     e = dict(os.environ); e.update(ENV)
     return subprocess.run(["java"] + BASE + ["-jar", JAR] + list(args),
                           capture_output=True, text=True, env=e, timeout=120).stdout
+
+await_relay_storing_events()
 
 # --- Ticket 04: CLI creates keys; keys never printed
 out = cli("keygen", "personal")
@@ -51,7 +85,10 @@ r1 = s.tool("nostr_publish_note", {"content": "acceptance note", "identity": "pe
 tok = r1.get("structuredContent", {}).get("confirmationToken")
 check("06 first call previews without publishing",
       tok and "Nothing has been published yet" in text(r1), text(r1)[:100])
-q = s.tool("nostr_query_events", {"authors": [ids["structuredContent"]["identities"][0]["publicKey"]], "kinds": [1]})
+def key_of(alias, field="publicKey"):
+    return next(i[field] for i in ids["structuredContent"]["identities"] if i["alias"] == alias)
+
+q = s.tool("nostr_query_events", {"authors": [key_of("personal")], "kinds": [1]})
 check("06 preview really published nothing", q["structuredContent"]["count"] == 0, text(q))
 r2 = s.tool("nostr_publish_note", {"content": "acceptance note", "identity": "personal", "confirmationToken": tok})
 check("06 confirmed call publishes", text(r2).startswith("Published "), text(r2)[:100])
@@ -61,11 +98,11 @@ check("06 token is single-use",
 
 # --- Ticket 05: read back what we published
 time.sleep(1)
-pk = ids["structuredContent"]["identities"][0]["publicKey"]
+pk = key_of("personal")
 q = s.tool("nostr_query_events", {"authors": [pk], "kinds": [1]})
 check("05 published note is queryable", q["structuredContent"]["count"] == 1, text(q))
 check("05 npub accepted where hex is",
-      s.tool("nostr_query_events", {"authors": [ids["structuredContent"]["identities"][0]["npub"]]})["structuredContent"]["count"] >= 1,
+      s.tool("nostr_query_events", {"authors": [key_of("personal", "npub")]})["structuredContent"]["count"] >= 1,
       "npub query matched")
 check("05 bad identifier gives a stable code",
       text(s.tool("nostr_get_profile", {"pubkey": "nonsense"})).startswith("INVALID_ARGUMENT"),
