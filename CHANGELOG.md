@@ -6,6 +6,9 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Added
+- `OllamaAgentIT`, which drives the MCP tool surface with a real local language model through Testcontainers. Every other test asks whether the tools work; this asks whether a model can use them, which a correct-but-unusable tool would fail. It checks that a model picks the right tool unprompted, tells querying from subscribing, and reads a publish preview as "not yet published" rather than as success. Excluded from the ordinary build and run with `-Dexcluded.it.groups= -Dgroups=model-driven`.
+
 ## [2.3.0] - 2026-08-30
 
 ### Added

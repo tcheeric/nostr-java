@@ -362,6 +362,7 @@
                                 <exclude>**/nostr/api/integration/**</exclude>
                                 <!-- Skip Docker/Testcontainers-backed ITs in MCP module -->
                                 <exclude>**/nostr/mcp/integration/**</exclude>
+                                <exclude>**/OllamaAgentIT.java</exclude>
                             </excludes>
                             <systemPropertyVariables>
                                 <noDocker>true</noDocker>

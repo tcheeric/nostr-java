@@ -14,6 +14,9 @@
     <description>Exposes the nostr-java SDK as a Model Context Protocol server.</description>
 
     <properties>
+        <!-- The model-driven IT is excluded by default. Opt in with:
+             mvn verify -pl nostr-java-mcp -Dexcluded.it.groups= -Dgroups=model-driven -->
+        <excluded.it.groups>model-driven</excluded.it.groups>
         <mcp.sdk.version>2.0.1</mcp.sdk.version>
         <!-- Jackson 3 keeps its annotations under the 2.x coordinate and needs 2.21, where
              JsonSerializeAs was introduced. Other modules pull an older annotations jar, and
@@ -106,6 +109,13 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Drives a real local model against the tool surface, which is the only way to learn
+             whether a model can actually use these tools rather than whether they work. -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>ollama</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <!-- The server reports its version to every MCP host, so the value is filtered in from
@@ -117,6 +127,26 @@
             </resource>
         </resources>
         <plugins>
+            <!-- The model-driven IT runs a real LLM, takes minutes, and needs a model cached on
+                 the machine, so it is not part of the ordinary build. Run it deliberately with
+                 -Dgroups=model-driven. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <excludedGroups>${excluded.it.groups}</excludedGroups>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- The module is launched as `java -jar`, both by an MCP host and by its own CLI,
                  so it ships one self-contained artefact. A host configuration naming a
                  classpath would break whenever a dependency changed. -->

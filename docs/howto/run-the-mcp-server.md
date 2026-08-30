@@ -208,6 +208,24 @@ These are properties of the underlying SDK and the protocol, not settings you ca
 - **Deletion is advisory.** NIP-09 asks relays to forget an event; it cannot compel them. Treat
   anything published as permanent, which is why `write-policy: confirm` is the default.
 
+## Checking that a model can still use the tools
+
+Most tests here ask whether the tools work. One asks whether a model can *use* them, which is a
+different question: a tool can be correct and still unusable because its name misleads or its
+description omits what the model needs to decide.
+
+`OllamaAgentIT` runs a real local model against the live tool surface and checks that it picks
+the right tool unprompted, tells querying from subscribing, and reads a publish preview as "not
+yet published" rather than as success.
+
+```bash
+# Needs Ollama models cached at ~/.ollama/models. Skips cleanly if they are absent.
+mvn -pl nostr-java-mcp verify -Dexcluded.it.groups= -Dgroups=model-driven
+```
+
+It is excluded from the ordinary build because it takes several minutes. Run it when you change
+a tool's name, description or schema: those are exactly the changes nothing else can catch.
+
 ## Related
 
 - [Send and read NIP-17 private direct messages](private-direct-messages.md)
