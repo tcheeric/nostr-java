@@ -341,6 +341,21 @@ public final class McpConfiguration {
     if (property != null) {
       return property;
     }
-    return System.getenv(("NOSTR_MCP_" + key).toUpperCase().replace('.', '_'));
+    return System.getenv(environmentVariableFor(key));
+  }
+
+  /**
+   * The environment variable name for a setting.
+   *
+   * <p>Hyphens become underscores as well as dots. A shell cannot set a variable whose name
+   * contains a hyphen, so translating only the dots left every hyphenated setting, including
+   * {@code write-policy} and {@code bind-address}, impossible to configure from the environment
+   * and therefore from a container.
+   *
+   * @param key the setting name, as written in configuration
+   * @return the environment variable that sets it
+   */
+  static String environmentVariableFor(String key) {
+    return ("NOSTR_MCP_" + key).toUpperCase(java.util.Locale.ROOT).replace('.', '_').replace('-', '_');
   }
 }

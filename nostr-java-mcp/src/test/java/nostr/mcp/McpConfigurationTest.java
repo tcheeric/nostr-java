@@ -113,6 +113,30 @@ class McpConfigurationTest {
         Set.of("personal", "work"), McpConfiguration.fromEnvironment().identitiesPermittedToDecrypt());
   }
 
+  // Verifies every setting is reachable from the environment, since a container configures the
+  // server that way and a shell cannot set a variable whose name contains a hyphen.
+  @Test
+  void everySettingCanBeSetFromTheEnvironment() {
+    for (String setting : settingsReadByTheCode()) {
+      String variable = McpConfiguration.environmentVariableFor(setting);
+
+      assertTrue(
+          variable.matches("[A-Z0-9_]+"),
+          setting + " maps to '" + variable + "', which no shell can set");
+    }
+  }
+
+  // Verifies hyphenated settings translate to usable variable names, which is the specific case
+  // that made write-policy and bind-address unconfigurable from a container.
+  @Test
+  void hyphenatedSettingsBecomeUnderscoredVariables() {
+    assertEquals("NOSTR_MCP_BIND_ADDRESS", McpConfiguration.environmentVariableFor("bind-address"));
+    assertEquals("NOSTR_MCP_WRITE_POLICY", McpConfiguration.environmentVariableFor("write-policy"));
+    assertEquals(
+        "NOSTR_MCP_LIMITS_MAX_EVENTS_PER_QUERY",
+        McpConfiguration.environmentVariableFor("limits.max-events-per-query"));
+  }
+
   private Set<String> settingsReadByTheCode() {
     Matcher matcher =
         SETTING_IN_CODE.matcher(read(Path.of("src/main/java/nostr/mcp/McpConfiguration.java")));

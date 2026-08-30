@@ -1,0 +1,74 @@
+# Runs the MCP server against a local relay, and demonstrates the bound-container pattern.
+#
+# Start the shared server:      docker compose up mcp
+# Start one server per identity: docker compose --profile bound up
+services:
+
+  # A relay to talk to, so the stack is useful without depending on the public network.
+  relay:
+    image: scsibug/nostr-rs-relay:0.8.13
+    ports:
+      # Loopback only. This relay stores whatever it is sent, and there is no reason for
+      # anything outside this machine to reach it.
+      - "127.0.0.1:8080:8080"
+
+  # The general server, holding every identity in the mounted keystore.
+  mcp:
+    build:
+      context: ..
+      dockerfile: nostr-java-mcp/Dockerfile
+    depends_on:
+      - relay
+    environment:
+      NOSTR_MCP_RELAYS_READ: ws://relay:8080
+      NOSTR_MCP_WRITE_POLICY: confirm
+      # The passphrase arrives from the host environment rather than this file, so the
+      # keystore's protection is not committed to the repository alongside it.
+      NOSTR_MCP_KEYSTORE_PASSPHRASE: ${NOSTR_MCP_KEYSTORE_PASSPHRASE:?set this in your shell or a .env file}
+    volumes:
+      # Read-only: the server signs with these keys but a container should not be able to
+      # rewrite the operator's keystore.
+      - ./keys:/keys:ro
+    ports:
+      # DANGER: the MCP transport has no authentication. Anything that can reach this port can
+      # publish as every identity the server holds. The 127.0.0.1 prefix is what keeps it on
+      # this machine; without it, Docker publishes to every interface and bypasses the server's
+      # own loopback default entirely. Do not remove it. If you need remote access, put a
+      # reverse proxy with real credentials in front.
+      - "127.0.0.1:8090:8080"
+
+  # One container per identity: each unlocks only its own key, so a compromise of one cannot
+  # reach another's. This is a process boundary rather than a check, which is why it is the
+  # strongest isolation the module offers.
+  mcp-personal:
+    profiles: ["bound"]
+    build:
+      context: ..
+      dockerfile: nostr-java-mcp/Dockerfile
+    depends_on:
+      - relay
+    environment:
+      NOSTR_MCP_RELAYS_READ: ws://relay:8080
+      NOSTR_MCP_IDENTITY: personal
+      NOSTR_MCP_KEYSTORE_PASSPHRASE: ${NOSTR_MCP_KEYSTORE_PASSPHRASE:?set this in your shell or a .env file}
+    volumes:
+      - ./keys:/keys:ro
+    ports:
+      - "127.0.0.1:8091:8080"
+
+  mcp-project-bot:
+    profiles: ["bound"]
+    build:
+      context: ..
+      dockerfile: nostr-java-mcp/Dockerfile
+    depends_on:
+      - relay
+    environment:
+      NOSTR_MCP_RELAYS_READ: ws://relay:8080
+      NOSTR_MCP_IDENTITY: project-bot
+      NOSTR_MCP_WRITE_POLICY: allow
+      NOSTR_MCP_KEYSTORE_PASSPHRASE: ${NOSTR_MCP_KEYSTORE_PASSPHRASE:?set this in your shell or a .env file}
+    volumes:
+      - ./keys:/keys:ro
+    ports:
+      - "127.0.0.1:8092:8080"

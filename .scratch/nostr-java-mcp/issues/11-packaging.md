@@ -15,11 +15,11 @@ container, so the compose file selects `encrypted-file` explicitly.
 
 **Status:** ready-for-agent
 
-- [ ] A `Dockerfile` builds on a distroless JRE 21 base and runs as a non-root user
-- [ ] `docker-compose.yml` runs the server in HTTP mode alongside the test relay container
-- [ ] Its port mapping binds to the host loopback (`127.0.0.1:PORT:PORT`), not every interface
-- [ ] It sets `keystore.type: encrypted-file` explicitly, with the keystore mounted read-only
+- [x] A `Dockerfile` builds on a distroless JRE 21 base and runs as a non-root user
+- [x] `docker-compose.yml` runs the server in HTTP mode alongside the test relay container
+- [x] Its port mapping binds to the host loopback (`127.0.0.1:PORT:PORT`), not every interface
+- [x] It sets `keystore.type: encrypted-file` explicitly, with the keystore mounted read-only
       and the passphrase supplied as a secret
-- [ ] A profile demonstrates one bound container per identity, each reading only its own key
-- [ ] `docker-compose build` runs in CI, per repo convention
-- [ ] `mvn -q verify` passes
+- [x] A profile demonstrates one bound container per identity, each reading only its own key
+- [x] `docker-compose build` runs in CI, per repo convention
+- [x] `mvn -q verify` passes

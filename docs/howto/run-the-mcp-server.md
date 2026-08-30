@@ -94,6 +94,51 @@ java -jar nostr-java-mcp.jar -Dnostr.mcp.transport=http -Dnostr.mcp.port=8080
 > otherwise. If you need to reach it from another machine, put a reverse proxy with real
 > credentials in front of it. Do not expose the port directly.
 
+## Run it in a container
+
+The image is built from `nostr-java-mcp/Dockerfile` and runs the HTTP transport as a non-root
+user on a distroless base:
+
+```bash
+docker build -f nostr-java-mcp/Dockerfile -t nostr-java-mcp .
+```
+
+`nostr-java-mcp/docker-compose.yml` runs it alongside a local relay. Create a keystore first
+and put it in `nostr-java-mcp/keys/`, then:
+
+```bash
+export NOSTR_MCP_KEYSTORE_PASSPHRASE='your passphrase'
+docker compose -f nostr-java-mcp/docker-compose.yml up mcp
+```
+
+The keystore is mounted read-only, and `keystore.type` is `encrypted-file` because there is no
+OS keychain inside a container.
+
+> Note the `127.0.0.1:` prefix on every published port. Without it Docker publishes to **every**
+> interface, which bypasses the server's own loopback default and exposes an unauthenticated
+> MCP endpoint to your network. Keep it.
+
+For one container per identity, each unlocking only its own key:
+
+```bash
+docker compose -f nostr-java-mcp/docker-compose.yml --profile bound up
+```
+
+## Configuring from the environment
+
+Every setting can be given as an environment variable instead of a system property, which is
+how the container is configured. Uppercase the name and replace dots and hyphens with
+underscores:
+
+| Setting | Environment variable |
+| --- | --- |
+| `write-policy` | `NOSTR_MCP_WRITE_POLICY` |
+| `bind-address` | `NOSTR_MCP_BIND_ADDRESS` |
+| `relays.read` | `NOSTR_MCP_RELAYS_READ` |
+| `limits.max-events-per-query` | `NOSTR_MCP_LIMITS_MAX_EVENTS_PER_QUERY` |
+
+The encrypted-file keystore reads its passphrase from `NOSTR_MCP_KEYSTORE_PASSPHRASE`.
+
 ## Configuration reference
 
 All settings are `nostr.mcp.*` system properties, or the same name in the environment.

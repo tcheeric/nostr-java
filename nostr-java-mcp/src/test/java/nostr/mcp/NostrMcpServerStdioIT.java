@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -120,6 +121,20 @@ class NostrMcpServerStdioIT {
     }
   }
 
+  // Verifies the server can be configured from the environment as well as from properties,
+  // which is how a container configures it: an image sets variables, not JVM flags.
+  @Test
+  void theServerCanBeConfiguredFromTheEnvironment() {
+    try (McpSyncClient client = launchServerWithEnvironment(Map.of("NOSTR_MCP_WRITE_POLICY", "deny"))) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
+      assertTrue(tools.contains("nostr_query_events"), tools.toString());
+    }
+  }
+
   // Verifies the server offers no NIP-04 tool, since NIP-04 exposes both correspondents and the
   // conversation to every relay and is unsuitable for a tool an agent drives on someone's behalf.
   @Test
@@ -187,6 +202,22 @@ class NostrMcpServerStdioIT {
    * would make it depend on Docker for no benefit. It doubles as the evidence that the server
    * survives a dead relay set.
    */
+  private McpSyncClient launchServerWithEnvironment(Map<String, String> environment) {
+    ServerParameters parameters =
+        ServerParameters.builder("java")
+            .args(
+                "-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY,
+                "-cp",
+                runtimeClasspath(),
+                NostrMcpApplication.class.getName())
+            .env(environment)
+            .build();
+
+    return McpClient.sync(new StdioClientTransport(parameters, McpJsonDefaults.getMapper()))
+        .requestTimeout(STARTUP_TIMEOUT)
+        .build();
+  }
+
   private McpSyncClient launchServer(String... extraProperties) {
     List<String> arguments = new java.util.ArrayList<>();
     arguments.add("-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY);
