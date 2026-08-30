@@ -25,6 +25,8 @@ the existing modules.
   introspection.
 - Keep signing keys inside the server process. The agent names an identity; it never sees
   or supplies a private key.
+- Offer a **process-per-identity** deployment for users who want hard isolation between
+  accounts, without forcing it on users who want one server across all of theirs.
 - Support both stdio (local desktop agents) and streamable HTTP (remote/hosted) transports.
 - Be strictly additive: no changes required in `core`, `event`, `identity`, or `client`.
 - Make every destructive or public-facing action (anything that writes to a relay) opt-in
@@ -48,6 +50,7 @@ the existing modules.
 | Subscriptions | Long-lived streaming, surfaced as MCP resources with change notifications. |
 | Packaging | Executable jar plus `Dockerfile` and `docker-compose.yml`. |
 | Direct messages | NIP-17 gift-wrapped DMs. Requires NIP-17 support to be added to `nostr-java-event` first. |
+| Identity isolation | Optional **single-identity mode** binding one server process to one identity, deployed as one process per identity (§6.3.1). Not one thread per identity. |
 
 ## 4. Position in the module graph
 
@@ -105,6 +108,10 @@ do not control.
 
 Names are namespaced `nostr_*` so they read clearly in an agent's tool list. Every tool
 returns structured JSON plus a short human-readable summary.
+
+The surface is **not fixed**: `write-policy` (§8) and single-identity mode (§6.3.1) both
+unregister tools rather than rejecting calls at runtime. A tool an agent cannot see is a
+tool it cannot misuse, and the tool list itself tells the agent what this server is for.
 
 | Tool | Purpose | Key arguments |
 | --- | --- | --- |
@@ -283,6 +290,87 @@ than a rule someone has to remember.
 - Per-identity relay sets are supported, because a throwaway identity often belongs on
   different relays than a main one.
 
+#### 6.3.1 Single-identity mode and process isolation
+
+The multi-identity server above is the general case, but it has a real weakness: an agent
+holding several aliases can post as the wrong one. The `IDENTITY_AMBIGUOUS` guard reduces
+that risk without removing it, because once a default exists the agent can still name any
+alias it likes.
+
+**Single-identity mode** removes the risk instead of guarding it. Setting
+`nostr.mcp.identity: <alias>` binds the whole process to exactly one identity:
+
+- The `identity` argument disappears from every signing tool's schema. There is nothing to
+  name, so nothing to name wrongly, and `IDENTITY_AMBIGUOUS` cannot occur.
+- `nostr_list_identities` returns the single bound identity.
+- The lifecycle tools (create, import, rename, export, remove) are **not registered**. A
+  bound server operates a key; it does not administer the keystore.
+- Only that alias's entry is unlocked. The other keystore entries are never decrypted, so
+  they are absent from the process's heap entirely.
+
+##### Why a process, not a thread
+
+The isolation people usually want here is "identity A's key cannot reach identity B's
+operation", and it is worth being precise about what does and does not deliver that.
+
+**Threads do not.** Threads in a JVM share one heap, so every thread can read every other
+thread's `Identity` object. A thread-per-identity design would give the *appearance* of
+separation with none of the substance. It is also the wrong concurrency shape: relay work is
+I/O-bound and `NostrRelayClient` is already `CompletableFuture`-based, so a dedicated thread
+per identity would idle almost always while capping each identity at one in-flight
+operation. And it would not remove the lifecycle question, since a thread neither generates
+a keypair nor forgets one.
+
+**Processes do.** A separate process has its own address space, its own file handles, and
+its own OS-level permissions. A compromise or a bug in the process signing for `project-bot`
+cannot reach the `personal` key, because that key was never decrypted in that process.
+
+**Sessions are the middle ground.** The streamable HTTP transport has a session concept, so
+a hosted deployment may bind each session to one identity and filter the tool surface
+accordingly. This is a logical boundary within one heap: it guards against agent confusion,
+not against a compromised process. It is offered for the hosted case, where one process per
+identity per user does not scale, and its weaker guarantee is stated plainly rather than
+implied.
+
+##### The deployment pattern
+
+Single-identity mode fits how MCP hosts already work: a host config lists one entry per
+server, so identities become entries.
+
+```json
+{
+  "mcpServers": {
+    "nostr-personal":    { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "--nostr.mcp.identity=personal"] },
+    "nostr-project-bot": { "command": "java", "args": ["-jar", "nostr-java-mcp.jar", "--nostr.mcp.identity=project-bot"] }
+  }
+}
+```
+
+Each process reads only its own key. The agent sees two clearly-named tool groups and cannot
+confuse them, because the tools themselves are distinct.
+
+The costs are real and worth stating: N processes, N relay connection pools, N websocket
+connections to the same relays, and **no cross-identity operation** — you cannot ask "which
+of my accounts was mentioned this week" from a bound server. That query needs the
+multi-identity server, which is exactly why both modes exist rather than one replacing the
+other.
+
+##### Bootstrapping
+
+Binding a process to an alias presupposes the alias exists, so single-identity mode does not
+remove the need to create and remove keys, it relocates it. Two paths, neither of which
+requires a bound server to administer anything:
+
+- **A multi-identity server** run deliberately for administration, with the lifecycle tools
+  from §6.3 available.
+- **A CLI** on the same jar: `java -jar nostr-java-mcp.jar keygen <alias>`,
+  `import <alias>`, `list`, `remove <alias>`. This is the better default for the
+  process-per-identity deployment, since it keeps key administration out of every agent's
+  reach entirely and puts it in the hands of the human who set the servers up.
+
+Both drive the same `IdentityStore` (§6.3), so there is one implementation of the lifecycle
+and two front doors to it.
+
 ### 6.4 Resources and prompts
 
 - **Resources**: `nostr://identity/{alias}` (public key, npub, configured relays),
@@ -307,6 +395,7 @@ Spring Boot properties under `nostr.mcp.*`, overridable by environment variables
 nostr:
   mcp:
     transport: stdio            # stdio | http
+    identity: personal          # optional: bind to one identity (§6.3.1)
     keystore:
       type: encrypted-file      # env | encrypted-file | os-keychain
       path: ${HOME}/.nostr-java/keys.jceks
@@ -379,13 +468,15 @@ than failing confusingly.
 
 ### 7.2 Packaging
 
-Ships as an executable Spring Boot jar, a `Dockerfile` (distroless JRE 21 base, non-root
-user), and a `docker-compose.yml` that runs the server in HTTP transport mode alongside the
-existing test relay container, with the keystore mounted read-only as a volume and the
-passphrase supplied as a secret. Per repo convention the compose file is verified with
-`docker-compose build` in CI. The stdio transport is documented as a bare `java -jar`
-invocation, since an MCP host launches the process itself and containerising stdio adds
-little.
+Ships as an executable Spring Boot jar that is **both** the MCP server and the key-admin
+CLI (§6.3.1), a `Dockerfile` (distroless JRE 21 base, non-root user), and a
+`docker-compose.yml` that runs the server in HTTP transport mode alongside the existing test
+relay container, with the keystore mounted read-only as a volume and the passphrase supplied
+as a secret. The compose file also demonstrates the bound-container pattern: one service per
+identity, each with `--nostr.mcp.identity` set and only its own key readable. Per repo
+convention the compose file is verified with `docker-compose build` in CI. The stdio
+transport is documented as a bare `java -jar` invocation, since an MCP host launches the
+process itself and containerising stdio adds little.
 
 ## 8. Safety model
 
@@ -400,7 +491,10 @@ guarded action.
 - `write-policy: allow` — writes proceed directly, for trusted automation.
 - Rate limits per identity and per relay, enforced in `WriteGuard`.
 - Identity removal and backup export are guarded by the same two-step confirmation, and
-  neither is registered under `write-policy: deny` (§6.3).
+  neither is registered under `write-policy: deny` or in single-identity mode (§6.3,
+  §6.3.1).
+- Key isolation between identities is a **process** boundary, not a thread or a check
+  (§6.3.1). Deployments that need it run one bound server per identity.
 - No tool accepts private key material as an argument, and no tool returns it (§6.3, §7.1).
 - Every write is logged with event id, kind, identity pubkey, and target relays. Every
   keystore mutation is logged with the alias and public key.
@@ -431,7 +525,12 @@ success with a per-relay result list, not an error.
   (reusing the existing Docker relay harness), asserting round trips for publish, query,
   a live subscription receiving an event published mid-test, and a NIP-17 DM round trip.
 - **Contract**: every registered tool's JSON schema is validated, and a golden-file test
-  pins the tool list so accidental surface changes are visible in review.
+  pins the tool list so accidental surface changes are visible in review. Separate golden
+  files per mode (multi-identity, single-identity, `write-policy: deny`) so tool
+  unregistration is asserted rather than assumed.
+- **Isolation**: a single-identity server started with `identity: personal` exposes no
+  lifecycle tools, accepts no `identity` argument, and never decrypts another alias's
+  keystore entry.
 - **Packaging**: `docker-compose build` runs in CI.
 - Run with `mvn -q verify` from the repository root as usual.
 
@@ -441,23 +540,32 @@ success with a per-relay result list, not an error.
    rumor, kind-13 seal, kind-1059 gift wrap over the existing NIP-44 primitives. Tracked
    separately; blocks phase 5 only, so the rest can proceed in parallel.
 1. Module skeleton, POM, BOM entry, official MCP SDK on stdio, `IdentityVault` and
-   `IdentityStore` with the `encrypted-file` keystore, the full identity lifecycle tools
-   (§6.3), and `nostr_list_relays` — proves the wiring end to end and makes the server
-   usable from a cold start with no hand-written config.
+   `IdentityStore` with the `encrypted-file` keystore, the **CLI** lifecycle commands
+   (§6.3.1), single-identity mode, and `nostr_list_relays` — proves the wiring end to end
+   and makes the server usable from a cold start with no hand-written config.
 2. Read path: `nostr_query_events`, `nostr_get_profile`, `nostr_relay_info`.
 3. Write path behind `WriteGuard`: `nostr_publish_note`, `nostr_publish_event`,
-   `nostr_update_profile`.
+   `nostr_update_profile`. Identity lifecycle **tools** (§6.3) land here too, for the
+   multi-identity administration case.
 4. Subscriptions: `SubscriptionRegistry`, the four subscription tools, resource
    notifications, TTL reaping.
 5. Social layer: threads, contacts, NIP-17 direct messages.
-6. HTTP transport, `Dockerfile` and `docker-compose.yml`, prompts, and documentation (a
-   how-to for wiring the server into an MCP host).
+6. HTTP transport with per-session identity binding, `Dockerfile` and `docker-compose.yml`
+   (including a profile showing one bound container per identity), prompts, and
+   documentation (a how-to for wiring the server into an MCP host, covering both modes).
 
 ## 12. Open questions
 
 - Which keystore backend is the default on a fresh install: prompt-for-passphrase
   (`encrypted-file`) is safest but blocks unattended startup. Is a passphrase-less
   `os-keychain` default better for desktop users?
+- With the CLI available, should the identity lifecycle **tools** exist at all, or is
+  agent-driven key administration a capability worth omitting entirely?
+- Should single-identity mode be the documented default in the how-to, with the
+  multi-identity server presented as the advanced case?
+- Do bound processes need a shared relay-connection broker to avoid N websocket
+  connections to the same relay, or is that premature for the expected handful of
+  identities?
 - Should `write-policy: confirm` tokens expire, and after how long?
 - Should identity mutation have its own policy switch (`identity-policy`) separate from
   `write-policy`, so an agent can be allowed to post but not to touch the keystore?
