@@ -11,6 +11,7 @@ Quick links to the most relevant guides and references.
 
 - [howto/use-nostr-java-api.md](howto/use-nostr-java-api.md) — Quick start: create, sign, and send events
 - [howto/api-examples.md](howto/api-examples.md) — Comprehensive examples for common use cases
+- [howto/private-direct-messages.md](howto/private-direct-messages.md) — Send and read NIP-17 private direct messages
 - [howto/streaming-subscriptions.md](howto/streaming-subscriptions.md) — Long-lived subscriptions with NostrRelayClient
 - [howto/custom-events.md](howto/custom-events.md) — Working with custom event kinds
 - [howto/diagnostics.md](howto/diagnostics.md) — Inspecting relay failures and troubleshooting

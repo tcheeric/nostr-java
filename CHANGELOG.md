@@ -6,6 +6,19 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Added
+- NIP-17 private direct messages, with the NIP-59 gift wrapping they build on. `Nip17DirectMessageService` composes a `ChatMessage` into one gift wrap per participant and reads incoming wraps back; `Nip59GiftWrapper` implements the generic three-layer envelope (unsigned kind-14 rumor, kind-13 seal signed by the real author, kind-1059 wrap signed by a single-use key) and is usable for any event kind, not just messages. Unlike NIP-04, which hides only the message text, this conceals the correspondents, the timing, and the message count.
+- `Rumor`, the unsigned event NIP-59 wraps. It is deliberately not `ISignable` and holds no signature field, so the deniability the scheme depends on is enforced by the type system rather than by convention.
+- `DirectMessageRelayList` (kind 10050) and `DirectMessageService.planDelivery`, which pairs each participant's copy with the relays that participant nominated. NIP-17 permits delivery only to those relays and forbids sending at all to someone who published no list; an unreachable recipient is reported explicitly rather than omitted, so a message cannot go half-delivered unnoticed.
+- `GenericEvent.update(long createdAt)`, which recomputes an event's id without consulting the clock. The existing no-arg `update()` delegates to it, so no call site changes behaviour.
+- [How to send private direct messages](docs/howto/private-direct-messages.md).
+
+### Fixed
+- `GenericEvent.getByteArraySupplier()` no longer resets `created_at` to the current time. It calls `update()`, and so ran during `Identity.sign()` — meaning **signing silently moved an event in time**. Any deliberately chosen timestamp was discarded moments after being set, which made NIP-59's randomised past timestamps impossible to produce and defeated the timing-correlation defence they exist to provide, while the calling code read as though the protection were present. An event that already carries a creation time now keeps it.
+
+### Deprecated
+- NIP-04 encrypted direct messages (`EncryptedDirectMessage`, `MessageCipher04`). They remain functional for reading existing conversations and interoperating with clients that send nothing else, but new code should use NIP-17. Nothing is removed in this release.
+
 ## [2.0.8] - 2026-08-22
 
 ### Fixed
