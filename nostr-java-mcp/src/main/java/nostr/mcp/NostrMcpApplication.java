@@ -5,6 +5,7 @@ import nostr.client.relay.RelayConnection;
 import nostr.client.relay.RelayConnectionFactory;
 import nostr.client.springwebsocket.NostrRelayClient;
 import nostr.mcp.cli.KeyAdminCli;
+import nostr.mcp.identity.IdentityLifecycle;
 import nostr.mcp.identity.IdentityStore;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
@@ -46,9 +47,10 @@ public final class NostrMcpApplication {
       System.exit(runKeyAdmin(configuration, commands));
     }
 
+    KeySource keySource = keySource(configuration);
     try (RelayPool relayPool =
             new RelayPool(configuration.allRelayUris(), NostrMcpApplication::connectToRelay);
-        IdentityVault identityVault = openVault(configuration)) {
+        IdentityVault identityVault = openVault(configuration, keySource)) {
 
       NostrToolRegistry registry =
           ToolSurface.forServer(
@@ -62,7 +64,9 @@ public final class NostrMcpApplication {
                   identityVault,
                   configuration.writePolicy(),
                   configuration.writeRateLimit(Clock.systemUTC())),
-              configuration.writePolicy());
+              configuration.writePolicy(),
+              lifecycleFor(identityVault, keySource),
+              configuration.identityPolicy());
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
         awaitShutdown();
@@ -80,11 +84,23 @@ public final class NostrMcpApplication {
     Thread.currentThread().join();
   }
 
-  private static IdentityVault openVault(McpConfiguration configuration) {
+  private static IdentityVault openVault(McpConfiguration configuration, KeySource keySource) {
     return new IdentityVault(
-        keySource(configuration),
-        configuration.defaultIdentity(),
-        configuration.identityBinding());
+        keySource, configuration.defaultIdentity(), configuration.identityBinding());
+  }
+
+  /**
+   * Offers keystore administration only when the backend can actually be written to.
+   *
+   * <p>A remote signer or a host without a keychain can read keys and not create them, and tools
+   * that would always fail are worse than tools that are not there.
+   *
+   * @return the lifecycle, or {@code null} when this backend cannot be administered
+   */
+  private static IdentityLifecycle lifecycleFor(IdentityVault identityVault, KeySource keySource) {
+    return keySource instanceof IdentityStore store
+        ? new IdentityLifecycle(identityVault, store)
+        : null;
   }
 
   private static KeySource keySource(McpConfiguration configuration) {

@@ -2,6 +2,7 @@ package nostr.mcp;
 
 import lombok.NonNull;
 import nostr.mcp.identity.IdentityBinding;
+import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.query.QueryLimits;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WritePolicy;
@@ -157,6 +158,15 @@ public final class McpConfiguration {
    * @param clock the source of time for the sliding window
    * @return the configured rate limit
    */
+  /**
+   * How much freedom an agent has to change the keystore.
+   *
+   * @return the configured policy, never more permissive than the write policy
+   */
+  public IdentityPolicy identityPolicy() {
+    return IdentityPolicy.fromConfiguredValue(setting("identity-policy"), writePolicy());
+  }
+
   public RateLimit writeRateLimit(java.time.Clock clock) {
     return new RateLimit(
         positiveIntOr("limits.writes-per-minute", DEFAULT_WRITES_PER_MINUTE),

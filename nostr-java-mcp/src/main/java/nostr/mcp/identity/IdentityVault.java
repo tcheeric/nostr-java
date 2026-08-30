@@ -32,7 +32,7 @@ public final class IdentityVault implements AutoCloseable {
   private final Map<String, Identity> identitiesByAlias = new LinkedHashMap<>();
   private final Map<String, byte[]> keyMaterialByAlias = new LinkedHashMap<>();
   private final IdentityBinding binding;
-  private final String defaultAlias;
+  private volatile String defaultAlias;
 
   /**
    * Unlock every key the source holds, for a process that may sign as any of them.
@@ -152,6 +152,104 @@ public final class IdentityVault implements AutoCloseable {
    */
   public void signAs(@NonNull String alias, @NonNull ISignable signable) {
     require(alias).sign(signable);
+  }
+
+  /**
+   * Take an identity into the vault, which becomes its owner.
+   *
+   * <p>The caller hands over the key material and must not keep it: the vault wipes what it
+   * holds on shutdown, and a second copy elsewhere would outlive that.
+   *
+   * @param alias the name to hold it under
+   * @param keyMaterial the private key bytes
+   * @throws KeystoreException when the alias is already taken
+   */
+  public synchronized void add(@NonNull String alias, @NonNull byte[] keyMaterial) {
+    if (identitiesByAlias.containsKey(alias)) {
+      throw new KeystoreException("This server already holds an identity called '" + alias + "'");
+    }
+    unlock(alias, keyMaterial);
+    if (defaultAlias == null && identitiesByAlias.size() == 1) {
+      defaultAlias = alias;
+    }
+    log.info("Added identity '{}' ({})", alias, identitiesByAlias.get(alias).getPublicKey().toBech32String());
+  }
+
+  /**
+   * Change what an identity is called, keeping the same key.
+   *
+   * @param currentAlias the existing name
+   * @param newAlias the name to use instead
+   * @throws IdentityUnknownException when the current alias is not held
+   * @throws KeystoreException when the new alias is taken
+   */
+  public synchronized void rename(@NonNull String currentAlias, @NonNull String newAlias) {
+    Identity identity = require(currentAlias);
+    if (identitiesByAlias.containsKey(newAlias)) {
+      throw new KeystoreException("This server already holds an identity called '" + newAlias + "'");
+    }
+    identitiesByAlias.remove(currentAlias);
+    identitiesByAlias.put(newAlias, identity);
+    keyMaterialByAlias.put(newAlias, keyMaterialByAlias.remove(currentAlias));
+    if (currentAlias.equals(defaultAlias)) {
+      defaultAlias = newAlias;
+    }
+    log.info("Renamed identity '{}' to '{}' ({})", currentAlias, newAlias, identity.getPublicKey().toBech32String());
+  }
+
+  /**
+   * Forget an identity, wiping its key.
+   *
+   * <p>The public key is logged as it goes, so the audit trail outlives the key it describes:
+   * afterwards there is nothing left to say which account was destroyed.
+   *
+   * @param alias the identity to remove
+   * @throws IdentityUnknownException when the vault holds no such alias
+   */
+  public synchronized void remove(@NonNull String alias) {
+    Identity identity = require(alias);
+    log.info("Removing identity '{}' ({})", alias, identity.getPublicKey().toBech32String());
+    byte[] keyMaterial = keyMaterialByAlias.remove(alias);
+    if (keyMaterial != null) {
+      Arrays.fill(keyMaterial, (byte) 0);
+    }
+    identitiesByAlias.remove(alias);
+    if (alias.equals(defaultAlias)) {
+      defaultAlias = identitiesByAlias.size() == 1 ? identitiesByAlias.keySet().iterator().next() : null;
+    }
+  }
+
+  /**
+   * Choose which identity signs when a caller names none.
+   *
+   * @param alias the identity to make default
+   * @throws IdentityUnknownException when the vault holds no such alias
+   */
+  public synchronized void setDefault(@NonNull String alias) {
+    require(alias);
+    defaultAlias = alias;
+    log.info("Default identity is now '{}'", alias);
+  }
+
+  /**
+   * Hand back a copy of an identity's key material, for backing it up.
+   *
+   * <p>The one exception to keys never leaving the vault, and it is narrow on purpose: a backup
+   * is the only thing that makes removal survivable, and it cannot be written without the key.
+   * The caller gets a copy it must wipe, and the only caller is the backup writer, which puts
+   * the bytes straight into an encrypted file and never into a tool result.
+   *
+   * @param alias the identity to export
+   * @return a copy of the private key material
+   * @throws IdentityUnknownException when the vault holds no such alias
+   */
+  public synchronized byte[] exportKeyMaterial(@NonNull String alias) {
+    require(alias);
+    byte[] keyMaterial = keyMaterialByAlias.get(alias);
+    if (keyMaterial == null) {
+      throw new KeystoreException("The key material for '" + alias + "' is no longer available");
+    }
+    return keyMaterial.clone();
   }
 
   /**

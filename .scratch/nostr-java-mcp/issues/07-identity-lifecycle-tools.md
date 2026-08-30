@@ -20,20 +20,20 @@ rather than introducing a second confirmation concept.
 
 **Status:** ready-for-agent
 
-- [ ] `nostr_create_identity` generates a key in the keystore and returns only alias, public
+- [x] `nostr_create_identity` generates a key in the keystore and returns only alias, public
       key and npub
-- [ ] `nostr_import_identity` accepts no key material as an argument; `source` names a file,
+- [x] `nostr_import_identity` accepts no key material as an argument; `source` names a file,
       an environment variable, or a prompt the agent cannot observe
-- [ ] `nostr_rename_identity` and `nostr_set_default_identity` change aliases and defaults
-- [ ] `nostr_export_identity_backup` writes an encrypted file and returns the path only, never
+- [x] `nostr_rename_identity` and `nostr_set_default_identity` change aliases and defaults
+- [x] `nostr_export_identity_backup` writes an encrypted file and returns the path only, never
       the contents
-- [ ] `nostr_remove_identity` is two-step, and refuses without a prior backup unless
+- [x] `nostr_remove_identity` is two-step, and refuses without a prior backup unless
       `acknowledgeNoBackup` is set
-- [ ] Removal zeroes the in-memory key, removes the entry, and closes anything bound to it
-- [ ] `identity-policy` governs these tools separately from `write-policy`, defaulting to the
+- [x] Removal zeroes the in-memory key, removes the entry, and closes anything bound to it
+- [x] `identity-policy` governs these tools separately from `write-policy`, defaulting to the
       more restrictive of the two; `write-policy: deny` implies no mutation
-- [ ] Signing fails with `IDENTITY_AMBIGUOUS` when several identities exist and no default is
+- [x] Signing fails with `IDENTITY_AMBIGUOUS` when several identities exist and no default is
       set, rather than guessing
-- [ ] Aliases are validated against `[a-z0-9-]{1,32}`, since they appear in resource URIs
-- [ ] Every keystore mutation is logged with alias and public key
-- [ ] `mvn -q verify` passes
+- [x] Aliases are validated against `[a-z0-9-]{1,32}`, since they appear in resource URIs
+- [x] Every keystore mutation is logged with alias and public key
+- [x] `mvn -q verify` passes

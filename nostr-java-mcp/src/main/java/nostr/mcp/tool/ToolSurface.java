@@ -2,6 +2,8 @@ package nostr.mcp.tool;
 
 import lombok.NonNull;
 import nostr.client.relay.RelayPool;
+import nostr.mcp.identity.IdentityLifecycle;
+import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.directory.Nip05Resolver;
 import nostr.mcp.directory.WellKnownJson;
@@ -40,6 +42,8 @@ public final class ToolSurface {
    * @param clock what "now" means when resolving relative times
    * @param writeGuard the single point every write passes through
    * @param writePolicy whether write tools appear at all
+   * @param identityLifecycle performs keystore changes, or {@code null} when the backend cannot
+   * @param identityPolicy whether keystore-mutating tools appear at all
    * @return the registry a host will see
    */
   public static NostrToolRegistry forServer(
@@ -49,7 +53,9 @@ public final class ToolSurface {
       @NonNull QueryLimits queryLimits,
       @NonNull Clock clock,
       @NonNull WriteGuard writeGuard,
-      @NonNull WritePolicy writePolicy) {
+      @NonNull WritePolicy writePolicy,
+      IdentityLifecycle identityLifecycle,
+      @NonNull IdentityPolicy identityPolicy) {
     EventQuery eventQuery = new EventQuery(relayPool);
     WellKnownJson wellKnownJson = new WellKnownJson();
     NostrToolRegistry registry =
@@ -62,23 +68,44 @@ public final class ToolSurface {
     if (writePolicy.allowsWriteTools()) {
       writeTools(writeGuard).forEach(registry::register);
     }
-    if (!identityVault.binding().isBound()) {
-      administrationTools().forEach(registry::register);
+    if (registersAdministration(identityVault, identityPolicy, identityLifecycle)) {
+      administrationTools(identityLifecycle, identityVault, identityPolicy).forEach(registry::register);
     }
     return registry;
   }
 
   /**
-   * The tools that mutate the keystore, registered only on an unbound server.
+   * Whether this server administers its keystore at all.
    *
-   * <p>Empty until the lifecycle tools land, but the branch exists now so that binding is
-   * enforced at the one point that decides visibility, rather than being retrofitted onto each
-   * tool as it is added.
-   *
-   * @return the keystore-mutating tools
+   * <p>Three separate reasons to say no, and each is a different question. A bound server
+   * operates one key and does not administer a keystore. A denied policy forbids mutation. And a
+   * backend that cannot be written to, such as a keychain on a host without one, has nothing to
+   * offer, so registering tools that would always fail would be a worse answer than not offering
+   * them.
    */
-  private static List<NostrTool> administrationTools() {
-    return List.of();
+  private static boolean registersAdministration(
+      IdentityVault identityVault, IdentityPolicy identityPolicy, IdentityLifecycle lifecycle) {
+    return lifecycle != null
+        && identityPolicy.allowsMutation()
+        && !identityVault.binding().isBound();
+  }
+
+  /**
+   * The tools that mutate the keystore.
+   *
+   * <p>Kept together so the whole dangerous half of the surface appears in one list: what an
+   * agent can do to a user's keys should be readable at a glance rather than gathered from six
+   * registration calls.
+   */
+  private static List<NostrTool> administrationTools(
+      IdentityLifecycle lifecycle, IdentityVault identityVault, IdentityPolicy identityPolicy) {
+    return List.of(
+        new CreateIdentityTool(lifecycle),
+        new ImportIdentityTool(lifecycle),
+        new RenameIdentityTool(lifecycle),
+        new SetDefaultIdentityTool(identityVault),
+        new ExportIdentityBackupTool(lifecycle),
+        new RemoveIdentityTool(lifecycle, identityVault, identityPolicy));
   }
 
   /**

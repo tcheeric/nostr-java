@@ -55,7 +55,13 @@ class NostrMcpServerStdioIT {
               "nostr_relay_info",
               "nostr_publish_note",
               "nostr_publish_event",
-              "nostr_update_profile"),
+              "nostr_update_profile",
+              "nostr_create_identity",
+              "nostr_import_identity",
+              "nostr_rename_identity",
+              "nostr_set_default_identity",
+              "nostr_export_identity_backup",
+              "nostr_remove_identity"),
           tools.tools().stream().map(Tool::name).toList());
     }
   }
@@ -103,6 +109,21 @@ class NostrMcpServerStdioIT {
       assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
       assertTrue(tools.stream().noneMatch(name -> name.contains("update")), tools.toString());
       assertTrue(tools.contains("nostr_query_events"), tools.toString());
+    }
+  }
+
+  // Verifies a server told not to mutate its keystore offers no lifecycle tool to a host, so
+  // identity-policy is enforced where a host actually looks rather than only in the registry.
+  @Test
+  void aServerForbiddenToMutateIdentitiesOffersNoLifecycleTools() {
+    try (McpSyncClient client = launchServer("-Dnostr.mcp.identity-policy=deny")) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("identity")
+          && !name.equals("nostr_list_identities")), tools.toString());
+      assertTrue(tools.contains("nostr_publish_note"), tools.toString());
     }
   }
 

@@ -48,6 +48,15 @@ public final class NostrToolRegistry {
   }
 
   /**
+   * The registered tools themselves.
+   *
+   * @return the tools an agent will see, in registration order
+   */
+  public List<NostrTool> tools() {
+    return List.copyOf(toolsByName.values());
+  }
+
+  /**
    * Render the surface as MCP tool specifications.
    *
    * @return one specification per registered tool

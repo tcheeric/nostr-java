@@ -3,6 +3,8 @@ package nostr.mcp.tool;
 import nostr.client.relay.RelayPool;
 import nostr.id.Identity;
 import nostr.mcp.identity.IdentityBinding;
+import nostr.mcp.identity.IdentityLifecycle;
+import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
@@ -40,6 +42,8 @@ class ToolSurfaceTest {
   private static final Path BOUND_GOLDEN = Path.of("src/test/resources/tool-list-bound.txt");
   private static final Path READ_ONLY_GOLDEN =
       Path.of("src/test/resources/tool-list-read-only.txt");
+  private static final Path NO_MUTATION_GOLDEN =
+      Path.of("src/test/resources/tool-list-no-identity-mutation.txt");
 
   // Verifies an ordinary multi-identity server exposes exactly the golden tool list.
   @Test
@@ -114,16 +118,99 @@ class ToolSurfaceTest {
     }
   }
 
+  // Verifies a server that may write but may not touch the keystore exposes no lifecycle tool,
+  // which is the separation identity-policy exists to provide.
+  @Test
+  void identityMutationCanBeDeniedWhileWritingIsAllowed() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.unbound())) {
+
+      assertEquals(
+          readGolden(NO_MUTATION_GOLDEN),
+          String.join(
+              "\n",
+              surfaceOf(relayPool, vault, WritePolicy.CONFIRM, IdentityPolicy.DENY)
+                  .registeredNames()));
+    }
+  }
+
+  // Verifies a read-only server cannot mutate the keystore either, since identity-policy is
+  // capped by write-policy and a server that cannot post should not be able to destroy a key.
+  @Test
+  void aReadOnlyServerCannotMutateTheKeystoreEither() {
+    assertEquals(
+        IdentityPolicy.DENY, IdentityPolicy.fromConfiguredValue("allow", WritePolicy.DENY));
+  }
+
+  // Verifies a backend that cannot be written to offers no lifecycle tools, since a tool that
+  // could only ever fail is worse than one that is absent.
+  @Test
+  void aBackendThatCannotBeAdministeredOffersNoLifecycleTools() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.unbound())) {
+
+      NostrToolRegistry registry =
+          ToolSurface.forServer(
+              directory(),
+              relayPool,
+              vault,
+              QueryLimits.defaults(),
+              Clock.systemUTC(),
+              writeGuard(relayPool, vault, WritePolicy.CONFIRM),
+              WritePolicy.CONFIRM,
+              null,
+              IdentityPolicy.ALLOW);
+
+      assertEquals(readGolden(NO_MUTATION_GOLDEN), String.join("\n", registry.registeredNames()));
+    }
+  }
+
+  /**
+   * Derives the identity policy from the write policy exactly as configuration does, so a test
+   * cannot assemble a combination a real deployment could never produce.
+   */
   private NostrToolRegistry surfaceOf(RelayPool relayPool, IdentityVault vault, WritePolicy policy) {
+    return surfaceOf(
+        relayPool, vault, policy, IdentityPolicy.fromConfiguredValue(null, policy));
+  }
+
+  private NostrToolRegistry surfaceOf(
+      RelayPool relayPool, IdentityVault vault, WritePolicy policy, IdentityPolicy identityPolicy) {
     return ToolSurface.forServer(
         directory(),
         relayPool,
         vault,
         QueryLimits.defaults(),
         Clock.systemUTC(),
-        new WriteGuard(
-            relayPool, vault, policy, new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC())),
-        policy);
+        writeGuard(relayPool, vault, policy),
+        policy,
+        new IdentityLifecycle(vault, new InMemoryStore()),
+        identityPolicy);
+  }
+
+  private WriteGuard writeGuard(RelayPool relayPool, IdentityVault vault, WritePolicy policy) {
+    return new WriteGuard(
+        relayPool, vault, policy, new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC()));
+  }
+
+  /** A store that accepts changes without a keystore, so the surface is what is under test. */
+  private static final class InMemoryStore implements nostr.mcp.identity.IdentityStore {
+    private final Map<String, byte[]> keys = new LinkedHashMap<>();
+
+    @Override
+    public void store(String alias, byte[] keyMaterial) {
+      keys.put(alias, keyMaterial.clone());
+    }
+
+    @Override
+    public List<String> aliases() {
+      return List.copyOf(keys.keySet());
+    }
+
+    @Override
+    public boolean remove(String alias) {
+      return keys.remove(alias) != null;
+    }
   }
 
   private RelayDirectory directory() {

@@ -8,10 +8,18 @@ import nostr.id.Identity;
 import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
+import nostr.mcp.identity.IdentityLifecycle;
+import nostr.mcp.identity.IdentityPolicy;
+import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.write.RateLimit;
+import nostr.mcp.write.WriteGuard;
+import nostr.mcp.write.WritePolicy;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.RecordComponent;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.List;
@@ -105,11 +113,49 @@ class ToolSurfaceSecrecyTest {
     }
   }
 
+  /**
+   * The real surface, not a hand-written list.
+   *
+   * <p>The point of this test is to catch a tool somebody adds later, so it has to ask the same
+   * factory the server does. A curated list here would pass forever while the actual surface
+   * grew a leak, which is precisely the failure this test exists to prevent.
+   */
   private List<NostrTool> surfaceOf(IdentityVault vault, RelayPool pool) {
-    return List.of(
-        new ListIdentitiesTool(vault),
-        new ListRelaysTool(
-            new RelayDirectory(Map.of(RelayDirectory.READ, List.of("wss://relay.one"))), pool));
+    return ToolSurface.forServer(
+            new RelayDirectory(Map.of(RelayDirectory.READ, List.of("wss://relay.one"))),
+            pool,
+            vault,
+            QueryLimits.defaults(),
+            Clock.systemUTC(),
+            new WriteGuard(
+                pool,
+                vault,
+                WritePolicy.ALLOW,
+                new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC())),
+            WritePolicy.ALLOW,
+            new IdentityLifecycle(vault, new InMemoryStore()),
+            IdentityPolicy.ALLOW)
+        .tools();
+  }
+
+  /** A store standing in for a keystore, so the surface under test is the real one. */
+  private static final class InMemoryStore implements nostr.mcp.identity.IdentityStore {
+    private final Map<String, byte[]> keys = new java.util.LinkedHashMap<>();
+
+    @Override
+    public void store(String alias, byte[] keyMaterial) {
+      keys.put(alias, keyMaterial.clone());
+    }
+
+    @Override
+    public List<String> aliases() {
+      return List.copyOf(keys.keySet());
+    }
+
+    @Override
+    public boolean remove(String alias) {
+      return keys.remove(alias) != null;
+    }
   }
 
   private IdentityVault vaultHoldingTheKey() {
