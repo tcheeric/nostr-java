@@ -122,12 +122,12 @@ returns structured JSON plus a short human-readable summary.
 | `nostr_send_direct_message` | Gift-wrapped encrypted DM (NIP-17) | `recipient`, `content`, `identity?`, `subject?` |
 | `nostr_read_direct_messages` | Unwrap and decrypt DMs addressed to an identity | `identity?`, `since?`, `limit` |
 | `nostr_list_identities` | Aliases and public keys the server can sign with | — |
-| `nostr_create_identity` | Generate a new keypair in the keystore (§6.4) | `alias`, `relays?`, `publishProfile?` |
-| `nostr_import_identity` | Adopt an existing key held outside the model (§6.4) | `alias`, `source` |
+| `nostr_create_identity` | Generate a new keypair in the keystore (§6.3) | `alias`, `relays?`, `publishProfile?` |
+| `nostr_import_identity` | Adopt an existing key held outside the model (§6.3) | `alias`, `source` |
 | `nostr_rename_identity` | Change an alias, keeping the key | `alias`, `newAlias` |
 | `nostr_set_default_identity` | Choose the identity used when `identity` is omitted | `alias` |
-| `nostr_export_identity_backup` | Write an encrypted backup file to disk (§6.4) | `alias`, `path`, `passphrase?` |
-| `nostr_remove_identity` | Forget a key, irreversibly (§6.4) | `alias`, `confirmationToken` |
+| `nostr_export_identity_backup` | Write an encrypted backup file to disk (§6.3) | `alias`, `path`, `passphrase?` |
+| `nostr_remove_identity` | Forget a key, irreversibly (§6.3) | `alias`, `confirmationToken` |
 | `nostr_list_relays` | Configured relays and connection state | — |
 | `nostr_relay_info` | NIP-11 relay metadata | `relay` |
 
@@ -173,7 +173,7 @@ The NIP-17 seal/gift-wrap logic is **not** implemented in this module. It belong
 consumer of the SDK benefits. This makes NIP-17 support a **hard prerequisite** of the DM
 phase of the delivery plan, tracked as its own work item against those modules.
 
-### 6.4 Identity management
+### 6.3 Identity management
 
 An agent that can only use pre-configured keys is half a tool. "Make me a throwaway account
 for this project" and "stop using that key" are natural requests, so the keystore is
@@ -283,7 +283,7 @@ than a rule someone has to remember.
 - Per-identity relay sets are supported, because a throwaway identity often belongs on
   different relays than a main one.
 
-### 6.5 Resources and prompts
+### 6.4 Resources and prompts
 
 - **Resources**: `nostr://identity/{alias}` (public key, npub, configured relays),
   `nostr://relay/{name}` (NIP-11 document), and `nostr://subscription/{id}` (buffered
@@ -291,7 +291,7 @@ than a rule someone has to remember.
 - **Prompts**: a small set of guided templates, e.g. `compose-note`, `catch-up-feed`, and
   `watch-mentions`, that teach the host how to sequence the tools.
 
-### 6.6 Argument conventions
+### 6.5 Argument conventions
 
 - Public keys accept hex or `npub`; event ids accept hex or `note`/`nevent`. Decoding is
   centralised in one `NostrIdentifier` value type — the tools never parse bech32 inline.
@@ -365,10 +365,10 @@ Regardless of backend:
 - `Identity` objects are never handed to the tool layer. Tools pass an alias to a signing
   service, which returns a signed event. Signing is the only capability that crosses the
   vault boundary.
-- A **generate** path (`nostr_create_identity`, §6.4) creates a key inside the keystore so a
+- A **generate** path (`nostr_create_identity`, §6.3) creates a key inside the keystore so a
   user never has to paste an `nsec` into a shell or into a chat window.
 - Import reads the key from a location the server resolves itself; at rest it is always
-  encrypted (§6.4).
+  encrypted (§6.3).
 
 **Deferred: NIP-46 remote signing.** The strongest answer is for the server to hold no key
 at all and delegate signing to a bunker (Amber, nsec.app). It is out of scope for v1 because
@@ -400,8 +400,8 @@ guarded action.
 - `write-policy: allow` — writes proceed directly, for trusted automation.
 - Rate limits per identity and per relay, enforced in `WriteGuard`.
 - Identity removal and backup export are guarded by the same two-step confirmation, and
-  neither is registered under `write-policy: deny` (§6.4).
-- No tool accepts private key material as an argument, and no tool returns it (§6.4, §7.1).
+  neither is registered under `write-policy: deny` (§6.3).
+- No tool accepts private key material as an argument, and no tool returns it (§6.3, §7.1).
 - Every write is logged with event id, kind, identity pubkey, and target relays. Every
   keystore mutation is logged with the alias and public key.
 - DM decryption is opt-in per identity, since it exposes private correspondence to the
@@ -442,7 +442,7 @@ success with a per-relay result list, not an error.
    separately; blocks phase 5 only, so the rest can proceed in parallel.
 1. Module skeleton, POM, BOM entry, official MCP SDK on stdio, `IdentityVault` and
    `IdentityStore` with the `encrypted-file` keystore, the full identity lifecycle tools
-   (§6.4), and `nostr_list_relays` — proves the wiring end to end and makes the server
+   (§6.3), and `nostr_list_relays` — proves the wiring end to end and makes the server
    usable from a cold start with no hand-written config.
 2. Read path: `nostr_query_events`, `nostr_get_profile`, `nostr_relay_info`.
 3. Write path behind `WriteGuard`: `nostr_publish_note`, `nostr_publish_event`,
