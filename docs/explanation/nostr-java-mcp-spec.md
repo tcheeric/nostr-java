@@ -41,8 +41,9 @@ the existing modules.
 - No relay implementation. The module is a client only.
 - No LLM inference. Natural-language understanding lives in the MCP host, not here.
 - No persistent event store. Live subscriptions buffer in memory only (§5.1).
-- No new NIP support. NIP-17 was the one gap this module needed and the SDK shipped it in
-  2.1.0. Anything still missing is implemented in `nostr-java-event`, not here.
+- No NIP implementation in this module. NIP-17, the one gap that used to block it, shipped in
+  2.1.0. One gap remains: kind-3 contact lists have no SDK type (§12), and that belongs in
+  `nostr-java-event` where every consumer benefits, not here.
 - No remote signing (NIP-46) in v1. Keys are held locally; see §6.
 
 ## 3. Resolved decisions
@@ -55,6 +56,7 @@ the existing modules.
 | Subscriptions | Long-lived streaming on `RelayPool.subscribe`, surfaced as MCP resources with change notifications. |
 | Packaging | Executable jar plus `Dockerfile` and `docker-compose.yml`. |
 | Direct messages | NIP-17 gift-wrapped DMs, delegated to `nostr-java-api`'s `DirectMessagePublisher`. No SDK work required. |
+| SDK prerequisites | One: a `ContactList` type over kind-3 in `nostr-java-event`, blocking the social phase only (§12). |
 | Identity isolation | Optional **single-identity mode** binding one server process to one identity, deployed as one process per identity (§6.3.1). Not one thread per identity. |
 
 ## 4. Position in the module graph
@@ -142,6 +144,9 @@ do not control.
 - `McpDirectMessageService` — the tool-facing seam for DM tools. Named to avoid colliding
   with `nostr.encryption.DirectMessageService`, the SDK interface it ultimately calls
   through `NostrClient`.
+- `RelayConnectionBroker` — shares one websocket per relay across bound processes (§12).
+  Optional: a single server does not need it, and a deployment that declines it simply opens
+  its own connections. See §6.3.1 for why it shares transport only.
 
 ### Limitations inherited from the SDK
 
@@ -450,10 +455,20 @@ from a bound server. That query needs the multi-identity server, which is exactl
 modes exist rather than one replacing the other.
 
 The websocket cost is mitigated rather than accepted: bound processes share relay connections
-through a broker (§12), so N identities do not mean N connections to the same relay. The broker
-shares transport only. Sharing a `RelayPool` would share subscriptions and per-relay state
-too, reintroducing exactly the cross-identity reach that running separate processes exists to
-prevent.
+through a `RelayConnectionBroker` (§12), so N identities do not mean N connections to the same
+relay. The broker shares transport only. Sharing a `RelayPool` would share subscriptions and
+per-relay state too, reintroducing exactly the cross-identity reach that running separate
+processes exists to prevent.
+
+There is a tension here worth naming rather than glossing. Bound processes are separate
+address spaces, which is the whole point, so a shared broker cannot be an object they all
+reference; it is a separate process they all talk to. That makes it a component with its own
+lifecycle, its own failure mode (every identity loses relay access when it dies), and its own
+trust question (it sees every bound identity's traffic, though never their keys). It is
+therefore **opt-in and not the default**: a handful of identities should just open a handful of
+connections, and the broker earns its complexity only where relay-imposed connection limits
+actually bite. `RelayConnection` (`nostr-java-client`) is the seam it would implement, so
+adopting it changes configuration rather than code.
 
 ##### Bootstrapping
 
@@ -716,14 +731,20 @@ the cross-identity query that justifies the multi-identity server is a genuinely
 
 ### Bound processes share relay connections
 
-Bound processes use a shared relay-connection broker rather than each opening its own websocket
+Bound processes can share a `RelayConnectionBroker` rather than each opening its own websocket
 to the same relay. Without it, N identities means N connections per relay, which relays
 penalise and which scales badly exactly where this deployment is recommended.
 
 The broker is a connection-level concern only. It must not become a shared `RelayPool`: the
 pool holds subscriptions and per-relay state, and sharing that across bound processes would
 reintroduce the cross-identity leakage that process isolation exists to prevent (§6.3.1). What
-is shared is the transport beneath it.
+is shared is the transport beneath it, implementing `RelayConnection`.
+
+It is **opt-in, not the default**, because bound processes are separate address spaces: a
+shared broker is another process, not an object, and it brings its own lifecycle, a single
+point of failure for every identity's relay access, and a component that sees all their traffic.
+A handful of identities should open a handful of connections. The broker earns that complexity
+only where a relay's connection limits actually bite.
 
 ### Confirmation tokens do not expire
 
