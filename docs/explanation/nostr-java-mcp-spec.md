@@ -467,8 +467,12 @@ lifecycle, its own failure mode (every identity loses relay access when it dies)
 trust question (it sees every bound identity's traffic, though never their keys). It is
 therefore **opt-in and not the default**: a handful of identities should just open a handful of
 connections, and the broker earns its complexity only where relay-imposed connection limits
-actually bite. `RelayConnection` (`nostr-java-client`) is the seam it would implement, so
-adopting it changes configuration rather than code.
+actually bite.
+
+`RelayConnection` (`nostr-java-client`) is the seam it implements, so adopting it changes
+configuration rather than code. **Verified by building it**: two independent `RelayPool`
+instances, each publishing successfully to a real relay, shared a single websocket, with the
+only change being the `RelayConnectionFactory` they were handed.
 
 ##### Bootstrapping
 
@@ -790,6 +794,12 @@ consumer benefits, and an MCP module parsing `p` tags inline would be the only p
 codebase that knows how a contact list is shaped. `DirectMessageRelayList` is the pattern to
 follow, being a value type over a tag-carrying replaceable event with `from(GenericEvent)` and
 `toEvent()`.
+
+**Verified by prototyping it**: a `ContactList` written to that pattern, reading `p` tags and
+rendering them back, round-tripped through a real relay via `NostrClient` — published, matched
+by an author-and-kind filter, and recovered with both contacts intact — and its kind guard
+rejected a kind-1 event. The prerequisite is genuinely small: one value type, no new
+infrastructure.
 
 This makes a small `ContactList` addition to `nostr-java-event` a **prerequisite of the social
 phase** (§11 phase 5), and the only SDK work this module now requires.

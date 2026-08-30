@@ -2,12 +2,21 @@ package nostr.api.integration;
 
 import nostr.api.NostrClient;
 import nostr.api.RecipientDeliveryOutcome;
+import nostr.base.PublicKey;
+import nostr.client.relay.RelayConnection;
+import nostr.client.relay.RelayConnectionFactory;
+import nostr.client.relay.RelayPool;
+import nostr.client.springwebsocket.ConnectionState;
+import nostr.client.springwebsocket.NostrRelayClient;
+import nostr.event.BaseMessage;
+import nostr.event.BaseTag;
 import nostr.client.relay.NoRelayAcceptedException;
 import nostr.client.relay.PublishResult;
 import nostr.client.relay.RelaySubscription;
 import nostr.client.relay.SubscriptionListener;
 import nostr.event.filter.EventFilter;
 import nostr.event.impl.GenericEvent;
+import nostr.event.tag.GenericTag;
 import nostr.event.tag.GenericTag;
 import nostr.id.Identity;
 import org.junit.jupiter.api.Test;
@@ -22,6 +31,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.io.IOException;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,6 +62,7 @@ class McpSpecAssumptionsIT {
   private static final int RELAY_STARTUP_ATTEMPTS = 5;
   private static final int TEXT_NOTE_KIND = 1;
   private static final int DIRECT_MESSAGE_RELAY_LIST_KIND = 10050;
+  private static final int CONTACT_LIST_KIND = 3;
 
   @Container
   private static final GenericContainer<?> RELAY =
@@ -243,6 +256,133 @@ class McpSpecAssumptionsIT {
 
       assertEquals(otherAccount.getPublicKey(), event.getPubKey());
     }
+  }
+
+  // Verifies a broker-style connection can serve two independent pools over one websocket,
+  // which §6.3.1 claims is a configuration change rather than a code change.
+  @Test
+  void oneConnectionCanServeSeveralPools() throws Exception {
+    AtomicInteger connectionsOpened = new AtomicInteger();
+    AtomicInteger poolsServed = new AtomicInteger();
+
+    try (RelayConnection shared = openConnection(connectionsOpened)) {
+      RelayConnectionFactory brokered = relayUri -> sharing(shared, poolsServed);
+
+      RelayPool second;
+      try (RelayPool first = new RelayPool(List.of(relayUri()), brokered)) {
+        second = new RelayPool(List.of(relayUri()), brokered);
+        assertEquals(List.of(relayUri()), first.publish(signedNote("from one")).getAcceptingRelays());
+      }
+
+      // The first pool has closed its view of the shared connection. If that closed the
+      // connection underneath, the second pool is now broken: that is the whole point of a
+      // broker owning the transport rather than any one pool.
+      try (RelayPool stillWorking = second) {
+        assertEquals(
+            List.of(relayUri()),
+            stillWorking.publish(signedNote("from two")).getAcceptingRelays(),
+            "closing one pool tore down the shared connection");
+      }
+    }
+
+    assertEquals(1, connectionsOpened.get(), "the broker opened more than one websocket");
+    assertEquals(2, poolsServed.get(), "both pools were not served by the broker");
+  }
+
+  // Verifies a kind-3 contact list written to the DirectMessageRelayList pattern round-trips
+  // through a relay, which §12 relies on when calling that prerequisite small.
+  @Test
+  void aContactListFollowingTheSdkPatternRoundTrips() throws Exception {
+    Identity owner = Identity.generateRandomIdentity();
+    PublicKey friend = Identity.generateRandomIdentity().getPublicKey();
+
+    try (NostrClient nostr = clientFor(owner)) {
+      nostr.publish(contactListEvent(owner, friend));
+
+      AtomicReference<GenericEvent> readBack = new AtomicReference<>();
+      try (RelaySubscription subscription =
+          nostr.subscribe(
+              List.of(
+                  EventFilter.builder()
+                      .author(owner.getPublicKey().toString())
+                      .kind(CONTACT_LIST_KIND)
+                      .build()),
+              readBack::set)) {
+
+        await().atMost(30, TimeUnit.SECONDS).until(() -> readBack.get() != null);
+      }
+
+      assertEquals(
+          List.of(friend.toString()), contactsOf(readBack.get()), "the contacts did not survive");
+    }
+  }
+
+  /** Reads {@code p} tags back out, as a ContactList value type would. */
+  private List<String> contactsOf(GenericEvent event) {
+    return event.getTags().stream()
+        .filter(GenericTag.class::isInstance)
+        .map(GenericTag.class::cast)
+        .filter(tag -> "p".equals(tag.getCode()) && !tag.getParams().isEmpty())
+        .map(tag -> tag.getParams().get(0))
+        .toList();
+  }
+
+  private GenericEvent contactListEvent(Identity owner, PublicKey... contacts) {
+    return GenericEvent.builder()
+        .pubKey(owner.getPublicKey())
+        .kind(CONTACT_LIST_KIND)
+        .content("")
+        .tags(java.util.Arrays.stream(contacts).map(c -> (BaseTag) GenericTag.of("p", c.toString())).toList())
+        .build();
+  }
+
+  private GenericEvent signedNote(String content) {
+    Identity author = Identity.generateRandomIdentity();
+    GenericEvent event =
+        GenericEvent.builder().pubKey(author.getPublicKey()).kind(TEXT_NOTE_KIND).content(content).build();
+    author.sign(event);
+    return event;
+  }
+
+  private RelayConnection openConnection(AtomicInteger connectionsOpened) throws Exception {
+    connectionsOpened.incrementAndGet();
+    return new NostrRelayClient(relayUri(), 8_000L);
+  }
+
+  /** A connection handed to a pool that must not close the shared one underneath it. */
+  private RelayConnection sharing(RelayConnection shared, AtomicInteger poolsServed) {
+    poolsServed.incrementAndGet();
+    return new RelayConnection() {
+      @Override
+      public String getRelayUri() {
+        return shared.getRelayUri();
+      }
+
+      @Override
+      public ConnectionState getConnectionState() {
+        return shared.getConnectionState();
+      }
+
+      @Override
+      public <T extends BaseMessage> List<String> send(T message) throws IOException {
+        return shared.send(message);
+      }
+
+      @Override
+      public <T extends BaseMessage> AutoCloseable subscribe(
+          T requestMessage,
+          Consumer<String> messageListener,
+          Consumer<Throwable> errorListener,
+          Runnable closeListener)
+          throws IOException {
+        return shared.subscribe(requestMessage, messageListener, errorListener, closeListener);
+      }
+
+      @Override
+      public void close() {
+        // The broker owns the underlying connection; a pool releasing its view must not close it.
+      }
+    };
   }
 
   private RecipientDeliveryOutcome outcomeFor(
