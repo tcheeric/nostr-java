@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * default that punishes the deployment it was not chosen for.
  */
 @Slf4j
-public final class OsKeychainKeySource implements KeySource {
+public final class OsKeychainKeySource implements KeySource, IdentityStore {
 
   /** The value that selects this backend. */
   public static final String TYPE = "os-keychain";
@@ -38,6 +38,7 @@ public final class OsKeychainKeySource implements KeySource {
 
   private final KeychainCommand command;
   private final List<String> aliases;
+  private final AliasIndex aliasIndex;
 
   /**
    * Reads the named identities from whichever platform tool is present.
@@ -45,16 +46,32 @@ public final class OsKeychainKeySource implements KeySource {
    * @param aliases the identities to look for
    */
   public OsKeychainKeySource(@NonNull List<String> aliases) {
-    this(KeychainCommand.forThisPlatform(), aliases);
+    this(KeychainCommand.forThisPlatform(), aliases, defaultIndexPath());
+  }
+
+  /**
+   * @param command the platform tool to invoke
+   * @param aliases the identities to look for
+   */
+  public OsKeychainKeySource(@NonNull KeychainCommand command, @NonNull List<String> aliases) {
+    this(command, aliases, defaultIndexPath());
+  }
+
+  private static java.nio.file.Path defaultIndexPath() {
+    return java.nio.file.Path.of(System.getProperty("user.home"), ".nostr-java", "aliases");
   }
 
   /**
    * @param command the platform tool to invoke, so a test need not touch a real keychain
    * @param aliases the identities to look for
    */
-  public OsKeychainKeySource(@NonNull KeychainCommand command, @NonNull List<String> aliases) {
+  public OsKeychainKeySource(
+      @NonNull KeychainCommand command,
+      @NonNull List<String> aliases,
+      @NonNull java.nio.file.Path indexPath) {
     this.command = command;
     this.aliases = List.copyOf(aliases);
+    this.aliasIndex = new AliasIndex(indexPath);
   }
 
   @Override
@@ -63,7 +80,7 @@ public final class OsKeychainKeySource implements KeySource {
   }
 
   @Override
-  public Map<String, byte[]> loadKeys() {
+  public Map<String, byte[]> loadKeys(IdentityBinding binding) {
     if (!command.isAvailable()) {
       log.warn(
           "No platform keychain is available; configure keystore.type={} instead",
@@ -71,10 +88,49 @@ public final class OsKeychainKeySource implements KeySource {
       return Map.of();
     }
     Map<String, byte[]> keys = new LinkedHashMap<>();
-    for (String alias : aliases) {
+    java.util.Set<String> known = new java.util.LinkedHashSet<>(aliases);
+    known.addAll(aliasIndex.read());
+    for (String alias : binding.permitted(known)) {
       command.readSecret(SERVICE_NAME, alias).ifPresent(hex -> keys.put(alias, decode(alias, hex)));
     }
     return keys;
+  }
+
+  @Override
+  public void store(@NonNull String alias, @NonNull byte[] keyMaterial) {
+    requireKeychain();
+    if (!command.writeSecret(SERVICE_NAME, alias, HexFormat.of().formatHex(keyMaterial))) {
+      throw new KeystoreException("The platform keychain refused to store the key for '" + alias + "'");
+    }
+    aliasIndex.add(alias);
+  }
+
+  @Override
+  public List<String> aliases() {
+    return aliasIndex.read();
+  }
+
+  @Override
+  public boolean remove(@NonNull String alias) {
+    requireKeychain();
+    boolean removed = command.deleteSecret(SERVICE_NAME, alias);
+    aliasIndex.remove(alias);
+    return removed;
+  }
+
+  /**
+   * Administration needs a keychain, where reading may tolerate its absence.
+   *
+   * <p>A missing keychain makes a server start empty, which is recoverable, but makes {@code
+   * keygen} silently do nothing, which is not.
+   */
+  private void requireKeychain() {
+    if (!command.isAvailable()) {
+      throw new KeystoreException(
+          "No platform keychain is available on this host; use keystore.type="
+              + EncryptedFileKeySource.TYPE
+              + " instead");
+    }
   }
 
   private byte[] decode(String alias, String hex) {
@@ -110,6 +166,25 @@ public final class OsKeychainKeySource implements KeySource {
     Optional<String> readSecret(String service, String alias);
 
     /**
+     * Store one secret, replacing any existing value.
+     *
+     * @param service the service to file it under
+     * @param alias the key's alias
+     * @param secret the value to store
+     * @return true when the platform tool accepted it
+     */
+    boolean writeSecret(String service, String alias, String secret);
+
+    /**
+     * Forget one secret.
+     *
+     * @param service the service it is filed under
+     * @param alias the key's alias
+     * @return true when an entry was removed
+     */
+    boolean deleteSecret(String service, String alias);
+
+    /**
      * The tool for the running platform.
      *
      * @return a command that reports itself unavailable when no tool is present
@@ -141,6 +216,60 @@ public final class OsKeychainKeySource implements KeySource {
               ? List.of(tool, "find-generic-password", "-s", service, "-a", alias, "-w")
               : List.of(tool, "lookup", "service", service, "account", alias);
       return runQuietly(arguments);
+    }
+
+    @Override
+    public boolean writeSecret(String service, String alias, String secret) {
+      String tool = toolName();
+      if (tool == null) {
+        return false;
+      }
+      if (MACOS_TOOL.equals(tool)) {
+        return writeToStdin(
+            List.of(tool, "add-generic-password", "-U", "-s", service, "-a", alias, "-w"), secret);
+      }
+      return writeToStdin(
+          List.of(tool, "store", "--label", service + ":" + alias, "service", service, "account", alias),
+          secret);
+    }
+
+    @Override
+    public boolean deleteSecret(String service, String alias) {
+      String tool = toolName();
+      if (tool == null) {
+        return false;
+      }
+      List<String> arguments =
+          MACOS_TOOL.equals(tool)
+              ? List.of(tool, "delete-generic-password", "-s", service, "-a", alias)
+              : List.of(tool, "clear", "service", service, "account", alias);
+      return runQuietly(arguments).isPresent();
+    }
+
+    /**
+     * Passes a secret on stdin rather than in the argument list.
+     *
+     * <p>Arguments are visible in the process table to every user on the host, so a secret given
+     * that way is a secret published. Both platform tools read the value from stdin when it is
+     * omitted from the arguments, which is why neither branch passes it inline.
+     */
+    private boolean writeToStdin(List<String> arguments, String secret) {
+      try {
+        Process process = new ProcessBuilder(arguments).start();
+        try (var stdin = process.getOutputStream()) {
+          stdin.write(secret.getBytes(StandardCharsets.UTF_8));
+        }
+        if (!process.waitFor(LOOKUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+          process.destroyForcibly();
+          return false;
+        }
+        return process.exitValue() == 0;
+      } catch (IOException e) {
+        return false;
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      }
     }
 
     private String toolName() {

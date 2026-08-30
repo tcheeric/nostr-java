@@ -4,14 +4,19 @@ import nostr.client.relay.RelayPool;
 import nostr.client.relay.RelayConnection;
 import nostr.client.relay.RelayConnectionFactory;
 import nostr.client.springwebsocket.NostrRelayClient;
+import nostr.mcp.cli.KeyAdminCli;
+import nostr.mcp.identity.IdentityStore;
 import nostr.mcp.identity.IdentityVault;
+import nostr.mcp.identity.KeySource;
 import nostr.mcp.identity.KeySources;
+import nostr.mcp.identity.KeystoreException;
 import nostr.mcp.relay.RelayDirectory;
-import nostr.mcp.tool.ListIdentitiesTool;
-import nostr.mcp.tool.ListRelaysTool;
 import nostr.mcp.tool.NostrToolRegistry;
+import nostr.mcp.tool.ToolSurface;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -34,15 +39,17 @@ public final class NostrMcpApplication {
    */
   public static void main(String[] args) throws InterruptedException {
     McpConfiguration configuration = McpConfiguration.fromEnvironment();
+    List<String> commands = commandsIn(args);
+    if (!commands.isEmpty()) {
+      System.exit(runKeyAdmin(configuration, commands));
+    }
 
     try (RelayPool relayPool =
             new RelayPool(configuration.allRelayUris(), NostrMcpApplication::connectToRelay);
         IdentityVault identityVault = openVault(configuration)) {
 
       NostrToolRegistry registry =
-          new NostrToolRegistry()
-              .register(new ListRelaysTool(configuration.relayDirectory(), relayPool))
-              .register(new ListIdentitiesTool(identityVault));
+          ToolSurface.forServer(configuration.relayDirectory(), relayPool, identityVault);
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
         awaitShutdown();
@@ -62,11 +69,47 @@ public final class NostrMcpApplication {
 
   private static IdentityVault openVault(McpConfiguration configuration) {
     return new IdentityVault(
-        KeySources.forType(
-            configuration.keystoreType(),
-            configuration.keystorePath(),
-            configuration.identityAliases()),
-        configuration.defaultIdentity());
+        keySource(configuration),
+        configuration.defaultIdentity(),
+        configuration.identityBinding());
+  }
+
+  private static KeySource keySource(McpConfiguration configuration) {
+    return KeySources.forType(
+        configuration.keystoreType(),
+        configuration.keystorePath(),
+        configuration.identityAliases());
+  }
+
+  /**
+   * Separates CLI commands from the JVM options a host passes.
+   *
+   * <p>An MCP host launches the jar with {@code --nostr.mcp.*} flags and no command, so anything
+   * that is not a flag is the human asking for key administration instead.
+   */
+  private static List<String> commandsIn(String[] args) {
+    return Arrays.stream(args).filter(argument -> !argument.startsWith("-")).toList();
+  }
+
+  /**
+   * Runs key administration, which needs a writable backend rather than merely a readable one.
+   *
+   * <p>Reported as a configuration error rather than a crash, because "this backend cannot
+   * create keys" is something the operator can act on.
+   */
+  private static int runKeyAdmin(McpConfiguration configuration, List<String> commands) {
+    KeySource source = keySource(configuration);
+    if (!(source instanceof IdentityStore store)) {
+      System.out.println(
+          "error: the " + source.type() + " keystore cannot be administered from the command line");
+      return 1;
+    }
+    try {
+      return new KeyAdminCli(store, System.out).run(commands);
+    } catch (KeystoreException e) {
+      System.out.println("error: " + e.getMessage());
+      return 1;
+    }
   }
 
   private static RelayConnection connectToRelay(String relayUri) throws IOException {

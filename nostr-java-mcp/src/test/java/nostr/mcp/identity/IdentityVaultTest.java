@@ -136,6 +136,44 @@ class IdentityVaultTest {
     }
   }
 
+  // Verifies a bound process holds only its own identity, so another alias is absent from the
+  // heap rather than merely refused.
+  @Test
+  void aBoundProcessUnlocksOnlyItsOwnIdentity() {
+    try (IdentityVault vault =
+        new IdentityVault(sourceHolding("personal", "project-bot"), null, IdentityBinding.to("personal"))) {
+
+      assertEquals(List.of("personal"), vault.list().stream().map(IdentitySummary::alias).toList());
+      assertTrue(vault.find("project-bot").isEmpty());
+      assertThrows(IdentityUnknownException.class, () -> vault.publicKeyOf("project-bot"));
+    }
+  }
+
+  // Verifies binding makes the identity unambiguous, so no caller has to name it.
+  @Test
+  void theBoundIdentityIsTheDefault() {
+    try (IdentityVault vault =
+        new IdentityVault(sourceHolding("personal", "project-bot"), null, IdentityBinding.to("project-bot"))) {
+
+      assertEquals("project-bot", vault.defaultAlias().orElseThrow());
+    }
+  }
+
+  // Verifies a server bound to a missing identity fails at startup, where the typo can be fixed,
+  // rather than when an agent first tries to post.
+  @Test
+  void aBoundProcessRefusesToStartWithoutItsIdentity() {
+    KeySource source = sourceHolding("personal");
+
+    KeystoreException failure =
+        assertThrows(
+            KeystoreException.class,
+            () -> new IdentityVault(source, null, IdentityBinding.to("typo")).close());
+
+    assertTrue(failure.getMessage().contains("typo"), failure.getMessage());
+    assertTrue(failure.getMessage().contains("keygen"), "the message should say how to fix it");
+  }
+
   private IdentityVault vaultOf(String... aliases) {
     return new IdentityVault(sourceHolding(aliases), null);
   }
@@ -148,12 +186,22 @@ class IdentityVaultTest {
     return sourceOf(keys);
   }
 
-  /** A source holding exactly what a test hands it. */
+  /**
+   * A source holding exactly what a test hands it, and honouring the binding as a real backend
+   * must: a bound process never even reads the other entries.
+   */
   private KeySource sourceOf(Map<String, byte[]> keys) {
     return new KeySource() {
       @Override
-      public Map<String, byte[]> loadKeys() {
-        return keys;
+      public Map<String, byte[]> loadKeys(IdentityBinding binding) {
+        Map<String, byte[]> permitted = new LinkedHashMap<>();
+        keys.forEach(
+            (alias, key) -> {
+              if (binding.permitted(keys.keySet()).contains(alias)) {
+                permitted.put(alias, key);
+              }
+            });
+        return permitted;
       }
 
       @Override

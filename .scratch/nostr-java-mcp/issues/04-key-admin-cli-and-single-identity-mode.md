@@ -15,16 +15,16 @@ name, so nothing to name wrongly.
 
 **Status:** ready-for-agent
 
-- [ ] The same jar runs as an MCP server and as a CLI offering `keygen`, `import`, `list` and
+- [x] The same jar runs as an MCP server and as a CLI offering `keygen`, `import`, `list` and
       `remove`
-- [ ] `nostr.mcp.identity` binds the process to one alias
-- [ ] A bound process unlocks only that alias, leaving other entries undecrypted and absent
+- [x] `nostr.mcp.identity` binds the process to one alias
+- [x] A bound process unlocks only that alias, leaving other entries undecrypted and absent
       from the heap
-- [ ] A bound process omits the `identity` argument from signing tool schemas entirely
-- [ ] A bound process registers no identity lifecycle tools
-- [ ] `nostr_list_identities` on a bound server returns the single bound identity
-- [ ] A server started with an empty keystore refuses to start and says how to create an
+- [x] A bound process omits the `identity` argument from signing tool schemas entirely
+- [x] A bound process registers no identity lifecycle tools
+- [x] `nostr_list_identities` on a bound server returns the single bound identity
+- [x] A server started with an empty keystore refuses to start and says how to create an
       identity, rather than generating one silently
-- [ ] Golden-file tests pin the tool list separately for bound and unbound modes, so
+- [x] Golden-file tests pin the tool list separately for bound and unbound modes, so
       unregistration is asserted rather than assumed
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

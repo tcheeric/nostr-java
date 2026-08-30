@@ -17,15 +17,20 @@ import java.util.Map;
 public interface KeySource {
 
   /**
-   * Read every key this source holds.
+   * Read the keys this source holds that the binding permits.
    *
    * <p>Called once at startup. The caller wipes the returned arrays after use, so an
    * implementation must not retain them.
    *
-   * @return private key material by alias, empty when the source holds nothing
+   * <p>The binding is applied <em>before</em> decryption, not after. A bound process must never
+   * hold another identity's key even briefly, so an implementation filters by alias while the
+   * other entries are still encrypted rather than reading everything and discarding the rest.
+   *
+   * @param binding which identities this process may unlock
+   * @return private key material by alias, empty when the source holds nothing permitted
    * @throws KeystoreException if the source exists but could not be read
    */
-  Map<String, byte[]> loadKeys();
+  Map<String, byte[]> loadKeys(IdentityBinding binding);
 
   /**
    * How this source identifies itself in logs and errors.

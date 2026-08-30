@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -48,14 +49,17 @@ public final class EnvironmentKeySource implements KeySource {
   }
 
   @Override
-  public Map<String, byte[]> loadKeys() {
+  public Map<String, byte[]> loadKeys(IdentityBinding binding) {
     Map<String, byte[]> keys = new LinkedHashMap<>();
     environment
         .get()
         .forEach(
             (name, value) -> {
               if (name.startsWith(PREFIX) && !value.isBlank()) {
-                keys.put(aliasOf(name), decode(name, value));
+                String alias = aliasOf(name);
+                if (binding.permitted(Set.of(alias)).contains(alias)) {
+                  keys.put(alias, decode(name, value));
+                }
               }
             });
     return keys;

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -35,12 +36,17 @@ import javax.crypto.spec.SecretKeySpec;
  * thing protecting the file, and a file every user on the host can copy is one an attacker can
  * work on offline for as long as they like.
  */
-public final class EncryptedFileKeySource implements KeySource {
+public final class EncryptedFileKeySource implements KeySource, IdentityStore {
 
   /** The value that selects this backend. */
   public static final String TYPE = "encrypted-file";
 
-  private static final String KEY_ALGORITHM = "RAW";
+  /**
+   * PKCS#12 stores a secret key under a named algorithm and rejects one it does not recognise,
+   * so a nostr key travels as an AES key of the same 32 bytes. The name is a container label
+   * here, not a statement about how the key is used: nothing ever asks this keystore to encrypt.
+   */
+  private static final String KEY_ALGORITHM = "AES";
   private static final Set<PosixFilePermission> FORBIDDEN_PERMISSIONS =
       Set.of(
           PosixFilePermission.GROUP_READ,
@@ -66,13 +72,13 @@ public final class EncryptedFileKeySource implements KeySource {
   }
 
   @Override
-  public Map<String, byte[]> loadKeys() {
+  public Map<String, byte[]> loadKeys(IdentityBinding binding) {
     if (!Files.exists(keystorePath)) {
       return Map.of();
     }
     refuseIfReadableByOthers();
     try (InputStream keystoreStream = Files.newInputStream(keystorePath)) {
-      return readEntries(loadKeystore(keystoreStream));
+      return readEntries(loadKeystore(keystoreStream), binding);
     } catch (IOException e) {
       throw new KeystoreException("Could not read the keystore at " + keystorePath, e);
     }
@@ -88,9 +94,11 @@ public final class EncryptedFileKeySource implements KeySource {
    * @param alias the name to store it under
    * @param keyMaterial the private key bytes
    */
+  @Override
   public void store(@NonNull String alias, @NonNull byte[] keyMaterial) {
     try {
       KeyStore keystore = openOrCreate();
+      refuseIfAliasTaken(keystore, alias);
       keystore.setEntry(
           alias,
           new KeyStore.SecretKeyEntry(new SecretKeySpec(keyMaterial, KEY_ALGORITHM)),
@@ -98,6 +106,52 @@ public final class EncryptedFileKeySource implements KeySource {
       writeOwnerOnly(keystore);
     } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
       throw new KeystoreException("Could not store the key for '" + alias + "'", e);
+    }
+  }
+
+  @Override
+  public List<String> aliases() {
+    if (!Files.exists(keystorePath)) {
+      return List.of();
+    }
+    refuseIfReadableByOthers();
+    try (InputStream keystoreStream = Files.newInputStream(keystorePath)) {
+      return Collections.list(loadKeystore(keystoreStream).aliases());
+    } catch (IOException | KeyStoreException e) {
+      throw new KeystoreException("Could not list the keystore at " + keystorePath, e);
+    }
+  }
+
+  @Override
+  public boolean remove(@NonNull String alias) {
+    if (!Files.exists(keystorePath)) {
+      return false;
+    }
+    try {
+      KeyStore keystore = openOrCreate();
+      if (!keystore.containsAlias(alias)) {
+        return false;
+      }
+      keystore.deleteEntry(alias);
+      writeOwnerOnly(keystore);
+      return true;
+    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+      throw new KeystoreException("Could not remove the key for '" + alias + "'", e);
+    }
+  }
+
+  /**
+   * Refuses to overwrite an existing entry.
+   *
+   * <p>Silently replacing a key destroys an account with no warning and no way back, so the
+   * caller is told to remove it deliberately first.
+   */
+  private void refuseIfAliasTaken(KeyStore keystore, String alias) throws KeyStoreException {
+    if (keystore.containsAlias(alias)) {
+      throw new KeystoreException(
+          "The keystore already holds an identity called '"
+              + alias
+              + "'; remove it first if you really mean to replace it");
     }
   }
 
@@ -147,11 +201,20 @@ public final class EncryptedFileKeySource implements KeySource {
     }
   }
 
-  private Map<String, byte[]> readEntries(KeyStore keystore) {
+  /**
+   * Decrypts only the permitted entries.
+   *
+   * <p>Listing aliases does not decrypt anything, so a bound process can see which entries exist
+   * and still read only its own. That ordering is the guarantee: the other keys stay ciphertext.
+   */
+  private Map<String, byte[]> readEntries(KeyStore keystore, IdentityBinding binding) {
     Map<String, byte[]> keys = new LinkedHashMap<>();
     try {
+      Set<String> permitted = binding.permitted(new LinkedHashSet<>(Collections.list(keystore.aliases())));
       for (String alias : Collections.list(keystore.aliases())) {
-        keys.put(alias, readEntry(keystore, alias));
+        if (permitted.contains(alias)) {
+          keys.put(alias, readEntry(keystore, alias));
+        }
       }
     } catch (KeyStoreException e) {
       throw new KeystoreException("Could not list the keystore entries", e);

@@ -31,19 +31,71 @@ public final class IdentityVault implements AutoCloseable {
 
   private final Map<String, Identity> identitiesByAlias = new LinkedHashMap<>();
   private final Map<String, byte[]> keyMaterialByAlias = new LinkedHashMap<>();
+  private final IdentityBinding binding;
   private final String defaultAlias;
 
   /**
-   * Unlock every key the source holds.
+   * Unlock every key the source holds, for a process that may sign as any of them.
    *
    * @param keySource where the keys come from
    * @param defaultAlias the identity used when a caller names none, or {@code null} for none
    */
   public IdentityVault(@NonNull KeySource keySource, String defaultAlias) {
+    this(keySource, defaultAlias, IdentityBinding.unbound());
+  }
+
+  /**
+   * Unlock the keys this process is permitted to hold.
+   *
+   * <p>A bound process refuses to start when its alias is missing. The alternative is a server
+   * that runs, advertises signing tools, and fails at the moment an agent tries to use one; a
+   * misconfigured binding is a startup problem and is reported where it can be fixed.
+   *
+   * @param keySource where the keys come from
+   * @param defaultAlias the identity used when a caller names none, or {@code null} for none
+   * @param binding which identities this process may operate
+   * @throws IdentityUnknownException when a bound process's alias is not in the keystore
+   */
+  public IdentityVault(
+      @NonNull KeySource keySource, String defaultAlias, @NonNull IdentityBinding binding) {
+    this.binding = binding;
     warnIfUnprotected(keySource);
-    keySource.loadKeys().forEach(this::unlock);
-    this.defaultAlias = resolveDefault(defaultAlias);
+    keySource.loadKeys(binding).forEach(this::unlock);
+    requireBoundIdentityWasFound(keySource);
+    this.defaultAlias = resolveDefault(binding.alias().orElse(defaultAlias));
     announce(keySource);
+  }
+
+  /**
+   * How this process is restricted, if at all.
+   *
+   * @return the binding this vault was built with
+   */
+  public IdentityBinding binding() {
+    return binding;
+  }
+
+  /**
+   * Fails a bound process whose identity does not exist, naming how to create one.
+   *
+   * <p>Only bound processes refuse. An unbound server with an empty keystore is how a person
+   * creates their first key, so refusing there would make the module impossible to bootstrap.
+   */
+  private void requireBoundIdentityWasFound(KeySource keySource) {
+    binding
+        .alias()
+        .filter(alias -> !identitiesByAlias.containsKey(alias))
+        .ifPresent(
+            alias -> {
+              throw new KeystoreException(
+                  "This server is bound to identity '"
+                      + alias
+                      + "', which the "
+                      + keySource.type()
+                      + " keystore does not hold. Create it with: java -jar nostr-java-mcp.jar"
+                      + " keygen "
+                      + alias);
+            });
   }
 
   /**

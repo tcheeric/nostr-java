@@ -116,7 +116,7 @@ class ToolSurfaceSecrecyTest {
     return new IdentityVault(
         new KeySource() {
           @Override
-          public Map<String, byte[]> loadKeys() {
+          public Map<String, byte[]> loadKeys(nostr.mcp.identity.IdentityBinding binding) {
             return Map.of(ALIAS, KEY_MATERIAL.clone());
           }
 

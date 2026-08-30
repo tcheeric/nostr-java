@@ -1,6 +1,7 @@
 package nostr.mcp;
 
 import lombok.NonNull;
+import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.relay.RelayDirectory;
 
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ public final class McpConfiguration {
   private final String keystorePath;
   private final List<String> identityAliases;
   private final String defaultIdentity;
+  private final IdentityBinding identityBinding;
 
   private McpConfiguration(
       List<String> readRelays,
@@ -36,13 +38,15 @@ public final class McpConfiguration {
       String keystoreType,
       String keystorePath,
       List<String> identityAliases,
-      String defaultIdentity) {
+      String defaultIdentity,
+      IdentityBinding identityBinding) {
     this.readRelays = List.copyOf(readRelays);
     this.writeRelays = List.copyOf(writeRelays);
     this.keystoreType = keystoreType;
     this.keystorePath = keystorePath;
     this.identityAliases = List.copyOf(identityAliases);
     this.defaultIdentity = defaultIdentity;
+    this.identityBinding = identityBinding;
   }
 
   /**
@@ -59,7 +63,8 @@ public final class McpConfiguration {
         settingOr("keystore.type", DEFAULT_KEYSTORE_TYPE),
         settingOr("keystore.path", defaultKeystorePath()),
         commaSeparated("identities", List.of()),
-        setting("identity"));
+        setting("identity.default"),
+        IdentityBinding.fromConfiguredAlias(setting("identity")));
   }
 
   /**
@@ -72,7 +77,13 @@ public final class McpConfiguration {
   public static McpConfiguration of(
       @NonNull List<String> readRelays, @NonNull List<String> writeRelays) {
     return new McpConfiguration(
-        readRelays, writeRelays, DEFAULT_KEYSTORE_TYPE, defaultKeystorePath(), List.of(), null);
+        readRelays,
+        writeRelays,
+        DEFAULT_KEYSTORE_TYPE,
+        defaultKeystorePath(),
+        List.of(),
+        null,
+        IdentityBinding.unbound());
   }
 
   /**
@@ -109,6 +120,15 @@ public final class McpConfiguration {
    */
   public String defaultIdentity() {
     return defaultIdentity;
+  }
+
+  /**
+   * Whether this process is bound to a single identity.
+   *
+   * @return the binding described by {@code nostr.mcp.identity}
+   */
+  public IdentityBinding identityBinding() {
+    return identityBinding;
   }
 
   /**
