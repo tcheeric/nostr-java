@@ -36,17 +36,157 @@ reusable gift-wrap primitive that NIP-59 explicitly intends other protocols to b
 | Event id computation over an unsigned event | Present | `EventSerializer.computeEventId` |
 | Event JSON encode/decode | Present | `BaseEventEncoder`, `EventJsonMapper` |
 | Kind constants | Partial | `Kinds` has `ENCRYPTED_DIRECT_MESSAGE = 4`; 13/14/15/1059/10050 missing |
-| Rumor (unsigned event) as a first-class concept | **Missing** | — |
-| Seal, gift wrap, unwrapping | **Missing** | — |
-| DM relay list (kind 10050) | **Missing** | — |
+| Rumor (unsigned event) as a first-class concept | **Missing** — but implemented in imani-bridge (§3) | — |
+| Seal, gift wrap, unwrapping | **Missing** — but implemented in imani-bridge (§3) | — |
+| DM relay list (kind 10050) | **Missing** everywhere | — |
 
-The cryptography is done. What is missing is the event-composition layer above it.
+The cryptography is done. What is missing is the event-composition layer above it — and a
+working version of that layer already exists in a sibling repository, which §3 reviews.
 
-## 3. Constraints in the current codebase
+## 3. Prior art: `wallet-nip-17` in imani-bridge
+
+A working NIP-17 implementation already exists at
+`imani-bridge/wallet-plugin/wallet-nips/wallet-nip-17` (~1,240 lines across eight classes).
+It is in production use for gift-wrapped token transfers, so it is the reference for *what
+works*, and reviewing it is cheaper than rediscovering its lessons.
+
+Its shape maps almost one-to-one onto §5 below:
+
+| imani-bridge | This spec | Verdict |
+| --- | --- | --- |
+| `Rumor` (record) | `Rumor` | **Adopt.** A record with no `sig` field is exactly the "cannot be signed" property §5.1 wants. |
+| `Seal`, `GiftWrap` (records) | Internal to `GiftWrapper` | Adopt the modelling, hide the types. |
+| `Nip17Kinds` | `Kinds` additions | Fold into the existing `Kinds` class rather than a parallel one. |
+| `SealService` | `Nip59GiftWrapper` (inner half) | Adopt the flow, replace the JSON handling. |
+| `GiftWrapBuilder` | `Nip59GiftWrapper` (outer half) | Adopt the flow, replace key generation and JSON. |
+| `Nip17DmService` | `DirectMessageService` | Adopt the orchestration and the sender-copy handling. |
+| `DmCrypto44` + `DmCryptoNip44` | `MessageCipher44` directly | Drop. It is an adapter around a class we own. |
+
+The three-layer flow, the sender-copy publish, the "skip undecryptable events" subscription
+handler, and the `p`-tag recipient extraction are all correct and worth carrying over
+directly. What follows is what must **not** be carried over.
+
+### 3.1 A confirmed bug: `update()` destroys the randomised timestamp
+
+`SealService.createSeal` does this:
+
+```java
+Instant createdAt = randomizeTimestamp(rumor.createdAt());
+sealEvent.setCreatedAt(createdAt.getEpochSecond());
+...
+sealEvent.update();   // <-- overwrites createdAt with Instant.now()
+```
+
+And `GenericEvent.update()` begins:
+
+```java
+this.createdAt = Instant.now().getEpochSecond();
+```
+
+So the randomisation is computed, assigned, and then thrown away on the next line. Both
+`SealService` and `GiftWrapBuilder` have this bug. Every seal and gift wrap those services
+produce is stamped with the true send time, which defeats the specific NIP-59 requirement
+that timestamps be randomised to prevent time-correlation analysis. The privacy property is
+silently absent while the code reads as though it is present.
+
+This is the strongest possible evidence for §4.1's proposed `update(long createdAt)`: the
+missing seam did not merely make the correct behaviour awkward, it made the incorrect
+behaviour invisible. Fixing `nostr-java` fixes imani-bridge too.
+### 3.2 Hand-rolled JSON must not be carried over
+
+`Rumor`, `Seal`, `GiftWrap`, `SealService`, and `GiftWrapBuilder` each contain their own
+`serializeTags`, `escapeJson`, `unescapeJson`, `extractJsonString`, `extractJsonLong`, and
+`extractJsonTags`. That is five copies of a hand-written JSON serialiser and two copies of a
+hand-written parser, in a module that already depends on Jackson through `nostr-java-event`.
+One of them carries the comment `// Simple JSON parsing - in production, use a proper JSON
+library`.
+
+Beyond the duplication, this is a **correctness risk in the one place correctness matters
+most**. The event id is a SHA-256 over the canonical serialisation, so any deviation from
+NIP-01's canonical form produces a wrong id, and any escaping mismatch between the serialiser
+and the parser corrupts a message. `escapeJson` handles `\`, `"`, `\n`, `\r`, `\t` but not
+other control characters, which NIP-01 requires escaped. A message containing one produces
+an event whose id does not match its content.
+
+`nostr-java` already has `EventSerializer.serializeToBytes`, `computeEventId`, and
+`EventJsonMapper`. The port uses them for encoding and decoding, and the hand-rolled JSON is
+deleted rather than moved.
+
+### 3.3 Ephemeral key generation should use existing SDK code
+
+`GiftWrapBuilder` pulls in a direct BouncyCastle dependency and reimplements secp256k1 key
+generation with `SECNamedCurves`, `ECDomainParameters`, and `BigInteger` arithmetic, roughly
+20 lines including a fixed-width hex helper.
+
+`nostr-java` already has `PrivateKey.generateRandomPrivKey()` and `Schnorr.genPubKey`, used
+by `Identity.generateRandomIdentity()`. One line replaces all of it, and the BouncyCastle
+dependency leaves the module's POM.
+
+### 3.4 Timestamp randomisation is wrong in two further ways
+
+```java
+long offsetSeconds = (long) ((Math.random() - 0.5) * 2 * 2 * 24 * 60 * 60);
+return original.plusSeconds(offsetSeconds);
+```
+
+- It uses `Math.random()`, not `SecureRandom`. A predictable offset is a weak offset when the
+  offset is the privacy mechanism.
+- It randomises **±2 days**, so half of all timestamps land in the *future*. NIP-59 says "up
+  to two days in the past" and warns that some relays refuse future-dated events. The port
+  uses `[now - 2 days, now]`.
+
+### 3.5 Missing security checks
+
+Two of §6's invariants are absent from the imani-bridge code:
+
+- **The seal signature is never verified** on the receive path. `SealService.unseal`
+  decrypts and parses, but nothing checks the signature, so an unauthenticated message is
+  accepted as authentic.
+- **The impersonation check is missing.** Nothing compares `rumor.pubkey` to `seal.pubkey`.
+  NIP-17 calls this out explicitly: without it, anyone can forge a message from anyone by
+  editing one field of the rumor before sealing. `Nip17DmService.onEvent` then reports
+  `seal.pubkey()` as the sender, so the forgery would be attributed to whoever the attacker
+  chose.
+
+Both are cheap to add and both are load-bearing. They are the reason §6 states the
+invariants as named, individually-tested rules rather than as prose.
+
+### 3.6 Structural notes
+
+- **Keys are passed as hex `String`s** throughout (`senderPrivKeyHex`, `recipientPrivHex`).
+  Strings cannot be zeroed and may be interned, and `nostr-java` already has `PrivateKey`,
+  `PublicKey`, and `Identity` for this. The port takes an `Identity` and never sees raw key
+  material, which also aligns with the MCP module's vault boundary.
+- **`DmCrypto44` is an unnecessary adapter.** It exists to invert the dependency on
+  `MessageCipher44`, but in `nostr-java` that class is ours, one module away. Depending on it
+  directly removes an interface, an implementation, and a BouncyCastle `Hex` round trip.
+- **`Nip17DmService` mixes four responsibilities**: composing messages, publishing,
+  subscribing, and holding an in-memory inbox with mutable identity state
+  (`setIdentity`). For the SDK, composition and parsing belong in
+  `DirectMessageService`; publishing and subscribing belong to the caller, who already has
+  `NostrRelayClient`; and the inbox belongs to the application. The SDK version is a pure
+  function of its inputs, which is also what makes it testable against the NIP vectors.
+- **`wallet-nip-17` has no test directory** (`src/main` only). Coverage comes from
+  integration tests elsewhere in imani-bridge. Given §3.1 and §3.5, this is the likeliest
+  reason those defects survived, and it is why §9 leads with the published NIP vectors.
+
+### 3.7 What the port is, in one line
+
+Take the structure and the flow from `wallet-nip-17`; replace the JSON, the key generation,
+the randomisation, and the key-handling types with facilities `nostr-java` already has; and
+add the two missing security checks. The result should be well under half the line count,
+because most of what was written was substituting for library code that already existed one
+module away.
+
+Once merged, `wallet-nip-17` becomes a thin adapter over `nostr-java`'s implementation, or
+is deleted in favour of it. That migration is out of scope here but is the point of doing
+this work in the SDK rather than again.
+
+## 4. Constraints in the current codebase
 
 Three facts about the existing code shape the design, and each needs an explicit decision.
 
-### 3.1 `GenericEvent.update()` forces `created_at` to now
+### 4.1 `GenericEvent.update()` forces `created_at` to now
 
 ```java
 public void update() {
@@ -65,7 +205,10 @@ the clock. This is additive, changes no existing call site's behaviour, and give
 gift-wrap code the seam it needs. The alternative, a `Clock`/`Supplier<Long>` injected into
 `GenericEvent`, is a larger change to a widely-used class for no extra benefit here.
 
-### 3.2 `MessageCipher44` takes raw key bytes and prefixes `02`
+This is not hypothetical: the absence of this seam is the direct cause of the timestamp bug
+found in the imani-bridge implementation (§3.1).
+
+### 4.2 `MessageCipher44` takes raw key bytes and prefixes `02`
 
 ```java
 EncryptedPayloads.getConversationKey(
@@ -77,7 +220,7 @@ pairs per message (sender↔recipient for the seal, ephemeral↔recipient for th
 is just two `MessageCipher44` instances. No change required, but the gift-wrap code must
 construct ciphers rather than assume one conversation.
 
-### 3.3 A rumor is an event that must never be signed
+### 4.3 A rumor is an event that must never be signed
 
 `GenericEvent` implements `ISignable` and `validate()` requires a signature. A rumor has an
 `id` and no `sig`, and encoding it must emit `"sig"` absent (or empty) without the encoder
@@ -88,17 +231,17 @@ half-built state (see §4.1). Making illegal states unrepresentable is worth mor
 reusing the class, because the whole security property of NIP-59 rests on a rumor never
 acquiring a signature.
 
-## 4. Design
+## 5. Design
 
 All new code lands in `nostr-java-event` and `nostr-java-identity`. Nothing in `core`
 changes; nothing in `client` changes.
 
-### 4.1 New types in `nostr-java-event`
+### 5.1 New types in `nostr-java-event`
 
 **`Rumor`** — an unsigned event. Holds `pubkey`, `createdAt`, `kind`, `tags`, `content`, and
 a derived `id`. It is deliberately **not** an `ISignable` and exposes no signature field, so
 a rumor cannot be signed by accident. It serialises to the same JSON shape as an event with
-`"sig": ""`.
+`"sig": ""`. A Java `record`, following imani-bridge's modelling (§3), which got this right.
 
 **`Kinds` additions**:
 
@@ -120,7 +263,7 @@ NIP-17 states clients MUST only publish DMs to relays in the recipient's kind-10
 and MUST NOT send at all when no list is found. Publishing a DM to an arbitrary relay is a
 protocol violation, so this is not optional.
 
-### 4.2 New capability in `nostr-java-identity`: `GiftWrapper`
+### 5.2 New capability in `nostr-java-identity`: `GiftWrapper`
 
 Signing lives in `identity`, and gift wrapping is fundamentally a signing operation with
 two keys, so the wrap/unwrap logic belongs there alongside `MessageCipher`.
@@ -132,7 +275,7 @@ public interface GiftWrapper {
 }
 ```
 
-Two methods, one responsibility: hide a rumor, and reveal it. Everything in §5 is an
+Two methods, one responsibility: hide a rumor, and reveal it. Everything in §6 is an
 implementation detail behind this interface, which is what makes it a deep module — a large
 amount of protocol behaviour behind a surface an application author can hold in their head.
 
@@ -140,7 +283,7 @@ amount of protocol behaviour behind a surface an application author can hold in 
 implementation for `kind:21059` ephemeral wraps differs only in the outer kind, so the wrap
 kind is a constructor parameter rather than a flag argument on the method.
 
-### 4.3 The DM service
+### 5.3 The DM service
 
 `DirectMessageService`, also in `identity`, is the NIP-17-specific layer above the
 NIP-59-generic `GiftWrapper`:
@@ -155,7 +298,7 @@ recipient *and* one addressed to the sender, since the sender cannot otherwise r
 own history. Making that plurality visible in the signature stops callers from publishing
 one event and silently losing their outbox.
 
-## 5. The algorithm
+## 6. The algorithm
 
 ### Sending
 
@@ -203,7 +346,7 @@ its own test:
   wraps addressed to you but also, potentially, garbage. Undecryptable wraps are skipped,
   not thrown, or one malformed event stops a whole inbox from loading.
 
-## 6. Public API sketch
+## 7. Public API sketch
 
 ```java
 Identity alice = Identity.create(alicePrivateKey);
@@ -225,7 +368,7 @@ ChatMessage received = messages.read(incomingGiftWrap);
 The application author never sees a seal, an ephemeral key, or a conversation key. That is
 the point.
 
-## 7. Scope
+## 8. Scope
 
 **In scope for this work:** kind-14 chat messages, NIP-59 seal and gift wrap (kinds 13,
 1059, 21059), unwrapping with full verification, kind-10050 DM relay lists, and the
@@ -242,7 +385,7 @@ allow.
 NIP-04 is left in place, deprecated in Javadoc, and not removed. Removing it is a breaking
 change and a separate decision.
 
-## 8. Testing strategy
+## 9. Testing strategy
 
 - **Vectors from the NIPs.** NIP-59 §"An Example" gives an author key, recipient key,
   ephemeral key, and the exact resulting seal and gift wrap. With the ephemeral key and both
@@ -253,7 +396,14 @@ change and a separate decision.
   empty strings, and the NIP-44 maximum plaintext size.
 - **The impersonation attack**: hand-build a wrap whose rumor pubkey differs from the seal
   pubkey and assert it is rejected. This test is the reason the check exists, so it must
-  fail loudly if the check is ever removed.
+  fail loudly if the check is ever removed. **Absent from imani-bridge (§3.5).**
+- **An unsigned or badly-signed seal is rejected.** Also absent from imani-bridge (§3.5).
+- **Timestamps**: every seal and wrap carries a `created_at` in `[now - 2 days, now]`, never
+  in the future, and never equal to the rumor's. A regression test for §3.1, which is the
+  defect this port exists to avoid repeating.
+- **Canonical serialisation**: content containing quotes, backslashes, newlines, control
+  characters, and astral-plane Unicode round-trips with a matching event id. This is where
+  the hand-rolled JSON of §3.2 would fail.
 - **Adversarial inputs**: a wrap encrypted to someone else, a corrupted ciphertext, a
   kind-13 with a bad signature, a kind-13 carrying tags, a rumor with a mismatched id, and a
   future-dated wrap. Each has a defined outcome.
@@ -266,21 +416,32 @@ change and a separate decision.
   and read the message back.
 - Run with `mvn -q verify` from the repository root.
 
-## 9. Delivery plan
+## 10. Delivery plan
 
-1. `Kinds` constants, `Rumor` type and its JSON codec, `GenericEvent.update(long)`.
-2. `Nip59GiftWrapper`: wrap and unwrap with all §5 invariants, validated against the NIP-59
-   vectors.
+The plan is a **port with corrections**, not a greenfield build. Each phase starts from the
+corresponding imani-bridge class and applies the substitutions in §3.7.
+
+1. `Kinds` constants, `Rumor` type and its Jackson codec, `GenericEvent.update(long)`.
+   Source: `Nip17Kinds`, `Rumor`, minus the hand-rolled serialisation.
+2. `Nip59GiftWrapper`: wrap and unwrap with all §6 invariants, validated against the NIP-59
+   vectors. Source: `SealService` + `GiftWrapBuilder`, with `EventSerializer` for JSON,
+   `PrivateKey.generateRandomPrivKey()` for ephemeral keys, `SecureRandom` past-only
+   timestamps, and the two missing security checks added.
 3. `ChatMessage` (kind 14) and `Nip17DirectMessageService`, validated against the NIP-17
-   vectors.
-4. `DirectMessageRelayList` (kind 10050) and relay-selection on publish.
+   vectors. Source: `Nip17DmService`, keeping the sender-copy logic and discarding the
+   gateway, inbox, and mutable identity state.
+4. `DirectMessageRelayList` (kind 10050) and relay-selection on publish. No prior art;
+   written fresh.
 5. Documentation: a how-to for sending and reading private messages, and a `CHANGELOG.md`
    entry under `Added`.
+6. **Follow-up, separate PR in imani-bridge**: replace `wallet-nip-17`'s internals with a
+   delegation to `nostr-java`, or delete the module. This is what closes out the timestamp
+   and impersonation defects in the code that is actually running today.
 
 Phases 1–3 are what the MCP module's DM tools need; phase 4 is required before any real
 network use, since publishing without a recipient's relay list violates the NIP.
 
-## 10. Open questions
+## 11. Open questions
 
 - Should `GiftWrapper` live in `nostr-java-identity` (with signing, as proposed) or in
   `nostr-java-event` (with event construction)? It genuinely needs both, and the deciding
@@ -293,7 +454,14 @@ network use, since publishing without a recipient's relay list violates the NIP.
   next major version?
 - NIP-42 AUTH in `nostr-java-client` is a hard dependency for real-world DM delivery, since
   relays are told to gate kind-1059 behind it. Should it be pulled into this work or tracked
-  as its own?
+  as its own? Note imani-bridge already has a `wallet-nip-42` module worth reviewing the
+  same way.
+- Should the timestamp and impersonation defects in `wallet-nip-17` (§3.1, §3.5) be patched
+  in place **now**, ahead of this SDK work, since that code is in production? The fixes are
+  small and independent of the port.
+- Does `GiftWrapper` need to expose seal and wrap as separate steps for callers who want
+  NIP-59 without NIP-17, or is `wrap`/`unwrap` sufficient? imani-bridge split them into two
+  classes; this spec merges them behind one interface.
 
 ## Related documents
 
@@ -301,3 +469,4 @@ network use, since publishing without a recipient's relay list violates the NIP.
 - [extending-events.md](extending-events.md) — how custom events and tags are modelled
 - [architecture.md](architecture.md) — module boundaries this design respects
 - [../howto/custom-events.md](../howto/custom-events.md) — working with custom event kinds
+- `imani-bridge/wallet-plugin/wallet-nips/wallet-nip-17` — the prior implementation reviewed in §3
