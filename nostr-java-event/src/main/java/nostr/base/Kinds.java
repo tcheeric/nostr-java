@@ -20,6 +20,24 @@ public final class Kinds {
   public static final int DELETION = 5;
   public static final int REPOST = 6;
   public static final int REACTION = 7;
+  /**
+   * Seal (NIP-59): wraps an encrypted rumor and is signed by its real author.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/59.md">NIP-59</a>
+   */
+  public static final int SEAL = 13;
+  /**
+   * Chat message (NIP-17): the rumor kind carrying private direct message content.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/17.md">NIP-17</a>
+   */
+  public static final int CHAT_MESSAGE = 14;
+  /**
+   * File message (NIP-17): a rumor kind carrying an encrypted file reference.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/17.md">NIP-17</a>
+   */
+  public static final int FILE_MESSAGE = 15;
   public static final int REACTION_TO_WEBSITE = 17;
   public static final int CHANNEL_CREATE = 40;
   public static final int CHANNEL_METADATA = 41;
@@ -27,6 +45,12 @@ public final class Kinds {
   public static final int HIDE_MESSAGE = 43;
   public static final int MUTE_USER = 44;
   public static final int OTS_EVENT = 1040;
+  /**
+   * Gift wrap (NIP-59): the outermost layer, signed by a single-use ephemeral key.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/59.md">NIP-59</a>
+   */
+  public static final int GIFT_WRAP = 1059;
   public static final int REPORT = 1984;
   public static final int COINJOIN_POOL = 2022;
   public static final int RESERVED_CASHU_WALLET_TOKENS = 7_374;
@@ -38,9 +62,21 @@ public final class Kinds {
   public static final int REPLACEABLE_EVENT = 10_000;
   public static final int PIN_LIST = 10_001;
   public static final int RELAY_LIST_METADATA = 10_002;
+  /**
+   * Direct message relay list (NIP-17): the relays on which a user receives private messages.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/17.md">NIP-17</a>
+   */
+  public static final int DM_RELAY_LIST = 10_050;
   public static final int NUTZAP_INFORMATIONAL = 10_019;
   public static final int WALLET = 17_375;
   public static final int EPHEMERAL_EVENT = 20_000;
+  /**
+   * Ephemeral gift wrap (NIP-59): a gift wrap relays must not store.
+   *
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/59.md">NIP-59</a>
+   */
+  public static final int EPHEMERAL_GIFT_WRAP = 21_059;
   public static final int CLIENT_AUTH = 22_242;
   public static final int NOSTR_CONNECT = 24_133;
   public static final int ADDRESSABLE_EVENT = 30_000;
