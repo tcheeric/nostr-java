@@ -39,6 +39,15 @@ Quick links to the most relevant guides and references.
 
 - [developer/SIMPLIFICATION_PROPOSAL.md](developer/SIMPLIFICATION_PROPOSAL.md) — 2.0 design simplification proposal
 
+## Decisions
+
+- [CONTEXT.md](CONTEXT.md) — Shared vocabulary: modules, relay pool, publish result, delivery plan
+- [decisions/0001-introduce-nostr-java-api-module.md](decisions/0001-introduce-nostr-java-api-module.md) — Why `nostr-java-api` exists and what it is not
+- [decisions/0002-multi-relay-failure-semantics.md](decisions/0002-multi-relay-failure-semantics.md) — Partial failure, pool construction, de-duplication
+- [decisions/0003-api-v1-service-scope.md](decisions/0003-api-v1-service-scope.md) — Which services ship in v1, and where NIP-17 orchestration lives
+- [decisions/0004-pool-concurrency-and-subscription-lifecycle.md](decisions/0004-pool-concurrency-and-subscription-lifecycle.md) — Per-relay serialization, parsed payloads, auto-resubscribe
+- [decisions/0005-pool-membership-eose-and-ownership.md](decisions/0005-pool-membership-eose-and-ownership.md) — Mutable membership, synthetic EOSE, resource ownership
+
 ## Project
 
 - [CODEBASE_OVERVIEW.md](CODEBASE_OVERVIEW.md) — Codebase layout, testing, contributing
