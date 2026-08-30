@@ -489,6 +489,7 @@ public class RelayPool implements AutoCloseable {
             filters,
             listener,
             deduplicationWindowSize);
+    subscriptions.removeIf(RelaySubscription::isClosed);
     subscriptions.add(subscription);
     configuredRelayUris.forEach(
         relayUri -> subscribeQuietly(subscription, connectionsByRelay.get(relayUri), relayUri));

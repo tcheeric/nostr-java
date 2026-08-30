@@ -9,16 +9,16 @@ relay closes that gap: publish an event, read it back through a subscription.
 
 **Blocked by:** 09 (`NostrClient` facade and module wiring).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] An integration test publishes an event and reads it back via a subscription against a
+- [x] An integration test publishes an event and reads it back via a subscription against a
       real relay, following the repo's existing Docker / no-docker profile split
-- [ ] A how-to guide covers multi-relay publishing, subscribing, and direct messages, filed
+- [x] A how-to guide covers multi-relay publishing, subscribing, and direct messages, filed
       under `docs/howto` per Diátaxis and linked from `docs/README.md`
-- [ ] The API reference documents `NostrClient`, `RelayPool`, and `PublishResult`
-- [ ] The README module table and architecture section include `nostr-java-api`
-- [ ] `docs/explanation/architecture.md` reflects the five-module chain
-- [ ] `CHANGELOG.md` records the new module under `Added`
-- [ ] The known in-flight ceiling and the transient-relay sharing note are documented so they
+- [x] The API reference documents `NostrClient`, `RelayPool`, and `PublishResult`
+- [x] The README module table and architecture section include `nostr-java-api`
+- [x] `docs/explanation/architecture.md` reflects the five-module chain
+- [x] `CHANGELOG.md` records the new module under `Added`
+- [x] The known in-flight ceiling and the transient-relay sharing note are documented so they
       are not later mistaken for bugs
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

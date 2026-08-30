@@ -19,32 +19,32 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usag
 ```java
 Identity identity = Identity.generateRandomIdentity();
 
-GenericEvent event = GenericEvent.builder()
-    .pubKey(identity.getPublicKey())
-    .kind(Kinds.TEXT_NOTE)
-    .content("Hello Nostr!")
-    .tags(List.of(GenericTag.of("t", "nostr-java")))
-    .build();
+try (NostrClient nostr = NostrClient.builder()
+        .identity(identity)
+        .relays("wss://relay.398ja.xyz", "wss://nos.lol")
+        .build()) {
 
-identity.sign(event);
-
-try (NostrRelayClient client = new NostrRelayClient("wss://relay.398ja.xyz")) {
-    client.send(new EventMessage(event));
+    PublishResult result = nostr.publishTextNote("Hello Nostr!");
+    System.out.println("stored by " + result.getAcceptingRelays());
 }
 ```
 
+Publishing reports what each relay did, and throws only when no relay accepted the event at all.
+See [docs/howto/multi-relay-publishing.md](docs/howto/multi-relay-publishing.md).
+
 ## Module Architecture
 
-4 modules with a strict dependency chain:
+5 modules with a strict dependency chain:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 - **nostr-java-core** — Foundation utilities, BIP-340 Schnorr cryptography, Bech32 encoding, hex conversion
 - **nostr-java-event** — `GenericEvent`, `GenericTag`, `Kinds` constants, `EventFilter` builder, messages, JSON serialization
 - **nostr-java-identity** — `Identity` key management, event signing, NIP-04/NIP-44 encryption
-- **nostr-java-client** — `NostrRelayClient` WebSocket client with retry, Virtual Threads, and async APIs
+- **nostr-java-client** — `NostrRelayClient` WebSocket client with retry, Virtual Threads, and async APIs; `RelayPool` for multi-relay fan-out and fan-in
+- **nostr-java-api** — `NostrClient` entry point: multi-relay publishing with per-relay outcomes, de-duplicated subscriptions, and NIP-17 direct message delivery
 
 ## Running Tests
 
@@ -80,6 +80,8 @@ For diagnosing relay send issues and capturing failure details, see the how-to g
 - **Virtual Thread concurrency** — relay I/O and listener dispatch on Java 21 Virtual Threads
 - **Async APIs** — `connectAsync()`, `sendAsync()`, `subscribeAsync()` via `CompletableFuture`
 - **Reliable connectivity** — Spring Retry, typed `RelayTimeoutException`, connection state tracking
+- **Multi-relay by default** — fan-out publishing with per-relay outcomes, de-duplicated fan-in subscriptions
+- **NIP-17 direct messages** — gift-wrapped and delivered to the recipient's own relays
 - **NIP-04/NIP-44 encryption** — legacy and modern message encryption
 - **BIP-340 Schnorr signatures** — event signing and verification
 - **Well-documented** — architecture guides, how-to guides, and API reference

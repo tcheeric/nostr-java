@@ -185,6 +185,38 @@ class RelaySubscriptionTest {
     }
   }
 
+  // Verifies stored events reach the caller before the backlog is reported drained, since the
+  // transport delivers each frame on its own thread and an EOSE can otherwise overtake them.
+  @Test
+  void storedEventsArriveBeforeTheBacklogIsReportedDrained() throws Exception {
+    Map<String, FakeRelay> relays = relaysNamed(FIRST_RELAY);
+    List<String> observed = new ArrayList<>();
+
+    try (RelayPool pool = poolOf(relays);
+        RelaySubscription subscription =
+            pool.subscribe(
+                TEXT_NOTES,
+                new SubscriptionListener() {
+                  @Override
+                  public void onEvent(GenericEvent event) {
+                    observed.add("event");
+                  }
+
+                  @Override
+                  public void onEndOfStoredEvents() {
+                    observed.add("backlog-drained");
+                  }
+                })) {
+
+      FakeRelay relay = relays.get(FIRST_RELAY);
+      relay.emitEvent(subscription.getSubscriptionId(), event("stored one"));
+      relay.emitEvent(subscription.getSubscriptionId(), event("stored two"));
+      relay.emitEndOfStoredEvents(subscription.getSubscriptionId());
+
+      assertEquals(List.of("event", "event", "backlog-drained"), observed);
+    }
+  }
+
   // Verifies a relay dropping mid-stream tells the caller, so a subscription cannot quietly
   // degrade from several relays to one.
   @Test

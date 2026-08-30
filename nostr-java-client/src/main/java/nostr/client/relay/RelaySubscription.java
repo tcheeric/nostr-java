@@ -32,6 +32,16 @@ public class RelaySubscription implements AutoCloseable {
   private final Map<String, AutoCloseable> handlesByRelay = new ConcurrentHashMap<>();
   private final Set<String> relaysAwaitingBacklog = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean endOfStoredEventsAnnounced = new AtomicBoolean();
+
+  /**
+   * Serialises delivery so the caller sees frames in the order the relay sent them.
+   *
+   * <p>The transport dispatches each inbound payload on its own thread, so an {@code EOSE} can
+   * overtake the stored events it follows and tell the caller the backlog is drained while those
+   * events are still arriving. Handling one payload at a time restores the order the protocol
+   * defines, which is what makes the end-of-backlog signal mean anything.
+   */
+  private final Object deliveryOrder = new Object();
   private final AtomicBoolean closed = new AtomicBoolean();
 
   RelaySubscription(
@@ -97,6 +107,15 @@ public class RelaySubscription implements AutoCloseable {
   }
 
   /**
+   * Whether this subscription has been closed.
+   *
+   * @return {@code true} once closed, so the pool can forget it
+   */
+  boolean isClosed() {
+    return closed.get();
+  }
+
+  /**
    * Whether this relay is absent from the subscription and should be re-subscribed.
    *
    * @param relayUri the relay to check
@@ -110,12 +129,14 @@ public class RelaySubscription implements AutoCloseable {
     if (closed.get() || payload == null) {
       return;
     }
-    if (payload.startsWith("[\"EOSE\"")) {
-      recordBacklogDrained(relayUri);
-      return;
-    }
-    if (payload.startsWith("[\"EVENT\"")) {
-      deliverIfNotAlreadySeen(relayUri, payload);
+    synchronized (deliveryOrder) {
+      if (payload.startsWith("[\"EOSE\"")) {
+        recordBacklogDrained(relayUri);
+        return;
+      }
+      if (payload.startsWith("[\"EVENT\"")) {
+        deliverIfNotAlreadySeen(relayUri, payload);
+      }
     }
   }
 
@@ -173,6 +194,14 @@ public class RelaySubscription implements AutoCloseable {
     announceEndOfStoredEventsIfComplete();
   }
 
+  /**
+   * Stop this subscription, dropping its listener on every relay.
+   *
+   * <p>No {@code CLOSE} is sent to the relays. A connection serves one request at a time, so
+   * sending one would consume the slot the next subscription needs and leave that subscription
+   * receiving nothing. The relay stops streaming when the connection closes, and an unread
+   * subscription on a still-open connection is the lesser cost.
+   */
   @Override
   public void close() {
     if (!closed.compareAndSet(false, true)) {

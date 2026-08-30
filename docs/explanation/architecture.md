@@ -38,7 +38,7 @@ This design reduced the library from ~180 classes across 9 modules to ~40 classe
 ## Modules
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 ### `nostr-java-core`
