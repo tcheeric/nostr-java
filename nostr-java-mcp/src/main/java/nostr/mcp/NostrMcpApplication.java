@@ -4,7 +4,10 @@ import nostr.client.relay.RelayPool;
 import nostr.client.relay.RelayConnection;
 import nostr.client.relay.RelayConnectionFactory;
 import nostr.client.springwebsocket.NostrRelayClient;
+import nostr.mcp.identity.IdentityVault;
+import nostr.mcp.identity.KeySources;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.tool.ListIdentitiesTool;
 import nostr.mcp.tool.ListRelaysTool;
 import nostr.mcp.tool.NostrToolRegistry;
 
@@ -33,11 +36,13 @@ public final class NostrMcpApplication {
     McpConfiguration configuration = McpConfiguration.fromEnvironment();
 
     try (RelayPool relayPool =
-        new RelayPool(configuration.allRelayUris(), NostrMcpApplication::connectToRelay)) {
+            new RelayPool(configuration.allRelayUris(), NostrMcpApplication::connectToRelay);
+        IdentityVault identityVault = openVault(configuration)) {
 
       NostrToolRegistry registry =
           new NostrToolRegistry()
-              .register(new ListRelaysTool(configuration.relayDirectory(), relayPool));
+              .register(new ListRelaysTool(configuration.relayDirectory(), relayPool))
+              .register(new ListIdentitiesTool(identityVault));
 
       try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
         awaitShutdown();
@@ -53,6 +58,15 @@ public final class NostrMcpApplication {
    */
   private static void awaitShutdown() throws InterruptedException {
     Thread.currentThread().join();
+  }
+
+  private static IdentityVault openVault(McpConfiguration configuration) {
+    return new IdentityVault(
+        KeySources.forType(
+            configuration.keystoreType(),
+            configuration.keystorePath(),
+            configuration.identityAliases()),
+        configuration.defaultIdentity());
   }
 
   private static RelayConnection connectToRelay(String relayUri) throws IOException {

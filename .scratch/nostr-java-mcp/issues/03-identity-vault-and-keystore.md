@@ -16,14 +16,14 @@ there is no keychain to talk to.
 
 **Status:** ready-for-agent
 
-- [ ] `KeySource` has `os-keychain`, `encrypted-file` and `env` implementations chosen by
+- [x] `KeySource` has `os-keychain`, `encrypted-file` and `env` implementations chosen by
       `keystore.type`, defaulting to `os-keychain`
-- [ ] The `env` backend warns at startup that it is unsuitable outside development
-- [ ] `encrypted-file` refuses to start on a world-readable keystore
-- [ ] Decrypted keys are held as `byte[]`/`char[]` and zeroed on shutdown, never as `String`
-- [ ] `nostr_list_identities` returns aliases and public keys only
-- [ ] `IdentitySummary` has no field capable of holding a private key
-- [ ] A test walks every registered tool and resource and asserts no response or error can
+- [x] The `env` backend warns at startup that it is unsuitable outside development
+- [x] `encrypted-file` refuses to start on a world-readable keystore
+- [x] Decrypted keys are held as `byte[]`/`char[]` and zeroed on shutdown, never as `String`
+- [x] `nostr_list_identities` returns aliases and public keys only
+- [x] `IdentitySummary` has no field capable of holding a private key
+- [x] A test walks every registered tool and resource and asserts no response or error can
       contain a private key, and no input schema accepts one
-- [ ] The startup banner prints public keys only
-- [ ] `mvn -q verify` passes
+- [x] The startup banner prints public keys only
+- [x] `mvn -q verify` passes

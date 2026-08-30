@@ -47,7 +47,8 @@ class NostrMcpServerStdioIT {
       ListToolsResult tools = client.listTools();
 
       assertEquals(
-          List.of("nostr_list_relays"), tools.tools().stream().map(Tool::name).toList());
+          List.of("nostr_list_relays", "nostr_list_identities"),
+          tools.tools().stream().map(Tool::name).toList());
     }
   }
 
@@ -81,6 +82,22 @@ class NostrMcpServerStdioIT {
       assertNotNull(result.structuredContent());
     }
   }
+
+  // Verifies an agent can discover which identities the server signs with, and that an empty
+  // keystore is reported as a usable state rather than a startup failure.
+  @Test
+  void aHostCanSeeWhichIdentitiesTheServerHolds() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      CallToolResult result =
+          client.callTool(new CallToolRequest("nostr_list_identities", java.util.Map.of()));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), "listing identities reported an error");
+      assertTrue(summaryOf(result).contains("No identities are configured"), summaryOf(result));
+    }
+  }
+
 
   // Verifies the server starts and serves even when no relay can be reached, since an MCP host
   // launches it before anyone has checked the network, and a server that dies on a dead relay

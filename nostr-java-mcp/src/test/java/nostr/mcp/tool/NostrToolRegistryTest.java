@@ -29,7 +29,10 @@ class NostrToolRegistryTest {
   // disappearing shows up as a reviewable diff rather than passing unnoticed.
   @Test
   void theDefaultToolSurfaceMatchesItsGoldenFile() {
-    NostrToolRegistry registry = new NostrToolRegistry().register(new StubTool("nostr_list_relays"));
+    NostrToolRegistry registry =
+        new NostrToolRegistry()
+            .register(new StubTool("nostr_list_relays"))
+            .register(new StubTool("nostr_list_identities"));
 
     assertEquals(readGolden(), String.join("\n", registry.registeredNames()));
   }

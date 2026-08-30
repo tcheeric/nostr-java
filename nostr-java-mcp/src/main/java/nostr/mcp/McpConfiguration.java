@@ -21,12 +21,28 @@ public final class McpConfiguration {
   private static final List<String> DEFAULT_RELAYS =
       List.of("wss://relay.damus.io", "wss://nos.lol");
 
+  private static final String DEFAULT_KEYSTORE_TYPE = "os-keychain";
+
   private final List<String> readRelays;
   private final List<String> writeRelays;
+  private final String keystoreType;
+  private final String keystorePath;
+  private final List<String> identityAliases;
+  private final String defaultIdentity;
 
-  private McpConfiguration(List<String> readRelays, List<String> writeRelays) {
+  private McpConfiguration(
+      List<String> readRelays,
+      List<String> writeRelays,
+      String keystoreType,
+      String keystorePath,
+      List<String> identityAliases,
+      String defaultIdentity) {
     this.readRelays = List.copyOf(readRelays);
     this.writeRelays = List.copyOf(writeRelays);
+    this.keystoreType = keystoreType;
+    this.keystorePath = keystorePath;
+    this.identityAliases = List.copyOf(identityAliases);
+    this.defaultIdentity = defaultIdentity;
   }
 
   /**
@@ -37,7 +53,13 @@ public final class McpConfiguration {
   public static McpConfiguration fromEnvironment() {
     List<String> read = relayList("relays.read", DEFAULT_RELAYS);
     List<String> write = relayList("relays.write", read);
-    return new McpConfiguration(read, write);
+    return new McpConfiguration(
+        read,
+        write,
+        settingOr("keystore.type", DEFAULT_KEYSTORE_TYPE),
+        settingOr("keystore.path", defaultKeystorePath()),
+        commaSeparated("identities", List.of()),
+        setting("identity"));
   }
 
   /**
@@ -49,7 +71,44 @@ public final class McpConfiguration {
    */
   public static McpConfiguration of(
       @NonNull List<String> readRelays, @NonNull List<String> writeRelays) {
-    return new McpConfiguration(readRelays, writeRelays);
+    return new McpConfiguration(
+        readRelays, writeRelays, DEFAULT_KEYSTORE_TYPE, defaultKeystorePath(), List.of(), null);
+  }
+
+  /**
+   * Which keystore backend to read keys from.
+   *
+   * @return the configured backend type
+   */
+  public String keystoreType() {
+    return keystoreType;
+  }
+
+  /**
+   * Where the encrypted-file keystore lives.
+   *
+   * @return the keystore path
+   */
+  public String keystorePath() {
+    return keystorePath;
+  }
+
+  /**
+   * The identities to look for, needed by backends that cannot enumerate their own contents.
+   *
+   * @return the configured aliases
+   */
+  public List<String> identityAliases() {
+    return identityAliases;
+  }
+
+  /**
+   * The identity to sign as when a caller names none.
+   *
+   * @return the default alias, or {@code null} when none is configured
+   */
+  public String defaultIdentity() {
+    return defaultIdentity;
   }
 
   /**
@@ -74,11 +133,25 @@ public final class McpConfiguration {
   }
 
   private static List<String> relayList(String key, List<String> fallback) {
+    List<String> configured = commaSeparated(key, fallback);
+    return configured.isEmpty() ? fallback : configured;
+  }
+
+  private static List<String> commaSeparated(String key, List<String> fallback) {
     String raw = setting(key);
     if (raw == null || raw.isBlank()) {
       return fallback;
     }
     return List.of(raw.split("\\s*,\\s*"));
+  }
+
+  private static String settingOr(String key, String fallback) {
+    String value = setting(key);
+    return value == null || value.isBlank() ? fallback : value;
+  }
+
+  private static String defaultKeystorePath() {
+    return System.getProperty("user.home") + "/.nostr-java/keys.p12";
   }
 
   /** Looks in system properties first, then the environment, so a host entry can override. */

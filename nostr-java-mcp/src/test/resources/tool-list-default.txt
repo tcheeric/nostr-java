@@ -1,1 +1,2 @@
 nostr_list_relays
+nostr_list_identities
