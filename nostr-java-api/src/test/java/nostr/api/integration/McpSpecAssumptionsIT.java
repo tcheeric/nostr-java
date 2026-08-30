@@ -187,12 +187,20 @@ class McpSpecAssumptionsIT {
 
       assertEquals(2, outcomes.size(), "NIP-17 requires a copy addressed to the sender");
       assertTrue(
-          outcomes.stream()
-              .anyMatch(
-                  outcome ->
-                      outcome.recipient().equals(recipient.getPublicKey().toString())
-                          && outcome.isDelivered()),
+          outcomeFor(outcomes, sender).isDelivered() != outcomeFor(outcomes, recipient).isDelivered()
+              || outcomeFor(outcomes, recipient).isDelivered(),
           "the actual recipient was not reached: " + outcomes);
+      assertTrue(
+          outcomeFor(outcomes, recipient).isDelivered(),
+          "the actual recipient was not reached: " + outcomes);
+
+      // The point §6.2 warns about: this sender published no relay list of their own, so
+      // their archival copy is undeliverable while the message itself arrived. A tool that
+      // counted "1 of 2 delivered" would report a successful send as a failure.
+      assertEquals(
+          RecipientDeliveryOutcome.Status.UNREACHABLE,
+          outcomeFor(outcomes, sender).status(),
+          "a sender without a relay list should not be reported as reached: " + outcomes);
     }
   }
 
@@ -235,6 +243,14 @@ class McpSpecAssumptionsIT {
 
       assertEquals(otherAccount.getPublicKey(), event.getPubKey());
     }
+  }
+
+  private RecipientDeliveryOutcome outcomeFor(
+      List<RecipientDeliveryOutcome> outcomes, Identity participant) {
+    return outcomes.stream()
+        .filter(outcome -> outcome.recipient().equals(participant.getPublicKey().toString()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("No outcome for " + participant.getPublicKey()));
   }
 
   private void publishRelayList(NostrClient client, Identity owner) throws Exception {

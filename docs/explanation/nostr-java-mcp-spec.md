@@ -411,10 +411,10 @@ operation", and it is worth being precise about what does and does not deliver t
 **Threads do not.** Threads in a JVM share one heap, so every thread can read every other
 thread's `Identity` object. A thread-per-identity design would give the *appearance* of
 separation with none of the substance. It is also the wrong concurrency shape: relay work is
-I/O-bound and `NostrRelayClient` is already `CompletableFuture`-based, so a dedicated thread
-per identity would idle almost always while capping each identity at one in-flight
-operation. And it would not remove the lifecycle question, since a thread neither generates
-a keypair nor forgets one.
+I/O-bound and the SDK already fans out across relays on virtual threads inside `RelayPool`,
+so a dedicated platform thread per identity would idle almost always while adding a second,
+coarser queue on top of the pool's own per-relay serialisation. And it would not remove the
+lifecycle question, since a thread neither generates a keypair nor forgets one.
 
 **Processes do.** A separate process has its own address space, its own file handles, and
 its own OS-level permissions. A compromise or a bug in the process signing for `project-bot`
