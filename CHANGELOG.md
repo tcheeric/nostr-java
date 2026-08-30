@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-08-30
+
 ### Added
 - NIP-17 private direct messages, with the NIP-59 gift wrapping they build on. `Nip17DirectMessageService` composes a `ChatMessage` into one gift wrap per participant and reads incoming wraps back; `Nip59GiftWrapper` implements the generic three-layer envelope (unsigned kind-14 rumor, kind-13 seal signed by the real author, kind-1059 wrap signed by a single-use key) and is usable for any event kind, not just messages. Unlike NIP-04, which hides only the message text, this conceals the correspondents, the timing, and the message count.
 - `Rumor`, the unsigned event NIP-59 wraps. It is deliberately not `ISignable` and holds no signature field, so the deniability the scheme depends on is enforced by the type system rather than by convention.
