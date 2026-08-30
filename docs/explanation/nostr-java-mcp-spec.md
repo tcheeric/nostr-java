@@ -51,7 +51,7 @@ the existing modules.
 | --- | --- |
 | Baseline | Built on nostr-java **2.2.0**, depending on `nostr-java-api`. |
 | MCP library | Official SDK, `io.modelcontextprotocol.sdk:mcp` (2.x), plus its stdio and HTTP transports. Not Spring AI's starter. |
-| Signing | Local `nsec`/hex keys in an `IdentityVault`, unlocked at startup. NIP-46 deferred but designed for. |
+| Signing | Local `nsec`/hex keys in an `IdentityVault`, unlocked at startup. Default backend is the OS keychain (§12). NIP-46 deferred but designed for. |
 | Subscriptions | Long-lived streaming on `RelayPool.subscribe`, surfaced as MCP resources with change notifications. |
 | Packaging | Executable jar plus `Dockerfile` and `docker-compose.yml`. |
 | Direct messages | NIP-17 gift-wrapped DMs, delegated to `nostr-java-api`'s `DirectMessagePublisher`. No SDK work required. |
@@ -343,8 +343,8 @@ nsec is a dead account, and no relay, backup, or protocol can restore it.
 - Deletion zeroes the in-memory key, removes the keystore entry, and closes any
   subscription or pending write bound to that alias.
 - The removal is logged with the public key, so the audit trail outlives the key.
-- Under `write-policy: deny` the tool is not registered at all, matching how write tools
-  behave: a read-only server cannot mutate the keystore either.
+- Under `identity-policy: deny` the tool is not registered at all, and `write-policy: deny`
+  implies that (§12): a read-only server cannot mutate the keystore either.
 
 #### Exporting
 
@@ -444,11 +444,16 @@ server, so identities become entries.
 Each process reads only its own key. The agent sees two clearly-named tool groups and cannot
 confuse them, because the tools themselves are distinct.
 
-The costs are real and worth stating: N processes, N relay connection pools, N websocket
-connections to the same relays, and **no cross-identity operation** — you cannot ask "which
-of my accounts was mentioned this week" from a bound server. That query needs the
-multi-identity server, which is exactly why both modes exist rather than one replacing the
-other.
+The costs are real and worth stating: N processes, N relay connection pools, and **no
+cross-identity operation** — you cannot ask "which of my accounts was mentioned this week"
+from a bound server. That query needs the multi-identity server, which is exactly why both
+modes exist rather than one replacing the other.
+
+The websocket cost is mitigated rather than accepted: bound processes share relay connections
+through a broker (§12), so N identities do not mean N connections to the same relay. The broker
+shares transport only. Sharing a `RelayPool` would share subscriptions and per-relay state
+too, reintroducing exactly the cross-identity reach that running separate processes exists to
+prevent.
 
 ##### Bootstrapping
 
@@ -492,8 +497,8 @@ nostr:
     transport: stdio            # stdio | http
     identity: personal          # optional: bind to one identity (§6.3.1)
     keystore:
-      type: encrypted-file      # env | encrypted-file | os-keychain
-      path: ${HOME}/.nostr-java/keys.jceks
+      type: os-keychain         # env | encrypted-file | os-keychain
+      path: ${HOME}/.nostr-java/keys.jceks   # used by encrypted-file only
     identities:
       default:
         alias: personal         # entry in the keystore; never the key itself
@@ -510,6 +515,7 @@ nostr:
       max-events-per-query: 500
       query-timeout: 15s
     write-policy: confirm        # deny | confirm | allow
+    identity-policy: deny        # deny | confirm | allow; keystore mutation, separate from writes
 ```
 
 Keys must never be logged. The startup banner prints public keys only.
@@ -526,7 +532,7 @@ how the SDK's tests already pass keys. But the key sits in the process environme
 any child process, `/proc`, and most crash reporters can read it. Acceptable for a throwaway
 test identity; the server logs a warning at startup when this backend is active.
 
-**B. `encrypted-file` — a password-protected keystore (default, recommended).**
+**B. `encrypted-file` — a password-protected keystore (portable fallback).**
 A JCEKS/PKCS#12 file at `~/.nostr-java/keys.jceks`, one entry per identity alias, the file
 encrypted with a passphrase supplied at startup (prompt for stdio, `NOSTR_MCP_KEYSTORE_PASSPHRASE`
 for headless). Decrypted keys live only inside `IdentityVault`, held as `byte[]`/`char[]`
@@ -535,11 +541,12 @@ may be interned. File permissions are checked at startup and the server refuses 
 a world-readable keystore. This is a familiar, portable, dependency-free mechanism and it
 survives a container restart via a mounted volume.
 
-**C. `os-keychain` — delegate to the platform.**
+**C. `os-keychain` — delegate to the platform (default).**
 macOS Keychain, Windows DPAPI, or Secret Service / `libsecret` on Linux, reached through a
-small adapter. Best available protection on a developer desktop and no passphrase to manage,
-but it is platform-specific, awkward in containers, and needs a native dependency. Offered
-as an option, not the default.
+small adapter. Best available protection on a developer desktop, and no passphrase to manage,
+so it does not block unattended startup the way a prompt does. It is platform-specific and
+awkward in containers, which is why `encrypted-file` remains the documented choice there and
+is selected explicitly in the compose file rather than inherited.
 
 Regardless of backend:
 
@@ -567,7 +574,8 @@ Ships as an executable Spring Boot jar that is **both** the MCP server and the k
 CLI (§6.3.1), a `Dockerfile` (distroless JRE 21 base, non-root user), and a
 `docker-compose.yml` that runs the server in HTTP transport mode alongside the existing test
 relay container, with the keystore mounted read-only as a volume and the passphrase supplied
-as a secret. The compose file also demonstrates the bound-container pattern: one service per
+as a secret. The compose file sets `keystore.type: encrypted-file` explicitly, because the
+`os-keychain` default (§12) has nothing to talk to inside a container. The compose file also demonstrates the bound-container pattern: one service per
 identity, each with `--nostr.mcp.identity` set and only its own key readable. Per repo
 convention the compose file is verified with `docker-compose build` in CI. The stdio
 transport is documented as a bare `java -jar` invocation, since an MCP host launches the
@@ -586,8 +594,12 @@ guarded action.
 - `write-policy: allow` — writes proceed directly, for trusted automation.
 - Rate limits per identity and per relay, enforced in `WriteGuard`.
 - Identity removal and backup export are guarded by the same two-step confirmation, and
-  neither is registered under `write-policy: deny` or in single-identity mode (§6.3,
+  neither is registered under `identity-policy: deny` or in single-identity mode (§6.3,
   §6.3.1).
+- `identity-policy` governs keystore mutation separately from `write-policy` (§12), so a
+  deployment can let an agent post without letting it create or destroy keys. It defaults to
+  the more restrictive of the two, and `write-policy: deny` implies no mutation, so the safe
+  combination needs no configuration.
 - Key isolation between identities is a **process** boundary, not a thread or a check
   (§6.3.1). Deployments that need it run one bound server per identity.
 - No tool accepts private key material as an argument, and no tool returns it (§6.3, §7.1).
@@ -664,33 +676,102 @@ medium is worse than the original problem.
 4. Subscriptions: `SubscriptionBuffers`, the four subscription tools, resource
    notifications, TTL reaping.
 5. Social layer: threads, contacts, and NIP-17 direct messages over
-   `NostrClient.sendDirectMessage` / `readDirectMessage`. No SDK prerequisite: NIP-17 landed
-   in 2.1.0 and delivery in 2.2.0, so this phase is adapter work only.
+   `NostrClient.sendDirectMessage` / `readDirectMessage`. Direct messages need no SDK work,
+   since NIP-17 landed in 2.1.0 and delivery in 2.2.0. Contacts do: a `ContactList` value type
+   over kind-3 belongs in `nostr-java-event` (§12) and is this module's only SDK prerequisite.
 6. HTTP transport with per-session identity binding, `Dockerfile` and `docker-compose.yml`
    (including a profile showing one bound container per identity), prompts, and
    documentation (a how-to for wiring the server into an MCP host, covering both modes).
 
-## 12. Open questions
+## 12. Resolved decisions (round two)
 
-- Which keystore backend is the default on a fresh install: prompt-for-passphrase
-  (`encrypted-file`) is safest but blocks unattended startup. Is a passphrase-less
-  `os-keychain` default better for desktop users?
-- With the CLI available, should the identity lifecycle **tools** exist at all, or is
-  agent-driven key administration a capability worth omitting entirely?
-- Should single-identity mode be the documented default in the how-to, with the
-  multi-identity server presented as the advanced case?
-- Do bound processes need a shared relay-connection broker to avoid N websocket
-  connections to the same relay, or is that premature for the expected handful of
-  identities?
-- Should `write-policy: confirm` tokens expire, and after how long?
-- Should identity mutation have its own policy switch (`identity-policy`) separate from
-  `write-policy`, so an agent can be allowed to post but not to touch the keystore?
-- Should the server auto-create a `default` identity on first run when the keystore is
-  empty, or refuse to start until one exists?
-- Does the HTTP transport need authentication of its own (bearer token) in v1, or is it
-  documented as bind-to-localhost only?
-- kind-3 contact lists (`nostr_get_contacts`) have no SDK representation. Does a
-  `ContactList` type belong in `nostr-java-event`, or does the tool parse the tags itself?
+The questions this section previously listed have been answered. They are kept as decisions
+with their reasoning, because the reasoning is what a reader needs when the trade-off resurfaces.
+
+### Keystore default: `os-keychain`
+
+The default on a fresh install is the platform keychain, not the encrypted file. It needs no
+passphrase, so it does not block unattended startup, and on a desktop it is the strongest
+protection available. `encrypted-file` remains the portable fallback and the sensible choice in
+a container, where there is no keychain to talk to; §7.2's compose file therefore selects it
+explicitly rather than inheriting the default.
+
+### Identity lifecycle tools: keep them
+
+The tools stay, alongside the CLI. An agent asked to "make me a throwaway account for this
+project" should be able to do it, and the design already removes the reason to withhold the
+capability: no tool accepts or returns key material, creation is reversible by discarding the
+key, and the two genuinely irreversible operations (export, remove) are guarded by two-step
+confirmation. Withholding the tools would not add safety, only friction, since the CLI can do
+the same things with less oversight from the model's own audit trail.
+
+Single-identity mode still unregisters them (§6.3.1): a process bound to one key operates that
+key and does not administer a keystore.
+
+### Documented default: single-identity mode
+
+The how-to leads with one bound process per identity, and presents the multi-identity server as
+the advanced case. It is the safer default, it matches how MCP hosts are configured anyway, and
+the cross-identity query that justifies the multi-identity server is a genuinely advanced need.
+
+### Bound processes share relay connections
+
+Bound processes use a shared relay-connection broker rather than each opening its own websocket
+to the same relay. Without it, N identities means N connections per relay, which relays
+penalise and which scales badly exactly where this deployment is recommended.
+
+The broker is a connection-level concern only. It must not become a shared `RelayPool`: the
+pool holds subscriptions and per-relay state, and sharing that across bound processes would
+reintroduce the cross-identity leakage that process isolation exists to prevent (§6.3.1). What
+is shared is the transport beneath it.
+
+### Confirmation tokens do not expire
+
+A `write-policy: confirm` token stays valid until it is used or the server restarts. Expiry
+would add a failure mode without adding safety: the token's purpose is to make a hallucinated
+write a no-op by requiring a second, deliberate call, and that property does not decay with
+time. An agent that comes back to a token an hour later is still confirming the same event it
+was shown.
+
+### Identity mutation gets its own policy switch
+
+`identity-policy` is separate from `write-policy`, so an agent can be allowed to post while
+being unable to touch the keystore. The two capabilities have genuinely different risk profiles:
+publishing is public and irreversible but bounded to one event, while removing a key destroys
+every future use of an account. Collapsing them would force a deployment to choose between a
+useful agent and a protected keystore.
+
+`identity-policy` defaults to the more restrictive of the two, and `write-policy: deny` still
+implies no keystore mutation, so the safe combination remains the default without configuration.
+
+### No auto-created identity on first run
+
+A server started with an empty keystore refuses to start and says how to create an identity,
+rather than generating a `default` silently. A key created without the user knowing is a key
+they have no backup of, and the first they would learn of it is when something published under
+it. The CLI (§6.3.1) makes the explicit path a single command.
+
+### HTTP transport authentication: not in v1
+
+The HTTP transport is documented as bind-to-localhost only, with no bearer token of its own in
+v1. Adding half an auth story is worse than deferring it deliberately: a token in a config file
+protects little, and the deployments that genuinely need remote access need a reverse proxy
+with real credentials in front of them regardless. The documentation must state this plainly
+rather than leaving a reader to assume the transport is safe to expose.
+
+### kind-3 contact lists need a new SDK type
+
+**Verified against 2.2.0:** no `ContactList` type exists. `Kinds.CONTACT_LIST = 3` is defined,
+but nothing models the event, so `nostr_get_contacts` has nothing to call.
+
+The type belongs in `nostr-java-event`, not here, for the same reason NIP-17 did: every
+consumer benefits, and an MCP module parsing `p` tags inline would be the only place in the
+codebase that knows how a contact list is shaped. `DirectMessageRelayList` is the pattern to
+follow, being a value type over a tag-carrying replaceable event with `from(GenericEvent)` and
+`toEvent()`.
+
+This makes a small `ContactList` addition to `nostr-java-event` a **prerequisite of the social
+phase** (§11 phase 5), and the only SDK work this module now requires.
 
 ## Related documents
 
