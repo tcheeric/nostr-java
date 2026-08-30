@@ -7,6 +7,7 @@ import nostr.event.impl.GenericEvent;
 import nostr.event.impl.Rumor;
 import nostr.id.Identity;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +78,37 @@ public class Nip17DirectMessageService implements DirectMessageService {
   }
 
   @Override
+  public List<MessageDelivery> planDelivery(
+      @NonNull ChatMessage message, @NonNull DirectMessageRelayLookup relayLists) {
+    Rumor rumor = senderVerifiedRumor(message);
+
+    List<MessageDelivery> plan = new ArrayList<>();
+    for (PublicKey participant : message.getParticipants()) {
+      plan.add(deliveryFor(rumor, participant, relayLists));
+    }
+    return List.copyOf(plan);
+  }
+
+  @Override
   public ChatMessage read(@NonNull GenericEvent giftWrap) {
     return ChatMessage.from(giftWrapper.unwrap(giftWrap));
+  }
+
+  /**
+   * Wraps a message for one participant, or reports them unreachable.
+   *
+   * <p>Nothing is wrapped for a participant who nominated no relays. NIP-17 forbids sending to
+   * them, and an event that is never created cannot later be published by mistake.
+   */
+  private MessageDelivery deliveryFor(
+      Rumor rumor, PublicKey participant, DirectMessageRelayLookup relayLists) {
+    return relayLists
+        .findFor(participant)
+        .filter(relayList -> !relayList.isEmpty())
+        .map(
+            relayList ->
+                MessageDelivery.to(participant, giftWrapper.wrap(rumor, participant), relayList))
+        .orElseGet(() -> MessageDelivery.unreachable(participant));
   }
 
   /**

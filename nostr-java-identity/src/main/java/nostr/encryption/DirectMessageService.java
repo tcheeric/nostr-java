@@ -53,6 +53,24 @@ public interface DirectMessageService {
   Map<PublicKey, GenericEvent> composeByRecipient(ChatMessage message);
 
   /**
+   * Seals and wraps a message, pairing each copy with the relays that should carry it.
+   *
+   * <p>NIP-17 permits delivery only to the relays a recipient nominated in their kind-10050
+   * list, and forbids sending at all to a recipient who published none. Both rules are applied
+   * here, so a caller can publish the result without consulting the specification again.
+   *
+   * <p>An unreachable participant appears in the result carrying no event, rather than being
+   * omitted. Silence about a recipient who cannot be reached is how messages get lost without
+   * anyone noticing.
+   *
+   * @param message the message to send
+   * @param relayLists where to look up each participant's nominated relays
+   * @return one entry per participant, deliverable or not, in participant order
+   * @throws GiftWrapException if the message cannot be sealed or wrapped
+   */
+  List<MessageDelivery> planDelivery(ChatMessage message, DirectMessageRelayLookup relayLists);
+
+  /**
    * Opens a gift wrap addressed to this identity and returns the message inside.
    *
    * <p>The message is authenticated before it is returned: the seal's signature is verified and
