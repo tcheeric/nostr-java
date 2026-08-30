@@ -68,6 +68,7 @@
         <module>nostr-java-identity</module>
         <module>nostr-java-client</module>
         <module>nostr-java-api</module>
+        <module>nostr-java-mcp</module>
     </modules>
 
     <properties>

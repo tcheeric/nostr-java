@@ -7,6 +7,7 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 ## [Unreleased]
 
 ### Added
+- **`nostr-java-mcp`**, a new module exposing the SDK as a Model Context Protocol server so an LLM agent can use Nostr without Nostr-specific code. This first slice ships the stdio transport an MCP host launches directly, a tool registry where adding a capability means adding a class rather than editing a dispatcher, and `nostr_list_relays` reporting each configured relay's connection state. It adapts `nostr-java-api` rather than reaching past it, so relay pooling, result aggregation and de-duplication stay the SDK's concern.
 - `ContactList` and `Contact`, modelling a NIP-02 follow list. Each entry keeps the three parts the specification defines, the followed key plus an optional relay hint and petname, rather than the key alone: the hint is how a client finds someone it has never seen, and the petname is how it shows a readable name without a global registry. Entries keep their order, since NIP-02 asks that new follows be appended so a list reads chronologically, and a duplicated key keeps its first entry. Malformed entries are discarded rather than making a whole list unreadable. Groundwork for the planned `nostr-java-mcp` module, whose contacts tool had nothing to call.
 
 ## [2.2.0] - 2026-08-30

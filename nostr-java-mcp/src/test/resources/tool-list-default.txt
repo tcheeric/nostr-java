@@ -1,0 +1,1 @@
+nostr_list_relays

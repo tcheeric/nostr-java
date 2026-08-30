@@ -13,15 +13,15 @@ aggregation and de-duplication that the SDK already owns.
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `nostr-java-mcp` is added to the build, depending on `nostr-java-api`, with nothing
+- [x] `nostr-java-mcp` is added to the build, depending on `nostr-java-api`, with nothing
       depending on it
-- [ ] The server starts over stdio using the official MCP SDK and responds to tool discovery
-- [ ] `NostrToolRegistry` declares tools one class per tool, so a new tool is a new class
+- [x] The server starts over stdio using the official MCP SDK and responds to tool discovery
+- [x] `NostrToolRegistry` declares tools one class per tool, so a new tool is a new class
       rather than an edit to a switch
-- [ ] `nostr_list_relays` returns the configured relays with their connection state
-- [ ] `RelayDirectory` resolves logical relay names to the URIs handed to `NostrClient`
-- [ ] Configuration binds under `nostr.mcp.*` and works with no hand-written config file
-- [ ] A golden-file test pins the tool list so surface changes are visible in review
-- [ ] `mvn -q verify` passes
+- [x] `nostr_list_relays` returns the configured relays with their connection state
+- [x] `RelayDirectory` resolves logical relay names to the URIs handed to `NostrClient`
+- [x] Configuration binds under `nostr.mcp.*` and works with no hand-written config file
+- [x] A golden-file test pins the tool list so surface changes are visible in review
+- [x] `mvn -q verify` passes
