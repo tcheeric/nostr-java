@@ -6,11 +6,15 @@ can read from and write to Nostr relays using natural language. It is a design
 explanation: it states the goals, the boundaries, the tool surface, and the open
 decisions. It is not yet an implementation guide.
 
+**Baseline: nostr-java 2.2.0.** The module builds on `nostr-java-api` and its `NostrClient`
+entry point. An earlier draft targeted 2.0.x and planned to build relay pooling, subscription
+merging, and NIP-17 itself; the SDK now provides all three, so this revision consumes them
+instead. §5 lists what that removes.
+
 ## 1. Motivation
 
-Today an application must speak Java to use nostr-java: build an event, sign it with an
-`Identity`, and publish it through `NostrRelayClient`. An LLM agent cannot do that
-directly. MCP is the emerging standard for giving an agent typed, discoverable
+Today an application must speak Java to use nostr-java: name an identity and some relays,
+then drive `NostrClient` from `nostr-java-api`. An LLM agent cannot do that directly. MCP is the emerging standard for giving an agent typed, discoverable
 capabilities over stdio or HTTP. Wrapping the SDK in an MCP server means any MCP client
 (Claude Desktop, Claude Code, IDE agents, custom hosts) gets Nostr access with no
 Nostr-specific code, and the SDK gains a natural-language front door without polluting
@@ -28,7 +32,7 @@ the existing modules.
 - Offer a **process-per-identity** deployment for users who want hard isolation between
   accounts, without forcing it on users who want one server across all of theirs.
 - Support both stdio (local desktop agents) and streamable HTTP (remote/hosted) transports.
-- Be strictly additive: no changes required in `core`, `event`, `identity`, or `client`.
+- Be strictly additive: no changes required in `core`, `event`, `identity`, `client`, or `api`.
 - Make every destructive or public-facing action (anything that writes to a relay) opt-in
   and auditable.
 
@@ -37,33 +41,40 @@ the existing modules.
 - No relay implementation. The module is a client only.
 - No LLM inference. Natural-language understanding lives in the MCP host, not here.
 - No persistent event store. Live subscriptions buffer in memory only (§5.1).
-- No new NIP support beyond NIP-17, which this module needs and the SDK lacks (§5.2).
-  Everything else missing is implemented in `nostr-java-event`, not here.
+- No new NIP support. NIP-17 was the one gap this module needed and the SDK shipped it in
+  2.1.0. Anything still missing is implemented in `nostr-java-event`, not here.
 - No remote signing (NIP-46) in v1. Keys are held locally; see §6.
 
 ## 3. Resolved decisions
 
 | Decision | Choice |
 | --- | --- |
+| Baseline | Built on nostr-java **2.2.0**, depending on `nostr-java-api`. |
 | MCP library | Official SDK, `io.modelcontextprotocol.sdk:mcp` (2.x), plus its stdio and HTTP transports. Not Spring AI's starter. |
 | Signing | Local `nsec`/hex keys in an `IdentityVault`, unlocked at startup. NIP-46 deferred but designed for. |
-| Subscriptions | Long-lived streaming, surfaced as MCP resources with change notifications. |
+| Subscriptions | Long-lived streaming on `RelayPool.subscribe`, surfaced as MCP resources with change notifications. |
 | Packaging | Executable jar plus `Dockerfile` and `docker-compose.yml`. |
-| Direct messages | NIP-17 gift-wrapped DMs. Requires NIP-17 support to be added to `nostr-java-event` first. |
+| Direct messages | NIP-17 gift-wrapped DMs, delegated to `nostr-java-api`'s `DirectMessagePublisher`. No SDK work required. |
 | Identity isolation | Optional **single-identity mode** binding one server process to one identity, deployed as one process per identity (§6.3.1). Not one thread per identity. |
 
 ## 4. Position in the module graph
 
 ```
-nostr-java-core  ──▶ nostr-java-event ──▶ nostr-java-identity ──▶ nostr-java-client
-                                                                        │
-                                                                        ▼
-                                                                 nostr-java-mcp
+nostr-java-core ──▶ nostr-java-event ──▶ nostr-java-identity ──▶ nostr-java-client ──▶ nostr-java-api
+                                                                                            │
+                                                                                            ▼
+                                                                                     nostr-java-mcp
 ```
 
-`nostr-java-mcp` is a leaf: it depends on `client` (and transitively on the rest) and
-nothing depends on it. This satisfies the Stable Dependencies Principle — the volatile,
+`nostr-java-mcp` is a leaf: it depends on `api` (and transitively on the rest) and nothing
+depends on it. This satisfies the Stable Dependencies Principle — the volatile,
 protocol-adapting component depends on the stable ones, never the reverse.
+
+**It depends on `api`, not on `client`.** `nostr-java-api` exists precisely to own the
+orchestration every application would otherwise repeat: fan-out publishing with per-relay
+outcomes, de-duplicated subscriptions across relays, and NIP-17 delivery to each recipient's
+own relays. An MCP server that reached past it to `NostrRelayClient` would rebuild all of
+that, and get it subtly wrong in the ways the SDK already learned about.
 
 It is packaged as an executable Spring Boot application **and** a library jar, so it can
 be run standalone (`java -jar nostr-java-mcp.jar`) or embedded in a host application.
@@ -76,11 +87,31 @@ Four layers, each with one reason to change:
 | --- | --- | --- |
 | **Transport** | Official MCP SDK server (`McpServer`) over `StdioServerTransportProvider` or `HttpServletStreamableServerTransportProvider`; JSON-RPC framing | The MCP spec changes |
 | **Tool adapters** | Map MCP tool calls to domain commands; validate arguments; shape results | The tool surface changes |
-| **Nostr services** | `PublishEventService`, `QueryEventService`, `SubscriptionService`, `ProfileService`, `DirectMessageService` | Nostr semantics change |
-| **SDK facade** | Thin wrappers over `NostrRelayClient`, `Identity`, event factories | The SDK API changes |
+| **MCP services** | The behaviour MCP needs and the SDK does not provide: buffering a live subscription for later reads, write confirmation, identity administration | MCP-specific semantics change |
+| **SDK** | `NostrClient` from `nostr-java-api`, used directly | The SDK API changes |
 
-Tool adapters depend on service *interfaces*, not on `NostrRelayClient`, so the tool layer
-is testable with in-memory fakes and no relay.
+Tool adapters depend on service *interfaces*, so the tool layer is testable with in-memory
+fakes and no relay.
+
+### What this module does not build
+
+The bottom layer is deliberately thin, because 2.2.0 already owns most of what an earlier
+draft of this spec planned to write here:
+
+| Concern | Provided by | So MCP does not |
+| --- | --- | --- |
+| Connecting to many relays, health, reconnection | `RelayPool` (`nostr-java-client`) | manage connections |
+| Publishing to all relays, per-relay outcomes | `PublishResult`, `RelayPublishOutcome` | aggregate results |
+| Total-failure signalling | `NoRelayAcceptedException` | invent an error convention |
+| One subscription across relays, de-duplicated | `RelaySubscription`, `SubscriptionListener` | merge or de-duplicate streams |
+| Re-subscribing a relay that dropped | `RelayPool` background reconnection | replay REQs |
+| NIP-17 seal and gift wrap | `Nip17DirectMessageService`, `Nip59GiftWrapper` | implement the envelope |
+| Delivering a DM to the recipient's relays | `DirectMessagePublisher` (`nostr-java-api`) | resolve or connect to them |
+| Finding a recipient's kind-10050 relay list | `RelayListLookup` (`nostr-java-api`) | query for it |
+
+What remains genuinely this module's work is everything MCP-shaped: the tool surface, the
+keystore and vault, the write guard, identifier parsing, and the buffering that turns a
+push-based subscription into something an agent can poll.
 
 ### MCP library choice
 
@@ -98,11 +129,35 @@ do not control.
 - `NostrToolRegistry` — the single place where tools are declared, one class per tool
   implementing a common `NostrTool` interface (name, JSON schema, `execute`). New tools are
   added by adding a class, not by editing a switch (Open/Closed).
-- `RelayPool` — resolves logical relay names to URLs, owns connection lifecycle and reuse.
+- `RelayDirectory` — maps the logical relay names an agent uses (`"read"`, `"write"`, or a
+  configured alias) to the URIs handed to `NostrClient`. Naming only; the connections
+  themselves belong to the SDK's `RelayPool`, and reusing that name here would give the
+  codebase two different `RelayPool` types.
 - `IdentityVault` — resolves a logical identity name (`"default"`, `"alice"`) to an
   `Identity`. Private keys are loaded once at startup and never leave the vault (§7.1).
-- `SubscriptionRegistry` — owns live subscriptions and their bounded buffers (§6.1).
+- `SubscriptionBuffers` — holds the bounded ring buffer behind each live subscription so an
+  agent can poll for what arrived while it was not looking (§6.1). The subscription itself is
+  a `RelaySubscription` owned by the SDK.
 - `WriteGuard` — the policy object consulted before any relay write (see §8).
+- `McpDirectMessageService` — the tool-facing seam for DM tools. Named to avoid colliding
+  with `nostr.encryption.DirectMessageService`, the SDK interface it ultimately calls
+  through `NostrClient`.
+
+### Limitations inherited from the SDK
+
+Three documented SDK behaviours shape decisions in this module rather than being incidental:
+
+- **One request in flight per relay.** `NostrRelayClient` serves a single request at a time
+  and `RelayPool` queues per relay, so throughput to any one relay is bounded by round-trip
+  latency. This is why `limits.max-events-per-query` and the subscription cap exist: an agent
+  can otherwise queue enough work behind one slow relay to stall every other tool call.
+- **A relay borrowed for a direct message is briefly shared.** Sending a DM connects to the
+  recipient's relays, and while connected they take part in other operations. Under
+  single-identity mode this is contained by the process boundary; in the multi-identity
+  server it is worth knowing that a DM can widen the relay set another tool then publishes to.
+- **De-duplication is windowed.** An event whose copies arrive far apart can be delivered
+  twice. A subscription buffer must therefore tolerate a repeat rather than assume the SDK
+  guarantees exactly-once over an unbounded period.
 
 ## 6. Tool surface (v1)
 
@@ -144,13 +199,17 @@ Query-until-EOSE is not enough: an agent asked to "watch my mentions" needs even
 arrive after the call returns. MCP has no server-push-into-a-tool-result mechanism, so
 subscriptions are modelled as **stateful server resources**:
 
-- `nostr_subscribe` opens a REQ through `NostrRelayClient` (which already supports
-  long-lived subscriptions, see the streaming-subscriptions how-to) and returns a
-  `subscriptionId`.
-- Incoming events land in a **bounded ring buffer** per subscription (default 500 events).
-  When it overflows the oldest events are dropped and a monotonic `droppedCount` is
-  incremented, so the agent is told it missed data rather than silently losing it. Nothing
-  is persisted; a restart drops all subscriptions.
+- `nostr_subscribe` calls `NostrClient.subscribe(filters, listener)`, which registers the
+  filter with every relay in the pool and returns a `RelaySubscription`. The tool returns a
+  `subscriptionId` naming it.
+- The listener writes incoming events into a **bounded ring buffer** per subscription
+  (default 500 events). When it overflows the oldest events are dropped and a monotonic
+  `droppedCount` is incremented, so the agent is told it missed data rather than silently
+  losing it. Nothing is persisted; a restart drops all subscriptions.
+
+  This buffer is not de-duplication. The SDK already delivers each event once however many
+  relays carry it; the buffer exists because MCP has no way to push into a tool result, so
+  events arriving between polls must be held somewhere.
 - Each subscription is also exposed as an MCP resource, `nostr://subscription/{id}`, and the
   server emits `notifications/resources/updated` when new events arrive. A host that
   supports resource subscriptions gets push; one that does not can poll
@@ -161,24 +220,45 @@ subscriptions are modelled as **stateful server resources**:
 - Subscriptions have a configurable idle TTL (default 1 hour) after which they are closed
   and reaped, so an abandoned agent session cannot leak relay connections. Total live
   subscriptions are capped.
-- Reconnection is delegated to `NostrRelayClient`'s retry logic; on reconnect the REQ is
-  replayed with `since` set to the last received event's timestamp.
+- Reconnection is the SDK's job. `RelayPool` retries downed relays on its own schedule and
+  re-subscribes them from the stored filter, so a relay that drops mid-stream rejoins without
+  the MCP layer replaying anything. `SubscriptionListener.onRelayFailure` reports the drop,
+  and `nostr_list_subscriptions` surfaces it so an agent can see a stream degrade.
+- `SubscriptionListener.onEndOfStoredEvents` fires once, after every relay has replayed its
+  backlog or a timeout expires. `nostr_subscribe` returns after it, so an agent that asked
+  for history has history before its first read.
 
 ### 6.2 Direct messages and NIP-17
 
-The SDK today ships NIP-04 (`EncryptedDirectMessage`) and the NIP-44 v2 primitives
-(`EncryptedPayloads`, including `getConversationKey`), but **not** NIP-17. NIP-17 needs a
-kind-14 chat rumor, sealed in a kind-13 with NIP-44, then gift-wrapped in a kind-1059 signed
-by a fresh throwaway key with a randomised `created_at`.
+**NIP-17 shipped in the SDK in 2.1.0, so this is no longer a prerequisite.** An earlier
+draft of this spec treated it as blocking work against `nostr-java-event`; that work is done
+and the module consumes it.
+
+The layering is worth stating, because it decides what a DM tool actually calls:
+
+- `Nip59GiftWrapper` (`nostr-java-identity`) implements the three-layer envelope: an unsigned
+  kind-14 `Rumor`, sealed in a kind-13 signed by the real author, gift-wrapped in a kind-1059
+  signed by a single-use key with a randomised `created_at`.
+- `Nip17DirectMessageService` composes a `ChatMessage` into one wrap per participant and
+  reads incoming wraps back. It plans delivery but never sends, because that module holds no
+  transport.
+- `DirectMessagePublisher` (`nostr-java-api`) performs that plan, delivering each wrap to its
+  own recipient's relays and reporting a `RecipientDeliveryOutcome` per participant.
+
+So `nostr_send_direct_message` is a thin adapter over `NostrClient.sendDirectMessage`, and
+its result maps directly onto the per-recipient outcomes. Two behaviours the tool must
+surface rather than hide:
+
+- A recipient who has published no kind-10050 relay list comes back `UNREACHABLE`. NIP-17
+  forbids sending to them, so the message genuinely did not go, and the agent must be able to
+  tell the user which recipient missed out.
+- Every conversation includes the sender, since NIP-17 requires a copy addressed to them.
+  A one-recipient send therefore reports two outcomes, and the tool should not present that
+  as a partial failure.
 
 NIP-04 leaks metadata (both pubkeys and the conversation are visible to every relay) and is
-unsuitable as the DM story for a tool an agent drives on a user's behalf. So v1 ships NIP-17
-only, and NIP-04 is not exposed at all.
-
-The NIP-17 seal/gift-wrap logic is **not** implemented in this module. It belongs in
-`nostr-java-event` (and the NIP-44 layer it builds on in `nostr-java-identity`), where every
-consumer of the SDK benefits. This makes NIP-17 support a **hard prerequisite** of the DM
-phase of the delivery plan, tracked as its own work item against those modules.
+unsuitable as the DM story for a tool an agent drives on a user's behalf. It is deprecated in
+the SDK and not exposed here at all.
 
 ### 6.3 Identity management
 
@@ -509,8 +589,19 @@ the model can act on, never as stack traces. Categories mirror the SDK's excepti
 hierarchy: `RELAY_UNREACHABLE`, `RELAY_REJECTED`, `INVALID_ARGUMENT`, `IDENTITY_UNKNOWN`,
 `WRITE_FORBIDDEN`, `TIMEOUT`, `SUBSCRIPTION_UNKNOWN`, `SUBSCRIPTION_LIMIT_REACHED`,
 `KEYSTORE_LOCKED`, `IDENTITY_AMBIGUOUS`, `ALIAS_IN_USE`, `NO_BACKUP_EXISTS`,
-`MUTATION_UNSUPPORTED`, `INPUT_REQUIRED`. Partial success on multi-relay publish is a
-success with a per-relay result list, not an error.
+`MUTATION_UNSUPPORTED`, `INPUT_REQUIRED`.
+
+Publishing maps onto the SDK's own distinction rather than inventing one:
+
+| SDK outcome | MCP result |
+| --- | --- |
+| `PublishResult` with at least one `ACCEPTED` | Success, carrying the per-relay list |
+| `NoRelayAcceptedException` | Error `RELAY_REJECTED`, with the attached `PublishResult` rendered so the agent sees each relay's reason |
+
+Partial success is therefore a success with a per-relay result list, and the only publish
+failure is the one where the event reached nobody. Reporting a partial success as an error
+would push agents to retry writes that already landed, which on a public and irreversible
+medium is worse than the original problem.
 
 ## 10. Testing strategy
 
@@ -521,9 +612,12 @@ success with a per-relay result list, not an error.
   or error message can contain a private key, and that no tool's input schema accepts one;
   keystore permission and passphrase-failure paths; identity removal refused without a
   backup; `IDENTITY_AMBIGUOUS` raised rather than a key guessed.
-- **Integration**: the full server over an in-process MCP client against a stub relay
-  (reusing the existing Docker relay harness), asserting round trips for publish, query,
-  a live subscription receiving an event published mid-test, and a NIP-17 DM round trip.
+- **Integration**: the full server over an in-process MCP client against a real relay,
+  reusing the harness from `NostrClientRoundTripIT` (Testcontainers, held until the relay has
+  proved it can store an event), asserting round trips for publish, query, a live
+  subscription receiving an event published mid-test, and a NIP-17 DM round trip. Follow that
+  test's readiness discipline: a relay that accepts connections is not necessarily one that
+  answers, and mistaking the two produces failures that look like client bugs.
 - **Contract**: every registered tool's JSON schema is validated, and a golden-file test
   pins the tool list so accidental surface changes are visible in review. Separate golden
   files per mode (multi-identity, single-identity, `write-policy: deny`) so tool
@@ -536,9 +630,6 @@ success with a per-relay result list, not an error.
 
 ## 11. Delivery plan
 
-0. **Prerequisite, in `nostr-java-event`/`nostr-java-identity`**: NIP-17 support — kind-14
-   rumor, kind-13 seal, kind-1059 gift wrap over the existing NIP-44 primitives. Tracked
-   separately; blocks phase 5 only, so the rest can proceed in parallel.
 1. Module skeleton, POM, BOM entry, official MCP SDK on stdio, `IdentityVault` and
    `IdentityStore` with the `encrypted-file` keystore, the **CLI** lifecycle commands
    (§6.3.1), single-identity mode, and `nostr_list_relays` — proves the wiring end to end
@@ -547,9 +638,11 @@ success with a per-relay result list, not an error.
 3. Write path behind `WriteGuard`: `nostr_publish_note`, `nostr_publish_event`,
    `nostr_update_profile`. Identity lifecycle **tools** (§6.3) land here too, for the
    multi-identity administration case.
-4. Subscriptions: `SubscriptionRegistry`, the four subscription tools, resource
+4. Subscriptions: `SubscriptionBuffers`, the four subscription tools, resource
    notifications, TTL reaping.
-5. Social layer: threads, contacts, NIP-17 direct messages.
+5. Social layer: threads, contacts, and NIP-17 direct messages over
+   `NostrClient.sendDirectMessage` / `readDirectMessage`. No SDK prerequisite: NIP-17 landed
+   in 2.1.0 and delivery in 2.2.0, so this phase is adapter work only.
 6. HTTP transport with per-session identity binding, `Dockerfile` and `docker-compose.yml`
    (including a profile showing one bound container per identity), prompts, and
    documentation (a how-to for wiring the server into an MCP host, covering both modes).
@@ -573,13 +666,18 @@ success with a per-relay result list, not an error.
   empty, or refuse to start until one exists?
 - Does the HTTP transport need authentication of its own (bearer token) in v1, or is it
   documented as bind-to-localhost only?
-- Does NIP-17 support land as a contribution to this repo, or is it already planned
-  upstream in the BOM's event module?
+- kind-3 contact lists (`nostr_get_contacts`) have no SDK representation. Does a
+  `ContactList` type belong in `nostr-java-event`, or does the tool parse the tags itself?
 
 ## Related documents
 
 - [architecture.md](architecture.md) — existing module architecture and data flow
-- [../howto/streaming-subscriptions.md](../howto/streaming-subscriptions.md) — the
-  subscription mechanics the query tools build on
+- [../howto/multi-relay-publishing.md](../howto/multi-relay-publishing.md) — the
+  `NostrClient` surface this module adapts, including per-relay publish outcomes and
+  de-duplicated subscriptions
+- [../reference/nostr-java-api.md](../reference/nostr-java-api.md) — signatures for
+  `NostrClient`, `RelayPool`, `PublishResult`, and the known limitations they carry
+- [../howto/streaming-subscriptions.md](../howto/streaming-subscriptions.md) — single-relay
+  subscription mechanics
 - [../operations/configuration.md](../operations/configuration.md) — configuration
   conventions this module follows
