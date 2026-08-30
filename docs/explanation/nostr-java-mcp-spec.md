@@ -819,6 +819,13 @@ infrastructure.
 This makes a small `ContactList` addition to `nostr-java-event` a **prerequisite of the social
 phase** (§11 phase 5), and the only SDK work this module now requires.
 
+## Tickets
+
+The delivery plan above is broken into twelve tracer-bullet tickets under
+`.scratch/nostr-java-mcp/issues/`, each declaring what blocks it. Two can start immediately:
+the `ContactList` prerequisite in `nostr-java-event`, and the module skeleton with its stdio
+transport.
+
 ## Related documents
 
 - [architecture.md](architecture.md) — existing module architecture and data flow
