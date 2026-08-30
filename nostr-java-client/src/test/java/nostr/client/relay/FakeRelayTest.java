@@ -100,19 +100,21 @@ class FakeRelayTest {
     assertThrows(IOException.class, () -> relay.send(new ReqMessage("sub")));
   }
 
-  // Verifies a reconnected relay accepts traffic again but does not restore old subscribers,
-  // so re-subscription remains the caller's responsibility to prove.
+  // Verifies recovery yields a fresh connection carrying no subscriptions, matching production
+  // where a closed NostrRelayClient cannot be reopened and must be replaced via the factory.
   @Test
-  void reconnectingClearsSubscribersAndReopensTheRelay() throws Exception {
-    FakeRelay relay = FakeRelay.accepting("wss://relay.one");
-    relay.subscribe(new ReqMessage("sub"), payload -> {}, error -> {}, null);
+  void reconnectingYieldsAFreshConnectionWithNoSubscriptions() throws Exception {
+    FakeRelay dropped = FakeRelay.accepting("wss://relay.one");
+    dropped.subscribe(new ReqMessage("sub"), payload -> {}, error -> {}, null);
+    dropped.dropConnection();
 
-    relay.dropConnection();
-    relay.reconnect();
+    FakeRelay recovered = dropped.reconnected();
 
-    assertEquals(ConnectionState.CONNECTED, relay.getConnectionState());
-    assertEquals(0, relay.getActiveSubscriberCount());
-    assertEquals(1, relay.send(new ReqMessage("sub")).size());
+    assertEquals(ConnectionState.CLOSED, dropped.getConnectionState());
+    assertEquals(ConnectionState.CONNECTED, recovered.getConnectionState());
+    assertEquals(dropped.getRelayUri(), recovered.getRelayUri());
+    assertEquals(0, recovered.getActiveSubscriberCount());
+    assertEquals(1, recovered.send(new ReqMessage("sub")).size());
   }
 
   // Verifies the relay records what it was asked to send, so tests can assert which events

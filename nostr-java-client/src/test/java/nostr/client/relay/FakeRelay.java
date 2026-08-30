@@ -226,14 +226,18 @@ public final class FakeRelay implements RelayConnection {
   }
 
   /**
-   * Bring a dropped relay back, as a successful reconnect would.
+   * A fresh connection to the same relay, as reconnecting through a factory would produce.
    *
-   * <p>Subscribers are not restored: re-subscribing is the caller's responsibility, which is
-   * exactly the behaviour tests need to verify.
+   * <p>Recovery is modelled as a new connection rather than reviving this one, because that is
+   * the only option production has: {@code NostrRelayClient} offers no reopen path, so a closed
+   * connection is terminal and callers must obtain a replacement from a
+   * {@link RelayConnectionFactory}. Subscriptions do not carry over, which is precisely what
+   * makes re-subscription the caller's responsibility to prove.
+   *
+   * @return a new, connected relay with the same URI and scripted behaviour, and no subscribers
    */
-  public void reconnect() {
-    subscribers.clear();
-    connectionState = ConnectionState.CONNECTED;
+  public FakeRelay reconnected() {
+    return new FakeRelay(relayUri, sendBehaviour, rejectionReason);
   }
 
   /**
