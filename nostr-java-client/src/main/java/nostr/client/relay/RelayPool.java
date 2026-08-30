@@ -16,13 +16,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A set of relay connections that one event can be published to at once.
@@ -43,8 +47,40 @@ public class RelayPool implements AutoCloseable {
   /** How long a publish waits for a relay before recording it as timed out. */
   public static final Duration DEFAULT_PUBLISH_TIMEOUT = Duration.ofSeconds(10);
 
-  private final Map<String, RelayConnection> connectionsByRelay = new LinkedHashMap<>();
-  private final Map<String, String> unreachableRelays = new LinkedHashMap<>();
+  /** How often downed relays are retried in the background. */
+  public static final Duration DEFAULT_RECONNECT_INTERVAL = Duration.ofSeconds(30);
+
+  /**
+   * Live connections, keyed by relay URI.
+   *
+   * <p>Concurrent rather than ordered because membership changes while publishes are in flight:
+   * a recovering relay rejoins from another thread, and iterating a plain map at that moment
+   * throws. Configured order is preserved separately in {@link #configuredRelayUris}, so results
+   * stay predictable without making readers pay for a lock.
+   */
+  private final Map<String, RelayConnection> connectionsByRelay = new ConcurrentHashMap<>();
+
+  private final Map<String, String> unreachableRelays = new ConcurrentHashMap<>();
+
+  /** The relays as the caller listed them, so outcomes are reported in a stable order. */
+  private final List<String> configuredRelayUris;
+
+  /**
+   * Retries downed relays on a schedule the pool owns.
+   *
+   * <p>Relays go down and come back, and an application must not need restarting to notice, so
+   * reconnection belongs to the pool rather than to whoever remembers to call it.
+   */
+  private final ScheduledExecutorService reconnectScheduler;
+  /**
+   * One lock per relay, because a connection serves one request at a time.
+   *
+   * <p>{@code NostrRelayClient} rejects a second concurrent {@code send} on the same connection,
+   * so without this two callers publishing at once would collide. Locking per relay rather than
+   * across the pool keeps fan-out concurrent: a slow relay delays only its own queue.
+   */
+  private final Map<String, ReentrantLock> locksByRelay = new ConcurrentHashMap<>();
+  private final RelayConnectionFactory connectionFactory;
   private final Duration publishTimeout;
   private final BaseMessageDecoder<OkMessage> okMessageDecoder = new BaseMessageDecoder<>();
 
@@ -59,10 +95,50 @@ public class RelayPool implements AutoCloseable {
       List<String> relayUris,
       RelayConnectionFactory connectionFactory,
       Duration publishTimeout) {
+    this(relayUris, connectionFactory, publishTimeout, DEFAULT_RECONNECT_INTERVAL);
+  }
+
+  /**
+   * Connect to each relay, retrying the ones that are down at the given interval.
+   *
+   * @param relayUris the relays to connect to
+   * @param connectionFactory opens a connection for a relay URI
+   * @param publishTimeout how long a publish waits before recording a relay as timed out
+   * @param reconnectInterval how often downed relays are retried in the background
+   */
+  public RelayPool(
+      List<String> relayUris,
+      RelayConnectionFactory connectionFactory,
+      Duration publishTimeout,
+      Duration reconnectInterval) {
     Objects.requireNonNull(relayUris, "relayUris");
     Objects.requireNonNull(connectionFactory, "connectionFactory");
     this.publishTimeout = Objects.requireNonNull(publishTimeout, "publishTimeout");
+    this.connectionFactory = connectionFactory;
+    this.configuredRelayUris = List.copyOf(relayUris);
     relayUris.forEach(relayUri -> connectOrRecordAsDown(relayUri, connectionFactory));
+    this.reconnectScheduler = startReconnecting(reconnectInterval);
+  }
+
+  private ScheduledExecutorService startReconnecting(Duration reconnectInterval) {
+    Objects.requireNonNull(reconnectInterval, "reconnectInterval");
+    ScheduledExecutorService scheduler =
+        Executors.newSingleThreadScheduledExecutor(
+            runnable -> Thread.ofVirtual().name("nostr-relay-reconnect").unstarted(runnable));
+    scheduler.scheduleWithFixedDelay(
+        this::reconnectDownedRelaysQuietly,
+        reconnectInterval.toMillis(),
+        reconnectInterval.toMillis(),
+        TimeUnit.MILLISECONDS);
+    return scheduler;
+  }
+
+  private void reconnectDownedRelaysQuietly() {
+    try {
+      retryUnreachableRelays();
+    } catch (RuntimeException e) {
+      log.warn("Background relay reconnection failed: {}", e.getMessage());
+    }
   }
 
   /**
@@ -119,9 +195,13 @@ public class RelayPool implements AutoCloseable {
   private List<RelayPublishOutcome> sendConcurrently(GenericEvent event) {
     try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
       Map<String, Future<RelayPublishOutcome>> pending = new LinkedHashMap<>();
-      connectionsByRelay.forEach(
-          (relayUri, connection) ->
-              pending.put(relayUri, executor.submit(sendTo(connection, event))));
+      configuredRelayUris.forEach(
+          relayUri -> {
+            RelayConnection connection = connectionsByRelay.get(relayUri);
+            if (connection != null) {
+              pending.put(relayUri, executor.submit(sendTo(connection, event)));
+            }
+          });
       Instant deadline = Instant.now().plus(publishTimeout);
       return pending.entrySet().stream()
           .map(entry -> awaitOutcome(entry.getKey(), entry.getValue(), deadline))
@@ -131,6 +211,9 @@ public class RelayPool implements AutoCloseable {
 
   private Callable<RelayPublishOutcome> sendTo(RelayConnection connection, GenericEvent event) {
     return () -> {
+      ReentrantLock relayLock =
+          locksByRelay.computeIfAbsent(connection.getRelayUri(), uri -> new ReentrantLock(true));
+      relayLock.lock();
       try {
         return interpretResponses(
             connection.getRelayUri(), event.getId(), connection.send(new EventMessage(event)));
@@ -138,6 +221,8 @@ public class RelayPool implements AutoCloseable {
         return RelayPublishOutcome.timedOut(connection.getRelayUri(), e.getMessage());
       } catch (IOException e) {
         return RelayPublishOutcome.unreachable(connection.getRelayUri(), e.getMessage());
+      } finally {
+        relayLock.unlock();
       }
     };
   }
@@ -205,10 +290,64 @@ public class RelayPool implements AutoCloseable {
    * @return the connected relays' URIs, in the order they were configured
    */
   public List<String> getConnectedRelays() {
-    return connectionsByRelay.entrySet().stream()
-        .filter(entry -> entry.getValue().getConnectionState() == ConnectionState.CONNECTED)
-        .map(Map.Entry::getKey)
+    return configuredRelayUris.stream()
+        .filter(
+            relayUri ->
+                getConnectionState(relayUri).orElse(null) == ConnectionState.CONNECTED)
         .toList();
+  }
+
+  /**
+   * One relay's connection state.
+   *
+   * @param relayUri the relay to look up
+   * @return that relay's state, or empty when the relay is not in the pool
+   */
+  public Optional<ConnectionState> getConnectionState(String relayUri) {
+    return Optional.ofNullable(connectionsByRelay.get(relayUri))
+        .map(RelayConnection::getConnectionState);
+  }
+
+  /**
+   * Try the relays that were unreachable again, returning any that now answer to service.
+   *
+   * <p>Relays go down and come back, and an application should not need restarting to notice.
+   * Callers decide when to retry; the pool does not impose a schedule of its own.
+   *
+   * @return the relays that rejoined
+   */
+  public List<String> retryUnreachableRelays() {
+    markDroppedRelaysAsUnreachable();
+    List<String> rejoined = new ArrayList<>();
+    getUnreachableRelays()
+        .forEach(
+            relayUri -> {
+              try {
+                connectionsByRelay.put(relayUri, connectionFactory.connect(relayUri));
+                unreachableRelays.remove(relayUri);
+                rejoined.add(relayUri);
+                log.info("Relay {} recovered and rejoined the pool", relayUri);
+              } catch (IOException e) {
+                log.debug("Relay {} is still unreachable: {}", relayUri, e.getMessage());
+              }
+            });
+    return List.copyOf(rejoined);
+  }
+
+  /**
+   * Move relays whose connection has since closed back into the downed set.
+   *
+   * <p>Without this only startup failures would ever be retried, so a relay that dropped after
+   * connecting would be published to forever without reconnecting.
+   */
+  private void markDroppedRelaysAsUnreachable() {
+    connectionsByRelay.forEach(
+        (relayUri, connection) -> {
+          if (connection.getConnectionState() == ConnectionState.CLOSED) {
+            connectionsByRelay.remove(relayUri);
+            unreachableRelays.put(relayUri, "Connection closed");
+          }
+        });
   }
 
   /**
@@ -217,11 +356,12 @@ public class RelayPool implements AutoCloseable {
    * @return the unreachable relays' URIs
    */
   public List<String> getUnreachableRelays() {
-    return List.copyOf(unreachableRelays.keySet());
+    return configuredRelayUris.stream().filter(unreachableRelays::containsKey).toList();
   }
 
   @Override
   public void close() {
+    reconnectScheduler.shutdownNow();
     connectionsByRelay.values().forEach(this::closeQuietly);
     connectionsByRelay.clear();
   }

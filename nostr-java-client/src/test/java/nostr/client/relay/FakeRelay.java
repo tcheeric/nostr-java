@@ -18,6 +18,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -63,12 +65,15 @@ public final class FakeRelay implements RelayConnection {
   private final SendBehaviour sendBehaviour;
   private final String rejectionReason;
   private final CyclicBarrier sendRendezvous;
+  private final Runnable duringSend;
 
   private final List<BaseMessage> sentMessages = new CopyOnWriteArrayList<>();
   private final List<String> sentSubscriptionIds = new CopyOnWriteArrayList<>();
   private final Map<String, Subscriber> subscribers = new ConcurrentHashMap<>();
   private final AtomicLong registrationSequence = new AtomicLong();
   private final CountDownLatch stallLatch = new CountDownLatch(1);
+  private final AtomicBoolean requestInFlight = new AtomicBoolean(false);
+  private final AtomicInteger peakConcurrentSends = new AtomicInteger();
   private volatile ConnectionState connectionState = ConnectionState.CONNECTED;
 
   private record Subscriber(
@@ -78,7 +83,7 @@ public final class FakeRelay implements RelayConnection {
       Runnable closeListener) {}
 
   private FakeRelay(String relayUri, SendBehaviour sendBehaviour, String rejectionReason) {
-    this(relayUri, sendBehaviour, rejectionReason, null);
+    this(relayUri, sendBehaviour, rejectionReason, null, null);
   }
 
   private FakeRelay(
@@ -86,6 +91,16 @@ public final class FakeRelay implements RelayConnection {
       SendBehaviour sendBehaviour,
       String rejectionReason,
       CyclicBarrier sendRendezvous) {
+    this(relayUri, sendBehaviour, rejectionReason, sendRendezvous, null);
+  }
+
+  private FakeRelay(
+      String relayUri,
+      SendBehaviour sendBehaviour,
+      String rejectionReason,
+      CyclicBarrier sendRendezvous,
+      Runnable duringSend) {
+    this.duringSend = duringSend;
     this.relayUri = relayUri;
     this.sendBehaviour = sendBehaviour;
     this.rejectionReason = rejectionReason;
@@ -187,6 +202,20 @@ public final class FakeRelay implements RelayConnection {
    * @param sendRendezvous the barrier every participating relay must reach
    * @return the scripted relay
    */
+  /**
+   * A relay that accepts, running the given action while the send is in progress.
+   *
+   * <p>The action observes the window in which this relay holds its connection, which is how a
+   * test measures whether sends to different relays overlap.
+   *
+   * @param relayUri the relay URI this fake answers to
+   * @param duringSend run while the send is in flight
+   * @return the scripted relay
+   */
+  public static FakeRelay acceptingWhile(String relayUri, Runnable duringSend) {
+    return new FakeRelay(relayUri, SendBehaviour.ACCEPT, null, null, duringSend);
+  }
+
   public static FakeRelay acceptingAfter(String relayUri, CyclicBarrier sendRendezvous) {
     return new FakeRelay(relayUri, SendBehaviour.ACCEPT, null, sendRendezvous);
   }
@@ -204,7 +233,45 @@ public final class FakeRelay implements RelayConnection {
   @Override
   public <T extends BaseMessage> List<String> send(T message) throws IOException {
     requireOpen();
+    requireNoRequestInFlight();
+    try {
+      return sendWhileHoldingTheConnection(message);
+    } finally {
+      requestInFlight.set(false);
+    }
+  }
+
+  /**
+   * Reject a second concurrent send, exactly as {@code NostrRelayClient} does.
+   *
+   * <p>The real client permits one request in flight per connection and throws
+   * {@link IllegalStateException} otherwise. A fake that quietly allowed concurrent sends would
+   * let a caller look correct in tests and fail against a real relay.
+   */
+  private void requireNoRequestInFlight() {
+    if (!requestInFlight.compareAndSet(false, true)) {
+      peakConcurrentSends.accumulateAndGet(2, Math::max);
+      throw new IllegalStateException(
+          "A request is already in flight. Concurrent send() calls are not supported.");
+    }
+    peakConcurrentSends.accumulateAndGet(1, Math::max);
+  }
+
+  /**
+   * How many sends were ever in flight at once, so a test can tell queuing from luck.
+   *
+   * @return the highest number of overlapping sends observed
+   */
+  public int getPeakConcurrentSends() {
+    return peakConcurrentSends.get();
+  }
+
+  private <T extends BaseMessage> List<String> sendWhileHoldingTheConnection(T message)
+      throws IOException {
     sentMessages.add(message);
+    if (duringSend != null) {
+      duringSend.run();
+    }
     awaitRendezvous();
     String eventId = message instanceof EventMessage eventMessage
         ? eventMessage.getEvent().getId()
@@ -319,7 +386,7 @@ public final class FakeRelay implements RelayConnection {
    * @return a new, connected relay with the same URI and scripted behaviour, and no subscribers
    */
   public FakeRelay reconnected() {
-    return new FakeRelay(relayUri, sendBehaviour, rejectionReason, sendRendezvous);
+    return new FakeRelay(relayUri, sendBehaviour, rejectionReason, sendRendezvous, duringSend);
   }
 
   /**

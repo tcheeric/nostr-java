@@ -18,13 +18,13 @@ See ADR-0004.
 
 **Blocked by:** 02 (`RelayPool` with fan-out publishing).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Concurrent publishes to one relay queue rather than throwing
-- [ ] Publishes to different relays still proceed concurrently
-- [ ] Per-relay `ConnectionState` is observable from the pool
-- [ ] Relays that are down are retried in the background and rejoin the pool when they recover
-- [ ] A relay that recovers participates in subsequent publishes without a restart
-- [ ] Tests cover concurrent publishes to one relay, concurrency preserved across relays, and
+- [x] Concurrent publishes to one relay queue rather than throwing
+- [x] Publishes to different relays still proceed concurrently
+- [x] Per-relay `ConnectionState` is observable from the pool
+- [x] Relays that are down are retried in the background and rejoin the pool when they recover
+- [x] A relay that recovers participates in subsequent publishes without a restart
+- [x] Tests cover concurrent publishes to one relay, concurrency preserved across relays, and
       a down relay rejoining
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes
