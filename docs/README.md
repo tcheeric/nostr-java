@@ -31,6 +31,7 @@ Quick links to the most relevant guides and references.
 - [explanation/extending-events.md](explanation/extending-events.md) — Working with events and tags (GenericEvent, GenericTag, Kinds)
 - [explanation/architecture.md](explanation/architecture.md) — Module architecture and data flow
 - [explanation/nostr-java-mcp-spec.md](explanation/nostr-java-mcp-spec.md) — Draft spec for the `nostr-java-mcp` MCP server module
+- [explanation/nip-17-direct-messages-spec.md](explanation/nip-17-direct-messages-spec.md) — Draft spec for NIP-17 private direct messages and NIP-59 gift wrapping
 - [explanation/dependency-alignment.md](explanation/dependency-alignment.md) — How versions are aligned via BOM
 
 ## Developer
