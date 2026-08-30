@@ -17,11 +17,13 @@ That weaker guarantee must be stated where a deployer reads it, not implied.
 
 **Status:** ready-for-agent
 
-- [ ] The server runs over streamable HTTP as well as stdio, selected by `transport`
-- [ ] `bind-address` defaults to `127.0.0.1`
-- [ ] A non-loopback bind logs a warning at startup naming the risk
-- [ ] A session can be bound to one identity, filtering the tool surface as single-identity
-      mode does
-- [ ] Documentation states plainly that the transport is unauthenticated and belongs behind a
+- [x] The server runs over streamable HTTP as well as stdio, selected by `transport`
+- [x] `bind-address` defaults to `127.0.0.1`
+- [x] A non-loopback bind logs a warning at startup naming the risk
+- [~] A session can be bound to one identity, filtering the tool surface as single-identity
+      mode does — deferred: the streamable transport builds one server for all sessions, so
+      per-session filtering needs a session-scoped tool surface the SDK does not yet expose.
+      Process-level binding (ticket 04) remains the supported and stronger isolation.
+- [x] Documentation states plainly that the transport is unauthenticated and belongs behind a
       proxy if exposed
-- [ ] `mvn -q verify` passes
+- [x] `mvn -q verify` passes

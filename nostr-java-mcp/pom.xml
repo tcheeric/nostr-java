@@ -86,6 +86,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>nostr-java-client</artifactId>
             <version>${project.version}</version>

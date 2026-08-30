@@ -4,6 +4,7 @@ import lombok.NonNull;
 import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.transport.BindAddress;
 import nostr.mcp.subscription.SubscriptionLimits;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WritePolicy;
@@ -31,6 +32,9 @@ public final class McpConfiguration {
 
   private static final String DEFAULT_KEYSTORE_TYPE = "os-keychain";
   private static final int DEFAULT_WRITES_PER_MINUTE = 10;
+  private static final String DEFAULT_TRANSPORT = "stdio";
+  private static final String HTTP_TRANSPORT = "http";
+  private static final int DEFAULT_HTTP_PORT = 8080;
 
   private final List<String> readRelays;
   private final List<String> writeRelays;
@@ -149,6 +153,42 @@ public final class McpConfiguration {
    *
    * @return the configured policy, defaulting to requiring confirmation
    */
+  /**
+   * Which transport to serve on.
+   *
+   * @return {@code stdio} unless HTTP was configured
+   */
+  public String transport() {
+    return settingOr("transport", DEFAULT_TRANSPORT);
+  }
+
+  /**
+   * Whether this server serves over HTTP rather than stdio.
+   *
+   * @return true when the HTTP transport was chosen
+   */
+  public boolean usesHttpTransport() {
+    return HTTP_TRANSPORT.equalsIgnoreCase(transport());
+  }
+
+  /**
+   * Where the HTTP transport listens.
+   *
+   * @return the configured address, defaulting to loopback
+   */
+  public BindAddress bindAddress() {
+    return BindAddress.fromConfiguredValue(setting("bind-address"));
+  }
+
+  /**
+   * Which port the HTTP transport listens on.
+   *
+   * @return the configured port
+   */
+  public int httpPort() {
+    return positiveIntOr("port", DEFAULT_HTTP_PORT);
+  }
+
   public WritePolicy writePolicy() {
     return WritePolicy.fromConfiguredValue(setting("write-policy"));
   }

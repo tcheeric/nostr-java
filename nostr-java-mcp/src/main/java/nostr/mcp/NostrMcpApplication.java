@@ -17,6 +17,7 @@ import nostr.mcp.social.McpDirectMessageService;
 import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.subscription.SubscriptionResources;
 import nostr.mcp.tool.ToolSurface;
+import nostr.mcp.transport.HttpMcpServer;
 import nostr.mcp.write.WriteGuard;
 
 import java.io.IOException;
@@ -83,10 +84,40 @@ public final class NostrMcpApplication {
               new McpDirectMessageService(
                   identityVault, relayPool, configuration.identitiesPermittedToDecrypt()));
 
-      try (NostrMcpServer server = new NostrMcpServer(registry, VERSION, subscriptions)) {
-        runningServer.set(server);
-        awaitShutdown();
+      if (configuration.usesHttpTransport()) {
+        serveOverHttp(configuration, registry, subscriptions);
+      } else {
+        try (NostrMcpServer server = new NostrMcpServer(registry, VERSION, subscriptions)) {
+          runningServer.set(server);
+          awaitShutdown();
+        }
       }
+    }
+  }
+
+  /**
+   * Serves over HTTP for a deployment the host does not launch itself.
+   *
+   * <p>Resource notifications are not wired here. The streamable transport addresses them per
+   * session, and this server has no way to know which session opened which subscription, so
+   * pushing to all of them would leak one agent's activity to another. HTTP clients poll instead,
+   * which the subscription tools support unchanged.
+   */
+  private static void serveOverHttp(
+      McpConfiguration configuration,
+      NostrToolRegistry registry,
+      SubscriptionRegistry subscriptions)
+      throws InterruptedException {
+    try (HttpMcpServer server =
+        new HttpMcpServer(
+            registry,
+            VERSION,
+            subscriptions,
+            configuration.bindAddress(),
+            configuration.httpPort())) {
+      awaitShutdown();
+    } catch (IOException e) {
+      log.error("Could not start the MCP HTTP transport: {}", e.getMessage());
     }
   }
 
