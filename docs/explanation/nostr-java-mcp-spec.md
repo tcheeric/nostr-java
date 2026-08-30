@@ -225,8 +225,15 @@ subscriptions are modelled as **stateful server resources**:
   the MCP layer replaying anything. `SubscriptionListener.onRelayFailure` reports the drop,
   and `nostr_list_subscriptions` surfaces it so an agent can see a stream degrade.
 - `SubscriptionListener.onEndOfStoredEvents` fires once, after every relay has replayed its
-  backlog or a timeout expires. `nostr_subscribe` returns after it, so an agent that asked
-  for history has history before its first read.
+  backlog or a timeout expires. It is **asynchronous**: `RelayPool.subscribe` returns
+  immediately, before any stored event or the signal itself has arrived (verified against a
+  live relay: both counts are zero the instant it returns).
+
+  So `nostr_subscribe` must not pretend history is ready. It returns the `subscriptionId`
+  together with a `backlogDrained: false`, and `nostr_read_subscription` reports the flag so
+  an agent can tell "nothing matched yet" from "the backlog is still replaying". A tool that
+  blocked until EOSE would stall for the backlog timeout on any relay that never answers,
+  which is exactly the failure the SDK's timeout exists to prevent.
 
 ### 6.2 Direct messages and NIP-17
 
@@ -253,8 +260,16 @@ surface rather than hide:
   forbids sending to them, so the message genuinely did not go, and the agent must be able to
   tell the user which recipient missed out.
 - Every conversation includes the sender, since NIP-17 requires a copy addressed to them.
-  A one-recipient send therefore reports two outcomes, and the tool should not present that
+  A one-recipient send therefore reports **two** outcomes, and the tool must not present that
   as a partial failure.
+
+  This matters more than it first appears. A sender who has published no kind-10050 list of
+  their own comes back `UNREACHABLE` for their *own* copy while the actual recipient is
+  `DELIVERED` (observed against a live relay). Reported naively, "1 of 2 delivered" would tell
+  the user their message failed when it arrived perfectly well. So the tool reports the
+  recipients separately from the sender's archival copy, and surfaces a sender-side
+  `UNREACHABLE` as advice — publish a relay list to keep your own sent messages — rather than
+  as a delivery error.
 
 NIP-04 leaks metadata (both pubkeys and the conversation are visible to every relay) and is
 unsuitable as the DM story for a tool an agent drives on a user's behalf. It is deprecated in
@@ -625,6 +640,14 @@ medium is worse than the original problem.
 - **Isolation**: a single-identity server started with `identity: personal` exposes no
   lifecycle tools, accepts no `identity` argument, and never decrypts another alias's
   keystore entry.
+- **Spec conformance**: the SDK behaviours this document depends on are asserted against a
+  live relay in `McpSpecAssumptionsIT` (`nostr-java-api`), so a change in the SDK that
+  invalidates a design decision here fails a build rather than being discovered during
+  implementation. It covers: publish returning per-relay outcomes; total failure throwing with
+  the result attached; `subscribe` returning before the backlog drains; an event published
+  mid-subscription reaching the listener; `EOSE` firing exactly once; a kind-10050 lookup
+  resolving; a one-recipient DM reporting two outcomes; a recipient without a relay list
+  reported `UNREACHABLE`; and `publishAs` signing as the named identity.
 - **Packaging**: `docker-compose build` runs in CI.
 - Run with `mvn -q verify` from the repository root as usual.
 
