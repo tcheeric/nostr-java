@@ -265,10 +265,22 @@ public class GenericEvent implements ISignable {
     return this::setSignature;
   }
 
+  /**
+   * Supplies the canonical bytes that a signature is computed over.
+   *
+   * <p>Serialization is refreshed first so the signature covers the event's current contents.
+   * An event that already carries a creation time keeps it, because signing must not silently
+   * move an event in time: NIP-59 seals and gift wraps depend on their randomised timestamps
+   * surviving all the way to the wire.
+   */
   @Transient
   @Override
   public Supplier<ByteBuffer> getByteArraySupplier() {
-    this.update();
+    if (this.createdAt != null) {
+      this.update(this.createdAt);
+    } else {
+      this.update();
+    }
     if (log.isTraceEnabled()) {
       log.trace("Serialized event: {}", new String(this.get_serializedEvent()));
     }
