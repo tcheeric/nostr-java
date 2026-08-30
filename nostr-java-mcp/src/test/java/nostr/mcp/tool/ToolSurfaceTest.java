@@ -9,6 +9,8 @@ import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.subscription.SubscriptionLimits;
+import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WriteGuard;
 import nostr.mcp.write.WritePolicy;
@@ -159,7 +161,8 @@ class ToolSurfaceTest {
               writeGuard(relayPool, vault, WritePolicy.CONFIRM),
               WritePolicy.CONFIRM,
               null,
-              IdentityPolicy.ALLOW);
+              IdentityPolicy.ALLOW,
+              subscriptionRegistry(relayPool));
 
       assertEquals(readGolden(NO_MUTATION_GOLDEN), String.join("\n", registry.registeredNames()));
     }
@@ -185,7 +188,13 @@ class ToolSurfaceTest {
         writeGuard(relayPool, vault, policy),
         policy,
         new IdentityLifecycle(vault, new InMemoryStore()),
-        identityPolicy);
+        identityPolicy,
+        subscriptionRegistry(relayPool));
+  }
+
+  private SubscriptionRegistry subscriptionRegistry(RelayPool relayPool) {
+    return new SubscriptionRegistry(
+        relayPool, SubscriptionLimits.defaults(), Clock.systemUTC(), subscriptionId -> {});
   }
 
   private WriteGuard writeGuard(RelayPool relayPool, IdentityVault vault, WritePolicy policy) {

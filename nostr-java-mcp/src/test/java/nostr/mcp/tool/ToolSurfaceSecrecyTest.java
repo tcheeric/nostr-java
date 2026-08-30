@@ -11,6 +11,8 @@ import nostr.mcp.identity.KeySource;
 import nostr.mcp.identity.IdentityLifecycle;
 import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.subscription.SubscriptionLimits;
+import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.relay.RelayDirectory;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WriteGuard;
@@ -134,8 +136,14 @@ class ToolSurfaceSecrecyTest {
                 new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC())),
             WritePolicy.ALLOW,
             new IdentityLifecycle(vault, new InMemoryStore()),
-            IdentityPolicy.ALLOW)
+            IdentityPolicy.ALLOW,
+            subscriptionRegistry(pool))
         .tools();
+  }
+
+  private SubscriptionRegistry subscriptionRegistry(RelayPool pool) {
+    return new SubscriptionRegistry(
+        pool, SubscriptionLimits.defaults(), Clock.systemUTC(), subscriptionId -> {});
   }
 
   /** A store standing in for a keystore, so the surface under test is the real one. */

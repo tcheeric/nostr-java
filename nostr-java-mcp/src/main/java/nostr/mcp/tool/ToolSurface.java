@@ -10,6 +10,7 @@ import nostr.mcp.directory.WellKnownJson;
 import nostr.mcp.query.EventQuery;
 import nostr.mcp.query.QueryLimits;
 import nostr.mcp.relay.RelayDirectory;
+import nostr.mcp.subscription.SubscriptionRegistry;
 import nostr.mcp.write.WriteGuard;
 import nostr.mcp.write.WritePolicy;
 
@@ -44,6 +45,7 @@ public final class ToolSurface {
    * @param writePolicy whether write tools appear at all
    * @param identityLifecycle performs keystore changes, or {@code null} when the backend cannot
    * @param identityPolicy whether keystore-mutating tools appear at all
+   * @param subscriptions where open subscriptions live
    * @return the registry a host will see
    */
   public static NostrToolRegistry forServer(
@@ -55,7 +57,8 @@ public final class ToolSurface {
       @NonNull WriteGuard writeGuard,
       @NonNull WritePolicy writePolicy,
       IdentityLifecycle identityLifecycle,
-      @NonNull IdentityPolicy identityPolicy) {
+      @NonNull IdentityPolicy identityPolicy,
+      @NonNull SubscriptionRegistry subscriptions) {
     EventQuery eventQuery = new EventQuery(relayPool);
     WellKnownJson wellKnownJson = new WellKnownJson();
     NostrToolRegistry registry =
@@ -64,7 +67,11 @@ public final class ToolSurface {
             .register(new ListIdentitiesTool(identityVault))
             .register(new QueryEventsTool(eventQuery, queryLimits, clock))
             .register(new GetProfileTool(eventQuery, new Nip05Resolver(wellKnownJson), queryLimits))
-            .register(new RelayInfoTool(relayDirectory, wellKnownJson));
+            .register(new RelayInfoTool(relayDirectory, wellKnownJson))
+            .register(new SubscribeTool(subscriptions, clock))
+            .register(new ReadSubscriptionTool(subscriptions))
+            .register(new ListSubscriptionsTool(subscriptions))
+            .register(new UnsubscribeTool(subscriptions));
     if (writePolicy.allowsWriteTools()) {
       writeTools(writeGuard).forEach(registry::register);
     }

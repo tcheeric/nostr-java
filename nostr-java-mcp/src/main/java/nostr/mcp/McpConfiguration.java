@@ -4,6 +4,7 @@ import lombok.NonNull;
 import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.query.QueryLimits;
+import nostr.mcp.subscription.SubscriptionLimits;
 import nostr.mcp.write.RateLimit;
 import nostr.mcp.write.WritePolicy;
 
@@ -163,6 +164,19 @@ public final class McpConfiguration {
    *
    * @return the configured policy, never more permissive than the write policy
    */
+  /**
+   * The bounds every subscription lives inside.
+   *
+   * @return the configured limits, or the specification's defaults
+   */
+  public SubscriptionLimits subscriptionLimits() {
+    SubscriptionLimits defaults = SubscriptionLimits.defaults();
+    return new SubscriptionLimits(
+        positiveIntOr("limits.max-subscriptions", defaults.maxSubscriptions()),
+        positiveIntOr("limits.subscription-buffer", defaults.bufferCapacity()),
+        durationOr("limits.subscription-idle-timeout", defaults.idleTimeout()));
+  }
+
   public IdentityPolicy identityPolicy() {
     return IdentityPolicy.fromConfiguredValue(setting("identity-policy"), writePolicy());
   }
@@ -210,6 +224,12 @@ public final class McpConfiguration {
     try {
       if (trimmed.endsWith("ms")) {
         return Duration.ofMillis(Long.parseLong(trimmed.substring(0, trimmed.length() - 2)));
+      }
+      if (trimmed.endsWith("h")) {
+        return Duration.ofHours(Long.parseLong(trimmed.substring(0, trimmed.length() - 1)));
+      }
+      if (trimmed.endsWith("m")) {
+        return Duration.ofMinutes(Long.parseLong(trimmed.substring(0, trimmed.length() - 1)));
       }
       if (trimmed.endsWith("s")) {
         return Duration.ofSeconds(Long.parseLong(trimmed.substring(0, trimmed.length() - 1)));

@@ -13,6 +13,8 @@ import nostr.mcp.identity.KeySources;
 import nostr.mcp.identity.KeystoreException;
 import nostr.mcp.relay.RelayDirectory;
 import nostr.mcp.tool.NostrToolRegistry;
+import nostr.mcp.subscription.SubscriptionRegistry;
+import nostr.mcp.subscription.SubscriptionResources;
 import nostr.mcp.tool.ToolSurface;
 import nostr.mcp.write.WriteGuard;
 
@@ -29,6 +31,7 @@ import java.util.concurrent.ExecutionException;
  * output, so the process must stay alive until the host closes the stream, and must keep its
  * standard output clean of anything but protocol frames.
  */
+@lombok.extern.slf4j.Slf4j
 public final class NostrMcpApplication {
 
   private static final String VERSION = "2.2.0";
@@ -48,9 +51,17 @@ public final class NostrMcpApplication {
     }
 
     KeySource keySource = keySource(configuration);
+    java.util.concurrent.atomic.AtomicReference<NostrMcpServer> runningServer =
+        new java.util.concurrent.atomic.AtomicReference<>();
     try (RelayPool relayPool =
             new RelayPool(configuration.allRelayUris(), NostrMcpApplication::connectToRelay);
-        IdentityVault identityVault = openVault(configuration, keySource)) {
+        IdentityVault identityVault = openVault(configuration, keySource);
+        SubscriptionRegistry subscriptions =
+            new SubscriptionRegistry(
+                relayPool,
+                configuration.subscriptionLimits(),
+                Clock.systemUTC(),
+                subscriptionId -> notifyResourceChanged(runningServer, subscriptionId))) {
 
       NostrToolRegistry registry =
           ToolSurface.forServer(
@@ -66,11 +77,36 @@ public final class NostrMcpApplication {
                   configuration.writeRateLimit(Clock.systemUTC())),
               configuration.writePolicy(),
               lifecycleFor(identityVault, keySource),
-              configuration.identityPolicy());
+              configuration.identityPolicy(),
+              subscriptions);
 
-      try (NostrMcpServer server = new NostrMcpServer(registry, VERSION)) {
+      try (NostrMcpServer server = new NostrMcpServer(registry, VERSION, subscriptions)) {
+        runningServer.set(server);
         awaitShutdown();
       }
+    }
+  }
+
+  /**
+   * Tells the host that a subscription has new events.
+   *
+   * <p>Best-effort by design. A host that does not support resource subscriptions, or one that
+   * has gone away, must not be able to break the subscription that triggered this: the events
+   * are buffered either way and the polling tool still works.
+   */
+  private static void notifyResourceChanged(
+      java.util.concurrent.atomic.AtomicReference<NostrMcpServer> runningServer,
+      String subscriptionId) {
+    NostrMcpServer server = runningServer.get();
+    if (server == null) {
+      return;
+    }
+    try {
+      server.getServer().notifyResourcesUpdated(
+          new io.modelcontextprotocol.spec.McpSchema.ResourcesUpdatedNotification(
+              SubscriptionResources.uriFor(subscriptionId)));
+    } catch (RuntimeException e) {
+      log.debug("Could not notify the host about {}: {}", subscriptionId, e.getMessage());
     }
   }
 

@@ -18,15 +18,15 @@ would stall on any unresponsive relay.
 
 **Status:** ready-for-agent
 
-- [ ] `nostr_subscribe` opens a subscription across every relay and returns an id plus
+- [x] `nostr_subscribe` opens a subscription across every relay and returns an id plus
       `backlogDrained: false`
-- [ ] Events land in a bounded ring buffer; overflow drops the oldest and increments a
+- [x] Events land in a bounded ring buffer; overflow drops the oldest and increments a
       monotonic `droppedCount` so the agent knows it missed data
-- [ ] `nostr_read_subscription` drains what it returns, so repeated calls yield only new events
-- [ ] `nostr_list_subscriptions` reports filters, buffer depth, drop count and relay health
-- [ ] `nostr_unsubscribe` closes a subscription and frees its buffer
-- [ ] Each subscription is exposed as `nostr://subscription/{id}` with update notifications
-- [ ] An idle TTL reaps abandoned subscriptions, and the live total is capped
-- [ ] A relay dropping mid-stream is surfaced rather than silently reducing coverage
-- [ ] Buffers tolerate a duplicate, since SDK de-duplication is windowed
-- [ ] `mvn -q verify` passes
+- [x] `nostr_read_subscription` drains what it returns, so repeated calls yield only new events
+- [x] `nostr_list_subscriptions` reports filters, buffer depth, drop count and relay health
+- [x] `nostr_unsubscribe` closes a subscription and frees its buffer
+- [x] Each subscription is exposed as `nostr://subscription/{id}` with update notifications
+- [x] An idle TTL reaps abandoned subscriptions, and the live total is capped
+- [x] A relay dropping mid-stream is surfaced rather than silently reducing coverage
+- [x] Buffers tolerate a duplicate, since SDK de-duplication is windowed
+- [x] `mvn -q verify` passes

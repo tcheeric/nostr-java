@@ -6,6 +6,8 @@ import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema.ServerCapabilities;
 import lombok.NonNull;
+import nostr.mcp.subscription.SubscriptionRegistry;
+import nostr.mcp.subscription.SubscriptionResources;
 import nostr.mcp.tool.NostrToolRegistry;
 
 /**
@@ -32,7 +34,25 @@ public final class NostrMcpServer implements AutoCloseable {
    * @param version the server version reported to the host
    */
   public NostrMcpServer(@NonNull NostrToolRegistry toolRegistry, @NonNull String version) {
-    this(toolRegistry, version, new StdioServerTransportProvider(McpJsonDefaults.getMapper()));
+    this(toolRegistry, version, (SubscriptionRegistry) null);
+  }
+
+  /**
+   * Serve tools and subscription resources over stdio.
+   *
+   * @param toolRegistry the tools an agent will see
+   * @param version the server version reported to the host
+   * @param subscriptions open subscriptions to expose as resources, or {@code null} for none
+   */
+  public NostrMcpServer(
+      @NonNull NostrToolRegistry toolRegistry,
+      @NonNull String version,
+      SubscriptionRegistry subscriptions) {
+    this(
+        toolRegistry,
+        version,
+        new StdioServerTransportProvider(McpJsonDefaults.getMapper()),
+        subscriptions);
   }
 
   /**
@@ -46,12 +66,40 @@ public final class NostrMcpServer implements AutoCloseable {
       @NonNull NostrToolRegistry toolRegistry,
       @NonNull String version,
       @NonNull StdioServerTransportProvider transportProvider) {
-    this.server =
+    this(toolRegistry, version, transportProvider, null);
+  }
+
+
+  /**
+   * Serve tools, and subscription resources when there are subscriptions to serve.
+   *
+   * <p>Resources are advertised only when the server actually holds subscriptions, since
+   * declaring a capability the server cannot honour would have hosts offer an agent something
+   * that always comes back empty.
+   *
+   * @param toolRegistry the tools an agent will see
+   * @param version the server version reported to the host
+   * @param transportProvider the transport to serve on
+   * @param subscriptions open subscriptions to expose, or {@code null} for none
+   */
+  public NostrMcpServer(
+      @NonNull NostrToolRegistry toolRegistry,
+      @NonNull String version,
+      @NonNull StdioServerTransportProvider transportProvider,
+      SubscriptionRegistry subscriptions) {
+    var builder =
         McpServer.sync(transportProvider)
             .serverInfo(SERVER_NAME, version)
-            .capabilities(ServerCapabilities.builder().tools(true).build())
-            .tools(toolRegistry.toSpecifications())
-            .build();
+            .capabilities(
+                ServerCapabilities.builder()
+                    .tools(true)
+                    .resources(subscriptions != null, subscriptions != null)
+                    .build())
+            .tools(toolRegistry.toSpecifications());
+    if (subscriptions != null) {
+      builder = builder.resources(SubscriptionResources.specification(subscriptions));
+    }
+    this.server = builder.build();
   }
 
   /**

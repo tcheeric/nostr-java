@@ -5,8 +5,7 @@ import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import lombok.NonNull;
 import nostr.event.filter.EventFilter;
 import nostr.event.impl.GenericEvent;
-import nostr.mcp.argument.NostrIdentifier;
-import nostr.mcp.argument.TimeArgument;
+import nostr.mcp.argument.EventFilterArguments;
 import nostr.mcp.argument.ToolArguments;
 import nostr.mcp.query.EventQuery;
 import nostr.mcp.query.QueryLimits;
@@ -56,31 +55,14 @@ public final class QueryEventsTool implements NostrTool {
 
   @Override
   public Map<String, Object> inputSchema() {
-    return Map.of(
-        "type",
-        "object",
-        "properties",
+    return EventFilterArguments.schemaWith(
         Map.of(
-            "authors",
-                property("array", "Public keys to match, as hex or npub.", Map.of("type", "string")),
-            "kinds", property("array", "Event kinds to match, such as 1 for notes.", Map.of("type", "integer")),
-            "ids", property("array", "Event ids to match, as hex, note or nevent.", Map.of("type", "string")),
-            "tags",
-                Map.of(
-                    "type",
-                    "object",
-                    "description",
-                    "Tag filters keyed by tag letter, such as {\"p\": [\"<pubkey>\"]}."),
-            "since", Map.of("type", "string", "description", "Only events at or after this time."),
-            "until", Map.of("type", "string", "description", "Only events before this time."),
             "limit",
-                Map.of(
-                    "type",
-                    "integer",
-                    "description",
-                    "Most events to return (capped at " + limits.maxEventsPerQuery() + ").")),
-        "required",
-        List.of());
+            Map.of(
+                "type",
+                "integer",
+                "description",
+                "Most events to return (capped at " + limits.maxEventsPerQuery() + ").")));
   }
 
   @Override
@@ -115,19 +97,9 @@ public final class QueryEventsTool implements NostrTool {
    * discarded rather than shown.
    */
   private EventFilter filterFrom(ToolArguments arguments) {
-    EventFilter.Builder filter = EventFilter.builder();
-    arguments.texts("authors").stream()
-        .map(author -> NostrIdentifier.publicKey("authors", author).hex())
-        .forEach(filter::author);
-    arguments.texts("ids").stream()
-        .map(id -> NostrIdentifier.eventId("ids", id).hex())
-        .forEach(filter::id);
-    arguments.integers("kinds").forEach(filter::kind);
-    arguments.tagFilters("tags").forEach(filter::addTagFilter);
-    arguments.text("since").ifPresent(since -> filter.since(TimeArgument.toUnixSeconds("since", since, clock)));
-    arguments.text("until").ifPresent(until -> filter.until(TimeArgument.toUnixSeconds("until", until, clock)));
-    filter.limit(requestedLimit(arguments) + 1);
-    return filter.build();
+    return EventFilterArguments.toFilterBuilder(arguments, clock)
+        .limit(requestedLimit(arguments) + 1)
+        .build();
   }
 
   /**
@@ -187,7 +159,4 @@ public final class QueryEventsTool implements NostrTool {
     return summary.toString();
   }
 
-  private static Map<String, Object> property(String type, String description, Map<String, Object> items) {
-    return Map.of("type", type, "description", description, "items", items);
-  }
 }

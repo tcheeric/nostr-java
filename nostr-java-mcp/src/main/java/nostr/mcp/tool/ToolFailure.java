@@ -27,7 +27,9 @@ public enum ToolFailure {
   /** The configured policy does not permit this write. */
   WRITE_FORBIDDEN,
   /** The named subscription does not exist or has been reaped. */
-  SUBSCRIPTION_UNKNOWN;
+  SUBSCRIPTION_UNKNOWN,
+  /** The server already holds as many subscriptions as it allows. */
+  SUBSCRIPTION_LIMIT_REACHED;
 
   /**
    * Raise this failure from wherever it is detected.
