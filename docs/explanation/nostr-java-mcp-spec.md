@@ -121,7 +121,13 @@ returns structured JSON plus a short human-readable summary.
 | `nostr_get_contacts` | Read a kind-3 contact list (NIP-02) | `pubkey?` |
 | `nostr_send_direct_message` | Gift-wrapped encrypted DM (NIP-17) | `recipient`, `content`, `identity?`, `subject?` |
 | `nostr_read_direct_messages` | Unwrap and decrypt DMs addressed to an identity | `identity?`, `since?`, `limit` |
-| `nostr_list_identities` | Public keys the server can sign with | — |
+| `nostr_list_identities` | Aliases and public keys the server can sign with | — |
+| `nostr_create_identity` | Generate a new keypair in the keystore (§6.4) | `alias`, `relays?`, `publishProfile?` |
+| `nostr_import_identity` | Adopt an existing key held outside the model (§6.4) | `alias`, `source` |
+| `nostr_rename_identity` | Change an alias, keeping the key | `alias`, `newAlias` |
+| `nostr_set_default_identity` | Choose the identity used when `identity` is omitted | `alias` |
+| `nostr_export_identity_backup` | Write an encrypted backup file to disk (§6.4) | `alias`, `path`, `passphrase?` |
+| `nostr_remove_identity` | Forget a key, irreversibly (§6.4) | `alias`, `confirmationToken` |
 | `nostr_list_relays` | Configured relays and connection state | — |
 | `nostr_relay_info` | NIP-11 relay metadata | `relay` |
 
@@ -167,8 +173,117 @@ The NIP-17 seal/gift-wrap logic is **not** implemented in this module. It belong
 consumer of the SDK benefits. This makes NIP-17 support a **hard prerequisite** of the DM
 phase of the delivery plan, tracked as its own work item against those modules.
 
+### 6.4 Identity management
 
-### 6.3 Resources and prompts
+An agent that can only use pre-configured keys is half a tool. "Make me a throwaway account
+for this project" and "stop using that key" are natural requests, so the keystore is
+managed through tools rather than by hand-editing YAML. But an identity **is** the user's
+Nostr account: creating one is cheap, losing one is unrecoverable, and exposing one is
+irreversible. The lifecycle is therefore designed around what can and cannot be undone.
+
+#### The safety asymmetry
+
+| Operation | Reversible? | Treatment |
+| --- | --- | --- |
+| Create | Yes, discard the new key | Allowed freely |
+| Rename, set default | Yes | Allowed freely |
+| Import | Yes, remove it again | Allowed, but never through the model (see below) |
+| Export backup | **No** — a key, once copied, cannot be uncopied | Guarded, file only |
+| Remove | **No** — the key is gone and every event ever signed with it is orphaned | Two-step, guarded, backup-first |
+
+`WriteGuard` already exists for relay writes (§8). Identity mutations reuse the same
+two-step confirmation mechanism for the irreversible half of this table, so there is one
+confirmation concept in the module, not two.
+
+#### Creating
+
+`nostr_create_identity` generates a keypair with `PrivateKey.generateRandomPrivKey()`,
+stores it in the keystore under the alias, and returns **only** the alias, public key, and
+npub. The private key never leaves `IdentityVault`, so the agent can create an account it
+can use but cannot leak.
+
+Optional `publishProfile` publishes a kind-0 for the new identity in the same call, since a
+key with no metadata is invisible to every Nostr client. That publish still goes through
+`WriteGuard` like any other write.
+
+A fresh identity starts with the server's default relay set unless `relays` is given.
+
+#### Importing
+
+Importing means supplying an existing `nsec` or hex key, and this is where the design says
+no to the obvious thing. **`nostr_import_identity` never accepts key material as an
+argument.** If it did, the key would pass through the model's context window, be written to
+the host's conversation log, and very likely be sent to a third-party inference API. That is
+the single worst thing this module could do.
+
+Instead `source` names *where the server should read the key from itself*:
+
+- `source: "file:/path/to/key"` — the server reads and then offers to shred the file.
+- `source: "env:NOSTR_IMPORT_KEY"` — read once from its own environment.
+- `source: "prompt"` — on stdio, the server reads from its controlling terminal, invisible
+  to the agent. On HTTP this returns `INPUT_REQUIRED` with a one-time local URL the human
+  opens to paste the key.
+
+The key is validated, its public key derived and reported back, and the source cleared. The
+model orchestrates the import without ever seeing the secret. This is the same principle as
+§7.1's rule that `Identity` objects never reach the tool layer, applied to the way in.
+
+#### Removing
+
+`nostr_remove_identity` is the only genuinely dangerous tool in the module: an npub with no
+nsec is a dead account, and no relay, backup, or protocol can restore it.
+
+- It is two-step. The first call returns the alias, public key, whether a backup exists,
+  and a `confirmationToken`; nothing is deleted. The second call with the token deletes.
+- It **refuses** if no backup has ever been exported for that alias, unless
+  `acknowledgeNoBackup` is explicitly set. An agent that has not been told a key is
+  disposable should not be able to destroy it on a hunch.
+- Deletion zeroes the in-memory key, removes the keystore entry, and closes any
+  subscription or pending write bound to that alias.
+- The removal is logged with the public key, so the audit trail outlives the key.
+- Under `write-policy: deny` the tool is not registered at all, matching how write tools
+  behave: a read-only server cannot mutate the keystore either.
+
+#### Exporting
+
+`nostr_export_identity_backup` writes a passphrase-encrypted file to a path on the server's
+filesystem and returns **the path only, never the contents**. This is what makes removal
+safe without ever putting key material in the agent's context. A passphrase is required; if
+omitted the server prompts for one by the same `source: "prompt"` mechanism as import.
+
+#### Interface
+
+One interface, mirroring `KeySource` from §7.1 so a future NIP-46 backend can decline
+mutations cleanly rather than pretending to support them:
+
+```java
+public interface IdentityStore {
+  List<IdentitySummary> list();                 // aliases and public keys only
+  IdentitySummary create(String alias);
+  IdentitySummary importFrom(KeyLocation source, String alias);
+  void rename(String alias, String newAlias);
+  Path exportBackup(String alias, Path destination, char[] passphrase);
+  void remove(String alias);
+  boolean supportsMutation();                   // false for a remote signer
+}
+```
+
+`IdentitySummary` is a value type carrying alias, public key, and npub. It has no field that
+could hold a private key, so "no tool can return a secret" is a property of the type rather
+than a rule someone has to remember.
+
+#### Multi-identity behaviour
+
+- Every signing tool takes an optional `identity` alias; omitting it uses the configured
+  default. An **ambiguity guard** applies: when more than one identity exists and no default
+  is set, signing tools fail with `IDENTITY_AMBIGUOUS` and list the aliases rather than
+  guessing. Posting from the wrong account is a public, irreversible mistake.
+- Aliases are human-meaningful (`personal`, `project-bot`) and validated against
+  `[a-z0-9-]{1,32}`, since they appear in resource URIs.
+- Per-identity relay sets are supported, because a throwaway identity often belongs on
+  different relays than a main one.
+
+### 6.5 Resources and prompts
 
 - **Resources**: `nostr://identity/{alias}` (public key, npub, configured relays),
   `nostr://relay/{name}` (NIP-11 document), and `nostr://subscription/{id}` (buffered
@@ -176,7 +291,7 @@ phase of the delivery plan, tracked as its own work item against those modules.
 - **Prompts**: a small set of guided templates, e.g. `compose-note`, `catch-up-feed`, and
   `watch-mentions`, that teach the host how to sequence the tools.
 
-### 6.4 Argument conventions
+### 6.6 Argument conventions
 
 - Public keys accept hex or `npub`; event ids accept hex or `note`/`nevent`. Decoding is
   centralised in one `NostrIdentifier` value type — the tools never parse bech32 inline.
@@ -250,14 +365,17 @@ Regardless of backend:
 - `Identity` objects are never handed to the tool layer. Tools pass an alias to a signing
   service, which returns a signed event. Signing is the only capability that crosses the
   vault boundary.
-- A **generate** path (`nostr-mcp keygen <alias>`) creates a key inside the keystore so a
-  user never has to paste an `nsec` into a shell.
-- Import accepts `nsec` or hex once, at rest it is always encrypted.
+- A **generate** path (`nostr_create_identity`, §6.4) creates a key inside the keystore so a
+  user never has to paste an `nsec` into a shell or into a chat window.
+- Import reads the key from a location the server resolves itself; at rest it is always
+  encrypted (§6.4).
 
 **Deferred: NIP-46 remote signing.** The strongest answer is for the server to hold no key
 at all and delegate signing to a bunker (Amber, nsec.app). It is out of scope for v1 because
 the SDK has no NIP-46 support, but `KeySource`/signing-service seam above exists precisely so
-adding `type: nip46` later touches one class.
+adding `type: nip46` later touches one class. A remote signer reports
+`supportsMutation() == false`, so the identity lifecycle tools degrade to read-only rather
+than failing confusingly.
 
 ### 7.2 Packaging
 
@@ -281,7 +399,11 @@ guarded action.
   This turns a hallucinated post into a no-op.
 - `write-policy: allow` — writes proceed directly, for trusted automation.
 - Rate limits per identity and per relay, enforced in `WriteGuard`.
-- Every write is logged with event id, kind, identity pubkey, and target relays.
+- Identity removal and backup export are guarded by the same two-step confirmation, and
+  neither is registered under `write-policy: deny` (§6.4).
+- No tool accepts private key material as an argument, and no tool returns it (§6.4, §7.1).
+- Every write is logged with event id, kind, identity pubkey, and target relays. Every
+  keystore mutation is logged with the alias and public key.
 - DM decryption is opt-in per identity, since it exposes private correspondence to the
   model. NIP-17's gift wrapping means the relay cannot see the correspondents, but the MCP
   host can, so this stays an explicit per-identity grant.
@@ -292,8 +414,9 @@ Errors are returned as MCP tool errors with a stable machine-readable `code` and
 the model can act on, never as stack traces. Categories mirror the SDK's exception
 hierarchy: `RELAY_UNREACHABLE`, `RELAY_REJECTED`, `INVALID_ARGUMENT`, `IDENTITY_UNKNOWN`,
 `WRITE_FORBIDDEN`, `TIMEOUT`, `SUBSCRIPTION_UNKNOWN`, `SUBSCRIPTION_LIMIT_REACHED`,
-`KEYSTORE_LOCKED`. Partial success on multi-relay publish is a success with a per-relay
-result list, not an error.
+`KEYSTORE_LOCKED`, `IDENTITY_AMBIGUOUS`, `ALIAS_IN_USE`, `NO_BACKUP_EXISTS`,
+`MUTATION_UNSUPPORTED`, `INPUT_REQUIRED`. Partial success on multi-relay publish is a
+success with a per-relay result list, not an error.
 
 ## 10. Testing strategy
 
@@ -301,8 +424,9 @@ result list, not an error.
   relative-time parsing, `WriteGuard` policy transitions, ring-buffer overflow and
   `droppedCount`, subscription TTL reaping.
 - **Security**: a test that walks every registered tool and resource and asserts no response
-  or error message can contain a private key; keystore permission and passphrase-failure
-  paths.
+  or error message can contain a private key, and that no tool's input schema accepts one;
+  keystore permission and passphrase-failure paths; identity removal refused without a
+  backup; `IDENTITY_AMBIGUOUS` raised rather than a key guessed.
 - **Integration**: the full server over an in-process MCP client against a stub relay
   (reusing the existing Docker relay harness), asserting round trips for publish, query,
   a live subscription receiving an event published mid-test, and a NIP-17 DM round trip.
@@ -316,9 +440,10 @@ result list, not an error.
 0. **Prerequisite, in `nostr-java-event`/`nostr-java-identity`**: NIP-17 support — kind-14
    rumor, kind-13 seal, kind-1059 gift wrap over the existing NIP-44 primitives. Tracked
    separately; blocks phase 5 only, so the rest can proceed in parallel.
-1. Module skeleton, POM, BOM entry, official MCP SDK on stdio, `IdentityVault` with the
-   `encrypted-file` keystore and `keygen`, plus `nostr_list_identities` and
-   `nostr_list_relays` — proves the wiring end to end.
+1. Module skeleton, POM, BOM entry, official MCP SDK on stdio, `IdentityVault` and
+   `IdentityStore` with the `encrypted-file` keystore, the full identity lifecycle tools
+   (§6.4), and `nostr_list_relays` — proves the wiring end to end and makes the server
+   usable from a cold start with no hand-written config.
 2. Read path: `nostr_query_events`, `nostr_get_profile`, `nostr_relay_info`.
 3. Write path behind `WriteGuard`: `nostr_publish_note`, `nostr_publish_event`,
    `nostr_update_profile`.
@@ -334,6 +459,10 @@ result list, not an error.
   (`encrypted-file`) is safest but blocks unattended startup. Is a passphrase-less
   `os-keychain` default better for desktop users?
 - Should `write-policy: confirm` tokens expire, and after how long?
+- Should identity mutation have its own policy switch (`identity-policy`) separate from
+  `write-policy`, so an agent can be allowed to post but not to touch the keystore?
+- Should the server auto-create a `default` identity on first run when the keystore is
+  empty, or refuse to start until one exists?
 - Does the HTTP transport need authentication of its own (bearer token) in v1, or is it
   documented as bind-to-localhost only?
 - Does NIP-17 support land as a contribution to this repo, or is it already planned
