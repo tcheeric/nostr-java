@@ -185,8 +185,11 @@ class RelaySubscriptionTest {
     }
   }
 
-  // Verifies stored events reach the caller before the backlog is reported drained, since the
-  // transport delivers each frame on its own thread and an EOSE can otherwise overtake them.
+  // Verifies stored events reach the caller before the backlog is reported drained.
+  //
+  // This asserts the guarantee holds; it does not reliably reproduce its absence. Removing the
+  // ordering lock still leaves this green, because the race needs timing a fake cannot force.
+  // The behaviour was found, and is covered, against a live relay in NostrClientRoundTripIT.
   @Test
   void storedEventsArriveBeforeTheBacklogIsReportedDrained() throws Exception {
     Map<String, FakeRelay> relays = relaysNamed(FIRST_RELAY);
