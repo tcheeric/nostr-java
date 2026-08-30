@@ -90,12 +90,30 @@ public final class RelayInfoTool implements NostrTool {
    */
   private String resolve(String relay) {
     List<String> resolved = relayDirectory.resolve(List.of(relay));
-    if (resolved.isEmpty()) {
-      throw ToolFailure.INVALID_ARGUMENT.raise(
-          "'" + relay + "' is not a configured relay name or a relay URI. Known names: "
-              + relayDirectory.names());
+    String candidate = resolved.isEmpty() ? relay : resolved.getFirst();
+    refuseUnlessAddressable(relay, candidate);
+    return candidate;
+  }
+
+  /**
+   * Refuses something that is neither a known name nor a usable relay address.
+   *
+   * <p>The directory passes an unrecognised string through as though it were a URI, since a
+   * caller may legitimately name a relay that was never configured. That leaves this tool as the
+   * place where a value that is neither is caught: without the check a typo reaches the HTTP
+   * client and surfaces as an {@code IllegalArgumentException} about an undefined scheme, which
+   * tells the agent nothing it can act on.
+   */
+  private void refuseUnlessAddressable(String relay, String candidate) {
+    if (candidate.startsWith("ws://") || candidate.startsWith("wss://")) {
+      return;
     }
-    return resolved.getFirst();
+    throw ToolFailure.INVALID_ARGUMENT.raise(
+        "'"
+            + relay
+            + "' is not a configured relay name, and is not a relay URI either; a relay URI"
+            + " starts with wss:// or ws://. Known names: "
+            + relayDirectory.names());
   }
 
   /**

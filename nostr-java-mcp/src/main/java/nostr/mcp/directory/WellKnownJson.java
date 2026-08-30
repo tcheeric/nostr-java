@@ -27,10 +27,18 @@ public final class WellKnownJson {
 
   private final HttpClient httpClient;
 
-  /** Uses a client that follows redirects, as both documents commonly do. */
+  /**
+   * Uses a client that follows redirects, as both documents commonly do.
+   *
+   * <p>Pinned to HTTP/1.1. Java's client otherwise offers an HTTP/2 upgrade, and a Nostr relay
+   * serves its NIP-11 document from the same host and port as its websocket endpoint: it reads
+   * the upgrade headers as a botched websocket handshake and answers {@code 400 Failed to create
+   * websocket}. Observed against nostr-rs-relay, where curl succeeded and this client did not.
+   */
   public WellKnownJson() {
     this(
         HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
             .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(TIMEOUT)
             .build());
