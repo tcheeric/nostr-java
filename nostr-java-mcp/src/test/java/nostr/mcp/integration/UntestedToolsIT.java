@@ -403,6 +403,120 @@ class UntestedToolsIT {
     }
   }
 
+  // Verifies a follow list published to a relay is read back with each contact's relay hint and
+  // petname intact, since those are how a client finds someone it has never seen and shows a
+  // readable name. Reading only the key would lose both.
+  @Test
+  void getContactsReadsAPublishedFollowListFromTheRelay() throws Exception {
+    Identity follower = Identity.generateRandomIdentity();
+    Identity followed = Identity.generateRandomIdentity();
+    publish(followList(follower, followed));
+
+    try (RelayPool pool = pool();
+        IdentityVault vault = emptyVault()) {
+      CallToolResult result =
+          new nostr.mcp.tool.GetContactsTool(new EventQuery(pool), vault, QueryLimits.defaults())
+              .call(
+                  new CallToolRequest(
+                      "nostr_get_contacts",
+                      Map.of("pubkey", follower.getPublicKey().toHexString())));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), textOf(result));
+      assertEquals(1, structuredOf(result).get("count"), textOf(result));
+      String described = structuredOf(result).get("contacts").toString();
+      assertTrue(described.contains(followed.getPublicKey().toHexString()), described);
+      assertTrue(described.contains("alice"), "the petname was lost: " + described);
+      assertTrue(described.contains(relayUri()), "the relay hint was lost: " + described);
+    }
+  }
+
+  // Verifies the identities tool reports what the running server can sign with, alongside a
+  // relay, which is how an agent learns who it is before doing anything.
+  @Test
+  void listIdentitiesReportsWhatTheServerCanSignWith() {
+    try (RelayPool pool = pool();
+        IdentityVault vault = vaultOf("personal")) {
+      CallToolResult result =
+          new nostr.mcp.tool.ListIdentitiesTool(vault)
+              .call(new CallToolRequest("nostr_list_identities", Map.of()));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), textOf(result));
+      assertTrue(structuredOf(result).get("identities").toString().contains("personal"), textOf(result));
+      assertFalse(textOf(result).contains("nsec"), "the identities tool disclosed key material");
+    }
+  }
+
+  // Verifies removing an identity really stops it signing: the note published before removal is
+  // on the relay, and the attempt afterwards fails rather than quietly using another key.
+  @Test
+  void removeIdentityStopsThatKeySigning() throws Exception {
+    try (RelayPool pool = pool();
+        IdentityVault vault = emptyVault()) {
+      IdentityLifecycle lifecycle = new IdentityLifecycle(vault, new InMemoryStore());
+      lifecycle.create("doomed");
+      String publicKey = vault.publicKeyOf("doomed").toHexString();
+
+      new nostr.mcp.tool.PublishNoteTool(guard(pool, vault))
+          .call(new CallToolRequest("nostr_publish_note", Map.of("content", "before removal")));
+
+      CallToolResult removed =
+          new nostr.mcp.tool.RemoveIdentityTool(lifecycle, vault, IdentityPolicy.ALLOW)
+              .call(
+                  new CallToolRequest(
+                      "nostr_remove_identity",
+                      Map.of("alias", "doomed", "acknowledgeNoBackup", true)));
+      assertFalse(Boolean.TRUE.equals(removed.isError()), textOf(removed));
+
+      CallToolResult afterwards =
+          new nostr.mcp.tool.PublishNoteTool(guard(pool, vault))
+              .call(new CallToolRequest("nostr_publish_note", Map.of("content", "after removal")));
+      assertTrue(Boolean.TRUE.equals(afterwards.isError()), textOf(afterwards));
+
+      CallToolResult stored =
+          new nostr.mcp.tool.QueryEventsTool(new EventQuery(pool), QueryLimits.defaults(), Clock.systemUTC())
+              .call(
+                  new CallToolRequest(
+                      "nostr_query_events", Map.of("authors", List.of(publicKey), "kinds", List.of(1))));
+      assertEquals(1, structuredOf(stored).get("count"), "only the note sent before removal should exist");
+    }
+  }
+
+  // Verifies the relay list reports a genuinely connected relay as connected. Against a fake
+  // every relay looks the same; the value of this tool is telling a live relay from a dead one,
+  // which is the question behind "why did my note only reach two relays".
+  @Test
+  void listRelaysReportsALiveRelayAsConnected() throws Exception {
+    try (RelayPool pool = pool()) {
+      // Publishing first forces the pool to actually open the connection it then reports on.
+      pool.publish(note(Identity.generateRandomIdentity(), "wake the pool " + System.nanoTime()));
+
+      CallToolResult result =
+          new nostr.mcp.tool.ListRelaysTool(directoryOf(), pool)
+              .call(new CallToolRequest("nostr_list_relays", Map.of()));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), textOf(result));
+      assertTrue(structuredOf(result).get("relays").toString().contains(relayUri()), textOf(result));
+      assertTrue(textOf(result).toLowerCase().contains("connected"), textOf(result));
+    }
+  }
+
+  /** A NIP-02 follow list carrying a relay hint and a petname, as a real client publishes. */
+  private GenericEvent followList(Identity owner, Identity followed) {
+    GenericEvent event =
+        GenericEvent.builder()
+            .pubKey(owner.getPublicKey())
+            .kind(3)
+            .content("")
+            .createdAt(System.currentTimeMillis() / 1000)
+            .build();
+    event.addTag(
+        new nostr.event.tag.GenericTag(
+            "p", List.of(followed.getPublicKey().toHexString(), relayUri(), "alice")));
+    event.update();
+    owner.sign(event);
+    return event;
+  }
+
   private WriteGuard guard(RelayPool pool, IdentityVault vault) {
     return new WriteGuard(
         pool, vault, WritePolicy.ALLOW, new RateLimit(100, Duration.ofMinutes(1), Clock.systemUTC()));

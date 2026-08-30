@@ -7,6 +7,7 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 ## [Unreleased]
 
 ### Added
+- Tool coverage is now measured on two axes and enforced: every tool is exercised against a real relay, and every tool is reached by a real model from a plain-language request. Both started as gaps: three tools had never touched a relay in a Maven test, and only four of the twenty-two had ever been offered to a model.
 - `UntestedToolsIT` and `ToolCoverageTest`. Eight of the twenty-two tools had only ever had their registration checked, never a call; the coverage test measures that and fails when any tool goes uncalled, so the gap cannot reopen.
 - `OllamaAgentIT`, which drives the MCP tool surface with a real local language model through Testcontainers. Every other test asks whether the tools work; this asks whether a model can use them, which a correct-but-unusable tool would fail. It checks that a model picks the right tool unprompted, tells querying from subscribing, and reads a publish preview as "not yet published" rather than as success. Excluded from the ordinary build and run with `-Dexcluded.it.groups= -Dgroups=model-driven`.
 

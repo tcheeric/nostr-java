@@ -15,6 +15,9 @@ import io.modelcontextprotocol.spec.McpSchema.TextContent;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import nostr.client.testing.RelayStoresEventsWaitStrategy;
@@ -35,11 +38,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Drives the tool surface with a real language model.
@@ -198,6 +203,59 @@ class OllamaAgentIT {
                 + "Does this mean there are definitely no matching events? Answer YES or NO.");
 
     assertTrue(verdict.toUpperCase().contains("NO"), "the model treated a replaying read as empty: " + verdict);
+  }
+
+  // Verifies the model reaches the right tool across the whole surface, not just the handful a
+  // few hand-written cases happen to cover. Each request is phrased as a user would put it, with
+  // every one of the twenty-two tools offered, so a tool whose name or description does not
+  // distinguish it from its neighbours shows up here.
+  @ParameterizedTest(name = "\"{0}\" should reach {1}")
+  @MethodSource("requestsAndTheToolTheyNeed")
+  void aModelReachesTheRightToolAcrossTheSurface(String request, String expectedTool) throws Exception {
+    try (McpSyncClient mcp = launchServer()) {
+      mcp.initialize();
+
+      JsonNode call = firstToolCall(ask(request, toolsOf(mcp)));
+
+      assertEquals(expectedTool, call.path("function").path("name").asText(), call.toString());
+    }
+  }
+
+  /**
+   * One plain-language request per tool an agent would plausibly be asked to reach.
+   *
+   * <p>Covers the surface rather than a sample, because the risk being tested is that two tools
+   * read alike to a model, and that only shows when both are on offer. The identity lifecycle
+   * tools are included deliberately: they neighbour each other closely, and choosing "remove"
+   * where "rename" was meant is not recoverable.
+   */
+  private static Stream<Arguments> requestsAndTheToolTheyNeed() {
+    return Stream.of(
+        arguments("Which relays is this server connected to?", "nostr_list_relays"),
+        arguments("What is the name and description of the relay wss://relay.example?", "nostr_relay_info"),
+        arguments("Which identities can this server sign as?", "nostr_list_identities"),
+        arguments("Find notes posted in the last day.", "nostr_query_events"),
+        arguments("Look up the profile for npub1abc, what is their bio?", "nostr_get_profile"),
+        arguments("Show me the replies to note1xyz so I can read the conversation.", "nostr_fetch_thread"),
+        arguments("Who do I follow?", "nostr_get_contacts"),
+        // Deliberately not "mentioning me": that needs the caller's own key, and a model that
+        // asks which identity to watch rather than guessing is behaving correctly. Testing tool
+        // selection means not conflating it with a missing argument the model is right to
+        // question.
+        arguments("Start watching for any new notes of kind 1 as they arrive.", "nostr_subscribe"),
+        arguments("Any new events in my watch with id sub-1 yet?", "nostr_read_subscription"),
+        arguments("What am I currently watching?", "nostr_list_subscriptions"),
+        arguments("Stop watching subscription sub-1.", "nostr_unsubscribe"),
+        arguments("Post a note saying hello to Nostr.", "nostr_publish_note"),
+        arguments("Change my display name to Alice and my bio to 'testing'.", "nostr_update_profile"),
+        arguments("Send a private encrypted message to npub1abc saying hi.", "nostr_send_direct_message"),
+        arguments("Do I have any private messages?", "nostr_read_direct_messages"),
+        arguments("Make me a brand new Nostr account called project-bot.", "nostr_create_identity"),
+        arguments("I have an existing Nostr key saved in the file /tmp/key.txt. Add it to this"
+                + " server under the alias 'adopted'.", "nostr_import_identity"),
+        arguments("Rename my identity 'old-name' to 'new-name'.", "nostr_rename_identity"),
+        arguments("From now on sign as 'project-bot' by default.", "nostr_set_default_identity"),
+        arguments("Save an encrypted backup of my key 'personal' to /tmp/backup.p12.", "nostr_export_identity_backup"));
   }
 
   private List<Tool> toolsOf(McpSyncClient mcp) {
