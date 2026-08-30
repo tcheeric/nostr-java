@@ -108,6 +108,19 @@ public final class WriteGuard {
   }
 
   /**
+   * Whether this process operates exactly one identity.
+   *
+   * <p>Signing tools ask so they can leave the {@code identity} argument out of their schema
+   * entirely. Offering an argument with one legal value invites a model to pass the wrong thing
+   * and turns an impossible mistake back into a possible one.
+   *
+   * @return true when the server is bound to a single identity
+   */
+  public boolean bindsOneIdentity() {
+    return identityVault.binding().isBound();
+  }
+
+  /**
    * Whether a write must be confirmed before it is sent.
    *
    * @return true under the confirming policy

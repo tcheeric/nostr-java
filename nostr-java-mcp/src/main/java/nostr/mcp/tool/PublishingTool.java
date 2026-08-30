@@ -64,10 +64,20 @@ public abstract class PublishingTool implements NostrTool {
    */
   protected abstract List<String> writeSpecificRequired();
 
+  /**
+   * The schema a host shows the model.
+   *
+   * <p>A bound server omits {@code identity} rather than documenting that it is ignored. The
+   * whole point of binding is that there is no name to give, and an argument with exactly one
+   * acceptable value is an invitation to pass a different one.
+   */
   @Override
   public final Map<String, Object> inputSchema() {
     Map<String, Object> properties = new LinkedHashMap<>(writeSpecificProperties());
-    properties.put("identity", Map.of("type", "string", "description", "Alias to publish as. Omit to use the default."));
+    if (!writeGuard.bindsOneIdentity()) {
+      properties.put(
+          "identity", Map.of("type", "string", "description", "Alias to publish as. Omit to use the default."));
+    }
     if (writeGuard.requiresConfirmation()) {
       properties.put(
           CONFIRMATION_ARGUMENT,

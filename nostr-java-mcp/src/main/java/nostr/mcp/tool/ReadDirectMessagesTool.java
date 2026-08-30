@@ -72,23 +72,25 @@ public final class ReadDirectMessagesTool implements NostrTool {
         + " identity, since it brings private correspondence into this conversation.";
   }
 
+  /**
+   * A bound server omits {@code identity}, since it reads for exactly one.
+   */
   @Override
   public Map<String, Object> inputSchema() {
-    return Map.of(
-        "type",
-        "object",
-        "properties",
+    Map<String, Object> properties = new java.util.LinkedHashMap<>();
+    if (!identityVault.binding().isBound()) {
+      properties.put(
+          "identity", Map.of("type", "string", "description", "Alias to read for. Omit for the default."));
+    }
+    properties.put(
+        "since",
         Map.of(
-            "identity", Map.of("type", "string", "description", "Alias to read for. Omit for the default."),
-            "since",
-                Map.of(
-                    "type",
-                    "string",
-                    "description",
-                    "Only messages received after this time, such as '24h'. Note that gift wraps"
-                        + " carry randomised timestamps, so this is approximate.")),
-        "required",
-        List.of());
+            "type",
+            "string",
+            "description",
+            "Only messages received after this time, such as '24h'. Note that gift wraps carry"
+                + " randomised timestamps, so this is approximate."));
+    return Map.of("type", "object", "properties", properties, "required", List.of());
   }
 
   @Override

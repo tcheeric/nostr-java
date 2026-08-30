@@ -53,22 +53,24 @@ public final class SendDirectMessageTool implements NostrTool {
         + " the recipients or the content.";
   }
 
+  /**
+   * A bound server omits {@code identity}, since there is only one sender it could mean.
+   */
   @Override
   public Map<String, Object> inputSchema() {
-    return Map.of(
-        "type",
-        "object",
-        "properties",
+    Map<String, Object> properties = new java.util.LinkedHashMap<>();
+    properties.put(
+        "recipients",
         Map.of(
-            "recipients",
-                Map.of(
-                    "type", "array",
-                    "description", "Who to send to, as hex public keys or npubs.",
-                    "items", Map.of("type", "string")),
-            "content", Map.of("type", "string", "description", "The message text."),
-            "identity", Map.of("type", "string", "description", "Alias to send as. Omit for the default.")),
-        "required",
-        List.of("recipients", "content"));
+            "type", "array",
+            "description", "Who to send to, as hex public keys or npubs.",
+            "items", Map.of("type", "string")));
+    properties.put("content", Map.of("type", "string", "description", "The message text."));
+    if (!identityVault.binding().isBound()) {
+      properties.put(
+          "identity", Map.of("type", "string", "description", "Alias to send as. Omit for the default."));
+    }
+    return Map.of("type", "object", "properties", properties, "required", List.of("recipients", "content"));
   }
 
   @Override

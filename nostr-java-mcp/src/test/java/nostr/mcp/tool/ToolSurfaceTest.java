@@ -225,6 +225,40 @@ class ToolSurfaceTest {
     }
   }
 
+  // Verifies a bound server offers no 'identity' argument anywhere. Binding is meant to remove
+  // the wrong-account mistake rather than guard it, and an argument with exactly one acceptable
+  // value invites a model to pass a different one, turning an impossible error back into a
+  // possible one. Found by driving the shipped jar as a host does, not by the earlier tests.
+  @Test
+  void aBoundServerOffersNoIdentityArgumentAtAll() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.to("personal"))) {
+
+      List<String> offending =
+          surfaceOf(relayPool, vault, WritePolicy.ALLOW).tools().stream()
+              .filter(tool -> tool.inputSchema().toString().contains("identity"))
+              .map(NostrTool::name)
+              .toList();
+
+      assertEquals(List.of(), offending, "a bound server still asks which identity to use");
+    }
+  }
+
+  // Verifies an unbound server does still offer it, since there it is a real choice and the
+  // agent has to be able to express it.
+  @Test
+  void anUnboundServerStillOffersTheIdentityArgument() {
+    try (RelayPool relayPool = emptyPool();
+        IdentityVault vault = vault(IdentityBinding.unbound())) {
+
+      boolean anyOffersIdentity =
+          surfaceOf(relayPool, vault, WritePolicy.ALLOW).tools().stream()
+              .anyMatch(tool -> tool.inputSchema().toString().contains("identity"));
+
+      assertTrue(anyOffersIdentity, "an unbound server must let the agent name an identity");
+    }
+  }
+
   private RelayDirectory directory() {
     return new RelayDirectory(
         Map.of(
