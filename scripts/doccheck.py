@@ -134,7 +134,7 @@ def main(argv):
             text = f.read_text()
             for _, target in LINK.findall(text):
                 t = target.split('#')[0].strip()
-                if not t or t.startswith(('http://', 'https://', 'mailto:', '#')):
+                if not t or ':' in t.split('/')[0] or t.startswith('#'):
                     continue
                 n_links += 1
                 if not (f.parent / t).resolve().exists():
