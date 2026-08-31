@@ -8,10 +8,13 @@ import org.mockito.Mockito;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.awaitility.Awaitility.await;
+
+import java.time.Duration;
 
 /**
  * Runs one scenario against both the real {@link NostrRelayClient} and the {@link FakeRelay},
@@ -46,6 +49,7 @@ class RelayConnectionContractTest {
     try (NostrRelayClient client = NostrRelayClient.forTestWithRawSession(session, 1_000)) {
       RoutingOutcome outcome = subscribeToBothSubscriptions(client);
       client.handleTextMessage(session, new TextMessage(EVENT_FOR_FIRST));
+      outcome.awaitFirstDelivery();
       return outcome;
     }
   }
@@ -67,10 +71,26 @@ class RelayConnectionContractTest {
     return outcome;
   }
 
-  /** What each subscription's listener observed, compared across implementations. */
+  /**
+   * What each subscription's listener observed, compared across implementations.
+   *
+   * <p>The real client delivers on a listener thread while assertions read from the test thread,
+   * so the lists must be safe to publish across threads.
+   */
   private static final class RoutingOutcome {
-    private final List<String> seenByFirst = new ArrayList<>();
-    private final List<String> seenBySecond = new ArrayList<>();
+    private final List<String> seenByFirst = new CopyOnWriteArrayList<>();
+    private final List<String> seenBySecond = new CopyOnWriteArrayList<>();
+
+    /**
+     * Waits for the frame to reach its listener.
+     *
+     * <p>The real client hands each frame to a sequencer that delivers it on another thread, so
+     * {@code handleTextMessage} returns before the listener has run. Reading the lists straight
+     * afterwards compares an outcome that is merely unfinished rather than divergent.
+     */
+    void awaitFirstDelivery() {
+      await().atMost(Duration.ofSeconds(5)).until(() -> !seenByFirst.isEmpty());
+    }
 
     @Override
     public boolean equals(Object other) {
