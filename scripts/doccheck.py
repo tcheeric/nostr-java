@@ -57,6 +57,17 @@ def allowlist(root: Path):
     return {ln.split('#')[0].strip() for ln in f.read_text().splitlines() if ln.split('#')[0].strip()}
 
 
+def allow_all_links(root: Path):
+    """True when .doccheck-allow declares this tree's links unmaintained.
+
+    A superseded checkout keeps its documentation as written. Repairing its links
+    would imply the tree is maintained, so the marker records the decision
+    instead.
+    """
+    f = root / ALLOWLIST_NAME
+    return f.is_file() and "doccheck: skip-links" in f.read_text()
+
+
 # Plan and spec documents quote snippets destined for other files, including
 # link lines whose relative paths are correct only from the target. Checking them
 # reports the quoting, not a broken link.
@@ -130,11 +141,14 @@ def main(argv):
     broken, unresolved, n_links, n_types = [], [], 0, 0
     for repo in repos:
         allowed = allowlist(repo)
+        skip_links = allow_all_links(repo)
         for f in docs_of(repo):
             text = f.read_text()
             for _, target in LINK.findall(text):
                 t = target.split('#')[0].strip()
                 if not t or ':' in t.split('/')[0] or t.startswith('#'):
+                    continue
+                if skip_links:
                     continue
                 n_links += 1
                 if not (f.parent / t).resolve().exists():
