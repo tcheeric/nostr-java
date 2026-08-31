@@ -6,6 +6,15 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-08-31
+
+### Removed
+- `CONTRIBUTING.md`. It documented the pre-2.0 architecture, telling contributors to add a
+  per-NIP facade extending `EventNostr` and to update a NIP compliance matrix; none of those
+  exist. Its still-accurate parts, the commit and pull request conventions, moved into
+  [the codebase overview](docs/CODEBASE_OVERVIEW.md), which also no longer claims pull requests
+  target `develop` when the repository's default branch is `main`.
+
 ### Added
 - `DocumentationAccuracyTest`, which holds the documentation to the same standard as the code: it fails when a guide names a type or method that does not exist, a link points at nothing, an install snippet quotes a version other than the one being built, or a page is unreachable from the index. Documentation rots silently because nothing breaks when it does.
 - Tool coverage is now measured on two axes and enforced: every tool is exercised against a real relay, and every tool is reached by a real model from a plain-language request. Both started as gaps: three tools had never touched a relay in a Maven test, and only four of the twenty-two had ever been offered to a model.

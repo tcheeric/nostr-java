@@ -115,9 +115,10 @@ ones a fake reproduces incorrectly.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards, pull request guidelines and
-testing requirements, and [the architecture guide](docs/explanation/architecture.md) for how the
-pieces fit together. Release notes are in [CHANGELOG.md](CHANGELOG.md), and
+See the [codebase overview](docs/CODEBASE_OVERVIEW.md) for the module layout, build commands,
+and the commit and pull request conventions, and
+[the architecture guide](docs/explanation/architecture.md) for how the pieces fit together.
+Release notes are in [CHANGELOG.md](CHANGELOG.md), and
 [the migration guide](docs/MIGRATION.md) covers moving between major versions.
 
 ## License

@@ -71,8 +71,42 @@ cmd_bump() {
   echo "Setting root version to ${version}"
   run_cmd mvn -q versions:set -DnewVersion="${version}"
   run_cmd mvn -q versions:commit
-  run_cmd git add pom.xml */pom.xml || true
+  update_documented_version "${version}"
+  run_cmd git add pom.xml */pom.xml docs || true
   run_cmd git commit -m "chore(release): bump project version to ${version}"
+}
+
+# Keeps copyable install snippets in step with the version just set.
+#
+# DocumentationAccuracyTest fails the build when a snippet a reader would copy names a version
+# other than the one being built, which is correct but means every bump would otherwise need a
+# manual edit somebody eventually forgets. Only concrete versions are touched: placeholders such
+# as X.Y.Z, ranges, and a migration guide's "previous version" are all deliberate.
+update_documented_version() {
+  local version="$1"
+  echo "Updating documented install snippets to ${version}"
+  if $DRY_RUN; then
+    echo "+ update install snippets in docs/ to ${version}"
+    return
+  fi
+  python3 - "$version" <<'PYTHON'
+import pathlib, re, sys
+
+version = sys.argv[1]
+snippet = re.compile(
+    r"(<artifactId>nostr-java-[a-z]+</artifactId>\s*\n\s*<version>)(\d+\.\d+\.\d+)(</version>)")
+
+for document in pathlib.Path("docs").rglob("*.md"):
+    text = document.read_text()
+    # A version followed by a comment is illustrative: a previous release, or a placeholder the
+    # reader is told to replace. Leave those alone.
+    updated = snippet.sub(
+        lambda m: m.group(0) if "<!--" in text[m.end():m.end() + 40] else m.group(1) + version + m.group(3),
+        text)
+    if updated != text:
+        document.write_text(updated)
+        print(f"  {document} -> {version}")
+PYTHON
 }
 
 cmd_verify() {
