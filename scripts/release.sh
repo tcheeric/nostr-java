@@ -4,7 +4,7 @@ set -euo pipefail
 # Automates common release tasks for nostr-java.
 # Subcommands:
 #   bump --version <x.y.z>            Set root version to x.y.z and commit
-#   verify [--no-docker]              Run mvn clean verify (optionally -DnoDocker=true)
+#   verify [--no-docker]              Run mvn clean verify (optionally -Pno-docker)
 #   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
 #   publish [--no-docker] [--repo central|398ja]
 #                                    Deploy artifacts to selected repository profile
@@ -23,7 +23,7 @@ Usage: $(basename "$0") <command> [options]
 Commands:
   bump --version <x.y.z>            Set root version to x.y.z and commit
   verify [--no-docker] [--skip-tests] [--dry-run]
-                                    Run mvn clean verify (optionally -DnoDocker=true)
+                                    Run mvn clean verify (optionally -Pno-docker)
   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
   publish [--no-docker] [--skip-tests] [--repo central|398ja] [--dry-run]
                                     Deploy artifacts to selected repository profile
@@ -87,7 +87,7 @@ cmd_verify() {
   done
   local mvn_args=(-q)
   if $no_docker; then
-    mvn_args+=(-DnoDocker=true -Pno-docker)
+    mvn_args+=(-Pno-docker)
   fi
   $skip_tests && mvn_args+=(-DskipTests)
   run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}" clean verify
@@ -130,9 +130,11 @@ cmd_publish() {
     *) echo "Unknown repo '$repo'. Use 'central' or '398ja'." >&2; exit 1 ;;
   esac
   local mvn_args=(-q -P "$profile" deploy)
-  $no_docker && mvn_args=(-q -DnoDocker=true -P "$profile" deploy)
+  # -Pno-docker is what actually excludes the container-backed tests. The old -DnoDocker=true
+  # set a property nothing reads, so --no-docker silently ran them anyway.
+  $no_docker && mvn_args=(-q -P "no-docker,$profile" deploy)
   $skip_tests && mvn_args=(-q -DskipTests -P "$profile" deploy)
-  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P "$profile" deploy); fi
+  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -P "no-docker,$profile" deploy); fi
   # For Central publishing, prefer the settings provided by actions/setup-java (no -s override)
   if [[ "$profile" == "release-central" ]]; then
     run_cmd mvn "${mvn_args[@]}"

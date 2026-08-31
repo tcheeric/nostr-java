@@ -14,7 +14,7 @@ Add the client module to your project (with the BOM):
     <dependency>
       <groupId>xyz.tcheeric</groupId>
       <artifactId>nostr-java-bom</artifactId>
-      <version><!-- X.Y.Z --></version>
+      <version>X.Y.Z</version> <!-- see the releases page -->
       <type>pom</type>
       <scope>import</scope>
     </dependency>

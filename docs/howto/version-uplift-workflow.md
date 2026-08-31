@@ -41,7 +41,7 @@ scripts/release.sh bump --version 1.0.0
   ```
 - Without Docker (skips Testcontainers-backed ITs):
   ```bash
-  mvn -q -DnoDocker=true clean verify
+  mvn -q -Pno-docker clean verify
   ```
 
 If any module fails, address it before proceeding.
@@ -69,7 +69,7 @@ scripts/release.sh tag --version 1.0.0 --push
 
 - Publish to Central using the configured plugin (root POM):
   ```bash
-  mvn -q -DskipTests -DnoDocker=true -P release deploy
+  mvn -q -DskipTests -Pno-docker,release deploy
   ```
   Notes:
   - The root POM already configures `central-publishing-maven-plugin` to wait until artifacts are published
@@ -117,7 +117,7 @@ scripts/release.sh next-snapshot --version 1.0.1-SNAPSHOT
       <dependency>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>nostr-java-bom</artifactId>
-        <version>1.0.0</version>
+        <version>X.Y.Z</version> <!-- the release you just cut -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -132,7 +132,7 @@ scripts/release.sh next-snapshot --version 1.0.1-SNAPSHOT
   ```
 
 Tips
-- Use `-DnoDocker=true` only when you cannot run ITs; prefer full verify before releasing
+- Use `-Pno-docker` only when you cannot run ITs; prefer a full `mvn verify` before releasing
 - Keep commit messages conventional (e.g., chore, docs, fix, feat) to generate clean changelogs later
 - If Central publishing fails, rerun with `-X` and consult plugin docs; do not create partial releases
 

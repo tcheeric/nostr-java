@@ -1,8 +1,28 @@
 # Run the Nostr MCP server
 
 This guide shows how to run `nostr-java-mcp` so an LLM agent can use Nostr, how to give it a
-signing key, and how to choose how much freedom it has. It assumes you have a built
-`nostr-java-mcp` jar and an MCP host such as Claude Desktop or an IDE agent.
+signing key, and how to choose how much freedom it has. You need Java 21 and an MCP host such
+as Claude Desktop or an IDE agent.
+
+## Build the jar
+
+The server ships as one self-contained jar, which is both the MCP server and the command-line
+tool for managing its keys:
+
+```bash
+git clone https://github.com/tcheeric/nostr-java.git
+cd nostr-java
+mvn -pl nostr-java-mcp -am package -DskipTests
+```
+
+The jar lands at `nostr-java-mcp/target/nostr-java-mcp-<version>-runnable.jar`. The
+`-runnable` suffix matters: the plain `nostr-java-mcp-<version>.jar` beside it holds only this
+module's classes and will not start on its own. The examples below shorten the path to
+`nostr-java-mcp.jar`; substitute your real one, or copy it somewhere convenient:
+
+```bash
+cp nostr-java-mcp/target/nostr-java-mcp-*-runnable.jar ~/nostr-java-mcp.jar
+```
 
 ## Create a key first
 

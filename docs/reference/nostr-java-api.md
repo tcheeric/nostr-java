@@ -160,8 +160,10 @@ public Filters(Filterable... filterables)
 // Encode a message
 String json = new EventMessage(event).encode();
 
-// Decode a message
-BaseMessage msg = BaseMessage.read(json);
+// Decode a message. The decoder is generic: name the expected message type when you know it,
+// so the result needs no cast.
+BaseMessage message = new BaseMessageDecoder<>().decode(json);
+EventMessage event = new BaseMessageDecoder<EventMessage>().decode(json);
 ```
 
 ---

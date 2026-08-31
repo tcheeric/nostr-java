@@ -1,59 +1,136 @@
-# Documentation Index
+# nostr-java documentation
 
-Quick links to the most relevant guides and references.
+A Java implementation of the [Nostr protocol](https://github.com/nostr-protocol/nips): events,
+signing, relays, encrypted messaging, and an MCP server that puts all of it in reach of an LLM
+agent.
 
-## Getting Started
+## Start here
 
-- [GETTING_STARTED.md](GETTING_STARTED.md) — Installation and setup via Maven/Gradle
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Common issues and solutions
+| If you want to | Read |
+| --- | --- |
+| Add the library to a build and send your first note | [Getting started](GETTING_STARTED.md) |
+| See worked examples of the common tasks | [API examples](howto/api-examples.md) |
+| Understand how the modules fit together | [Architecture](explanation/architecture.md) |
+| Look up a class or method | [API reference](reference/nostr-java-api.md) |
+| Work out why something is failing | [Troubleshooting](TROUBLESHOOTING.md) |
 
-## How-to Guides
+The pages below are grouped by what they are for, following
+[Diátaxis](https://diataxis.fr/): tutorials teach, how-to guides solve a problem, reference
+describes the machinery, and explanation gives the reasoning.
 
-- [howto/use-nostr-java-api.md](howto/use-nostr-java-api.md) — Quick start: create, sign, and send events
-- [howto/api-examples.md](howto/api-examples.md) — Comprehensive examples for common use cases
-- [howto/multi-relay-publishing.md](howto/multi-relay-publishing.md) — Publish and subscribe across many relays with `NostrClient`
-- [howto/run-the-mcp-server.md](howto/run-the-mcp-server.md) — Run the MCP server so an LLM agent can use Nostr
-- [howto/private-direct-messages.md](howto/private-direct-messages.md) — Send and read NIP-17 private direct messages
-- [howto/streaming-subscriptions.md](howto/streaming-subscriptions.md) — Long-lived subscriptions with NostrRelayClient
-- [howto/custom-events.md](howto/custom-events.md) — Working with custom event kinds
-- [howto/diagnostics.md](howto/diagnostics.md) — Inspecting relay failures and troubleshooting
-- [howto/version-uplift-workflow.md](howto/version-uplift-workflow.md) — Tagging, publishing, and BOM alignment for releases
-- [howto/configure-release-secrets.md](howto/configure-release-secrets.md) — Configure Maven Central and GPG secrets for releases
-- [howto/ci-it-stability.md](howto/ci-it-stability.md) — Keep CI green and stabilize Docker-based ITs
+## Tutorials
 
-## Operations
+Learning-oriented, for a first encounter with the library.
 
-- [operations/README.md](operations/README.md) — Ops index (logging, metrics, config)
+- [Getting started](GETTING_STARTED.md) — install via Maven or Gradle, generate an identity,
+  publish a note.
+
+## How-to guides
+
+Task-oriented, for someone who knows what they want to achieve.
+
+**Using the library**
+
+- [Create, sign and send events](howto/use-nostr-java-api.md) — the shortest path from a
+  keypair to a published event.
+- [API examples](howto/api-examples.md) — worked examples of the common tasks, in one place.
+- [Publish and subscribe across many relays](howto/multi-relay-publishing.md) — `NostrClient`,
+  partial failure, and reading results back.
+- [Send private direct messages](howto/private-direct-messages.md) — NIP-17 gift wrapping and
+  delivery to each recipient's own relays.
+- [Stream long-lived subscriptions](howto/streaming-subscriptions.md) — staying connected and
+  handling events as they arrive.
+- [Work with custom event kinds](howto/custom-events.md) — events and tags the library does not
+  model directly.
+- [Run the MCP server](howto/run-the-mcp-server.md) — let an LLM agent use Nostr, with the
+  safety model explained.
+
+**Operating and diagnosing**
+
+- [Diagnose relay failures](howto/diagnostics.md) — finding out which relay refused what, and
+  why.
+- [Configure the library](operations/configuration.md) — timeouts, retries, and connection
+  settings.
+- [Configure logging](operations/logging.md) — what is logged, at which level, and how to
+  change it.
+- [Collect metrics](operations/metrics.md) — the Micrometer metrics exposed and what they mean.
+
+**Releasing and contributing**
+
+- [Cut a release](howto/version-uplift-workflow.md) — tagging, publishing, and BOM alignment.
+- [Configure release secrets](howto/configure-release-secrets.md) — Maven Central and GPG
+  credentials.
+- [Keep CI green](howto/ci-it-stability.md) — stabilising the Docker-backed integration tests.
+- [Maintain the roadmap project](howto/manage-roadmap-project.md) — the GitHub project board.
 
 ## Reference
 
-- [reference/nostr-java-api.md](reference/nostr-java-api.md) — API classes, methods, and examples
+Information-oriented, for looking things up.
+
+- [API reference](reference/nostr-java-api.md) — classes, methods and signatures across the
+  modules.
+- [Migration guide](MIGRATION.md) — what changed between major versions and how to move.
+- [Troubleshooting](TROUBLESHOOTING.md) — symptoms, causes and fixes.
+- [Operations index](operations/README.md) — configuration, logging and metrics at a glance.
+- [Codebase overview](CODEBASE_OVERVIEW.md) — module layout, build and test commands.
+- [Shared vocabulary](CONTEXT.md) — what this project means by pool, publish result, and
+  delivery plan.
 
 ## Explanation
 
-- [explanation/extending-events.md](explanation/extending-events.md) — Working with events and tags (GenericEvent, GenericTag, Kinds)
-- [explanation/architecture.md](explanation/architecture.md) — Module architecture and data flow
-- [explanation/nostr-java-mcp-spec.md](explanation/nostr-java-mcp-spec.md) — Draft spec for the `nostr-java-mcp` MCP server module, built on `nostr-java-api` (2.2.0)
-- [explanation/nip-17-direct-messages-spec.md](explanation/nip-17-direct-messages-spec.md) — Draft spec for NIP-17 private direct messages and NIP-59 gift wrapping
-- [explanation/dependency-alignment.md](explanation/dependency-alignment.md) — How versions are aligned via BOM
+Understanding-oriented, for the reasoning behind the design.
 
-## Developer
+- [Architecture](explanation/architecture.md) — the modules, their dependencies, and how data
+  flows between them.
+- [Working with events and tags](explanation/extending-events.md) — `GenericEvent`,
+  `GenericTag` and the kind ranges.
+- [Dependency alignment](explanation/dependency-alignment.md) — why versions are managed
+  through a BOM.
+- [Secure coding guidelines](developer/SECURE_CODING.md) — the rules this codebase follows
+  around keys and encryption.
 
-- [developer/SIMPLIFICATION_PROPOSAL.md](developer/SIMPLIFICATION_PROPOSAL.md) — 2.0 design simplification proposal
+**Specifications**
+
+- [MCP server specification](explanation/nostr-java-mcp-spec.md) — the design of
+  `nostr-java-mcp`, including its safety model.
+- [NIP-17 direct messages](explanation/nip-17-direct-messages-spec.md) — private messages and
+  NIP-59 gift wrapping.
+
+**Proposals and history**
+
+These describe work that is proposed, in progress, or finished. They are kept because the
+reasoning outlives the change.
+
+- [Simplification proposal](developer/SIMPLIFICATION_PROPOSAL.md) — a proposed reduction of the
+  2.0 design. Describes code that does not all exist yet.
+- [1.0 roadmap](explanation/roadmap-1.0.md) — historical, kept for context.
+- [Generic tag fragility](problems/GENERIC_TAG_GETCODE_FRAGILITY.md) — analysis of a
+  `GenericTag.getCode()` failure and its downstream effects.
+- [Integration test bug analysis](integration-test-bug-analysis.md) — why the relay container
+  sometimes starts inert, and how the tests handle it.
 
 ## Decisions
 
-- [CONTEXT.md](CONTEXT.md) — Shared vocabulary: modules, relay pool, publish result, delivery plan
-- [decisions/0001-introduce-nostr-java-api-module.md](decisions/0001-introduce-nostr-java-api-module.md) — Why `nostr-java-api` exists and what it is not
-- [decisions/0002-multi-relay-failure-semantics.md](decisions/0002-multi-relay-failure-semantics.md) — Partial failure, pool construction, de-duplication
-- [decisions/0003-api-v1-service-scope.md](decisions/0003-api-v1-service-scope.md) — Which services ship in v1, and where NIP-17 orchestration lives
-- [decisions/0004-pool-concurrency-and-subscription-lifecycle.md](decisions/0004-pool-concurrency-and-subscription-lifecycle.md) — Per-relay serialization, parsed payloads, auto-resubscribe
-- [decisions/0005-pool-membership-eose-and-ownership.md](decisions/0005-pool-membership-eose-and-ownership.md) — Mutable membership, synthetic EOSE, resource ownership
+Architecture decision records: what was decided, and what was given up.
 
-## Project
+- [0001 — Introduce `nostr-java-api`](decisions/0001-introduce-nostr-java-api-module.md) — why
+  the module exists and what it deliberately is not.
+- [0002 — Multi-relay failure semantics](decisions/0002-multi-relay-failure-semantics.md) —
+  partial failure, pool construction, de-duplication.
+- [0003 — API v1 service scope](decisions/0003-api-v1-service-scope.md) — which services ship,
+  and where NIP-17 orchestration lives.
+- [0004 — Pool concurrency and subscription lifecycle](decisions/0004-pool-concurrency-and-subscription-lifecycle.md)
+  — per-relay serialisation, parsed payloads, auto-resubscribe.
+- [0005 — Pool membership, EOSE and ownership](decisions/0005-pool-membership-eose-and-ownership.md)
+  — mutable membership, synthetic EOSE, resource ownership.
 
-- [CODEBASE_OVERVIEW.md](CODEBASE_OVERVIEW.md) — Codebase layout, testing, contributing
+## How this documentation is kept honest
 
-## Tests Overview
+`DocumentationAccuracyTest` in `nostr-java-api` runs with the ordinary build and fails when the
+documentation drifts from the code: a guide naming a type or method that does not exist, a link
+pointing at nothing, an install snippet quoting a version that is not the one being built, or a
+page nobody links to from this index.
 
-- Client module (Spring WebSocket): `nostr-java-client/src/test/java/nostr/client/springwebsocket/README.md` — send/subscribe retries and timeout behavior
+It found real problems when it was written, including a reference page teaching
+`BaseMessage.read(json)`, a method that has never existed. Documentation rots quietly because
+nothing fails when it does, which is exactly why it is worth a test.

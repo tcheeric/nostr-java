@@ -6,15 +6,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Qodana](https://github.com/tcheeric/nostr-java/actions/workflows/qodana_code_quality.yml/badge.svg)](https://github.com/tcheeric/nostr-java/actions/workflows/qodana_code_quality.yml)
 
-`nostr-java` is a Java SDK for the [Nostr](https://github.com/nostr-protocol/nips) protocol. It provides utilities for creating, signing and publishing Nostr events to relays.
+A Java SDK for the [Nostr protocol](https://github.com/nostr-protocol/nips). Create, sign and
+publish events; talk to many relays at once; send encrypted direct messages; and expose all of
+it to an LLM agent through a Model Context Protocol server.
 
-## Requirements
-- Maven
-- Java 21+
+Requires **Java 21** and Maven.
 
-See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for installation and usage instructions.
-
-## Quick Start
+## Quick start
 
 ```java
 Identity identity = Identity.generateRandomIdentity();
@@ -25,93 +23,103 @@ try (NostrClient nostr = NostrClient.builder()
         .build()) {
 
     PublishResult result = nostr.publishTextNote("Hello Nostr!");
+
     System.out.println("stored by " + result.getAcceptingRelays());
+    result.getFailures().forEach(failure ->
+        System.out.println("refused by " + failure.relayUri()));
 }
 ```
 
-Publishing reports what each relay did, and throws only when no relay accepted the event at all.
-See [docs/howto/multi-relay-publishing.md](docs/howto/multi-relay-publishing.md).
+Publishing reports what each relay did rather than collapsing the answer to a boolean, and
+throws `NoRelayAcceptedException` only when no relay accepted the event at all. A note that
+reached three relays out of five has been published, and the caller needs to know which two
+missed it rather than being told the whole thing failed. See
+[publishing across many relays](docs/howto/multi-relay-publishing.md).
 
-## Module Architecture
+Installation, including Gradle and BOM coordinates, is in
+[Getting started](docs/GETTING_STARTED.md).
 
-5 modules with a strict dependency chain:
+## Give an LLM agent access to Nostr
+
+`nostr-java-mcp` runs the SDK as a Model Context Protocol server, so an agent in Claude Desktop
+or an IDE can read and publish without any Nostr-specific code.
+
+```bash
+java -jar nostr-java-mcp.jar keygen personal   # create a key; the private half is never printed
+java -jar nostr-java-mcp.jar -Dnostr.mcp.identity=personal
+```
+
+Publishing to Nostr is public and cannot be reliably undone, so writes are confirmed by default:
+the agent gets a preview and a token, and nothing is published until it calls again with that
+token. A hallucinated post therefore becomes a no-op. See
+[running the MCP server](docs/howto/run-the-mcp-server.md).
+
+## Modules
+
+Six modules with a strict dependency chain, each usable on its own:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api → nostr-java-mcp
 ```
 
-- **nostr-java-core** — Foundation utilities, BIP-340 Schnorr cryptography, Bech32 encoding, hex conversion
-- **nostr-java-event** — `GenericEvent`, `GenericTag`, `Kinds` constants, `EventFilter` builder, messages, JSON serialization
-- **nostr-java-identity** — `Identity` key management, event signing, NIP-04/NIP-44 encryption
-- **nostr-java-client** — `NostrRelayClient` WebSocket client with retry, Virtual Threads, and async APIs; `RelayPool` for multi-relay fan-out and fan-in
-- **nostr-java-api** — `NostrClient` entry point: multi-relay publishing with per-relay outcomes, de-duplicated subscriptions, and NIP-17 direct message delivery
+| Module | What it gives you |
+| --- | --- |
+| **core** | BIP-340 Schnorr signatures, Bech32 encoding, hex conversion |
+| **event** | `GenericEvent`, `GenericTag`, `Kinds`, `EventFilter`, JSON serialisation |
+| **identity** | `Identity` key management, signing, NIP-04 and NIP-44 encryption, NIP-59 gift wrapping |
+| **client** | `NostrRelayClient` websocket transport with retry; `RelayPool` for fan-out and fan-in |
+| **api** | `NostrClient`: multi-relay publishing with per-relay outcomes, de-duplicated subscriptions, NIP-17 delivery |
+| **mcp** | An MCP server exposing the SDK to LLM agents over stdio or HTTP |
 
-## Running Tests
+Most applications want `nostr-java-api`. Reach further down only when you need something it
+does not expose.
 
-- Full test suite (requires Docker for Testcontainers ITs):
+## Design
 
-  `mvn -q verify`
-
-- Without Docker (skips Testcontainers-based integration tests via profile):
-
-  `mvn -q -Pno-docker verify`
-
-## Troubleshooting
-
-For diagnosing relay send issues and capturing failure details, see the how-to guide: [docs/howto/diagnostics.md](docs/howto/diagnostics.md).
+- **One event class.** `GenericEvent` covers every kind, and `GenericTag` holds a code plus its
+  parameters. Nostr's own model is integers and string arrays, so a type hierarchy on top would
+  be a second model to keep in step with the first.
+- **NIP-agnostic.** Any current or future NIP works through
+  `GenericEvent.builder().kind(n)` with the right tags. Supporting a new NIP needs no library
+  release. `Kinds` names the common values without restricting the rest.
+- **Multi-relay by default.** Nostr has no single source of truth, so publishing fans out and
+  subscribing fans in with de-duplication.
+- **Virtual threads.** Relay I/O and listener dispatch run on Java 21 virtual threads; the
+  async surface is `CompletableFuture`.
+- **Failures are reported, not swallowed.** Per-relay outcomes, typed
+  `RelayTimeoutException`, and connection state you can inspect.
 
 ## Documentation
 
-- Docs index: [docs/README.md](docs/README.md) — quick entry point to all guides and references.
-- Getting started: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — install via Maven/Gradle and build from source.
-- API how-to: [docs/howto/use-nostr-java-api.md](docs/howto/use-nostr-java-api.md) — create, sign, and publish events.
-- Streaming subscriptions: [docs/howto/streaming-subscriptions.md](docs/howto/streaming-subscriptions.md) — open and manage long-lived, non-blocking subscriptions.
-- Custom events: [docs/howto/custom-events.md](docs/howto/custom-events.md) — working with custom event kinds.
-- API reference: [docs/reference/nostr-java-api.md](docs/reference/nostr-java-api.md) — classes, key methods, and short examples.
-- Events and tags: [docs/explanation/extending-events.md](docs/explanation/extending-events.md) — in-depth guide to GenericEvent and GenericTag.
-- Architecture: [docs/explanation/architecture.md](docs/explanation/architecture.md) — module design and data flow.
-- Codebase overview: [docs/CODEBASE_OVERVIEW.md](docs/CODEBASE_OVERVIEW.md) — layout, testing, and contribution workflow.
-- Operations: [docs/operations/README.md](docs/operations/README.md) — logging, metrics, configuration, diagnostics.
+Start at the [documentation index](docs/README.md), which is organised by what you are trying to
+do. The most common destinations:
 
-## Features
+- [Getting started](docs/GETTING_STARTED.md) — install and publish a first note
+- [API examples](docs/howto/api-examples.md) — worked examples of the common tasks
+- [Private direct messages](docs/howto/private-direct-messages.md) — NIP-17 gift wrapping
+- [Run the MCP server](docs/howto/run-the-mcp-server.md) — LLM agent access
+- [API reference](docs/reference/nostr-java-api.md) — classes and methods
+- [Architecture](docs/explanation/architecture.md) — how the modules fit together
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — when something is not working
 
-- **Minimal API surface** — one event class (`GenericEvent`), one tag class (`GenericTag`), ~40 total classes
-- **Protocol-aligned** — kinds are integers, tags are string arrays, no library-imposed type hierarchy
-- **Virtual Thread concurrency** — relay I/O and listener dispatch on Java 21 Virtual Threads
-- **Async APIs** — `connectAsync()`, `sendAsync()`, `subscribeAsync()` via `CompletableFuture`
-- **Reliable connectivity** — Spring Retry, typed `RelayTimeoutException`, connection state tracking
-- **Multi-relay by default** — fan-out publishing with per-relay outcomes, de-duplicated fan-in subscriptions
-- **NIP-17 direct messages** — gift-wrapped and delivered to the recipient's own relays
-- **NIP-04/NIP-44 encryption** — legacy and modern message encryption
-- **BIP-340 Schnorr signatures** — event signing and verification
-- **Well-documented** — architecture guides, how-to guides, and API reference
+## Building and testing
 
-## v2.0.0 Highlights
+```bash
+mvn verify              # full suite, including Testcontainers integration tests (needs Docker)
+mvn -Pno-docker verify   # unit tests and non-Docker integration tests only
+```
 
-- Simplified from 9 modules (~180 classes) to 4 modules (~40 classes); `nostr-java-api` was added afterwards as the client-facing entry point
-- `GenericEvent` is the sole event class for all kinds — no subclasses
-- `GenericTag` stores tags as `code` + `List<String>` — no `ElementAttribute`, no `TagRegistry`
-- `Kinds` utility replaces the `Kind` enum — any integer is valid
-- `EventFilter` builder replaces 14 thin filter wrapper classes
-- `NostrRelayClient` with Virtual Thread dispatch and async APIs
-- `RelayTimeoutException` replaces silent empty-list timeout returns
-- `java.util.HexFormat` replaces hand-rolled hex encoding
-
-See [CHANGELOG.md](CHANGELOG.md) for the full list of changes.
-
-## NIP Support
-
-The library is NIP-agnostic by design. Any current or future NIP can be implemented using `GenericEvent.builder().kind(kindNumber)` with appropriate tags via `GenericTag.of(code, params...)` — no library updates required. The `Kinds` utility class provides named constants for commonly used kind values.
+Integration tests run against a real relay in a container rather than a stand-in, because the
+failures worth catching, such as frame ordering and relay-side validation, are precisely the
+ones a fake reproduces incorrectly.
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
-- Coding standards and conventions
-- Pull request guidelines
-- Testing requirements
-
-For architectural guidance, see [docs/explanation/architecture.md](docs/explanation/architecture.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards, pull request guidelines and
+testing requirements, and [the architecture guide](docs/explanation/architecture.md) for how the
+pieces fit together. Release notes are in [CHANGELOG.md](CHANGELOG.md), and
+[the migration guide](docs/MIGRATION.md) covers moving between major versions.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).

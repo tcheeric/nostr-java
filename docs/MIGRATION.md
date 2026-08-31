@@ -45,7 +45,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
         <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>nostr-java-bom</artifactId>
-            <version><!-- X.Y.Z --></version>
+            <version>X.Y.Z</version> <!-- see the releases page -->
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -62,7 +62,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
        <dependency>
          <groupId>xyz.tcheeric</groupId>
          <artifactId>nostr-java-bom</artifactId>
-         <version><!-- X.Y.Z --></version>
+         <version>X.Y.Z</version> <!-- see the releases page -->
          <type>pom</type>
          <scope>import</scope>
        </dependency>
@@ -91,7 +91,7 @@ Version 0.5.1 introduces a major dependency management change: **nostr-java now 
        <dependency>
          <groupId>xyz.tcheeric</groupId>
          <artifactId>nostr-java-bom</artifactId>
-         <version><!-- X.Y.Z --></version>
+         <version>X.Y.Z</version> <!-- see the releases page -->
          <type>pom</type>
          <scope>import</scope>
        </dependency>
@@ -256,7 +256,7 @@ After migration, verify your setup:
         <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>nostr-java-bom</artifactId>
-            <version><!-- X.Y.Z --></version>
+            <version>X.Y.Z</version> <!-- see the releases page -->
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -392,7 +392,7 @@ If you need assistance with migration:
 1. **Check the docs**: [docs/README.md](README.md)
 2. **Search issues**: [GitHub Issues](https://github.com/tcheeric/nostr-java/issues)
 3. **Ask for help**: Open a new issue with the `question` label
-4. **Review examples**: Check the [`nostr-java-examples`](../nostr-java-examples) module for updated code patterns
+4. **Review examples**: Work through the [how-to guides](howto/) for current code patterns
 
 ---
 

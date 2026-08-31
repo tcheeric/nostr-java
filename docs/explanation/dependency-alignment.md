@@ -52,7 +52,7 @@ Consumers should import the BOM and omit versions on nostr-java dependencies:
 Ensure the build resolves to correct coordinates via the BOM:
 
 ```bash
-mvn -q -DnoDocker=true clean verify
+mvn -q -Pno-docker clean verify
 mvn -q dependency:tree | rg "nostr-java-(core|event|identity|client)"
 ```
 
