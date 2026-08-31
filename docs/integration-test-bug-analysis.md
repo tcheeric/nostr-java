@@ -176,9 +176,9 @@ Alternative relay implementations like `strfry` require higher file descriptor l
 ## Workaround Options
 
 ### 1. Skip Integration Tests in CI
-Add `-DnoDocker=true` to Maven commands in CI environments where Docker doesn't support TSC properly:
+Add the `no-docker` profile to Maven commands in CI environments where Docker cannot run the relay container:
 ```bash
-mvn test -DnoDocker=true
+mvn test -Pno-docker
 ```
 
 ### 2. Use a Different Host/Docker Configuration

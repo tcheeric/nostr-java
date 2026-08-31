@@ -1,6 +1,6 @@
 # Nostr Java API Reference
 
-Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how-to](../howto/use-nostr-java-api.md) · [Streaming subscriptions](../howto/streaming-subscriptions.md) · [Custom events](../howto/custom-events.md)
+Navigation: [Docs index](../README.md) · [Getting started](../GETTING_STARTED.md) · [API how-to](../howto/use-nostr-java-api.md) · [Multi-relay publishing](../howto/multi-relay-publishing.md) · [Streaming subscriptions](../howto/streaming-subscriptions.md) · [Custom events](../howto/custom-events.md)
 
 This document provides an overview of the public API exposed by the `nostr-java` modules. It lists the major classes, their key method signatures, and shows brief usage examples.
 
@@ -160,8 +160,10 @@ public Filters(Filterable... filterables)
 // Encode a message
 String json = new EventMessage(event).encode();
 
-// Decode a message
-BaseMessage msg = BaseMessage.read(json);
+// Decode a message. The decoder is generic: name the expected message type when you know it,
+// so the result needs no cast.
+BaseMessage message = new BaseMessageDecoder<>().decode(json);
+EventMessage event = new BaseMessageDecoder<EventMessage>().decode(json);
 ```
 
 ---
@@ -247,6 +249,124 @@ Send and subscribe operations are annotated with `@NostrRetryable`:
 - Included exception: `IOException`
 - Max attempts: `3`
 - Backoff: initial `500ms`, multiplier `2.0`
+
+---
+
+## Client API (`nostr-java-api`)
+
+The entry point for applications. See the
+[multi-relay how-to](../howto/multi-relay-publishing.md) for worked examples.
+
+### `NostrClient`
+An identity, a set of relays, and the operations between them.
+
+```java
+static NostrClient.Builder builder()
+
+PublishResult publish(GenericEvent event) throws NoRelayAcceptedException
+PublishResult publishAs(Identity signer, GenericEvent event) throws NoRelayAcceptedException
+PublishResult publishTextNote(String content) throws NoRelayAcceptedException
+
+RelaySubscription subscribe(List<EventFilter> filters, SubscriptionListener listener)
+
+RecipientDeliveryOutcome sendDirectMessage(PublicKey recipient, String content)
+List<RecipientDeliveryOutcome> sendDirectMessage(List<PublicKey> recipients, String content)
+ChatMessage readDirectMessage(GenericEvent giftWrap)
+
+Optional<DirectMessageRelayList> findDirectMessageRelays(PublicKey owner)
+RelayPool getRelayPool()
+Identity getIdentity()
+void close()
+```
+
+Builder: `identity(Identity)`, `relays(String...)`, `relays(List<String>)`,
+`relayPool(RelayPool)`, `connectionFactory(RelayConnectionFactory)`, `build()`.
+
+**Ownership follows construction.** A pool built from relay URIs is closed with the client; a
+pool passed to `relayPool(...)` is left to whoever created it, so it may outlive the client.
+
+### `RecipientDeliveryOutcome`
+Whether one participant received a direct message: `recipient()`, `status()`
+(`DELIVERED`, `UNREACHABLE`, `REJECTED`), `relays()`, `isDelivered()`, `findReason()`.
+
+A recipient who published no kind-10050 relay list is `UNREACHABLE`, since NIP-17 treats that as
+declining private messages.
+
+### `RelayListLookup`
+Implements `DirectMessageRelayLookup` by querying relays for kind-10050 lists.
+
+---
+
+## Relay Pool (`nostr-java-client`)
+
+### `RelayPool`
+A mutable set of relay connections, with fan-out publishing and fan-in subscriptions.
+
+```java
+RelayPool(List<String> relayUris, RelayConnectionFactory connectionFactory)
+RelayPool(List<String> relayUris, RelayConnectionFactory factory, Duration publishTimeout)
+// further constructors add reconnectInterval and backlogTimeout
+
+PublishResult publish(GenericEvent event) throws NoRelayAcceptedException
+RelaySubscription subscribe(List<EventFilter> filters, SubscriptionListener listener)
+RelaySubscription subscribe(List<EventFilter> filters, SubscriptionListener listener, int windowSize)
+
+boolean addRelay(String relayUri)
+boolean releaseRelay(String relayUri)
+boolean removeRelay(String relayUri)
+List<String> retryUnreachableRelays()
+
+List<String> getRelays()
+List<String> getConnectedRelays()
+List<String> getUnreachableRelays()
+Optional<ConnectionState> getConnectionState(String relayUri)
+void close()
+```
+
+Defaults: `DEFAULT_PUBLISH_TIMEOUT` 10s, `DEFAULT_RECONNECT_INTERVAL` 30s,
+`DEFAULT_BACKLOG_TIMEOUT` 10s.
+
+### `PublishResult`
+What every relay did with one event: `getEventId()`, `getOutcomes()`, `findOutcome(String)`,
+`getAcceptingRelays()`, `getFailures()`, `isAccepted()`, `isAcceptedByAllRelays()`.
+
+### `RelayPublishOutcome`
+One relay's verdict: `relayUri()`, `status()` (`ACCEPTED`, `REJECTED`, `TIMED_OUT`,
+`UNREACHABLE`), `reason()`, `isAccepted()`, `findReason()`.
+
+### `NoRelayAcceptedException`
+Thrown when no relay stored the event. Carries the full `PublishResult` via
+`getPublishResult()`, so the caller can still see what each relay said.
+
+### `RelaySubscription`
+One subscription across many relays: `getSubscriptionId()`, `getSubscribedRelays()`,
+`hasAnnouncedEndOfStoredEvents()`, `close()`.
+
+### `SubscriptionListener`
+`onEvent(GenericEvent)`, plus optional `onEndOfStoredEvents()` and
+`onRelayFailure(String, Throwable)`.
+
+Events are delivered in the order the relay sent them, so stored events always arrive before
+the end-of-backlog signal.
+
+### `RelayConnection` / `RelayConnectionFactory`
+The seam between relay coordination and transport. `NostrRelayClient` implements
+`RelayConnection`; supplying a different factory is how tests substitute scripted relays.
+
+### Known limitations
+
+**One request in flight per relay.** `NostrRelayClient` serves a single request at a time, so
+the pool serialises operations per relay. Throughput to any one relay is bounded by round-trip
+latency. Fan-out across relays is unaffected. Making the client multiplex is separate work; see
+[ADR-0004](../decisions/0004-pool-concurrency-and-subscription-lifecycle.md).
+
+**Transient relays are briefly shared.** A relay added to deliver a direct message is available
+to other operations while it remains connected. This is benign, but it means the pool can
+publish through a relay the caller never configured.
+
+**De-duplication is windowed.** Events evicted from the bounded window are treated as new if
+they arrive again, so a copy arriving much later than its siblings can be delivered twice. The
+default window is sized well beyond realistic cross-relay spread.
 
 ---
 

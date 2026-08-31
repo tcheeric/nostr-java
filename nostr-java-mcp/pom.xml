@@ -1,0 +1,206 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>xyz.tcheeric</groupId>
+        <artifactId>nostr-java</artifactId>
+        <version>2.3.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>nostr-java-mcp</artifactId>
+    <packaging>jar</packaging>
+    <name>nostr-java-mcp</name>
+    <description>Exposes the nostr-java SDK as a Model Context Protocol server.</description>
+
+    <properties>
+        <!-- The model-driven IT is excluded by default. Opt in with:
+             mvn verify -pl nostr-java-mcp -Dexcluded.it.groups= -Dgroups=model-driven -->
+        <excluded.it.groups>model-driven</excluded.it.groups>
+        <mcp.sdk.version>2.0.1</mcp.sdk.version>
+        <!-- Jackson 3 keeps its annotations under the 2.x coordinate and needs 2.21, where
+             JsonSerializeAs was introduced. Other modules pull an older annotations jar, and
+             Maven's nearest-wins resolution would hand the MCP SDK's Jackson 3 mapper a jar
+             missing that class: the server then dies on its first JSON frame. -->
+        <jackson.annotations.version>2.21</jackson.annotations.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.annotations.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>reposilite-releases</id>
+            <url>https://maven.398ja.xyz/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>reposilite-snapshots</id>
+            <url>https://maven.398ja.xyz/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <dependencies>
+        <!-- Project Modules: the MCP server adapts the client-facing API, never the transport
+             beneath it, so relay pooling and de-duplication stay the SDK's concern. -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>nostr-java-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Official MCP SDK. The reference implementation of the specification, pulling in
+             only a JSON mapper and a transport rather than an AI framework. -->
+        <dependency>
+            <groupId>io.modelcontextprotocol.sdk</groupId>
+            <artifactId>mcp</artifactId>
+            <version>${mcp.sdk.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.tcheeric</groupId>
+            <artifactId>nostr-java-client</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xyz.tcheeric</groupId>
+            <artifactId>nostr-java-client</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Drives a real local model against the tool surface, which is the only way to learn
+             whether a model can actually use these tools rather than whether they work. -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>ollama</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <!-- The server reports its version to every MCP host, so the value is filtered in from
+             the pom rather than copied into the source where it would drift on the next bump. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- The model-driven IT runs a real LLM, takes minutes, and needs a model cached on
+                 the machine, so it is not part of the ordinary build. Run it deliberately with
+                 -Dgroups=model-driven. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <excludedGroups>${excluded.it.groups}</excludedGroups>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- The module is launched as `java -jar`, both by an MCP host and by its own CLI,
+                 so it ships one self-contained artefact. A host configuration naming a
+                 classpath would break whenever a dependency changed. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>runnable</shadedClassifierName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>nostr.mcp.NostrMcpApplication</mainClass>
+                                </transformer>
+                                <!-- Spring and Tomcat both split configuration across
+                                     same-named resources in several jars; concatenating them
+                                     is what keeps the shaded jar working at all. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.factories</resource>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- Signatures of the original jars do not survive
+                                             repackaging, and a stale one makes the JVM refuse
+                                             to load the class it claims to sign. -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

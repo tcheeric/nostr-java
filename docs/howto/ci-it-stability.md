@@ -9,7 +9,7 @@ This how‑to explains how we keep CI green across environments and how to run i
 
 ## CI Layout
 - Matrix build on Java 21 and 17
-  - JDK 21: full build without Docker (`-DnoDocker=true`)
+  - JDK 21: full build without Docker (`-Pno-docker`)
   - JDK 17: POM validation only (project targets 21)
 - Separate IT job on pushes uses Docker/Testcontainers to run end‑to‑end tests
 
@@ -22,7 +22,7 @@ See `.github/workflows/ci.yml` for the configuration and artifact uploads (Suref
   ```
 - Unit tests only (no Docker):
   ```bash
-  mvn -DnoDocker=true clean verify
+  mvn -Pno-docker clean verify
   ```
 - Using helper script:
   ```bash

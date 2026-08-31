@@ -4,7 +4,7 @@ set -euo pipefail
 # Automates common release tasks for nostr-java.
 # Subcommands:
 #   bump --version <x.y.z>            Set root version to x.y.z and commit
-#   verify [--no-docker]              Run mvn clean verify (optionally -DnoDocker=true)
+#   verify [--no-docker]              Run mvn clean verify (optionally -Pno-docker)
 #   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
 #   publish [--no-docker] [--repo central|398ja]
 #                                    Deploy artifacts to selected repository profile
@@ -23,7 +23,7 @@ Usage: $(basename "$0") <command> [options]
 Commands:
   bump --version <x.y.z>            Set root version to x.y.z and commit
   verify [--no-docker] [--skip-tests] [--dry-run]
-                                    Run mvn clean verify (optionally -DnoDocker=true)
+                                    Run mvn clean verify (optionally -Pno-docker)
   tag --version <x.y.z> [--push]    Create annotated tag vX.Y.Z (and optionally push)
   publish [--no-docker] [--skip-tests] [--repo central|398ja] [--dry-run]
                                     Deploy artifacts to selected repository profile
@@ -71,8 +71,42 @@ cmd_bump() {
   echo "Setting root version to ${version}"
   run_cmd mvn -q versions:set -DnewVersion="${version}"
   run_cmd mvn -q versions:commit
-  run_cmd git add pom.xml */pom.xml || true
+  update_documented_version "${version}"
+  run_cmd git add pom.xml */pom.xml docs || true
   run_cmd git commit -m "chore(release): bump project version to ${version}"
+}
+
+# Keeps copyable install snippets in step with the version just set.
+#
+# DocumentationAccuracyTest fails the build when a snippet a reader would copy names a version
+# other than the one being built, which is correct but means every bump would otherwise need a
+# manual edit somebody eventually forgets. Only concrete versions are touched: placeholders such
+# as X.Y.Z, ranges, and a migration guide's "previous version" are all deliberate.
+update_documented_version() {
+  local version="$1"
+  echo "Updating documented install snippets to ${version}"
+  if $DRY_RUN; then
+    echo "+ update install snippets in docs/ to ${version}"
+    return
+  fi
+  python3 - "$version" <<'PYTHON'
+import pathlib, re, sys
+
+version = sys.argv[1]
+snippet = re.compile(
+    r"(<artifactId>nostr-java-[a-z]+</artifactId>\s*\n\s*<version>)(\d+\.\d+\.\d+)(</version>)")
+
+for document in pathlib.Path("docs").rglob("*.md"):
+    text = document.read_text()
+    # A version followed by a comment is illustrative: a previous release, or a placeholder the
+    # reader is told to replace. Leave those alone.
+    updated = snippet.sub(
+        lambda m: m.group(0) if "<!--" in text[m.end():m.end() + 40] else m.group(1) + version + m.group(3),
+        text)
+    if updated != text:
+        document.write_text(updated)
+        print(f"  {document} -> {version}")
+PYTHON
 }
 
 cmd_verify() {
@@ -87,7 +121,7 @@ cmd_verify() {
   done
   local mvn_args=(-q)
   if $no_docker; then
-    mvn_args+=(-DnoDocker=true -Pno-docker)
+    mvn_args+=(-Pno-docker)
   fi
   $skip_tests && mvn_args+=(-DskipTests)
   run_cmd mvn $MVN_SETTINGS_OPTS "${mvn_args[@]}" clean verify
@@ -130,9 +164,11 @@ cmd_publish() {
     *) echo "Unknown repo '$repo'. Use 'central' or '398ja'." >&2; exit 1 ;;
   esac
   local mvn_args=(-q -P "$profile" deploy)
-  $no_docker && mvn_args=(-q -DnoDocker=true -P "$profile" deploy)
+  # -Pno-docker is what actually excludes the container-backed tests. The old -DnoDocker=true
+  # set a property nothing reads, so --no-docker silently ran them anyway.
+  $no_docker && mvn_args=(-q -P "no-docker,$profile" deploy)
   $skip_tests && mvn_args=(-q -DskipTests -P "$profile" deploy)
-  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -DnoDocker=true -P "$profile" deploy); fi
+  if $no_docker && $skip_tests; then mvn_args=(-q -DskipTests -P "no-docker,$profile" deploy); fi
   # For Central publishing, prefer the settings provided by actions/setup-java (no -s override)
   if [[ "$profile" == "release-central" ]]; then
     run_cmd mvn "${mvn_args[@]}"

@@ -2,6 +2,7 @@ package nostr.client.springwebsocket;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import nostr.client.relay.RelayConnection;
 import nostr.event.BaseMessage;
 import nostr.event.message.ReqMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +53,8 @@ import java.util.function.Consumer;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
-public class NostrRelayClient extends TextWebSocketHandler implements AutoCloseable {
+public class NostrRelayClient extends TextWebSocketHandler
+    implements RelayConnection, AutoCloseable {
   private static final long DEFAULT_AWAIT_TIMEOUT_MS = 60000L;
   private static final long DEFAULT_MAX_IDLE_TIMEOUT_MS = 3600000L;
   private static final int DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE = 1048576;
@@ -407,6 +409,12 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
         RELAY_IO_EXECUTOR);
   }
 
+  @Override
+  public String getRelayUri() {
+    return relayUri;
+  }
+
+  @Override
   public ConnectionState getConnectionState() {
     return connectionState.get();
   }
@@ -470,6 +478,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     }
   }
 
+  @Override
   @NostrRetryable
   public <T extends BaseMessage> List<String> send(T eventMessage) throws IOException {
     String json = eventMessage.encode();
@@ -575,6 +584,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
     return executeAsyncWithRetry(() -> send(eventMessage));
   }
 
+  @Override
   @NostrRetryable
   public <T extends BaseMessage> AutoCloseable subscribe(
       @NonNull T requestMessage,
@@ -875,8 +885,7 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
               && !targetSubscriptionId.equals(listener.subscriptionId())) {
             return;
           }
-          LISTENER_EXECUTOR.execute(
-              () -> safelyInvoke(listener.messageListener(), payload, listener));
+          listener.frames().submit(() -> safelyInvoke(listener.messageListener(), payload, listener));
         });
   }
 
@@ -1005,7 +1014,69 @@ public class NostrRelayClient extends TextWebSocketHandler implements AutoClosea
       String subscriptionId,
       Consumer<String> messageListener,
       Consumer<Throwable> errorListener,
-      Runnable closeListener) {}
+      Runnable closeListener,
+      FrameSequencer frames) {
+
+    ListenerRegistration(
+        String subscriptionId,
+        Consumer<String> messageListener,
+        Consumer<Throwable> errorListener,
+        Runnable closeListener) {
+      this(subscriptionId, messageListener, errorListener, closeListener, new FrameSequencer());
+    }
+  }
+
+  /**
+   * Delivers one listener's frames in the order the relay sent them.
+   *
+   * <p>Every inbound frame used to start its own virtual thread, so two frames could be handed
+   * to a listener in either order. That is unobservable for events alone but not for the signals
+   * that punctuate them: a relay sends its stored events and then {@code EOSE}, and a listener
+   * that sees {@code EOSE} first concludes the backlog is empty while events are still arriving.
+   * Any caller that ends a query on that signal then returns a partial answer, which looks
+   * exactly like a relay holding less data than it does.
+   *
+   * <p>Frames are queued per listener and drained by one thread at a time, so ordering is
+   * restored without serialising unrelated listeners against each other and without blocking the
+   * websocket's own receiving thread.
+   */
+  private static final class FrameSequencer {
+
+    private final java.util.Queue<Runnable> pending = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private final java.util.concurrent.atomic.AtomicBoolean draining =
+        new java.util.concurrent.atomic.AtomicBoolean();
+
+    void submit(Runnable delivery) {
+      pending.add(delivery);
+      drainOnAnotherThread();
+    }
+
+    private void drainOnAnotherThread() {
+      if (draining.compareAndSet(false, true)) {
+        LISTENER_EXECUTOR.execute(this::drain);
+      }
+    }
+
+    /**
+     * Drains until empty, then re-checks having released the flag.
+     *
+     * <p>The re-check closes the window where a frame is queued between the last poll and the
+     * flag being cleared, which would otherwise leave it waiting for a frame that never comes.
+     */
+    private void drain() {
+      try {
+        Runnable delivery;
+        while ((delivery = pending.poll()) != null) {
+          delivery.run();
+        }
+      } finally {
+        draining.set(false);
+        if (!pending.isEmpty()) {
+          drainOnAnotherThread();
+        }
+      }
+    }
+  }
 
   @FunctionalInterface
   private interface IoSupplier<T> {

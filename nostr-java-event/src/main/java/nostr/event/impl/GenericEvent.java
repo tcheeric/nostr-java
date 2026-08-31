@@ -146,13 +146,34 @@ public class GenericEvent implements ISignable {
     }
   }
 
+  /**
+   * Stamps the event with the current time, then recomputes its serialization and id.
+   *
+   * <p>Use {@link #update(long)} when the timestamp is significant, such as the randomised
+   * {@code created_at} that NIP-59 requires on seals and gift wraps.
+   */
   public void update() {
+    update(Instant.now().getEpochSecond());
+  }
+
+  /**
+   * Recomputes this event's serialization and id against the supplied creation time.
+   *
+   * <p>Unlike {@link #update()} this does not consult the clock, so a deliberately chosen
+   * {@code created_at} survives id computation. NIP-59 requires seals and gift wraps to carry
+   * timestamps randomised into the past to defeat time-correlation analysis, which is
+   * impossible if computing the id resets the timestamp.
+   *
+   * @param createdAt Unix timestamp, in seconds, to stamp the event with
+   * @see <a href="https://github.com/nostr-protocol/nips/blob/master/59.md">NIP-59</a>
+   */
+  public void update(long createdAt) {
     try {
-      this.createdAt = Instant.now().getEpochSecond();
+      this.createdAt = createdAt;
       this._serializedEvent =
-          nostr.event.serializer.EventSerializer.serializeToBytes(
+          EventSerializer.serializeToBytes(
               this.pubKey, this.createdAt, this.kind, this.tags, this.content);
-      this.id = nostr.event.serializer.EventSerializer.computeEventId(this._serializedEvent);
+      this.id = EventSerializer.computeEventId(this._serializedEvent);
     } catch (NostrException ex) {
       log.warn("Failed to update event during serialization: {}", ex.getMessage(), ex);
       throw new RuntimeException("Event update failed", ex);
@@ -244,10 +265,22 @@ public class GenericEvent implements ISignable {
     return this::setSignature;
   }
 
+  /**
+   * Supplies the canonical bytes that a signature is computed over.
+   *
+   * <p>Serialization is refreshed first so the signature covers the event's current contents.
+   * An event that already carries a creation time keeps it, because signing must not silently
+   * move an event in time: NIP-59 seals and gift wraps depend on their randomised timestamps
+   * surviving all the way to the wire.
+   */
   @Transient
   @Override
   public Supplier<ByteBuffer> getByteArraySupplier() {
-    this.update();
+    if (this.createdAt != null) {
+      this.update(this.createdAt);
+    } else {
+      this.update();
+    }
     if (log.isTraceEnabled()) {
       log.trace("Serialized event: {}", new String(this.get_serializedEvent()));
     }

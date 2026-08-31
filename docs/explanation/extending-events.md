@@ -269,7 +269,7 @@ void testSerialization() throws Exception {
     GenericEvent event = createAndSignEvent();
 
     String json = new EventMessage(event).encode();
-    BaseMessage decoded = BaseMessage.read(json);
+    BaseMessage decoded = new BaseMessageDecoder<>().decode(json);
 
     assertTrue(decoded instanceof EventMessage);
     GenericEvent deserialized = ((EventMessage) decoded).getEvent();

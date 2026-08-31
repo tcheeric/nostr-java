@@ -6,16 +6,17 @@ This document provides an overview of the project structure and instructions for
 
 ## Module layout
 
-nostr-java 2.0 has 4 modules with a clear dependency chain:
+nostr-java has 5 modules with a clear dependency chain:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 - **nostr-java-core** — Foundation utilities, BIP-340 Schnorr cryptography, Bech32 encoding, hex conversion (`java.util.HexFormat`), validators, and exception hierarchy. No dependencies on other project modules.
 - **nostr-java-event** — `GenericEvent` (sole event class), `GenericTag` (sole tag class with `List<String>` params), `Kinds` constants, `EventFilter` builder, relay messages, JSON serialization, `PublicKey`/`PrivateKey`/`Signature` value objects, and `ISignable` contract.
 - **nostr-java-identity** — `Identity` key management, event signing, and NIP-04/NIP-44 message encryption (`MessageCipher04`, `MessageCipher44`).
-- **nostr-java-client** — `NostrRelayClient` WebSocket client with Spring Retry, Virtual Thread dispatch, async APIs (`connectAsync`, `sendAsync`, `subscribeAsync`), and connection state tracking.
+- **nostr-java-client** — `NostrRelayClient` WebSocket client with Spring Retry, Virtual Thread dispatch, async APIs (`connectAsync`, `sendAsync`, `subscribeAsync`), and connection state tracking; `RelayPool` for fan-out publishing and de-duplicated fan-in subscriptions across many relays.
+- **nostr-java-api** — `NostrClient`, the entry point for applications: signing and publishing in one call, subscriptions across every relay, and NIP-17 direct message delivery.
 
 ## Building and testing
 
@@ -65,10 +66,36 @@ For practical usage examples, see:
 
 Before submitting changes:
 
-1. **Run verification**: `mvn -q verify` — ensure all tests pass
-2. **Follow code style**: Use clear, descriptive names and remove unused imports
-3. **Write tests**: Include unit tests and update relevant documentation
-4. **Follow commit conventions**: Use conventional commits (see [CONTRIBUTING.md](../CONTRIBUTING.md))
-5. **Submit PRs to develop branch**: All pull requests should target the `develop` branch
+1. **Run verification**: `mvn verify` from the repository root, or `mvn -Pno-docker verify` if
+   you cannot run the container-backed integration tests.
+2. **Write tests**: new behaviour needs a test, and a bug fix needs one that fails without the
+   fix.
+3. **Update the documentation**: the guides are checked against the source by
+   `DocumentationAccuracyTest`, so a renamed type or method fails the build until the docs
+   follow.
+4. **Follow code style**: clear, intention-revealing names; no unused imports; Clean Code
+   principles as described in [AGENTS.md](../AGENTS.md).
 
-For detailed contribution guidelines, see [CONTRIBUTING.md](../CONTRIBUTING.md).
+### Commit and pull request conventions
+
+Commit messages and PR titles follow
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+`type(scope): description`, using one of `feat`, `fix`, `docs`, `style`, `refactor`, `perf`,
+`test`, `build`, `ci`, `chore` or `revert`.
+
+```
+feat(api): report per-relay outcomes when publishing
+fix(client): deliver relay frames in the order they arrive
+docs(readme): explain partial publish failure
+```
+
+The commit type drives the version bump: `fix` is a patch, `feat` a minor, and a
+`BREAKING CHANGE` footer a major. See
+[cutting a release](howto/version-uplift-workflow.md).
+
+Open pull requests with the template at `.github/pull_request_template.md` and complete every
+section, citing the files you changed and the output of your test run. Link the issue in the
+body with `Closes #123` so it closes on merge.
+
+Pull requests target **`main`**, which is the repository's default branch. Detailed commit
+message requirements are in [commit_instructions.md](../commit_instructions.md).

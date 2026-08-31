@@ -1,0 +1,12 @@
+nostr_list_relays
+nostr_list_identities
+nostr_query_events
+nostr_get_profile
+nostr_relay_info
+nostr_subscribe
+nostr_read_subscription
+nostr_list_subscriptions
+nostr_unsubscribe
+nostr_fetch_thread
+nostr_get_contacts
+nostr_read_direct_messages

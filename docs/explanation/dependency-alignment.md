@@ -2,18 +2,18 @@
 
 This document explains how nostr-java aligns dependency versions across modules and how the BOM manages consumer dependencies.
 
-## Current state (2.0.0)
+## Current state (2.2.0)
 
 - The aggregator POM imports `nostr-java-bom` to manage third-party versions.
-- Temporary overrides pin each reactor module (`nostr-java-core`, `nostr-java-event`, `nostr-java-identity`, `nostr-java-client`) to `${project.version}` so local builds resolve to the in-repo SNAPSHOTs even if the BOM doesn't yet list matching coordinates.
+- Temporary overrides pin each reactor module (`nostr-java-core`, `nostr-java-event`, `nostr-java-identity`, `nostr-java-client`, `nostr-java-api`) to `${project.version}` so local builds resolve to the in-repo SNAPSHOTs even if the BOM doesn't yet list matching coordinates.
 - Relevant configuration lives in `pom.xml` dependencyManagement.
 
 ## Module structure
 
-4 modules with a strict dependency chain:
+5 modules with a strict dependency chain:
 
 ```
-nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client
+nostr-java-core → nostr-java-event → nostr-java-identity → nostr-java-client → nostr-java-api
 ```
 
 ## BOM alignment
@@ -52,7 +52,7 @@ Consumers should import the BOM and omit versions on nostr-java dependencies:
 Ensure the build resolves to correct coordinates via the BOM:
 
 ```bash
-mvn -q -DnoDocker=true clean verify
+mvn -q -Pno-docker clean verify
 mvn -q dependency:tree | rg "nostr-java-(core|event|identity|client)"
 ```
 

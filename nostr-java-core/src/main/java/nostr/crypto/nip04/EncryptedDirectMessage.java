@@ -19,6 +19,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * Encrypts direct messages according to NIP-04.
+ *
+ * @deprecated NIP-04 conceals only a message's text. The sender, the recipient, the exact time,
+ *     and the number of messages exchanged all remain public on every relay that carries the
+ *     event, so an observer learns who talks to whom and when. Prefer NIP-17 private direct
+ *     messages, which hide all of it: see {@code nostr.encryption.Nip17DirectMessageService}
+ *     and the guide at {@code docs/howto/private-direct-messages.md}. Retained for reading
+ *     existing conversations and for interoperating with clients that send nothing else.
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/04.md">NIP-04</a>
+ * @see <a href="https://github.com/nostr-protocol/nips/blob/master/17.md">NIP-17</a>
+ */
+@Deprecated(since = "2.1.0")
 public class EncryptedDirectMessage {
 
   public static String encrypt(@NonNull String message, byte[] senderPrivKey, byte[] rcptPubKey)

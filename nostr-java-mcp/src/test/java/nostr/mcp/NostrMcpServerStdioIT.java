@@ -1,0 +1,302 @@
+package nostr.mcp;
+
+import io.modelcontextprotocol.client.McpClient;
+import io.modelcontextprotocol.client.McpSyncClient;
+import io.modelcontextprotocol.client.transport.ServerParameters;
+import io.modelcontextprotocol.client.transport.StdioClientTransport;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.modelcontextprotocol.spec.McpSchema.ListToolsResult;
+import io.modelcontextprotocol.spec.McpSchema.TextContent;
+import io.modelcontextprotocol.spec.McpSchema.Tool;
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Launches the server the way an MCP host does and drives it as a real client.
+ *
+ * <p>Unit tests can prove a tool computes the right answer while the server never speaks the
+ * protocol at all: the transport, the JSON framing, the capability handshake and the process
+ * lifecycle are all outside them. This test is the acceptance path, running the built classes
+ * in a separate JVM over stdin and stdout, exactly as Claude Desktop or an IDE agent would.
+ *
+ * <p>It also guards a failure mode unique to stdio: anything written to standard output that is
+ * not a protocol frame corrupts the stream. A logging line in the wrong place breaks every host,
+ * and only an end-to-end run catches it.
+ */
+class NostrMcpServerStdioIT {
+
+  private static final Duration STARTUP_TIMEOUT = Duration.ofSeconds(30);
+  private static final String UNREACHABLE_RELAY = "ws://localhost:1";
+
+  // Verifies a host can launch the server, complete the handshake, and discover the tool
+  // surface, which is the whole point of the module existing.
+  @Test
+  void aHostCanLaunchTheServerAndDiscoverItsTools() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      ListToolsResult tools = client.listTools();
+
+      assertEquals(
+          List.of(
+              "nostr_list_relays",
+              "nostr_list_identities",
+              "nostr_query_events",
+              "nostr_get_profile",
+              "nostr_relay_info",
+              "nostr_subscribe",
+              "nostr_read_subscription",
+              "nostr_list_subscriptions",
+              "nostr_unsubscribe",
+              "nostr_fetch_thread",
+              "nostr_get_contacts",
+              "nostr_read_direct_messages",
+              "nostr_publish_note",
+              "nostr_publish_event",
+              "nostr_update_profile",
+              "nostr_send_direct_message",
+              "nostr_create_identity",
+              "nostr_import_identity",
+              "nostr_rename_identity",
+              "nostr_set_default_identity",
+              "nostr_export_identity_backup",
+              "nostr_remove_identity"),
+          tools.tools().stream().map(Tool::name).toList());
+    }
+  }
+
+  // Verifies the discovered tool carries a description and an input schema, since a host shows
+  // the first to a model and validates against the second.
+  @Test
+  void theDiscoveredToolDescribesItself() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      Tool tool = client.listTools().tools().getFirst();
+
+      assertNotNull(tool.description());
+      assertFalse(tool.description().isBlank());
+      assertNotNull(tool.inputSchema());
+    }
+  }
+
+  // Verifies calling the tool over the protocol returns a usable answer, proving the round trip
+  // from host to tool and back rather than only that the tool exists.
+  @Test
+  void aHostCanCallTheToolAndReadTheAnswer() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      CallToolResult result =
+          client.callTool(new CallToolRequest("nostr_list_relays", java.util.Map.of()));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), "the tool reported an error");
+      assertTrue(summaryOf(result).contains("relays connected"), summaryOf(result));
+      assertNotNull(result.structuredContent());
+    }
+  }
+
+  // Verifies a read-only server exposes no write tool over the real protocol, so the policy
+  // holds where a host actually sees it rather than only in the registry.
+  @Test
+  void aReadOnlyServerOffersNoWriteToolsToAHost() {
+    try (McpSyncClient client = launchServer("-Dnostr.mcp.write-policy=deny")) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
+      assertTrue(tools.stream().noneMatch(name -> name.contains("update")), tools.toString());
+      assertTrue(tools.contains("nostr_query_events"), tools.toString());
+    }
+  }
+
+  // Verifies the server can be configured from the environment as well as from properties,
+  // which is how a container configures it: an image sets variables, not JVM flags.
+  @Test
+  void theServerCanBeConfiguredFromTheEnvironment() {
+    try (McpSyncClient client = launchServerWithEnvironment(Map.of("NOSTR_MCP_WRITE_POLICY", "deny"))) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("publish")), tools.toString());
+      assertTrue(tools.contains("nostr_query_events"), tools.toString());
+    }
+  }
+
+  // Verifies the guided prompts reach a host, since a tool surface with no guidance makes an
+  // agent learn by trial and error on a medium where mistakes are permanent and public.
+  @Test
+  void aHostCanDiscoverTheGuidedPrompts() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> prompts =
+          client.listPrompts().prompts().stream()
+              .map(io.modelcontextprotocol.spec.McpSchema.Prompt::name)
+              .toList();
+
+      assertEquals(List.of("compose-note", "catch-up-feed", "watch-mentions"), prompts);
+    }
+  }
+
+  // Verifies a prompt returns usable instructions rather than an empty shell, and that the
+  // publishing one names the confirmation step models most often skip.
+  @Test
+  void theComposePromptTeachesTheConfirmationStep() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      String instructions =
+          client
+              .getPrompt(
+                  new io.modelcontextprotocol.spec.McpSchema.GetPromptRequest(
+                      "compose-note", java.util.Map.of("topic", "a test note")))
+              .messages()
+              .stream()
+              .map(message -> ((TextContent) message.content()).text())
+              .findFirst()
+              .orElse("");
+
+      assertTrue(instructions.contains("a test note"), instructions);
+      assertTrue(instructions.contains("confirmationToken"), instructions);
+      assertTrue(instructions.contains("cannot be reliably deleted"), instructions);
+    }
+  }
+
+  // Verifies an agent can read the server's own identity and relay configuration as resources,
+  // without spending a tool call on something that never changes mid-conversation.
+  @Test
+  void aHostCanReadTheServersOwnContextAsResources() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> resourceUris =
+          client.listResources().resources().stream()
+              .map(io.modelcontextprotocol.spec.McpSchema.Resource::uri)
+              .toList();
+
+      assertTrue(resourceUris.contains("nostr://identity/{alias}"), resourceUris.toString());
+      assertTrue(resourceUris.contains("nostr://relay/{name}"), resourceUris.toString());
+    }
+  }
+
+  // Verifies the server offers no NIP-04 tool, since NIP-04 exposes both correspondents and the
+  // conversation to every relay and is unsuitable for a tool an agent drives on someone's behalf.
+  @Test
+  void noLegacyUnencryptedDirectMessageToolIsOffered() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("nip04")), tools.toString());
+      assertTrue(tools.contains("nostr_send_direct_message"), tools.toString());
+    }
+  }
+
+  // Verifies a server told not to mutate its keystore offers no lifecycle tool to a host, so
+  // identity-policy is enforced where a host actually looks rather than only in the registry.
+  @Test
+  void aServerForbiddenToMutateIdentitiesOffersNoLifecycleTools() {
+    try (McpSyncClient client = launchServer("-Dnostr.mcp.identity-policy=deny")) {
+      client.initialize();
+
+      List<String> tools = client.listTools().tools().stream().map(Tool::name).toList();
+
+      assertTrue(tools.stream().noneMatch(name -> name.contains("identity")
+          && !name.equals("nostr_list_identities")), tools.toString());
+      assertTrue(tools.contains("nostr_publish_note"), tools.toString());
+    }
+  }
+
+  // Verifies an agent can discover which identities the server signs with, and that an empty
+  // keystore is reported as a usable state rather than a startup failure.
+  @Test
+  void aHostCanSeeWhichIdentitiesTheServerHolds() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      CallToolResult result =
+          client.callTool(new CallToolRequest("nostr_list_identities", java.util.Map.of()));
+
+      assertFalse(Boolean.TRUE.equals(result.isError()), "listing identities reported an error");
+      assertTrue(summaryOf(result).contains("No identities are configured"), summaryOf(result));
+    }
+  }
+
+
+  // Verifies the server starts and serves even when no relay can be reached, since an MCP host
+  // launches it before anyone has checked the network, and a server that dies on a dead relay
+  // is one a host reports as broken.
+  @Test
+  void theServerServesEvenWhenNoRelayIsReachable() {
+    try (McpSyncClient client = launchServer()) {
+      client.initialize();
+
+      CallToolResult result =
+          client.callTool(new CallToolRequest("nostr_list_relays", java.util.Map.of()));
+
+      assertTrue(summaryOf(result).startsWith("0 of "), summaryOf(result));
+    }
+  }
+
+  /**
+   * Starts the packaged server in its own JVM, pointed at a relay that does not exist.
+   *
+   * <p>An unreachable relay is deliberate: this test is about the protocol, and a real relay
+   * would make it depend on Docker for no benefit. It doubles as the evidence that the server
+   * survives a dead relay set.
+   */
+  private McpSyncClient launchServerWithEnvironment(Map<String, String> environment) {
+    ServerParameters parameters =
+        ServerParameters.builder("java")
+            .args(
+                "-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY,
+                "-cp",
+                runtimeClasspath(),
+                NostrMcpApplication.class.getName())
+            .env(environment)
+            .build();
+
+    return McpClient.sync(new StdioClientTransport(parameters, McpJsonDefaults.getMapper()))
+        .requestTimeout(STARTUP_TIMEOUT)
+        .build();
+  }
+
+  private McpSyncClient launchServer(String... extraProperties) {
+    List<String> arguments = new java.util.ArrayList<>();
+    arguments.add("-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY);
+    arguments.addAll(List.of(extraProperties));
+    arguments.add("-cp");
+    arguments.add(runtimeClasspath());
+    arguments.add(NostrMcpApplication.class.getName());
+
+    ServerParameters parameters =
+        ServerParameters.builder("java").args(arguments).build();
+
+    return McpClient.sync(new StdioClientTransport(parameters, McpJsonDefaults.getMapper()))
+        .requestTimeout(STARTUP_TIMEOUT)
+        .build();
+  }
+
+  /** The classpath this test is running with, which already contains the module and the SDK. */
+  private String runtimeClasspath() {
+    return System.getProperty("java.class.path");
+  }
+
+  private String summaryOf(CallToolResult result) {
+    return ((TextContent) result.content().getFirst()).text();
+  }
+}
