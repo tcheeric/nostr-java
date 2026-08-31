@@ -36,7 +36,13 @@ LinkedHashMap LinkedHashSet BigDecimal HttpClient ProcessBuilder PreparedStateme
 DocumentBuilderFactory SAXParserFactory XMLInputFactory BouncyCastle SecP256K1Curve
 CBORGenerator ScopedValue StructuredTaskScope VirtualThread MeterRegistry ApplicationEvent
 ApplicationEventPublisherAware WebSocketHandler ScheduledExecutorService SubtleCrypto
-PKPass PKStoreCard PKDateStyleMedium GenericClass GenericObject""".split())
+PKPass PKStoreCard PKDateStyleMedium GenericClass GenericObject
+ConnectException UnsupportedClassVersionError IllegalAccessException
+InaccessibleObjectException IndexOutOfBoundsException NoSuchElement ServiceLoader KeyStore
+HexFormat TypeError DOMException Uint8Array SharedArrayBuffer BroadcastChannel
+SecurityContextHolder GrantedAuthority ObjectProvider RestClient FilterRegistrationBean
+HealthIndicator JdkClientHttpRequestFactory StandardWebSocketClient TextWebSocketHandler
+ECDomainParameters SECNamedCurves DeterministicKey RandomSource SimplePool""".split())
 
 ALLOWLIST_NAME = ".doccheck-allow"
 
@@ -51,10 +57,17 @@ def allowlist(root: Path):
     return {ln.split('#')[0].strip() for ln in f.read_text().splitlines() if ln.split('#')[0].strip()}
 
 
+# Plan and spec documents quote snippets destined for other files, including
+# link lines whose relative paths are correct only from the target. Checking them
+# reports the quoting, not a broken link.
+QUOTED_DIRS = {"plans", "specs", "superpowers", "archive"}
+
+
 def docs_of(root: Path):
     out = [root/'README.md', root/'CLAUDE.md', root/'AGENTS.md']
     if (root/'docs').is_dir():
-        out += list((root/'docs').rglob('*.md'))
+        out += [f for f in (root/'docs').rglob('*.md')
+                if not QUOTED_DIRS & set(f.relative_to(root).parts)]
     return [f for f in out if f.is_file()]
 
 def check_config(root: Path):
@@ -86,6 +99,19 @@ def main(argv):
 
     # index every Java type in the workspace: docs legitimately cite sibling repos
     types = set()
+    # TypeScript declarations: several repos ship a TS client SDK whose types are
+    # legitimately cited in docs alongside the Java ones.
+    for t in list(workspace.rglob('*.ts')) + list(workspace.rglob('*.tsx')):
+        if {'node_modules', 'dist', 'target'} & set(t.parts):
+            continue
+        try:
+            text = t.read_text()
+        except Exception:
+            continue
+        types.update(re.findall(
+            r'\b(?:interface|type|class|enum)\s+([A-Z]\w*)', text))
+        # React components and exported consts
+        types.update(re.findall(r'\b(?:const|function)\s+([A-Z]\w*)', text))
     for j in workspace.rglob('*.java'):
         if 'target' in j.parts or 'node_modules' in j.parts:
             continue
