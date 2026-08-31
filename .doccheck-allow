@@ -1,0 +1,56 @@
+# Names in docs that are not types in this repository. Checked by `doccheck`.
+#
+# Most of these appear in docs/developer/SIMPLIFICATION_PROPOSAL.md, which
+# proposes reducing nostr-java from 9 modules and ~170 classes to 4 modules and
+# ~40. The names below are that proposal's vocabulary, plus types named in
+# problem write-ups. They are not shipped classes; remove a name once it exists.
+
+# Proposed interfaces and types
+IElement
+IEvent
+IGenericElement
+IKey
+ITag
+IBech32Encodable
+BaseEvent
+ElementAttribute
+TagRegistry
+
+# Proposed tag and filter types
+AddressTag
+AddressTagFilter
+AuthorFilter
+GenericTagQueryFilter
+HashtagTagFilter
+IdentifierTag
+KindFilter
+PubKeyTag
+SinceFilter
+UntilFilter
+
+# Proposed event and serialization types
+GenericEventDeserializer
+GenericEventSerializer
+GenericMessage
+ReactionEvent
+TextNoteEvent
+
+# Proposed transport and client types
+DefaultHttpClientProvider
+NostrWebSocketClient
+SpringNostrWebSocketClient
+ReconnectingWebSocketClient
+ReconnectPolicy
+RelayAuthHandler
+RelayConnectionBroker
+SubscriptionBuffers
+WebSocketClientConfig
+
+# MCP server proposal (docs/explanation/nostr-java-mcp-spec.md)
+McpServer
+StdioServerTransportProvider
+HttpServletStreamableServerTransportProvider
+
+# NIP references written in type case
+NIP01
+NIP61
