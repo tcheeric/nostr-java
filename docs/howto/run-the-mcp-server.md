@@ -209,6 +209,43 @@ All settings are `nostr.mcp.*` system properties, or the same name in the enviro
 | `limits.max-subscriptions` | `20` | Open subscriptions allowed |
 | `limits.subscription-buffer` | `500` | Events held per subscription between reads |
 | `limits.subscription-idle-timeout` | `1h` | When an unread subscription is closed |
+| `blossom.servers` | none | Comma-separated Blossom server URLs, most trusted first |
+| `blossom.max-blob-bytes` | `16777216` | Largest blob the server will fetch and forward |
+| `blossom.allow-private-hosts` | `false` | Let Blossom reach addresses that are not publicly routable |
+
+## Hosting media with Blossom
+
+[Blossom](https://github.com/hzrd149/blossom) servers store files addressed by their sha256
+hash, authorized by a signed Nostr event rather than an account. Point the server at one or
+more and the agent can upload media and get back a URL to put in a note:
+
+```
+-Dnostr.mcp.blossom.servers=https://blossom.primal.net,https://cdn.satellite.earth
+```
+
+The tools are `nostr_blossom_upload`, `nostr_blossom_get`, `nostr_blossom_list`,
+`nostr_blossom_delete`, and `nostr_blossom_get_servers` / `nostr_blossom_set_servers` for the
+BUD-03 list a user publishes as kind 10063. Upload, delete and set-servers are write tools:
+they disappear under `write-policy: deny` and count against `limits.writes-per-minute`.
+Deleting needs confirming under `write-policy: confirm`.
+
+**Uploads take a URL, not a file.** `nostr_blossom_upload` fetches `sourceUrl` and re-hosts it.
+There is deliberately no way to upload a local file: a tool that read the server's disk would
+let an agent put any readable file on a public CDN, and no wording in a prompt makes that a
+safe capability to hand out. The media has to be reachable over http(s) already.
+
+Because the server does the fetching, it refuses URLs that resolve anywhere but the public
+internet — loopback, link-local (including the `169.254.169.254` cloud metadata endpoint) and
+private ranges — and refuses to follow redirects, since a redirect is the simplest way past
+that check. It also stops reading at `blossom.max-blob-bytes`, because a blob is held in
+memory while its hash is computed.
+
+Set `blossom.allow-private-hosts=true` if you are running a Blossom server on your own machine
+or LAN. It turns the address check off entirely, so only set it where the agent reaching the
+rest of your network is acceptable.
+
+Servers listed in `blossom.servers` are exempt from that check: configuring one is a person's
+decision, which is exactly what a URL an agent supplies is not.
 
 ## Limits worth knowing about
 
@@ -227,6 +264,9 @@ These are properties of the underlying SDK and the protocol, not settings you ca
 - **The HTTP transport has no authentication.** See [Run it over HTTP](#run-it-over-http).
 - **Deletion is advisory.** NIP-09 asks relays to forget an event; it cannot compel them. Treat
   anything published as permanent, which is why `write-policy: confirm` is the default.
+- **Deleting a blob frees one server.** A Blossom blob is addressed by its hash and may have
+  been copied anywhere, so `nostr_blossom_delete` removes it from the server named and nothing
+  else. It is not a way to unpublish something.
 
 ## Checking that a model can still use the tools
 

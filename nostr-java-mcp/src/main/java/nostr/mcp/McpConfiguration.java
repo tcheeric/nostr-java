@@ -33,6 +33,7 @@ public final class McpConfiguration {
   private static final String DEFAULT_KEYSTORE_TYPE = "os-keychain";
   private static final int DEFAULT_WRITES_PER_MINUTE = 10;
   private static final String DEFAULT_TRANSPORT = "stdio";
+  private static final long DEFAULT_MAX_BLOB_BYTES = 16L * 1024 * 1024;
   private static final String HTTP_TRANSPORT = "http";
   private static final int DEFAULT_HTTP_PORT = 8080;
 
@@ -238,6 +239,61 @@ public final class McpConfiguration {
         positiveIntOr("limits.writes-per-minute", DEFAULT_WRITES_PER_MINUTE),
         Duration.ofMinutes(1),
         clock);
+  }
+
+  /**
+   * The Blossom servers this deployment uses, most preferred first.
+   *
+   * <p>Empty by default. An agent can still name a server per call, but configuring them is
+   * what lets it upload without being told a URL, and a configured server is trusted in a way
+   * an agent-supplied one is not.
+   *
+   * @return the configured server URLs
+   */
+  public List<String> blossomServers() {
+    return commaSeparated("blossom.servers", List.of());
+  }
+
+  /**
+   * The largest blob this server will fetch and forward.
+   *
+   * <p>A blob is held in memory while its hash is computed, so this is the bound on what one
+   * upload can cost the process, not merely a policy about file sizes.
+   *
+   * @return the cap in bytes
+   */
+  public long blossomMaxBlobBytes() {
+    // Clamped to what a single array can hold. A larger setting could not be honoured anyway,
+    // and silently truncating it would turn "4 GiB" into a 2 GiB buffer that takes the process
+    // out rather than a refusal the operator can see.
+    return Math.min(positiveLongOr("blossom.max-blob-bytes", DEFAULT_MAX_BLOB_BYTES), Integer.MAX_VALUE - 1L);
+  }
+
+  /**
+   * Whether Blossom may fetch from addresses that are not publicly routable.
+   *
+   * <p>Off by default, and the default is the safe one: with it on, an agent can point the
+   * upload tool at anything this server can reach, including a cloud metadata endpoint. It
+   * exists because a self-hosted or LAN deployment is a real and reasonable thing to run.
+   *
+   * @return true when private addresses are permitted
+   */
+  public boolean blossomAllowsPrivateHosts() {
+    return Boolean.parseBoolean(settingOr("blossom.allow-private-hosts", "false"));
+  }
+
+  /** Reads a positive whole number, ignoring a value that makes no sense. */
+  private static long positiveLongOr(String key, long fallback) {
+    String value = setting(key);
+    if (value == null || value.isBlank()) {
+      return fallback;
+    }
+    try {
+      long parsed = Long.parseLong(value.trim());
+      return parsed > 0 ? parsed : fallback;
+    } catch (NumberFormatException e) {
+      return fallback;
+    }
   }
 
   public QueryLimits queryLimits() {

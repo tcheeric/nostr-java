@@ -29,7 +29,13 @@ public enum ToolFailure {
   /** The named subscription does not exist or has been reaped. */
   SUBSCRIPTION_UNKNOWN,
   /** The server already holds as many subscriptions as it allows. */
-  SUBSCRIPTION_LIMIT_REACHED;
+  SUBSCRIPTION_LIMIT_REACHED,
+  /** No Blossom server could be reached to store or fetch a blob. */
+  BLOB_SERVER_UNREACHABLE,
+  /** The Blossom server understood the request and refused it, with its reason in the message. */
+  BLOB_SERVER_REJECTED,
+  /** No Blossom server holds a blob with that hash. */
+  BLOB_NOT_FOUND;
 
   /**
    * Raise this failure from wherever it is detected.

@@ -5,6 +5,9 @@ import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import nostr.client.relay.FakeRelay;
 import nostr.client.relay.RelayPool;
 import nostr.id.Identity;
+import nostr.mcp.blossom.BlobSource;
+import nostr.mcp.blossom.BlossomServers;
+import nostr.mcp.blossom.PublicHttpUrl;
 import nostr.mcp.identity.IdentitySummary;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
@@ -139,7 +142,9 @@ class ToolSurfaceSecrecyTest {
             new IdentityLifecycle(vault, new InMemoryStore()),
             IdentityPolicy.ALLOW,
             subscriptionRegistry(pool),
-            new McpDirectMessageService(vault, pool, java.util.Set.of(ALIAS)))
+            new McpDirectMessageService(vault, pool, java.util.Set.of(ALIAS)),
+            new BlossomServers(List.of("https://cdn.example.com"), new PublicHttpUrl(false)),
+            new BlobSource(new PublicHttpUrl(false), 1024))
         .tools();
   }
 

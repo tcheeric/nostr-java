@@ -5,6 +5,10 @@ import nostr.client.relay.RelayPool;
 import nostr.mcp.identity.IdentityLifecycle;
 import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.identity.IdentityVault;
+import nostr.mcp.blossom.BlobSource;
+import nostr.mcp.blossom.BlossomAuth;
+import nostr.mcp.blossom.BlossomClient;
+import nostr.mcp.blossom.BlossomServers;
 import nostr.mcp.directory.Nip05Resolver;
 import nostr.mcp.directory.WellKnownJson;
 import nostr.mcp.query.EventQuery;
@@ -61,9 +65,13 @@ public final class ToolSurface {
       IdentityLifecycle identityLifecycle,
       @NonNull IdentityPolicy identityPolicy,
       @NonNull SubscriptionRegistry subscriptions,
-      @NonNull McpDirectMessageService directMessages) {
+      @NonNull McpDirectMessageService directMessages,
+      @NonNull BlossomServers blossomServers,
+      @NonNull BlobSource blobSource) {
     EventQuery eventQuery = new EventQuery(relayPool);
     WellKnownJson wellKnownJson = new WellKnownJson();
+    BlossomClient blossomClient = new BlossomClient();
+    BlossomAuth blossomAuth = new BlossomAuth(clock);
     NostrToolRegistry registry =
         new NostrToolRegistry()
             .register(new ListRelaysTool(relayDirectory, relayPool))
@@ -79,10 +87,17 @@ public final class ToolSurface {
             .register(new GetContactsTool(eventQuery, identityVault, queryLimits))
             .register(
                 new ReadDirectMessagesTool(
-                    directMessages, identityVault, eventQuery, queryLimits, clock));
+                    directMessages, identityVault, eventQuery, queryLimits, clock))
+            .register(new BlossomGetBlobTool(blossomServers, blossomClient))
+            .register(new BlossomListTool(blossomServers, blossomClient, blossomAuth, identityVault))
+            .register(new BlossomServerListTool(eventQuery, identityVault, queryLimits));
     if (writePolicy.allowsWriteTools()) {
       writeTools(writeGuard).forEach(registry::register);
       registry.register(new SendDirectMessageTool(directMessages, identityVault));
+      registry.register(
+          new BlossomUploadTool(blossomServers, blossomClient, blobSource, blossomAuth, writeGuard));
+      registry.register(new BlossomDeleteTool(blossomServers, blossomClient, blossomAuth, writeGuard));
+      registry.register(new BlossomSetServersTool(writeGuard, blossomServers));
     }
     if (registersAdministration(identityVault, identityPolicy, identityLifecycle)) {
       administrationTools(identityLifecycle, identityVault, identityPolicy).forEach(registry::register);
