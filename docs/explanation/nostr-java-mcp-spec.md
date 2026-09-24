@@ -197,6 +197,12 @@ tool it cannot misuse, and the tool list itself tells the agent what this server
 | `nostr_remove_identity` | Forget a key, irreversibly (§6.3) | `alias`, `confirmationToken` |
 | `nostr_list_relays` | Configured relays and connection state | — |
 | `nostr_relay_info` | NIP-11 relay metadata | `relay` |
+| `nostr_blossom_upload` | Re-host media from a URL on a Blossom server (§6.6) | `sourceUrl`, `server?`, `identity?` |
+| `nostr_blossom_get` | Resolve a blob hash to a URL, size and type | `sha256`, `server?` |
+| `nostr_blossom_list` | List the blobs a key has stored | `pubkey?`, `server?`, `identity?` |
+| `nostr_blossom_delete` | Remove a blob from one server | `sha256`, `server?`, `identity?`, `confirmationToken?` |
+| `nostr_blossom_get_servers` | Read a kind-10063 server list (BUD-03) | `pubkey?` |
+| `nostr_blossom_set_servers` | Publish a kind-10063 server list | `servers`, `identity?` |
 
 ### 6.1 Long-lived subscriptions
 
@@ -489,6 +495,69 @@ requires a bound server to administer anything:
 
 Both drive the same `IdentityStore` (§6.3), so there is one implementation of the lifecycle
 and two front doors to it.
+
+### 6.6 Blossom media hosting
+
+Nostr events carry URLs, not bytes. [Blossom](https://github.com/hzrd149/blossom) is where
+the bytes live: HTTP servers storing blobs addressed by sha256, authorized by a signed
+kind-24242 event (BUD-11) rather than an account. Six tools cover BUD-01, -02, -03, -11 and
+-12; mirroring (BUD-04), media optimization (BUD-05) and upload pre-flight (BUD-06) are not
+implemented.
+
+**Uploads take a URL, never a file.** `nostr_blossom_upload` fetches `sourceUrl` and re-hosts
+it. There is deliberately no local-path argument. A tool that read the server's filesystem
+would let an agent put any readable file — an SSH key, a `.env`, a customer database — onto a
+public CDN addressed by its hash, from which it cannot be recalled. The capability is not one
+that careful prompting makes safe, so it does not exist. The cost is that media must already
+be reachable over http(s); the benefit is that the worst case is a public file being copied to
+a public server.
+
+Because the server does the fetching, this is the module's only server-side request forgery
+surface, and it is bounded in three ways:
+
+- **Address check.** `PublicHttpUrl` resolves the host and refuses if *any* resolved address
+  is loopback, link-local (including the `169.254.169.254` cloud metadata endpoint),
+  site-local, any-local, multicast or IPv6 unique-local. Every address is checked, not just
+  the first, since a name answering with one public and one private address is the cheapest
+  way past a check that stops at the first.
+- **No redirects.** A redirect is the simplest way past an address check: the named URL
+  resolves publicly, then points at link-local. Following one safely would mean re-running the
+  guard at every hop, so the destination is reported to the agent instead.
+- **Byte cap.** `blossom.max-blob-bytes` (16 MiB default). Blobs are buffered in memory
+  because BUD-11 requires the hash in the upload token and the hash is not known until the
+  last byte is read.
+
+The check applies to the agent-supplied `server` argument as well, since that is equally a URL
+an agent chose. Servers named in `blossom.servers` are exempt: configuring one is a person's
+decision. `blossom.allow-private-hosts` turns the check off for self-hosted and LAN
+deployments.
+
+Known ceiling: the guard resolves the name and the HTTP client resolves it again, so DNS
+rebinding between the two calls is not closed. Closing it needs an `HttpClient` with a pinned
+resolver; the byte cap bounds what it could be worth.
+
+Upload, delete and set-servers are write tools — unregistered under `write-policy: deny`, and
+every signed 24242 token passes through `WriteGuard.signWriteToken`, so it counts against
+`limits.writes-per-minute` exactly as a published note does. Uploading is publishing. Deleting
+requires the confirmation token under `write-policy: confirm`.
+
+Listing deliberately does not go through the write guard. BUD-12 wants a signed `list` token
+even though listing is a read, and a `write-policy: deny` server must still be able to answer
+"what have I uploaded".
+
+Two interoperability notes, both observed against `blossom-server` 4.4.1 rather than read off
+the spec:
+
+- It answers every upload with `"size": 0`. The upload tool reports the byte count it actually
+  sent instead, since telling an agent a file it just uploaded is empty is worse than useless.
+- It sends no `Content-Length` or `Content-Type` on `HEAD /<sha256>`, which BUD-01 asks for.
+  `nostr_blossom_get` omits the size rather than reporting zero.
+- It keeps a replay cache of authorization event ids and answers a reused one with
+  `400 Auth event already used`. A nostr event's id is the hash of its contents, so two tokens
+  for the same verb and blob built in the same second were byte-identical and the second request
+  failed. `BlossomAuth` therefore adds a random `nonce` tag. A list token carries no `x` tag to
+  vary, so two listings in one second were the worst case. Found by the integration test, not by
+  reading the spec.
 
 ### 6.4 Resources and prompts
 

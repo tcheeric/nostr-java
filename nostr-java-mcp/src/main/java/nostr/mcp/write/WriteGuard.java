@@ -7,6 +7,7 @@ import nostr.client.relay.PublishResult;
 import nostr.client.relay.RelayPool;
 import nostr.event.impl.GenericEvent;
 import nostr.mcp.identity.IdentityVault;
+import nostr.mcp.identity.SigningAlias;
 import nostr.mcp.tool.ToolFailure;
 
 import java.security.SecureRandom;
@@ -67,16 +68,72 @@ public final class WriteGuard {
    *     ambiguous, or the rate limit is exhausted
    */
   public PendingWrite prepare(@NonNull GenericEvent event, Optional<String> requestedAlias) {
-    refuseIfDenied();
-    String alias = resolveIdentity(requestedAlias);
-    enforceRateLimit(alias);
-    GenericEvent signed = sign(event, alias);
+    String alias = signWriteToken(event, requestedAlias);
     PendingWrite pending =
-        new PendingWrite(newToken(), signed, alias);
+        new PendingWrite(newToken(), event, alias);
     if (policy.requiresConfirmation()) {
       pendingByToken.put(pending.token(), pending);
     }
     return pending;
+  }
+
+  /**
+   * Sign something that acts on the world without going to a relay.
+   *
+   * <p>A Blossom upload is a write: it puts bytes on a public server under the user's key, and
+   * once they are there they are addressed by their hash and may be copied anywhere. So it
+   * passes the same three gates a published event does, and the only difference is that what
+   * comes back is a credential rather than a queued publication.
+   *
+   * <p>Existing here rather than in the Blossom package is the point. A tool that signed through
+   * the vault directly would silently skip the policy and the rate limit, and nothing would
+   * catch it; routing through the guard means a new kind of write inherits all three by
+   * construction, exactly as a new publishing tool does.
+   *
+   * @param event the unsigned event, which is mutated in place
+   * @param requestedAlias the identity to sign as, or empty to use the default
+   * @return the alias it was signed as
+   * @throws nostr.mcp.tool.ToolException when writing is denied, the identity is unknown or
+   *     ambiguous, or the rate limit is exhausted
+   */
+  public String signWriteToken(@NonNull GenericEvent event, Optional<String> requestedAlias) {
+    String alias = authorizeWrite(requestedAlias);
+    signAs(alias, event);
+    return alias;
+  }
+
+  /**
+   * Settle whether a write may happen at all, before doing the work it needs.
+   *
+   * <p>Split from signing because some writes have to gather something expensive first. A
+   * Blossom upload cannot build its token until it has fetched the blob and hashed it, so
+   * signing last would put an outbound fetch of up to the configured cap, buffered in memory,
+   * on the wrong side of the rate limit: a caller past its quota would still make this server
+   * pull the bytes before being refused. Taking the quota first makes the refusal free.
+   *
+   * @param requestedAlias the identity to write as, or empty to use the default
+   * @return the alias the write is authorized for
+   * @throws nostr.mcp.tool.ToolException when writing is denied, the identity is unknown or
+   *     ambiguous, or the rate limit is exhausted
+   */
+  public String authorizeWrite(Optional<String> requestedAlias) {
+    refuseIfDenied();
+    String alias = resolveIdentity(requestedAlias);
+    enforceRateLimit(alias);
+    return alias;
+  }
+
+  /**
+   * Sign an event as an already-authorized identity.
+   *
+   * <p>Takes no further quota: the caller paid for this write in {@link #authorizeWrite}. It is
+   * also what lets a held write be re-signed later, which a token carrying an expiry needs.
+   *
+   * @param alias the identity to sign as, from {@link #authorizeWrite}
+   * @param event the unsigned event, which is mutated in place
+   */
+  public void signAs(@NonNull String alias, @NonNull GenericEvent event) {
+    sign(event, alias);
   }
 
   /**
@@ -195,35 +252,8 @@ public final class WriteGuard {
     }
   }
 
-  /**
-   * Chooses the identity to sign as, refusing to guess.
-   *
-   * <p>Posting as the wrong account is public and irreversible, so where several identities exist
-   * and none is the default, the tool asks rather than picking one.
-   */
   private String resolveIdentity(Optional<String> requestedAlias) {
-    if (requestedAlias.isPresent()) {
-      String alias = requestedAlias.get();
-      if (identityVault.find(alias).isEmpty()) {
-        throw ToolFailure.IDENTITY_UNKNOWN.raise(
-            "No identity called '"
-                + alias
-                + "'. Available: "
-                + identityVault.list().stream().map(summary -> summary.alias()).toList());
-      }
-      return alias;
-    }
-    return identityVault
-        .defaultAlias()
-        .orElseThrow(
-            () ->
-                ToolFailure.IDENTITY_AMBIGUOUS.raise(
-                    identityVault.isEmpty()
-                        ? "This server holds no identity to sign with. Create one with the"
-                            + " command line: java -jar nostr-java-mcp.jar keygen <alias>"
-                        : "This server holds several identities and none is the default, so"
-                            + " signing would be a guess. Name one in the 'identity' argument:"
-                            + identityVault.list().stream().map(summary -> summary.alias()).toList()));
+    return SigningAlias.resolve(identityVault, requestedAlias);
   }
 
   private void enforceRateLimit(String alias) {
@@ -235,10 +265,7 @@ public final class WriteGuard {
   }
 
   private GenericEvent sign(GenericEvent event, String alias) {
-    event.setPubKey(identityVault.publicKeyOf(alias));
-    event.update();
-    identityVault.signAs(alias, event);
-    return event;
+    return SigningAlias.sign(identityVault, alias, event);
   }
 
   private String newToken() {

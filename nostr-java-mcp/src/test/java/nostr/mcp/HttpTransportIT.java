@@ -10,6 +10,9 @@ import io.modelcontextprotocol.spec.McpSchema.Tool;
 import nostr.client.relay.FakeRelay;
 import nostr.client.relay.RelayPool;
 import nostr.id.Identity;
+import nostr.mcp.blossom.BlobSource;
+import nostr.mcp.blossom.BlossomServers;
+import nostr.mcp.blossom.PublicHttpUrl;
 import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.identity.IdentityPolicy;
 import nostr.mcp.identity.IdentityVault;
@@ -165,7 +168,9 @@ class HttpTransportIT {
         null,
         IdentityPolicy.fromConfiguredValue(null, policy),
         subscriptions,
-        new McpDirectMessageService(vault, pool, Set.of()));
+        new McpDirectMessageService(vault, pool, Set.of()),
+        new BlossomServers(List.of("https://cdn.example.com"), new PublicHttpUrl(false)),
+        new BlobSource(new PublicHttpUrl(false), 1024));
   }
 
   private SubscriptionRegistry subscriptionsOf(RelayPool pool) {

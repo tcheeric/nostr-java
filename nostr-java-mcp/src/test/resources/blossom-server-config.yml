@@ -1,0 +1,43 @@
+# Minimal blossom-server config for the integration test.
+#
+# Authorization is required on upload, delete and list on purpose: that is what makes the
+# test prove our kind-24242 token is one an independent implementation accepts, rather than
+# just that the HTTP calls are shaped right. Discovery is off so the test never leaves the
+# machine it runs on.
+publicDomain: ""
+databasePath: data/sqlite.db
+
+dashboard:
+  enabled: false
+
+discovery:
+  nostr:
+    enabled: false
+    relays: []
+  upstream:
+    enabled: false
+    domains: []
+
+storage:
+  backend: local
+  # Deleting drops ownership; without this the bytes linger until a prune runs, and a test
+  # asserting that a delete removed something would be asserting nothing.
+  removeWhenNoOwners: true
+  local:
+    dir: ./data/blobs
+  rules:
+    - type: "*"
+      expiration: 1 month
+
+upload:
+  enabled: true
+  requireAuth: true
+  requirePubkeyInRule: false
+
+list:
+  requireAuth: true
+  allowListOthers: true
+
+tor:
+  enabled: false
+  proxy: ""

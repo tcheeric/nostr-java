@@ -255,7 +255,23 @@ class OllamaAgentIT {
                 + " server under the alias 'adopted'.", "nostr_import_identity"),
         arguments("Rename my identity 'old-name' to 'new-name'.", "nostr_rename_identity"),
         arguments("From now on sign as 'project-bot' by default.", "nostr_set_default_identity"),
-        arguments("Save an encrypted backup of my key 'personal' to /tmp/backup.p12.", "nostr_export_identity_backup"));
+        arguments("Save an encrypted backup of my key 'personal' to /tmp/backup.p12.", "nostr_export_identity_backup"),
+        // The Blossom tools sit close to each other and closer still to the Nostr ones: a model
+        // asked to "share this picture" could reasonably reach for a publishing tool instead, so
+        // each is phrased the way someone would actually ask rather than by naming the protocol.
+        arguments("Upload the image at https://example.com/cat.png to my media server and give"
+                + " me the link.", "nostr_blossom_upload"),
+        arguments("Where can I download the file with hash"
+                + " b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553?",
+            "nostr_blossom_get"),
+        arguments("What files have I uploaded to my media server?", "nostr_blossom_list"),
+        arguments("Remove the file"
+                + " b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553 from my"
+                + " media server.", "nostr_blossom_delete"),
+        arguments("Which media servers does npub1abc use for their files?",
+            "nostr_blossom_get_servers"),
+        arguments("Tell the network that I host my media on https://cdn.example.com.",
+            "nostr_blossom_set_servers"));
   }
 
   private List<Tool> toolsOf(McpSyncClient mcp) {

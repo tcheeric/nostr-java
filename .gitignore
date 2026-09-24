@@ -229,3 +229,5 @@ data
 
 # Project management documents (local only)
 .project-management/
+.scratch/
+create-roadmap-project.sh

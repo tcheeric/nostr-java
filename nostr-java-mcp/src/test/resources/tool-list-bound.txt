@@ -10,7 +10,13 @@ nostr_unsubscribe
 nostr_fetch_thread
 nostr_get_contacts
 nostr_read_direct_messages
+nostr_blossom_get
+nostr_blossom_list
+nostr_blossom_get_servers
 nostr_publish_note
 nostr_publish_event
 nostr_update_profile
 nostr_send_direct_message
+nostr_blossom_upload
+nostr_blossom_delete
+nostr_blossom_set_servers

@@ -6,6 +6,40 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-09-21
+
+### Added
+- Blossom media hosting in `nostr-java-mcp`. Nostr events carry URLs, not bytes;
+  [Blossom](https://github.com/hzrd149/blossom) is where the bytes live. Six tools cover
+  BUD-01, -02, -03, -11 and -12, so an agent can host media and get back a URL to put in a
+  note: `nostr_blossom_upload` re-hosts media from a URL, `nostr_blossom_get` resolves a hash
+  to a link, `nostr_blossom_list` and `nostr_blossom_delete` manage what a key has stored, and
+  `nostr_blossom_get_servers` / `nostr_blossom_set_servers` read and publish the kind-10063
+  server list. Mirroring (BUD-04), media optimization (BUD-05) and upload pre-flight (BUD-06)
+  are not implemented.
+- Configuration: `nostr.mcp.blossom.servers`, `.max-blob-bytes` (16 MiB default) and
+  `.allow-private-hosts`.
+- `WriteGuard.authorizeWrite` and `WriteGuard.signAs`, so a write that must gather something
+  expensive before it can be signed still settles policy and rate limit first. Blossom uploads
+  therefore count against `limits.writes-per-minute` exactly as a published note does.
+
+### Security
+- Uploads take a URL, never a local file path. A tool that read the server's filesystem would
+  let an agent put any readable file — an SSH key, a `.env` — on a public CDN addressed by its
+  hash, from which it cannot be recalled. This is a deliberate limitation, not an oversight:
+  media must already be reachable over http(s).
+- Because the server does the fetching, `PublicHttpUrl` refuses any URL whose host resolves to
+  a loopback, link-local (including the `169.254.169.254` cloud metadata endpoint), site-local,
+  any-local, multicast or IPv6 unique-local address, checking every resolved address rather
+  than the first. It applies to the agent-supplied `server` argument as well as the source URL;
+  servers the operator configured are exempt. `allow-private-hosts` opts out for self-hosted
+  and LAN deployments.
+- Neither HTTP client follows redirects. A redirect is the simplest way past an address check:
+  the named URL resolves publicly and then points somewhere internal.
+- Blossom authorization tokens carry a random `nonce`, so a token cannot be replayed. A nostr
+  event id is the hash of its contents, so tokens for the same action within one second would
+  otherwise be the same event.
+
 ## [2.3.1] - 2026-08-31
 
 ### Removed

@@ -23,7 +23,7 @@ class McpConfigurationTest {
 
   private static final Path GUIDE = Path.of("../docs/howto/run-the-mcp-server.md");
   private static final Pattern SETTING_IN_CODE =
-      Pattern.compile("(?:setting|settingOr|commaSeparated|positiveIntOr|durationOr|relayList)\\(\"([a-z0-9.-]+)\"");
+      Pattern.compile("(?:setting|settingOr|commaSeparated|positiveIntOr|positiveLongOr|durationOr|relayList)\\(\"([a-z0-9.-]+)\"");
 
   private final List<String> propertiesSet = new java.util.ArrayList<>();
 

@@ -7,6 +7,9 @@ import nostr.client.springwebsocket.NostrRelayClient;
 import nostr.mcp.cli.KeyAdminCli;
 import nostr.mcp.identity.IdentityLifecycle;
 import nostr.mcp.identity.IdentityStore;
+import nostr.mcp.blossom.BlobSource;
+import nostr.mcp.blossom.BlossomServers;
+import nostr.mcp.blossom.PublicHttpUrl;
 import nostr.mcp.identity.IdentityVault;
 import nostr.mcp.identity.KeySource;
 import nostr.mcp.identity.KeySources;
@@ -84,7 +87,10 @@ public final class NostrMcpApplication {
               configuration.identityPolicy(),
               subscriptions,
               new McpDirectMessageService(
-                  identityVault, relayPool, configuration.identitiesPermittedToDecrypt()));
+                  identityVault, relayPool, configuration.identitiesPermittedToDecrypt()),
+              blossomServers(configuration),
+              new BlobSource(
+                  publicHttpUrl(configuration), configuration.blossomMaxBlobBytes()));
 
       if (configuration.usesHttpTransport()) {
         serveOverHttp(configuration, registry, subscriptions);
@@ -228,5 +234,19 @@ public final class NostrMcpApplication {
     } catch (ExecutionException e) {
       throw new IOException("Could not connect to relay " + relayUri, e.getCause());
     }
+  }
+
+  /**
+   * The Blossom servers this deployment uses.
+   *
+   * @param configuration the settings the server started with
+   * @return the configured servers, and the guard applied to any the agent names instead
+   */
+  private static BlossomServers blossomServers(McpConfiguration configuration) {
+    return new BlossomServers(configuration.blossomServers(), publicHttpUrl(configuration));
+  }
+
+  private static PublicHttpUrl publicHttpUrl(McpConfiguration configuration) {
+    return new PublicHttpUrl(configuration.blossomAllowsPrivateHosts());
   }
 }

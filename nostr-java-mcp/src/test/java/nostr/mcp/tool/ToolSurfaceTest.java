@@ -2,6 +2,9 @@ package nostr.mcp.tool;
 
 import nostr.client.relay.RelayPool;
 import nostr.id.Identity;
+import nostr.mcp.blossom.BlobSource;
+import nostr.mcp.blossom.BlossomServers;
+import nostr.mcp.blossom.PublicHttpUrl;
 import nostr.mcp.identity.IdentityBinding;
 import nostr.mcp.identity.IdentityLifecycle;
 import nostr.mcp.identity.IdentityPolicy;
@@ -164,7 +167,9 @@ class ToolSurfaceTest {
               null,
               IdentityPolicy.ALLOW,
               subscriptionRegistry(relayPool),
-        new McpDirectMessageService(vault, relayPool, java.util.Set.of()));
+        new McpDirectMessageService(vault, relayPool, java.util.Set.of()),
+              blossomServers(),
+              blobSource());
 
       assertEquals(readGolden(NO_MUTATION_GOLDEN), String.join("\n", registry.registeredNames()));
     }
@@ -192,7 +197,21 @@ class ToolSurfaceTest {
         new IdentityLifecycle(vault, new InMemoryStore()),
         identityPolicy,
         subscriptionRegistry(relayPool),
-        new McpDirectMessageService(vault, relayPool, java.util.Set.of()));
+        new McpDirectMessageService(vault, relayPool, java.util.Set.of()),
+        blossomServers(),
+        blobSource());
+  }
+
+  /**
+   * A Blossom setup with one configured server, so the tools register and their schemas are
+   * stable. The surface does not depend on whether a server is reachable.
+   */
+  private BlossomServers blossomServers() {
+    return new BlossomServers(List.of("https://cdn.example.com"), new PublicHttpUrl(false));
+  }
+
+  private BlobSource blobSource() {
+    return new BlobSource(new PublicHttpUrl(false), 1024);
   }
 
   private SubscriptionRegistry subscriptionRegistry(RelayPool relayPool) {
