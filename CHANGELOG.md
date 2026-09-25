@@ -6,6 +6,14 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-09-25
+
+### Fixed
+- `nostr_publish_event` dropped empty tag values and trimmed the rest. Tags are positional, so
+  `["p", pk, "", "mention"]` went out as `["p", pk, "mention"]`, putting the marker in the
+  relay-hint slot, and a signed event could differ from the one previewed for approval. Tag
+  values are now passed through verbatim.
+
 ## [2.4.0] - 2026-09-21
 
 ### Added

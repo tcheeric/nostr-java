@@ -130,6 +130,9 @@ public final class ToolArguments {
    * <p>A single flat list is read as one entry, since a model given an example of nested arrays
    * will sometimes send just the inner one.
    *
+   * <p>Values are kept verbatim, unlike {@link #texts}: tags are positional, so dropping an empty
+   * relay hint in {@code ["p", pk, "", "mention"]} would move the marker into its place.
+   *
    * @param name the argument to read
    * @return each inner list's values
    */
@@ -139,12 +142,16 @@ public final class ToolArguments {
       return List.of();
     }
     if (outer.stream().noneMatch(List.class::isInstance)) {
-      return List.of(texts(name));
+      return List.of(verbatim(outer));
     }
     return outer.stream()
         .filter(List.class::isInstance)
-        .map(inner -> new ToolArguments(Map.of("v", inner)).texts("v"))
+        .map(inner -> verbatim((List<?>) inner))
         .toList();
+  }
+
+  private static List<String> verbatim(List<?> values) {
+    return values.stream().map(String::valueOf).toList();
   }
 
   private int parseInteger(String name, String text) {
