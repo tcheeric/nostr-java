@@ -286,6 +286,15 @@ mvn -pl nostr-java-mcp verify -Dexcluded.it.groups= -Dgroups=model-driven
 It is excluded from the ordinary build because it takes several minutes. Run it when you change
 a tool's name, description or schema: those are exactly the changes nothing else can catch.
 
+## See it in use
+
+[Lyrebird](https://njump.me/npub12sz2fjjlfw4ydpecw5w3cvqf3ac5ca9x86ekw00lcgmq655x4taqh63tcw)
+is a Nostr bot that runs on this server. It cuts clips from videos and posts them as notes with
+the video hosted on Blossom, and turns passages from articles into NIP-84 highlights (kind
+9802). Every post goes through the same tools described above: `nostr_blossom_upload` for the
+media, then a publish under `write-policy: confirm` so a person approves each post before it
+goes out.
+
 ## Related
 
 - [Send and read NIP-17 private direct messages](private-direct-messages.md)

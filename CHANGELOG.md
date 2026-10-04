@@ -6,6 +6,10 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Added
+- "See it in use" section in the MCP server how-to, pointing to the Lyrebird bot that posts
+  video clips and NIP-84 highlights through this server.
+
 ## [2.4.1] - 2026-09-25
 
 ### Fixed
