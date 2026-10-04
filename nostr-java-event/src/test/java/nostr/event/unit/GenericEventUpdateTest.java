@@ -7,7 +7,10 @@ import nostr.event.impl.GenericEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,13 +78,10 @@ class GenericEventUpdateTest {
     assertEquals(first.getId(), second.getId());
   }
 
-  /**
-   * The no-argument overload still stamps the event with the current time, so existing callers
-   * are unaffected by the new seam.
-   */
+  /** An event with no creation time is stamped with the current time. */
   @Test
-  @DisplayName("still stamps the current time when no timestamp is supplied")
-  void stampsCurrentTimeWithoutArgument() {
+  @DisplayName("stamps the current time when no created_at is set")
+  void stampsCurrentTimeWhenUnset() {
     long before = Instant.now().getEpochSecond();
     GenericEvent event = anEvent();
 
@@ -91,21 +91,63 @@ class GenericEventUpdateTest {
     assertTrue(event.getCreatedAt() >= before && event.getCreatedAt() <= after);
   }
 
+  /** A created_at of zero counts as unset, so it is replaced with the current time. */
+  @Test
+  @DisplayName("treats a zero created_at as unset")
+  void treatsZeroCreatedAtAsUnset() {
+    long before = Instant.now().getEpochSecond();
+    GenericEvent event = anEvent();
+    event.setCreatedAt(0L);
+
+    event.update();
+
+    assertTrue(event.getCreatedAt() >= before);
+  }
+
   /**
-   * A previously chosen timestamp is discarded by the no-argument overload. This is the
-   * behaviour that silently defeats gift-wrap privacy, so it is pinned here to document why
-   * {@code update(long)} must be used for seals and wraps.
+   * Regression for issue #559: a created_at the caller set survives {@code update()}. Losing it
+   * produced ids for a different second than the one the caller published, and erased the
+   * randomised timestamps NIP-59 seals and gift wraps depend on.
    */
   @Test
-  @DisplayName("overwrites a preset created_at when no timestamp is supplied")
-  void overwritesPresetCreatedAtWithoutArgument() {
+  @DisplayName("keeps a preset created_at when no timestamp is supplied")
+  void keepsPresetCreatedAtWithoutArgument() {
     long twoDaysAgo = Instant.now().minusSeconds(2 * 24 * 60 * 60).getEpochSecond();
     GenericEvent event = anEvent();
     event.setCreatedAt(twoDaysAgo);
 
     event.update();
 
-    assertNotEquals(twoDaysAgo, event.getCreatedAt());
+    assertEquals(twoDaysAgo, event.getCreatedAt());
+  }
+
+  /** The id computed by {@code update()} is the NIP-01 hash for the preset created_at. */
+  @Test
+  @DisplayName("computes the NIP-01 id for a preset created_at")
+  void computesNip01IdForPresetCreatedAt() throws Exception {
+    GenericEvent event = anEvent();
+    event.setCreatedAt(1_700_000_000L);
+
+    event.update();
+
+    String canonical =
+        "[0,\"" + AUTHOR + "\",1700000000," + Kinds.SEAL + ",[],\"encrypted-payload\"]";
+    byte[] digest =
+        MessageDigest.getInstance("SHA-256").digest(canonical.getBytes(StandardCharsets.UTF_8));
+    assertEquals(HexFormat.of().formatHex(digest), event.getId());
+  }
+
+  /** Restamping is still available, but only when asked for by name. */
+  @Test
+  @DisplayName("replaces a preset created_at when restamping explicitly")
+  void replacesPresetCreatedAtWhenRestampingExplicitly() {
+    long twoDaysAgo = Instant.now().minusSeconds(2 * 24 * 60 * 60).getEpochSecond();
+    GenericEvent event = anEvent();
+    event.setCreatedAt(twoDaysAgo);
+
+    event.updateWithCurrentTime();
+
+    assertTrue(event.getCreatedAt() >= Instant.now().getEpochSecond() - 1);
   }
 
   /** Tags are included in the serialization that backs the id. */
