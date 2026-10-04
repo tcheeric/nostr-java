@@ -22,7 +22,7 @@
              JsonSerializeAs was introduced. Other modules pull an older annotations jar, and
              Maven's nearest-wins resolution would hand the MCP SDK's Jackson 3 mapper a jar
              missing that class: the server then dies on its first JSON frame. -->
-        <jackson.annotations.version>2.21</jackson.annotations.version>
+        <jackson.annotations.version>2.22</jackson.annotations.version>
     </properties>
 
     <dependencyManagement>
