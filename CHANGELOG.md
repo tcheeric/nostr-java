@@ -6,6 +6,22 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-10-04
+
+### Fixed
+- `GenericEvent.update()` silently overwrote a caller-set `created_at`, so the id could be
+  computed for a different second than the one the caller published (relays rejected these as
+  `invalid: bad event id`), and NIP-59 randomised timestamps were replaced by the send time.
+  `update()` now keeps a `created_at` that is already set, as NIP-01 requires the id to be
+  derived from the event's own fields, and stamps the current time only when it is unset
+  (null or zero). ([#559](https://github.com/tcheeric/nostr-java/issues/559))
+
+### Added
+- `GenericEvent.updateWithCurrentTime()`, for callers that deliberately want to restamp an
+  event with the current time.
+- "See it in use" section in the MCP server how-to, pointing to the Lyrebird bot that posts
+  video clips and NIP-84 highlights through this server.
+
 ## [2.4.1] - 2026-09-25
 
 ### Fixed

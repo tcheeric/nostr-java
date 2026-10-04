@@ -42,6 +42,9 @@ import java.util.function.Supplier;
 @EqualsAndHashCode
 public class GenericEvent implements ISignable {
 
+  /** A {@code created_at} of zero means the caller never set one, so the clock may supply it. */
+  private static final long UNSET_CREATED_AT = 0L;
+
   @EqualsAndHashCode.Include private String id;
 
 @JsonProperty("pubkey")
@@ -147,19 +150,37 @@ public class GenericEvent implements ISignable {
   }
 
   /**
-   * Stamps the event with the current time, then recomputes its serialization and id.
+   * Recomputes this event's serialization and id, keeping any {@code created_at} already set.
    *
-   * <p>Use {@link #update(long)} when the timestamp is significant, such as the randomised
-   * {@code created_at} that NIP-59 requires on seals and gift wraps.
+   * <p>The clock is consulted only when the event has no creation time yet. A timestamp the
+   * caller chose, such as the randomised {@code created_at} NIP-59 requires on seals and gift
+   * wraps, is never replaced, so the id always matches the {@code created_at} the caller sees.
+   * Use {@link #updateWithCurrentTime()} to restamp deliberately.
    */
   public void update() {
+    if (hasCreatedAt()) {
+      update(this.createdAt);
+    } else {
+      updateWithCurrentTime();
+    }
+  }
+
+  /**
+   * Stamps the event with the current time, replacing any existing {@code created_at}, then
+   * recomputes its serialization and id.
+   */
+  public void updateWithCurrentTime() {
     update(Instant.now().getEpochSecond());
+  }
+
+  private boolean hasCreatedAt() {
+    return this.createdAt != null && this.createdAt != UNSET_CREATED_AT;
   }
 
   /**
    * Recomputes this event's serialization and id against the supplied creation time.
    *
-   * <p>Unlike {@link #update()} this does not consult the clock, so a deliberately chosen
+   * <p>This does not consult the clock, so a deliberately chosen
    * {@code created_at} survives id computation. NIP-59 requires seals and gift wraps to carry
    * timestamps randomised into the past to defeat time-correlation analysis, which is
    * impossible if computing the id resets the timestamp.
@@ -276,11 +297,7 @@ public class GenericEvent implements ISignable {
   @Transient
   @Override
   public Supplier<ByteBuffer> getByteArraySupplier() {
-    if (this.createdAt != null) {
-      this.update(this.createdAt);
-    } else {
-      this.update();
-    }
+    this.update();
     if (log.isTraceEnabled()) {
       log.trace("Serialized event: {}", new String(this.get_serializedEvent()));
     }

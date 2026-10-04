@@ -208,6 +208,12 @@ gift-wrap code the seam it needs. The alternative, a `Clock`/`Supplier<Long>` in
 This is not hypothetical: the absence of this seam is the direct cause of the timestamp bug
 found in the imani-bridge implementation (§3.1).
 
+**Update (issue #559).** Keeping the old `update()` behaviour turned out to be a trap of its
+own: callers that set `created_at` and then called `update()` still lost it, and published ids
+computed for a different second. `update()` now keeps any `created_at` already set and only
+consults the clock when it is unset (null or zero). Restamping is explicit, through
+`updateWithCurrentTime()`.
+
 ### 4.2 `MessageCipher44` takes raw key bytes and prefixes `02`
 
 ```java
