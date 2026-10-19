@@ -17,7 +17,7 @@
         <!-- The model-driven IT is excluded by default. Opt in with:
              mvn verify -pl nostr-java-mcp -Dexcluded.it.groups= -Dgroups=model-driven -->
         <excluded.it.groups>model-driven</excluded.it.groups>
-        <mcp.sdk.version>2.0.1</mcp.sdk.version>
+        <mcp.sdk.version>2.1.0</mcp.sdk.version>
         <!-- Jackson 3 keeps its annotations under the 2.x coordinate and needs 2.21, where
              JsonSerializeAs was introduced. Other modules pull an older annotations jar, and
              Maven's nearest-wins resolution would hand the MCP SDK's Jackson 3 mapper a jar
