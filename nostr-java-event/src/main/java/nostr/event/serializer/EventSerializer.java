@@ -1,8 +1,7 @@
 package nostr.event.serializer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.NonNull;
 import nostr.base.PublicKey;
 import nostr.event.BaseTag;
@@ -10,6 +9,8 @@ import nostr.event.json.EventJsonMapper;
 import nostr.util.NostrException;
 import nostr.util.NostrUtil;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -108,18 +109,25 @@ public final class EventSerializer {
       @NonNull String content)
       throws NostrException {
 
-    var arrayNode = JsonNodeFactory.instance.arrayNode();
-
     try {
-      arrayNode.add(0); // Protocol version
-      arrayNode.add(pubKey.toString());
-      arrayNode.add(createdAt);
-      arrayNode.add(kind);
-      arrayNode.add(MAPPER.valueToTree(tags));
-      arrayNode.add(content);
-
-      return MAPPER.writeValueAsString(arrayNode);
-    } catch (JsonProcessingException e) {
+      var out = new StringWriter(128 + content.length());
+      try (JsonGenerator gen = MAPPER.getFactory().createGenerator(out)) {
+        gen.setCodec(MAPPER);
+        gen.writeStartArray();
+        gen.writeNumber(0); // Protocol version
+        gen.writeString(pubKey.toString());
+        gen.writeNumber(createdAt);
+        gen.writeNumber(kind);
+        gen.writeStartArray();
+        for (BaseTag tag : tags) {
+          gen.writeObject(tag);
+        }
+        gen.writeEndArray();
+        gen.writeString(content);
+        gen.writeEndArray();
+      }
+      return out.toString();
+    } catch (IOException e) {
       throw new NostrException("Failed to serialize event: " + e.getMessage(), e);
     }
   }
