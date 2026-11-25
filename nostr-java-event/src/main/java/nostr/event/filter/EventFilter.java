@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import nostr.event.BaseTag;
 import nostr.event.impl.GenericEvent;
 import nostr.event.json.EventJsonMapper;
 import nostr.event.tag.GenericTag;
@@ -15,9 +16,11 @@ import nostr.event.tag.GenericTag;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -54,37 +57,47 @@ public class EventFilter {
   }
 
   public Predicate<GenericEvent> toPredicate() {
-    Predicate<GenericEvent> predicate = e -> true;
+    Set<String> idSet = new HashSet<>(ids);
+    Set<String> authorSet = new HashSet<>(authors);
+    Set<Integer> kindSet = new HashSet<>(kinds);
+    Map<String, Set<String>> tagSets = new HashMap<>();
+    tagFilters.forEach((code, values) -> tagSets.put(code, new HashSet<>(values)));
 
-    if (!ids.isEmpty()) {
-      predicate = predicate.and(e -> ids.contains(e.getId()));
-    }
-    if (!authors.isEmpty()) {
-      predicate = predicate.and(e -> authors.contains(e.getPubKey().toHexString()));
-    }
-    if (!kinds.isEmpty()) {
-      predicate = predicate.and(e -> kinds.contains(e.getKind()));
-    }
-    if (since != null) {
-      predicate = predicate.and(e -> e.getCreatedAt() != null && e.getCreatedAt() > since);
-    }
-    if (until != null) {
-      predicate = predicate.and(e -> e.getCreatedAt() != null && e.getCreatedAt() < until);
-    }
-    if (!tagFilters.isEmpty()) {
-      for (Map.Entry<String, List<String>> entry : tagFilters.entrySet()) {
-        String tagCode = entry.getKey();
-        List<String> values = entry.getValue();
-        predicate = predicate.and(e ->
-            e.getTags().stream()
-                .filter(GenericTag.class::isInstance)
-                .map(GenericTag.class::cast)
-                .filter(t -> t.getCode().equals(tagCode))
-                .anyMatch(t -> !t.getParams().isEmpty() && values.contains(t.getParams().get(0))));
+    return e -> {
+      if (!idSet.isEmpty() && !idSet.contains(e.getId())) {
+        return false;
+      }
+      if (!authorSet.isEmpty() && !authorSet.contains(e.getPubKey().toHexString())) {
+        return false;
+      }
+      if (!kindSet.isEmpty() && !kindSet.contains(e.getKind())) {
+        return false;
+      }
+      if (since != null && !(e.getCreatedAt() != null && e.getCreatedAt() > since)) {
+        return false;
+      }
+      if (until != null && !(e.getCreatedAt() != null && e.getCreatedAt() < until)) {
+        return false;
+      }
+      for (Map.Entry<String, Set<String>> entry : tagSets.entrySet()) {
+        if (!hasTagValue(e, entry.getKey(), entry.getValue())) {
+          return false;
+        }
+      }
+      return true;
+    };
+  }
+
+  private static boolean hasTagValue(GenericEvent e, String code, Set<String> values) {
+    for (BaseTag tag : e.getTags()) {
+      if (tag instanceof GenericTag t
+          && t.getCode().equals(code)
+          && !t.getParams().isEmpty()
+          && values.contains(t.getParams().get(0))) {
+        return true;
       }
     }
-
-    return predicate;
+    return false;
   }
 
   /**

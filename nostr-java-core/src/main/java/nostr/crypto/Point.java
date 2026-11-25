@@ -4,6 +4,13 @@ import lombok.NonNull;
 import nostr.util.NostrUtil;
 
 import java.math.BigInteger;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.math.ec.ECAlgorithms;
+import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.FixedPointCombMultiplier;
+import org.bouncycastle.math.ec.FixedPointUtil;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -27,6 +34,15 @@ public class Point {
           new BigInteger("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16));
 
   private static final BigInteger BI_TWO = BigInteger.valueOf(2);
+  private static final X9ECParameters BC_PARAMS = CustomNamedCurves.getByName("secp256k1");
+  private static final ECCurve BC_CURVE = BC_PARAMS.getCurve();
+  private static final ECPoint BC_G = BC_PARAMS.getG();
+  private static final FixedPointCombMultiplier G_MULTIPLIER = new FixedPointCombMultiplier();
+
+  static {
+    FixedPointUtil.precompute(BC_G);
+  }
+
   private final Pair<BigInteger, BigInteger> pair;
 
   /**
@@ -103,40 +119,34 @@ public class Point {
     if (P2 == null || P2.isInfinite()) {
       return P1;
     }
-    if (P1.getX().equals(P2.getX()) && !P1.getY().equals(P2.getY())) {
-      return infinityPoint();
-    }
-
-    BigInteger lam;
-    if (P1.equals(P2)) {
-      BigInteger base = P2.getY().multiply(BI_TWO);
-      lam =
-          (BigInteger.valueOf(3L)
-                  .multiply(P1.getX())
-                  .multiply(P1.getX())
-                  .multiply(base.modPow(p.subtract(BI_TWO), p)))
-              .mod(p);
-    } else {
-      BigInteger base = P2.getX().subtract(P1.getX());
-      lam = ((P2.getY().subtract(P1.getY())).multiply(base.modPow(p.subtract(BI_TWO), p))).mod(p);
-    }
-
-    BigInteger x3 = (lam.multiply(lam).subtract(P1.getX()).subtract(P2.getX())).mod(p);
-    return new Point(x3, lam.multiply(P1.getX().subtract(x3)).subtract(P1.getY()).mod(p));
+    return fromBc(toBc(P1).add(toBc(P2)));
   }
 
   public static Point mul(Point P, BigInteger n) {
-
-    Point R = null;
-
-    for (int i = 0; i < 256; i++) {
-      if (n.shiftRight(i).and(BigInteger.ONE).compareTo(BigInteger.ZERO) > 0) {
-        R = add(R, P);
-      }
-      P = add(P, P);
+    if (n.signum() == 0) {
+      return null;
     }
+    ECPoint r = P.equals(G) ? G_MULTIPLIER.multiply(BC_G, n) : toBc(P).multiply(n);
+    return fromBc(r);
+  }
 
-    return R;
+  /** Returns {@code a*P + b*Q} using a simultaneous two-scalar multiplication. */
+  public static Point mulSum(Point P, BigInteger a, Point Q, BigInteger b) {
+    ECPoint p1 = P.equals(G) ? BC_G : toBc(P);
+    ECPoint q1 = Q.equals(G) ? BC_G : toBc(Q);
+    return fromBc(ECAlgorithms.sumOfTwoMultiplies(p1, a, q1, b));
+  }
+
+  private static ECPoint toBc(Point P) {
+    return BC_CURVE.createPoint(P.getX(), P.getY());
+  }
+
+  private static Point fromBc(ECPoint r) {
+    if (r.isInfinity()) {
+      return infinityPoint();
+    }
+    r = r.normalize();
+    return new Point(r.getAffineXCoord().toBigInteger(), r.getAffineYCoord().toBigInteger());
   }
 
   public boolean hasEvenY() {

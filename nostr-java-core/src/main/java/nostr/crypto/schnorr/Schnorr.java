@@ -45,19 +45,17 @@ public class Schnorr {
     if (!P.hasEvenY()) {
       secKey0 = Point.getn().subtract(secKey0);
     }
-    int len = NostrUtil.bytesFromBigInteger(secKey0).length + P.toBytes().length + msg.length;
-    byte[] buf = new byte[len];
-    byte[] t =
-        NostrUtil.xor(
-            NostrUtil.bytesFromBigInteger(secKey0), taggedHashUnchecked("BIP0340/aux", auxRand));
+    byte[] pBytes = P.toBytes();
+    byte[] t = NostrUtil.xor(NostrUtil.bytesFromBigInteger(secKey0), taggedHashUnchecked("BIP0340/aux", auxRand));
 
     if (t == null) {
       throw new RuntimeException("Unexpected error. Null array");
     }
 
+    byte[] buf = new byte[t.length + pBytes.length + msg.length];
     System.arraycopy(t, 0, buf, 0, t.length);
-    System.arraycopy(P.toBytes(), 0, buf, t.length, P.toBytes().length);
-    System.arraycopy(msg, 0, buf, t.length + P.toBytes().length, msg.length);
+    System.arraycopy(pBytes, 0, buf, t.length, pBytes.length);
+    System.arraycopy(msg, 0, buf, t.length + pBytes.length, msg.length);
     BigInteger k0 =
         NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/nonce", buf)).mod(Point.getn());
     if (k0.compareTo(BigInteger.ZERO) == 0) {
@@ -70,24 +68,21 @@ public class Schnorr {
     } else {
       k = k0;
     }
-    len = R.toBytes().length + P.toBytes().length + msg.length;
-    buf = new byte[len];
-    System.arraycopy(R.toBytes(), 0, buf, 0, R.toBytes().length);
-    System.arraycopy(P.toBytes(), 0, buf, R.toBytes().length, P.toBytes().length);
-    System.arraycopy(msg, 0, buf, R.toBytes().length + P.toBytes().length, msg.length);
+    byte[] rBytes = R.toBytes();
+    buf = new byte[rBytes.length + pBytes.length + msg.length];
+    System.arraycopy(rBytes, 0, buf, 0, rBytes.length);
+    System.arraycopy(pBytes, 0, buf, rBytes.length, pBytes.length);
+    System.arraycopy(msg, 0, buf, rBytes.length + pBytes.length, msg.length);
     BigInteger e =
         NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
     BigInteger kes = k.add(e.multiply(secKey0)).mod(Point.getn());
-    len = R.toBytes().length + NostrUtil.bytesFromBigInteger(kes).length;
-    byte[] sig = new byte[len];
-    System.arraycopy(R.toBytes(), 0, sig, 0, R.toBytes().length);
-    System.arraycopy(
-        NostrUtil.bytesFromBigInteger(kes),
-        0,
-        sig,
-        R.toBytes().length,
-        NostrUtil.bytesFromBigInteger(kes).length);
-    if (!verify(msg, P.toBytes(), sig)) {
+    byte[] kesBytes = NostrUtil.bytesFromBigInteger(kes);
+    byte[] sig = new byte[rBytes.length + kesBytes.length];
+    System.arraycopy(rBytes, 0, sig, 0, rBytes.length);
+    System.arraycopy(kesBytes, 0, sig, rBytes.length, kesBytes.length);
+    // The public key point is already known, so the self-check skips lifting it again.
+    Point pEven = P.hasEvenY() ? P : new Point(P.getX(), Point.getp().subtract(P.getY()));
+    if (!verify(msg, pBytes, pEven, sig)) {
       throw new SchnorrException("The signature does not pass verification.");
     }
     return sig;
@@ -119,6 +114,11 @@ public class Schnorr {
     if (P == null) {
       return false;
     }
+    return verify(msg, pubkey, P, sig);
+  }
+
+  private static boolean verify(byte[] msg, byte[] pubkey, Point P, byte[] sig)
+      throws SchnorrException {
     BigInteger r = NostrUtil.bigIntFromBytes(Arrays.copyOfRange(sig, 0, 32));
     BigInteger s = NostrUtil.bigIntFromBytes(Arrays.copyOfRange(sig, 32, 64));
     if (r.compareTo(Point.getp()) >= 0 || s.compareTo(Point.getn()) >= 0) {
@@ -131,8 +131,8 @@ public class Schnorr {
     System.arraycopy(msg, 0, buf, 32 + pubkey.length, msg.length);
     BigInteger e =
         NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
-    Point R = Point.add(Point.mul(Point.getG(), s), Point.mul(P, Point.getn().subtract(e)));
-    return R != null && R.hasEvenY() && R.getX().compareTo(r) == 0;
+    Point R = Point.mulSum(Point.getG(), s, P, Point.getn().subtract(e));
+    return R != null && !R.isInfinite() && R.hasEvenY() && R.getX().compareTo(r) == 0;
   }
 
   /**
