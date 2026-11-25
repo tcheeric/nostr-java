@@ -197,10 +197,9 @@ public class RelaySubscription implements AutoCloseable {
   /**
    * Stop this subscription, dropping its listener on every relay.
    *
-   * <p>No {@code CLOSE} is sent to the relays. A connection serves one request at a time, so
-   * sending one would consume the slot the next subscription needs and leave that subscription
-   * receiving nothing. The relay stops streaming when the connection closes, and an unread
-   * subscription on a still-open connection is the lesser cost.
+   * <p>Each relay handle sends {@code ["CLOSE", id]} when closed, so the relay frees the REQ.
+   * The CLOSE is written fire-and-forget, outside the connection's single request slot, so it
+   * does not take the slot the next subscription or request on that connection needs.
    */
   @Override
   public void close() {
