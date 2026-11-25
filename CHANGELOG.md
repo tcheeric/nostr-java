@@ -6,6 +6,13 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Fixed
+- Closing a subscription handle from `NostrRelayClient.subscribe(ReqMessage, ...)` (and so
+  `RelaySubscription.close()`) now sends `["CLOSE", <id>]` to the relay, once, fire-and-forget.
+  Previously only the local listener was dropped, so relays accumulated open REQs until they
+  refused new ones (`too many concurrent REQs`). The relay's `CLOSED` reply no longer ends an
+  in-flight `send()`. Raw-JSON subscriptions still send no CLOSE, since their id is not parsed.
+
 ## [2.4.2] - 2026-10-04
 
 ### Fixed

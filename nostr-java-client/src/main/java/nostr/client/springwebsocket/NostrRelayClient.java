@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nostr.client.relay.RelayConnection;
 import nostr.event.BaseMessage;
+import nostr.event.message.CloseMessage;
 import nostr.event.message.ReqMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -38,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -134,6 +137,11 @@ public class NostrRelayClient extends TextWebSocketHandler
   private final ReentrantReadWriteLock sessionGate = new ReentrantReadWriteLock();
   private PendingRequest pendingRequest;
   private final Map<String, ListenerRegistration> listeners = new ConcurrentHashMap<>();
+  /**
+   * Subscription ids this client sent a CLOSE for and whose CLOSED reply has not arrived yet.
+   * That reply must not end an unrelated in-flight {@link #send(String)}.
+   */
+  private final Set<String> subscriptionsClosedByClient = ConcurrentHashMap.newKeySet();
   private final AtomicReference<ConnectionState> connectionState =
       new AtomicReference<>(ConnectionState.CONNECTING);
 
@@ -423,6 +431,9 @@ public class NostrRelayClient extends TextWebSocketHandler
   protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
     log.debug("Relay payload received: {}", message.getPayload());
     dispatchMessage(message.getPayload());
+    if (isReplyToClientClose(message.getPayload())) {
+      return;
+    }
     sendLock.lock();
     try {
       if (pendingRequest != null && !pendingRequest.isDone()) {
@@ -435,6 +446,14 @@ public class NostrRelayClient extends TextWebSocketHandler
     } finally {
       sendLock.unlock();
     }
+  }
+
+  private boolean isReplyToClientClose(String payload) {
+    if (payload == null || !payload.startsWith("[\"CLOSED\"")) {
+      return false;
+    }
+    String subscriptionId = subscriptionIdOf(payload);
+    return subscriptionId != null && subscriptionsClosedByClient.remove(subscriptionId);
   }
 
   private boolean isTerminationMessage(String payload) {
@@ -609,6 +628,8 @@ public class NostrRelayClient extends TextWebSocketHandler
       throws IOException {
     // No subscription id to route on: the raw JSON is not parsed here, so this
     // listener keeps receiving every payload on the connection, as before.
+    // For the same reason its handle sends no CLOSE: guessing the id from
+    // unvalidated JSON could close somebody else's subscription.
     return subscribe(requestJson, null, messageListener, errorListener, closeListener);
   }
 
@@ -647,7 +668,43 @@ public class NostrRelayClient extends TextWebSocketHandler
       throw new IOException("Failed to send subscription payload", e);
     }
 
-    return () -> listeners.remove(listenerId);
+    return subscriptionHandle(listenerId, subscriptionId);
+  }
+
+  /**
+   * The handle returned by {@code subscribe}. Closing it drops the listener and, when the
+   * subscription id is known, sends {@code ["CLOSE", id]} so the relay frees the REQ (NIP-01).
+   *
+   * <p>The CLOSE is fire-and-forget: it is written straight to the session and never claims the
+   * single in-flight {@link #send(String)} slot, so it cannot block or consume the slot the next
+   * request on this connection needs. The relay's {@code CLOSED} reply is routed by id to the
+   * already-removed listener and is kept from completing an in-flight request.
+   *
+   * <p>Raw-JSON subscriptions have no parsed id, so their handle only drops the listener.
+   * Closing twice sends a single CLOSE.
+   */
+  private AutoCloseable subscriptionHandle(String listenerId, String subscriptionId) {
+    AtomicBoolean closed = new AtomicBoolean();
+    return () -> {
+      if (!closed.compareAndSet(false, true)) {
+        return;
+      }
+      listeners.remove(listenerId);
+      if (subscriptionId != null) {
+        sendCloseQuietly(subscriptionId);
+      }
+    };
+  }
+
+  private void sendCloseQuietly(String subscriptionId) {
+    subscriptionsClosedByClient.add(subscriptionId);
+    try {
+      sendFrameGated(new CloseMessage(subscriptionId).encode());
+    } catch (IOException | RuntimeException e) {
+      subscriptionsClosedByClient.remove(subscriptionId);
+      log.debug("Could not send CLOSE for subscription {} on relay {}: {}",
+          subscriptionId, relayUri, e.getMessage());
+    }
   }
 
   /**
@@ -931,6 +988,7 @@ public class NostrRelayClient extends TextWebSocketHandler
         listener ->
             LISTENER_EXECUTOR.execute(() -> safelyInvoke(listener.closeListener(), listener)));
     listeners.clear();
+    subscriptionsClosedByClient.clear();
   }
 
   private void safelyInvoke(Consumer<String> consumer, String payload, ListenerRegistration listener) {
