@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.3] - 2026-11-25
+
 ### Fixed
 - Closing a subscription handle from `NostrRelayClient.subscribe(ReqMessage, ...)` (and so
   `RelaySubscription.close()`) now sends `["CLOSE", <id>]` to the relay, once, fire-and-forget.
