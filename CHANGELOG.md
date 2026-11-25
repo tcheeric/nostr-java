@@ -6,6 +6,10 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Fixed
+
+- Upgrade Testcontainers to 1.21.4 so Docker integration tests work with Docker Engine 29+ (minimum API 1.40) on ubuntu-26.04 runners.
+
 ## [2.4.3] - 2026-11-25
 
 ### Fixed
