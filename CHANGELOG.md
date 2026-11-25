@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.4] - 2026-11-25
+
 ### Changed
 - Performance: secp256k1 arithmetic in `Point` now runs on BouncyCastle's custom curve
   implementation instead of `BigInteger` affine double-and-add. `Schnorr.sign` drops from about

@@ -10,7 +10,7 @@ send a private direct message.
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>nostr-java-api</artifactId>
-    <version>2.4.3</version>
+    <version>2.4.4</version>
 </dependency>
 ```
 
