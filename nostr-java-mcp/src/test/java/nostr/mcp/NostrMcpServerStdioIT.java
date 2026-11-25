@@ -12,6 +12,9 @@ import io.modelcontextprotocol.spec.McpSchema.TextContent;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -270,6 +273,7 @@ class NostrMcpServerStdioIT {
         ServerParameters.builder("java")
             .args(
                 "-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY,
+                isolatedUserHome(),
                 "-cp",
                 runtimeClasspath(),
                 NostrMcpApplication.class.getName())
@@ -284,6 +288,7 @@ class NostrMcpServerStdioIT {
   private McpSyncClient launchServer(String... extraProperties) {
     List<String> arguments = new java.util.ArrayList<>();
     arguments.add("-Dnostr.mcp.relays.read=" + UNREACHABLE_RELAY);
+    arguments.add(isolatedUserHome());
     arguments.addAll(List.of(extraProperties));
     arguments.add("-cp");
     arguments.add(runtimeClasspath());
@@ -295,6 +300,18 @@ class NostrMcpServerStdioIT {
     return McpClient.sync(new StdioClientTransport(parameters, McpJsonDefaults.getMapper()))
         .requestTimeout(STARTUP_TIMEOUT)
         .build();
+  }
+
+  /**
+   * Points the server at an empty home directory, so identities the developer running the build
+   * has created (indexed under {@code ~/.nostr-java}) do not leak into what the server reports.
+   */
+  private String isolatedUserHome() {
+    try {
+      return "-Duser.home=" + Files.createTempDirectory("nostr-mcp-it-home");
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not create an isolated home directory", e);
+    }
   }
 
   /** The classpath this test is running with, which already contains the module and the SDK. */
