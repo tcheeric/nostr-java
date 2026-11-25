@@ -6,6 +6,23 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+### Changed
+- Performance: secp256k1 arithmetic in `Point` now runs on BouncyCastle's custom curve
+  implementation instead of `BigInteger` affine double-and-add. `Schnorr.sign` drops from about
+  30 ms to about 0.3 ms, `Schnorr.verify` from about 14 ms to about 0.15 ms and public key
+  derivation from about 6 ms to about 0.08 ms on the reference machine. Outputs are
+  byte-identical, checked against the BIP-340 test vectors.
+- Performance: `Schnorr.verify` computes `s*G - e*P` with one simultaneous two-scalar
+  multiplication (`Point.mulSum`), and `Schnorr.sign` reuses the public key point it already
+  holds in its self-check.
+- Performance: `EventSerializer` streams the NIP-01 array straight to a `JsonGenerator`
+  (byte-identical output), and `EventFilter.toPredicate()` evaluates in a single pass over hash
+  sets.
+
+### Fixed
+- `Schnorr.verify` now returns `false` instead of throwing a `NullPointerException` when the
+  verification point is the point at infinity.
+
 ## [2.4.3] - 2026-11-25
 
 ### Fixed
