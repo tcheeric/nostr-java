@@ -131,8 +131,8 @@ public class Schnorr {
     System.arraycopy(msg, 0, buf, 32 + pubkey.length, msg.length);
     BigInteger e =
         NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
-    Point R = Point.add(Point.mul(Point.getG(), s), Point.mul(P, Point.getn().subtract(e)));
-    return R != null && R.hasEvenY() && R.getX().compareTo(r) == 0;
+    Point R = Point.mulSum(Point.getG(), s, P, Point.getn().subtract(e));
+    return R != null && !R.isInfinite() && R.hasEvenY() && R.getX().compareTo(r) == 0;
   }
 
   /**

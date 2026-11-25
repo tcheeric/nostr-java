@@ -6,6 +6,7 @@ import nostr.util.NostrUtil;
 import java.math.BigInteger;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.math.ec.ECAlgorithms;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.FixedPointCombMultiplier;
@@ -127,6 +128,13 @@ public class Point {
     }
     ECPoint r = P.equals(G) ? G_MULTIPLIER.multiply(BC_G, n) : toBc(P).multiply(n);
     return fromBc(r);
+  }
+
+  /** Returns {@code a*P + b*Q} using a simultaneous two-scalar multiplication. */
+  public static Point mulSum(Point P, BigInteger a, Point Q, BigInteger b) {
+    ECPoint p1 = P.equals(G) ? BC_G : toBc(P);
+    ECPoint q1 = Q.equals(G) ? BC_G : toBc(Q);
+    return fromBc(ECAlgorithms.sumOfTwoMultiplies(p1, a, q1, b));
   }
 
   private static ECPoint toBc(Point P) {
