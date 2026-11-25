@@ -20,6 +20,7 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
   sets.
 
 ### Fixed
+- Upgrade Testcontainers to 1.21.4 so Docker integration tests work with Docker Engine 29+ (minimum API 1.40) on ubuntu-26.04 runners.
 - `Schnorr.verify` now returns `false` instead of throwing a `NullPointerException` when the
   verification point is the point at infinity.
 
