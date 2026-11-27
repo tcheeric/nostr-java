@@ -13,6 +13,8 @@ import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
 import org.bouncycastle.math.ec.ECAlgorithms;
 import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.FixedPointCombMultiplier;
+import org.bouncycastle.math.ec.FixedPointUtil;
 import org.bouncycastle.math.ec.WNafUtil;
 import java.math.BigInteger;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,11 +49,11 @@ public class Schnorr {
         && secKey0.compareTo(Point.getn().subtract(BigInteger.ONE)) <= 0)) {
       throw new SchnorrException("The secret key must be an integer in the range 1..n-1.");
     }
-    Point P = Point.mul(Point.getG(), secKey0);
-    if (!P.hasEvenY()) {
+    ECPoint P = COMB.multiply(BC_G, secKey0).normalize();
+    if (P.getAffineYCoord().testBitZero()) {
       secKey0 = Point.getn().subtract(secKey0);
     }
-    byte[] pBytes = P.toBytes();
+    byte[] pBytes = NostrUtil.bytesFromBigInteger(P.getAffineXCoord().toBigInteger());
     byte[] t = NostrUtil.xor(NostrUtil.bytesFromBigInteger(secKey0), taggedHashUnchecked("BIP0340/aux", auxRand));
 
     if (t == null) {
@@ -67,14 +69,9 @@ public class Schnorr {
     if (k0.compareTo(BigInteger.ZERO) == 0) {
       throw new SchnorrException("Failure. This happens only with negligible probability.");
     }
-    Point R = Point.mul(Point.getG(), k0);
-    BigInteger k;
-    if (!R.hasEvenY()) {
-      k = Point.getn().subtract(k0);
-    } else {
-      k = k0;
-    }
-    byte[] rBytes = R.toBytes();
+    ECPoint R = COMB.multiply(BC_G, k0).normalize();
+    BigInteger k = R.getAffineYCoord().testBitZero() ? Point.getn().subtract(k0) : k0;
+    byte[] rBytes = NostrUtil.bytesFromBigInteger(R.getAffineXCoord().toBigInteger());
     buf = new byte[rBytes.length + pBytes.length + msg.length];
     System.arraycopy(rBytes, 0, buf, 0, rBytes.length);
     System.arraycopy(pBytes, 0, buf, rBytes.length, pBytes.length);
@@ -125,6 +122,12 @@ public class Schnorr {
 
   private static final X9ECParameters BC = CustomNamedCurves.getByName("secp256k1");
   private static final ECPoint BC_G = BC.getG();
+  private static final FixedPointCombMultiplier COMB = new FixedPointCombMultiplier();
+
+  static {
+    FixedPointUtil.precompute(BC_G);
+  }
+
   private static final int LIFTED_CAPACITY = 1024;
   private static final ConcurrentHashMap<ByteKey, ECPoint> LIFTED = new ConcurrentHashMap<>();
 
@@ -236,8 +239,7 @@ public class Schnorr {
         && x.compareTo(Point.getn().subtract(BigInteger.ONE)) <= 0)) {
       throw new SchnorrException("The secret key must be an integer in the range 1..n-1.");
     }
-    Point ret = Point.mul(Point.G, x);
-    return Point.bytesFromPoint(ret);
+    return NostrUtil.bytesFromBigInteger(COMB.multiply(BC_G, x).normalize().getAffineXCoord().toBigInteger());
   }
 
   private static byte[] taggedHashUnchecked(String tag, byte[] msg) {
