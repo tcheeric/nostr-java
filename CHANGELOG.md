@@ -6,6 +6,16 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.5] - 2026-11-27
+
+### Changed
+- Performance: `Schnorr.verify` keeps a bounded cache (1024 entries) of lifted public keys,
+  configured with BouncyCastle's wider basepoint wNAF window, so repeat verifies under one key
+  reuse its multiplication tables. Verify drops about 31% (140 to 96 us) and `Schnorr.sign`
+  about 10% (its self-check goes through the same cache; sign and `genPubKey` also stay on
+  BouncyCastle points instead of round-tripping through `Point`). Outputs and verdicts are
+  unchanged, checked against a plain BigInteger transcription of the BIP-340 reference.
+
 ## [2.4.4] - 2026-11-25
 
 ### Changed
