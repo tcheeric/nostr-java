@@ -22,7 +22,10 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
-          cache: maven
+          # Only the JDK 21 job resolves the full dependency tree. Both jobs share one cache key,
+          # so letting the near-empty JDK 17 validate job save first left every cache at ~0 MB
+          # and made each build download from Maven Central (HTTP 429 rate limits).
+          cache: ${{ matrix.java-version == '21' && 'maven' || '' }}
 
       - name: Make release script executable
         run: chmod +x scripts/release.sh
