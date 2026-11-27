@@ -256,7 +256,7 @@
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
-                                <version>1.18.36</version>
+                                <version>1.18.48</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
@@ -444,7 +444,7 @@
                             <dependency>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
-                                <version>1.18.36</version>
+                                <version>1.18.48</version>
                             </dependency>
                         </dependencies>
                     </plugin>
