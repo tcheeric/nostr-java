@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog, and this project adheres to semantic
 
 ## [Unreleased]
 
+## [2.4.5] - 2026-11-27
+
 ### Changed
 - Performance: `Schnorr.verify` keeps a bounded cache (1024 entries) of lifted public keys,
   configured with BouncyCastle's wider basepoint wNAF window, so repeat verifies under one key
