@@ -9,7 +9,13 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.math.ec.ECAlgorithms;
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.WNafUtil;
 import java.math.BigInteger;
+import java.util.concurrent.ConcurrentHashMap;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -81,8 +87,8 @@ public class Schnorr {
     System.arraycopy(rBytes, 0, sig, 0, rBytes.length);
     System.arraycopy(kesBytes, 0, sig, rBytes.length, kesBytes.length);
     // The public key point is already known, so the self-check skips lifting it again.
-    Point pEven = P.hasEvenY() ? P : new Point(P.getX(), Point.getp().subtract(P.getY()));
-    if (!verify(msg, pBytes, pEven, sig)) {
+    ECPoint pEven = liftCached(pBytes);
+    if (pEven == null || !verify(msg, pBytes, pEven, sig)) {
       throw new SchnorrException("The signature does not pass verification.");
     }
     return sig;
@@ -110,14 +116,64 @@ public class Schnorr {
       throw new SchnorrException("The signature must be a 64-byte array.");
     }
 
-    Point P = Point.liftX(pubkey);
+    ECPoint P = liftCached(pubkey);
     if (P == null) {
       return false;
     }
     return verify(msg, pubkey, P, sig);
   }
 
-  private static boolean verify(byte[] msg, byte[] pubkey, Point P, byte[] sig)
+  private static final X9ECParameters BC = CustomNamedCurves.getByName("secp256k1");
+  private static final ECPoint BC_G = BC.getG();
+  private static final int LIFTED_CAPACITY = 1024;
+  private static final ConcurrentHashMap<ByteKey, ECPoint> LIFTED = new ConcurrentHashMap<>();
+
+  private record ByteKey(byte[] b) {
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof ByteKey k && Arrays.equals(b, k.b);
+    }
+
+    @Override
+    public int hashCode() {
+      return Arrays.hashCode(b);
+    }
+  }
+
+  /**
+   * The even-y point for an x-only key, or {@code null} if x is not on the curve.
+   *
+   * <p>Verifiers see few distinct keys, and BouncyCastle keeps its multiplication tables on the
+   * point object, so a cached point (configured with the wider basepoint wNAF window) keeps its
+   * tables across calls. Bounded; cleared wholesale when full, which is cheap and never wrong.
+   */
+  static ECPoint liftCached(byte[] x) {
+    ByteKey key = new ByteKey(x);
+    ECPoint cached = LIFTED.get(key);
+    if (cached != null) {
+      return cached;
+    }
+    if (new BigInteger(1, x).compareTo(Point.getp()) >= 0) {
+      return null;
+    }
+    byte[] enc = new byte[33];
+    enc[0] = 0x02;
+    System.arraycopy(x, 0, enc, 1, 32);
+    ECPoint point;
+    try {
+      point = BC.getCurve().decodePoint(enc);
+    } catch (IllegalArgumentException notOnCurve) {
+      return null;
+    }
+    WNafUtil.configureBasepoint(point);
+    if (LIFTED.size() >= LIFTED_CAPACITY) {
+      LIFTED.clear();
+    }
+    LIFTED.put(new ByteKey(x.clone()), point);
+    return point;
+  }
+
+  private static boolean verify(byte[] msg, byte[] pubkey, ECPoint P, byte[] sig)
       throws SchnorrException {
     BigInteger r = NostrUtil.bigIntFromBytes(Arrays.copyOfRange(sig, 0, 32));
     BigInteger s = NostrUtil.bigIntFromBytes(Arrays.copyOfRange(sig, 32, 64));
@@ -131,8 +187,10 @@ public class Schnorr {
     System.arraycopy(msg, 0, buf, 32 + pubkey.length, msg.length);
     BigInteger e =
         NostrUtil.bigIntFromBytes(taggedHashUnchecked("BIP0340/challenge", buf)).mod(Point.getn());
-    Point R = Point.mulSum(Point.getG(), s, P, Point.getn().subtract(e));
-    return R != null && !R.isInfinite() && R.hasEvenY() && R.getX().compareTo(r) == 0;
+    ECPoint R = ECAlgorithms.sumOfTwoMultiplies(BC_G, s, P, Point.getn().subtract(e)).normalize();
+    return !R.isInfinity()
+        && !R.getAffineYCoord().testBitZero()
+        && R.getAffineXCoord().toBigInteger().equals(r);
   }
 
   /**
